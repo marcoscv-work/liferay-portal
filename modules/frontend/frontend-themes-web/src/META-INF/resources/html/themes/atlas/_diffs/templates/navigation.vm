@@ -40,13 +40,8 @@
 			</li>
 		#end
 
-		#if (!$is_signed_in)
-			<li class="sign-in">
-				<a data-redirect="$is_login_redirect_required" href="$sign_in_url" id="sign-in" rel="nofollow">
-					<span aria-hidden="true" class="glyphicon glyphicon-user"></span>
-					$sign_in_text
-				</a>
-			</li>
-		#end
+		<li class="sign-in">
+			#user_personal_bar()
+		</li>
 	</ul>
 </nav>
