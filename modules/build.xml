@@ -12,6 +12,7 @@
 		<dirset dir="apps/calendar" includes="*" />
 		<dirset dir="apps/comments" includes="*" />
 		<dirset dir="apps/configuration-admin" includes="*" />
+		<dirset dir="apps/control-menu" includes="*" />
 		<dirset dir="apps/control-panel" includes="*" />
 		<dirset dir="apps/currency-converter" includes="*" />
 		<dirset dir="apps/dictionary" includes="*" />
@@ -45,6 +46,7 @@
 		<dirset dir="apps/portlet-display-template" includes="*" />
 		<dirset dir="apps/product-menu" includes="*" />
 		<dirset dir="apps/quick-note" includes="*" />
+		<dirset dir="apps/ratings" includes="*" />
 		<dirset dir="apps/roles" includes="*" />
 		<dirset dir="apps/rss" includes="*" />
 		<dirset dir="apps/search" includes="*" />

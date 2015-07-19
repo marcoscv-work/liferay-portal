@@ -474,7 +474,7 @@ public class ServicePreAction extends Action {
 					layout.getGroupId(), layout.isPrivateLayout(),
 					LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
 
-				if (!group.isControlPanel() && !group.isUserPersonalPanel()) {
+				if (!group.isControlPanel()) {
 					doAsGroupId = 0;
 				}
 			}
@@ -692,9 +692,7 @@ public class ServicePreAction extends Action {
 		long siteGroupId = 0;
 
 		if (layout != null) {
-			if (layout.isTypeControlPanel() ||
-				layout.isTypeUserPersonalPanel()) {
-
+			if (layout.isTypeControlPanel()) {
 				siteGroupId = PortalUtil.getSiteGroupId(scopeGroupId);
 			}
 			else {
@@ -710,8 +708,7 @@ public class ServicePreAction extends Action {
 		boolean wapTheme = BrowserSnifferUtil.isWap(request);
 
 		if ((layout != null) &&
-			(layout.isTypeControlPanel() || group.isControlPanel() ||
-			 group.isUserPersonalPanel())) {
+			(layout.isTypeControlPanel() || group.isControlPanel())) {
 
 			String themeId = PrefsPropsUtil.getString(
 				companyId, PropsKeys.CONTROL_PANEL_LAYOUT_REGULAR_THEME_ID);
@@ -1066,8 +1063,7 @@ public class ServicePreAction extends Action {
 				permissionChecker, scopeGroup, ActionKeys.VIEW_STAGING);
 
 			if (!group.isControlPanel() && !group.isUser() &&
-				!group.isUserGroup() && !group.isUserPersonalPanel() &&
-				hasUpdateGroupPermission) {
+				!group.isUserGroup() && hasUpdateGroupPermission) {
 
 				themeDisplay.setShowSiteSettingsIcon(true);
 			}
@@ -1085,7 +1081,7 @@ public class ServicePreAction extends Action {
 				themeDisplay.setURLPublishToLive(null);
 			}
 
-			if (group.isControlPanel() || group.isUserPersonalPanel()) {
+			if (group.isControlPanel()) {
 				themeDisplay.setShowPageSettingsIcon(false);
 				themeDisplay.setURLPublishToLive(null);
 			}

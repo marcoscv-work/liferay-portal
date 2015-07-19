@@ -20,31 +20,56 @@ $theme.include($body_top_include)
 
 #set ($scope_group = $theme_display.getScopeGroup())
 
-#if ($scope_group.isUserPersonalPanel() || ($control_panel_category != "my") || !$getterUtil.getBoolean($propsUtil.get("dockbar.administrative.links.show.in.pop.up")))
-	#dockbar()
-#end
+<div class="open sidenav-container" id="mySidenavContainerId">
+	<div class="sidenav-menu-slider">
+		<div class="product-menu sidebar sidebar-inverse sidenav-menu">
+			#product_menu()
+		</div>
+	</div>
 
-<div id="wrapper">
-	<div id="content-wrapper">
-		<div id="content">
-			#if ($selectable)
-				$theme.include($content_include)
-			#else
-				$portletDisplay.recycle()
+	<div class="sidenav-content">
+		#if (($control_panel_category != "my") || !$getterUtil.getBoolean($propsUtil.get("dockbar.administrative.links.show.in.pop.up")))
+			#dockbar()
+		#end
 
-				$portletDisplay.setTitle($the_title)
+		<div id="wrapper">
+			<div id="content-wrapper">
+				<div id="content">
+					#if ($selectable)
+						$theme.include($content_include)
+					#else
+						$portletDisplay.recycle()
 
-				$theme.wrapPortlet("portlet.vm", $content_include)
-			#end
+						$portletDisplay.setTitle($the_title)
 
-			<div class="clear"></div>
+						$theme.wrapPortlet("portlet.vm", $content_include)
+					#end
+
+					<div class="clear"></div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
 
+#if (($control_panel_category != "my") || !$getterUtil.getBoolean($propsUtil.get("dockbar.administrative.links.show.in.pop.up")))
+	#control_menu()
+#end
+
 $theme.include($body_bottom_include)
 
 $theme.include($bottom_include)
+
+<script>
+	AUI.$('#mySidenavContainerId').sideNavigation(
+		{
+			toggler: '#mySidenavToggleId',
+			type: 'fixed-push',
+			typeMobile: 'fixed',
+			width: '320px'
+		}
+	);
+</script>
 
 </body>
 

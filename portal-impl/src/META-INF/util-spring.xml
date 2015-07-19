@@ -157,6 +157,11 @@
 	<bean id="com.liferay.portal.kernel.jsonwebservice.JSONWebServiceActionsManagerUtil" class="com.liferay.portal.kernel.jsonwebservice.JSONWebServiceActionsManagerUtil">
 		<property name="JSONWebServiceActionsManager" ref="com.liferay.portal.kernel.jsonwebservice.JSONWebServiceActionsManager" />
 	</bean>
+	<bean id="com.liferay.portal.kernel.jsonwebservice.JSONWebServiceRegistratorFactory" class="com.liferay.portal.kernel.jsonwebservice.JSONWebServiceRegistratorFactory">
+		<property name="JSONWebServiceRegistratorBuilder">
+			<bean class="com.liferay.portal.jsonwebservice.DefaultJSONWebServiceRegistratorBuilder" />
+		</property>
+	</bean>
 	<bean id="com.liferay.portal.kernel.language.LanguageUtil" class="com.liferay.portal.kernel.language.LanguageUtil">
 		<property name="language">
 			<bean class="com.liferay.portal.language.LanguageImpl" />

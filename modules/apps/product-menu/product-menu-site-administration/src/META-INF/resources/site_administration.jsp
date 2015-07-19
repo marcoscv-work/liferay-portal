@@ -18,6 +18,21 @@
 
 <%
 PanelCategory panelCategory = (PanelCategory)request.getAttribute(ApplicationListWebKeys.PANEL_CATEGORY);
+
+boolean showSiteSelector = ParamUtil.getBoolean(request, "showSiteSelector");
 %>
 
-<application-list-ui:panel panelCategory="<%= panelCategory %>" />
+<c:choose>
+	<c:when test="<%= user.hasMySites() && showSiteSelector %>">
+		<liferay-util:include page="/sites_list.jsp" servletContext="<%= application %>" />
+	</c:when>
+	<c:otherwise>
+		<portlet:renderURL var="selectSiteURL">
+			<portlet:param name="showSiteSelector" value="<%= Boolean.TRUE.toString() %>" />
+		</portlet:renderURL>
+
+		<aui:a href="<%= selectSiteURL.toString() %>" cssClass="icon-arrow-left" label="<%= themeDisplay.getScopeGroupName() %>" />
+
+		<application-list-ui:panel panelCategory="<%= panelCategory %>" />
+	</c:otherwise>
+</c:choose>
