@@ -89,8 +89,20 @@ ${languageUtil.format(locale, key, arguments)}</#macro>
 	${theme.runtime("com.liferay.portal.kernel.servlet.taglib.ui.LanguageEntry", portletProviderAction.VIEW)}
 </#macro>
 
-<#macro navigation_menu>
-	${theme.runtime("com.liferay.portal.theme.NavItem", portletProviderAction.VIEW)}
+<#macro navigation_menu
+	displayStyle = ""
+	displayStyleGroupId = ""
+>
+	<#if displayStyle?has_content && displayStyleGroupId?has_content>
+		${freeMarkerPortletPreferences.setValue("displayStyle", "ddmTemplate_" + displayStyle)}
+		${freeMarkerPortletPreferences.setValue("displayStyleGroupId", displayStyleGroupId)}
+	    <h1>${freeMarkerPortletPreferences.toString()}</h1>
+	    ${theme.runtime('com_liferay_site_navigation_menu_web_portlet_NavigationMenuPortlet', '', freeMarkerPortletPreferences.toString())}
+
+		${freeMarkerPortletPreferences.reset()}
+	<#else>
+		${theme.runtime("com.liferay.portal.theme.NavItem", portletProviderAction.VIEW)}
+	</#if>
 </#macro>
 
 <#macro product_menu>

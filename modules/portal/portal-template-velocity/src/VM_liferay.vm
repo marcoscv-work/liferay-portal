@@ -49,8 +49,17 @@ $languageUtil.format($locale, $lang_key, $arguments.toArray())#end
 	$menu_tag.runTag()
 #end
 
-#macro (navigation_menu)
-	$theme.runtime("com.liferay.portal.theme.NavItem", $portletProviderAction.VIEW)
+#macro (navigation_menu $displayStyle $displayStyleGroupId)
+	#if (!$displayStyle && !$displayStyleGroupId)
+		#set ($VOID = $velocityPortletPreferences.setValue('displayStyle', 'ddmTemplate_$displayStyle'))
+		#set ($VOID = $velocityPortletPreferences.setValue('displayStyleGroupId', '$displayStyleGroupId'))
+
+		$theme.runtime('com_liferay_site_navigation_menu_web_portlet_NavigationMenuPortlet', '', $velocityPortletPreferences.toString())
+
+		#set ($VOID = $velocityPortletPreferences.reset())
+	#else
+		$theme.runtime("com.liferay.portal.theme.NavItem", $portletProviderAction.VIEW)
+	#end
 #end
 
 #macro (product_menu)
