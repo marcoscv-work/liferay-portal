@@ -19,7 +19,7 @@
 <%
 PanelCategory panelCategory = (PanelCategory)request.getAttribute(ApplicationListWebKeys.PANEL_CATEGORY);
 
-Group group = themeDisplay.getScopeGroup();
+Group group = themeDisplay.getSiteGroup();
 %>
 
 <div class="toolbar">
@@ -27,7 +27,20 @@ Group group = themeDisplay.getScopeGroup();
 		<a class="icon-angle-left icon-monospaced" href="javascript:;" id="<portlet:namespace />allSitesLink"></a>
 	</div>
 	<div class="toolbar-group-content">
-		<%= group.getDescriptiveName(locale) %>
+		<aui:a href="<%= group.getDisplayURL(themeDisplay) %>">
+			<%= group.getDescriptiveName(locale) %>
+
+			<c:if test="<%= themeDisplay.isShowStagingIcon() %>">
+				<c:choose>
+					<c:when test="<%= group.isStagingGroup() %>">
+						(<liferay-ui:message key="staging" />)
+					</c:when>
+					<c:when test="<%= group.hasStagingGroup() %>">
+						(<liferay-ui:message key="live" />)
+					</c:when>
+				</c:choose>
+			</c:if>
+		</aui:a>
 	</div>
 
 	<c:if test="<%= themeDisplay.isShowStagingIcon() %>">
@@ -35,51 +48,38 @@ Group group = themeDisplay.getScopeGroup();
 		<%
 		String stagingGroupURL = null;
 
-		if (group.hasStagingGroup()) {
+		if (!group.isStagedRemotely() && group.hasStagingGroup()) {
 			Group stagingGroup = StagingUtil.getStagingGroup(group.getGroupId());
 
 			if (stagingGroup != null) {
-				LayoutSet layoutSet = themeDisplay.getLayoutSet();
-
-				if (layoutSet.isPrivateLayout()) {
-					layoutSet = stagingGroup.getPrivateLayoutSet();
-				}
-				else {
-					layoutSet = stagingGroup.getPublicLayoutSet();
-				}
-
-				stagingGroupURL = PortalUtil.getGroupFriendlyURL(layoutSet, themeDisplay);
+				stagingGroupURL = stagingGroup.getDisplayURL(themeDisplay);
 			}
 		}
 		%>
 
-		<div class="toolbar-group-field">
-			<aui:a cssClass="icon-fb-radio icon-monospaced" href="<%= stagingGroupURL %>" title="staging"></aui:a>
+		<div class="<%= stagingGroupURL == null ? "active" : StringPool.BLANK %> toolbar-group-field">
+			<aui:a cssClass="icon-fb-radio icon-monospaced" href="<%= stagingGroupURL %>" title="staging" />
 		</div>
 
 		<%
 		String liveGroupURL = null;
 
 		if (group.isStagingGroup()) {
-			Group liveGroup = StagingUtil.getLiveGroup(group.getGroupId());
+			if (group.isStagedRemotely()) {
+				liveGroupURL = StagingUtil.buildRemoteURL(group.getTypeSettingsProperties());
+			}
+			else {
+				Group liveGroup = StagingUtil.getLiveGroup(group.getGroupId());
 
-			if (liveGroup != null) {
-				LayoutSet layoutSet = themeDisplay.getLayoutSet();
-
-				if (layoutSet.isPrivateLayout()) {
-					layoutSet = liveGroup.getPrivateLayoutSet();
+				if (liveGroup != null) {
+					liveGroupURL = liveGroup.getDisplayURL(themeDisplay);
 				}
-				else {
-					layoutSet = liveGroup.getPublicLayoutSet();
-				}
-
-				liveGroupURL = PortalUtil.getGroupFriendlyURL(layoutSet, themeDisplay);
 			}
 		}
 		%>
 
-		<div class="toolbar-group-field">
-			<aui:a cssClass="icon-circle-blank icon-monospaced" href="<%= liveGroupURL %>" title="live"></aui:a>
+		<div class="<%= liveGroupURL == null ? "active" : StringPool.BLANK %> toolbar-group-field">
+			<aui:a cssClass="icon-circle-blank icon-monospaced" href="<%= liveGroupURL %>" title="live" />
 		</div>
 	</c:if>
 </div>
@@ -90,7 +90,7 @@ Group group = themeDisplay.getScopeGroup();
 	$('#<portlet:namespace />allSitesLink').on(
 		'click',
 		function(event) {
-			$('#<portlet:namespace />all_sitesTabLink').tab('show');
+			$('#<portlet:namespace /><%= PanelCategoryKeys.SITES_ALL_SITES %>TabLink').tab('show');
 		}
 	);
 </aui:script>

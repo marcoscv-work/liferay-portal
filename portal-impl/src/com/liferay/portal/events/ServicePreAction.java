@@ -983,8 +983,6 @@ public class ServicePreAction extends Action {
 
 		themeDisplay.setURLSiteAdministration(siteAdministrationURL);
 
-		long controlPanelPlid = PortalUtil.getControlPanelPlid(companyId);
-
 		if (layout != null) {
 			if (layout.isTypePortlet()) {
 				boolean freeformLayout =
@@ -1184,12 +1182,6 @@ public class ServicePreAction extends Action {
 		themeDisplay.setURLSignIn(urlSignIn);
 
 		themeDisplay.setURLSignOut(mainPath.concat(_PATH_PORTAL_LOGOUT));
-
-		PortletURL updateManagerURL = new PortletURLImpl(
-			request, PortletKeys.MARKETPLACE_STORE, controlPanelPlid,
-			PortletRequest.RENDER_PHASE);
-
-		themeDisplay.setURLUpdateManager(updateManagerURL);
 
 		return themeDisplay;
 	}
@@ -2057,9 +2049,10 @@ public class ServicePreAction extends Action {
 							Portlet firstPortlet = categoryPortlets.get(0);
 
 							PortletURL redirectURL =
-								PortalUtil.getSiteAdministrationURL(
-									request, themeDisplay,
-									firstPortlet.getPortletId());
+								PortalUtil.getControlPanelPortletURL(
+									request, themeDisplay.getScopeGroup(),
+									firstPortlet.getPortletId(), 0,
+									PortletRequest.RENDER_PHASE);
 
 							response.sendRedirect(redirectURL.toString());
 						}
