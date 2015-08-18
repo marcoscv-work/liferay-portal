@@ -39,7 +39,13 @@ if (user.isSetupComplete() || themeDisplay.isImpersonated()) {
 
 <c:if test="<%= !layout.isTypeControlPanel() && !group.isControlPanel() && userSetupComplete %>">
 	<div class="control-menu">
-		<div class="control-menu-level-2"></div>
+		<div class="control-menu-level-2">
+			<div class="container-fluid-1280">
+				<ul class="control-menu-nav" data-namespace="<portlet:namespace />" id="<portlet:namespace />stagingMenu">
+					<liferay-portlet:runtime portletName="<%= PortletKeys.STAGING_BAR %>" />
+				</ul>
+			</div>
+		</div>
 
 		<div class="control-menu-level-1">
 			<div class="container-fluid-1280">
@@ -158,20 +164,6 @@ if (user.isSetupComplete() || themeDisplay.isImpersonated()) {
 								linkCssClass="control-menu-icon"
 								url="javascript:;"
 							/>
-
-							<liferay-util:buffer var="stagingContent">
-								<liferay-portlet:runtime portletName="<%= PortletKeys.STAGING_BAR %>" />
-							</liferay-util:buffer>
-
-							<aui:script sandbox="<%= true %>">
-								$('#<portlet:namespace />stagingBarButton').popover(
-									{
-										content: '<%= HtmlUtil.escapeJS(stagingContent) %>',
-										html: true,
-										placement: 'top'
-									}
-								);
-							</aui:script>
 						</li>
 					</c:if>
 
