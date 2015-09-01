@@ -20,10 +20,11 @@
 	cssClass="portlet-options"
 	direction="<%= direction %>"
 	extended="<%= false %>"
-	icon="../aui/cog"
+	icon="../aui/ellipsis-vertical"
 	message="options"
-	showArrow="<%= showArrow %>"
+	showArrow="<%= false %>"
 	showWhenSingleIcon="<%= true %>"
+	triggerCssClass="icon-monospaced"
 	view="<%= view %>"
 >
 
