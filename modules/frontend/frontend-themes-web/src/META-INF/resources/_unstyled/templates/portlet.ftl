@@ -9,6 +9,10 @@
 
 <#assign portlet_toolbar = portlet_display.getPortletToolbar() />
 
+<#if (!portlet_display.isPortletDecorate())
+	<div class="hide-portlet-borders">
+</#if>
+
 <section class="portlet" id="portlet_${portlet_id}">
 	<header class="portlet-topper">
 		<div class="portlet-title-default">
@@ -36,3 +40,7 @@
 		${portlet_display.writeContent(writer)}
 	</div>
 </section>
+
+<#if (!portlet_display.isPortletDecorate())
+	</div>
+</#if>
