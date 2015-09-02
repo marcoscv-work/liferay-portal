@@ -269,9 +269,7 @@ public class CompileThemeTask extends DefaultTask {
 		if (themeParent.equals("_styled")) {
 			copyThemeParentStyled();
 		}
-		else if (themeParent.equals("classic") ||
-				 themeParent.equals("control_panel")) {
-
+		else if (themeParent.equals("admin") || themeParent.equals("classic")) {
 			copyThemeParentPortal();
 		}
 		else if (!themeParent.equals("_unstyled")) {
@@ -326,13 +324,16 @@ public class CompileThemeTask extends DefaultTask {
 
 	protected void copyThemeParentStyled() {
 		copyPortalThemeDir(
-			"_styled", new String[] {"npm-debug.log", "package.json"}, "**");
+			"_styled",
+			new String[] {"**/*.css", "npm-debug.log", "package.json"}, "**");
 	}
 
 	protected void copyThemeParentUnstyled() {
 		copyPortalThemeDir(
 			"_unstyled",
-			new String[] {"npm-debug.log", "package.json", "templates/**"},
+			new String[] {
+				"**/*.css", "npm-debug.log", "package.json", "templates/**"
+			},
 			"**");
 
 		Set<String> themeTypes = getThemeTypes();
@@ -349,7 +350,7 @@ public class CompileThemeTask extends DefaultTask {
 	}
 
 	private static final String[] _PORTAL_THEMES = {
-		"_styled", "_unstyled", "classic", "control_panel"
+		"_styled", "_unstyled", "admin", "classic"
 	};
 
 	private static final String[] _THEME_DIR_NAMES = {
