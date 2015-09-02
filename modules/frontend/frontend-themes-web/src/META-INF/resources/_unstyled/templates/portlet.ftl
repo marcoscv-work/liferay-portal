@@ -3,16 +3,21 @@
 <#assign portlet_display = portletDisplay />
 
 <#assign portlet_id = htmlUtil.escapeAttribute(portlet_display.getId()) />
+<#assign portlet_name = htmlUtil.escape(portalUtil.getPortletTitle(renderRequest)) />
 <#assign portlet_title = htmlUtil.escape(portlet_display.getTitle()) />
 <#assign portlet_back_url = htmlUtil.escapeHREF(portlet_display.getURLBack()) />
 
 <#assign portlet_toolbar = portlet_display.getPortletToolbar() />
 
+<#if (!portlet_display.isPortletDecorate())
+	<div class="hide-portlet-borders">
+</#if>
+
 <section class="portlet" id="portlet_${portlet_id}">
 	<header class="portlet-topper">
-		<h1 class="portlet-title">
-			<span class="portlet-title-text">${portlet_title}</span>
-		</h1>
+		<div class="portlet-title-default">
+			<span class="portlet-name-text">${portlet_name}</span>
+		</div>
 
 		<#list portlet_toolbar.getPortletTitleMenus(portlet_id, renderRequest) as portletTitleMenu>
 			<menu class="portlet-title-menu portlet-topper-toolbar" id="portlet-title-menu_${portlet_id}_${portletTitleMenu_index + 1}" type="toolbar">
@@ -30,6 +35,12 @@
 	</header>
 
 	<div class="portlet-content">
+		<h2 class="portlet-title-text">${portlet_title}</h2>
+
 		${portlet_display.writeContent(writer)}
 	</div>
 </section>
+
+<#if (!portlet_display.isPortletDecorate())
+	</div>
+</#if>

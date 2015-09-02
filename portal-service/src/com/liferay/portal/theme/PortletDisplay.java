@@ -16,11 +16,10 @@ package com.liferay.portal.theme;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.module.configuration.ConfigurationException;
+import com.liferay.portal.kernel.module.configuration.ConfigurationFactoryUtil;
 import com.liferay.portal.kernel.portlet.toolbar.PortletToolbar;
 import com.liferay.portal.kernel.settings.PortletInstanceSettingsLocator;
-import com.liferay.portal.kernel.settings.SettingsException;
-import com.liferay.portal.kernel.settings.SettingsFactory;
-import com.liferay.portal.kernel.settings.SettingsFactoryUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -59,6 +58,7 @@ public class PortletDisplay implements Serializable {
 		_controlPanelCategory = master.getControlPanelCategory();
 		_customCSSClassName = master.getCustomCSSClassName();
 		_description = master.getDescription();
+		_freeformPortlet = master.isFreeformPortlet();
 		_id = master.getId();
 		_instanceId = master.getInstanceId();
 		_modeAbout = master.isModeAbout();
@@ -71,6 +71,7 @@ public class PortletDisplay implements Serializable {
 		_modePrint = master.isModePrint();
 		_modeView = master.isModeView();
 		_namespace = master.getNamespace();
+		_portletDecorate = master.isPortletDecorate();
 		_portletName = master.getPortletName();
 		_portletSetup = master.getPortletSetup();
 		_portletToolbar = master.getPortletToolbar();
@@ -127,6 +128,7 @@ public class PortletDisplay implements Serializable {
 		slave.setControlPanelCategory(_controlPanelCategory);
 		slave.setCustomCSSClassName(_customCSSClassName);
 		slave.setDescription(_description);
+		slave.setFreeformPortlet(_freeformPortlet);
 		slave.setId(_id);
 		slave.setInstanceId(_instanceId);
 		slave.setModeAbout(_modeAbout);
@@ -139,6 +141,7 @@ public class PortletDisplay implements Serializable {
 		slave.setModePrint(_modePrint);
 		slave.setModeView(_modeView);
 		slave.setNamespace(_namespace);
+		slave.setPortletDecorate(_portletDecorate);
 		slave.setPortletName(_portletName);
 		slave.setPortletResource(_portletResource);
 		slave.setPortletSetup(_portletSetup);
@@ -238,15 +241,12 @@ public class PortletDisplay implements Serializable {
 	}
 
 	public <T> T getPortletInstanceConfiguration(Class<T> clazz)
-		throws SettingsException {
-
-		SettingsFactory settingsFactory =
-			SettingsFactoryUtil.getSettingsFactory();
+		throws ConfigurationException {
 
 		String portletId = Validator.isNull(
 			_portletResource) ? _id : _portletResource;
 
-		return settingsFactory.getSettings(
+		return ConfigurationFactoryUtil.getConfiguration(
 			clazz,
 			new PortletInstanceSettingsLocator(
 				_themeDisplay.getLayout(), portletId));
@@ -364,6 +364,10 @@ public class PortletDisplay implements Serializable {
 		return _id.equals(_themeDisplay.getPpid());
 	}
 
+	public boolean isFreeformPortlet() {
+		return _freeformPortlet;
+	}
+
 	public boolean isModeAbout() {
 		return _modeAbout;
 	}
@@ -398,6 +402,10 @@ public class PortletDisplay implements Serializable {
 
 	public boolean isModeView() {
 		return _modeView;
+	}
+
+	public boolean isPortletDecorate() {
+		return _portletDecorate;
 	}
 
 	public boolean isRestoreCurrentView() {
@@ -517,6 +525,7 @@ public class PortletDisplay implements Serializable {
 		_modePrint = false;
 		_modeView = false;
 		_namespace = StringPool.BLANK;
+		_portletDecorate = false;
 		_portletName = StringPool.BLANK;
 		_portletSetup = null;
 		_resourcePK = StringPool.BLANK;
@@ -607,6 +616,10 @@ public class PortletDisplay implements Serializable {
 		_description = description;
 	}
 
+	public void setFreeformPortlet(boolean freeformPortlet) {
+		_freeformPortlet = freeformPortlet;
+	}
+
 	public void setId(String id) {
 		_id = id;
 	}
@@ -653,6 +666,10 @@ public class PortletDisplay implements Serializable {
 
 	public void setNamespace(String namespace) {
 		_namespace = namespace;
+	}
+
+	public void setPortletDecorate(boolean portletDecorate) {
+		_portletDecorate = portletDecorate;
 	}
 
 	public void setPortletName(String portletName) {
@@ -866,6 +883,7 @@ public class PortletDisplay implements Serializable {
 	private String _controlPanelCategory = StringPool.BLANK;
 	private String _customCSSClassName = StringPool.BLANK;
 	private String _description = StringPool.BLANK;
+	private boolean _freeformPortlet;
 	private String _id = StringPool.BLANK;
 	private String _instanceId = StringPool.BLANK;
 	private boolean _modeAbout;
@@ -878,6 +896,7 @@ public class PortletDisplay implements Serializable {
 	private boolean _modePrint;
 	private boolean _modeView;
 	private String _namespace = StringPool.BLANK;
+	private boolean _portletDecorate;
 	private String _portletName = StringPool.BLANK;
 	private String _portletResource = StringPool.BLANK;
 	private PortletPreferences _portletSetup;

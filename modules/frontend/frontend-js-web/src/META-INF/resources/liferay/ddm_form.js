@@ -27,7 +27,8 @@ AUI.add(
 			return node && (node._node || node.nodeType);
 		};
 
-		var DDMPortletSupport = function() {};
+		var DDMPortletSupport = function() {
+		};
 
 		DDMPortletSupport.ATTRS = {
 			doAsGroupId: {
@@ -43,7 +44,8 @@ AUI.add(
 			}
 		};
 
-		var FieldsSupport = function() {};
+		var FieldsSupport = function() {
+		};
 
 		FieldsSupport.ATTRS = {
 			container: {
@@ -767,6 +769,7 @@ AUI.add(
 						value: ['*']
 					}
 				},
+
 				EXTENDS: Field,
 
 				prototype: {
@@ -776,61 +779,6 @@ AUI.add(
 						var container = instance.get('container');
 
 						container.delegate('click', instance._handleButtonsClick, '.btn', instance);
-
-						instance.uploader = new A.Uploader(
-							{
-								after: {
-									fileselect: function(event) {
-										instance.setPercentUploaded(0);
-
-										if (instance.notice) {
-											instance.notice.hide();
-										}
-
-										instance.uploader.uploadAll();
-									}
-								},
-								appendNewFiles: false,
-								dragAndDropArea: '#' + instance.getInputName() + 'Title',
-								fileFieldName: 'file',
-								fileFilters: instance.get('acceptedFileFormats'),
-								on: {
-									uploadcomplete: function(event) {
-										try {
-											var data = JSON.parse(event.data);
-
-											if (data.status) {
-												instance.showNotice(data.message);
-
-												instance.setPercentUploaded(0);
-											}
-											else {
-												data.tempFile = true;
-
-												instance.setValue(data);
-
-												instance.setPercentUploaded(100);
-											}
-										}
-										catch (e) {
-											instance.showNotice(Liferay.Language.get('an-unexpected-error-occurred'));
-
-											instance.setPercentUploaded(0);
-										}
-									},
-									uploaderror: function(event) {
-										instance.showNotice(Liferay.Language.get('an-unexpected-error-occurred'));
-
-										instance.setPercentUploaded(0);
-									},
-									uploadprogress: function(event) {
-										instance.setPercentUploaded(event.percentLoaded);
-									}
-								},
-								uploadURL: instance.getUploadURL(),
-								withCredentials: false
-							}
-						).render('#' + instance.getInputName() + 'UploadContainer');
 					},
 
 					syncUI: function() {
@@ -840,95 +788,43 @@ AUI.add(
 
 						var titleNode = A.one('#' + instance.getInputName() + 'Title');
 
-						titleNode.val(parsedValue.title || Liferay.Language.get('drag-file-here'));
+						titleNode.val(parsedValue.title || '');
 
 						var clearButtonNode = A.one('#' + instance.getInputName() + 'ClearButton');
 
 						clearButtonNode.toggle(!!parsedValue.uuid);
 					},
 
-					_handleButtonsClick: function(event) {
+					getDocumentLibrarySelectorURL: function() {
 						var instance = this;
 
-						var currentTarget = event.currentTarget;
-
-						if (currentTarget.test('.select-button')) {
-							instance._handleSelectButtonClick(event);
-						}
-						else if (currentTarget.test('.upload-button')) {
-							instance._handleUploadButtonClick(event);
-						}
-						else if (currentTarget.test('.clear-button')) {
-							instance._handleClearButtonClick(event);
-						}
+						return instance.getDocumentLibraryURL('com.liferay.item.selector.criteria.file.criterion.FileItemSelectorCriterion');
 					},
 
-					_handleClearButtonClick: function(event) {
-						var instance = this;
-
-						instance.setValue('');
-
-						instance.uploader.set('fileList', []);
-
-						instance.setPercentUploaded(0);
-					},
-
-					_handleSelectButtonClick: function(event) {
-						var instance = this;
-
-						var portletNamespace = instance.get('portletNamespace');
-
-						instance.setPercentUploaded(0);
-
-						var itemSelectorDialog = new A.LiferayItemSelectorDialog(
-							{
-								eventName: portletNamespace + 'selectDocumentLibrary',
-								on: {
-									selectedItemChange: function(event) {
-										var selectedItem = event.newVal;
-
-										if (selectedItem) {
-											var itemValue = JSON.parse(selectedItem.value);
-
-											instance.setValue(
-												{
-													groupId: itemValue.groupId,
-													title: itemValue.title,
-													uuid: itemValue.uuid
-												}
-											);
-										}
-									}
-								},
-								url: instance.getDocumentLibraryURL()
-							}
-						);
-
-						itemSelectorDialog.open();
-					},
-
-					_handleUploadButtonClick: function(event) {
-						var instance = this;
-
-						instance.uploader.openFileSelectDialog();
-					},
-
-					getDocumentLibraryURL: function() {
+					getDocumentLibraryURL: function(criteria) {
 						var instance = this;
 
 						var portletNamespace = instance.get('portletNamespace');
 
 						var portletURL = Liferay.PortletURL.createRenderURL();
 
-						portletURL.setParameter('criteria', 'com.liferay.item.selector.criteria.image.criterion.ImageItemSelectorCriterion');
+						portletURL.setParameter('criteria', criteria);
 						portletURL.setParameter('itemSelectedEventName', portletNamespace + 'selectDocumentLibrary');
 						portletURL.setParameter('repositoryId', instance.get('doAsGroupId'));
 
 						var criterionJSON = {
-							desiredItemSelectorReturnTypes: 'com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType'
+							desiredItemSelectorReturnTypes: 'com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType,com.liferay.item.selector.criteria.UploadableFileReturnType'
 						};
 
 						portletURL.setParameter('0_json', JSON.stringify(criterionJSON));
+						portletURL.setParameter('1_json', JSON.stringify(criterionJSON));
+
+						var uploadCriterionJSON = {
+							desiredItemSelectorReturnTypes: 'com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType,com.liferay.item.selector.criteria.UploadableFileReturnType',
+							URL: instance.getUploadURL()
+						};
+
+						portletURL.setParameter('2_json', JSON.stringify(uploadCriterionJSON));
 
 						portletURL.setPortletId(Liferay.PortletKeys.ITEM_SELECTOR);
 						portletURL.setPortletMode('view');
@@ -967,19 +863,6 @@ AUI.add(
 						return portletURL.toString();
 					},
 
-					setPercentUploaded: function(value) {
-						var instance = this;
-
-						var progressContainerNode = A.one('#' + instance.getInputName() + 'Progress');
-
-						progressContainerNode.toggle(value > 0);
-
-						var progressBarNode = progressContainerNode.one('.progress-bar');
-
-						progressBarNode.attr('aria-valuenow', value);
-						progressBarNode.setStyle('width', value + '%');
-					},
-
 					setValue: function(value) {
 						var instance = this;
 
@@ -1011,6 +894,58 @@ AUI.add(
 
 						instance.notice.html(message);
 						instance.notice.show();
+					},
+
+					_handleButtonsClick: function(event) {
+						var instance = this;
+
+						var currentTarget = event.currentTarget;
+
+						if (currentTarget.test('.select-button')) {
+							instance._handleSelectButtonClick(event);
+						}
+						else if (currentTarget.test('.clear-button')) {
+							instance._handleClearButtonClick(event);
+						}
+					},
+
+					_handleClearButtonClick: function(event) {
+						var instance = this;
+
+						instance.setValue('');
+
+					},
+
+					_handleSelectButtonClick: function(event) {
+						var instance = this;
+
+						var portletNamespace = instance.get('portletNamespace');
+
+						var itemSelectorDialog = new A.LiferayItemSelectorDialog(
+							{
+								eventName: portletNamespace + 'selectDocumentLibrary',
+								on: {
+									selectedItemChange: function(event) {
+										var selectedItem = event.newVal;
+
+										if (selectedItem) {
+											var itemValue = JSON.parse(selectedItem.value);
+
+											instance.setValue(
+												{
+													groupId: itemValue.groupId,
+													title: itemValue.title,
+													uuid: itemValue.uuid
+												}
+											);
+										}
+									}
+								},
+								url: instance.getDocumentLibrarySelectorURL()
+							}
+						);
+
+						itemSelectorDialog.open();
 					}
 				}
 			}
@@ -1044,13 +979,11 @@ AUI.add(
 
 						if (notEmpty) {
 							altNode.val(parsedValue.alt || '');
-
 							titleNode.val(parsedValue.title || '');
 						}
 						else {
 							altNode.val('');
-
-							titleNode.val(Liferay.Language.get('drag-file-here'));
+							titleNode.val('');
 						}
 
 						var clearButtonNode = A.one('#' + instance.getInputName() + 'ClearButton');
@@ -1060,6 +993,62 @@ AUI.add(
 						var previewButtonNode = A.one('#' + instance.getInputName() + 'PreviewButton');
 
 						previewButtonNode.toggle(notEmpty);
+					},
+
+					getDocumentLibrarySelectorURL: function() {
+						var instance = this;
+
+						return instance.getDocumentLibraryURL('com.liferay.item.selector.criteria.image.criterion.ImageItemSelectorCriterion');
+					},
+
+					getValue: function() {
+						var instance = this;
+
+						var value;
+
+						var parsedValue = instance.getParsedValue(ImageField.superclass.getValue.apply(instance, arguments));
+
+						if (instance.isNotEmpty(parsedValue)) {
+							var altNode = A.one('#' + instance.getInputName() + 'Alt');
+
+							parsedValue.alt = altNode.val();
+
+							value = JSON.stringify(parsedValue);
+						}
+						else {
+							value = '';
+						}
+
+						return value;
+					},
+
+					isNotEmpty: function(value) {
+						var instance = this;
+
+						var parsedValue = instance.getParsedValue(value);
+
+						return parsedValue.hasOwnProperty('data') && parsedValue.data !== '' || parsedValue.hasOwnProperty('uuid');
+					},
+
+					setValue: function(value) {
+						var instance = this;
+
+						var parsedValue = instance.getParsedValue(value);
+
+						if (instance.isNotEmpty(parsedValue)) {
+							if (!parsedValue.name && parsedValue.title) {
+								parsedValue.name = parsedValue.title;
+							}
+
+							value = JSON.stringify(parsedValue);
+						}
+						else {
+							value = '';
+						}
+
+						DocumentLibraryField.superclass.setValue.call(instance, value);
+
+						instance.syncUI();
 					},
 
 					_getImagePreviewURL: function() {
@@ -1122,62 +1111,6 @@ AUI.add(
 						instance.viewer.set('links', previewLinkNode);
 
 						instance.viewer.show();
-					},
-
-					getDocumentLibraryURL: function() {
-						var instance = this;
-
-						return ImageField.superclass.getDocumentLibraryURL.apply(instance, arguments);
-					},
-
-					getValue: function() {
-						var instance = this;
-
-						var value;
-
-						var parsedValue = instance.getParsedValue(ImageField.superclass.getValue.apply(instance, arguments));
-
-						if (instance.isNotEmpty(parsedValue)) {
-							var altNode = A.one('#' + instance.getInputName() + 'Alt');
-
-							parsedValue.alt = altNode.val();
-
-							value = JSON.stringify(parsedValue);
-						}
-						else {
-							value = '';
-						}
-
-						return value;
-					},
-
-					isNotEmpty: function(value) {
-						var instance = this;
-
-						var parsedValue = instance.getParsedValue(value);
-
-						return parsedValue.hasOwnProperty('data') && parsedValue.data !== '' || parsedValue.hasOwnProperty('uuid');
-					},
-
-					setValue: function(value) {
-						var instance = this;
-
-						var parsedValue = instance.getParsedValue(value);
-
-						if (instance.isNotEmpty(parsedValue)) {
-							if (!parsedValue.name && parsedValue.title) {
-								parsedValue.name = parsedValue.title;
-							}
-
-							value = JSON.stringify(parsedValue);
-						}
-						else {
-							value = '';
-						}
-
-						DocumentLibraryField.superclass.setValue.call(instance, value);
-
-						instance.syncUI();
 					}
 				}
 			}
@@ -1477,6 +1410,71 @@ AUI.add(
 						instance.eventHandlers = null;
 					},
 
+					moveField: function(parentField, oldIndex, newIndex) {
+						var instance = this;
+
+						var fields = parentField.get('fields');
+
+						fields.splice(newIndex, 0, fields.splice(oldIndex, 1)[0]);
+					},
+
+					registerRepeatable: function(field) {
+						var instance = this;
+
+						var fieldName = field.get('name');
+
+						var repeatableInstance = instance.repeatableInstances[fieldName];
+
+						if (!repeatableInstance) {
+							repeatableInstance = new A.SortableList(
+								{
+									dropOn: field.get('container').get('parentNode'),
+									helper: A.Node.create(TPL_REPEATABLE_HELPER),
+									nodes: '[data-fieldName=' + fieldName + ']',
+									placeholder: A.Node.create(TPL_REPEATABLE_PLACEHOLDER),
+									sortCondition: function(event) {
+										var dropNode = event.drop.get('node');
+
+										return dropNode.getData('fieldName') === fieldName;
+									}
+								}
+							);
+
+							repeatableInstance.after('drag:end', A.rbind(instance._afterRepeatableDragEnd, instance, field.get('parent')));
+
+							instance.repeatableInstances[fieldName] = repeatableInstance;
+						}
+						else {
+							repeatableInstance.add(field.get('container'));
+						}
+					},
+
+					toJSON: function() {
+						var instance = this;
+
+						var translationManager = instance.get('translationManager');
+
+						return {
+							availableLanguageIds: translationManager.get('availableLocales'),
+							defaultLanguageId: translationManager.get('defaultLocale'),
+							fieldValues: AArray.invoke(instance.get('fields'), 'toJSON')
+						};
+					},
+
+					unregisterRepeatable: function(field) {
+						var instance = this;
+
+						field.get('container').dd.destroy();
+					},
+
+					updateDDMFormInputValue: function() {
+						var instance = this;
+
+						var ddmFormValuesInput = instance.get('ddmFormValuesInput');
+
+						ddmFormValuesInput.val(JSON.stringify(instance.toJSON()));
+					},
+
 					_afterFormRegistered: function(event) {
 						var instance = this;
 
@@ -1614,71 +1612,6 @@ AUI.add(
 						translationManager.addTarget(instance);
 
 						return translationManager;
-					},
-
-					moveField: function(parentField, oldIndex, newIndex) {
-						var instance = this;
-
-						var fields = parentField.get('fields');
-
-						fields.splice(newIndex, 0, fields.splice(oldIndex, 1)[0]);
-					},
-
-					registerRepeatable: function(field) {
-						var instance = this;
-
-						var fieldName = field.get('name');
-
-						var repeatableInstance = instance.repeatableInstances[fieldName];
-
-						if (!repeatableInstance) {
-							repeatableInstance = new A.SortableList(
-								{
-									dropOn: field.get('container').get('parentNode'),
-									helper: A.Node.create(TPL_REPEATABLE_HELPER),
-									nodes: '[data-fieldName=' + fieldName + ']',
-									placeholder: A.Node.create(TPL_REPEATABLE_PLACEHOLDER),
-									sortCondition: function(event) {
-										var dropNode = event.drop.get('node');
-
-										return dropNode.getData('fieldName') === fieldName;
-									}
-								}
-							);
-
-							repeatableInstance.after('drag:end', A.rbind(instance._afterRepeatableDragEnd, instance, field.get('parent')));
-
-							instance.repeatableInstances[fieldName] = repeatableInstance;
-						}
-						else {
-							repeatableInstance.add(field.get('container'));
-						}
-					},
-
-					toJSON: function() {
-						var instance = this;
-
-						var translationManager = instance.get('translationManager');
-
-						return {
-							availableLanguageIds: translationManager.get('availableLocales'),
-							defaultLanguageId: translationManager.get('defaultLocale'),
-							fieldValues: AArray.invoke(instance.get('fields'), 'toJSON')
-						};
-					},
-
-					unregisterRepeatable: function(field) {
-						var instance = this;
-
-						field.get('container').dd.destroy();
-					},
-
-					updateDDMFormInputValue: function() {
-						var instance = this;
-
-						var ddmFormValuesInput = instance.get('ddmFormValuesInput');
-
-						ddmFormValuesInput.val(JSON.stringify(instance.toJSON()));
 					}
 				}
 			}
@@ -1688,6 +1621,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-base', 'aui-datatype', 'aui-image-viewer', 'aui-io-request', 'aui-parse-content', 'aui-set', 'aui-sortable-list', 'json', 'liferay-item-selector-dialog', 'liferay-map-base', 'liferay-notice', 'liferay-portlet-url', 'liferay-translation-manager', 'uploader']
+		requires: ['aui-base', 'aui-datatype', 'aui-image-viewer', 'aui-io-request', 'aui-parse-content', 'aui-set', 'aui-sortable-list', 'json', 'liferay-item-selector-dialog', 'liferay-map-base', 'liferay-notice', 'liferay-portlet-url', 'liferay-translation-manager']
 	}
 );

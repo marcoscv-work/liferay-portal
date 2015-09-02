@@ -30,8 +30,7 @@ import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.model.impl.DDMStructureImpl;
 import com.liferay.dynamic.data.mapping.model.impl.DDMTemplateImpl;
 import com.liferay.dynamic.data.mapping.registry.DDMFormFieldType;
-import com.liferay.dynamic.data.mapping.registry.DDMFormFieldTypeRegistry;
-import com.liferay.dynamic.data.mapping.registry.DDMFormFieldTypeRegistryUtil;
+import com.liferay.dynamic.data.mapping.registry.DDMFormFieldTypeServicesTrackerUtil;
 import com.liferay.dynamic.data.mapping.registry.DDMFormFieldTypeSettings;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalServiceUtil;
@@ -85,6 +84,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
@@ -92,6 +92,9 @@ import org.powermock.modules.junit4.PowerMockRunner;
  * @author Miguel Angelo Caldas Gallindo
  */
 @RunWith(PowerMockRunner.class)
+@SuppressStaticInitializationFor(
+	"com.liferay.dynamic.data.mapping.registry.DDMFormFieldTypeServicesTrackerUtil"
+)
 public abstract class BaseDDMTestCase extends PowerMockito {
 
 	protected void addDDMFormFields(
@@ -456,14 +459,17 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 			new ConfigurationFactoryImpl());
 	}
 
-	protected void setUpDDMFormFieldTypeRegistryUtil() {
+	protected void setUpDDMFormFieldTypeServicesTrackerUtil() {
 		setUpDefaultDDMFormFieldType();
 
-		DDMFormFieldTypeRegistryUtil ddmFormFieldTypeRegistryUtil =
-			new DDMFormFieldTypeRegistryUtil();
+		mockStatic(DDMFormFieldTypeServicesTrackerUtil.class);
 
-		ddmFormFieldTypeRegistryUtil.setDDMFormFieldTypeRegistry(
-			_ddmFormFieldTypeRegistry);
+		when(
+			DDMFormFieldTypeServicesTrackerUtil.getDDMFormFieldType(
+				Matchers.anyString())
+		).thenReturn(
+			_defaultDDMFormFieldType
+		);
 	}
 
 	protected void setUpDDMFormJSONDeserializerUtil() {
@@ -544,12 +550,6 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 
 			}
 		);
-
-		when(
-			_ddmFormFieldTypeRegistry.getDDMFormFieldType(Matchers.anyString())
-		).thenReturn(
-			_defaultDDMFormFieldType
-		);
 	}
 
 	protected void setUpHtmlUtil() {
@@ -589,7 +589,7 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 
 		LanguageUtil languageUtil = new LanguageUtil();
 
-		languageUtil.setLanguage(_language);
+		languageUtil.setLanguage(language);
 	}
 
 	protected void setUpLocaleUtil() {
@@ -709,7 +709,7 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 		Locale locale, String key, String returnValue) {
 
 		when(
-			_language.get(Matchers.eq(locale), Matchers.eq(key))
+			language.get(Matchers.eq(locale), Matchers.eq(key))
 		).thenReturn(
 			returnValue
 		);
@@ -719,7 +719,7 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 		Set<Locale> availableLocales) {
 
 		when(
-			_language.getAvailableLocales()
+			language.getAvailableLocales()
 		).thenReturn(
 			availableLocales
 		);
@@ -727,7 +727,7 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 
 	protected void whenLanguageGetLanguageId(Locale locale, String languageId) {
 		when(
-			_language.getLanguageId(Matchers.eq(locale))
+			language.getLanguageId(Matchers.eq(locale))
 		).thenReturn(
 				languageId
 		);
@@ -735,14 +735,14 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 
 	protected void whenLanguageIsAvailableLocale(String languageId) {
 		when(
-			_language.isAvailableLocale(Matchers.eq(languageId))
+			language.isAvailableLocale(Matchers.eq(languageId))
 		).thenReturn(
 			true
 		);
 	}
 
 	@Mock
-	protected Language _language;
+	protected Language language;
 
 	protected Map<Long, DDMStructure> structures = new HashMap<>();
 	protected Map<Long, DDMTemplate> templates = new HashMap<>();
@@ -771,9 +771,6 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 		private static final long serialVersionUID = 1L;
 
 	}
-
-	@Mock
-	private DDMFormFieldTypeRegistry _ddmFormFieldTypeRegistry;
 
 	@Mock
 	private DDMFormFieldType _defaultDDMFormFieldType;
