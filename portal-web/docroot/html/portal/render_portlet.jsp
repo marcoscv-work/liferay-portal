@@ -1017,7 +1017,7 @@ else {
 <aui:script position='<%= themeDisplay.isIsolated() ? "inline" : "auto" %>'>
 	Liferay.Portlet.onLoad(
 		{
-			canEditTitle: <%= showConfigurationIcon %>,
+			canEditTitle: <%= showConfigurationIcon && portletDecorate %>,
 			columnPos: <%= columnPos %>,
 			isStatic: '<%= staticVar %>',
 			namespacedId: 'p_p_id<%= HtmlUtil.escapeJS(renderResponseImpl.getNamespace()) %>',

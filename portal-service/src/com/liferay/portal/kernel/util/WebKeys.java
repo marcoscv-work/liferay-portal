@@ -194,6 +194,8 @@ public interface WebKeys {
 
 	public static final String RENDER_PORTLET_RESOURCE = "RENDER_PORTLET_RESOURCE";
 
+	public static final String RENDER_PORTLET_TITLE = "RENDER_PORTLET_TITLE";
+
 	public static final String SEARCH_CONTAINER = "SEARCH_CONTAINER";
 
 	public static final String SEARCH_CONTAINER_REFERENCE = "LIFERAY_SHARED_SEARCH_CONTAINER_REFERENCE";

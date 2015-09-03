@@ -91,6 +91,7 @@ public class PortletDisplay implements Serializable {
 		_showMoveIcon = master.isShowMoveIcon();
 		_showPortletCssIcon = master.isShowPortletCssIcon();
 		_showPortletIcon = master.isShowPortletIcon();
+		_showPortletTitle = master.isShowPortletTitle();
 		_showPrintIcon = master.isShowPrintIcon();
 		_showRefreshIcon = master.isShowRefreshIcon();
 		_showStagingIcon = master.isShowStagingIcon();
@@ -162,6 +163,7 @@ public class PortletDisplay implements Serializable {
 		slave.setShowMoveIcon(_showMoveIcon);
 		slave.setShowPortletCssIcon(_showPortletCssIcon);
 		slave.setShowPortletIcon(_showPortletIcon);
+		slave.setShowPortletTitle(_showPortletTitle);
 		slave.setShowPrintIcon(_showPrintIcon);
 		slave.setShowRefreshIcon(_showRefreshIcon);
 		slave.setShowStagingIcon(_showStagingIcon);
@@ -464,6 +466,10 @@ public class PortletDisplay implements Serializable {
 		return _showPortletIcon;
 	}
 
+	public boolean isShowPortletTitle() {
+		return _showPortletTitle;
+	}
+
 	public boolean isShowPrintIcon() {
 		return _showPrintIcon;
 	}
@@ -515,6 +521,7 @@ public class PortletDisplay implements Serializable {
 		_description = StringPool.BLANK;
 		_id = StringPool.BLANK;
 		_instanceId = StringPool.BLANK;
+		_freeformPortlet = false;
 		_modeAbout = false;
 		_modeConfig = false;
 		_modeEdit = false;
@@ -544,6 +551,7 @@ public class PortletDisplay implements Serializable {
 		_showMoveIcon = false;
 		_showPortletCssIcon = false;
 		_showPortletIcon = false;
+		_showPortletTitle = false;
 		_showPrintIcon = false;
 		_showRefreshIcon = false;
 		_showStagingIcon = false;
@@ -752,6 +760,10 @@ public class PortletDisplay implements Serializable {
 		_showPortletIcon = showPortletIcon;
 	}
 
+	public void setShowPortletTitle(boolean showPortletTitle) {
+		_showPortletTitle = showPortletTitle;
+	}
+
 	public void setShowPrintIcon(boolean showPrintIcon) {
 		_showPrintIcon = showPrintIcon;
 	}
@@ -917,6 +929,7 @@ public class PortletDisplay implements Serializable {
 	private boolean _showMoveIcon;
 	private boolean _showPortletCssIcon;
 	private boolean _showPortletIcon;
+	private boolean _showPortletTitle;
 	private boolean _showPrintIcon;
 	private boolean _showRefreshIcon;
 	private boolean _showStagingIcon;

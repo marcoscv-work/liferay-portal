@@ -69,6 +69,14 @@ if (portletTitle == null) {
 
 portletDisplay.setTitle(portletTitle);
 
+Boolean showPortletTitleObj = (Boolean)renderRequest.getAttribute(WebKeys.RENDER_PORTLET_TITLE);
+
+if (showPortletTitleObj != null) {
+	portletDisplay.setShowPortletTitle(showPortletTitleObj.booleanValue());
+
+	request.removeAttribute(WebKeys.RENDER_PORTLET_TITLE);
+}
+
 // Portlet description
 
 String portletDescription = PortalUtil.getPortletDescription(portlet, application, locale);
