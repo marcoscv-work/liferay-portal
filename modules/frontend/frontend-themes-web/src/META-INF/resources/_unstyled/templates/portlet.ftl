@@ -35,7 +35,9 @@
 	</header>
 
 	<div class="portlet-content">
-		<h2 class="portlet-title-text">${portlet_title}</h2>
+		<#if portlet_display.isShowPortletTitle()>
+			<h2 class="portlet-title-text">${portlet_title}</h2>
+		</#if>
 
 		${portlet_display.writeContent(writer)}
 	</div>

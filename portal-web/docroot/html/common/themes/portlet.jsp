@@ -75,8 +75,6 @@ String portletDescription = PortalUtil.getPortletDescription(portlet, applicatio
 
 portletDisplay.setDescription(portletDescription);
 
-Group group = layout.getGroup();
-
 boolean wsrp = ParamUtil.getBoolean(PortalUtil.getOriginalServletRequest(request), "wsrp");
 %>
 

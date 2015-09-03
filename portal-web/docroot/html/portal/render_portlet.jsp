@@ -186,6 +186,7 @@ boolean showMinIcon = portlet.hasWindowState(responseContentType, WindowState.MI
 boolean showMoveIcon = !stateMax && !themeDisplay.isStateExclusive();
 boolean showPortletCssIcon = false;
 boolean showPortletIcon = (portletResourcePortlet != null) ? Validator.isNotNull(portletResourcePortlet.getIcon()) : Validator.isNotNull(portlet.getIcon());
+boolean showPortletTitle = true;
 boolean showPrintIcon = portlet.hasPortletMode(responseContentType, LiferayPortletMode.PRINT);
 boolean showRefreshIcon = portlet.isAjaxable() && (portlet.getRenderWeight() == 0);
 boolean showStagingIcon = false;
@@ -345,6 +346,14 @@ if (siteGroup.isStaged() && !siteGroup.isStagedRemotely() && !siteGroup.isStaged
 	themeDisplay.setSiteGroupId(siteGroup.getGroupId());
 }
 
+Boolean renderPortletTitleObj = (Boolean)renderRequest.getAttribute(WebKeys.RENDER_PORTLET_TITLE);
+
+if (renderPortletTitleObj != null) {
+	showPortletTitle = renderPortletTitleObj.booleanValue();
+
+	request.removeAttribute(WebKeys.RENDER_PORTLET_TITLE);
+}
+
 portletDisplay.recycle();
 
 portletDisplay.setActive(portlet.isActive());
@@ -381,6 +390,7 @@ portletDisplay.setShowMinIcon(showMinIcon);
 portletDisplay.setShowMoveIcon(showMoveIcon);
 portletDisplay.setShowPortletCssIcon(showPortletCssIcon);
 portletDisplay.setShowPortletIcon(showPortletIcon);
+portletDisplay.setShowPortletTitle = showPortletTitle;
 portletDisplay.setShowPrintIcon(showPrintIcon);
 portletDisplay.setShowRefreshIcon(showRefreshIcon);
 portletDisplay.setShowStagingIcon(showStagingIcon);
@@ -1017,7 +1027,7 @@ else {
 <aui:script position='<%= themeDisplay.isIsolated() ? "inline" : "auto" %>'>
 	Liferay.Portlet.onLoad(
 		{
-			canEditTitle: <%= showConfigurationIcon %>,
+			canEditTitle: <%= showConfigurationIcon && portletDecorate %>,
 			columnPos: <%= columnPos %>,
 			isStatic: '<%= staticVar %>',
 			namespacedId: 'p_p_id<%= HtmlUtil.escapeJS(renderResponseImpl.getNamespace()) %>',
