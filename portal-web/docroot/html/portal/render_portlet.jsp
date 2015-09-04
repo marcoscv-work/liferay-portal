@@ -186,6 +186,7 @@ boolean showMinIcon = portlet.hasWindowState(responseContentType, WindowState.MI
 boolean showMoveIcon = !stateMax && !themeDisplay.isStateExclusive();
 boolean showPortletCssIcon = false;
 boolean showPortletIcon = (portletResourcePortlet != null) ? Validator.isNotNull(portletResourcePortlet.getIcon()) : Validator.isNotNull(portlet.getIcon());
+boolean showPortletTitle = true;
 boolean showPrintIcon = portlet.hasPortletMode(responseContentType, LiferayPortletMode.PRINT);
 boolean showRefreshIcon = portlet.isAjaxable() && (portlet.getRenderWeight() == 0);
 boolean showStagingIcon = false;
@@ -314,6 +315,16 @@ if (layout.isLayoutPrototypeLinkActive()) {
 	showPortletCssIcon = false;
 }
 
+// Portlets in a full page cannot be moved
+
+LayoutTypeController layoutTypeController = layoutTypePortlet.getLayoutTypeController();
+
+if (layoutTypeController.isFullPageDisplayable()) {
+	showCloseIcon = false;
+	showMaxIcon = false;
+	showMinIcon = false;
+}
+
 long previousScopeGroupId = themeDisplay.getScopeGroupId();
 
 if (Validator.isNotNull(portletResource)) {
@@ -333,6 +344,14 @@ if (siteGroup.isStagingGroup()) {
 
 if (siteGroup.isStaged() && !siteGroup.isStagedRemotely() && !siteGroup.isStagedPortlet(portletId)) {
 	themeDisplay.setSiteGroupId(siteGroup.getGroupId());
+}
+
+Boolean renderPortletTitleObj = (Boolean)renderRequestImpl.getAttribute(WebKeys.RENDER_PORTLET_TITLE);
+
+if (renderPortletTitleObj != null) {
+	showPortletTitle = renderPortletTitleObj.booleanValue();
+
+	request.removeAttribute(WebKeys.RENDER_PORTLET_TITLE);
 }
 
 portletDisplay.recycle();
@@ -371,6 +390,7 @@ portletDisplay.setShowMinIcon(showMinIcon);
 portletDisplay.setShowMoveIcon(showMoveIcon);
 portletDisplay.setShowPortletCssIcon(showPortletCssIcon);
 portletDisplay.setShowPortletIcon(showPortletIcon);
+portletDisplay.setShowPortletTitle = showPortletTitle;
 portletDisplay.setShowPrintIcon(showPrintIcon);
 portletDisplay.setShowRefreshIcon(showRefreshIcon);
 portletDisplay.setShowStagingIcon(showStagingIcon);

@@ -37,17 +37,12 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	immediate = true,
 	property = {
-		"panel.category.key=" + PanelCategoryKeys.MY_SPACE_PRODUCTIVITY_CENTER,
+		"panel.category.key=" + PanelCategoryKeys.USER_MY_ACCOUNT,
 		"service.ranking:Integer=100"
 	},
 	service = PanelApp.class
 )
 public class MyAccountPanelApp extends BaseControlPanelEntryPanelApp {
-
-	@Override
-	public String getParentCategoryKey() {
-		return PanelCategoryKeys.MY_SPACE_PRODUCTIVITY_CENTER;
-	}
 
 	@Override
 	public String getPortletId() {
@@ -74,7 +69,7 @@ public class MyAccountPanelApp extends BaseControlPanelEntryPanelApp {
 	protected void setPortletLocalService(
 		PortletLocalService portletLocalService) {
 
-		_portletLocalService = portletLocalService;
+		this.portletLocalService = portletLocalService;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
