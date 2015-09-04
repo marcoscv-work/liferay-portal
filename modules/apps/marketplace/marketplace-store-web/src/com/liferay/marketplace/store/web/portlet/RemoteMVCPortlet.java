@@ -16,11 +16,13 @@ package com.liferay.marketplace.store.web.portlet;
 
 import com.liferay.marketplace.store.web.constants.MarketplaceStoreWebKeys;
 import com.liferay.marketplace.store.web.oauth.util.OAuthManager;
+import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
@@ -31,6 +33,7 @@ import com.liferay.portal.util.PortalUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.portlet.ActionRequest;
@@ -39,6 +42,7 @@ import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.PortletSession;
+import javax.portlet.PortletURL;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
@@ -67,7 +71,7 @@ public class RemoteMVCPortlet extends MVCPortlet {
 
 		PortletSession portletSession = actionRequest.getPortletSession();
 
-		OAuthService oAuthService = _oAuthManager.getOAuthService();
+		OAuthService oAuthService = oAuthManager.getOAuthService();
 
 		Token requestToken = oAuthService.getRequestToken();
 
@@ -82,6 +86,25 @@ public class RemoteMVCPortlet extends MVCPortlet {
 			redirect, OAuthConstants.CALLBACK, callbackURL);
 
 		actionResponse.sendRedirect(redirect);
+	}
+
+	public void deauthorize(
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		oAuthManager.deleteAccessToken(themeDisplay.getUser());
+
+		LiferayPortletResponse liferayPortletResponse =
+			(LiferayPortletResponse)actionResponse;
+
+		PortletURL portletURL = liferayPortletResponse.createRenderURL();
+
+		portletURL.setParameter("mvcPath", "/view.jsp");
+
+		actionResponse.sendRedirect(portletURL.toString());
 	}
 
 	@Override
@@ -190,10 +213,10 @@ public class RemoteMVCPortlet extends MVCPortlet {
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		Token token = _oAuthManager.getAccessToken(themeDisplay.getUser());
+		Token token = oAuthManager.getAccessToken(themeDisplay.getUser());
 
 		if (token != null) {
-			OAuthService oAuthService = _oAuthManager.getOAuthService();
+			OAuthService oAuthService = oAuthManager.getOAuthService();
 
 			oAuthService.signRequest(token, oAuthRequest);
 		}
@@ -209,12 +232,19 @@ public class RemoteMVCPortlet extends MVCPortlet {
 		return StringPool.BLANK;
 	}
 
+	protected void processPortletParameterMap(
+		PortletRequest portletRequest, PortletResponse portletResponse,
+		Map<String, String[]> parameterMap) {
+	}
+
 	protected void remoteProcessAction(
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
 		OAuthRequest oAuthRequest = getOAuthRequest(
 			actionRequest, actionResponse, Verb.POST);
+
+		addOAuthParameter(oAuthRequest, "p_p_lifecycle", "1");
 
 		oAuthRequest.send();
 	}
@@ -252,7 +282,7 @@ public class RemoteMVCPortlet extends MVCPortlet {
 	}
 
 	protected void setOAuthManager(OAuthManager oAuthManager) {
-		_oAuthManager = oAuthManager;
+		this.oAuthManager = oAuthManager;
 	}
 
 	protected void setRequestParameters(
@@ -263,28 +293,37 @@ public class RemoteMVCPortlet extends MVCPortlet {
 		addOAuthParameter(
 			oAuthRequest, "clientPortletNamespace",
 			portletResponse.getNamespace());
-
-		String currentURL = PortalUtil.getCurrentURL(portletRequest);
-
-		addOAuthParameter(oAuthRequest, "clientURL", currentURL);
-
+		addOAuthParameter(
+			oAuthRequest, "clientURL",
+			PortalUtil.getCurrentURL(portletRequest));
 		addOAuthParameter(oAuthRequest, "p_p_id", getServerPortletId());
+
+		Map<String, String[]> parameterMap = new HashMap<>();
+
+		MapUtil.copy(portletRequest.getParameterMap(), parameterMap);
+
+		processPortletParameterMap(
+			portletRequest, portletResponse, parameterMap);
 
 		String serverNamespace = PortalUtil.getPortletNamespace(
 			getServerPortletId());
 
-		Map<String, String[]> parameterMap = portletRequest.getParameterMap();
-
 		for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+			String key = entry.getKey();
 			String[] values = entry.getValue();
+
+			if (key.equals("remoteWindowState")) {
+				key = "p_p_state";
+			}
+			else {
+				key = serverNamespace.concat(key);
+			}
 
 			if (ArrayUtil.isEmpty(values) || Validator.isNull(values[0])) {
 				continue;
 			}
 
-			addOAuthParameter(
-				oAuthRequest, serverNamespace.concat(entry.getKey()),
-				values[0]);
+			addOAuthParameter(oAuthRequest, key, values[0]);
 		}
 	}
 
@@ -300,17 +339,17 @@ public class RemoteMVCPortlet extends MVCPortlet {
 		Token requestToken = (Token)portletSession.getAttribute(
 			MarketplaceStoreWebKeys.OAUTH_REQUEST_TOKEN);
 
-		OAuthService oAuthService = _oAuthManager.getOAuthService();
+		OAuthService oAuthService = oAuthManager.getOAuthService();
 
 		Token accessToken = oAuthService.getAccessToken(
 			requestToken, new Verifier(oAuthVerifier));
 
-		_oAuthManager.updateAccessToken(themeDisplay.getUser(), accessToken);
+		oAuthManager.updateAccessToken(themeDisplay.getUser(), accessToken);
 
 		portletSession.removeAttribute(
 			MarketplaceStoreWebKeys.OAUTH_REQUEST_TOKEN);
 	}
 
-	protected OAuthManager _oAuthManager;
+	protected OAuthManager oAuthManager;
 
 }

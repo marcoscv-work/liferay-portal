@@ -24,61 +24,49 @@ String stagingFriendlyURL = (String)request.getAttribute("view.jsp-stagingFriend
 %>
 
 <c:if test="<%= (layoutSetBranches != null) && (layoutSetBranches.size() >= 1) %>">
-	<div class="col-md-5 site-pages-variation-options">
-		<div class="variations-options">
-			<liferay-util:buffer var="taglibMessage">
-				<liferay-ui:message key="<%= HtmlUtil.escape(layoutSetBranch.getName()) %>" />
+	<label>
+		<liferay-ui:message key="site-pages-variations" />
+	</label>
 
-				<small>(<liferay-ui:message arguments="<%= layouts.size() %>" key='<%= (layouts.size() == 1) ? "1-page" : "x-pages" %>' translateArguments="<%= false %>" />)</small>
-			</liferay-util:buffer>
+	<select class="form-control input-sm">
 
-			<c:choose>
-				<c:when test="<%= layoutSetBranches.size() == 1 %>">
-					<span class="layout-set-branch-selector staging-variation-selector"><i class="icon-globe"></i> <%= taglibMessage %></span>
-				</c:when>
-				<c:otherwise>
-					<liferay-ui:icon-menu cssClass="layout-set-branch-selector staging-variation-selector" direction="down" extended="<%= false %>" icon="../aui/globe" message="<%= taglibMessage %>" showWhenSingleIcon="<%= true %>" useIconCaret="<%= true %>">
+		<%
+		for (LayoutSetBranch curLayoutSetBranch : layoutSetBranches) {
+			boolean selected = (group.isStagingGroup() || group.isStagedRemotely()) && (curLayoutSetBranch.getLayoutSetBranchId() == layoutRevision.getLayoutSetBranchId());
+		%>
 
-						<%
-						for (LayoutSetBranch curLayoutSetBranch : layoutSetBranches) {
-							boolean selected = (group.isStagingGroup() || group.isStagedRemotely()) && (curLayoutSetBranch.getLayoutSetBranchId() == layoutRevision.getLayoutSetBranchId());
-						%>
+			<portlet:actionURL name="selectLayoutSetBranch" var="layoutSetBranchURL">
+				<portlet:param name="redirect" value="<%= stagingFriendlyURL %>" />
+				<portlet:param name="groupId" value="<%= String.valueOf(curLayoutSetBranch.getGroupId()) %>" />
+				<portlet:param name="privateLayout" value="<%= String.valueOf(layout.isPrivateLayout()) %>"/>
+				<portlet:param name="layoutSetBranchId" value="<%= String.valueOf(curLayoutSetBranch.getLayoutSetBranchId()) %>" />
+			</portlet:actionURL>
 
-							<portlet:actionURL name="selectLayoutSetBranch" var="layoutSetBranchURL">
-								<portlet:param name="redirect" value="<%= stagingFriendlyURL %>" />
-								<portlet:param name="groupId" value="<%= String.valueOf(curLayoutSetBranch.getGroupId()) %>" />
-								<portlet:param name="privateLayout" value="<%= String.valueOf(layout.isPrivateLayout()) %>" />
-								<portlet:param name="layoutSetBranchId" value="<%= String.valueOf(curLayoutSetBranch.getLayoutSetBranchId()) %>" />
-							</portlet:actionURL>
+			<option>
+				<span>
+					<liferay-ui:message key="<%= HtmlUtil.escape(curLayoutSetBranch.getName()) %>" />
 
-							<liferay-ui:icon
-								cssClass='<%= selected ? "disabled" : StringPool.BLANK %>'
-								message="<%= HtmlUtil.escape(curLayoutSetBranch.getName()) %>"
-								url='<%= selected ? "javascript:;" : layoutSetBranchURL %>'
-							/>
+					<a href="<%= selected ? "javascript:;" : layoutSetBranchURL %>" />
+				</span>
+			</option>
 
-						<%
-						}
-						%>
+		<%
+		}
+		%>
 
-					</liferay-ui:icon-menu>
-				</c:otherwise>
-			</c:choose>
+		<portlet:renderURL var="layoutSetBranchesURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
+			<portlet:param name="mvcPath" value="/view_layout_set_branches.jsp" />
+		</portlet:renderURL>
 
-			<portlet:renderURL var="layoutSetBranchesURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
-				<portlet:param name="mvcPath" value="/view_layout_set_branches.jsp" />
-			</portlet:renderURL>
-
-			<div class="manage-layout-set-branches page-variations">
-				<liferay-ui:icon
-					iconCssClass="icon-cog"
-					id="manageLayoutSetBranches"
-					message="manage-site-pages-variations"
-					url="<%= layoutSetBranchesURL %>"
-				/>
-			</div>
+		<div class="manage-layout-set-branches page-variations">
+			<liferay-ui:icon
+				iconCssClass="icon-cog"
+				id="manageLayoutSetBranches"
+				message="manage-site-pages-variations"
+				url="<%= layoutSetBranchesURL %>"
+			/>
 		</div>
-	</div>
+	</select>
 
 	<aui:script sandbox="<%= true %>">
 		$('.layout-set-branch-selector').on(
@@ -88,21 +76,19 @@ String stagingFriendlyURL = (String)request.getAttribute("view.jsp-stagingFriend
 			}
 		);
 
-		var layoutSetBranchesLink = $('#<portlet:namespace />manageLayoutSetBranches');
+		function <portlet:namespace />manageLayoutSetBranches() {
+			Liferay.Util.openWindow(
+				{
+					id: '<portlet:namespace />layoutSetBranches',
+					title: '<%= UnicodeLanguageUtil.get(request, "manage-site-pages-variations") %>',
 
-		layoutSetBranchesLink.on(
-			'click',
-			function(event) {
-				event.preventDefault();
+					<portlet:renderURL var="layoutSetBranchesURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
+						<portlet:param name="mvcPath" value="/view_layout_set_branches.jsp" />
+					</portlet:renderURL>
 
-				Liferay.Util.openWindow(
-					{
-						id: '<portlet:namespace />layoutSetBranches',
-						title: '<%= UnicodeLanguageUtil.get(request, "manage-site-pages-variations") %>',
-						uri: layoutSetBranchesLink.attr('href')
-					}
-				);
-			}
-		);
+					uri: '<%= HtmlUtil.escape(layoutSetBranchesURL) %>'
+				}
+			);
+		}
 	</aui:script>
 </c:if>
