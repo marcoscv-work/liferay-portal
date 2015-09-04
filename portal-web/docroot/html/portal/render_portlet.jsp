@@ -346,7 +346,7 @@ if (siteGroup.isStaged() && !siteGroup.isStagedRemotely() && !siteGroup.isStaged
 	themeDisplay.setSiteGroupId(siteGroup.getGroupId());
 }
 
-Boolean renderPortletTitleObj = (Boolean)renderRequest.getAttribute(WebKeys.RENDER_PORTLET_TITLE);
+Boolean renderPortletTitleObj = (Boolean)renderRequestImpl.getAttribute(WebKeys.RENDER_PORTLET_TITLE);
 
 if (renderPortletTitleObj != null) {
 	showPortletTitle = renderPortletTitleObj.booleanValue();
