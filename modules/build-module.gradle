@@ -1,4 +1,8 @@
 import com.liferay.gradle.util.FileUtil
+import com.liferay.gradle.util.OSDetector
+import com.liferay.gradle.util.copy.StripPathSegmentsAction
+
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 buildscript {
 	repositories {
@@ -12,20 +16,23 @@ buildscript {
 	}
 
 	dependencies {
-		classpath group: "com.liferay", name: "com.liferay.gradle.util", version: "1.0.17"
+		classpath group: "com.liferay", name: "com.liferay.gradle.util", version: "1.0.19"
 	}
 }
 
 apply plugin: "com.liferay.plugin"
 apply plugin: "eclipse"
+apply plugin: "findbugs"
 
 File appServerClassesPortalDir = new File(liferay.appServerPortalDir, "WEB-INF/classes")
 File appServerLibPortalDir = new File(liferay.appServerPortalDir, "WEB-INF/lib")
 File moduleFrameworkBaseDir = new File(liferay.liferayHome, "osgi")
 
+distsDirName = FileUtil.relativize(rootProject.file("../tools/sdk/dist"), buildDir)
 group = "com.liferay"
-distsDirName = FileUtil.relativize(rootProject.file("../tools/sdk/dist2"), buildDir)
 libsDirName = distsDirName
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
 
 afterEvaluate {
 	project.ext.set("app.server.lib.portal.dir", project.relativePath(appServerLibPortalDir))
@@ -35,11 +42,47 @@ afterEvaluate {
 	if (project.hasProperty("snapshot") && !project.version.endsWith("-SNAPSHOT")) {
 		project.version = project.version + "-SNAPSHOT"
 	}
+
+	javadoc {
+		classpath = sourceSets.main.output + sourceSets.main.compileClasspath
+	}
 }
 
 buildCSS {
 	dependsOn ":frontend:frontend-common-css:buildCssCommon"
 	portalCommonDirName = relativePath(new File(rootDir, "frontend/frontend-common-css/tmp/META-INF/resources"))
+	sassCompilerClassName = project.properties["sass.compiler.class.name"]
+}
+
+buildLang {
+	translateClientId = project.properties["microsoft.translator.client.id"]
+	translateClientSecret = project.properties["microsoft.translator.client.secret"]
+}
+
+buildService {
+	doFirst {
+		if (project.name.endsWith("-service")) {
+			String requiredApiDirName = "../${project.name[0 .. -9]}-api/src"
+
+			if (apiDirName != requiredApiDirName) {
+				throw new GradleException("Please configure the 'buildService' task.")
+			}
+		}
+	}
+}
+
+buildSoy {
+	ext {
+		autoClean = false
+	}
+}
+
+configure([test, testIntegration]) {
+	testLogging {
+		events = EnumSet.allOf(TestLogEvent)
+		exceptionFormat = "full"
+		stackTraceFilters = []
+	}
 }
 
 configurations {
@@ -59,6 +102,11 @@ configurations {
 	portalEclipse
 	portalTest
 
+	alloyTaglib {
+		extendsFrom configurations.runtime
+		extendsFrom portal
+	}
+
 	whenObjectAdded {
 		Configuration configuration ->
 
@@ -77,13 +125,15 @@ if (FileUtil.exists(project, "docroot")) {
 }
 
 dependencies {
+	alloyTaglib rootProject.files("../lib/development/alloy-taglib.jar", "../lib/development/org.freemarker-2.3.17.LIFERAY-PATCHED-1.jar")
+
 	cssBuilder group: "com.liferay", name: "com.liferay.css.builder", version: "default"
 	javadocFormatter group: "com.liferay", name: "com.liferay.javadoc.formatter", version: "default"
 	langBuilder group: "com.liferay", name: "com.liferay.lang.builder", version: "default"
 
 	portal files(appServerClassesPortalDir)
 	portal fileTree(dir: appServerLibPortalDir, include: "*.jar")
-	portal fileTree(dir: liferay.appServerLibGlobalDir, include: "*.jar")
+	portal fileTree(dir: liferay.appServerLibGlobalDir, exclude: "mail.jar", include: "*.jar")
 	portal group: "com.liferay", name: "net.sf.jargs", version: "1.0"
 	portal group: "com.thoughtworks.qdox", name: "qdox", version: "1.12.1"
 	portal group: "javax.activation", name: "activation", version: "1.1"
@@ -101,12 +151,24 @@ dependencies {
 	portalEclipse group: "log4j", name: "log4j", version: "1.2.17"
 
 	portalTest fileTree(dir: new File(moduleFrameworkBaseDir, "test"), include: "portal-test*.jar")
-	serviceBuilder group: "com.liferay", name: "com.liferay.portal.tools.service.builder", version: "default"
+	serviceBuilder fileTree(dir: rootProject.file("../tools/sdk/tmp/portal-tools"), include: "*.jar")
 	sourceFormatter group: "com.liferay", name: "com.liferay.source.formatter", version: "default"
 	tldFormatter group: "com.liferay", name: "com.liferay.tld.formatter", version: "default"
 	upgradeTableBuilder group: "com.liferay", name: "com.liferay.portal.tools.upgrade.table.builder", version: "default"
 	wsddBuilder group: "com.liferay", name: "com.liferay.portal.tools.wsdd.builder", version: "dependencies"
 	xmlFormatter group: "com.liferay", name: "com.liferay.xml.formatter", version: "default"
+}
+
+downloadNode {
+	doLast {
+		File npmrcFile = new File(nodeDir, "etc/npmrc")
+
+		npmrcFile << """
+fetch-retries = 10
+fetch-retry-maxtimeout = 120000
+fetch-retry-mintimeout = 60000
+"""
+	}
 }
 
 eclipse {
@@ -145,8 +207,23 @@ eclipseProject {
 	}
 }
 
+jsModuleConfigGenerator {
+	version = project.properties["nodejs.lfr.module.config.generator.version"]
+}
+
 jspC {
 	jspCVersion = project.properties["com.liferay.jasper.jspc.version"]
+}
+
+jsTranspiler {
+	babelVersion = project.properties["nodejs.babel.version"]
+	lfrAmdLoaderVersion = project.properties["nodejs.lfr.amd.loader.version"]
+}
+
+if (System.getenv("JENKINS_HOME")) {
+	node {
+		nodeUrl = "https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-linux-x64.tar.gz"
+	}
 }
 
 repositories {
@@ -160,21 +237,23 @@ repositories {
 }
 
 sourceSets {
-	FileCollection portalJarsFileCollection = fileTree(dir: appServerLibPortalDir, include: "util-slf4j.jar")
-
 	main {
 		compileClasspath += configurations.portal
 	}
 
 	test {
-		compileClasspath = portalJarsFileCollection + compileClasspath + configurations.portal + configurations.portalTest
-		runtimeClasspath = portalJarsFileCollection + runtimeClasspath + configurations.portal + configurations.portalTest
+		compileClasspath = configurations.compile + configurations.portal + compileClasspath + configurations.portalTest
+		runtimeClasspath = configurations.compile + configurations.portal + runtimeClasspath + configurations.portalTest
 	}
 
 	testIntegration {
 		compileClasspath = configurations.portal + compileClasspath + configurations.portalTest
 		runtimeClasspath = configurations.portal + runtimeClasspath + configurations.portalTest
 	}
+}
+
+tasks.eclipse {
+	dependsOn cleanEclipse
 }
 
 whip {
@@ -197,31 +276,12 @@ pluginManager.withPlugin("com.liferay.maven.plugin.builder") {
 	}
 }
 
-pluginManager.withPlugin("com.moowork.node") {
-	File nodejsDir = new File(buildDir, "nodejs")
+tasks.withType(FindBugs) {
+	maxHeapSize = "1g"
 
-	task setupNpmCache(type: NpmTask)
-
-	node {
-		download = true
-		nodeModulesDir = nodejsDir
-		npmVersion = project.properties["nodejs.npm.version"]
-		version = project.properties["nodejs.version"]
-		workDir = nodejsDir
-	}
-
-	npmSetup {
-		finalizedBy setupNpmCache
-	}
-
-	setupNpmCache {
-		args = ["config", "set", "cache", new File(nodejsDir, ".cache"), "--global"]
-	}
-
-	tasks.withType(NpmTask) {
-		if (it != npmSetup) {
-			dependsOn npmSetup
-		}
+	reports {
+		html.enabled = true
+		xml.enabled = false
 	}
 }
 
@@ -230,28 +290,11 @@ tasks.withType(JavaCompile) {
 	options.warnings = false
 }
 
-String testClassGroupIndex = System.getProperty("test.class.group.index")
-
-if (testClassGroupIndex) {
-	Properties properties = new Properties()
-
-	File file = new File(rootDir, "../test.class.file.names.properties")
-
-	properties.load(new StringReader(file.text.replace("\\", "/")))
-
-	String testClassGroup = properties["TEST_CLASS_GROUP_" + testClassGroupIndex]
-	String testClassGroups = properties["TEST_CLASS_GROUPS"]
-
-	List<String> testClasses = testClassGroup.tokenize(",")
-
+if (gradle.hasProperty("testClassGroupIndex")) {
 	configure([test, testIntegration]) {
-		include testClasses
+		include gradle.testClasses
 
-		jvmArgs "-Dtest.class.group.index=" + testClassGroupIndex
-		jvmArgs "-Dtest.class.groups=" + testClassGroups
-	}
-
-	if (testClassGroupIndex == "0") {
-		test.finalizedBy compileJSP
+		jvmArgs "-Dtest.class.group.index=" + gradle.testClassGroupIndex
+		jvmArgs "-Dtest.class.groups=" + gradle.testClassGroups
 	}
 }

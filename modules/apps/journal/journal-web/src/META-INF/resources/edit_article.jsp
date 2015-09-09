@@ -113,7 +113,7 @@ request.setAttribute("edit_article.jsp-defaultLanguageId", defaultLanguageId);
 request.setAttribute("edit_article.jsp-changeStructure", changeStructure);
 %>
 
-<div class="article-form <%= ((article != null) && !article.isNew()) ? "article-form-edit" : "article-form-add" %>">
+<div class="article-form <%= ((article != null) && !article.isNew()) ? "article-form-edit" : "article-form-add" %> container-fluid-1280">
 	<c:if test="<%= showHeader %>">
 		<liferay-util:include page="/article_header.jsp" servletContext="<%= application %>" />
 	</c:if>
@@ -291,7 +291,7 @@ request.setAttribute("edit_article.jsp-changeStructure", changeStructure);
 <liferay-portlet:renderURL plid="<%= JournalUtil.getPreviewPlid(article, themeDisplay) %>" var="previewArticleContentURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
 	<portlet:param name="mvcPath" value="/preview_article_content.jsp" />
 
-	<c:if test="<%= (article != null) %>">
+	<c:if test="<%= article != null %>">
 		<portlet:param name="groupId" value="<%= String.valueOf(article.getGroupId()) %>" />
 		<portlet:param name="articleId" value="<%= article.getArticleId() %>" />
 		<portlet:param name="version" value="<%= String.valueOf(article.getVersion()) %>" />

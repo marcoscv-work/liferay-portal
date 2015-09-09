@@ -5,13 +5,11 @@ import com.liferay.gradle.util.tasks.ConcatenateTask
 dependencies {
 	compile group: "org.osgi", name: "org.osgi.compendium", version: "5.0.0"
 	compile group: "org.osgi", name: "org.osgi.core", version: "5.0.0"
-	compile project(":apps:item-selector:item-selector-api")
-	compile project(":apps:item-selector:item-selector-criteria-api")
 }
 
 ext {
 	alloyEditorVersion = "0.4.0-alpha.1"
-	ckEditorVersion = "4.5.2"
+	ckEditorVersion = "4.5.3"
 	tinyMCEVersion = "4.1.7"
 
 	ckEditorScaytUrl = "http://download.ckeditor.com/scayt/releases/scayt_${ckEditorVersion}.zip"
