@@ -68,40 +68,46 @@ portletURL.setParameter("types", types);
 portletURL.setParameter("filter", filter);
 portletURL.setParameter("includeCompany", String.valueOf(includeCompany));
 portletURL.setParameter("includeUserPersonalSite", String.valueOf(includeUserPersonalSite));
+portletURL.setParameter("manualMembership", String.valueOf(manualMembership));
 portletURL.setParameter("eventName", eventName);
 portletURL.setParameter("target", target);
 %>
 
-<aui:form action="<%= portletURL.toString() %>" method="post" name="selectGroupFm">
+<c:if test='<%= !type.equals("parent-sites") || (types.length > 1) %>'>
+	<aui:nav-bar cssClass="collapse-basic-search" markupView="lexicon">
+		<aui:nav cssClass="navbar-nav">
+			<aui:nav-item cssClass='<%= (types.length > 1) ? StringPool.BLANK : "active" %>' label="sites" />
+
+			<c:if test="<%= types.length > 1 %>">
+
+				<%
+				for (String curType : types) {
+					portletURL.setParameter("type", curType);
+				%>
+
+					<aui:nav-item href="<%= portletURL.toString() %>" label="<%= curType %>" selected="<%= curType.equals(type) %>" />
+
+				<%
+				}
+				%>
+
+			</c:if>
+		</aui:nav>
+
+		<c:if test='<%= !type.equals("parent-sites") %>'>
+			<aui:nav-bar-search>
+				<aui:form action="<%= portletURL.toString() %>" name="searchFm">
+					<liferay-ui:input-search markupView="lexicon" />
+				</aui:form>
+			</aui:nav-bar-search>
+		</c:if>
+	</aui:nav-bar>
+</c:if>
+
+<aui:form action="<%= portletURL.toString() %>" cssClass="container-fluid-1280" method="post" name="selectGroupFm">
 	<liferay-ui:search-container
 		searchContainer="<%= new GroupSearch(renderRequest, portletURL) %>"
 	>
-		<c:if test='<%= !type.equals("parent-sites") || (types.length > 1) %>'>
-			<aui:nav-bar>
-				<c:if test="<%= types.length > 1 %>">
-					<aui:nav cssClass="navbar-nav" searchContainer="<%= searchContainer %>">
-
-						<%
-						for (String curType : types) {
-							portletURL.setParameter("type", curType);
-						%>
-
-							<aui:nav-item href="<%= portletURL.toString() %>" label="<%= curType %>" selected="<%= curType.equals(type) %>" />
-
-						<%
-						}
-						%>
-
-					</aui:nav>
-				</c:if>
-
-				<c:if test='<%= !type.equals("parent-sites") %>'>
-					<aui:nav-bar-search>
-						<%@ include file="/search.jspf" %>
-					</aui:nav-bar-search>
-				</c:if>
-			</aui:nav-bar>
-		</c:if>
 
 		<%
 		GroupSearchTerms searchTerms = (GroupSearchTerms)searchContainer.getSearchTerms();
@@ -245,8 +251,10 @@ portletURL.setParameter("target", target);
 				value="<%= LanguageUtil.get(request, group.getScopeLabel(themeDisplay)) %>"
 			/>
 
-			<liferay-ui:search-container-column-text>
-				<c:if test="<%= ((Validator.isNull(p_u_i_d) || SiteMembershipPolicyUtil.isMembershipAllowed((selUser != null) ? selUser.getUserId() : 0, group.getGroupId()))) %>">
+			<liferay-ui:search-container-column-text
+				cssClass="checkbox-cell"
+			>
+				<c:if test="<%= Validator.isNull(p_u_i_d) || SiteMembershipPolicyUtil.isMembershipAllowed((selUser != null) ? selUser.getUserId() : 0, group.getGroupId()) %>">
 
 					<%
 					Map<String, Object> data = new HashMap<String, Object>();
@@ -255,6 +263,7 @@ portletURL.setParameter("target", target);
 					data.put("groupid", group.getGroupId());
 					data.put("grouptype", LanguageUtil.get(request, group.getTypeLabel()));
 					data.put("target", target);
+					data.put("url", group.getDisplayURL(themeDisplay));
 
 					boolean disabled = false;
 
@@ -275,7 +284,7 @@ portletURL.setParameter("target", target);
 
 		</liferay-ui:search-container-row>
 
-		<liferay-ui:search-iterator />
+		<liferay-ui:search-iterator markupView="lexicon" />
 	</liferay-ui:search-container>
 </aui:form>
 

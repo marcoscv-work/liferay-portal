@@ -35,8 +35,10 @@ LPS-30525.
 	</#if>
 </#function>
 
-<#macro breadcrumbs>
-	${theme.runtime("com.liferay.portal.kernel.servlet.taglib.ui.BreadcrumbEntry", portletProviderAction.VIEW)}
+<#macro breadcrumbs
+	default_preferences = ""
+>
+	${theme.runtime("com.liferay.portal.kernel.servlet.taglib.ui.BreadcrumbEntry", portletProviderAction.VIEW, "", default_preferences)}
 </#macro>
 
 <#macro control_menu>
@@ -85,17 +87,33 @@ ${languageUtil.get(locale, key)}</#macro>
 >
 ${languageUtil.format(locale, key, arguments)}</#macro>
 
-<#macro languages>
-	${theme.runtime("com.liferay.portal.kernel.servlet.taglib.ui.LanguageEntry", portletProviderAction.VIEW)}
+<#macro languages
+	default_preferences = ""
+>
+	${theme.runtime("com.liferay.portal.kernel.servlet.taglib.ui.LanguageEntry", portletProviderAction.VIEW, "", default_preferences)}
 </#macro>
 
-<#macro navigation_menu>
-	${theme.runtime("com.liferay.portal.theme.NavItem", portletProviderAction.VIEW)}
+<#macro navigation_menu
+	default_preferences = ""
+>
+	${theme.runtime("com.liferay.portal.theme.NavItem", portletProviderAction.VIEW, "", default_preferences)}
 </#macro>
 
 <#macro product_menu>
 	<#if $is_setup_complete && $is_signed_in>
 		${theme.runtime("com.liferay.portlet.admin.util.PortalProductMenuApplicationType$ProductMenu", portletProviderAction.VIEW)}
+	</#if>
+</#macro>
+
+<#macro product_menu_sidebar
+	state
+>
+	<#if $is_setup_complete && $is_signed_in>
+		<div class="${state} lfr-product-menu-panel sidenav-fixed sidenav-menu-slider" id="sidenavSliderId">
+			<div class="product-menu sidebar sidebar-inverse sidenav-menu">
+				<@liferay.product_menu() />
+			</div>
+		</div>
 	</#if>
 </#macro>
 
@@ -105,9 +123,11 @@ ${languageUtil.format(locale, key, arguments)}</#macro>
 	${theme.quickAccess(content_id)}
 </#macro>
 
-<#macro search>
+<#macro search
+	default_preferences = ""
+>
 	<#if $is_setup_complete>
-		${theme.runtime("com.liferay.portlet.admin.util.PortalSearchApplicationType$Search", portletProviderAction.VIEW)}
+		${theme.runtime("com.liferay.portlet.admin.util.PortalSearchApplicationType$Search", portletProviderAction.VIEW, "", default_preferences)}
 	</#if>
 </#macro>
 

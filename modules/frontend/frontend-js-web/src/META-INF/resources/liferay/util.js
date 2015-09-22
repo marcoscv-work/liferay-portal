@@ -36,7 +36,8 @@
 				}
 			);
 
-			Util.addInputCancel = function() {};
+			Util.addInputCancel = function() {
+			};
 		},
 
 		addParams: function(params, url) {
@@ -85,68 +86,80 @@
 		},
 
 		checkAll: function(form, name, allBox, selectClassName) {
-			form = Util.getDOM(form);
-			allBox = Util.getDOM(allBox);
+			if (form) {
+				form = Util.getDOM(form);
+				allBox = Util.getDOM(allBox);
 
-			var selector;
+				var selector;
 
-			if (_.isArray(name)) {
-				selector = 'input[name=' + name.join('], input[name=') + STR_RIGHT_SQUARE_BRACKET;
-			}
-			else {
-				selector = 'input[name=' + name + STR_RIGHT_SQUARE_BRACKET;
-			}
-
-			form = $(form);
-
-			var allBoxChecked = $(allBox).prop(STR_CHECKED);
-
-			form.find(selector).each(
-				function(index, item) {
-					item = $(item);
-
-					if (!item.prop('disabled')) {
-						item.prop(STR_CHECKED, allBoxChecked);
-					}
+				if (_.isArray(name)) {
+					selector = 'input[name=' + name.join('], input[name=') + STR_RIGHT_SQUARE_BRACKET;
 				}
-			);
+				else {
+					selector = 'input[name=' + name + STR_RIGHT_SQUARE_BRACKET;
+				}
 
-			if (selectClassName) {
-				form.find(selectClassName).toggleClass('info', allBoxChecked);
+				form = $(form);
+
+				var allBoxChecked = $(allBox).prop(STR_CHECKED);
+
+				form.find(selector).each(
+					function(index, item) {
+						item = $(item);
+
+						if (!item.prop('disabled')) {
+							item.prop(STR_CHECKED, allBoxChecked);
+						}
+					}
+				);
+
+				if (selectClassName) {
+					form.find(selectClassName).toggleClass('info', allBoxChecked);
+				}
 			}
 		},
 
 		checkAllBox: function(form, name, allBox) {
-			form = Util.getDOM(form);
-			allBox = Util.getDOM(allBox);
-
-			form = $(form);
-			allBox = $(allBox);
-
-			var totalBoxes = 0;
 			var totalOn = 0;
 
-			var inputs = form.find('input[type=checkbox]');
+			if (form) {
+				form = Util.getDOM(form);
+				allBox = Util.getDOM(allBox);
 
-			if (!_.isArray(name)) {
-				name = [name];
-			}
+				form = $(form);
 
-			inputs.each(
-				function(index, item) {
-					item = $(item);
+				var allBoxNodes = $(allBox);
 
-					if (!item.is(allBox) && _.indexOf(name, item.attr('name')) > -1) {
-						totalBoxes++;
+				if (!allBoxNodes.length) {
+					allBoxNodes = $('input[name="' + allBox + '"]');
+				}
 
-						if (item.prop(STR_CHECKED)) {
-							totalOn++;
+				var totalBoxes = 0;
+
+				var inputs = form.find('input[type=checkbox]');
+
+				if (!_.isArray(name)) {
+					name = [name];
+				}
+
+				inputs.each(
+					function(index, item) {
+						item = $(item);
+
+						if (!item.is(allBoxNodes) && _.indexOf(name, item.attr('name')) > -1) {
+							totalBoxes++;
+
+							if (item.prop(STR_CHECKED)) {
+								totalOn++;
+							}
 						}
 					}
-				}
-			);
+				);
 
-			allBox.prop(STR_CHECKED, totalBoxes == totalOn);
+				allBoxNodes.prop(STR_CHECKED, totalBoxes == totalOn);
+			}
+
+			return totalOn;
 		},
 
 		checkTab: function(box) {
@@ -743,6 +756,14 @@
 			}
 		},
 
+		rowCheckerCheckAllBox: function(ancestorTable, ancestorRow, checkboxesIds, checkboxAllIds, cssClass) {
+			Util.checkAllBox(ancestorTable, checkboxesIds, checkboxAllIds);
+
+			if (ancestorRow) {
+				ancestorRow.toggleClass(cssClass);
+			}
+		},
+
 		savePortletTitle: function(params) {
 			_.defaults(
 				params,
@@ -1178,45 +1199,18 @@
 
 				iframeBody.delegate(
 					EVENT_CLICK,
-					function() {
-						dialog.set('visible', false, SRC_HIDE_LINK);
+					function(event) {
+						dialog.set(
+							'visible',
+							false,
+							event.currentTarget.hasClass('lfr-hide-dialog') ? SRC_HIDE_LINK : null
+						);
 
 						detachEventHandles();
 					},
-					'.lfr-hide-dialog'
+					'.btn-cancel,.lfr-hide-dialog'
 				)
 			];
-
-			var cancelButton = iframeBody.one('.btn-cancel');
-
-			if (cancelButton) {
-				cancelButton.after(
-					EVENT_CLICK,
-					function() {
-						detachEventHandles();
-
-						dialog.hide();
-					}
-				);
-			}
-
-			var rolesSearchContainer = iframeBody.one('#rolesSearchContainerSearchContainer');
-
-			if (rolesSearchContainer) {
-				eventHandles.push(
-					rolesSearchContainer.delegate(
-						EVENT_CLICK,
-						function(event) {
-							event.preventDefault();
-
-							detachEventHandles();
-
-							submitForm(document.hrefFm, event.currentTarget.attr('href'));
-						},
-						'a'
-					)
-				);
-			}
 		},
 		['aui-base']
 	);
@@ -1529,7 +1523,7 @@
 
 						Liferay._editControlsState = docBody.hasClass(visibleClass) ? 'visible' : 'hidden';
 
-						Liferay.Store('liferay_toggle_controls', Liferay._editControlsState);
+						Liferay.Store('com.liferay.frontend.js.web_toggleControls', Liferay._editControlsState);
 
 						Liferay.fire(
 							'toggleControls',

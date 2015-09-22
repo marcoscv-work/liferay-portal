@@ -33,6 +33,7 @@ import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.test.ServiceTestUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.asset.search.test.BaseAssetSearchTestCase;
 
 import java.util.Date;
@@ -114,23 +115,23 @@ public class JournalArticleAssetSearchTest extends BaseAssetSearchTestCase {
 			ServiceContext serviceContext)
 		throws Exception {
 
-		if (_ddmStructure == null) {
-			_ddmStructure = DDMStructureTestUtil.addStructure(
+		if (ddmStructure == null) {
+			ddmStructure = DDMStructureTestUtil.addStructure(
 				serviceContext.getScopeGroupId(),
 				JournalArticle.class.getName());
 		}
 
-		if (_ddmTemplate == null) {
-			_ddmTemplate = DDMTemplateTestUtil.addTemplate(
-				serviceContext.getScopeGroupId(),
-				_ddmStructure.getStructureId());
+		if (ddmTemplate == null) {
+			ddmTemplate = DDMTemplateTestUtil.addTemplate(
+				serviceContext.getScopeGroupId(), ddmStructure.getStructureId(),
+				PortalUtil.getClassNameId(JournalArticle.class));
 		}
 
 		String content = DDMStructureTestUtil.getSampleStructuredContent();
 
 		return JournalTestUtil.addArticleWithXMLContent(
 			serviceContext.getScopeGroupId(), content,
-			_ddmStructure.getStructureKey(), _ddmTemplate.getTemplateKey());
+			ddmStructure.getStructureKey(), ddmTemplate.getTemplateKey());
 	}
 
 	@Override
@@ -140,11 +141,11 @@ public class JournalArticleAssetSearchTest extends BaseAssetSearchTestCase {
 
 	@Override
 	protected long[] getClassTypeIds() {
-		if (_ddmStructure == null) {
+		if (ddmStructure == null) {
 			return null;
 		}
 
-		return new long[] {_ddmStructure.getStructureId()};
+		return new long[] {ddmStructure.getStructureId()};
 	}
 
 	@Override
@@ -152,7 +153,7 @@ public class JournalArticleAssetSearchTest extends BaseAssetSearchTestCase {
 		return "title";
 	}
 
-	protected DDMStructure _ddmStructure;
-	protected DDMTemplate _ddmTemplate;
+	protected DDMStructure ddmStructure;
+	protected DDMTemplate ddmTemplate;
 
 }

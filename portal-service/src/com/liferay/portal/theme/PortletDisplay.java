@@ -16,11 +16,10 @@ package com.liferay.portal.theme;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.module.configuration.ConfigurationException;
+import com.liferay.portal.kernel.module.configuration.ConfigurationFactoryUtil;
 import com.liferay.portal.kernel.portlet.toolbar.PortletToolbar;
 import com.liferay.portal.kernel.settings.PortletInstanceSettingsLocator;
-import com.liferay.portal.kernel.settings.SettingsException;
-import com.liferay.portal.kernel.settings.SettingsFactory;
-import com.liferay.portal.kernel.settings.SettingsFactoryUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -71,6 +70,7 @@ public class PortletDisplay implements Serializable {
 		_modePrint = master.isModePrint();
 		_modeView = master.isModeView();
 		_namespace = master.getNamespace();
+		_portletDecoratorId = master.getPortletDecoratorId();
 		_portletName = master.getPortletName();
 		_portletSetup = master.getPortletSetup();
 		_portletToolbar = master.getPortletToolbar();
@@ -139,6 +139,7 @@ public class PortletDisplay implements Serializable {
 		slave.setModePrint(_modePrint);
 		slave.setModeView(_modeView);
 		slave.setNamespace(_namespace);
+		slave.setPortletDecoratorId(_portletDecoratorId);
 		slave.setPortletName(_portletName);
 		slave.setPortletResource(_portletResource);
 		slave.setPortletSetup(_portletSetup);
@@ -237,16 +238,17 @@ public class PortletDisplay implements Serializable {
 		return _namespace;
 	}
 
-	public <T> T getPortletInstanceConfiguration(Class<T> clazz)
-		throws SettingsException {
+	public String getPortletDecoratorId() {
+		return _portletDecoratorId;
+	}
 
-		SettingsFactory settingsFactory =
-			SettingsFactoryUtil.getSettingsFactory();
+	public <T> T getPortletInstanceConfiguration(Class<T> clazz)
+		throws ConfigurationException {
 
 		String portletId = Validator.isNull(
 			_portletResource) ? _id : _portletResource;
 
-		return settingsFactory.getSettings(
+		return ConfigurationFactoryUtil.getConfiguration(
 			clazz,
 			new PortletInstanceSettingsLocator(
 				_themeDisplay.getLayout(), portletId));
@@ -655,6 +657,10 @@ public class PortletDisplay implements Serializable {
 		_namespace = namespace;
 	}
 
+	public void setPortletDecoratorId(String portletDecoratorId) {
+		_portletDecoratorId = portletDecoratorId;
+	}
+
 	public void setPortletName(String portletName) {
 		_portletName = portletName;
 	}
@@ -878,6 +884,7 @@ public class PortletDisplay implements Serializable {
 	private boolean _modePrint;
 	private boolean _modeView;
 	private String _namespace = StringPool.BLANK;
+	private String _portletDecoratorId = StringPool.BLANK;
 	private String _portletName = StringPool.BLANK;
 	private String _portletResource = StringPool.BLANK;
 	private PortletPreferences _portletSetup;

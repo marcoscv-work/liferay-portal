@@ -277,36 +277,22 @@ public interface DDMTemplateService extends BaseService {
 	public com.liferay.dynamic.data.mapping.model.DDMTemplate getTemplate(
 		long templateId) throws PortalException;
 
-	/**
-	* Returns all the templates matching the group and class name ID.
-	*
-	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the class name for template's
-	related model
-	* @return the matching templates
-	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMTemplate> getTemplates(
-		long groupId, long classNameId);
-
-	/**
-	* Returns all the templates matching the group, class name ID, and class
-	* PK.
-	*
-	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the class name for template's
-	related model
-	* @param classPK the primary key of the template's related entity
-	* @return the matching templates
-	*/
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMTemplate> getTemplates(
-		long groupId, long classNameId, long classPK);
+		long companyId, long groupId, long classNameId, long classPK,
+		long resourceClassNameId, boolean includeAncestorTemplates, int status)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMTemplate> getTemplates(
-		long groupId, long classNameId, long classPK,
-		boolean includeAncestorTemplates) throws PortalException;
+		long companyId, long groupId, long classNameId, long classPK,
+		long resourceClassNameId, int status);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMTemplate> getTemplates(
+		long companyId, long groupId, long classNameId, long classPK,
+		long resourceClassNameId, java.lang.String type, java.lang.String mode,
+		int status);
 
 	/**
 	* Returns all the templates matching the class name ID, class PK, type, and
@@ -322,12 +308,13 @@ public interface DDMTemplateService extends BaseService {
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMTemplate> getTemplates(
-		long groupId, long classNameId, long classPK, java.lang.String type);
+		long companyId, long groupId, long classNameId, long classPK,
+		long resourceClassNameId, java.lang.String type, int status);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMTemplate> getTemplates(
-		long groupId, long classNameId, long classPK, java.lang.String type,
-		java.lang.String mode);
+		long companyId, long groupId, long classNameId,
+		long resourceClassNameId, int status);
 
 	/**
 	* Returns all the templates matching the group and class PK.
@@ -338,7 +325,8 @@ public interface DDMTemplateService extends BaseService {
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMTemplate> getTemplatesByClassPK(
-		long groupId, long classPK);
+		long companyId, long groupId, long classPK, long resourceClassNameIs,
+		int status);
 
 	/**
 	* Returns an ordered range of all the templates matching the group and
@@ -367,7 +355,8 @@ public interface DDMTemplateService extends BaseService {
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMTemplate> getTemplatesByStructureClassNameId(
-		long groupId, long structureClassNameId, int start, int end,
+		long groupId, long structureClassNameId, int status, int start,
+		int end,
 		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.dynamic.data.mapping.model.DDMTemplate> orderByComparator);
 
 	/**
@@ -383,7 +372,7 @@ public interface DDMTemplateService extends BaseService {
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getTemplatesByStructureClassNameIdCount(long groupId,
-		long structureClassNameId);
+		long structureClassNameId, int status);
 
 	public void revertTemplate(long templateId, java.lang.String version,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -430,7 +419,8 @@ public interface DDMTemplateService extends BaseService {
 	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMTemplate> search(
 		long companyId, long groupId, long classNameId, long classPK,
 		long resourceClassNameId, java.lang.String keywords,
-		java.lang.String type, java.lang.String mode, int start, int end,
+		java.lang.String type, java.lang.String mode, int status, int start,
+		int end,
 		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.dynamic.data.mapping.model.DDMTemplate> orderByComparator);
 
 	/**
@@ -481,8 +471,8 @@ public interface DDMTemplateService extends BaseService {
 		long companyId, long groupId, long classNameId, long classPK,
 		long resourceClassNameId, java.lang.String name,
 		java.lang.String description, java.lang.String type,
-		java.lang.String mode, java.lang.String language, boolean andOperator,
-		int start, int end,
+		java.lang.String mode, java.lang.String language, int status,
+		boolean andOperator, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.dynamic.data.mapping.model.DDMTemplate> orderByComparator);
 
 	/**
@@ -526,7 +516,8 @@ public interface DDMTemplateService extends BaseService {
 	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMTemplate> search(
 		long companyId, long[] groupIds, long[] classNameIds, long[] classPKs,
 		long resourceClassNameId, java.lang.String keywords,
-		java.lang.String type, java.lang.String mode, int start, int end,
+		java.lang.String type, java.lang.String mode, int status, int start,
+		int end,
 		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.dynamic.data.mapping.model.DDMTemplate> orderByComparator);
 
 	/**
@@ -577,8 +568,8 @@ public interface DDMTemplateService extends BaseService {
 		long companyId, long[] groupIds, long[] classNameIds, long[] classPKs,
 		long resourceClassNameId, java.lang.String name,
 		java.lang.String description, java.lang.String type,
-		java.lang.String mode, java.lang.String language, boolean andOperator,
-		int start, int end,
+		java.lang.String mode, java.lang.String language, int status,
+		boolean andOperator, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.dynamic.data.mapping.model.DDMTemplate> orderByComparator);
 
 	/**
@@ -606,7 +597,7 @@ public interface DDMTemplateService extends BaseService {
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int searchCount(long companyId, long groupId, long classNameId,
 		long classPK, long resourceClassNameId, java.lang.String keywords,
-		java.lang.String type, java.lang.String mode);
+		java.lang.String type, java.lang.String mode, int status);
 
 	/**
 	* Returns the number of templates matching the group, class name ID, class
@@ -639,7 +630,8 @@ public interface DDMTemplateService extends BaseService {
 	public int searchCount(long companyId, long groupId, long classNameId,
 		long classPK, long resourceClassNameId, java.lang.String name,
 		java.lang.String description, java.lang.String type,
-		java.lang.String mode, java.lang.String language, boolean andOperator);
+		java.lang.String mode, java.lang.String language, int status,
+		boolean andOperator);
 
 	/**
 	* Returns the number of templates matching the group IDs, class name IDs,
@@ -666,7 +658,8 @@ public interface DDMTemplateService extends BaseService {
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int searchCount(long companyId, long[] groupIds,
 		long[] classNameIds, long[] classPKs, long resourceClassNameId,
-		java.lang.String keywords, java.lang.String type, java.lang.String mode);
+		java.lang.String keywords, java.lang.String type,
+		java.lang.String mode, int status);
 
 	/**
 	* Returns the number of templates matching the group IDs, class name IDs,
@@ -700,7 +693,7 @@ public interface DDMTemplateService extends BaseService {
 		long[] classNameIds, long[] classPKs, long resourceClassNameId,
 		java.lang.String name, java.lang.String description,
 		java.lang.String type, java.lang.String mode,
-		java.lang.String language, boolean andOperator);
+		java.lang.String language, int status, boolean andOperator);
 
 	/**
 	* Sets the Spring bean ID for this bean.

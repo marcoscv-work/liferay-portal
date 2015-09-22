@@ -16,7 +16,7 @@ AUI.add(
 				'<div class="input-group"></div>' +
 			'</div>';
 
-		var TPL_FIELD_INPUT = '<input class="add-page-editor-input" type="text" value="{0}" />';
+		var TPL_FIELD_INPUT = '<input class="add-page-editor-input form-control" type="text" value="{0}" />';
 
 		var TPL_LINK = '<a href="{url}">{pageTitle}</a>';
 
@@ -170,7 +170,7 @@ AUI.add(
 							Liferay.on('dockbaraddpage:addPage', instance._onAddPage, instance);
 							Liferay.on('dockbaraddpage:previewPageTitle', instance._onPreviewPageTitle, instance);
 
-							navBlock.delegate('keypress', A.bind('_onKeypress', instance), 'input');
+							navBlock.delegate('keypress', A.bind('_onKeypress', instance), '.lfr-nav-item input');
 						}
 					},
 

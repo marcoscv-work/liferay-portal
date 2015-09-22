@@ -16,11 +16,13 @@ package com.liferay.gradle.plugins;
 
 import aQute.bnd.osgi.Constants;
 
+import com.liferay.gradle.plugins.alloy.taglib.BuildTaglibsTask;
 import com.liferay.gradle.plugins.css.builder.BuildCSSTask;
 import com.liferay.gradle.plugins.extensions.LiferayExtension;
 import com.liferay.gradle.plugins.extensions.LiferayOSGiExtension;
 import com.liferay.gradle.plugins.jasper.jspc.JspCExtension;
 import com.liferay.gradle.plugins.jasper.jspc.JspCPlugin;
+import com.liferay.gradle.plugins.node.tasks.PublishNodeModuleTask;
 import com.liferay.gradle.plugins.service.builder.BuildServiceTask;
 import com.liferay.gradle.plugins.tasks.DirectDeployTask;
 import com.liferay.gradle.plugins.wsdd.builder.BuildWSDDTask;
@@ -55,12 +57,15 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.BasePluginConvention;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetOutput;
+import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskInputs;
 import org.gradle.api.tasks.TaskOutputs;
 import org.gradle.api.tasks.bundling.Jar;
@@ -89,6 +94,7 @@ public class LiferayOSGiPlugin extends LiferayJavaPlugin {
 		configureJspCExtension(project);
 
 		configureArchivesBaseName(project);
+		configureTasksBuildTaglibs(project);
 		configureVersion(project);
 
 		project.afterEvaluate(
@@ -156,6 +162,7 @@ public class LiferayOSGiPlugin extends LiferayJavaPlugin {
 
 		directDeployTask.setAppServerDeployDir(
 			directDeployTask.getTemporaryDir());
+		directDeployTask.setAppServerType("tomcat");
 		directDeployTask.setWebAppType("portlet");
 
 		directDeployTask.doFirst(
@@ -203,6 +210,14 @@ public class LiferayOSGiPlugin extends LiferayJavaPlugin {
 						deployedPluginDir = new File(
 							directDeployTask.getAppServerDeployDir(),
 							project.getName());
+					}
+
+					if (!deployedPluginDir.exists()) {
+						_logger.warn(
+							"Unable to automatically update web.xml in " +
+								jar.getArchivePath());
+
+						return;
 					}
 
 					deployedPluginDirName = project.relativePath(
@@ -636,6 +651,47 @@ public class LiferayOSGiPlugin extends LiferayJavaPlugin {
 		buildServiceTask.setSqlDirName(project.relativePath(sqlDir));
 	}
 
+	protected void configureTaskBuildTaglibsJspParentDir(
+		BuildTaglibsTask buildTaglibsTask) {
+
+		if (buildTaglibsTask.getJspParentDir() != null) {
+			return;
+		}
+
+		File jspParentDir = new File(
+			getResourcesDir(buildTaglibsTask.getProject()),
+			"META-INF/resources");
+
+		buildTaglibsTask.setJspParentDir(jspParentDir);
+	}
+
+	protected void configureTaskBuildTaglibsOsgiModuleSymbolicName(
+		BuildTaglibsTask buildTaglibsTask) {
+
+		if (Validator.isNotNull(buildTaglibsTask.getOsgiModuleSymbolicName())) {
+			return;
+		}
+
+		String bundleSymbolicName = getBundleInstruction(
+			buildTaglibsTask.getProject(), Constants.BUNDLE_SYMBOLICNAME);
+
+		buildTaglibsTask.setOsgiModuleSymbolicName(bundleSymbolicName);
+	}
+
+	protected void configureTaskBuildTaglibsTldDir(
+		BuildTaglibsTask buildTaglibsTask) {
+
+		if (buildTaglibsTask.getTldDir() != null) {
+			return;
+		}
+
+		File tldDir = new File(
+			getResourcesDir(buildTaglibsTask.getProject()),
+			"META-INF/resources");
+
+		buildTaglibsTask.setTldDir(tldDir);
+	}
+
 	@Override
 	protected void configureTaskBuildXSD(Project project) {
 		Zip zip = (Zip)GradleUtil.getTask(
@@ -703,6 +759,44 @@ public class LiferayOSGiPlugin extends LiferayJavaPlugin {
 	}
 
 	@Override
+	protected void configureTaskPublishNodeModule(
+		PublishNodeModuleTask publishNodeModuleTask) {
+
+		super.configureTaskPublishNodeModule(publishNodeModuleTask);
+
+		configureTaskPublishNodeModuleDescription(publishNodeModuleTask);
+		configureTaskPublishNodeModuleName(publishNodeModuleTask);
+	}
+
+	protected void configureTaskPublishNodeModuleDescription(
+		PublishNodeModuleTask publishNodeModuleTask) {
+
+		if (Validator.isNotNull(publishNodeModuleTask.getModuleDescription())) {
+			return;
+		}
+
+		String bundleName = getBundleInstruction(
+			publishNodeModuleTask.getProject(), Constants.BUNDLE_NAME);
+
+		publishNodeModuleTask.setModuleDescription(bundleName);
+	}
+
+	protected void configureTaskPublishNodeModuleName(
+		PublishNodeModuleTask publishNodeModuleTask) {
+
+		String bundleSymbolicName = getBundleInstruction(
+			publishNodeModuleTask.getProject(), Constants.BUNDLE_SYMBOLICNAME);
+
+		int pos = bundleSymbolicName.indexOf('.');
+
+		String moduleName = bundleSymbolicName.substring(pos + 1);
+
+		moduleName = moduleName.replace('.', '-');
+
+		publishNodeModuleTask.setModuleName(moduleName);
+	}
+
+	@Override
 	protected void configureTasks(
 		Project project, LiferayExtension liferayExtension) {
 
@@ -711,6 +805,24 @@ public class LiferayOSGiPlugin extends LiferayJavaPlugin {
 		configureTaskBuildXSD(project);
 
 		configureTaskAutoUpdateXml(project);
+	}
+
+	protected void configureTasksBuildTaglibs(Project project) {
+		TaskContainer taskContainer = project.getTasks();
+
+		taskContainer.withType(
+			BuildTaglibsTask.class,
+			new Action<BuildTaglibsTask>() {
+
+				@Override
+				public void execute(BuildTaglibsTask buildTaglibsTask) {
+					configureTaskBuildTaglibsJspParentDir(buildTaglibsTask);
+					configureTaskBuildTaglibsOsgiModuleSymbolicName(
+						buildTaglibsTask);
+					configureTaskBuildTaglibsTldDir(buildTaglibsTask);
+				}
+
+			});
 	}
 
 	protected void configureTaskUnzipJar(Project project) {
@@ -814,6 +926,9 @@ public class LiferayOSGiPlugin extends LiferayJavaPlugin {
 		bundleExtension.setJarBuilderFactory(
 			new LiferayJarBuilderFactory(project));
 	}
+
+	private static final Logger _logger = Logging.getLogger(
+		LiferayOSGiPlugin.class);
 
 	private static class LiferayJarBuilder extends JarBuilder {
 

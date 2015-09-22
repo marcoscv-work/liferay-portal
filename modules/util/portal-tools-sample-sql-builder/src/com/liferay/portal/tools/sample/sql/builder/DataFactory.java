@@ -2621,7 +2621,7 @@ public class DataFactory {
 		ddmTemplateModel.setClassNameId(
 			_classNameModelsMap.get(DDMStructure.class.getName()));
 		ddmTemplateModel.setClassPK(structureId);
-		ddmTemplateModel.setResourceClassNameId(structureId);
+		ddmTemplateModel.setResourceClassNameId(sourceClassNameId);
 		ddmTemplateModel.setTemplateKey(String.valueOf(_counter.get()));
 		ddmTemplateModel.setVersion(DDMTemplateConstants.VERSION_DEFAULT);
 		ddmTemplateModel.setVersionUserId(userId);
@@ -2860,9 +2860,11 @@ public class DataFactory {
 		resourcePermissionModel.setName(name);
 		resourcePermissionModel.setScope(ResourceConstants.SCOPE_INDIVIDUAL);
 		resourcePermissionModel.setPrimKey(primKey);
+		resourcePermissionModel.setPrimKeyId(GetterUtil.getLong(primKey));
 		resourcePermissionModel.setRoleId(roleId);
 		resourcePermissionModel.setOwnerId(ownerId);
 		resourcePermissionModel.setActionIds(1);
+		resourcePermissionModel.setViewActionId(true);
 
 		return resourcePermissionModel;
 	}

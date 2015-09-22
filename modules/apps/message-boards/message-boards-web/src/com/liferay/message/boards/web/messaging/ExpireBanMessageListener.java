@@ -16,14 +16,15 @@ package com.liferay.message.boards.web.messaging;
 
 import aQute.bnd.annotation.metatype.Configurable;
 
-import com.liferay.message.boards.configuration.MessageBoardsConfiguration;
+import com.liferay.message.boards.configuration.MBConfiguration;
 import com.liferay.message.boards.web.constants.MBPortletKeys;
 import com.liferay.portal.kernel.messaging.BaseSchedulerEntryMessageListener;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.scheduler.SchedulerEntry;
 import com.liferay.portal.kernel.scheduler.TimeUnit;
-import com.liferay.portal.kernel.scheduler.TriggerType;
+import com.liferay.portal.kernel.scheduler.TriggerFactory;
+import com.liferay.portal.kernel.scheduler.TriggerFactoryUtil;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portlet.messageboards.service.MBBanLocalServiceUtil;
 
@@ -49,14 +50,13 @@ public class ExpireBanMessageListener
 	@Activate
 	@Modified
 	protected void activate(Map<String, Object> properties) {
-		schedulerEntry.setTimeUnit(TimeUnit.MINUTE);
-		schedulerEntry.setTriggerType(TriggerType.SIMPLE);
+		_mbConfiguration = Configurable.createConfigurable(
+			MBConfiguration.class, properties);
 
-		_messageBoardsConfiguration = Configurable.createConfigurable(
-			MessageBoardsConfiguration.class, properties);
-
-		schedulerEntry.setTriggerValue(
-			_messageBoardsConfiguration.expireBanJobInterval());
+		schedulerEntryImpl.setTrigger(
+			TriggerFactoryUtil.createTrigger(
+				getEventListenerClass(), getEventListenerClass(),
+				_mbConfiguration.expireBanJobInterval(), TimeUnit.MINUTE));
 	}
 
 	@Override
@@ -76,6 +76,10 @@ public class ExpireBanMessageListener
 	protected void setPortlet(Portlet portlet) {
 	}
 
-	private volatile MessageBoardsConfiguration _messageBoardsConfiguration;
+	@Reference(unbind = "-")
+	protected void setTriggerFactory(TriggerFactory triggerFactory) {
+	}
+
+	private volatile MBConfiguration _mbConfiguration;
 
 }

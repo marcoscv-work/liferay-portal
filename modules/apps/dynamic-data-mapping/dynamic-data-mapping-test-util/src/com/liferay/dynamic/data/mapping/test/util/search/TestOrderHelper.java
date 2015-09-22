@@ -27,7 +27,7 @@ import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.FieldConstants;
 import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestUtil;
 import com.liferay.dynamic.data.mapping.test.util.DDMTemplateTestUtil;
-import com.liferay.dynamic.data.mapping.util.DDMBeanCopyUtil;
+import com.liferay.dynamic.data.mapping.util.DDMBeanTranslatorUtil;
 import com.liferay.dynamic.data.mapping.util.DDMIndexerUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.search.Hits;
@@ -170,7 +170,8 @@ public abstract class TestOrderHelper {
 		throws Exception {
 
 		return DDMTemplateTestUtil.addTemplate(
-			_serviceContext.getScopeGroupId(), ddmStructure.getStructureId());
+			_serviceContext.getScopeGroupId(), ddmStructure.getStructureId(),
+			getClassNameId());
 	}
 
 	protected void addSearchableAssetEntries(
@@ -241,6 +242,8 @@ public abstract class TestOrderHelper {
 				getSearchableAssetEntryClassName());
 	}
 
+	protected abstract long getClassNameId();
+
 	protected abstract String getSearchableAssetEntryClassName();
 
 	protected abstract BaseModel<?> getSearchableAssetEntryParentBaseModel(
@@ -252,7 +255,7 @@ public abstract class TestOrderHelper {
 		DDMFormValuesReader ddmFormValuesReader =
 			assetRenderer.getDDMFormValuesReader();
 
-		DDMFormValues ddmFormValues = DDMBeanCopyUtil.copyDDMFormValues(
+		DDMFormValues ddmFormValues = DDMBeanTranslatorUtil.translate(
 			ddmFormValuesReader.getDDMFormValues());
 
 		Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap =

@@ -22,7 +22,7 @@ import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestUtil;
 import com.liferay.dynamic.data.mapping.test.util.search.TestOrderHelper;
-import com.liferay.dynamic.data.mapping.util.DDMBeanCopyUtil;
+import com.liferay.dynamic.data.mapping.util.DDMBeanTranslatorUtil;
 import com.liferay.dynamic.data.mapping.util.DDMIndexerUtil;
 import com.liferay.dynamic.data.mapping.util.DDMUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -53,6 +53,7 @@ import com.liferay.portal.security.permission.PermissionThreadLocal;
 import com.liferay.portal.security.permission.SimplePermissionChecker;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
@@ -63,9 +64,9 @@ import com.liferay.portlet.documentlibrary.service.DLAppServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
-import com.liferay.portlet.dynamicdatamapping.model.LocalizedValue;
-import com.liferay.portlet.dynamicdatamapping.storage.DDMFormFieldValue;
-import com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues;
+import com.liferay.portlet.dynamicdatamapping.DDMFormFieldValue;
+import com.liferay.portlet.dynamicdatamapping.DDMFormValues;
+import com.liferay.portlet.dynamicdatamapping.LocalizedValue;
 
 import java.io.File;
 import java.io.InputStream;
@@ -273,7 +274,7 @@ public class DLFileEntrySearchTest extends BaseSearchTestCase {
 		String content = "Content: Enterprise. Open Source. For Life.";
 
 		DDMFormValues ddmFormValues = createDDMFormValues(
-			DDMBeanCopyUtil.copyDDMForm(_ddmStructure.getDDMForm()));
+			DDMBeanTranslatorUtil.translate(_ddmStructure.getDDMForm()));
 
 		for (String keyword : keywords) {
 			ddmFormValues.addDDMFormFieldValue(
@@ -307,8 +308,8 @@ public class DLFileEntrySearchTest extends BaseSearchTestCase {
 		DDMForm ddmForm = DDMStructureTestUtil.getSampleDDMForm("name");
 
 		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
-			serviceContext.getScopeGroupId(), DLFileEntry.class.getName(),
-			ddmForm);
+			serviceContext.getScopeGroupId(),
+			DLFileEntryMetadata.class.getName(), ddmForm);
 
 		return addBaseModel(keywords, ddmStructure, serviceContext);
 	}
@@ -335,7 +336,7 @@ public class DLFileEntrySearchTest extends BaseSearchTestCase {
 	}
 
 	protected DDMFormValues createDDMFormValues(
-		com.liferay.portlet.dynamicdatamapping.model.DDMForm ddmForm) {
+		com.liferay.portlet.dynamicdatamapping.DDMForm ddmForm) {
 
 		DDMFormValues ddmFormValues = new DDMFormValues(ddmForm);
 
@@ -529,6 +530,13 @@ public class DLFileEntrySearchTest extends BaseSearchTestCase {
 		}
 
 		@Override
+		protected DDMTemplate addDDMTemplate(DDMStructure ddmStructure)
+			throws Exception {
+
+			return null;
+		}
+
+		@Override
 		protected BaseModel<?> addSearchableAssetEntry(
 				String fieldValue, BaseModel<?> parentBaseModel,
 				DDMStructure ddmStructure, DDMTemplate ddmTemplate,
@@ -546,6 +554,11 @@ public class DLFileEntrySearchTest extends BaseSearchTestCase {
 			throws Exception {
 
 			return addBaseModel(fieldValues, ddmStructure, serviceContext);
+		}
+
+		@Override
+		protected long getClassNameId() {
+			return PortalUtil.getClassNameId(DLFileEntryMetadata.class);
 		}
 
 		@Override

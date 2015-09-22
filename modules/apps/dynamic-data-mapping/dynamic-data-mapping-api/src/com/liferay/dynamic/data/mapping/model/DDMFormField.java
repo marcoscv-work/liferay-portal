@@ -39,6 +39,9 @@ public class DDMFormField implements Serializable {
 
 		setDDMFormFieldOptions(
 			new DDMFormFieldOptions(ddmFormField.getDDMFormFieldOptions()));
+		setDDMFormFieldValidation(
+			new DDMFormFieldValidation(
+				ddmFormField.getDDMFormFieldValidation()));
 		setLabel(new LocalizedValue(ddmFormField.getLabel()));
 		setPredefinedValue(
 			new LocalizedValue(ddmFormField.getPredefinedValue()));
@@ -81,6 +84,10 @@ public class DDMFormField implements Serializable {
 
 	public DDMFormFieldOptions getDDMFormFieldOptions() {
 		return (DDMFormFieldOptions)_properties.get("options");
+	}
+
+	public DDMFormFieldValidation getDDMFormFieldValidation() {
+		return (DDMFormFieldValidation)_properties.get("validation");
 	}
 
 	public String getFieldNamespace() {
@@ -190,6 +197,12 @@ public class DDMFormField implements Serializable {
 		DDMFormFieldOptions ddmFormFieldOptions) {
 
 		_properties.put("options", ddmFormFieldOptions);
+	}
+
+	public void setDDMFormFieldValidation(
+		DDMFormFieldValidation ddmFormFieldValidation) {
+
+		_properties.put("validation", ddmFormFieldValidation);
 	}
 
 	public void setFieldNamespace(String fieldNamespace) {

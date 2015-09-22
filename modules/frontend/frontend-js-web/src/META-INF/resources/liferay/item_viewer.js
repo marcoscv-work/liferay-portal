@@ -148,7 +148,10 @@ AUI.add(
 
 						var imageValue = {
 							fileEntryId: imageData.file.fileEntryId,
-							url: imageUrl
+							groupId: imageData.file.groupId,
+							title: imageData.file.title,
+							url: imageUrl,
+							uuid: imageData.file.uuid
 						};
 
 						link.setData('value', JSON.stringify(imageValue));
@@ -355,6 +358,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-image-viewer']
+		requires: ['aui-component', 'aui-image-viewer']
 	}
 );

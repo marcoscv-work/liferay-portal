@@ -21,7 +21,7 @@ import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestUtil;
-import com.liferay.dynamic.data.mapping.util.DDMBeanCopyUtil;
+import com.liferay.dynamic.data.mapping.util.DDMBeanTranslatorUtil;
 import com.liferay.portal.kernel.events.SimpleAction;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -50,6 +50,7 @@ import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
+import com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryTypeConstants;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
@@ -152,7 +153,7 @@ public class DLFileEntryTypeServiceTest {
 			new String(testFileBytes));
 
 		serviceContext.setAttribute(
-			"ddmForm", DDMBeanCopyUtil.copyDDMForm(ddmForm));
+			"ddmForm", DDMBeanTranslatorUtil.translate(ddmForm));
 
 		User user = TestPropsValues.getUser();
 
@@ -265,8 +266,8 @@ public class DLFileEntryTypeServiceTest {
 			String name = RandomTestUtil.randomString();
 			String description = RandomTestUtil.randomString();
 			DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
-				DLFileEntry.class.getName(), new Locale[] {LocaleUtil.SPAIN},
-				LocaleUtil.SPAIN);
+				DLFileEntryMetadata.class.getName(),
+				new Locale[] {LocaleUtil.SPAIN}, LocaleUtil.SPAIN);
 
 			DLFileEntryType dlFileEntryType =
 				DLFileEntryTypeLocalServiceUtil.addFileEntryType(
@@ -300,8 +301,8 @@ public class DLFileEntryTypeServiceTest {
 			String name = RandomTestUtil.randomString();
 			String description = RandomTestUtil.randomString();
 			DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
-				DLFileEntry.class.getName(), new Locale[] {LocaleUtil.SPAIN},
-				LocaleUtil.SPAIN);
+				DLFileEntryMetadata.class.getName(),
+				new Locale[] {LocaleUtil.SPAIN}, LocaleUtil.SPAIN);
 
 			DLFileEntryType dlFileEntryType =
 				DLFileEntryTypeLocalServiceUtil.addFileEntryType(

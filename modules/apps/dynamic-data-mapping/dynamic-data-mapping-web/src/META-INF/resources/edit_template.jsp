@@ -67,7 +67,7 @@ if (Validator.isNull(script) && type.equals(DDMTemplateConstants.TEMPLATE_TYPE_D
 DDMTemplateVersion templateVersion = null;
 
 if (template != null) {
-	templateVersion = template.getTemplateVersion();
+	templateVersion = template.getLatestTemplateVersion();
 }
 
 String structureAvailableFields = ParamUtil.getString(request, "structureAvailableFields");
@@ -136,7 +136,7 @@ boolean showCacheableInput = ParamUtil.getBoolean(request, "showCacheableInput")
 
 	<c:if test="<%= showHeader %>">
 		<liferay-ui:header
-			backURL="<%= ddmDisplay.getEditTemplateBackURL(liferayPortletRequest, liferayPortletResponse, classNameId, classPK, portletResource) %>"
+			backURL="<%= ddmDisplay.getEditTemplateBackURL(liferayPortletRequest, liferayPortletResponse, classNameId, classPK, resourceClassNameId, portletResource) %>"
 			localizeTitle="<%= false %>"
 			showBackURL="<%= showBackURL %>"
 			title="<%= title %>"
@@ -145,7 +145,7 @@ boolean showCacheableInput = ParamUtil.getBoolean(request, "showCacheableInput")
 
 	<aui:model-context bean="<%= template %>" model="<%= DDMTemplate.class %>" />
 
-	<c:if test="<%= templateVersion != null %>">
+	<c:if test="<%= (templateVersion != null) && ddmDisplay.isVersioningEnabled() %>">
 		<aui:workflow-status model="<%= DDMTemplate.class %>" status="<%= templateVersion.getStatus() %>" version="<%= templateVersion.getVersion() %>" />
 
 		<div class="template-history-toolbar" id="<portlet:namespace />templateHistoryToolbar"></div>
@@ -190,7 +190,7 @@ boolean showCacheableInput = ParamUtil.getBoolean(request, "showCacheableInput")
 					<div class="form-group">
 						<aui:input helpMessage="structure-help" name="structure" type="resource" value="<%= (structure != null) ? structure.getName(locale) : StringPool.BLANK %>" />
 
-						<c:if test="<%= ((template == null) || (template.getClassPK() == 0)) %>">
+						<c:if test="<%= (template == null) || (template.getClassPK() == 0) %>">
 							<liferay-ui:icon
 								iconCssClass="icon-search"
 								label="<%= true %>"
@@ -423,7 +423,9 @@ boolean showCacheableInput = ParamUtil.getBoolean(request, "showCacheableInput")
 
 	<aui:button onClick='<%= renderResponse.getNamespace() + "saveAndContinueTemplate();" %>' value='<%= LanguageUtil.get(request, "save-and-continue") %>' />
 
-	<aui:button onClick='<%= renderResponse.getNamespace() + "saveDraftTemplate();" %>' value='<%= LanguageUtil.get(request, "save-draft") %>' />
+	<c:if test="<%= ddmDisplay.isVersioningEnabled() %>">
+		<aui:button onClick='<%= renderResponse.getNamespace() + "saveDraftTemplate();" %>' value='<%= LanguageUtil.get(request, "save-draft") %>' />
+	</c:if>
 
 	<aui:button href="<%= redirect %>" type="cancel" />
 </aui:button-row>

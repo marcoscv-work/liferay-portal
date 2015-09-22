@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.webdav.Resource;
 import com.liferay.portal.kernel.webdav.WebDAVException;
 import com.liferay.portal.kernel.webdav.WebDAVRequest;
 import com.liferay.portal.kernel.webdav.WebDAVStorage;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.util.PortalUtil;
 
 import java.util.ArrayList;
@@ -41,7 +42,10 @@ import org.osgi.service.component.annotations.Component;
  */
 @Component(
 	immediate = true,
-	property = {"javax.portlet.name=" + JournalPortletKeys.JOURNAL},
+	property = {
+		"javax.portlet.name=" + JournalPortletKeys.JOURNAL,
+		"webdav.storage.token=journal"
+	},
 	service = WebDAVStorage.class
 )
 public class JournalWebDAVStorageImpl extends BaseWebDAVStorageImpl {
@@ -145,7 +149,8 @@ public class JournalWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 			DDMTemplateLocalServiceUtil.getTemplatesByStructureClassNameId(
 				webDAVRequest.getGroupId(),
 				PortalUtil.getClassNameId(JournalArticle.class),
-				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+				WorkflowConstants.STATUS_APPROVED, QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS, null);
 
 		for (DDMTemplate ddmTemplate : ddmTemplates) {
 			Resource resource = DDMWebDavUtil.toResource(

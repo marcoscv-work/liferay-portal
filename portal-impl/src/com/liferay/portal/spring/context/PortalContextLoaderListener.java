@@ -15,7 +15,6 @@
 package com.liferay.portal.spring.context;
 
 import com.liferay.portal.bean.BeanLocatorImpl;
-import com.liferay.portal.dao.jdbc.util.DataSourceWrapper;
 import com.liferay.portal.dao.orm.hibernate.FieldInterceptionHelperUtil;
 import com.liferay.portal.deploy.hot.CustomJspBagRegistryUtil;
 import com.liferay.portal.deploy.hot.IndexerPostProcessorRegistry;
@@ -26,8 +25,6 @@ import com.liferay.portal.kernel.cache.MultiVMPoolUtil;
 import com.liferay.portal.kernel.cache.SingleVMPoolUtil;
 import com.liferay.portal.kernel.cache.ThreadLocalCacheManager;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
-import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
-import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
 import com.liferay.portal.kernel.deploy.DeployManagerUtil;
 import com.liferay.portal.kernel.deploy.hot.HotDeployUtil;
 import com.liferay.portal.kernel.exception.LoggedExceptionInInitializerError;
@@ -60,11 +57,8 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.webcache.WebCachePoolUtil;
 import com.liferay.portal.module.framework.ModuleFrameworkUtilAdapter;
 import com.liferay.portal.security.lang.SecurityManagerUtil;
-import com.liferay.portal.security.permission.PermissionCacheUtil;
-import com.liferay.portal.servlet.filters.cache.CacheUtil;
 import com.liferay.portal.spring.bean.BeanReferenceRefreshUtil;
 import com.liferay.portal.util.InitUtil;
 import com.liferay.portal.util.PropsValues;
@@ -166,9 +160,9 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 			_log.error(e, e);
 		}
 
-		closeDataSource("counterDataSourceWrapper");
+		closeDataSource("counterDataSourceImpl");
 
-		closeDataSource("liferayDataSourceWrapper");
+		closeDataSource("liferayDataSourceImpl");
 
 		try {
 			super.contextDestroyed(servletContextEvent);
@@ -247,10 +241,6 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 
 		ClassPathUtil.initializeClassPaths(servletContext);
 
-		CacheRegistryUtil.clear();
-		PortletContextBagPool.clear();
-		WebAppPool.clear();
-
 		File tempDir = (File)servletContext.getAttribute(
 			JavaConstants.JAVAX_SERVLET_CONTEXT_TEMPDIR);
 
@@ -300,6 +290,10 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 			SchedulerEngineHelper.class,
 			SingleDestinationMessageSenderFactory.class);
 
+		ClassLoader portalClassLoader = ClassLoaderUtil.getPortalClassLoader();
+
+		ClassLoaderPool.register(_portalServletContextName, portalClassLoader);
+
 		PortalContextLoaderLifecycleThreadLocal.setInitializing(true);
 
 		try {
@@ -321,24 +315,17 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 		}
 
 		if (PropsValues.CACHE_CLEAR_ON_CONTEXT_INITIALIZATION) {
-			FinderCacheUtil.clearCache();
-			FinderCacheUtil.clearLocalCache();
-			EntityCacheUtil.clearCache();
-			EntityCacheUtil.clearLocalCache();
-			PermissionCacheUtil.clearCache();
+			CacheRegistryUtil.clear();
+			PortletContextBagPool.clear();
+			WebAppPool.clear();
+
 			TemplateResourceLoaderUtil.clearCache();
 
 			ServletContextPool.clear();
 
-			CacheUtil.clearCache();
 			MultiVMPoolUtil.clear();
 			SingleVMPoolUtil.clear();
-			WebCachePoolUtil.clear();
 		}
-
-		ClassLoader portalClassLoader = ClassLoaderUtil.getPortalClassLoader();
-
-		ClassLoaderPool.register(_portalServletContextName, portalClassLoader);
 
 		ServletContextPool.put(_portalServletContextName, servletContext);
 
@@ -392,10 +379,7 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 	}
 
 	protected void closeDataSource(String name) {
-		DataSourceWrapper dataSourceWrapper =
-			(DataSourceWrapper)PortalBeanLocatorUtil.locate(name);
-
-		DataSource dataSource = dataSourceWrapper.getWrappedDataSource();
+		DataSource dataSource = (DataSource)PortalBeanLocatorUtil.locate(name);
 
 		if (dataSource instanceof Closeable) {
 			try {

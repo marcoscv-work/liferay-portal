@@ -16,10 +16,8 @@ package com.liferay.dynamic.data.mapping.service.impl;
 
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.service.base.DDMTemplateServiceBaseImpl;
-import com.liferay.dynamic.data.mapping.service.permission.DDMPermission;
 import com.liferay.dynamic.data.mapping.service.permission.DDMTemplatePermission;
-import com.liferay.dynamic.data.mapping.util.DDMPermissionHandler;
-import com.liferay.dynamic.data.mapping.util.DDMUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.security.permission.ActionKeys;
@@ -80,13 +78,8 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 			String language, String script, ServiceContext serviceContext)
 		throws PortalException {
 
-		DDMPermissionHandler ddmPermissionHandler =
-			DDMUtil.getDDMPermissionHandler(resourceClassNameId);
-
-		DDMPermission.check(
-			getPermissionChecker(), serviceContext.getScopeGroupId(),
-			ddmPermissionHandler.getResourceName(classNameId),
-			ddmPermissionHandler.getAddTemplateActionId());
+		DDMTemplatePermission.checkAddTemplatePermission(
+			getPermissionChecker(), groupId, classNameId, resourceClassNameId);
 
 		return ddmTemplateLocalService.addTemplate(
 			getUserId(), groupId, classNameId, classPK, resourceClassNameId,
@@ -139,13 +132,8 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 			File smallImageFile, ServiceContext serviceContext)
 		throws PortalException {
 
-		DDMPermissionHandler ddmPermissionHandler =
-			DDMUtil.getDDMPermissionHandler(resourceClassNameId);
-
-		DDMPermission.check(
-			getPermissionChecker(), serviceContext.getScopeGroupId(),
-			ddmPermissionHandler.getResourceName(classNameId),
-			ddmPermissionHandler.getAddTemplateActionId());
+		DDMTemplatePermission.checkAddTemplatePermission(
+			getPermissionChecker(), groupId, classNameId, resourceClassNameId);
 
 		return ddmTemplateLocalService.addTemplate(
 			getUserId(), groupId, classNameId, classPK, resourceClassNameId,
@@ -180,13 +168,9 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 		DDMTemplate template = ddmTemplatePersistence.findByPrimaryKey(
 			templateId);
 
-		DDMPermissionHandler ddmPermissionHandler =
-			DDMUtil.getDDMPermissionHandler(template.getResourceClassNameId());
-
-		DDMPermission.check(
+		DDMTemplatePermission.checkAddTemplatePermission(
 			getPermissionChecker(), serviceContext.getScopeGroupId(),
-			ddmPermissionHandler.getResourceName(template.getClassNameId()),
-			ddmPermissionHandler.getAddTemplateActionId());
+			template.getClassNameId(), template.getResourceClassNameId());
 
 		return ddmTemplateLocalService.copyTemplate(
 			getUserId(), templateId, nameMap, descriptionMap, serviceContext);
@@ -200,13 +184,9 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 		DDMTemplate template = ddmTemplatePersistence.findByPrimaryKey(
 			templateId);
 
-		DDMPermissionHandler ddmPermissionHandler =
-			DDMUtil.getDDMPermissionHandler(template.getResourceClassNameId());
-
-		DDMPermission.check(
+		DDMTemplatePermission.checkAddTemplatePermission(
 			getPermissionChecker(), serviceContext.getScopeGroupId(),
-			ddmPermissionHandler.getResourceName(template.getClassNameId()),
-			ddmPermissionHandler.getAddTemplateActionId());
+			template.getClassNameId(), template.getResourceClassNameId());
 
 		return ddmTemplateLocalService.copyTemplate(
 			getUserId(), templateId, serviceContext);
@@ -239,13 +219,9 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 			long newClassPK, String type, ServiceContext serviceContext)
 		throws PortalException {
 
-		DDMPermissionHandler ddmPermissionHandler =
-			DDMUtil.getDDMPermissionHandler(resourceClassNameId);
-
-		DDMPermission.check(
+		DDMTemplatePermission.checkAddTemplatePermission(
 			getPermissionChecker(), serviceContext.getScopeGroupId(),
-			ddmPermissionHandler.getResourceName(classNameId),
-			ddmPermissionHandler.getAddTemplateActionId());
+			classNameId, resourceClassNameId);
 
 		return ddmTemplateLocalService.copyTemplates(
 			getUserId(), classNameId, oldClassPK, newClassPK, type,
@@ -372,59 +348,50 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 		return ddmTemplate;
 	}
 
-	/**
-	 * Returns all the templates matching the group and class name ID.
-	 *
-	 * @param  groupId the primary key of the group
-	 * @param  classNameId the primary key of the class name for template's
-	 *         related model
-	 * @return the matching templates
-	 */
-	@Override
-	public List<DDMTemplate> getTemplates(long groupId, long classNameId) {
-		return ddmTemplatePersistence.filterFindByG_C(groupId, classNameId);
-	}
-
-	/**
-	 * Returns all the templates matching the group, class name ID, and class
-	 * PK.
-	 *
-	 * @param  groupId the primary key of the group
-	 * @param  classNameId the primary key of the class name for template's
-	 *         related model
-	 * @param  classPK the primary key of the template's related entity
-	 * @return the matching templates
-	 */
 	@Override
 	public List<DDMTemplate> getTemplates(
-		long groupId, long classNameId, long classPK) {
+		long companyId, long groupId, long classNameId,
+		long resourceClassNameId, int status) {
 
-		return ddmTemplatePersistence.filterFindByG_C_C(
-			groupId, classNameId, classPK);
+		return getTemplates(
+			companyId, new long[] {groupId}, resourceClassNameId, 0,
+			resourceClassNameId, null, null, status);
 	}
 
 	@Override
 	public List<DDMTemplate> getTemplates(
-			long groupId, long classNameId, long classPK,
-			boolean includeAncestorTemplates)
+			long companyId, long groupId, long classNameId, long classPK,
+			long resourceClassNameId, boolean includeAncestorTemplates,
+			int status)
 		throws PortalException {
 
 		List<DDMTemplate> ddmTemplates = new ArrayList<>();
 
 		ddmTemplates.addAll(
-			ddmTemplatePersistence.filterFindByG_C_C(
-				groupId, classNameId, classPK));
+			getTemplates(
+				companyId, new long[] {groupId}, classNameId, classPK,
+				resourceClassNameId, null, null, status));
 
 		if (!includeAncestorTemplates) {
 			return ddmTemplates;
 		}
 
 		ddmTemplates.addAll(
-			ddmTemplatePersistence.filterFindByG_C_C(
-				PortalUtil.getAncestorSiteGroupIds(groupId), classNameId,
-				classPK));
+			getTemplates(
+				companyId, PortalUtil.getAncestorSiteGroupIds(groupId),
+				classNameId, classPK, resourceClassNameId, null, null, status));
 
 		return ddmTemplates;
+	}
+
+	@Override
+	public List<DDMTemplate> getTemplates(
+		long companyId, long groupId, long classNameId, long classPK,
+		long resourceClassNameId, int status) {
+
+		return getTemplates(
+			companyId, new long[] {groupId}, classNameId, classPK,
+			resourceClassNameId, null, null, status);
 	}
 
 	/**
@@ -441,19 +408,22 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 	 */
 	@Override
 	public List<DDMTemplate> getTemplates(
-		long groupId, long classNameId, long classPK, String type) {
+		long companyId, long groupId, long classNameId, long classPK,
+		long resourceClassNameId, String type, int status) {
 
-		return ddmTemplatePersistence.filterFindByG_C_C_T(
-			groupId, classNameId, classPK, type);
+		return getTemplates(
+			companyId, new long[] {groupId}, classNameId, classPK,
+			resourceClassNameId, type, null, status);
 	}
 
 	@Override
 	public List<DDMTemplate> getTemplates(
-		long groupId, long classNameId, long classPK, String type,
-		String mode) {
+		long companyId, long groupId, long classNameId, long classPK,
+		long resourceClassNameId, String type, String mode, int status) {
 
-		return ddmTemplatePersistence.filterFindByG_C_C_T_M(
-			groupId, classNameId, classPK, type, mode);
+		return getTemplates(
+			companyId, new long[] {groupId}, classNameId, classPK,
+			resourceClassNameId, type, mode, status);
 	}
 
 	/**
@@ -464,8 +434,13 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 	 * @return the matching templates
 	 */
 	@Override
-	public List<DDMTemplate> getTemplatesByClassPK(long groupId, long classPK) {
-		return ddmTemplatePersistence.filterFindByG_CPK(groupId, classPK);
+	public List<DDMTemplate> getTemplatesByClassPK(
+		long companyId, long groupId, long classPK, long resourceClassNameIs,
+		int status) {
+
+		return getTemplates(
+			companyId, new long[] {groupId}, 0, classPK, resourceClassNameIs,
+			null, null, status);
 	}
 
 	/**
@@ -495,11 +470,12 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 	 */
 	@Override
 	public List<DDMTemplate> getTemplatesByStructureClassNameId(
-		long groupId, long structureClassNameId, int start, int end,
+		long groupId, long structureClassNameId, int status, int start, int end,
 		OrderByComparator<DDMTemplate> orderByComparator) {
 
-		return ddmTemplateFinder.filterFindByG_SC(
-			groupId, structureClassNameId, start, end, orderByComparator);
+		return ddmTemplateFinder.filterFindByG_SC_S(
+			groupId, structureClassNameId, status, start, end,
+			orderByComparator);
 	}
 
 	/**
@@ -515,10 +491,10 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 	 */
 	@Override
 	public int getTemplatesByStructureClassNameIdCount(
-		long groupId, long structureClassNameId) {
+		long groupId, long structureClassNameId, int status) {
 
-		return ddmTemplateFinder.filterCountByG_SC(
-			groupId, structureClassNameId);
+		return ddmTemplateFinder.filterCountByG_SC_S(
+			groupId, structureClassNameId, status);
 	}
 
 	@Override
@@ -527,7 +503,7 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 		throws PortalException {
 
 		DDMTemplatePermission.check(
-			getPermissionChecker(), templateId, ActionKeys.UPDATE);
+			getPermissionChecker(), templateId, ActionKeys.VIEW);
 
 		ddmTemplateLocalService.revertTemplate(
 			getUserId(), templateId, version, serviceContext);
@@ -574,11 +550,12 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 	public List<DDMTemplate> search(
 		long companyId, long groupId, long classNameId, long classPK,
 		long resourceClassNameId, String keywords, String type, String mode,
-		int start, int end, OrderByComparator<DDMTemplate> orderByComparator) {
+		int status, int start, int end,
+		OrderByComparator<DDMTemplate> orderByComparator) {
 
 		return ddmTemplateFinder.filterFindByKeywords(
 			companyId, groupId, classNameId, classPK, resourceClassNameId,
-			keywords, type, mode, start, end, orderByComparator);
+			keywords, type, mode, status, start, end, orderByComparator);
 	}
 
 	/**
@@ -628,12 +605,12 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 	public List<DDMTemplate> search(
 		long companyId, long groupId, long classNameId, long classPK,
 		long resourceClassNameId, String name, String description, String type,
-		String mode, String language, boolean andOperator, int start, int end,
-		OrderByComparator<DDMTemplate> orderByComparator) {
+		String mode, String language, int status, boolean andOperator,
+		int start, int end, OrderByComparator<DDMTemplate> orderByComparator) {
 
-		return ddmTemplateFinder.filterFindByC_G_C_C_R_N_D_T_M_L(
+		return ddmTemplateFinder.filterFindByC_G_C_C_R_N_D_T_M_L_S(
 			companyId, groupId, classNameId, classPK, resourceClassNameId, name,
-			description, type, mode, language, andOperator, start, end,
+			description, type, mode, language, status, andOperator, start, end,
 			orderByComparator);
 	}
 
@@ -678,11 +655,12 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 	public List<DDMTemplate> search(
 		long companyId, long[] groupIds, long[] classNameIds, long[] classPKs,
 		long resourceClassNameId, String keywords, String type, String mode,
-		int start, int end, OrderByComparator<DDMTemplate> orderByComparator) {
+		int status, int start, int end,
+		OrderByComparator<DDMTemplate> orderByComparator) {
 
 		return ddmTemplateFinder.filterFindByKeywords(
 			companyId, groupIds, classNameIds, classPKs, resourceClassNameId,
-			keywords, type, mode, start, end, orderByComparator);
+			keywords, type, mode, status, start, end, orderByComparator);
 	}
 
 	/**
@@ -732,13 +710,13 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 	public List<DDMTemplate> search(
 		long companyId, long[] groupIds, long[] classNameIds, long[] classPKs,
 		long resourceClassNameId, String name, String description, String type,
-		String mode, String language, boolean andOperator, int start, int end,
-		OrderByComparator<DDMTemplate> orderByComparator) {
+		String mode, String language, int status, boolean andOperator,
+		int start, int end, OrderByComparator<DDMTemplate> orderByComparator) {
 
-		return ddmTemplateFinder.filterFindByC_G_C_C_R_N_D_T_M_L(
+		return ddmTemplateFinder.filterFindByC_G_C_C_R_N_D_T_M_L_S(
 			companyId, groupIds, classNameIds, classPKs, resourceClassNameId,
-			name, description, type, mode, language, andOperator, start, end,
-			orderByComparator);
+			name, description, type, mode, language, status, andOperator, start,
+			end, orderByComparator);
 	}
 
 	/**
@@ -766,11 +744,12 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 	@Override
 	public int searchCount(
 		long companyId, long groupId, long classNameId, long classPK,
-		long resourceClassNameId, String keywords, String type, String mode) {
+		long resourceClassNameId, String keywords, String type, String mode,
+		int status) {
 
 		return ddmTemplateFinder.filterCountByKeywords(
 			companyId, groupId, classNameId, classPK, resourceClassNameId,
-			keywords, type, mode);
+			keywords, type, mode, status);
 	}
 
 	/**
@@ -804,11 +783,11 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 	public int searchCount(
 		long companyId, long groupId, long classNameId, long classPK,
 		long resourceClassNameId, String name, String description, String type,
-		String mode, String language, boolean andOperator) {
+		String mode, String language, int status, boolean andOperator) {
 
-		return ddmTemplateFinder.filterCountByC_G_C_C_R_N_D_T_M_L(
+		return ddmTemplateFinder.filterCountByC_G_C_C_R_N_D_T_M_L_S(
 			companyId, groupId, classNameId, classPK, resourceClassNameId, name,
-			description, type, mode, language, andOperator);
+			description, type, mode, language, status, andOperator);
 	}
 
 	/**
@@ -836,11 +815,12 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 	@Override
 	public int searchCount(
 		long companyId, long[] groupIds, long[] classNameIds, long[] classPKs,
-		long resourceClassNameId, String keywords, String type, String mode) {
+		long resourceClassNameId, String keywords, String type, String mode,
+		int status) {
 
 		return ddmTemplateFinder.filterCountByKeywords(
 			companyId, groupIds, classNameIds, classPKs, resourceClassNameId,
-			keywords, type, mode);
+			keywords, type, mode, status);
 	}
 
 	/**
@@ -874,11 +854,11 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 	public int searchCount(
 		long companyId, long[] groupIds, long[] classNameIds, long[] classPKs,
 		long resourceClassNameId, String name, String description, String type,
-		String mode, String language, boolean andOperator) {
+		String mode, String language, int status, boolean andOperator) {
 
-		return ddmTemplateFinder.filterCountByC_G_C_C_R_N_D_T_M_L(
+		return ddmTemplateFinder.filterCountByC_G_C_C_R_N_D_T_M_L_S(
 			companyId, groupIds, classNameIds, classPKs, resourceClassNameId,
-			name, description, type, mode, language, andOperator);
+			name, description, type, mode, language, status, andOperator);
 	}
 
 	/**
@@ -964,6 +944,15 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 		return ddmTemplateLocalService.updateTemplate(
 			getUserId(), templateId, classPK, nameMap, descriptionMap, type,
 			mode, language, script, cacheable, serviceContext);
+	}
+
+	protected List<DDMTemplate> getTemplates(
+		long companyId, long[] groupIds, long classNameId, long classPK,
+		long resourceClassNameId, String type, String mode, int status) {
+
+		return ddmTemplateFinder.filterFindByC_G_C_C_R_T_M_S(
+			companyId, groupIds, classNameId, classPK, resourceClassNameId,
+			type, mode, status, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
 }
