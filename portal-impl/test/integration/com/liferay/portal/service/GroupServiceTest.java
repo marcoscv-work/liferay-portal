@@ -186,6 +186,38 @@ public class GroupServiceTest {
 	}
 
 	@Test
+	public void testDeleteOrganizationSiteOnlyRemovesSiteRoles()
+		throws Exception {
+
+		Organization organization = OrganizationTestUtil.addOrganization(true);
+
+		Group organizationSite = GroupLocalServiceUtil.getOrganizationGroup(
+			TestPropsValues.getCompanyId(), organization.getOrganizationId());
+
+		organizationSite.setManualMembership(true);
+
+		User user = UserTestUtil.addOrganizationOwnerUser(organization);
+
+		UserLocalServiceUtil.addGroupUser(
+			organizationSite.getGroupId(), user.getUserId());
+		UserLocalServiceUtil.addOrganizationUsers(
+			organization.getOrganizationId(), new long[] {user.getUserId()});
+
+		Role siteRole = RoleTestUtil.addRole(RoleConstants.TYPE_SITE);
+
+		UserGroupRoleLocalServiceUtil.addUserGroupRoles(
+			user.getUserId(), organizationSite.getGroupId(),
+			new long[] {siteRole.getRoleId()});
+
+		GroupLocalServiceUtil.deleteGroup(organizationSite);
+
+		Assert.assertEquals(
+			1,
+			UserGroupRoleLocalServiceUtil.getUserGroupRolesCount(
+				user.getUserId(), organizationSite.getGroupId()));
+	}
+
+	@Test
 	public void testDeleteSite() throws Exception {
 		Group group = GroupTestUtil.addGroup();
 
@@ -301,6 +333,38 @@ public class GroupServiceTest {
 			GroupLocalServiceUtil.searchCount(
 				TestPropsValues.getCompanyId(), null,
 				group.getName(getLocale()), groupParams));
+	}
+
+	@Test
+	public void testFindGroupByRole() throws Exception {
+		Group group = GroupTestUtil.addGroup(
+			GroupConstants.DEFAULT_PARENT_GROUP_ID);
+
+		long roleId = RoleTestUtil.addGroupRole(group.getGroupId());
+
+		LinkedHashMap<String, Object> groupParams = new LinkedHashMap<>();
+
+		groupParams.put("groupsRoles", Long.valueOf(roleId));
+		groupParams.put("site", Boolean.TRUE);
+
+		Assert.assertEquals(
+			1,
+			GroupLocalServiceUtil.searchCount(
+				TestPropsValues.getCompanyId(), null, groupParams));
+
+		List<Group> groups = GroupLocalServiceUtil.search(
+			TestPropsValues.getCompanyId(), null, groupParams,
+			QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+
+		Assert.assertEquals(1, groups.size());
+		Assert.assertEquals(group, groups.get(0));
+		Assert.assertEquals(
+			1, GroupLocalServiceUtil.getRoleGroupsCount(roleId));
+
+		groups = GroupLocalServiceUtil.getRoleGroups(roleId);
+
+		Assert.assertEquals(1, groups.size());
+		Assert.assertEquals(group, groups.get(0));
 	}
 
 	@Test
