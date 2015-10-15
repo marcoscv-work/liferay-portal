@@ -18,30 +18,66 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.hpsf.HPSFPropertiesOnlyDocument;
+import org.apache.poi.hpsf.SummaryInformation;
+import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
 
 /**
  * @author Shinn Lok
  */
 public class MSOfficeFileUtil {
 
-	public static boolean isExcelFile(Path filePath) {
-		if (Files.isDirectory(filePath)) {
-			return false;
-		}
+	public static Date getLastSavedDate(Path filePath) {
+		try {
+			NPOIFSFileSystem npoifsFileSystem = new NPOIFSFileSystem(
+				filePath.toFile());
 
+			HPSFPropertiesOnlyDocument hpsfPropertiesOnlyDocument =
+				new HPSFPropertiesOnlyDocument(npoifsFileSystem);
+
+			SummaryInformation summaryInformation =
+				hpsfPropertiesOnlyDocument.getSummaryInformation();
+
+			return summaryInformation.getLastSaveDateTime();
+		}
+		catch (Exception e) {
+			return null;
+		}
+	}
+
+	public static boolean isExcelFile(Path filePath) {
 		String extension = FilenameUtils.getExtension(filePath.toString());
 
 		if (extension == null) {
 			return false;
 		}
 
-		if (_excelExtensions.contains(extension.toLowerCase())) {
+		if (_excelExtensions.contains(extension.toLowerCase()) &&
+			!Files.isDirectory(filePath)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean isLegacyExcelFile(Path filePath) {
+		String extension = FilenameUtils.getExtension(filePath.toString());
+
+		if (extension == null) {
+			return false;
+		}
+
+		extension = extension.toLowerCase();
+
+		if (extension.equals("xls") && !Files.isDirectory(filePath)) {
 			return true;
 		}
 
@@ -49,14 +85,11 @@ public class MSOfficeFileUtil {
 	}
 
 	public static boolean isTempCreatedFile(Path filePath) {
-		if (Files.isDirectory(filePath)) {
-			return false;
-		}
-
 		String fileName = String.valueOf(filePath.getFileName());
 
-		if (fileName.startsWith("~$") ||
-			(fileName.startsWith("~") && fileName.endsWith(".tmp"))) {
+		if ((fileName.startsWith("~$") ||
+			 (fileName.startsWith("~") && fileName.endsWith(".tmp"))) &&
+			!Files.isDirectory(filePath)) {
 
 			return true;
 		}
