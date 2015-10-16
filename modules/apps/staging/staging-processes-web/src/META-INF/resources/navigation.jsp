@@ -16,8 +16,15 @@
 
 <%@ include file="/init.jsp" %>
 
-<liferay-util:include page="/navigation.jsp" servletContext="<%= application %>" />
+<aui:nav-bar cssClass="collapse-basic-search" markupView="lexicon">
+	<aui:nav cssClass="navbar-nav">
+		<portlet:renderURL var="viewProcessesURL">
+		</portlet:renderURL>
 
-<liferay-util:include page="/toolbar.jsp" servletContext="<%= application %>" />
-
-<liferay-util:include page="/publish_layouts_processes.jsp" servletContext="<%= application %>" />
+		<aui:nav-item
+			href="<%= viewProcessesURL %>"
+			label="processes"
+			selected="<%= true %>"
+		/>
+	</aui:nav>
+</aui:nav-bar>

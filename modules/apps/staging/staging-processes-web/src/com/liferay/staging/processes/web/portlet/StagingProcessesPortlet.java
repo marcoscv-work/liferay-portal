@@ -14,6 +14,7 @@
 
 package com.liferay.staging.processes.web.portlet;
 
+import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.staging.processes.web.portlet.constants.StagingProcessesPortletKeys;
 
 import javax.portlet.Portlet;
@@ -47,5 +48,5 @@ import org.osgi.service.component.annotations.Component;
 	},
 	service = Portlet.class
 )
-public class StagingProcessesPortlet {
+public class StagingProcessesPortlet extends MVCPortlet {
 }
