@@ -108,17 +108,10 @@ String taskExecutorClassName = localPublishing ? BackgroundTaskExecutorNames.LAY
 		keyProperty="backgroundTaskId"
 		modelVar="backgroundTask"
 	>
-		<liferay-ui:search-container-column-text
-			cssClass="background-task-user-column"
-			name="user"
-		>
-			<liferay-ui:user-display
-				displayStyle="3"
-				showUserDetails="<%= false %>"
-				showUserName="<%= false %>"
-				userId="<%= backgroundTask.getUserId() %>"
-			/>
-		</liferay-ui:search-container-column-text>
+		<liferay-ui:search-container-column-user
+			showDetails="<%= false %>"
+			userId="<%= backgroundTask.getUserId() %>"
+		/>
 
 		<liferay-ui:search-container-column-jsp
 			cssClass="background-task-status-column"
@@ -196,7 +189,7 @@ String taskExecutorClassName = localPublishing ? BackgroundTaskExecutorNames.LAY
 		</c:if>
 	</liferay-ui:search-container-row>
 
-	<liferay-ui:search-iterator />
+	<liferay-ui:search-iterator displayStyle="list" markupView="lexicon" />
 </liferay-ui:search-container>
 
 <%

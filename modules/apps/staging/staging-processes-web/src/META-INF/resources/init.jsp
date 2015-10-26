@@ -14,11 +14,14 @@
  */
 --%>
 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 
 <%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
 taglib uri="http://liferay.com/tld/security" prefix="liferay-security" %><%@
 taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
+taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %><%@
 taglib uri="http://liferay.com/tld/staging" prefix="liferay-staging" %><%@
 taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
@@ -31,7 +34,10 @@ page import="com.liferay.portal.service.permission.GroupPermissionUtil" %><%@
 page import="com.liferay.portlet.PortalPreferences" %><%@
 page import="com.liferay.portlet.PortletPreferencesFactoryUtil" %><%@
 page import="com.liferay.staging.processes.web.context.StagingDisplayContext" %><%@
-page import="com.liferay.staging.processes.web.portlet.constants.StagingProcessesPortletKeys" %>
+page import="com.liferay.staging.processes.web.constants.StagingProcessesPortletKeys" %>
+<%@ page import="com.liferay.portlet.PortletURLUtil" %>
+
+<%@ page import="javax.portlet.PortletURL" %>
 
 <portlet:defineObjects />
 
@@ -43,6 +49,10 @@ page import="com.liferay.staging.processes.web.portlet.constants.StagingProcesse
 PortalPreferences portalPreferences = PortletPreferencesFactoryUtil.getPortalPreferences(liferayPortletRequest);
 
 StagingDisplayContext stagingDisplayContext = new StagingDisplayContext(request, liferayPortletResponse, portletPreferences);
+
+PortletURL currentURLObj = PortletURLUtil.getCurrent(liferayPortletRequest, liferayPortletResponse);
+
+String currentURL = currentURLObj.toString();
 %>
 
 <%@ include file="/init-ext.jsp" %>

@@ -34,21 +34,14 @@ portletURL.setParameter("mvcRenderCommandName", "publishLayouts");
 	checkBoxContainerId="publishProcessesSearchContainer"
 	includeCheckBox="<%= true %>"
 >
-	<liferay-frontend:management-bar-buttons>
-		<liferay-frontend:management-bar-display-buttons
-			displayStyleURL="<%= renderResponse.createRenderURL() %>"
-			displayViews='<%= new String[] {"icon", "descriptive", "list"} %>'
-			selectedDisplayStyle="<%= displayStyle %>"
-		/>
-	</liferay-frontend:management-bar-buttons>
 
 	<liferay-frontend:management-bar-filters>
-		<liferay-frontend:management-bar-sort
+	<%--	<liferay-frontend:management-bar-sort
 			orderByCol="<%= orderByCol %>"
 			orderByType="<%= orderByType %>"
-			orderColumns='<%= new String[] {"title", "display-date"} %>'
+			orderColumns='<%= new String[] {"create-date", "completion-date"} %>'
 			portletURL="<%= portletURL %>"
-		/>
+		/>--%>
 	</liferay-frontend:management-bar-filters>
 
 	<liferay-frontend:management-bar-action-buttons>

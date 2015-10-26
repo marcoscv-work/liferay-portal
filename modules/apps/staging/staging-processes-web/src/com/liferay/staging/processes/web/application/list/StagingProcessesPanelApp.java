@@ -21,7 +21,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.staging.processes.web.portlet.constants.StagingProcessesPortletKeys;
+import com.liferay.staging.processes.web.constants.StagingProcessesPortletKeys;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

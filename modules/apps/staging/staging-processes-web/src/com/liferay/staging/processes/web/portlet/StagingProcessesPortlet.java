@@ -15,7 +15,7 @@
 package com.liferay.staging.processes.web.portlet;
 
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
-import com.liferay.staging.processes.web.portlet.constants.StagingProcessesPortletKeys;
+import com.liferay.staging.processes.web.constants.StagingProcessesPortletKeys;
 
 import javax.portlet.Portlet;
 
@@ -29,6 +29,7 @@ import org.osgi.service.component.annotations.Component;
 	property = {
 		"com.liferay.portlet.add-default-resource=true",
 		"com.liferay.portlet.css-class-wrapper=portlet-staging-processes",
+		"com.liferay.portlet.footer-portlet-javascript=/js/main.js",
 		"com.liferay.portlet.header-portlet-css=/css/main.css",
 		"com.liferay.portlet.private-request-attributes=false",
 		"com.liferay.portlet.private-session-attributes=false",

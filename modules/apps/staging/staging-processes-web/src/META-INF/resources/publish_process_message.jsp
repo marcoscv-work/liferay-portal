@@ -1,11 +1,8 @@
 <%@ page import="com.liferay.portal.kernel.dao.search.ResultRow" %>
 <%@ page import="com.liferay.portal.kernel.backgroundtask.BackgroundTask" %>
-<%@ page
-		import="com.liferay.portal.kernel.backgroundtask.BackgroundTaskConstants" %>
-<%@ page
-		import="com.liferay.portal.kernel.backgroundtask.BackgroundTaskStatusRegistryUtil" %>
-<%@ page
-		import="com.liferay.portal.kernel.backgroundtask.BackgroundTaskStatus" %>
+<%@ page import="com.liferay.portal.kernel.backgroundtask.BackgroundTaskConstants" %>
+<%@ page import="com.liferay.portal.kernel.backgroundtask.BackgroundTaskStatusRegistryUtil" %>
+<%@ page import="com.liferay.portal.kernel.backgroundtask.BackgroundTaskStatus" %>
 <%@ page import="java.io.Serializable" %>
 <%@ page import="com.liferay.portal.kernel.util.Constants" %>
 <%@ page import="com.liferay.portal.kernel.util.GetterUtil" %>
@@ -39,9 +36,6 @@
 ResultRow row = (ResultRow)request.getAttribute(WebKeys.SEARCH_CONTAINER_RESULT_ROW);
 
 BackgroundTask backgroundTask = (BackgroundTask)row.getObject();
-System.out.println("backgroundTask: " + backgroundTask);
-System.out.println("backgroundTask.getStatus(): " + backgroundTask.getStatus());
-System.out.println("row: " + row);
 %>
 
 <strong class="background-task-status-<%= BackgroundTaskConstants.getStatusLabel(backgroundTask.getStatus()) %> <%= BackgroundTaskConstants.getStatusCssClass(backgroundTask.getStatus()) %> label">
