@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.portlet.LiferayPortletURL;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.asset.model.AssetRenderer;
 import com.liferay.portlet.asset.model.AssetRendererFactory;
 import com.liferay.portlet.asset.model.BaseAssetRendererFactory;
@@ -49,10 +50,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	immediate = true,
-	property = {
-		"javax.portlet.name=" + BlogsPortletKeys.BLOGS,
-		"search.asset.type=com.liferay.portlet.blogs.model.BlogsEntry"
-	},
+	property = {"javax.portlet.name=" + BlogsPortletKeys.BLOGS},
 	service = AssetRendererFactory.class
 )
 public class BlogsEntryAssetRendererFactory
@@ -64,6 +62,7 @@ public class BlogsEntryAssetRendererFactory
 		setClassName(BlogsEntry.class.getName());
 		setLinkable(true);
 		setPortletId(BlogsPortletKeys.BLOGS);
+		setSearchable(true);
 	}
 
 	@Override
@@ -111,8 +110,9 @@ public class BlogsEntryAssetRendererFactory
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse, long classTypeId) {
 
-		PortletURL portletURL = liferayPortletResponse.createRenderURL(
-			BlogsPortletKeys.BLOGS);
+		PortletURL portletURL = PortalUtil.getControlPanelPortletURL(
+			liferayPortletRequest, BlogsPortletKeys.BLOGS, 0,
+			PortletRequest.RENDER_PHASE);
 
 		portletURL.setParameter("mvcRenderCommandName", "/blogs/edit_entry");
 

@@ -15,6 +15,7 @@
 package com.liferay.exportimport.staged.model.repository.base;
 
 import com.liferay.exportimport.staged.model.repository.StagedModelRepository;
+import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -36,12 +37,22 @@ public abstract class BaseStagedModelRepository<T extends StagedModel>
 	implements StagedModelRepository<T> {
 
 	@Override
+	public abstract T addStagedModel(
+			PortletDataContext portletDataContext, T stagedModel)
+		throws PortalException;
+
+	@Override
 	public abstract void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
 		throws PortalException;
 
 	@Override
 	public abstract void deleteStagedModel(T stagedModel)
+		throws PortalException;
+
+	@Override
+	public abstract void deleteStagedModels(
+			PortletDataContext portletDataContext)
 		throws PortalException;
 
 	@Override
@@ -135,10 +146,22 @@ public abstract class BaseStagedModelRepository<T extends StagedModel>
 		String uuid, long companyId);
 
 	@Override
+	public abstract ExportActionableDynamicQuery
+		getExportActionableDynamicQuery(PortletDataContext portletDataContext);
+
+	@Override
 	public void restoreStagedModel(
 			PortletDataContext portletDataContext, T stagedModel)
 		throws PortletDataException {
 	}
+
+	@Override
+	public abstract T saveStagedModel(T stagedModel) throws PortalException;
+
+	@Override
+	public abstract T updateStagedModel(
+			PortletDataContext portletDataContext, T stagedModel)
+		throws PortalException;
 
 	protected boolean isStagedModelInTrash(T stagedModel) {
 		String className = ExportImportClassedModelUtil.getClassName(

@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.portlet.LiferayPortletURL;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.asset.model.AssetRenderer;
 import com.liferay.portlet.asset.model.AssetRendererFactory;
 import com.liferay.portlet.asset.model.BaseAssetRendererFactory;
@@ -49,10 +50,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	immediate = true,
-	property = {
-		"javax.portlet.name=" + BookmarksPortletKeys.BOOKMARKS,
-		"search.asset.type=com.liferay.bookmarks.model.BookmarksEntry"
-	},
+	property = {"javax.portlet.name=" + BookmarksPortletKeys.BOOKMARKS},
 	service = AssetRendererFactory.class
 )
 public class BookmarksEntryAssetRendererFactory
@@ -64,6 +62,7 @@ public class BookmarksEntryAssetRendererFactory
 		setClassName(BookmarksEntry.class.getName());
 		setLinkable(true);
 		setPortletId(BookmarksPortletKeys.BOOKMARKS);
+		setSearchable(true);
 	}
 
 	@Override
@@ -102,10 +101,12 @@ public class BookmarksEntryAssetRendererFactory
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse, long classTypeId) {
 
-		PortletURL portletURL = liferayPortletResponse.createRenderURL(
-			BookmarksPortletKeys.BOOKMARKS);
+		PortletURL portletURL = PortalUtil.getControlPanelPortletURL(
+			liferayPortletRequest, BookmarksPortletKeys.BOOKMARKS, 0,
+			PortletRequest.RENDER_PHASE);
 
-		portletURL.setParameter("struts_action", "/bookmarks/edit_entry");
+		portletURL.setParameter(
+			"mvcRenderCommandName", "/bookmarks/edit_entry");
 		portletURL.setParameter(
 			"folderId",
 			String.valueOf(BookmarksFolderConstants.DEFAULT_PARENT_FOLDER_ID));

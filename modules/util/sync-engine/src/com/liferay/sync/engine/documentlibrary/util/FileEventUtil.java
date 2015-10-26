@@ -36,6 +36,7 @@ import com.liferay.sync.engine.model.SyncSite;
 import com.liferay.sync.engine.service.SyncFileService;
 import com.liferay.sync.engine.util.FileUtil;
 import com.liferay.sync.engine.util.PropsValues;
+import com.liferay.sync.engine.util.ReleaseInfo;
 
 import java.io.IOException;
 
@@ -234,11 +235,10 @@ public class FileEventUtil {
 	}
 
 	public static List<SyncFile> getAllFolders(
-		long companyId, long repositoryId, long syncAccountId) {
+		long repositoryId, long syncAccountId) {
 
 		Map<String, Object> parameters = new HashMap<>();
 
-		parameters.put("companyId", companyId);
 		parameters.put("repositoryId", repositoryId);
 
 		GetAllFolderSyncDLObjectsEvent getAllFolderSyncDLObjectsEvent =
@@ -254,13 +254,17 @@ public class FileEventUtil {
 	}
 
 	public static void getUpdates(
-		long companyId, long repositoryId, long syncAccountId,
-		SyncSite syncSite) {
+		long repositoryId, long syncAccountId, SyncSite syncSite,
+		boolean retrieveFromCache) {
 
 		Map<String, Object> parameters = new HashMap<>();
 
-		parameters.put("companyId", companyId);
 		parameters.put("repositoryId", repositoryId);
+
+		if (ReleaseInfo.isServerCompatible(syncAccountId, 5)) {
+			parameters.put("retrieveFromCache", retrieveFromCache);
+		}
+
 		parameters.put("syncSite", syncSite);
 
 		GetSyncDLObjectUpdateEvent getSyncDLObjectUpdateEvent =
@@ -306,8 +310,7 @@ public class FileEventUtil {
 	public static void resyncFolder(long syncAccountId, SyncFile syncFile) {
 		Map<String, Object> parameters = new HashMap<>();
 
-		parameters.put("companyId", syncFile.getCompanyId());
-		parameters.put("lastAccessTime", 0);
+		parameters.put("lastAccessTime", -1);
 		parameters.put("parentFolderId", syncFile.getTypePK());
 		parameters.put("repositoryId", syncFile.getRepositoryId());
 		parameters.put("syncFile", syncFile);

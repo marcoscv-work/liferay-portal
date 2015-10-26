@@ -52,7 +52,7 @@ public class SyncAccountModelListener implements ModelListener<SyncAccount> {
 		SyncAccount syncAccount, Map<String, Object> originalValues) {
 
 		if (originalValues.containsKey("active")) {
-			if ((Boolean)originalValues.get("active")) {
+			if ((boolean)originalValues.get("active")) {
 				deactivateSyncAccount(syncAccount);
 			}
 			else {
@@ -61,6 +61,8 @@ public class SyncAccountModelListener implements ModelListener<SyncAccount> {
 		}
 
 		if (originalValues.containsKey("login") ||
+			originalValues.containsKey("oAuthToken") ||
+			originalValues.containsKey("oAuthTokenSecret") ||
 			originalValues.containsKey("password")) {
 
 			SessionManager.removeSession(syncAccount.getSyncAccountId());

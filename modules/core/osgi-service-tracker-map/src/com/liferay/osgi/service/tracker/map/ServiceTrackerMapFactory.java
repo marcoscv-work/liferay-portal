@@ -66,6 +66,20 @@ public class ServiceTrackerMapFactory {
 			new MultiValueServiceTrackerBucketFactory<S, S>(comparator), null);
 	}
 
+	public static <K, S> ServiceTrackerMap<K, List<S>> multiValueMap(
+			BundleContext bundleContext, Class<S> clazz, String filterString,
+			ServiceReferenceMapper<K, ? super S> serviceReferenceMapper,
+			Comparator<ServiceReference<S>> comparator,
+			ServiceTrackerMapListener<K, S, List<S>> serviceTrackerMapListener)
+		throws InvalidSyntaxException {
+
+		return new ServiceTrackerMapImpl<>(
+			bundleContext, clazz, filterString, serviceReferenceMapper,
+			new DefaultServiceTrackerCustomizer<S>(bundleContext),
+			new MultiValueServiceTrackerBucketFactory<S, S>(comparator),
+			serviceTrackerMapListener);
+	}
+
 	public static <K, SR, S> ServiceTrackerMap<K, List<S>> multiValueMap(
 			BundleContext bundleContext, Class<SR> clazz, String filterString,
 			ServiceReferenceMapper<K, ? super SR> serviceReferenceMapper,
@@ -150,6 +164,19 @@ public class ServiceTrackerMapFactory {
 			bundleContext, clazz, filterString, serviceReferenceMapper,
 			new DefaultServiceTrackerCustomizer<S>(bundleContext),
 			new SingleValueServiceTrackerBucketFactory<S, S>(comparator), null);
+	}
+
+	public static <S> ServiceTrackerMap<String, S> singleValueMap(
+			BundleContext bundleContext, Class<S> clazz, String propertyKey,
+			ServiceTrackerMapListener<String, S, S> serviceTrackerMapListener)
+		throws InvalidSyntaxException {
+
+		return new ServiceTrackerMapImpl<>(
+			bundleContext, clazz, "(" + propertyKey + "=*)",
+			new PropertyServiceReferenceMapper<String, S>(propertyKey),
+			new DefaultServiceTrackerCustomizer<S>(bundleContext),
+			new SingleValueServiceTrackerBucketFactory<S, S>(),
+			serviceTrackerMapListener);
 	}
 
 	public static <K, SR, S> ServiceTrackerMap<K, S> singleValueMap(

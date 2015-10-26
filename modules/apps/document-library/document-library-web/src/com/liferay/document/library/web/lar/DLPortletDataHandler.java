@@ -14,9 +14,6 @@
 
 package com.liferay.document.library.web.lar;
 
-import com.liferay.document.library.lar.xstream.FileEntryConverter;
-import com.liferay.document.library.lar.xstream.FileVersionConverter;
-import com.liferay.document.library.lar.xstream.FolderConverter;
 import com.liferay.document.library.web.constants.DLPortletKeys;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Conjunction;
@@ -37,8 +34,6 @@ import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.Repository;
-import com.liferay.portal.model.impl.RepositoryEntryImpl;
-import com.liferay.portal.model.impl.RepositoryImpl;
 import com.liferay.portal.repository.liferayrepository.LiferayRepositoryDefiner;
 import com.liferay.portal.repository.temporaryrepository.TemporaryFileEntryRepositoryDefiner;
 import com.liferay.portal.service.RepositoryLocalServiceUtil;
@@ -54,10 +49,6 @@ import com.liferay.portlet.documentlibrary.model.DLFileShortcutConstants;
 import com.liferay.portlet.documentlibrary.model.DLFileVersion;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
-import com.liferay.portlet.documentlibrary.model.impl.DLFileEntryImpl;
-import com.liferay.portlet.documentlibrary.model.impl.DLFileEntryTypeImpl;
-import com.liferay.portlet.documentlibrary.model.impl.DLFileShortcutImpl;
-import com.liferay.portlet.documentlibrary.model.impl.DLFolderImpl;
 import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalServiceUtil;
@@ -73,8 +64,6 @@ import com.liferay.portlet.exportimport.lar.StagedModelDataHandler;
 import com.liferay.portlet.exportimport.lar.StagedModelDataHandlerRegistryUtil;
 import com.liferay.portlet.exportimport.lar.StagedModelDataHandlerUtil;
 import com.liferay.portlet.exportimport.lar.StagedModelType;
-import com.liferay.portlet.exportimport.xstream.XStreamAliasRegistryUtil;
-import com.liferay.portlet.exportimport.xstream.XStreamConverterRegistryUtil;
 
 import java.util.List;
 
@@ -131,20 +120,6 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 				NAMESPACE, "shortcuts", true, false, null,
 				DLFileShortcutConstants.getClassName()));
 		setPublishToLiveByDefault(PropsValues.DL_PUBLISH_TO_LIVE_BY_DEFAULT);
-
-		XStreamAliasRegistryUtil.register(DLFileEntryImpl.class, "DLFileEntry");
-		XStreamAliasRegistryUtil.register(
-			DLFileEntryTypeImpl.class, "DLFileEntryType");
-		XStreamAliasRegistryUtil.register(
-			DLFileShortcutImpl.class, "DLFileShortcut");
-		XStreamAliasRegistryUtil.register(DLFolderImpl.class, "DLFolder");
-		XStreamAliasRegistryUtil.register(RepositoryImpl.class, "Repository");
-		XStreamAliasRegistryUtil.register(
-			RepositoryEntryImpl.class, "RepositoryEntry");
-
-		XStreamConverterRegistryUtil.register(new FileEntryConverter());
-		XStreamConverterRegistryUtil.register(new FileVersionConverter());
-		XStreamConverterRegistryUtil.register(new FolderConverter());
 	}
 
 	@Override
@@ -358,13 +333,11 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 
 			});
 		actionableDynamicQuery.setPerformActionMethod(
-			new ActionableDynamicQuery.PerformActionMethod() {
+			new ActionableDynamicQuery.PerformActionMethod<DLFileEntryType>() {
 
 				@Override
-				public void performAction(Object object)
+				public void performAction(DLFileEntryType dlFileEntryType)
 					throws PortalException {
-
-					DLFileEntryType dlFileEntryType = (DLFileEntryType)object;
 
 					if (dlFileEntryType.isExportable()) {
 						StagedModelDataHandlerUtil.exportStagedModel(
@@ -402,12 +375,10 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 
 			});
 		exportActionableDynamicQuery.setPerformActionMethod(
-			new ActionableDynamicQuery.PerformActionMethod() {
+			new ActionableDynamicQuery.PerformActionMethod<DLFileShortcut>() {
 				@Override
-				public void performAction(Object object)
+				public void performAction(DLFileShortcut dlFileShortcut)
 					throws PortalException {
-
-					DLFileShortcut dlFileShortcut = (DLFileShortcut)object;
 
 					FileShortcut fileShortcut =
 						DLAppLocalServiceUtil.getFileShortcut(
@@ -496,13 +467,11 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 
 			});
 		exportActionableDynamicQuery.setPerformActionMethod(
-			new ActionableDynamicQuery.PerformActionMethod() {
+			new ActionableDynamicQuery.PerformActionMethod<DLFileEntry>() {
 
 				@Override
-				public void performAction(Object object)
+				public void performAction(DLFileEntry dlFileEntry)
 					throws PortalException {
-
-					DLFileEntry dlFileEntry = (DLFileEntry)object;
 
 					FileEntry fileEntry = DLAppLocalServiceUtil.getFileEntry(
 						dlFileEntry.getFileEntryId());
@@ -544,13 +513,11 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 
 			});
 		exportActionableDynamicQuery.setPerformActionMethod(
-			new ActionableDynamicQuery.PerformActionMethod() {
+			new ActionableDynamicQuery.PerformActionMethod<DLFolder>() {
 
 				@Override
-				public void performAction(Object object)
+				public void performAction(DLFolder dlFolder)
 					throws PortalException {
-
-					DLFolder dlFolder = (DLFolder)object;
 
 					if (dlFolder.isInTrash()) {
 						return;

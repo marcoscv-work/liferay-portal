@@ -69,16 +69,6 @@
 			<bean class="com.liferay.portal.dao.jdbc.spring.SqlUpdateFactoryImpl" />
 		</property>
 	</bean>
-	<bean id="com.liferay.portal.kernel.dao.orm.EntityCacheUtil" class="com.liferay.portal.kernel.dao.orm.EntityCacheUtil">
-		<property name="entityCache">
-			<bean class="com.liferay.portal.dao.orm.common.EntityCacheImpl" />
-		</property>
-	</bean>
-	<bean id="com.liferay.portal.kernel.dao.orm.FinderCacheUtil" class="com.liferay.portal.kernel.dao.orm.FinderCacheUtil">
-		<property name="finderCache">
-			<bean class="com.liferay.portal.dao.orm.common.FinderCacheImpl" />
-		</property>
-	</bean>
 	<bean id="com.liferay.portal.kernel.dao.orm.PortalCustomSQLUtil" class="com.liferay.portal.kernel.dao.orm.PortalCustomSQLUtil">
 		<property name="portalCustomSQL">
 			<bean class="com.liferay.portal.dao.orm.common.PortalCustomSQLImpl" />
@@ -566,11 +556,6 @@
 	<bean id="com.liferay.portlet.RestrictPortletContainerWrapper" class="com.liferay.portlet.RestrictPortletContainerWrapper" factory-method="createRestrictPortletContainerWrapper">
 		<constructor-arg name="portletContainer" ref="com.liferay.portlet.SecurityPortletContainerWrapper" />
 	</bean>
-	<bean id="com.liferay.portlet.admin.action.EditServerMVCActionCommand" class="com.liferay.portlet.admin.action.EditServerMVCActionCommand" />
-	<bean id="com.liferay.portlet.admin.action.EditDocumentLibraryExtraSettingsMVCActionCommand" class="com.liferay.portlet.admin.action.EditDocumentLibraryExtraSettingsMVCActionCommand" />
-	<bean id="com.liferay.portlet.admin.action.EditDocumentLibraryExtraSettingsMVCRenderCommand" class="com.liferay.portlet.admin.action.EditDocumentLibraryExtraSettingsMVCRenderCommand" />
-	<bean id="com.liferay.portlet.admin.action.ViewChartMVCResourceCommand" class="com.liferay.portlet.admin.action.ViewChartMVCResourceCommand" />
-	<bean id="com.liferay.portlet.admin.action.ViewMVCRenderCommand" class="com.liferay.portlet.admin.action.ViewMVCRenderCommand" />
 	<bean id="com.liferay.portlet.admin.util.OmniadminImpl" class="com.liferay.portlet.admin.util.OmniadminImpl" />
 	<bean id="com.liferay.portlet.asset.util.AssetCategoryIndexer" class="com.liferay.portlet.asset.util.AssetCategoryIndexer" />
 	<bean id="com.liferay.portlet.asset.util.AssetEntryIndexer" class="com.liferay.portlet.asset.util.AssetEntryIndexer" />

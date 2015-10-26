@@ -91,6 +91,10 @@ public class WebDriverHelper {
 			WebDriver webDriver, String ignoreJavaScriptError)
 		throws Exception {
 
+		if (!PropsValues.TEST_ASSERT_JAVASCRIPT_ERRORS) {
+			return;
+		}
+
 		String location = getLocation(webDriver);
 
 		if (!location.contains("localhost")) {
@@ -117,14 +121,20 @@ public class WebDriverHelper {
 			return;
 		}
 
-		WebElement webElement = getWebElement(webDriver, "//body");
+		List<JavaScriptError> javaScriptErrors = new ArrayList<>();
 
-		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
+		try {
+			WebElement webElement = getWebElement(webDriver, "//body");
 
-		WebDriver wrappedWebDriver = wrapsDriver.getWrappedDriver();
+			WrapsDriver wrapsDriver = (WrapsDriver)webElement;
 
-		List<JavaScriptError> javaScriptErrors = JavaScriptError.readErrors(
-			wrappedWebDriver);
+			WebDriver wrappedWebDriver = wrapsDriver.getWrappedDriver();
+
+			javaScriptErrors.addAll(
+				JavaScriptError.readErrors(wrappedWebDriver));
+		}
+		catch (Exception e) {
+		}
 
 		List<Exception> exceptions = new ArrayList<>();
 

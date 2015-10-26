@@ -46,7 +46,7 @@
 	margin-bottom: 10px;
 	position: relative;
 
-	> .portlet-content {
+	> .portlet-content-editable {
 		border-color: transparent;
 		border-top-left-radius: $navbar-border-radius;
 		border-top-right-radius: $navbar-border-radius;
@@ -63,7 +63,7 @@
 			position: absolute;
 			right: 0;
 
-			@include transition(opacity 0.25s, top 0.25s);
+			@include transition(opacity 0.25s, transform 0.25s);
 
 			top: 0;
 		}
@@ -72,7 +72,7 @@
 
 .signed-in .portlet {
 	&:hover, &.focus {
-		> .portlet-content {
+		> .portlet-content-editable {
 			@include media-query(sm) {
 				border-color: $portlet-topper-border;
 				border-top-left-radius: 0;
@@ -84,13 +84,13 @@
 			@include media-query(sm) {
 				opacity: 1;
 
-				@include transform(translateY(-100%));
+				@include transform(translateY(-97%));
 			}
 		}
 	}
 }
 
-.portlet-content {
+.portlet-content-editable {
 	border-color: $portlet-topper-border;
 	border-radius: $portlet-content-border-radius;
 	border-style: solid;
@@ -109,14 +109,14 @@
 }
 
 .portlet-title-default {
-	@include flex(1 0 0);
+	@include flex(1 1 auto);
 	@include text-overflow;
 
 	line-height: 2;
 }
 
 .portlet-title-menu {
-	@include flex(1);
+	@include flex(0 1 auto);
 
 	> span > a {
 		display: inline-block;
@@ -159,7 +159,7 @@
 // Portlet Controls in Mobile
 
 .controls-visible.signed-in {
-	.portlet-content {
+	.portlet-content-editable {
 		@include media-query(null, $screen-xs-max) {
 			border-color: $portlet-topper-border;
 			border-top-left-radius: 0;

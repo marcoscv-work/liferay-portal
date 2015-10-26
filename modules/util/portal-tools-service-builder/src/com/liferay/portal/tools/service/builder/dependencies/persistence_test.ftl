@@ -74,6 +74,7 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,8 +95,9 @@ import org.junit.runner.RunWith;
 </#if>
 public class ${entity.name}PersistenceTest {
 
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(
 		new LiferayIntegrationTestRule(), PersistenceTestRule.INSTANCE, new TransactionalTestRule(Propagation.REQUIRED));
 
 	@Before
@@ -822,12 +824,10 @@ public class ${entity.name}PersistenceTest {
 			ActionableDynamicQuery actionableDynamicQuery = ${entity.name}LocalServiceUtil.getActionableDynamicQuery();
 
 			actionableDynamicQuery.setPerformActionMethod(
-				new ActionableDynamicQuery.PerformActionMethod() {
+				new ActionableDynamicQuery.PerformActionMethod<${entity.name}>() {
 
 					@Override
-					public void performAction(Object object) {
-						${entity.name} ${entity.varName} = (${entity.name})object;
-
+					public void performAction(${entity.name} ${entity.varName}) {
 						Assert.assertNotNull(${entity.varName});
 
 						count.increment();
