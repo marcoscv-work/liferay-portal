@@ -69,6 +69,7 @@ import com.liferay.portlet.usersadmin.util.UsersAdminUtil;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -1775,15 +1776,10 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 	 * @param  birthdayDay the user's new birthday day
 	 * @param  birthdayYear the user's birthday year
 	 * @param  smsSn the user's new SMS screen name
-	 * @param  aimSn the user's new AIM screen name
 	 * @param  facebookSn the user's new Facebook screen name
-	 * @param  icqSn the user's new ICQ screen name
 	 * @param  jabberSn the user's new Jabber screen name
-	 * @param  msnSn the user's new MSN screen name
-	 * @param  mySpaceSn the user's new MySpace screen name
 	 * @param  skypeSn the user's new Skype screen name
 	 * @param  twitterSn the user's new Twitter screen name
-	 * @param  ymSn the user's new Yahoo! Messenger screen name
 	 * @param  jobTitle the user's new job title
 	 * @param  groupIds the primary keys of the user's groups
 	 * @param  organizationIds the primary keys of the user's organizations
@@ -1816,9 +1812,8 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 			String comments, String firstName, String middleName,
 			String lastName, long prefixId, long suffixId, boolean male,
 			int birthdayMonth, int birthdayDay, int birthdayYear, String smsSn,
-			String aimSn, String facebookSn, String icqSn, String jabberSn,
-			String msnSn, String mySpaceSn, String skypeSn, String twitterSn,
-			String ymSn, String jobTitle, long[] groupIds,
+			String facebookSn, String jabberSn, String skypeSn,
+			String twitterSn, String jobTitle, long[] groupIds,
 			long[] organizationIds, long[] roleIds,
 			List<UserGroupRole> userGroupRoles, long[] userGroupIds,
 			List<Address> addresses, List<EmailAddress> emailAddresses,
@@ -1879,9 +1874,11 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 		long[] oldGroupIds = user.getGroupIds();
 
 		List<Long> addGroupIds = new ArrayList<>();
-		List<Long> removeGroupIds = ListUtil.toList(oldGroupIds);
+		List<Long> removeGroupIds = Collections.emptyList();
 
 		if (groupIds != null) {
+			removeGroupIds = ListUtil.toList(oldGroupIds);
+
 			groupIds = checkGroups(userId, groupIds);
 
 			for (long groupId : groupIds) {
@@ -1905,9 +1902,11 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 		long[] oldOrganizationIds = user.getOrganizationIds();
 
 		List<Long> addOrganizationIds = new ArrayList<>();
-		List<Long> removeOrganizationIds = ListUtil.toList(oldOrganizationIds);
+		List<Long> removeOrganizationIds = Collections.emptyList();
 
 		if (organizationIds != null) {
+			removeOrganizationIds = ListUtil.toList(oldOrganizationIds);
+
 			organizationIds = checkOrganizations(userId, organizationIds);
 
 			for (long organizationId : organizationIds) {
@@ -1934,9 +1933,11 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 		long[] oldRoleIds = user.getRoleIds();
 
 		List<Long> addRoleIds = new ArrayList<>();
-		List<Long> removeRoleIds = ListUtil.toList(oldRoleIds);
+		List<Long> removeRoleIds = Collections.emptyList();
 
 		if (roleIds != null) {
+			removeRoleIds = ListUtil.toList(oldRoleIds);
+
 			roleIds = checkRoles(userId, roleIds);
 
 			for (long roleId : roleIds) {
@@ -1973,14 +1974,17 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 		}
 
 		List<UserGroupRole> addOrganizationUserGroupRoles = new ArrayList<>();
-		List<UserGroupRole> removeOrganizationUserGroupRoles = ListUtil.copy(
-			oldOrganizationUserGroupRoles);
+		List<UserGroupRole> removeOrganizationUserGroupRoles =
+			Collections.emptyList();
 		List<UserGroupRole> addSiteUserGroupRoles = new ArrayList<>();
-		List<UserGroupRole> removeSiteUserGroupRoles = ListUtil.copy(
-			oldSiteUserGroupRoles);
+		List<UserGroupRole> removeSiteUserGroupRoles = Collections.emptyList();
 
 		if (userGroupRoles != null) {
 			userGroupRoles = checkUserGroupRoles(userId, userGroupRoles);
+
+			removeOrganizationUserGroupRoles = ListUtil.copy(
+				oldOrganizationUserGroupRoles);
+			removeSiteUserGroupRoles = ListUtil.copy(oldSiteUserGroupRoles);
 
 			for (UserGroupRole userGroupRole : userGroupRoles) {
 				Role role = userGroupRole.getRole();
@@ -2024,9 +2028,11 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 		long[] oldUserGroupIds = user.getUserGroupIds();
 
 		List<Long> addUserGroupIds = new ArrayList<>();
-		List<Long> removeUserGroupIds = ListUtil.toList(oldUserGroupIds);
+		List<Long> removeUserGroupIds = Collections.emptyList();
 
 		if (userGroupIds != null) {
+			removeUserGroupIds = ListUtil.toList(oldUserGroupIds);
+
 			userGroupIds = checkUserGroupIds(userId, userGroupIds);
 
 			for (long userGroupId : userGroupIds) {
@@ -2051,10 +2057,9 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 			emailAddress, facebookId, openId, portrait, portraitBytes,
 			languageId, timeZoneId, greeting, comments, firstName, middleName,
 			lastName, prefixId, suffixId, male, birthdayMonth, birthdayDay,
-			birthdayYear, smsSn, aimSn, facebookSn, icqSn, jabberSn, msnSn,
-			mySpaceSn, skypeSn, twitterSn, ymSn, jobTitle, groupIds,
-			organizationIds, roleIds, userGroupRoles, userGroupIds,
-			serviceContext);
+			birthdayYear, smsSn, facebookSn, jabberSn, skypeSn, twitterSn,
+			jobTitle, groupIds, organizationIds, roleIds, userGroupRoles,
+			userGroupIds, serviceContext);
 
 		if (!addGroupIds.isEmpty() || !removeGroupIds.isEmpty()) {
 			SiteMembershipPolicyUtil.propagateMembership(
@@ -2092,7 +2097,7 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 				removeOrganizationUserGroupRoles);
 		}
 
-		if (!addUserGroupIds.isEmpty() || !removeGroupIds.isEmpty()) {
+		if (!addUserGroupIds.isEmpty() || !removeUserGroupIds.isEmpty()) {
 			UserGroupMembershipPolicyUtil.propagateMembership(
 				new long[] {user.getUserId()},
 				ArrayUtil.toLongArray(addUserGroupIds),
@@ -2134,15 +2139,10 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 	 * @param      birthdayDay the user's new birthday day
 	 * @param      birthdayYear the user's birthday year
 	 * @param      smsSn the user's new SMS screen name
-	 * @param      aimSn the user's new AIM screen name
 	 * @param      facebookSn the user's new Facebook screen name
-	 * @param      icqSn the user's new ICQ screen name
 	 * @param      jabberSn the user's new Jabber screen name
-	 * @param      msnSn the user's new MSN screen name
-	 * @param      mySpaceSn the user's new MySpace screen name
 	 * @param      skypeSn the user's new Skype screen name
 	 * @param      twitterSn the user's new Twitter screen name
-	 * @param      ymSn the user's new Yahoo! Messenger screen name
 	 * @param      jobTitle the user's new job title
 	 * @param      groupIds the primary keys of the user's groups
 	 * @param      organizationIds the primary keys of the user's organizations
@@ -2182,9 +2182,8 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 			String greeting, String comments, String firstName,
 			String middleName, String lastName, long prefixId, long suffixId,
 			boolean male, int birthdayMonth, int birthdayDay, int birthdayYear,
-			String smsSn, String aimSn, String facebookSn, String icqSn,
-			String jabberSn, String msnSn, String mySpaceSn, String skypeSn,
-			String twitterSn, String ymSn, String jobTitle, long[] groupIds,
+			String smsSn, String facebookSn, String jabberSn, String skypeSn,
+			String twitterSn, String jobTitle, long[] groupIds,
 			long[] organizationIds, long[] roleIds,
 			List<UserGroupRole> userGroupRoles, long[] userGroupIds,
 			List<Address> addresses, List<EmailAddress> emailAddresses,
@@ -2199,10 +2198,10 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 			emailAddress, facebookId, openId, true, null, languageId,
 			timeZoneId, greeting, comments, firstName, middleName, lastName,
 			prefixId, suffixId, male, birthdayMonth, birthdayDay, birthdayYear,
-			smsSn, aimSn, facebookSn, icqSn, jabberSn, msnSn, mySpaceSn,
-			skypeSn, twitterSn, ymSn, jobTitle, groupIds, organizationIds,
-			roleIds, userGroupRoles, userGroupIds, addresses, emailAddresses,
-			phones, websites, announcementsDelivers, serviceContext);
+			smsSn, facebookSn, jabberSn, skypeSn, twitterSn, jobTitle, groupIds,
+			organizationIds, roleIds, userGroupRoles, userGroupIds, addresses,
+			emailAddresses, phones, websites, announcementsDelivers,
+			serviceContext);
 	}
 
 	/**
@@ -2237,15 +2236,10 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 	 * @param  birthdayDay the user's new birthday day
 	 * @param  birthdayYear the user's birthday year
 	 * @param  smsSn the user's new SMS screen name
-	 * @param  aimSn the user's new AIM screen name
 	 * @param  facebookSn the user's new Facebook screen name
-	 * @param  icqSn the user's new ICQ screen name
 	 * @param  jabberSn the user's new Jabber screen name
-	 * @param  msnSn the user's new MSN screen name
-	 * @param  mySpaceSn the user's new MySpace screen name
 	 * @param  skypeSn the user's new Skype screen name
 	 * @param  twitterSn the user's new Twitter screen name
-	 * @param  ymSn the user's new Yahoo! Messenger screen name
 	 * @param  jobTitle the user's new job title
 	 * @param  groupIds the primary keys of the user's groups
 	 * @param  organizationIds the primary keys of the user's organizations
@@ -2272,9 +2266,8 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 			String greeting, String comments, String firstName,
 			String middleName, String lastName, long prefixId, long suffixId,
 			boolean male, int birthdayMonth, int birthdayDay, int birthdayYear,
-			String smsSn, String aimSn, String facebookSn, String icqSn,
-			String jabberSn, String msnSn, String mySpaceSn, String skypeSn,
-			String twitterSn, String ymSn, String jobTitle, long[] groupIds,
+			String smsSn, String facebookSn, String jabberSn, String skypeSn,
+			String twitterSn, String jobTitle, long[] groupIds,
 			long[] organizationIds, long[] roleIds,
 			List<UserGroupRole> userGroupRoles, long[] userGroupIds,
 			ServiceContext serviceContext)
@@ -2286,10 +2279,9 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 			emailAddress, facebookId, openId, true, null, languageId,
 			timeZoneId, greeting, comments, firstName, middleName, lastName,
 			prefixId, suffixId, male, birthdayMonth, birthdayDay, birthdayYear,
-			smsSn, aimSn, facebookSn, icqSn, jabberSn, msnSn, mySpaceSn,
-			skypeSn, twitterSn, ymSn, jobTitle, groupIds, organizationIds,
-			roleIds, userGroupRoles, userGroupIds, null, null, null, null, null,
-			serviceContext);
+			smsSn, facebookSn, jabberSn, skypeSn, twitterSn, jobTitle, groupIds,
+			organizationIds, roleIds, userGroupRoles, userGroupIds, null, null,
+			null, null, null, serviceContext);
 	}
 
 	protected void checkAddUserPermission(

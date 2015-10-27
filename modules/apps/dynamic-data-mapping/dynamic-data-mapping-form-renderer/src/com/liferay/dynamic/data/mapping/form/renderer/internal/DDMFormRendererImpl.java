@@ -14,6 +14,8 @@
 
 package com.liferay.dynamic.data.mapping.form.renderer.internal;
 
+import com.liferay.dynamic.data.mapping.form.evaluator.DDMFormEvaluationResult;
+import com.liferay.dynamic.data.mapping.form.evaluator.DDMFormEvaluator;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderer;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingException;
@@ -27,10 +29,11 @@ import com.liferay.dynamic.data.mapping.registry.DDMFormFieldType;
 import com.liferay.dynamic.data.mapping.registry.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.util.DDM;
-import com.liferay.portal.expression.ExpressionFactory;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONSerializer;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.template.TemplateException;
@@ -145,8 +148,7 @@ public class DDMFormRendererImpl implements DDMFormRenderer {
 
 		ddmFormRendererHelper.setDDMFormFieldTypeServicesTracker(
 			_ddmFormFieldTypeServicesTracker);
-		ddmFormRendererHelper.setExpressionEvaluator(
-			new ExpressionEvaluator(_expressionFactory));
+		ddmFormRendererHelper.setDDMFormEvaluator(_ddmFormEvaluator);
 
 		return ddmFormRendererHelper.getRenderedDDMFormFieldsMap();
 	}
@@ -182,6 +184,17 @@ public class DDMFormRendererImpl implements DDMFormRenderer {
 		template.put("containerId", StringUtil.randomId());
 		template.put(
 			"definition", DDMFormJSONSerializerUtil.serialize(ddmForm));
+
+		DDMFormEvaluationResult ddmFormEvaluationResult =
+			_ddmFormEvaluator.evaluate(
+				ddmForm, ddmFormRenderingContext.getDDMFormValues(),
+				ddmFormRenderingContext.getLocale());
+
+		JSONSerializer jsonSerializer = _jsonFactory.createJSONSerializer();
+
+		template.put(
+			"evaluation",
+			jsonSerializer.serializeDeep(ddmFormEvaluationResult));
 
 		List<DDMFormFieldType> ddmFormFieldTypes =
 			_ddmFormFieldTypeServicesTracker.getDDMFormFieldTypes();
@@ -231,6 +244,11 @@ public class DDMFormRendererImpl implements DDMFormRenderer {
 	}
 
 	@Reference
+	protected void setDDMFormEvaluator(DDMFormEvaluator ddmFormEvaluator) {
+		_ddmFormEvaluator = ddmFormEvaluator;
+	}
+
+	@Reference
 	protected void setDDMFormFieldTypeServicesTracker(
 		DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker) {
 
@@ -238,13 +256,14 @@ public class DDMFormRendererImpl implements DDMFormRenderer {
 	}
 
 	@Reference
-	protected void setExpressionFactory(ExpressionFactory expressionFactory) {
-		_expressionFactory = expressionFactory;
+	protected void setJSONFactory(JSONFactory jsonFactory) {
+		_jsonFactory = jsonFactory;
 	}
 
 	private DDM _ddm;
+	private DDMFormEvaluator _ddmFormEvaluator;
 	private DDMFormFieldTypeServicesTracker _ddmFormFieldTypeServicesTracker;
-	private ExpressionFactory _expressionFactory;
+	private JSONFactory _jsonFactory;
 	private TemplateResource _templateResource;
 
 }

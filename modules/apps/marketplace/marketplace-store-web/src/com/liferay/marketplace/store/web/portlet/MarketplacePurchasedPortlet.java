@@ -14,6 +14,8 @@
 
 package com.liferay.marketplace.store.web.portlet;
 
+import com.liferay.marketplace.service.AppLocalService;
+import com.liferay.marketplace.service.AppService;
 import com.liferay.marketplace.store.web.constants.MarketplaceStorePortletKeys;
 import com.liferay.marketplace.store.web.oauth.util.OAuthManager;
 
@@ -29,8 +31,6 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	immediate = true,
 	property = {
-		"com.liferay.portlet.control-panel-entry-category=marketplace",
-		"com.liferay.portlet.control-panel-entry-weight=3.0",
 		"com.liferay.portlet.css-class-wrapper=marketplace-portlet",
 		"com.liferay.portlet.display-category=category.hidden",
 		"com.liferay.portlet.header-portlet-css=/css/main.css",
@@ -42,6 +42,7 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.render-weight=50",
 		"com.liferay.portlet.use-default-template=true",
 		"javax.portlet.description=", "javax.portlet.display-name=Purchased",
+		"javax.portlet.init-param.add-process-action-success-action=false",
 		"javax.portlet.init-param.template-path=/",
 		"javax.portlet.init-param.view-template=/view.jsp",
 		"javax.portlet.name=" + MarketplaceStorePortletKeys.MARKETPLACE_PURCHASED,
@@ -52,6 +53,21 @@ import org.osgi.service.component.annotations.Reference;
 	service = {Portlet.class}
 )
 public class MarketplacePurchasedPortlet extends MarketplaceStorePortlet {
+
+	@Override
+	protected String getClientPortletId() {
+		return MarketplaceStorePortletKeys.MARKETPLACE_PURCHASED;
+	}
+
+	@Reference
+	protected void setAppLocalService(AppLocalService appLocalService) {
+		super.setAppLocalService(appLocalService);
+	}
+
+	@Reference
+	protected void setAppService(AppService appService) {
+		super.setAppService(appService);
+	}
 
 	@Override
 	@Reference

@@ -34,9 +34,16 @@
 				<liferay-frontend:add-menu-item title='<%= LanguageUtil.get(request, "add") %>' url="<%= addSiteURL.toString() %>" />
 			</c:when>
 			<c:otherwise>
+
+				<%
+				addSiteURL.setParameter("showPrototypes", "0");
+				%>
+
 				<liferay-frontend:add-menu-item title='<%= LanguageUtil.get(request, "blank-site") %>' url="<%= addSiteURL.toString() %>" />
 
 				<%
+				addSiteURL.setParameter("showPrototypes", "1");
+
 				for (LayoutSetPrototype layoutSetPrototype : layoutSetPrototypes) {
 					addSiteURL.setParameter("layoutSetPrototypeId", String.valueOf(layoutSetPrototype.getLayoutSetPrototypeId()));
 				%>
@@ -51,7 +58,7 @@
 					<portlet:renderURL var="viewSitesURL" />
 
 					<%
-					Map<String, String> anchorData = new HashMap<>();
+					Map<String, Object> anchorData = new HashMap<>();
 
 					anchorData.put("navigation", Boolean.TRUE.toString());
 
@@ -61,7 +68,7 @@
 					manageSiteTemplateURL.setParameter("backURL", viewSitesURL);
 					%>
 
-					<liferay-frontend:add-menu-item title='<%= LanguageUtil.get(request, "manage-site-template") %>' url="<%= manageSiteTemplateURL.toString() %>" />
+					<liferay-frontend:add-menu-item anchorData="<%= anchorData %>" title='<%= LanguageUtil.get(request, "manage-site-template") %>' url="<%= manageSiteTemplateURL.toString() %>" />
 				</c:if>
 			</c:otherwise>
 		</c:choose>

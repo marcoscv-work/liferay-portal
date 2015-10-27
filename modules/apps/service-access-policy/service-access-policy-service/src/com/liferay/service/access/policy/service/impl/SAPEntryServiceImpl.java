@@ -39,8 +39,9 @@ public class SAPEntryServiceImpl extends SAPEntryServiceBaseImpl {
 
 	@Override
 	public SAPEntry addSAPEntry(
-			String allowedServiceSignatures, String name,
-			Map<Locale, String> titleMap, ServiceContext serviceContext)
+			String allowedServiceSignatures, boolean defaultSAPEntry,
+			boolean enabled, String name, Map<Locale, String> titleMap,
+			ServiceContext serviceContext)
 		throws PortalException {
 
 		PortletPermissionUtil.check(
@@ -48,8 +49,8 @@ public class SAPEntryServiceImpl extends SAPEntryServiceBaseImpl {
 			SAPActionKeys.ACTION_ADD_SAP_ENTRY);
 
 		return sapEntryLocalService.addSAPEntry(
-			getUserId(), allowedServiceSignatures, false, name, titleMap,
-			serviceContext);
+			getUserId(), allowedServiceSignatures, defaultSAPEntry, enabled,
+			name, titleMap, serviceContext);
 	}
 
 	@Override
@@ -66,6 +67,20 @@ public class SAPEntryServiceImpl extends SAPEntryServiceBaseImpl {
 			getPermissionChecker(), sapEntry, ActionKeys.DELETE);
 
 		return sapEntryLocalService.deleteSAPEntry(sapEntry);
+	}
+
+	@Override
+	public SAPEntry fetchSAPEntry(long companyId, String name)
+		throws PortalException {
+
+		SAPEntry sapEntry = sapEntryPersistence.fetchByC_N(companyId, name);
+
+		if (sapEntry != null) {
+			SAPEntryPermission.check(
+				getPermissionChecker(), sapEntry, ActionKeys.VIEW);
+		}
+
+		return sapEntry;
 	}
 
 	@Override
@@ -110,7 +125,8 @@ public class SAPEntryServiceImpl extends SAPEntryServiceBaseImpl {
 
 	@Override
 	public SAPEntry updateSAPEntry(
-			long sapEntryId, String allowedServiceSignatures, String name,
+			long sapEntryId, String allowedServiceSignatures,
+			boolean defaultSAPEntry, boolean enabled, String name,
 			Map<Locale, String> titleMap, ServiceContext serviceContext)
 		throws PortalException {
 
@@ -118,8 +134,8 @@ public class SAPEntryServiceImpl extends SAPEntryServiceBaseImpl {
 			getPermissionChecker(), sapEntryId, ActionKeys.UPDATE);
 
 		return sapEntryLocalService.updateSAPEntry(
-			sapEntryId, allowedServiceSignatures, name, titleMap,
-			serviceContext);
+			sapEntryId, allowedServiceSignatures, defaultSAPEntry, enabled,
+			name, titleMap, serviceContext);
 	}
 
 }

@@ -14,9 +14,6 @@
 
 package com.liferay.document.library.web.lar;
 
-import com.liferay.document.library.lar.xstream.FileEntryConverter;
-import com.liferay.document.library.lar.xstream.FileVersionConverter;
-import com.liferay.document.library.lar.xstream.FolderConverter;
 import com.liferay.document.library.web.constants.DLPortletKeys;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Conjunction;
@@ -37,11 +34,9 @@ import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.Repository;
-import com.liferay.portal.model.impl.RepositoryEntryImpl;
-import com.liferay.portal.model.impl.RepositoryImpl;
 import com.liferay.portal.repository.liferayrepository.LiferayRepositoryDefiner;
 import com.liferay.portal.repository.temporaryrepository.TemporaryFileEntryRepositoryDefiner;
-import com.liferay.portal.service.RepositoryLocalServiceUtil;
+import com.liferay.portal.service.RepositoryLocalService;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.documentlibrary.constants.DLConstants;
@@ -54,15 +49,11 @@ import com.liferay.portlet.documentlibrary.model.DLFileShortcutConstants;
 import com.liferay.portlet.documentlibrary.model.DLFileVersion;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
-import com.liferay.portlet.documentlibrary.model.impl.DLFileEntryImpl;
-import com.liferay.portlet.documentlibrary.model.impl.DLFileEntryTypeImpl;
-import com.liferay.portlet.documentlibrary.model.impl.DLFileShortcutImpl;
-import com.liferay.portlet.documentlibrary.model.impl.DLFolderImpl;
-import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.service.DLFolderLocalServiceUtil;
+import com.liferay.portlet.documentlibrary.service.DLAppLocalService;
+import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalService;
+import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalService;
+import com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalService;
+import com.liferay.portlet.documentlibrary.service.DLFolderLocalService;
 import com.liferay.portlet.documentlibrary.service.permission.DLPermission;
 import com.liferay.portlet.exportimport.lar.BasePortletDataHandler;
 import com.liferay.portlet.exportimport.lar.PortletDataContext;
@@ -73,14 +64,13 @@ import com.liferay.portlet.exportimport.lar.StagedModelDataHandler;
 import com.liferay.portlet.exportimport.lar.StagedModelDataHandlerRegistryUtil;
 import com.liferay.portlet.exportimport.lar.StagedModelDataHandlerUtil;
 import com.liferay.portlet.exportimport.lar.StagedModelType;
-import com.liferay.portlet.exportimport.xstream.XStreamAliasRegistryUtil;
-import com.liferay.portlet.exportimport.xstream.XStreamConverterRegistryUtil;
 
 import java.util.List;
 
 import javax.portlet.PortletPreferences;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Bruno Farache
@@ -131,20 +121,6 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 				NAMESPACE, "shortcuts", true, false, null,
 				DLFileShortcutConstants.getClassName()));
 		setPublishToLiveByDefault(PropsValues.DL_PUBLISH_TO_LIVE_BY_DEFAULT);
-
-		XStreamAliasRegistryUtil.register(DLFileEntryImpl.class, "DLFileEntry");
-		XStreamAliasRegistryUtil.register(
-			DLFileEntryTypeImpl.class, "DLFileEntryType");
-		XStreamAliasRegistryUtil.register(
-			DLFileShortcutImpl.class, "DLFileShortcut");
-		XStreamAliasRegistryUtil.register(DLFolderImpl.class, "DLFolder");
-		XStreamAliasRegistryUtil.register(RepositoryImpl.class, "Repository");
-		XStreamAliasRegistryUtil.register(
-			RepositoryEntryImpl.class, "RepositoryEntry");
-
-		XStreamConverterRegistryUtil.register(new FileEntryConverter());
-		XStreamConverterRegistryUtil.register(new FileVersionConverter());
-		XStreamConverterRegistryUtil.register(new FolderConverter());
 	}
 
 	@Override
@@ -164,7 +140,7 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 			return portletPreferences;
 		}
 
-		DLAppLocalServiceUtil.deleteAll(portletDataContext.getScopeGroupId());
+		_dlAppLocalService.deleteAll(portletDataContext.getScopeGroupId());
 
 		return portletPreferences;
 	}
@@ -336,7 +312,7 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		ActionableDynamicQuery actionableDynamicQuery =
-			DLFileEntryTypeLocalServiceUtil.getExportActionableDynamicQuery(
+			_dlFileEntryTypeLocalService.getExportActionableDynamicQuery(
 				portletDataContext);
 
 		final ActionableDynamicQuery.AddCriteriaMethod addCriteriaMethod =
@@ -358,13 +334,11 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 
 			});
 		actionableDynamicQuery.setPerformActionMethod(
-			new ActionableDynamicQuery.PerformActionMethod() {
+			new ActionableDynamicQuery.PerformActionMethod<DLFileEntryType>() {
 
 				@Override
-				public void performAction(Object object)
+				public void performAction(DLFileEntryType dlFileEntryType)
 					throws PortalException {
-
-					DLFileEntryType dlFileEntryType = (DLFileEntryType)object;
 
 					if (dlFileEntryType.isExportable()) {
 						StagedModelDataHandlerUtil.exportStagedModel(
@@ -382,7 +356,7 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		final ExportActionableDynamicQuery exportActionableDynamicQuery =
-			DLFileShortcutLocalServiceUtil.getExportActionableDynamicQuery(
+			_dlFileShortcutLocalService.getExportActionableDynamicQuery(
 				portletDataContext);
 
 		final ActionableDynamicQuery.AddCriteriaMethod addCriteriaMethod =
@@ -402,15 +376,13 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 
 			});
 		exportActionableDynamicQuery.setPerformActionMethod(
-			new ActionableDynamicQuery.PerformActionMethod() {
+			new ActionableDynamicQuery.PerformActionMethod<DLFileShortcut>() {
 				@Override
-				public void performAction(Object object)
+				public void performAction(DLFileShortcut dlFileShortcut)
 					throws PortalException {
 
-					DLFileShortcut dlFileShortcut = (DLFileShortcut)object;
-
 					FileShortcut fileShortcut =
-						DLAppLocalServiceUtil.getFileShortcut(
+						_dlAppLocalService.getFileShortcut(
 							dlFileShortcut.getFileShortcutId());
 
 					StagedModelDataHandlerUtil.exportStagedModel(
@@ -428,7 +400,7 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		final ExportActionableDynamicQuery exportActionableDynamicQuery =
-			DLFileEntryLocalServiceUtil.getExportActionableDynamicQuery(
+			_dlFileEntryLocalService.getExportActionableDynamicQuery(
 				portletDataContext);
 
 		exportActionableDynamicQuery.setAddCriteriaMethod(
@@ -496,15 +468,13 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 
 			});
 		exportActionableDynamicQuery.setPerformActionMethod(
-			new ActionableDynamicQuery.PerformActionMethod() {
+			new ActionableDynamicQuery.PerformActionMethod<DLFileEntry>() {
 
 				@Override
-				public void performAction(Object object)
+				public void performAction(DLFileEntry dlFileEntry)
 					throws PortalException {
 
-					DLFileEntry dlFileEntry = (DLFileEntry)object;
-
-					FileEntry fileEntry = DLAppLocalServiceUtil.getFileEntry(
+					FileEntry fileEntry = _dlAppLocalService.getFileEntry(
 						dlFileEntry.getFileEntryId());
 
 					StagedModelDataHandlerUtil.exportStagedModel(
@@ -522,7 +492,7 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		ExportActionableDynamicQuery exportActionableDynamicQuery =
-			DLFolderLocalServiceUtil.getExportActionableDynamicQuery(
+			_dlFolderLocalService.getExportActionableDynamicQuery(
 				portletDataContext);
 
 		final ActionableDynamicQuery.AddCriteriaMethod addCriteriaMethod =
@@ -544,19 +514,17 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 
 			});
 		exportActionableDynamicQuery.setPerformActionMethod(
-			new ActionableDynamicQuery.PerformActionMethod() {
+			new ActionableDynamicQuery.PerformActionMethod<DLFolder>() {
 
 				@Override
-				public void performAction(Object object)
+				public void performAction(DLFolder dlFolder)
 					throws PortalException {
-
-					DLFolder dlFolder = (DLFolder)object;
 
 					if (dlFolder.isInTrash()) {
 						return;
 					}
 
-					Folder folder = DLAppLocalServiceUtil.getFolder(
+					Folder folder = _dlAppLocalService.getFolder(
 						dlFolder.getFolderId());
 
 					StagedModelDataHandlerUtil.exportStagedModel(
@@ -575,7 +543,7 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		ExportActionableDynamicQuery exportActionableDynamicQuery =
-			RepositoryLocalServiceUtil.getExportActionableDynamicQuery(
+			_repositoryLocalService.getExportActionableDynamicQuery(
 				portletDataContext);
 
 		final ActionableDynamicQuery.AddCriteriaMethod addCriteriaMethod =
@@ -630,5 +598,52 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 
 		return exportActionableDynamicQuery;
 	}
+
+	@Reference(unbind = "-")
+	protected void setDLAppLocalService(DLAppLocalService dlAppLocalService) {
+		_dlAppLocalService = dlAppLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setDLFileEntryLocalService(
+		DLFileEntryLocalService dlFileEntryLocalService) {
+
+		_dlFileEntryLocalService = dlFileEntryLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setDLFileEntryTypeLocalService(
+		DLFileEntryTypeLocalService dlFileEntryTypeLocalService) {
+
+		_dlFileEntryTypeLocalService = dlFileEntryTypeLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setDLFileShortcutLocalService(
+		DLFileShortcutLocalService dlFileShortcutLocalService) {
+
+		_dlFileShortcutLocalService = dlFileShortcutLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setDLFolderLocalService(
+		DLFolderLocalService dlFolderLocalService) {
+
+		_dlFolderLocalService = dlFolderLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setRepositoryLocalService(
+		RepositoryLocalService repositoryLocalService) {
+
+		_repositoryLocalService = repositoryLocalService;
+	}
+
+	private DLAppLocalService _dlAppLocalService;
+	private DLFileEntryLocalService _dlFileEntryLocalService;
+	private DLFileEntryTypeLocalService _dlFileEntryTypeLocalService;
+	private DLFileShortcutLocalService _dlFileShortcutLocalService;
+	private DLFolderLocalService _dlFolderLocalService;
+	private RepositoryLocalService _repositoryLocalService;
 
 }

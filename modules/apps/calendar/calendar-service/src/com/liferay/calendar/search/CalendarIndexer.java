@@ -16,7 +16,7 @@ package com.liferay.calendar.search;
 
 import com.liferay.calendar.model.Calendar;
 import com.liferay.calendar.model.CalendarResource;
-import com.liferay.calendar.service.CalendarLocalServiceUtil;
+import com.liferay.calendar.service.CalendarLocalService;
 import com.liferay.calendar.service.permission.CalendarPermission;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.search.Summary;
+import com.liferay.portal.kernel.search.filter.BooleanFilter;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.security.permission.ActionKeys;
@@ -41,6 +42,7 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Adam Brandizzi
@@ -76,10 +78,10 @@ public class CalendarIndexer extends BaseIndexer<Calendar> {
 			permissionChecker, entryClassPK, ActionKeys.VIEW);
 	}
 
-	@Deprecated
 	@Override
 	public void postProcessSearchQuery(
-			BooleanQuery searchQuery, SearchContext searchContext)
+			BooleanQuery searchQuery, BooleanFilter fullQueryBooleanFilter,
+			SearchContext searchContext)
 		throws Exception {
 
 		addSearchLocalizedTerm(
@@ -141,7 +143,7 @@ public class CalendarIndexer extends BaseIndexer<Calendar> {
 
 	@Override
 	protected void doReindex(String className, long classPK) throws Exception {
-		Calendar calendar = CalendarLocalServiceUtil.getCalendar(classPK);
+		Calendar calendar = _calendarLocalService.getCalendar(classPK);
 
 		doReindex(calendar);
 	}
@@ -155,16 +157,14 @@ public class CalendarIndexer extends BaseIndexer<Calendar> {
 
 	protected void reindexCalendars(long companyId) throws PortalException {
 		final ActionableDynamicQuery actionableDynamicQuery =
-			CalendarLocalServiceUtil.getActionableDynamicQuery();
+			_calendarLocalService.getActionableDynamicQuery();
 
 		actionableDynamicQuery.setCompanyId(companyId);
 		actionableDynamicQuery.setPerformActionMethod(
-			new ActionableDynamicQuery.PerformActionMethod() {
+			new ActionableDynamicQuery.PerformActionMethod<Calendar>() {
 
 			@Override
-			public void performAction(Object object) {
-				Calendar calendar = (Calendar)object;
-
+			public void performAction(Calendar calendar) {
 				try {
 					Document document = getDocument(calendar);
 
@@ -187,7 +187,16 @@ public class CalendarIndexer extends BaseIndexer<Calendar> {
 		actionableDynamicQuery.performActions();
 	}
 
+	@Reference(unbind = "-")
+	protected void setCalendarLocalService(
+		CalendarLocalService calendarLocalService) {
+
+		_calendarLocalService = calendarLocalService;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		CalendarIndexer.class);
+
+	private CalendarLocalService _calendarLocalService;
 
 }

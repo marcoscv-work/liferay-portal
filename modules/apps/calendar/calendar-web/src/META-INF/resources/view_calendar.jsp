@@ -51,7 +51,7 @@ for (long calendarId : calendarIds) {
 Calendar defaultCalendar = null;
 
 for (Calendar groupCalendar : groupCalendars) {
-	if (groupCalendar.isDefaultCalendar()) {
+	if (groupCalendar.isDefaultCalendar() && CalendarPermission.contains(themeDisplay.getPermissionChecker(), groupCalendar, CalendarActionKeys.MANAGE_BOOKINGS)) {
 		defaultCalendar = groupCalendar;
 	}
 }
@@ -383,6 +383,12 @@ boolean columnOptionsVisible = GetterUtil.getBoolean(SessionClicks.get(request, 
 		var selectedDates = Liferay.CalendarUtil.getDatesList(viewDate, total);
 
 		<portlet:namespace />miniCalendar.selectDates(selectedDates);
+
+		var todayDate = <portlet:namespace />scheduler.get('todayDate');
+
+		if ((selectedDates.length > 0) && DateMath.between(todayDate, selectedDates[0], selectedDates[total - 1])) {
+			viewDate = todayDate;
+		}
 
 		<portlet:namespace />miniCalendar.set('date', viewDate);
 	};

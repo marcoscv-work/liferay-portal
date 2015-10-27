@@ -4,11 +4,11 @@ AUI.add(
 		var ExpressionsEvaluator = A.Component.create(
 			{
 				ATTRS: {
-					form: {
-					},
-
 					evaluationURL: {
 						value: '/o/ddm-form-evaluator/'
+					},
+
+					form: {
 					}
 				},
 
@@ -74,6 +74,7 @@ AUI.add(
 							instance.get('evaluationURL'),
 							{
 								data: {
+									languageId: form.get('locale'),
 									serializedDDMForm: JSON.stringify(form.get('definition')),
 									serializedDDMFormValues: JSON.stringify(form.toJSON())
 								},

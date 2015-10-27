@@ -3013,7 +3013,9 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		LinkedHashMap<String, Object> params, int start, int end,
 		OrderByComparator<User> obc) {
 
-		if (!PropsValues.USERS_INDEXER_ENABLED ||
+		Indexer<?> indexer = IndexerRegistryUtil.nullSafeGetIndexer(User.class);
+
+		if (!indexer.isIndexerEnabled() ||
 			!PropsValues.USERS_SEARCH_WITH_INDEX || isUseCustomSQL(params)) {
 
 			return userFinder.findByKeywords(
@@ -3170,7 +3172,9 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		LinkedHashMap<String, Object> params, boolean andSearch, int start,
 		int end, OrderByComparator<User> obc) {
 
-		if (!PropsValues.USERS_INDEXER_ENABLED ||
+		Indexer<?> indexer = IndexerRegistryUtil.nullSafeGetIndexer(User.class);
+
+		if (!indexer.isIndexerEnabled() ||
 			!PropsValues.USERS_SEARCH_WITH_INDEX || isUseCustomSQL(params)) {
 
 			return userFinder.findByC_FN_MN_LN_SN_EA_S(
@@ -3281,7 +3285,9 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		long companyId, String keywords, int status,
 		LinkedHashMap<String, Object> params) {
 
-		if (!PropsValues.USERS_INDEXER_ENABLED ||
+		Indexer<?> indexer = IndexerRegistryUtil.nullSafeGetIndexer(User.class);
+
+		if (!indexer.isIndexerEnabled() ||
 			!PropsValues.USERS_SEARCH_WITH_INDEX || isUseCustomSQL(params)) {
 
 			return userFinder.countByKeywords(
@@ -3323,9 +3329,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 				params.put("keywords", keywords);
 			}
 
-			Indexer<User> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-				User.class);
-
 			SearchContext searchContext = buildSearchContext(
 				companyId, firstName, middleName, lastName, fullName,
 				screenName, emailAddress, street, city, zip, region, country,
@@ -3366,7 +3369,9 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		String screenName, String emailAddress, int status,
 		LinkedHashMap<String, Object> params, boolean andSearch) {
 
-		if (!PropsValues.USERS_INDEXER_ENABLED ||
+		Indexer<?> indexer = IndexerRegistryUtil.nullSafeGetIndexer(User.class);
+
+		if (!indexer.isIndexerEnabled() ||
 			!PropsValues.USERS_SEARCH_WITH_INDEX || isUseCustomSQL(params)) {
 
 			return userFinder.countByC_FN_MN_LN_SN_EA_S(
@@ -3375,9 +3380,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		}
 
 		try {
-			Indexer<User> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-				User.class);
-
 			FullNameGenerator fullNameGenerator =
 				FullNameGeneratorFactory.getInstance();
 
@@ -5141,15 +5143,10 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 * @param  birthdayDay the user's new birthday day
 	 * @param  birthdayYear the user's birthday year
 	 * @param  smsSn the user's new SMS screen name
-	 * @param  aimSn the user's new AIM screen name
 	 * @param  facebookSn the user's new Facebook screen name
-	 * @param  icqSn the user's new ICQ screen name
 	 * @param  jabberSn the user's new Jabber screen name
-	 * @param  msnSn the user's new MSN screen name
-	 * @param  mySpaceSn the user's new MySpace screen name
 	 * @param  skypeSn the user's new Skype screen name
 	 * @param  twitterSn the user's new Twitter screen name
-	 * @param  ymSn the user's new Yahoo! Messenger screen name
 	 * @param  jobTitle the user's new job title
 	 * @param  groupIds the primary keys of the user's groups
 	 * @param  organizationIds the primary keys of the user's organizations
@@ -5176,9 +5173,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			String comments, String firstName, String middleName,
 			String lastName, long prefixId, long suffixId, boolean male,
 			int birthdayMonth, int birthdayDay, int birthdayYear, String smsSn,
-			String aimSn, String facebookSn, String icqSn, String jabberSn,
-			String msnSn, String mySpaceSn, String skypeSn, String twitterSn,
-			String ymSn, String jobTitle, long[] groupIds,
+			String facebookSn, String jabberSn, String skypeSn,
+			String twitterSn, String jobTitle, long[] groupIds,
 			long[] organizationIds, long[] roleIds,
 			List<UserGroupRole> userGroupRoles, long[] userGroupIds,
 			ServiceContext serviceContext)
@@ -5194,15 +5190,10 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		emailAddress = StringUtil.toLowerCase(emailAddress.trim());
 		openId = openId.trim();
 		String oldFullName = user.getFullName();
-		aimSn = StringUtil.toLowerCase(aimSn.trim());
 		facebookSn = StringUtil.toLowerCase(facebookSn.trim());
-		icqSn = StringUtil.toLowerCase(icqSn.trim());
 		jabberSn = StringUtil.toLowerCase(jabberSn.trim());
-		msnSn = StringUtil.toLowerCase(msnSn.trim());
-		mySpaceSn = StringUtil.toLowerCase(mySpaceSn.trim());
 		skypeSn = StringUtil.toLowerCase(skypeSn.trim());
 		twitterSn = StringUtil.toLowerCase(twitterSn.trim());
-		ymSn = StringUtil.toLowerCase(ymSn.trim());
 
 		EmailAddressGenerator emailAddressGenerator =
 			EmailAddressGeneratorFactory.getInstance();
@@ -5336,15 +5327,10 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		contact.setMale(male);
 		contact.setBirthday(birthday);
 		contact.setSmsSn(smsSn);
-		contact.setAimSn(aimSn);
 		contact.setFacebookSn(facebookSn);
-		contact.setIcqSn(icqSn);
 		contact.setJabberSn(jabberSn);
-		contact.setMsnSn(msnSn);
-		contact.setMySpaceSn(mySpaceSn);
 		contact.setSkypeSn(skypeSn);
 		contact.setTwitterSn(twitterSn);
-		contact.setYmSn(ymSn);
 		contact.setJobTitle(jobTitle);
 
 		contactPersistence.update(contact, serviceContext);
@@ -5470,15 +5456,10 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 * @param      birthdayDay the user's new birthday day
 	 * @param      birthdayYear the user's birthday year
 	 * @param      smsSn the user's new SMS screen name
-	 * @param      aimSn the user's new AIM screen name
 	 * @param      facebookSn the user's new Facebook screen name
-	 * @param      icqSn the user's new ICQ screen name
 	 * @param      jabberSn the user's new Jabber screen name
-	 * @param      msnSn the user's new MSN screen name
-	 * @param      mySpaceSn the user's new MySpace screen name
 	 * @param      skypeSn the user's new Skype screen name
 	 * @param      twitterSn the user's new Twitter screen name
-	 * @param      ymSn the user's new Yahoo! Messenger screen name
 	 * @param      jobTitle the user's new job title
 	 * @param      groupIds the primary keys of the user's groups
 	 * @param      organizationIds the primary keys of the user's organizations
@@ -5511,9 +5492,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			String greeting, String comments, String firstName,
 			String middleName, String lastName, long prefixId, long suffixId,
 			boolean male, int birthdayMonth, int birthdayDay, int birthdayYear,
-			String smsSn, String aimSn, String facebookSn, String icqSn,
-			String jabberSn, String msnSn, String mySpaceSn, String skypeSn,
-			String twitterSn, String ymSn, String jobTitle, long[] groupIds,
+			String smsSn, String facebookSn, String jabberSn, String skypeSn,
+			String twitterSn, String jobTitle, long[] groupIds,
 			long[] organizationIds, long[] roleIds,
 			List<UserGroupRole> userGroupRoles, long[] userGroupIds,
 			ServiceContext serviceContext)
@@ -5525,9 +5505,9 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			emailAddress, facebookId, openId, true, null, languageId,
 			timeZoneId, greeting, comments, firstName, middleName, lastName,
 			prefixId, suffixId, male, birthdayMonth, birthdayDay, birthdayYear,
-			smsSn, aimSn, facebookSn, icqSn, jabberSn, msnSn, mySpaceSn,
-			skypeSn, twitterSn, ymSn, jobTitle, groupIds, organizationIds,
-			roleIds, userGroupRoles, userGroupIds, serviceContext);
+			smsSn, facebookSn, jabberSn, skypeSn, twitterSn, jobTitle, groupIds,
+			organizationIds, roleIds, userGroupRoles, userGroupIds,
+			serviceContext);
 	}
 
 	/**
@@ -6724,7 +6704,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		if ((user != null) && (user.getUserId() != userId)) {
 			throw new UserScreenNameException.MustNotBeDuplicate(
-				userId, screenName);
+				user.getUserId(), screenName);
 		}
 
 		String friendlyURL = StringPool.SLASH + screenName;

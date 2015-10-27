@@ -15,6 +15,7 @@
 								'liferay-ddl-form-builder-field-support',
 								'liferay-ddl-form-builder-layout-deserializer',
 								'liferay-ddl-form-builder-layout-visitor',
+								'liferay-ddl-form-builder-pages-manager',
 								'liferay-ddm-form-field-types',
 								'liferay-ddm-form-renderer'
 							]
@@ -47,6 +48,13 @@
 							requires: [
 								'aui-form-builder-field-list',
 								'aui-layout'
+							]
+						},
+						'liferay-ddl-form-builder-pages-manager': {
+							path: 'form_builder_pages_manager.js',
+							requires: [
+								'aui-form-builder-page-manager',
+								'liferay-ddm-form-renderer-wizard'
 							]
 						},
 						'liferay-ddl-form-builder-settings-form': {

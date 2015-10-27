@@ -373,7 +373,7 @@
 			<execute macro="DynamicDataMapping#addField">
 				<var name="field" value="${structureFieldName}" />
 				<var name="fieldFieldLabel" value="${structureFieldName}" />
-				<var method="StringUtil#replace('${structureFieldName}', ' ', '_')" name="fieldName" />
+				<var method="StringUtil#replace('${structureFieldName}', ' ', '')" name="fieldName" />
 			</execute>
 		</for>
 
@@ -381,9 +381,9 @@
 			<var name="structureName" value="Advertisement WC Structure Name" />
 		</execute>
 
-		<var name="key_structureName" value="Advertisement WC Structure Name" />
+		<var name="key_ddlDataDefinitionName" value="Advertisement WC Structure Name" />
 
-		<execute function="Click" locator1="DDMSelectStructure#DDM_STRUCTURE_TABLE_ACTIONS" />
+		<execute function="Click" locator1="DDMSelectStructure#DDM_STRUCTURE_ELLIPSIS" />
 		<execute function="AssertClick" locator1="MenuItem#PERMISSIONS" value1="Permissions" />
 
 		<execute macro="PermissionsInline#addOrRemoveViewPermissionFromAllRoles">
@@ -412,7 +412,7 @@
 			<execute macro="DynamicDataMapping#addField">
 				<var name="field" value="${structureFieldName}" />
 				<var name="fieldFieldLabel" value="${structureFieldName}" />
-				<var method="StringUtil#replace('${structureFieldName}', ' ', '_')" name="fieldName" />
+				<var method="StringUtil#replace('${structureFieldName}', ' ', '')" name="fieldName" />
 			</execute>
 		</for>
 
@@ -420,9 +420,9 @@
 			<var name="structureName" value="Press Release Structure Name" />
 		</execute>
 
-		<var name="key_structureName" value="Press Release Structure Name" />
+		<var name="key_ddlDataDefinitionName" value="Press Release Structure Name" />
 
-		<execute function="Click" locator1="DDMSelectStructure#DDM_STRUCTURE_TABLE_ACTIONS" />
+		<execute function="Click" locator1="DDMSelectStructure#DDM_STRUCTURE_ELLIPSIS" />
 		<execute function="Click" locator1="MenuItem#PERMISSIONS" />
 
 		<execute macro="PermissionsInline#addOrRemoveViewPermissionFromAllRoles">
@@ -453,7 +453,7 @@
 			</var>
 		</execute>
 
-		<var name="key_templateName" value="Advertisement Template Name" />
+		<var name="key_ddlTemplateName" value="Advertisement Template Name" />
 
 		<execute function="Click" locator1="DDMSelectTemplate#TEMPLATE_TABLE_ELLIPSIS" />
 		<execute function="Click" locator1="MenuItem#PERMISSIONS" />
@@ -486,7 +486,7 @@
 			</var>
 		</execute>
 
-		<var name="key_templateName" value="Press Release Template Name" />
+		<var name="key_ddlTemplateName" value="Press Release Template Name" />
 
 		<execute function="Click" locator1="DDMSelectTemplate#TEMPLATE_TABLE_ELLIPSIS" />
 		<execute function="Click" locator1="MenuItem#PERMISSIONS" />
@@ -646,7 +646,7 @@
 
 		<execute function="SelectFrame" locator1="DDMSelectStructure#DDM_STRUCTURES_IFRAME" />
 
-		<var name="key_structureName" value="Press Release Structure Name" />
+		<var name="key_ddlDataDefinitionName" value="Press Release Structure Name" />
 
 		<execute function="AssertElementNotPresent" locator1="DDMSelectStructure#DDM_STRUCTURE_TABLE_NAME" />
 
@@ -672,7 +672,7 @@
 
 		<execute function="SelectFrame" locator1="IFrame#TEMPLATES" />
 
-		<var name="key_templateName" value="Press Release Template Name" />
+		<var name="key_ddlTemplateName" value="Press Release Template Name" />
 
 		<execute function="AssertElementNotPresent" locator1="DDMSelectTemplate#TEMPLATE_TABLE_NAME" />
 
@@ -725,7 +725,7 @@
 
 		<execute function="SelectFrame" locator1="DDMSelectStructure#DDM_STRUCTURES_IFRAME" />
 
-		<var name="key_structureName" value="Advertisement WC Structure Name" />
+		<var name="key_ddlDataDefinitionName" value="Advertisement WC Structure Name" />
 
 		<execute function="AssertElementNotPresent" locator1="DDMSelectStructure#DDM_STRUCTURE_TABLE_NAME" />
 
@@ -751,7 +751,7 @@
 
 		<execute function="SelectFrame" locator1="IFrame#TEMPLATES" />
 
-		<var name="key_templateName" value="Advertisement Template Name" />
+		<var name="key_ddlTemplateName" value="Advertisement Template Name" />
 
 		<execute function="AssertElementNotPresent" locator1="DDMSelectTemplate#TEMPLATE_TABLE_NAME" />
 
@@ -988,8 +988,8 @@
 
 		<execute macro="Page#gotoPG">
 			<var name="assetTitle" value="${assetTitle}" />
-		<var name="pageName" value="Asset Publisher Page" />
-</execute>
+			<var name="pageName" value="Asset Publisher Page" />
+	</execute>
 
 		<execute macro="AssetPublisherPortlet#viewRate4StarsPG" />
 	</command>
@@ -1168,6 +1168,100 @@
 
 		<execute macro="AssetPublisherPortlet#viewConfigureAPMoveToSelectedPG">
 			<var name="assetTitle" value="Test Bookmark Name" />
+		</execute>
+	</command>
+
+	<command name="FilterTagsByNameAP" priority="4">
+		<execute macro="Page#addPG">
+			<var name="pageName" value="Tags Navigation Page" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Tags Navigation Page" />
+		</execute>
+
+		<execute macro="Portlet#addPG">
+			<var name="portletName" value="Tags Navigation" />
+		</execute>
+
+		<execute macro="TagsNavigationPortlet#configureDisplayStylePG">
+			<var name="displayTemplate" value="Number" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Tags Navigation Page" />
+		</execute>
+
+		<execute macro="TagsNavigationPortlet#configureFlaggableSettingsPG">
+			<var name="showAssetCount" value="true" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Tags Navigation Page" />
+		</execute>
+
+		<execute macro="Portlet#addPG">
+			<var name="portletName" value="Asset Publisher" />
+		</execute>
+
+		<for list="first tag,second tag,third tag" param="tagName">
+			<execute macro="Page#gotoContentCP">
+				<var name="portletName" value="Tags" />
+			</execute>
+
+			<execute macro="Tag#addCP">
+				<var name="tagName" value="${tagName}" />
+			</execute>
+		</for>
+
+		<execute macro="Page#gotoContentCP">
+			<var name="portletName" value="Web Content" />
+		</execute>
+
+		<execute macro="WebContentNavigator#gotoAddCP" />
+
+		<execute macro="WebContent#addWithTagCP">
+			<var name="tagNameList" value="first tag,second tag" />
+			<var name="webContentContent" value="Web Content Content" />
+			<var name="webContentTitle" value="Web Content Title" />
+		</execute>
+
+		<execute macro="Page#gotoContentCP">
+			<var name="portletName" value="Documents and Media" />
+		</execute>
+
+		<execute macro="DMDocument#addCP">
+			<var name="dmDocumentFile" value="Document_1.txt" />
+			<var name="dmDocumentSize" value="0KB" />
+			<var name="dmDocumentTitle" value="DM Document Title" />
+			<var name="tagNameList" value="first tag" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Tags Navigation Page" />
+		</execute>
+
+		<execute macro="TagsNavigationPortlet#clickTagView">
+			<var name="tagAssetCount" value="first tag (2)" />
+			<var name="tagName" value="first tag" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#viewTagFocusPG">
+			<var name="assetTitleList" value="DM Document Title,Web Content Title" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Tags Navigation Page" />
+		</execute>
+
+		<execute macro="TagsNavigationPortlet#clickTagView">
+			<var name="tagAssetCount" value="second tag (1)" />
+			<var name="tagName" value="second tag" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#viewTagFocusPG">
+			<var name="assetTitleList" value="Web Content Title" />
+			<var name="nonTaggedAsset" value="DM Document Title" />
 		</execute>
 	</command>
 

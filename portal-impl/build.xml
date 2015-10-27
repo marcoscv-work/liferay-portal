@@ -1,8 +1,13 @@
 <?xml version="1.0"?>
 
-<project name="portal-impl" basedir="." default="compile"
+<project
+	basedir="."
+	default="compile"
+	name="portal-impl"
 	xmlns:antelope="antlib:ise.antelope.tasks"
 	xmlns:artifact="antlib:org.apache.maven.artifact.ant"
+	xmlns:if="ant:if"
+	xmlns:unless="ant:unless"
 >
 	<property name="test.properties" value="portal-test.properties" />
 
@@ -620,6 +625,7 @@ svn://svn.liferay.com/repos/public/alloy/trunk/sandbox/taglibs.
 			newenvironment="true"
 			outputproperty="build-service.output"
 		>
+			<jvmarg if:true="${jvm.debug}" value="${jpda.settings}" />
 			<jvmarg value="-Xms512m" />
 			<jvmarg value="-Xmx1024m" />
 			<jvmarg value="-Xss2048k" />
@@ -639,7 +645,6 @@ svn://svn.liferay.com/repos/public/alloy/trunk/sandbox/taglibs.
 			<arg value="service.osgi.module=false" />
 			<arg value="service.plugin.name=" />
 			<arg value="service.props.util=com.liferay.portal.util.PropsUtil" />
-			<arg value="service.remoting.file=${basedir}/../portal-web/docroot/WEB-INF/remoting-servlet.xml" />
 			<arg value="service.resources.dir=${basedir}/src" />
 			<arg value="service.spring.file=${basedir}/src/META-INF/portal-spring.xml" />
 			<arg value="service.spring.namespaces=beans" />
@@ -993,8 +998,10 @@ svn://svn.liferay.com/repos/public/alloy/trunk/sandbox/taglibs.
 			fork="true"
 			newenvironment="true"
 		>
+			<jvmarg if:true="${jvm.debug}" value="${jpda.settings}" />
 			<jvmarg value="-Xmx512m" />
 			<jvmarg value="-Xss2048k" />
+			<jvmarg value="-Dsource.formatter.check.modules.service.util=${source.formatter.check.modules.service.util}" />
 			<jvmarg value="-Dsource.formatter.check.unprocessed.exceptions=${source.formatter.check.unprocessed.exceptions}" />
 			<jvmarg value="-Dsource.formatter.excludes=${source.formatter.excludes}" />
 			<arg value="format.current.branch=${format.current.branch}" />

@@ -58,8 +58,8 @@ if (iteratorURL != null) {
 JSONArray primaryKeysJSONArray = JSONFactoryUtil.createJSONArray();
 %>
 
-<c:if test="<%= resultRows.isEmpty() && (emptyResultsMessage != null) %>">
-	<div class="alert alert-info">
+<c:if test="<%= emptyResultsMessage != null %>">
+	<div class="alert alert-info <%= resultRows.isEmpty() ? StringPool.BLANK : "hide" %>" id="<%= namespace + id %>EmptyResultsMessage">
 		<%= LanguageUtil.get(request, emptyResultsMessage) %>
 	</div>
 </c:if>
@@ -126,13 +126,13 @@ JSONArray primaryKeysJSONArray = JSONFactoryUtil.createJSONArray();
 						if (HtmlUtil.escapeAttribute(orderByType).equals("desc")) {
 							cssClass += " table-sorted-desc";
 						}
+					}
 
-						if (orderByType.equals("asc")) {
-							orderByType = "desc";
-						}
-						else {
-							orderByType = "asc";
-						}
+					if (Validator.equals(orderByType, "asc")) {
+						orderByType = "desc";
+					}
+					else {
+						orderByType = "asc";
 					}
 				%>
 
@@ -209,14 +209,6 @@ JSONArray primaryKeysJSONArray = JSONFactoryUtil.createJSONArray();
 		</c:if>
 
 		<tbody class="table-data">
-
-		<c:if test="<%= resultRows.isEmpty() && (emptyResultsMessage != null) %>">
-			<tr>
-				<td class="table-cell">
-					<%= LanguageUtil.get(request, emptyResultsMessage) %>
-				</td>
-			</tr>
-		</c:if>
 
 		<%
 		boolean allRowsIsChecked = true;
@@ -357,7 +349,8 @@ JSONArray primaryKeysJSONArray = JSONFactoryUtil.createJSONArray();
 				rowClassNameAlternate: '<%= _ROW_CLASS_NAME_ALTERNATE %>',
 				rowClassNameAlternateHover: '<%= _ROW_CLASS_NAME_ALTERNATE_HOVER %>',
 				rowClassNameBody: '<%= _ROW_CLASS_NAME_BODY %>',
-				rowClassNameBodyHover: '<%= _ROW_CLASS_NAME_BODY %>'
+				rowClassNameBodyHover: '<%= _ROW_CLASS_NAME_BODY %>',
+				rowSelector: 'tr.selectable'
 			}
 		).render();
 

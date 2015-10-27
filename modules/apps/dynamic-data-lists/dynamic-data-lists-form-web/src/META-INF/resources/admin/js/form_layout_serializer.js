@@ -43,13 +43,19 @@ AUI.add(
 					_serializeColumn: function(column) {
 						var instance = this;
 
-						var fieldsList = column.get('value');
-
 						var serializedColumn = {
 							size: column.get('size')
 						};
 
-						serializedColumn.fieldNames = instance._visitFields(fieldsList.get('fields'));
+						var fieldNames = [];
+
+						var fieldsList = column.get('value');
+
+						if (fieldsList) {
+							fieldNames = instance._visitFields(fieldsList.get('fields'));
+						}
+
+						serializedColumn.fieldNames = fieldNames;
 
 						return serializedColumn;
 					},
@@ -76,7 +82,7 @@ AUI.add(
 							},
 							rows: instance._visitRows(page.get('rows')),
 							title: {
-								en_US: titles[index] || index + 1
+								en_US: titles[index] || ''
 							}
 						};
 					},

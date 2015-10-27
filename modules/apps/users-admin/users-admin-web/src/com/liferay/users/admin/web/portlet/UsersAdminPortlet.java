@@ -16,12 +16,10 @@ package com.liferay.users.admin.web.portlet;
 
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.users.admin.web.constants.UsersAdminPortletKeys;
-import com.liferay.users.admin.web.upgrade.UsersAdminWebUpgrade;
 
 import javax.portlet.Portlet;
 
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Pei-Jung Lan
@@ -29,8 +27,6 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	immediate = true,
 	property = {
-		"com.liferay.portlet.control-panel-entry-category=users",
-		"com.liferay.portlet.control-panel-entry-weight=1.0",
 		"com.liferay.portlet.css-class-wrapper=portlet-users-admin",
 		"com.liferay.portlet.display-category=category.hidden",
 		"com.liferay.portlet.header-portlet-css=/css/main.css",
@@ -53,10 +49,4 @@ import org.osgi.service.component.annotations.Reference;
 	service = Portlet.class
 )
 public class UsersAdminPortlet extends MVCPortlet {
-
-	@Reference(unbind = "-")
-	protected void setUsersAdminWebUpgrade(
-		UsersAdminWebUpgrade UsersAdminWebUpgrade) {
-	}
-
 }

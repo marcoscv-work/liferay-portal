@@ -27,8 +27,9 @@ import com.liferay.portal.NoSuchCountryException;
 import com.liferay.portal.NoSuchListTypeException;
 import com.liferay.portal.NoSuchRegionException;
 import com.liferay.portal.PhoneNumberException;
+import com.liferay.portal.PhoneNumberExtensionException;
 import com.liferay.portal.WebsiteURLException;
-import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
+import com.liferay.portal.kernel.portlet.bridges.mvc.BaseFormMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.servlet.SessionErrors;
@@ -44,11 +45,11 @@ import com.liferay.portal.model.EmailAddress;
 import com.liferay.portal.model.Phone;
 import com.liferay.portal.model.Website;
 import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.service.CompanyServiceUtil;
+import com.liferay.portal.service.CompanyService;
 import com.liferay.portal.settings.web.constants.PortalSettingsPortletKeys;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
+import com.liferay.portlet.documentlibrary.service.DLAppLocalService;
 import com.liferay.portlet.usersadmin.util.UsersAdminUtil;
 
 import java.util.List;
@@ -57,6 +58,7 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Brian Wing Shun Chan
@@ -70,7 +72,7 @@ import org.osgi.service.component.annotations.Component;
 	},
 	service = MVCActionCommand.class
 )
-public class EditCompanyMVCActionCommand extends BaseMVCActionCommand {
+public class EditCompanyMVCActionCommand extends BaseFormMVCActionCommand {
 
 	@Override
 	public void doProcessAction(
@@ -81,16 +83,10 @@ public class EditCompanyMVCActionCommand extends BaseMVCActionCommand {
 
 		try {
 			if (cmd.equals(Constants.ADD) || cmd.equals(Constants.UPDATE)) {
-				validateCAS(actionRequest);
-				validateLDAP(actionRequest);
-				validateSocialInteractions(actionRequest);
-
 				String redirect = ParamUtil.getString(
 					actionRequest, "redirect");
 
-				if (SessionErrors.isEmpty(actionRequest)) {
-					updateCompany(actionRequest);
-				}
+				updateCompany(actionRequest);
 
 				sendRedirect(actionRequest, actionResponse, redirect);
 			}
@@ -116,6 +112,7 @@ public class EditCompanyMVCActionCommand extends BaseMVCActionCommand {
 					 e instanceof NoSuchListTypeException ||
 					 e instanceof NoSuchRegionException ||
 					 e instanceof PhoneNumberException ||
+					 e instanceof PhoneNumberExtensionException ||
 					 e instanceof WebsiteURLException) {
 
 				if (e instanceof NoSuchListTypeException) {
@@ -137,6 +134,25 @@ public class EditCompanyMVCActionCommand extends BaseMVCActionCommand {
 		}
 	}
 
+	@Override
+	protected void doValidateForm(
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws Exception {
+
+		validateLDAP(actionRequest);
+		validateSocialInteractions(actionRequest);
+	}
+
+	@Reference(unbind = "-")
+	protected void setCompanyService(CompanyService companyService) {
+		_companyService = companyService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setDLAppLocalService(DLAppLocalService dlAppLocalService) {
+		_dlAppLocalService = dlAppLocalService;
+	}
+
 	protected void updateCompany(ActionRequest actionRequest) throws Exception {
 		long companyId = PortalUtil.getCompanyId(actionRequest);
 
@@ -151,8 +167,7 @@ public class EditCompanyMVCActionCommand extends BaseMVCActionCommand {
 		long fileEntryId = ParamUtil.getLong(actionRequest, "fileEntryId");
 
 		if (fileEntryId > 0) {
-			FileEntry fileEntry = DLAppLocalServiceUtil.getFileEntry(
-				fileEntryId);
+			FileEntry fileEntry = _dlAppLocalService.getFileEntry(fileEntryId);
 
 			logoBytes = FileUtil.getBytes(fileEntry.getContentStream());
 		}
@@ -177,64 +192,13 @@ public class EditCompanyMVCActionCommand extends BaseMVCActionCommand {
 		UnicodeProperties properties = PropertiesParamUtil.getProperties(
 			actionRequest, "settings--");
 
-		CompanyServiceUtil.updateCompany(
+		_companyService.updateCompany(
 			companyId, virtualHostname, mx, homeURL, !deleteLogo, logoBytes,
 			name, legalName, legalId, legalType, sicCode, tickerSymbol,
 			industry, type, size, languageId, timeZoneId, addresses,
 			emailAddresses, phones, websites, properties);
 
 		PortalUtil.resetCDNHosts();
-	}
-
-	protected void validateCAS(ActionRequest actionRequest) {
-		boolean casEnabled = ParamUtil.getBoolean(
-			actionRequest, "settings--" + PropsKeys.CAS_AUTH_ENABLED + "--");
-
-		if (!casEnabled) {
-			return;
-		}
-
-		String casLoginURL = ParamUtil.getString(
-			actionRequest, "settings--" + PropsKeys.CAS_LOGIN_URL + "--");
-		String casLogoutURL = ParamUtil.getString(
-			actionRequest, "settings--" + PropsKeys.CAS_LOGOUT_URL + "--");
-		String casServerName = ParamUtil.getString(
-			actionRequest, "settings--" + PropsKeys.CAS_SERVER_NAME + "--");
-		String casServerURL = ParamUtil.getString(
-			actionRequest, "settings--" + PropsKeys.CAS_SERVER_URL + "--");
-		String casServiceURL = ParamUtil.getString(
-			actionRequest, "settings--" + PropsKeys.CAS_SERVICE_URL + "--");
-		String casNoSuchUserRedirectURL = ParamUtil.getString(
-			actionRequest,
-			"settings--" + PropsKeys.CAS_NO_SUCH_USER_REDIRECT_URL + "--");
-
-		if (!Validator.isUrl(casLoginURL)) {
-			SessionErrors.add(actionRequest, "casLoginURLInvalid");
-		}
-
-		if (!Validator.isUrl(casLogoutURL)) {
-			SessionErrors.add(actionRequest, "casLogoutURLInvalid");
-		}
-
-		if (Validator.isNull(casServerName)) {
-			SessionErrors.add(actionRequest, "casServerNameInvalid");
-		}
-
-		if (!Validator.isUrl(casServerURL)) {
-			SessionErrors.add(actionRequest, "casServerURLInvalid");
-		}
-
-		if (Validator.isNotNull(casServiceURL) &&
-			!Validator.isUrl(casServiceURL)) {
-
-			SessionErrors.add(actionRequest, "casServiceURLInvalid");
-		}
-
-		if (Validator.isNotNull(casNoSuchUserRedirectURL) &&
-			!Validator.isUrl(casNoSuchUserRedirectURL)) {
-
-			SessionErrors.add(actionRequest, "casNoSuchUserURLInvalid");
-		}
 	}
 
 	protected void validateLDAP(ActionRequest actionRequest) {
@@ -291,5 +255,8 @@ public class EditCompanyMVCActionCommand extends BaseMVCActionCommand {
 			SessionErrors.add(actionRequest, "socialInteractionsInvalid");
 		}
 	}
+
+	private CompanyService _companyService;
+	private DLAppLocalService _dlAppLocalService;
 
 }

@@ -63,10 +63,6 @@ public interface PropsKeys {
 
 	public static final String ADMIN_SYNC_DEFAULT_ASSOCIATIONS = "admin.sync.default.associations";
 
-	public static final String AIM_LOGIN = "aim.login";
-
-	public static final String AIM_PASSWORD = "aim.password";
-
 	public static final String ANNOUNCEMENTS_EMAIL_BODY = "announcements.email.body";
 
 	public static final String ANNOUNCEMENTS_EMAIL_FROM_ADDRESS = "announcements.email.from.address";
@@ -859,12 +855,6 @@ public interface PropsKeys {
 
 	public static final String HTTP_HEADER_VERSION_VERBOSITY = "http.header.version.verbosity";
 
-	public static final String ICQ_JAR = "icq.jar";
-
-	public static final String ICQ_LOGIN = "icq.login";
-
-	public static final String ICQ_PASSWORD = "icq.password";
-
 	public static final String IFRAME_PASSWORD_PASSWORD_TOKEN_ROLE = "iframe.password.token.role";
 
 	public static final String IMAGE_AUTO_SCALE = "image.auto.scale";
@@ -946,6 +936,8 @@ public interface PropsKeys {
 	public static final String INDEX_SORTABLE_TEXT_FIELDS_TRUNCATED_LENGTH = "index.sortable.text.fields.truncated.length";
 
 	public static final String INDEX_WITH_THREAD = "index.with.thread";
+
+	public static final String INDEXER_ENABLED = "indexer.enabled";
 
 	public static final String INTRABAND_IMPL = "intraband.impl";
 
@@ -1515,10 +1507,6 @@ public interface PropsKeys {
 
 	public static final String MODULE_FRAMEWORK_WEB_GENERATOR_JSP_COMPILER_DEPENDENCIES = "module.framework.web.generator.jsp.compiler.dependencies";
 
-	public static final String MSN_LOGIN = "msn.login";
-
-	public static final String MSN_PASSWORD = "msn.password";
-
 	public static final String MULTI_VALUE_MAP = "multi.value.map.";
 
 	public static final String MY_SITES_DIRECTORY_SITE_EXCLUDES = "my.sites.directory.site.excludes";
@@ -1622,8 +1610,6 @@ public interface PropsKeys {
 	public static final String ORGANIZATIONS_FORM_UPDATE_MAIN = "organizations.form.update.main";
 
 	public static final String ORGANIZATIONS_FORM_UPDATE_MISCELLANEOUS = "organizations.form.update.miscellaneous";
-
-	public static final String ORGANIZATIONS_INDEXER_ENABLED = "organizations.indexer.enabled";
 
 	public static final String ORGANIZATIONS_MEMBERSHIP_STRICT = "organizations.membership.strict";
 
@@ -2353,8 +2339,6 @@ public interface PropsKeys {
 
 	public static final String USER_GROUPS_COPY_LAYOUTS_TO_USER_PERSONAL_SITE = "user.groups.copy.layouts.to.user.personal.site";
 
-	public static final String USER_GROUPS_INDEXER_ENABLED = "user.groups.indexer.enabled";
-
 	public static final String USER_GROUPS_NAME_ALLOW_NUMERIC = "user.groups.name.allow.numeric";
 
 	public static final String USER_GROUPS_SEARCH_WITH_INDEX = "user.groups.search.with.index";
@@ -2408,8 +2392,6 @@ public interface PropsKeys {
 	public static final String USERS_IMAGE_MAX_SIZE = "users.image.max.size";
 
 	public static final String USERS_IMAGE_MAX_WIDTH = "users.image.max.width";
-
-	public static final String USERS_INDEXER_ENABLED = "users.indexer.enabled";
 
 	public static final String USERS_LIST_VIEWS = "users.list.views";
 
@@ -2522,10 +2504,6 @@ public interface PropsKeys {
 	public static final String XUGGLER_JAR_OPTIONS = "xuggler.jar.options";
 
 	public static final String XUGGLER_JAR_URL = "xuggler.jar.url";
-
-	public static final String YM_LOGIN = "ym.login";
-
-	public static final String YM_PASSWORD = "ym.password";
 
 	public static final String YUI_COMPRESSOR_CSS_LINE_BREAK = "yui.compressor.css.line.break";
 

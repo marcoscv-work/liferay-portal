@@ -16,11 +16,6 @@
 
 <c:choose>
 	<c:when test='<%= displayStyle.equals("descriptive") %>'>
-
-		<%
-		FileVersion latestFileVersion = fileEntry.getLatestFileVersion();
-		%>
-
 		<liferay-ui:search-container-column-image
 			src="<%= DLUtil.getThumbnailSrc(fileEntry, themeDisplay) %>"
 		/>
@@ -33,16 +28,14 @@
 				assetTagClassPK="<%= fileEntry.getFileEntryId() %>"
 				author="<%= fileEntry.getUserName() %>"
 				createDate="<%= fileEntry.getCreateDate() %>"
-				description="<%= HtmlUtil.escape(fileEntry.getDescription()) %>"
+				description="<%= fileEntry.getDescription() %>"
 				displayStyle="descriptive"
 				markupView="lexicon"
 				modifiedDate="<%= fileEntry.getModifiedDate() %>"
 				rowCheckerId="<%= String.valueOf(fileEntry.getFileEntryId()) %>"
 				rowCheckerName="<%= FileEntry.class.getSimpleName() %>"
 				showCheckbox="<%= true %>"
-				status="<%= latestFileVersion.getStatus() %>"
-				title="<%= HtmlUtil.escape(fileEntry.getTitle()) %>"
-				version="<%= String.valueOf(fileEntry.getVersion()) %>"
+				title="<%= fileEntry.getTitle() %>"
 			/>
 		</liferay-ui:search-container-column-text>
 	</c:when>
@@ -53,20 +46,15 @@
 		%>
 
 		<liferay-ui:search-container-column-text>
-			<liferay-frontend:card
+			<liferay-frontend:vertical-card
 				imageUrl="<%= DLUtil.getThumbnailSrc(fileEntry, themeDisplay) %>"
 				resultRow="<%= row %>"
 				rowChecker="<%= searchContainer.getRowChecker() %>"
-				title="<%= HtmlUtil.escape(fileEntry.getTitle()) %>"
+				title="<%= fileEntry.getTitle() %>"
 			/>
 		</liferay-ui:search-container-column-text>
 	</c:when>
 	<c:otherwise>
-
-		<%
-		FileVersion latestFileVersion = fileEntry.getLatestFileVersion();
-		%>
-
 		<liferay-ui:search-container-column-text name="title">
 
 			<%
@@ -83,8 +71,6 @@
 		</liferay-ui:search-container-column-text>
 
 		<liferay-ui:search-container-column-text name="size" value="<%= TextFormatter.formatStorageSize(fileEntry.getSize(), locale) %>" />
-
-		<liferay-ui:search-container-column-status name="status" status="<%= latestFileVersion.getStatus() %>" />
 
 		<liferay-ui:search-container-column-text name="modified-date">
 			<liferay-ui:message arguments="<%= new String[] {LanguageUtil.getTimeDescription(locale, System.currentTimeMillis() - fileEntry.getModifiedDate().getTime(), true), HtmlUtil.escape(fileEntry.getUserName())} %>" key="x-ago-by-x" translateArguments="<%= false %>" />

@@ -19,10 +19,9 @@
 <%
 String redirect = ParamUtil.getString(request, "redirect");
 
-String backURL = ParamUtil.getString(request, "backURL");
-
 String portletResource = ParamUtil.getString(request, "portletResource");
 
+long referringPlid = ParamUtil.getLong(request, "referringPlid");
 String referringPortletResource = ParamUtil.getString(request, "referringPortletResource");
 
 boolean changeStructure = GetterUtil.getBoolean(ParamUtil.getString(request, "changeStructure"));
@@ -135,8 +134,8 @@ request.setAttribute("edit_article.jsp-changeStructure", changeStructure);
 	<aui:form action="<%= editArticleActionURL %>" cssClass="lfr-dynamic-form" enctype="multipart/form-data" method="post" name="fm1" onSubmit="event.preventDefault();">
 		<aui:input name="<%= ActionRequest.ACTION_NAME %>" type="hidden" />
 		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
-		<aui:input name="backURL" type="hidden" value="<%= backURL %>" />
 		<aui:input name="portletResource" type="hidden" value="<%= portletResource %>" />
+		<aui:input name="referringPlid" type="hidden" value="<%= referringPlid %>" />
 		<aui:input name="referringPortletResource" type="hidden" value="<%= referringPortletResource %>" />
 		<aui:input name="groupId" type="hidden" value="<%= groupId %>" />
 		<aui:input name="privateLayout" type="hidden" value="<%= layout.isPrivateLayout() %>" />
@@ -153,7 +152,7 @@ request.setAttribute("edit_article.jsp-changeStructure", changeStructure);
 		<aui:input name="workflowAction" type="hidden" value="<%= String.valueOf(WorkflowConstants.ACTION_SAVE_DRAFT) %>" />
 
 		<liferay-ui:error exception="<%= ArticleContentSizeException.class %>" message="you-have-exceeded-the-maximum-web-content-size-allowed" />
-		<liferay-ui:error exception="<%= DuplicateFileException.class %>" message="a-file-with-that-name-already-exists" />
+		<liferay-ui:error exception="<%= DuplicateFileEntryException.class %>" message="a-file-with-that-name-already-exists" />
 
 		<liferay-ui:error exception="<%= FileSizeException.class %>">
 
@@ -176,7 +175,7 @@ request.setAttribute("edit_article.jsp-changeStructure", changeStructure);
 
 		<div class="journal-article-wrapper" id="<portlet:namespace />journalArticleWrapper">
 			<div class="journal-article-wrapper-content">
-				<c:if test="<%= (article != null) && !article.isNew() %>">
+				<c:if test="<%= (article != null) && !article.isNew() && (classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT) %>">
 					<aui:workflow-status id="<%= String.valueOf(article.getArticleId()) %>" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= article.getStatus() %>" version="<%= String.valueOf(article.getVersion()) %>" />
 
 					<liferay-util:include page="/article_toolbar.jsp" servletContext="<%= application %>" />
@@ -217,16 +216,18 @@ request.setAttribute("edit_article.jsp-changeStructure", changeStructure);
 					}
 					%>
 
-					<c:if test="<%= approved %>">
-						<div class="alert alert-info">
-							<liferay-ui:message key="a-new-version-is-created-automatically-if-this-content-is-modified" />
-						</div>
-					</c:if>
+					<c:if test="<%= classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT %>">
+						<c:if test="<%= approved %>">
+							<div class="alert alert-info">
+								<liferay-ui:message key="a-new-version-is-created-automatically-if-this-content-is-modified" />
+							</div>
+						</c:if>
 
-					<c:if test="<%= pending %>">
-						<div class="alert alert-info">
-							<liferay-ui:message key="there-is-a-publication-workflow-in-process" />
-						</div>
+						<c:if test="<%= pending %>">
+							<div class="alert alert-info">
+								<liferay-ui:message key="there-is-a-publication-workflow-in-process" />
+							</div>
+						</c:if>
 					</c:if>
 
 					<aui:button-row cssClass="journal-article-button-row">

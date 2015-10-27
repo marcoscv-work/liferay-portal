@@ -21,6 +21,8 @@ import com.liferay.journal.service.JournalArticleServiceUtil;
 import com.liferay.journal.service.JournalFolderServiceUtil;
 import com.liferay.journal.service.permission.JournalArticlePermission;
 import com.liferay.journal.service.permission.JournalFolderPermission;
+import com.liferay.journal.web.display.context.JournalDisplayContext;
+import com.liferay.portal.kernel.dao.search.EmptyOnClickRowChecker;
 import com.liferay.portal.kernel.dao.search.RowChecker;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
@@ -31,19 +33,24 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.util.PortalUtil;
 
 import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Sergio González
  */
-public class EntriesChecker extends RowChecker {
+public class EntriesChecker extends EmptyOnClickRowChecker {
 
 	public EntriesChecker(
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse) {
 
 		super(liferayPortletResponse);
+
+		_journalDisplayContext = new JournalDisplayContext(
+			PortalUtil.getHttpServletRequest(liferayPortletRequest),
+			liferayPortletResponse, liferayPortletRequest.getPreferences());
 
 		_liferayPortletResponse = liferayPortletResponse;
 
@@ -68,6 +75,10 @@ public class EntriesChecker extends RowChecker {
 	public String getRowCheckBox(
 		HttpServletRequest request, boolean checked, boolean disabled,
 		String primaryKey) {
+
+		if (!_journalDisplayContext.isShowEditActions()) {
+			return StringPool.BLANK;
+		}
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 			WebKeys.THEME_DISPLAY);
@@ -154,6 +165,7 @@ public class EntriesChecker extends RowChecker {
 			StringPool.BLANK);
 	}
 
+	private final JournalDisplayContext _journalDisplayContext;
 	private final LiferayPortletResponse _liferayPortletResponse;
 	private final PermissionChecker _permissionChecker;
 

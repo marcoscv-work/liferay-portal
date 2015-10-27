@@ -6,6 +6,12 @@ AUI.add(
 		var FormBuilderUtil = Liferay.DDL.FormBuilderUtil;
 		var Lang = A.Lang;
 
+		var CSS_FORM_BUILDER_TABS = A.getClassName('form', 'builder', 'tabs');
+
+		var CSS_PAGE_HEADER = A.getClassName('form', 'builder', 'pages', 'header');
+
+		var CSS_PAGES = A.getClassName('form', 'builder', 'pages', 'lexicon');
+
 		var FormBuilder = A.Component.create(
 			{
 				ATTRS: {
@@ -54,6 +60,8 @@ AUI.add(
 				NAME: 'liferay-ddl-form-builder',
 
 				prototype: {
+					TPL_PAGES: '<div class="' + CSS_PAGES + '" ></div>',
+
 					initializer: function() {
 						var instance = this;
 
@@ -71,6 +79,7 @@ AUI.add(
 
 						instance._renderFields();
 						instance._renderPages();
+						instance._syncRowsLastColumnUI();
 					},
 
 					destructor: function() {
@@ -110,34 +119,73 @@ AUI.add(
 						return FieldTypes.get(field.get('type'));
 					},
 
-					getField: function(name) {
+					_afterActivePageNumberChange: function() {
 						var instance = this;
 
-						return AArray.find(
-							instance.getFields(),
-							function(item) {
-								return item.get('name') === name;
-							}
+						FormBuilder.superclass._afterActivePageNumberChange.apply(instance, arguments);
+
+						instance._syncRowsLastColumnUI();
+					},
+
+					_afterLayoutColsChange: function(event) {
+						var instance = this;
+
+						FormBuilder.superclass._afterLayoutColsChange.apply(instance, arguments);
+
+						instance._syncRowLastColumnUI(event.target);
+					},
+
+					_afterLayoutRowsChange: function(event) {
+						var instance = this;
+
+						FormBuilder.superclass._afterLayoutRowsChange.apply(instance, arguments);
+
+						event.newVal.forEach(instance._syncRowLastColumnUI);
+					},
+
+					_afterLayoutsChange: function() {
+						var instance = this;
+
+						FormBuilder.superclass._afterLayoutsChange.apply(instance, arguments);
+
+						instance._syncRowsLastColumnUI();
+					},
+
+					_afterSelectFieldType: function(event) {
+						var instance = this;
+
+						var fieldType = event.fieldType;
+
+						instance.hideFieldsPanel();
+
+						instance.showFieldSettingsPanel(
+							instance.createField(fieldType),
+							fieldType.get('label')
 						);
 					},
 
-					getFields: function() {
+					_getPageManagerInstance: function(config) {
 						var instance = this;
 
-						var fields = [];
+						var contentBox = instance.get('contentBox');
 
-						var visitor = instance.get('visitor');
+						if (!instance._pageManager) {
+							instance._pageManager = new Liferay.DDL.FormBuilderPagesManager(
+								A.merge(
+									{
+										builder: instance,
+										mode: 'wizard',
+										pageHeader: contentBox.one('.' + CSS_PAGE_HEADER),
+										pagesQuantity: instance.get('layouts').length,
+										paginationContainer: contentBox.one('.' + CSS_PAGES),
+										tabviewContainer: contentBox.one('.' + CSS_FORM_BUILDER_TABS)
+									},
+									config
+								)
+							);
+						}
 
-						visitor.set(
-							'fieldHandler',
-							function(field) {
-								fields.push(field);
-							}
-						);
-
-						visitor.visit();
-
-						return fields;
+						return instance._pageManager;
 					},
 
 					_getVisitor: function(visitor) {
@@ -148,23 +196,31 @@ AUI.add(
 						return visitor;
 					},
 
-					_onClickFieldType: function(event) {
-						var instance = this;
-
-						var fieldType = event.currentTarget.getData('fieldType');
-
-						instance.hideFieldsPanel();
-
-						instance.showFieldSettingsPanel(
-							instance.createField(fieldType),
-							fieldType.get('label')
-						);
-					},
-
 					_onClickPaginationItem: function(event) {
 						var instance = this;
 
 						event.halt();
+					},
+
+					_renderContentBox: function() {
+						var instance = this;
+
+						var contentBox = instance.get('contentBox');
+
+						var strings = instance.get('strings');
+
+						var headerTemplate = A.Lang.sub(
+							instance.TPL_HEADER,
+							{
+								formTitle: strings.formTitle
+							}
+						);
+
+						contentBox.append(instance.TPL_TABVIEW);
+						contentBox.append(instance.TPL_PAGE_HEADER);
+						contentBox.append(headerTemplate);
+						contentBox.append(instance.TPL_LAYOUT);
+						contentBox.append(instance.TPL_PAGES);
 					},
 
 					_renderField: function(field) {
@@ -207,6 +263,26 @@ AUI.add(
 								return !item.get('system');
 							}
 						);
+					},
+
+					_syncRowLastColumnUI: function(row) {
+						var lastColumn = row.get('node').one('.last-col');
+
+						if (lastColumn) {
+							lastColumn.removeClass('last-col');
+						}
+
+						var cols = row.get('cols');
+
+						cols[cols.length - 1].get('node').addClass('last-col');
+					},
+
+					_syncRowsLastColumnUI: function() {
+						var instance = this;
+
+						var rows = instance.getActiveLayout().get('rows');
+
+						rows.forEach(instance._syncRowLastColumnUI);
 					},
 
 					_valueDeserializer: function() {
@@ -253,6 +329,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-form-builder', 'aui-form-builder-pages', 'liferay-ddl-form-builder-field', 'liferay-ddl-form-builder-layout-deserializer', 'liferay-ddl-form-builder-layout-visitor', 'liferay-ddl-form-builder-util', 'liferay-ddm-form-field-types', 'liferay-ddm-form-renderer']
+		requires: ['aui-form-builder', 'aui-form-builder-pages', 'liferay-ddl-form-builder-layout-deserializer', 'liferay-ddl-form-builder-layout-visitor', 'liferay-ddl-form-builder-pages-manager', 'liferay-ddl-form-builder-util', 'liferay-ddm-form-field-types', 'liferay-ddm-form-renderer']
 	}
 );

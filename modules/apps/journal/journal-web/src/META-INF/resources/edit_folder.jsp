@@ -19,7 +19,7 @@
 <%
 String redirect = ParamUtil.getString(request, "redirect");
 
-JournalFolder folder = ActionUtil.getFolder(request);
+JournalFolder folder = journalDisplayContext.getFolder();
 
 long folderId = BeanParamUtil.getLong(folder, request, "folderId");
 
@@ -124,7 +124,7 @@ renderResponse.setTitle(title);
 										title: '<liferay-ui:message arguments="folder" key="select-x" />',
 
 										<portlet:renderURL var="selectFolderURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
-											<portlet:param name="mvcPath" value="/html/portletjournal/select_folder.jsp" />
+											<portlet:param name="mvcPath" value="/select_folder.jsp" />
 											<portlet:param name="folderId" value="<%= String.valueOf(parentFolderId) %>" />
 										</portlet:renderURL>
 
@@ -424,13 +424,13 @@ renderResponse.setTitle(title);
 
 <%
 if (folder != null) {
-	JournalPortletUtil.addPortletBreadcrumbEntries(folderId, request, renderResponse);
+	JournalPortletUtil.addPortletBreadcrumbEntries(folderId, request, journalDisplayContext.getPortletURL());
 
 	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "edit"), currentURL);
 }
 else {
 	if (parentFolderId > 0) {
-		JournalPortletUtil.addPortletBreadcrumbEntries(parentFolderId, request, renderResponse);
+		JournalPortletUtil.addPortletBreadcrumbEntries(parentFolderId, request, journalDisplayContext.getPortletURL());
 	}
 
 	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "add-folder"), currentURL);

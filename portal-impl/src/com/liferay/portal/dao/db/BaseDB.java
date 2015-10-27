@@ -219,11 +219,6 @@ public abstract class BaseDB implements DB {
 	}
 
 	@Override
-	public boolean isSupportsDateMilliseconds() {
-		return _SUPPORTS_DATE_MILLISECONDS;
-	}
-
-	@Override
 	public boolean isSupportsInlineDistinct() {
 		return _SUPPORTS_INLINE_DISTINCT;
 	}
@@ -259,11 +254,7 @@ public abstract class BaseDB implements DB {
 	public void runSQL(Connection con, String[] sqls)
 		throws IOException, SQLException {
 
-		Statement s = null;
-
-		try {
-			s = con.createStatement();
-
+		try (Statement s = con.createStatement()) {
 			for (int i = 0; i < sqls.length; i++) {
 				String sql = buildSQL(sqls[i]);
 
@@ -289,9 +280,6 @@ public abstract class BaseDB implements DB {
 				}
 			}
 		}
-		finally {
-			DataAccess.cleanUp(s);
-		}
 	}
 
 	@Override
@@ -301,13 +289,8 @@ public abstract class BaseDB implements DB {
 
 	@Override
 	public void runSQL(String[] sqls) throws IOException, SQLException {
-		Connection con = DataAccess.getConnection();
-
-		try {
+		try (Connection con = DataAccess.getConnection()) {
 			runSQL(con, sqls);
-		}
-		finally {
-			DataAccess.cleanUp(con);
 		}
 	}
 
@@ -1117,8 +1100,6 @@ public abstract class BaseDB implements DB {
 	private static final boolean _SUPPORTS_ALTER_COLUMN_NAME = true;
 
 	private static final boolean _SUPPORTS_ALTER_COLUMN_TYPE = true;
-
-	private static final boolean _SUPPORTS_DATE_MILLISECONDS = true;
 
 	private static final boolean _SUPPORTS_INLINE_DISTINCT = true;
 

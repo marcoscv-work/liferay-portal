@@ -503,17 +503,17 @@ public class VerifyProperties extends VerifyProcess {
 
 		new String[] {
 			"auth.verifier.TunnelingServletAuthVerifier.hosts.allowed",
-			"auth.verifier.TunnelingServletAuthVerifier.hosts.allowed",
+			"auth.verifier.TunnelAuthVerifier.hosts.allowed",
 			"com.liferay.portal.security.auth.verifier"
 		},
 		new String[] {
 			"auth.verifier.TunnelingServletAuthVerifier.urls.excludes",
-			"auth.verifier.TunnelingServletAuthVerifier.urls.excludes",
+			"auth.verifier.TunnelAuthVerifier.urls.excludes",
 			"com.liferay.portal.security.auth.verifier"
 		},
 		new String[] {
 			"auth.verifier.TunnelingServletAuthVerifier.urls.includes",
-			"auth.verifier.TunnelingServletAuthVerifier.urls.includes",
+			"auth.verifier.TunnelAuthVerifier.urls.includes",
 			"com.liferay.portal.security.auth.verifier"
 		},
 
@@ -1782,8 +1782,8 @@ public class VerifyProperties extends VerifyProcess {
 	};
 
 	private static final String[] _OBSOLETE_PORTAL_KEYS = new String[] {
-		"amazon.access.key.id", "amazon.associate.tag",
-		"amazon.secret.access.key",
+		"aim.login", "aim.login", "amazon.access.key.id",
+		"amazon.associate.tag", "amazon.secret.access.key",
 		"asset.entry.increment.view.counter.enabled",
 		"asset.publisher.asset.entry.query.processors",
 		"asset.publisher.filter.unlistable.entries",
@@ -1838,7 +1838,8 @@ public class VerifyProperties extends VerifyProcess {
 		"hibernate.cache.region.factory_class",
 		"hibernate.cache.use_minimal_puts", "hibernate.cache.use_query_cache",
 		"hibernate.cache.use_second_level_cache",
-		"hibernate.cache.use_structured_entries", "index.filter.search.limit",
+		"hibernate.cache.use_structured_entries", "icq.jar", "icq.login",
+		"icq.password", "index.filter.search.limit",
 		"invitation.email.max.recipients", "invitation.email.message.body",
 		"invitation.email.message.subject", "javax.persistence.validation.mode",
 		"jbi.workflow.url", "json.deserializer.strict.mode",
@@ -1872,7 +1873,7 @@ public class VerifyProperties extends VerifyProcess {
 		"memory.cluster.scheduler.lock.cache.enabled",
 		"message.boards.email.message.added.signature",
 		"message.boards.email.message.updated.signature",
-		"message.boards.thread.locking.enabled",
+		"message.boards.thread.locking.enabled", "msn.login", "msn.password",
 		"multicast.group.address[\"hibernate\"]",
 		"multicast.group.port[\"hibernate\"]",
 		"net.sf.ehcache.configurationResourceName",
@@ -1881,7 +1882,9 @@ public class VerifyProperties extends VerifyProcess {
 		"organizations.form.add.miscellaneous",
 		"organizations.form.update.identification",
 		"organizations.form.update.main",
-		"organizations.form.update.miscellaneous", "portal.ctx",
+		"organizations.form.update.miscellaneous",
+		"organizations.indexer.enabled", "portal.cache.manager.type.multi.vm",
+		"portal.cache.manager.type.single.vm", "portal.ctx",
 		"portal.security.manager.enable", "permissions.list.filter",
 		"permissions.thread.local.cache.max.size",
 		"permissions.user.check.algorithm", "persistence.provider",
@@ -1895,15 +1898,18 @@ public class VerifyProperties extends VerifyProcess {
 		"sites.form.update.advanced", "sites.form.update.main",
 		"sites.form.update.miscellaneous", "sites.form.update.seo",
 		"staging.lock.enabled", "table.mapper.cacheless.mapping.table.names",
-		"tck.url", "users.form.add.identification", "users.form.add.main",
-		"users.form.add.miscellaneous", "users.form.my.account.identification",
-		"users.form.my.account.main", "users.form.my.account.miscellaneous",
+		"tck.url", "user.groups.indexer.enabled",
+		"users.form.add.identification", "users.indexer.enabled",
+		"users.form.add.main", "users.form.add.miscellaneous",
+		"users.form.my.account.identification", "users.form.my.account.main",
+		"users.form.my.account.miscellaneous",
 		"users.form.update.identification", "users.form.update.main",
 		"users.form.update.miscellaneous", "vaadin.resources.path",
 		"vaadin.theme", "vaadin.widgetset", "webdav.storage.class",
 		"webdav.storage.show.edit.url", "webdav.storage.show.view.url",
 		"webdav.storage.tokens", "wiki.email.page.added.signature",
-		"wiki.email.page.updated.signature", "xss.allow"
+		"wiki.email.page.updated.signature", "xss.allow", "ym.login",
+		"ym.password"
 	};
 
 	private static final String[] _OBSOLETE_SYSTEM_KEYS = new String[] {

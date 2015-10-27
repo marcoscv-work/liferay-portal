@@ -25,7 +25,7 @@ DDMStructure ddmStructure = ddlRecordSet.getDDMStructure();
 
 DDMStructureVersion ddmStructureVersion = ddmStructure.getStructureVersion();
 
-PortletURL rowURL = (PortletURL)request.getAttribute("rowURL");
+String href = (String)request.getAttribute(WebKeys.SEARCH_ENTRY_HREF);
 %>
 
 <liferay-ui:app-view-entry
@@ -33,7 +33,7 @@ PortletURL rowURL = (PortletURL)request.getAttribute("rowURL");
 	actionJspServletContext="<%= application %>"
 	author="<%= ddlRecordSet.getUserName() %>"
 	createDate="<%= ddlRecordSet.getCreateDate() %>"
-	description="<%= HtmlUtil.escape(ddlRecordSet.getDescription(locale)) %>"
+	description="<%= ddlRecordSet.getDescription(locale) %>"
 	displayStyle="descriptive"
 	groupId="<%= ddlRecordSet.getGroupId() %>"
 	latestApprovedVersion="<%= ddmStructureVersion.getVersion() %>"
@@ -46,7 +46,7 @@ PortletURL rowURL = (PortletURL)request.getAttribute("rowURL");
 	thumbnailDivStyle="height: 146px; width: 146px;"
 	thumbnailSrc='<%= themeDisplay.getPathThemeImages() + "/file_system/large/article.png" %>'
 	thumbnailStyle="max-height: 128px; max-width: 128px;"
-	title="<%= HtmlUtil.escape(ddlRecordSet.getName(locale)) %>"
-	url="<%= (rowURL != null) ? rowURL.toString() : null %>"
+	title="<%= ddlRecordSet.getName(locale) %>"
+	url="<%= href %>"
 	version="<%= ddmStructureVersion.getVersion() %>"
 />

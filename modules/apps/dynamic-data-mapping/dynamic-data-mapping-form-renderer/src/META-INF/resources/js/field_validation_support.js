@@ -31,7 +31,10 @@ AUI.add(
 			initializer: function() {
 				var instance = this;
 
+				var evaluator = instance.get('evaluator');
+
 				instance._eventHandlers.push(
+					evaluator.after('evaluationEnded', A.bind('_afterValidationEvaluationEnded', instance)),
 					instance.after('blur', instance._afterBlur),
 					instance.after('parentChange', instance._afterParentChange)
 				);
@@ -60,8 +63,6 @@ AUI.add(
 
 				if (result && Lang.isObject(result)) {
 					instance.processValidation(result);
-
-					instance.showValidationStatus();
 				}
 				else {
 					var root = instance.getRoot();
@@ -94,6 +95,8 @@ AUI.add(
 						if (errorMessage) {
 							instance.set('errorMessage', errorMessage);
 						}
+
+						instance.showValidationStatus();
 					}
 				}
 			},
@@ -108,10 +111,6 @@ AUI.add(
 
 					evaluator.evaluate(
 						function(result) {
-							instance.hideFeedback();
-
-							instance.processEvaluation(result);
-
 							if (callback) {
 								var hasErrors = instance.hasErrors();
 
@@ -141,6 +140,14 @@ AUI.add(
 				var evaluator = instance.get('evaluator');
 
 				evaluator.set('form', event.newVal);
+			},
+
+			_afterValidationEvaluationEnded: function(event) {
+				var instance = this;
+
+				instance.hideFeedback();
+
+				instance.processEvaluation(event.result);
 			},
 
 			_valueEvaluator: function() {

@@ -29,51 +29,59 @@ boolean showBreadcrumb = GetterUtil.getBoolean(request.getAttribute("liferay-ite
 boolean showDragAndDropZone = GetterUtil.getBoolean(request.getAttribute("liferay-item-selector:browser:showDragAndDropZone"));
 String tabName = GetterUtil.getString(request.getAttribute("liferay-item-selector:browser:tabName"));
 PortletURL uploadURL = (PortletURL)request.getAttribute("liferay-item-selector:browser:uploadURL");
+
+String keywords = ParamUtil.getString(request, "keywords");
+
+boolean showSearchInfo = false;
+
+if (Validator.isNotNull(keywords)) {
+	showSearchInfo = true;
+}
 %>
 
 <liferay-util:html-top>
 	<link href="<%= ServletContextUtil.getContextPath() + "/browser/css/main.css" %>" rel="stylesheet" type="text/css" />
 </liferay-util:html-top>
 
-<liferay-frontend:management-bar>
-	<liferay-frontend:management-bar-buttons>
-		<liferay-frontend:management-bar-display-buttons
-			displayStyleURL="<%= PortletURLUtil.clone(portletURL, liferayPortletResponse) %>"
-			displayViews="<%= BrowserTag.DISPLAY_STYLES %>"
-			selectedDisplayStyle="<%= displayStyle %>"
-		/>
-	</liferay-frontend:management-bar-buttons>
+<c:if test="<%= !showSearchInfo %>">
+	<liferay-frontend:management-bar>
+		<liferay-frontend:management-bar-buttons>
+			<liferay-frontend:management-bar-display-buttons
+				displayViews="<%= BrowserTag.DISPLAY_STYLES %>"
+				portletURL="<%= PortletURLUtil.clone(portletURL, liferayPortletResponse) %>"
+				selectedDisplayStyle="<%= displayStyle %>"
+			/>
+		</liferay-frontend:management-bar-buttons>
 
-	<liferay-frontend:management-bar-filters>
+		<liferay-frontend:management-bar-filters>
 
-		<%
-		PortletURL sortURL = PortletURLUtil.clone(portletURL, liferayPortletResponse);
+			<%
+			PortletURL sortURL = PortletURLUtil.clone(portletURL, liferayPortletResponse);
 
-		String orderByCol = ParamUtil.getString(request, "orderByCol", "title");
-		String orderByType = ParamUtil.getString(request, "orderByType", "asc");
-		%>
+			String orderByCol = ParamUtil.getString(request, "orderByCol", "title");
+			String orderByType = ParamUtil.getString(request, "orderByType", "asc");
 
-		<liferay-frontend:management-bar-sort
-			orderByCol="<%= orderByCol %>"
-			orderByType="<%= orderByType %>"
-			orderColumns='<%= new String[] {"title", "size"} %>'
-			portletURL="<%= sortURL %>"
-		/>
-	</liferay-frontend:management-bar-filters>
-</liferay-frontend:management-bar>
+			Map<String, String> orderColumns = new HashMap<String, String>();
+
+			orderColumns.put("modifiedDate", "modified-date");
+			orderColumns.put("size", "size");
+			orderColumns.put("title", "title");
+			%>
+
+			<liferay-frontend:management-bar-sort
+				orderByCol="<%= orderByCol %>"
+				orderByType="<%= orderByType %>"
+				orderColumns="<%= orderColumns %>"
+				portletURL="<%= sortURL %>"
+			/>
+		</liferay-frontend:management-bar-filters>
+	</liferay-frontend:management-bar>
+</c:if>
 
 <div class="container-fluid-1280 lfr-item-viewer" id="<%= randomNamespace %>ItemSelectorContainer">
 
 	<%
 	long folderId = ParamUtil.getLong(request, "folderId");
-	String keywords = ParamUtil.getString(request, "keywords");
-	String selectedTab = ParamUtil.getString(request, "selectedTab");
-
-	boolean showSearchInfo = false;
-
-	if (Validator.isNotNull(keywords) && tabName.equals(selectedTab)) {
-		showSearchInfo = true;
-	}
 
 	if (showBreadcrumb && !showSearchInfo) {
 		ItemSelectorBrowserUtil.addPortletBreadcrumbEntries(folderId, displayStyle, request, PortletURLUtil.clone(portletURL, liferayPortletResponse));
@@ -301,12 +309,11 @@ PortletURL uploadURL = (PortletURL)request.getAttribute("liferay-item-selector:b
 								%>
 
 									<liferay-ui:search-container-column-text colspan="<%= 3 %>">
-										<liferay-frontend:card
-											horizontal="<%= true %>"
+										<liferay-frontend:horizontal-card
+											icon="icon-folder-close-alt"
 											imageCSSClass="icon-monospaced"
-											imageUrl="icon-folder-close-alt"
 											resultRow="<%= row %>"
-											title="<%= HtmlUtil.escape(folder.getName()) %>"
+											text="<%= HtmlUtil.escape(folder.getName()) %>"
 											url="<%= viewFolderURL.toString() %>"
 										/>
 									</liferay-ui:search-container-column-text>
@@ -334,7 +341,7 @@ PortletURL uploadURL = (PortletURL)request.getAttribute("liferay-item-selector:b
 								%>
 
 									<liferay-ui:search-container-column-text>
-										<liferay-frontend:card
+										<liferay-frontend:vertical-card
 											cssClass="item-preview"
 											data="<%= data %>"
 											imageUrl="<%= DLUtil.getThumbnailSrc(fileEntry, themeDisplay) %>"
@@ -370,13 +377,13 @@ PortletURL uploadURL = (PortletURL)request.getAttribute("liferay-item-selector:b
 										<liferay-ui:app-view-entry
 											author="<%= folder.getUserName() %>"
 											createDate="<%= folder.getCreateDate() %>"
-											description="<%= HtmlUtil.escape(folder.getDescription()) %>"
+											description="<%= folder.getDescription() %>"
 											displayStyle="descriptive"
 											folder="<%= true %>"
 											markupView="lexicon"
 											modifiedDate="<%= folder.getModifiedDate() %>"
 											showCheckbox="<%= false %>"
-											title="<%= HtmlUtil.escape(folder.getName()) %>"
+											title="<%= folder.getName() %>"
 											url="<%= viewFolderURL.toString() %>"
 										/>
 									</liferay-ui:search-container-column-text>
@@ -405,14 +412,14 @@ PortletURL uploadURL = (PortletURL)request.getAttribute("liferay-item-selector:b
 												assetTagClassPK="<%= fileEntry.getFileEntryId() %>"
 												author="<%= fileEntry.getUserName() %>"
 												createDate="<%= fileEntry.getCreateDate() %>"
-												description="<%= HtmlUtil.escape(fileEntry.getDescription()) %>"
+												description="<%= fileEntry.getDescription() %>"
 												displayStyle="descriptive"
 												groupId="<%= fileEntry.getGroupId() %>"
 												markupView="lexicon"
 												modifiedDate="<%= fileEntry.getModifiedDate() %>"
 												showCheckbox="<%= false %>"
 												status="<%= latestFileVersion.getStatus() %>"
-												title="<%= HtmlUtil.escape(title) %>"
+												title="<%= title %>"
 												version="<%= String.valueOf(fileEntry.getVersion()) %>"
 											/>
 										</div>
@@ -428,9 +435,7 @@ PortletURL uploadURL = (PortletURL)request.getAttribute("liferay-item-selector:b
 				</c:choose>
 			</liferay-ui:search-container-row>
 
-			<liferay-ui:search-iterator displayStyle="<%= displayStyle %>" markupView="lexicon" paginate="<%= false %>" resultRowSplitter="<%= new RepositoryEntryResultRowSplitter() %>" searchContainer="<%= searchContainer %>" />
-
-			<liferay-ui:search-paginator searchContainer="<%= searchContainer %>" />
+			<liferay-ui:search-iterator displayStyle="<%= displayStyle %>" markupView="lexicon" resultRowSplitter="<%= new RepositoryEntryResultRowSplitter() %>" searchContainer="<%= searchContainer %>" />
 		</liferay-ui:search-container>
 
 		<c:if test="<%= (draggableFileReturnType != null) && !showSearchInfo %>">

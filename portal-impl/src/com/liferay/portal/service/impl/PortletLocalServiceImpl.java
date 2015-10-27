@@ -15,6 +15,7 @@
 package com.liferay.portal.service.impl;
 
 import com.liferay.portal.PortletIdException;
+import com.liferay.portal.kernel.application.type.ApplicationType;
 import com.liferay.portal.kernel.cluster.Clusterable;
 import com.liferay.portal.kernel.configuration.Configuration;
 import com.liferay.portal.kernel.configuration.ConfigurationFactoryUtil;
@@ -75,7 +76,6 @@ import com.liferay.portal.service.base.PortletLocalServiceBaseImpl;
 import com.liferay.portal.service.permission.PortletPermissionUtil;
 import com.liferay.portal.servlet.ComboServlet;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.PortletCategoryUtil;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.WebAppPool;
@@ -771,8 +771,10 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 					PortalMyAccountApplicationType.MyAccount.CLASS_NAME,
 					PortletProvider.Action.VIEW);
 
-				if (!portletModel.getPortletId().equals(PortletKeys.ADMIN) &&
-					!portletModel.getPortletId().equals(portletId) &&
+				if (!Validator.equals(
+						portletModel.getPortletId(),
+						PortletKeys.SERVER_ADMIN) &&
+					!Validator.equals(portletModel.getPortletId(), portletId) &&
 					!portletModel.isInclude()) {
 
 					portletPoolsItr.remove();
@@ -1483,19 +1485,30 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 				portletElement.elementText("xml-rpc-method-class"),
 				portletModel.getXmlRpcMethodClass()));
 
-		String controlPanelEntryCategory = GetterUtil.getString(
-			portletElement.elementText("control-panel-entry-category"),
-			portletModel.getControlPanelEntryCategory());
+		Set<ApplicationType> applicationTypes = new HashSet<>();
 
-		controlPanelEntryCategory = PortletCategoryUtil.getPortletCategoryKey(
-			controlPanelEntryCategory);
+		for (Element applicationTypeElement :
+				portletElement.elements("application-type")) {
 
-		portletModel.setControlPanelEntryCategory(controlPanelEntryCategory);
+			try {
+				applicationTypes.add(
+					ApplicationType.parse(applicationTypeElement.getText()));
+			}
+			catch (IllegalArgumentException iae) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						"Unknown application type " +
+							applicationTypeElement.getText());
+				}
+			}
+		}
 
-		portletModel.setControlPanelEntryWeight(
-			GetterUtil.getDouble(
-				portletElement.elementText("control-panel-entry-weight"),
-				portletModel.getControlPanelEntryWeight()));
+		if (applicationTypes.isEmpty()) {
+			applicationTypes.add(ApplicationType.WIDGET);
+		}
+
+		portletModel.setApplicationTypes(applicationTypes);
+
 		portletModel.setControlPanelEntryClass(
 			GetterUtil.getString(
 				portletElement.elementText("control-panel-entry-class"),
