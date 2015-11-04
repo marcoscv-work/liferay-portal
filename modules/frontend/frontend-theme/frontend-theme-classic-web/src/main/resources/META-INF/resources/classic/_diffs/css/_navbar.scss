@@ -1,0 +1,17 @@
+#banner > nav.navbar .has-children > a {
+	@include sm() {
+		float: left;
+	}
+
+	&:last-child {
+		
+			position: absolute;
+			right: $breakpoint_tablet;
+			top: 0;
+		
+
+		@include sm() {
+			padding-left: 0;
+		}
+	}
+}

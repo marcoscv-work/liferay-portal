@@ -1,24 +1,55 @@
-#set ($VOID = $velocityPortletPreferences.setValue("portletSetupPortletDecoratorId", "barebone"))
+<nav class="$nav_css_class navbar navbar-default" id="navigation" role="navigation">
+	<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-navigation" aria-expanded="false">
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+	</button>
 
-<div aria-expanded="false" class="collapse navbar-collapse" id="navigationCollapse">
-	#if ($has_navigation && $is_setup_complete)
-		<nav class="$nav_css_class site-navigation" id="navigation" role="navigation">
-			<div class="navbar-form navbar-right" role="search">
-				#search($velocityPortletPreferences.toString())
-			</div>
+	<h1 class="hide-accessible">#language ("navigation")</h1>
 
-			<div class="navbar-right">
-				#navigation_menu($velocityPortletPreferences.toString())
-			</div>
-		</nav>
-	#end
+	<div class="collapse navbar-collapse" id="main-navigation">
+		<ul aria-label="#language ("site-pages")" class="nav navbar-nav" role="menubar">
+			#foreach ($nav_item in $nav_items)
+				#set ($nav_item_attr_has_popup="")
+				#set ($nav_item_attr_selected="")
+				#set ($nav_item_css_class = "")
+				#set ($nav_item_open_caret="")
 
-	<nav class="user-personal-bar">
-		<ul class="nav navbar-nav navbar-right">
-			#user_personal_bar($velocityPortletPreferences.toString())
+				#if ($nav_item.isSelected())
+					#set ($nav_item_attr_selected="aria-selected='true'")
+					#set ($nav_item_css_class = "selected")
+				#end
+
+				#if ($nav_item.hasChildren())
+					#set ($nav_item_css_class = $nav_item_css_class + " has-children")
+					#set ($nav_item_attr_has_popup="aria-expanded='false' aria-haspopup='true'")
+					#set ($nav_item_open_caret="<a href='#' data-toggle='dropdown'><span class='icon-angle-down'></span></a>")
+				#end
+
+				<li class="$nav_item_css_class" id="layout_$nav_item.getLayoutId()" $nav_item_attr_selected role="presentation">
+					<a aria-labelledby="layout_$nav_item.getLayoutId()" href="$nav_item.getURL()" $nav_item_attr_has_popup $nav_item.getTarget() role="menuitem"><span>$nav_item.icon() $nav_item.getName()</span></a>
+
+					#if ($nav_item.hasChildren())
+						$nav_item_open_caret
+
+						<ul class="child-menu dropdown-menu" role="menu">
+							#foreach ($nav_child in $nav_item.getChildren())
+								#set ($nav_child_attr_selected="")
+								#set ($nav_child_css_class = "false")
+
+								#if ($nav_child.isSelected())
+									#set ($nav_child_attr_selected="aria-selected='true'")
+									#set ($nav_child_css_class = "selected")
+								#end
+
+								<li class="$nav_child_css_class" id="layout_$nav_child.getLayoutId()" $nav_child_attr_selected role="presentation">
+									<a aria-labelledby="layout_$nav_child.getLayoutId()" href="$nav_child.getURL()" $nav_child.getTarget() role="menuitem">$nav_child.getName()</a>
+								</li>
+							#end
+						</ul>
+					#end
+				</li>
+			#end
 		</ul>
-	<nav>
-
-</div>
-
-#set ($VOID = $velocityPortletPreferences.reset())
+	</div>
+</nav>
