@@ -24,8 +24,8 @@ $theme.include($body_top_include)
 
 <div class="container-fluid container-fluid-1280" id="wrapper">
 	<header id="banner" role="banner">
-		<div id="heading">
-			<h1 class="site-title">
+		<div class="container-fluid-1280" id="heading">
+			<h1 class="site-title pull-left">
 				<a class="$logo_css_class" href="$site_default_url" title="#language_format ("go-to-x", [$site_name])">
 					<img alt="$logo_description" height="$site_logo_height" src="$site_logo" width="$site_logo_width" />
 				</a>
@@ -36,12 +36,6 @@ $theme.include($body_top_include)
 					</span>
 				#end
 			</h1>
-
-			<nav class="user-personal-bar">
-				<ul>
-					#user_personal_bar()
-				</ul>
-			</nav>
 		</div>
 
 

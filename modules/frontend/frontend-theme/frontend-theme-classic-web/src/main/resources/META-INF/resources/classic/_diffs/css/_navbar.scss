@@ -3,15 +3,21 @@
 		float: left;
 	}
 
-	&:last-child {
-		
+	&:first-of-type {
+		@include sm() {
+			padding-right: 5px;
+		}
+	}
+
+	&:last-of-type {
+		@include media-query(null, $screen-xs-max) {
 			position: absolute;
-			right: $breakpoint_tablet;
+			right: 0;
 			top: 0;
-		
+		}
 
 		@include sm() {
-			padding-left: 0;
+			padding-left: 6px;
 		}
 	}
 }
