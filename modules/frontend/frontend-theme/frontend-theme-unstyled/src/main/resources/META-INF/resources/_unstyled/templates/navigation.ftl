@@ -35,5 +35,9 @@
 				</#if>
 			</li>
 		</#list>
+
+		<#if !is_signed_in>
+			<a data-redirect="${is_login_redirect_required?string}" href="${sign_in_url}" id="sign-in" rel="nofollow">${sign_in_text}</a>
+		</#if>
 	</ul>
 </nav>

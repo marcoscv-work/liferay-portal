@@ -18,14 +18,14 @@
 
 ${theme.include(body_top_include)}
 
-<@liferay.product_menu_sidebar state="${liferay_product_menu_state}" />
-
 <@liferay.control_menu />
 
-<div class="container-fluid" id="wrapper">
+<@liferay.product_menu_sidebar state="${liferay_product_menu_state}" />
+
+<div class="container-fluid-1280" id="wrapper">
 	<header id="banner" role="banner">
-		<div id="heading">
-			<h1 class="site-title">
+		<div class="container-fluid-1280" id="heading">
+			<h1 class="site-title pull-left">
 				<a class="${logo_css_class}" href="${site_default_url}" title="<@liferay.language_format arguments="${site_name}" key="go-to-x" />">
 					<img alt="${logo_description}" height="${site_logo_height}" src="${site_logo}" width="${site_logo_width}" />
 				</a>
@@ -37,10 +37,6 @@ ${theme.include(body_top_include)}
 				</#if>
 			</h1>
 		</div>
-
-		<#if !is_signed_in>
-			<a data-redirect="${is_login_redirect_required?string}" href="${sign_in_url}" id="sign-in" rel="nofollow">${sign_in_text}</a>
-		</#if>
 
 		<#if has_navigation && is_setup_complete>
 			<#include "${full_templates_path}/navigation.ftl" />
