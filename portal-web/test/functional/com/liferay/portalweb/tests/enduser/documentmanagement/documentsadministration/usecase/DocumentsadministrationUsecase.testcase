@@ -562,6 +562,25 @@
 		</execute>
 
 		<execute macro="ServerAdministration#configureExternalServices">
+			<var name="installNativeLibraries" value="true" />
+		</execute>
+
+		<execute macro="Portlet#shutdownServer" />
+
+		<execute macro="Portlet#startServer" />
+
+		<execute macro="Page#openURL" />
+
+		<execute macro="User#loginPG">
+			<var name="password" value="test" />
+			<var name="userEmailAddress" value="test@liferay.com" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoControlPanelConfiguration">
+			<var name="portlet" value="Server Administration" />
+		</execute>
+
+		<execute macro="ServerAdministration#configureExternalServices">
 			<var name="enableXuggler" value="true" />
 		</execute>
 
@@ -581,6 +600,10 @@
 			<var name="columnNumberFrom" value="1" />
 			<var name="columnNumberTo" value="2" />
 			<var name="portletName" value="Documents and Media" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
 		<execute function="Click" locator1="Icon#DISPLAY_STYLE_DESCRIPTIVE" />
@@ -831,6 +854,7 @@
 		<execute macro="Role#definePermissionsCP">
 			<var name="permissionDefinitionKeys" value="SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_GENERAL_PERMISSIONS_ACCESS_IN_SITE_ADMINISTRATION_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_GENERAL_PERMISSIONS_VIEW_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENTS_ADD_DOCUMENT_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENTS_ADD_FOLDER_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENTS_FOLDER_ADD_DOCUMENT_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENTS_FOLDER_ADD_SUBFOLDER_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENTS_FOLDER_UPDATE_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENT_DELETE_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENT_UPDATE_CHECKBOX" />
 			<var name="roleName" value="Site Member" />
+			<var name="roleType" value="Site" />
 		</execute>
 
 		<execute macro="Role#viewPermissionCP">
@@ -966,6 +990,10 @@
 
 		<execute macro="DMDocument#enableActionsMenuOnPortlet" />
 
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Documents and Media Page" />
+		</execute>
+
 		<execute function="Click" locator1="Icon#DISPLAY_STYLE_DESCRIPTIVE" />
 
 		<execute macro="User#logoutPG" />
@@ -1057,7 +1085,7 @@
 			<var name="dmFolderName" value="DM Folder Name" />
 		</execute>
 
-		<execute macro="DMFolder#addSubfolderPG">
+		<execute macro="DMFolder#addSubfolderCP">
 			<var name="dmSubFolderDescription" value="DM SubFolder Description" />
 			<var name="dmSubFolderName" value="DM SubFolder Name" />
 		</execute>
@@ -1097,6 +1125,12 @@
 		<execute macro="DMPortlet#configureRootFolderPG">
 			<var name="dmFolderName" value="DM Folder Name" />
 		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Documents and Media Page - Global" />
+		</execute>
+
+		<execute function="Click" locator1="Icon#DISPLAY_STYLE_DESCRIPTIVE" />
 
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="Documents and Media Page - Global" />

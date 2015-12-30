@@ -32,7 +32,7 @@
 	</command>
 
 	<command name="addNullSubfolderCP">
-		<var name="key_assetEntry" value="${folderName}" />
+		<var name="key_assetName" value="${folderName}" />
 		<var name="key_folderName" value="${folderName}" />
 
 		<execute function="AssertClick" locator1="Bookmarks#DESCRIPTIVE_ENTRY_TITLE" value1="${folderName}" />
@@ -109,8 +109,8 @@
 		<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="Your request completed successfully." />
 
 		<execute macro="BookmarksFolder#viewFolder">
-			<var name="folderDescription" value="${folderDescription}" />
-			<var name="folderName" value="${folderName}" />
+			<var name="folderDescription" value="${subfolderDescription}" />
+			<var name="folderName" value="${subfolderName}" />
 		</execute>
 	</command>
 
@@ -206,9 +206,10 @@
 
 	<command name="gotoPG">
 		<var name="key_assetName" value="${folderName}" />
-		<var name="key_folderName" value="${folderName}" />
 
 		<execute function="AssertClick#assertPartialTextClickAtAndWait" locator1="Bookmarks#DESCRIPTIVE_ENTRY_TITLE" value1="${folderName}" />
+
+		<var name="key_folderName" value="${folderName}" />
 
 		<execute function="AssertVisible" locator1="Bookmarks#BREADCRUMB_FOLDER_NAME" />
 	</command>
@@ -318,16 +319,17 @@
 			<var name="portlet" value="Bookmarks" />
 		</execute>
 
-		<while>
-			<condition function="IsElementPresent" locator1="Bookmarks#DESCRIPTIVE_ENTRY_GENERIC" />
+		<if>
+			<condition function="IsElementNotPresent" locator1="Message#EMPTY_INFO" />
 			<then>
-				<execute function="Click" locator1="Icon#DESCRIPTIVE_VERTICAL_ELLIPSIS" />
+				<execute function="Check#checkAll" locator1="Checkbox#SELECT_ALL" />
 
-				<execute function="AssertClick" locator1="MenuItem#MOVE_TO_THE_RECYCLE_BIN" value1="Move to the Recycle Bin" />
+				<execute function="Click" locator1="Icon#DELETE" />
 
 				<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="moved to the Recycle Bin. Undo" />
+				<execute function="AssertElementPresent" locator1="Message#EMPTY_INFO" />
 			</then>
-		</while>
+		</if>
 
 		<execute macro="Navigator#openURL" />
 

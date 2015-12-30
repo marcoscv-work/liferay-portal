@@ -40,6 +40,8 @@
 				<execute macro="User#tearDownCP" />
 
 				<execute macro="Page#tearDownPG" />
+
+				<execute macro="Site#tearDownCP" />
 			</else>
 		</if>
 	</tear-down>
@@ -885,6 +887,7 @@
 		</execute>
 
 		<execute function="Click" locator1="DDL#RECORD_TABLE_ELLIPSIS_1" />
+
 		<execute function="AssertClick" locator1="MenuItem#VIEW" value1="View" />
 		<execute function="Pause" locator1="1000" />
 
@@ -910,7 +913,10 @@
 		<execute function="AssertTextEquals" locator1="DDL#RECORD_TABLE_COLUMN_ONE_RECORD_1" value1="${ddlRecordFieldData1}" />
 		<execute function="AssertTextEquals" locator1="DDL#RECORD_TABLE_COLUMN_TWO_NAME" value1="${fieldFieldLabel2}" />
 		<execute function="AssertTextEquals" locator1="DDL#RECORD_TABLE_COLUMN_TWO_RECORD_1" value1="${ddlRecordFieldData2}" />
-		<execute function="AssertClick" locator1="DDL#RECORD_TABLE_GUEST_VIEW_LINK" value1="View" />
+
+		<execute function="Click" locator1="DDL#RECORD_TABLE_ELLIPSIS_1" />
+
+		<execute function="AssertClick" locator1="MenuItem#VIEW" value1="View" />
 
 		<execute function="AssertTextEquals" locator1="DDLRecord#FIELD_1" value1="${fieldFieldLabel1} ${ddlRecordFieldData1}" />
 		<execute function="AssertTextEquals" locator1="DDLRecord#FIELD_2" value1="${fieldFieldLabel2} ${ddlRecordFieldData2}" />
@@ -1456,6 +1462,36 @@
 			<var name="password" value="test" />
 			<var name="userEmailAddress" value="test@liferay.com" />
 		</execute>
+	</command>
+
+	<command name="CreateSiteAndViewDefaultDataDefinitions" priority="3">
+		<description message="This is a use case for LPS-50557." />
+
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
+		</execute>
+
+		<execute macro="Site#addBlankCP">
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Dynamic Data Lists" />
+		</execute>
+
+		<execute macro="DDLNavigator#gotoManageDataDefinitions" />
+
+		<execute macro="DDLDataDefinition#selectFrame" />
+
+		<for list="Contacts,Events,Inventory,Issues Tracking,Meeting Minutes,To Do" param="ddlDataDefinitionName">
+			<execute macro="DDLDataDefinition#viewName">
+				<var name="ddlDataDefinitionName" value="${ddlDataDefinitionName}" />
+			</execute>
+		</for>
 	</command>
 
 	<command name="DeleteStructure" priority="3">

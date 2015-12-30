@@ -1192,7 +1192,7 @@
 	<command name="moveToFolderCP">
 		<var name="key_dmDocumentTitle" value="${dmDocumentTitle}" />
 
-		<execute function="Click" locator1="DocumentsAndMedia#ICON_DOCUMENT_VERTICAL_ELLIPSIS" />
+		<execute function="Click" locator1="DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_VERTICAL_ELLIPSIS" />
 
 		<execute function="AssertClick" locator1="MenuItem#MOVE" value1="Move" />
 
@@ -1222,17 +1222,22 @@
 	<command name="moveToFolderPG">
 		<var name="key_dmDocumentTitle" value="${dmDocumentTitle}" />
 
-		<execute function="Click" locator1="DocumentsAndMedia#ICON_DOCUMENT_VERTICAL_ELLIPSIS" />
+		<execute function="Click" locator1="DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_VERTICAL_ELLIPSIS" />
+
 		<execute function="AssertClick" locator1="MenuItem#MOVE" value1="Move" />
 
 		<execute function="AssertClick" locator1="Button#SELECT" value1="Select" />
+
 		<execute function="SelectFrame" locator1="IFrame#SELECT_FOLDER" />
 
 		<var name="key_dmFolderName" value="${dmFolderName}" />
 
 		<execute function="AssertTextEquals" locator1="DocumentsAndMediaSelectFolder#FOLDER" value1="${dmFolderName}" />
+
 		<execute function="AssertClick" locator1="DocumentsAndMediaSelectFolder#CHOOSE_BUTTON" value1="Choose" />
+
 		<execute function="SelectFrameTop" />
+
 		<execute function="AssertClick" locator1="Button#MOVE" value1="Move" />
 
 		<if>
@@ -1288,7 +1293,7 @@
 		<if>
 			<condition function="IsElementNotPresent" locator1="DocumentsAndMedia#ICON_DOCUMENT_GENERIC" />
 			<then>
-				<execute function="AssertTextEquals" locator1="Message#INFO" value1="There are no documents or media files in this folder." />
+				<execute function="AssertTextEquals" locator1="Message#EMPTY_INFO" value1="There are no documents or media files in this folder." />
 			</then>
 		</if>
 	</command>
@@ -1609,7 +1614,7 @@
 		</execute>
 
 		<if>
-			<condition function="IsElementNotPresent" locator1="Message#INFO" />
+			<condition function="IsElementNotPresent" locator1="Message#EMPTY_INFO" />
 			<then>
 				<execute function="Check" locator1="DocumentsAndMedia#TOOLBAR_SELECT_ALL_CHECKBOX" />
 				<execute function="AssertClick#waitForDMHomeAssertTextEqualsClick" locator1="DocumentsAndMedia#TOOLBAR_ACTIONS" value1="Actions" />
@@ -1718,7 +1723,9 @@
 		</execute>
 
 		<for list="${categoryNameList}" param="categoryName">
-			<execute function="AssertTextEquals" locator1="DocumentsAndMediaDocument#DOCUMENT_INFO_CATEGORIES" value1="Topic: ${categoryName}" />
+			<var name="key_categoryName" value="${categoryName}" />
+
+			<execute function="AssertTextEquals" locator1="AssetCategorization#CATEGORY" value1="${categoryName}" />
 		</for>
 	</command>
 
@@ -1798,7 +1805,7 @@
 
 	<command name="viewDefaultCP">
 		<execute function="AssertElementNotPresent" locator1="DocumentsAndMedia#ICON_DOCUMENT_GENERIC" />
-		<execute function="AssertTextEquals" locator1="Message#INFO" value1="There are no documents or media files in this folder." />
+		<execute function="AssertTextEquals" locator1="Message#EMPTY_INFO" value1="There are no documents or media files in this folder." />
 	</command>
 
 	<command name="viewDefaultPG">
@@ -2165,9 +2172,9 @@
 	</command>
 
 	<command name="viewPG">
-		<var name="key_dmDocumentTitle" value="${dmDocumentTitle}" />
+		<execute function="AssertElementPresent" locator1="Icon#DISPLAY_STYLE_DESCRIPTIVE" />
 
-		<execute function="AssertElementPresent" locator1="DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_ICON" />
+		<var name="key_dmDocumentTitle" value="${dmDocumentTitle}" />
 
 		<execute function="AssertClick" locator1="DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_TITLE" value1="${dmDocumentTitle}" />
 

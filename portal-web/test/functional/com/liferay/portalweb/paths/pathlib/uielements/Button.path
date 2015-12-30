@@ -125,7 +125,7 @@
 </tr>
 <tr>
 	<td>BROWSE</td>
-	<td>//input[@id='_195_fileName']</td>
+	<td>//input[contains(@id,'fileName')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -195,7 +195,7 @@
 </tr>
 <tr>
 	<td>CLOSE_PANEL</td>
-	<td>//button[contains(@id,'closePanelAdd')]</td>
+	<td>//a[contains(@id,'closePanelAdd')]</td>
 	<td></td>
 </tr>
 <tr>

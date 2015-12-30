@@ -1254,8 +1254,11 @@
 		<for list="${documentTypes}" param="documentType">
 			<var method="StringUtil#upperCase('${documentType}')" name="documentTypeUppercase" />
 
-			<execute function="AssertTextEquals#assertPartialText" locator1="APAsset#DOCUMENT_CONVERSION_${documentTypeUppercase}" value1="${documentTypeUppercase}" />
-			<execute function="AssertElementPresent" locator1="APAsset#DOCUMENT_CONVERSION_${documentTypeUppercase}_ICON" />
+			<var name="key_documentType" value="${documentTypeUppercase}" />
+
+			<execute function="AssertTextEquals#assertPartialText" locator1="APAsset#DOCUMENT_CONVERSION_NAME" value1="${documentTypeUppercase}" />
+
+			<execute function="AssertElementPresent" locator1="APAsset#DOCUMENT_CONVERSION_NAME_ICON" />
 		</for>
 	</command>
 
@@ -1418,7 +1421,9 @@
 		<for list="${documentTypes}" param="documentType">
 			<var method="StringUtil#upperCase('${documentType}')" name="documentTypeUppercase" />
 
-			<execute function="AssertElementNotPresent" locator1="APAsset#DOCUMENT_CONVERSION_${documentTypeUppercase}" />
+			<var name="key_documentType" value="${documentTypeUppercase}" />
+
+			<execute function="AssertElementNotPresent" locator1="APAsset#DOCUMENT_CONVERSION_NAME" />
 		</for>
 	</command>
 
@@ -1677,9 +1682,7 @@
 	</command>
 
 	<command name="viewWCViewableByPermissions">
-		<execute macro="Panel#expandPanel">
-			<var name="panelHeading" value="Permissions" />
-		</execute>
+		<execute function="AssertClick" locator1="WCEditWebContent#PERMISSIONS_HEADER" value1="Permissions" />
 
 		<execute function="AssertSelectedLabel" locator1="WCEditWebContent#PERMISSIONS_VIEWABLE_BY_SELECT" value1="Site Members" />
 	</command>

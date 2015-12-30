@@ -360,7 +360,7 @@
 		</execute>
 
 		<execute macro="Portlet#addPG">
-			<var name="portletName" value="Language" />
+			<var name="portletName" value="Language Selector" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
@@ -944,7 +944,7 @@
 		</execute>
 
 		<execute macro="Portlet#addPG">
-			<var name="portletName" value="Language" />
+			<var name="portletName" value="Language Selector" />
 		</execute>
 
 		<execute macro="LanguagePortlet#selectLanguagePG">
@@ -1178,6 +1178,14 @@
 
 		<execute macro="AssetPublisherPortlet#configureAddSiteScopes">
 			<var name="globalSite" value="Global" />
+		</execute>
+
+		<execute macro="Navigator#gotoSitePage">
+			<var name="pageName" value="Site Page" />
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#configureAddSiteScopes">
 			<var name="otherSite" value="Liferay" />
 		</execute>
 

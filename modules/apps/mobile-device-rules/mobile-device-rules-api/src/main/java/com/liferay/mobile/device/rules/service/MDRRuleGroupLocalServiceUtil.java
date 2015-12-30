@@ -414,6 +414,16 @@ public class MDRRuleGroupLocalServiceUtil {
 			start, end);
 	}
 
+	public static java.util.List<com.liferay.mobile.device.rules.model.MDRRuleGroup> searchByKeywords(
+		long groupId, java.lang.String keywords,
+		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params,
+		boolean andOperator, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.mobile.device.rules.model.MDRRuleGroup> obc) {
+		return getService()
+				   .searchByKeywords(groupId, keywords, params, andOperator,
+			start, end, obc);
+	}
+
 	/**
 	* @deprecated As of 6.2.0, replaced by {@link #searchByKeywordsCount(long,
 	String, LinkedHashMap, boolean)}
@@ -472,13 +482,6 @@ public class MDRRuleGroupLocalServiceUtil {
 
 	public static MDRRuleGroupLocalService getService() {
 		return _serviceTracker.getService();
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(MDRRuleGroupLocalService service) {
 	}
 
 	private static ServiceTracker<MDRRuleGroupLocalService, MDRRuleGroupLocalService> _serviceTracker =

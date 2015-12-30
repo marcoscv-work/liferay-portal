@@ -15,7 +15,7 @@
 package com.liferay.portal.test.rule.callback;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.search.SearchEngineUtil;
+import com.liferay.portal.kernel.search.SearchEngineHelperUtil;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.test.rule.ArquillianUtil;
 import com.liferay.portal.kernel.test.rule.callback.BaseTestCallback;
@@ -39,7 +39,7 @@ import org.springframework.mock.web.MockServletContext;
 /**
  * @author Shuyang Zhou
  */
-public class MainServletTestCallback extends BaseTestCallback<Object, Object> {
+public class MainServletTestCallback extends BaseTestCallback<Void, Void> {
 
 	public static final MainServletTestCallback INSTANCE =
 		new MainServletTestCallback();
@@ -49,18 +49,18 @@ public class MainServletTestCallback extends BaseTestCallback<Object, Object> {
 	}
 
 	@Override
-	public void afterClass(Description description, Object object)
+	public void afterClass(Description description, Void c)
 		throws PortalException {
 
 		if (ArquillianUtil.isArquillianTest(description)) {
 			return;
 		}
 
-		SearchEngineUtil.removeCompany(TestPropsValues.getCompanyId());
+		SearchEngineHelperUtil.removeCompany(TestPropsValues.getCompanyId());
 	}
 
 	@Override
-	public Object beforeClass(Description description) {
+	public Void beforeClass(Description description) {
 		if (ArquillianUtil.isArquillianTest(description)) {
 			return null;
 		}
