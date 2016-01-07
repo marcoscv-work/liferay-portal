@@ -45,33 +45,6 @@
 		</security-role-ref>
 	</portlet>
 	<portlet>
-		<portlet-name>64</portlet-name>
-		<display-name>Recent Documents</display-name>
-		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
-		<init-param>
-			<name>template-path</name>
-			<value>/html/portlet/recent_documents/</value>
-		</init-param>
-		<init-param>
-			<name>view-action</name>
-			<value>/recent_documents/view</value>
-		</init-param>
-		<expiration-cache>0</expiration-cache>
-		<supports>
-			<mime-type>text/html</mime-type>
-		</supports>
-		<resource-bundle>com.liferay.portlet.StrutsResourceBundle</resource-bundle>
-		<security-role-ref>
-			<role-name>guest</role-name>
-		</security-role-ref>
-		<security-role-ref>
-			<role-name>power-user</role-name>
-		</security-role-ref>
-		<security-role-ref>
-			<role-name>user</role-name>
-		</security-role-ref>
-	</portlet>
-	<portlet>
 		<portlet-name>90</portlet-name>
 		<display-name>Portal</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
@@ -122,45 +95,6 @@
 			<mime-type>text/html</mime-type>
 		</supports>
 		<resource-bundle>com.liferay.portlet.StrutsResourceBundle</resource-bundle>
-	</portlet>
-	<portlet>
-		<portlet-name>133</portlet-name>
-		<display-name>Portlet Sharing</display-name>
-		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
-		<init-param>
-			<name>template-path</name>
-			<value>/html/portlet/portlet_sharing/</value>
-		</init-param>
-		<init-param>
-			<name>view-action</name>
-			<value>/portlet_sharing/view</value>
-		</init-param>
-		<expiration-cache>0</expiration-cache>
-		<supports>
-			<mime-type>text/html</mime-type>
-		</supports>
-		<resource-bundle>com.liferay.portlet.StrutsResourceBundle</resource-bundle>
-	</portlet>
-	<portlet>
-		<portlet-name>176</portlet-name>
-		<display-name>License Manager</display-name>
-		<portlet-class>com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet</portlet-class>
-		<init-param>
-			<name>template-path</name>
-			<value>/html/portlet/license_manager/</value>
-		</init-param>
-		<init-param>
-			<name>view-template</name>
-			<value>/html/portlet/license_manager/view.jsp</value>
-		</init-param>
-		<expiration-cache>0</expiration-cache>
-		<supports>
-			<mime-type>text/html</mime-type>
-		</supports>
-		<resource-bundle>com.liferay.portlet.StrutsResourceBundle</resource-bundle>
-		<security-role-ref>
-			<role-name>administrator</role-name>
-		</security-role-ref>
 	</portlet>
 	<custom-portlet-mode>
 		<portlet-mode>edit_guest</portlet-mode>

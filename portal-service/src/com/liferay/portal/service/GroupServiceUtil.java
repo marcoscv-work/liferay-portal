@@ -240,6 +240,13 @@ public class GroupServiceUtil {
 		return getService().getGroup(groupId);
 	}
 
+	public static java.lang.String getGroupDisplayURL(long groupId,
+		boolean privateLayout, boolean secureConnection)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .getGroupDisplayURL(groupId, privateLayout, secureConnection);
+	}
+
 	/**
 	* Returns all the groups that are direct children of the parent group.
 	*
@@ -795,13 +802,6 @@ public class GroupServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(GroupService service) {
 	}
 
 	private static GroupService _service;

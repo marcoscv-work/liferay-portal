@@ -16,15 +16,14 @@ package com.liferay.dynamic.data.lists.form.web.display.context;
 
 import com.liferay.dynamic.data.lists.constants.DDLActionKeys;
 import com.liferay.dynamic.data.lists.constants.DDLWebKeys;
-import com.liferay.dynamic.data.lists.form.web.configuration.DDLFormWebConfiguration;
 import com.liferay.dynamic.data.lists.form.web.display.context.util.DDLFormAdminRequestHelper;
-import com.liferay.dynamic.data.lists.form.web.display.context.util.DDLFormWebRequestHelper;
 import com.liferay.dynamic.data.lists.form.web.search.RecordSetSearchTerms;
-import com.liferay.dynamic.data.lists.form.web.util.DDLFormPortletUtil;
+import com.liferay.dynamic.data.lists.form.web.util.DDLFormAdminPortletUtil;
 import com.liferay.dynamic.data.lists.model.DDLFormRecord;
 import com.liferay.dynamic.data.lists.model.DDLRecord;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
 import com.liferay.dynamic.data.lists.model.DDLRecordSetConstants;
+import com.liferay.dynamic.data.lists.model.DDLRecordSetSettings;
 import com.liferay.dynamic.data.lists.service.DDLRecordLocalServiceUtil;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetLocalServiceUtil;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetServiceUtil;
@@ -50,12 +49,9 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PrefsParamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowEngineManagerUtil;
 import com.liferay.portal.kernel.workflow.WorkflowHandler;
@@ -68,7 +64,6 @@ import com.liferay.portal.util.PortalUtil;
 import java.util.List;
 import java.util.Locale;
 
-import javax.portlet.PortletPreferences;
 import javax.portlet.PortletURL;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
@@ -91,8 +86,6 @@ public class DDLFormAdminDisplayContext {
 
 		_ddlFormAdminRequestHelper = new DDLFormAdminRequestHelper(
 			renderRequest);
-
-		_portletPreferences = _renderRequest.getPreferences();
 	}
 
 	public JSONArray getDDMFormFieldTypesJSONArray() throws PortalException {
@@ -146,7 +139,7 @@ public class DDLFormAdminDisplayContext {
 
 	public String getDisplayStyle() {
 		if (_displayStyle == null) {
-			_displayStyle = DDLFormPortletUtil.getDisplayStyle(
+			_displayStyle = DDLFormAdminPortletUtil.getDisplayStyle(
 				_renderRequest, getDisplayViews());
 		}
 
@@ -154,22 +147,7 @@ public class DDLFormAdminDisplayContext {
 	}
 
 	public String[] getDisplayViews() {
-		if (_displayViews == null) {
-			DDLFormWebRequestHelper ddlFormWebRequestHelper =
-				new DDLFormWebRequestHelper(
-					PortalUtil.getHttpServletRequest(_renderRequest));
-
-			DDLFormWebConfiguration ddlFormWebConfiguration =
-				ddlFormWebRequestHelper.getDDLFormWebConfiguration();
-
-			_displayViews = StringUtil.split(
-				PrefsParamUtil.getString(
-					_portletPreferences, _renderRequest, "displayViews",
-					StringUtil.merge(
-						ddlFormWebConfiguration.supportedDisplayView())));
-		}
-
-		return _displayViews;
+		return _DISPLAY_VIEWS;
 	}
 
 	public PortletURL getPortletURL() {
@@ -181,6 +159,16 @@ public class DDLFormAdminDisplayContext {
 			String.valueOf(_ddlFormAdminRequestHelper.getScopeGroupId()));
 
 		return portletURL;
+	}
+
+	public String getPreviewFormURL() throws PortalException {
+		String publishedFormURL = getPublishedFormURL();
+
+		if (Validator.isNull(publishedFormURL)) {
+			return publishedFormURL;
+		}
+
+		return publishedFormURL.concat("/preview");
 	}
 
 	public String getPublishedFormURL() throws PortalException {
@@ -337,15 +325,16 @@ public class DDLFormAdminDisplayContext {
 		return false;
 	}
 
-	public boolean isRecordSetPublished() throws PortalException {
+	public boolean isFormPublished() throws PortalException {
 		DDLRecordSet recordSet = getRecordSet();
 
 		if (recordSet == null) {
 			return false;
 		}
 
-		return GetterUtil.getBoolean(
-			recordSet.getSettingsProperty("published", "false"));
+		DDLRecordSetSettings recordSetSettings = recordSet.getSettingsModel();
+
+		return recordSetSettings.published();
 	}
 
 	public boolean isShowAddRecordSetButton() {
@@ -468,6 +457,9 @@ public class DDLFormAdminDisplayContext {
 		return jsonObject;
 	}
 
+	private static final String[] _DISPLAY_VIEWS =
+		{"descriptive", "list", "icon"};
+
 	private static final ServiceTracker
 		<DDMFormRenderer, DDMFormRenderer> _ddmFormRendererServiceTracker =
 			ServiceTrackerFactory.open(
@@ -477,8 +469,6 @@ public class DDLFormAdminDisplayContext {
 	private final DDLFormAdminRequestHelper _ddlFormAdminRequestHelper;
 	private DDMStructure _ddmStucture;
 	private String _displayStyle;
-	private String[] _displayViews;
-	private final PortletPreferences _portletPreferences;
 	private DDLRecordSet _recordSet;
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;

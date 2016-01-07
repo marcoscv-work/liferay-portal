@@ -53,6 +53,18 @@ public class StagingUtil {
 
 	public static String buildRemoteURL(
 		String remoteAddress, int remotePort, String remotePathContext,
+		boolean secureConnection) {
+
+		return _staging.buildRemoteURL(
+			remoteAddress, remotePort, remotePathContext, secureConnection);
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #getRemoteSiteURL(Group, boolean)}
+	 */
+	@Deprecated
+	public static String buildRemoteURL(
+		String remoteAddress, int remotePort, String remotePathContext,
 		boolean secureConnection, long remoteGroupId, boolean privateLayout) {
 
 		return _staging.buildRemoteURL(
@@ -158,6 +170,20 @@ public class StagingUtil {
 			sourceGroupId, privateLayout, layoutIdMap, parameterMap,
 			remoteAddress, remotePort, remotePathContext, secureConnection,
 			remoteGroupId, remotePrivateLayout, startDate, endDate);
+	}
+
+	public static void copyRemoteLayouts(
+			long sourceGroupId, boolean privateLayout,
+			Map<Long, Boolean> layoutIdMap, String name,
+			Map<String, String[]> parameterMap, String remoteAddress,
+			int remotePort, String remotePathContext, boolean secureConnection,
+			long remoteGroupId, boolean remotePrivateLayout)
+		throws PortalException {
+
+		_staging.copyRemoteLayouts(
+			sourceGroupId, privateLayout, layoutIdMap, name, parameterMap,
+			remoteAddress, remotePort, remotePathContext, secureConnection,
+			remoteGroupId, remotePrivateLayout);
 	}
 
 	public static void deleteLastImportSettings(
@@ -370,6 +396,13 @@ public class StagingUtil {
 		return _staging.getRecentLayoutSetBranchId(user, layoutSetId);
 	}
 
+	public static String getRemoteSiteURL(
+			Group stagingGroup, boolean privateLayout)
+		throws PortalException {
+
+		return _staging.getRemoteSiteURL(stagingGroup, privateLayout);
+	}
+
 	public static String getSchedulerGroupName(
 		String destinationName, long groupId) {
 
@@ -508,6 +541,17 @@ public class StagingUtil {
 		_staging.publishLayouts(
 			userId, sourceGroupId, targetGroupId, privateLayout, layoutIds,
 			parameterMap, startDate, endDate);
+	}
+
+	public static void publishLayouts(
+			long userId, long sourceGroupId, long targetGroupId,
+			boolean privateLayout, long[] layoutIds, String name,
+			Map<String, String[]> parameterMap)
+		throws PortalException {
+
+		_staging.publishLayouts(
+			userId, sourceGroupId, targetGroupId, privateLayout, layoutIds,
+			name, parameterMap);
 	}
 
 	/**

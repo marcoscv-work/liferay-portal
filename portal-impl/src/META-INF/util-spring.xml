@@ -8,12 +8,12 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
 >
 	<bean id="com.liferay.mail.util.DummyHook" class="com.liferay.mail.util.DummyHook" />
-	<bean class="com.liferay.portal.convert.DatabaseConvertProcess" />
-	<bean class="com.liferay.portal.convert.DocumentLibraryConvertProcess" />
-	<bean class="com.liferay.portal.convert.DocumentLibraryExtraSettingsConvertProcess" />
+	<bean class="com.liferay.portal.convert.database.DatabaseConvertProcess" />
 	<bean class="com.liferay.portal.convert.database.PortalDatabaseConverter" >
 		<property name="modelMigrator" ref="com.liferay.portal.convert.util.ModelMigrator" />
 	</bean>
+	<bean class="com.liferay.portal.convert.documentlibrary.DocumentLibraryConvertProcess" />
+	<bean class="com.liferay.portal.convert.documentlibrary.DocumentLibraryExtraSettingsConvertProcess" />
 	<bean id="com.liferay.portal.convert.util.ModelMigrator" class="com.liferay.portal.convert.util.ModelMigratorImpl" />
 	<bean id="com.liferay.portal.events.StartupHelperUtil" class="com.liferay.portal.events.StartupHelperUtil">
 		<property name="startupHelper">
@@ -225,11 +225,7 @@
 		</property>
 	</bean>
 	<bean id="com.liferay.portal.kernel.resiliency.spi.cache.SPIPortalCacheManagerConfigurator" class="com.liferay.portal.resiliency.spi.cache.SPIPortalCacheManagerConfiguratorImpl" />
-	<bean id="com.liferay.portal.kernel.sanitizer.SanitizerUtil" class="com.liferay.portal.kernel.sanitizer.SanitizerUtil">
-		<property name="sanitizer">
-			<bean class="com.liferay.portal.sanitizer.SanitizerImpl" />
-		</property>
-	</bean>
+	<bean id="com.liferay.portal.kernel.sanitizer.SanitizerUtil" class="com.liferay.portal.kernel.sanitizer.SanitizerUtil" />
 	<bean id="com.liferay.portal.kernel.servlet.BrowserSnifferUtil" class="com.liferay.portal.kernel.servlet.BrowserSnifferUtil">
 		<property name="browserSniffer">
 			<bean class="com.liferay.portal.servlet.BrowserSnifferImpl" />
@@ -414,7 +410,6 @@
 	<bean id="com.liferay.portal.resiliency.mpi.portlet.PortalResiliencyPortletContainerWrapper" class="com.liferay.portal.resiliency.mpi.portlet.PortalResiliencyPortletContainerWrapper" factory-method="createPortalResiliencyPortletContainerWrapper">
 		<constructor-arg name="portletContainer" ref="com.liferay.portlet.PortletContainerImpl" />
 	</bean>
-	<bean id="com.liferay.portal.sanitizer.DummySanitizerImpl" class="com.liferay.portal.sanitizer.DummySanitizerImpl" />
 	<bean id="com.liferay.portal.service.permission.AccountPermissionUtil" class="com.liferay.portal.service.permission.AccountPermissionUtil">
 		<property name="accountPermission">
 			<bean class="com.liferay.portal.service.permission.AccountPermissionImpl" />

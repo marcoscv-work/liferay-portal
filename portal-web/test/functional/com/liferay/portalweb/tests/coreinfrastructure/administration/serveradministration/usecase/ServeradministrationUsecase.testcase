@@ -33,11 +33,11 @@
 		<execute macro="SystemSettingsNavigator#gotoPlatformCP" />
 
 		<execute macro="SystemSettings#viewPlatformSettingCP">
-			<var name="configurationName" value="LDAPAuth configuration" />
+			<var name="configurationName" value="LDAP Auth" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
-			<var name="portlet" value="Portal Settings" />
+			<var name="portlet" value="Instance Settings" />
 		</execute>
 
 		<execute macro="PortalSettings#enableLDAPCP" />
@@ -49,12 +49,12 @@
 		<execute macro="SystemSettingsNavigator#gotoPlatformCP" />
 
 		<execute macro="SystemSettings#viewPlatformSettingCP">
-			<var name="configurationName" value="LDAPAuth configuration" />
-			<var name="status" value="Active" />
+			<var name="configurationName" value="LDAP Auth" />
+			<var name="LDAPEnabled" value="true" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
-			<var name="portlet" value="Portal Settings" />
+			<var name="portlet" value="Instance Settings" />
 		</execute>
 
 		<execute macro="PortalSettings#disableLDAPCP" />

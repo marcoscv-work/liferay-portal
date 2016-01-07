@@ -79,6 +79,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ADD_PAGE_ICON</td>
+	<td>//span/*[name()='a' or 'span'][contains(.,'${key_page}')]/..//span/*[name()='svg'][contains(@class,'icon-plus')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>EDIT_PAGE</td>
 	<td>//div[@class='list-group-item']//a[contains(@title,'Edit ${key_page}')]</td>
 	<td></td>
@@ -247,7 +252,7 @@
 </tr>
 <tr>
 	<td>PRODUCT_MENU_PANEL_SITE_ADMINISTRATION_SITE_NAME</td>
-	<td>//div[contains(@class,'toolbar-group-content') and contains(.,'${key_siteName}')]</td>
+	<td>//span[@class='site-name']</td>
 	<td></td>
 </tr>
 <tr>

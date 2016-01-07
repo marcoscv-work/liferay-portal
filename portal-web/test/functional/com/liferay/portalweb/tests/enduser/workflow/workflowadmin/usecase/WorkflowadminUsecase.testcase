@@ -59,7 +59,7 @@
 
 		<execute macro="Workflow#configureWorkflow">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
-			<var name="workflowResourceKey" value="RESOURCE_TABLE_BLOGS_ENTRY_SELECT" />
+			<var name="workflowResourceValue" value="Blogs Entry" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelSites">
@@ -143,9 +143,12 @@
 			<var name="entryTitle" value="Blogs Entry Title - Liferay" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Blogs" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Blogs" />
 		</execute>
 
 		<execute macro="Blogs#addWithWorkflow">
@@ -154,9 +157,12 @@
 			<var name="entryTitle" value="Blogs Entry Title - Site Name" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Blogs" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Blogs" />
 		</execute>
 
 		<execute macro="BlogsEntry#viewWithWorkflowCP">
@@ -174,9 +180,12 @@
 			<var name="workflowTask" value="Review" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Blogs" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Blogs" />
 		</execute>
 
 		<execute macro="BlogsEntry#viewWithWorkflowCP">
@@ -194,9 +203,12 @@
 			<var name="workflowTask" value="Review" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Blogs" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Blogs" />
 		</execute>
 
 		<execute macro="BlogsEntry#viewEntryTable">
@@ -238,13 +250,15 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Workflow Configuration" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Workflow Configuration" />
 		</execute>
 
 		<execute macro="Workflow#configureWorkflow">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
-			<var name="workflowResourceKey" value="RESOURCE_TABLE_BLOGS_ENTRY_SELECT" />
+			<var name="workflowResourceValue" value="Blogs Entry" />
 		</execute>
 
 		<execute macro="Navigator#openURL" />
@@ -297,14 +311,20 @@
 			<var name="portlet" value="Blogs" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Blogs" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Blogs" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Blogs" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Blogs" />
 		</execute>
 
 		<execute macro="Page#gotoMyAccount">
@@ -616,10 +636,12 @@
 			<var name="userScreenName" value="usersn2" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Documents and Media" />
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="Organization Name" />
-			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Documents and Media" />
 		</execute>
 
 		<execute macro="Workflow#configureWorkflowViaFolderInfo">
@@ -759,10 +781,12 @@
 			<var name="userLoginFullName" value="Test Test" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Documents and Media" />
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="Organization Name" />
-			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Documents and Media" />
 		</execute>
 
 		<execute macro="DMNavigator#gotoDocumentCP">
@@ -982,13 +1006,15 @@
 		<var name="wikiPageTitle" value="Wiki Page Title" />
 		<var name="workflowAssetType" value="Wiki Page" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Workflow Configuration" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Workflow Configuration" />
 		</execute>
 
 		<execute macro="Workflow#configureWorkflow">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
-			<var name="workflowResourceKey" value="RESOURCE_TABLE_WIKI_PAGE_SELECT" />
+			<var name="workflowResourceValue" value="Wiki Page" />
 		</execute>
 
 		<execute macro="Page#addPG">
@@ -1043,7 +1069,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="WikiPage#gotoAllPagesPG" />
+		<execute macro="WikiNavigator#gotoAllPagesPG" />
 
 		<execute macro="WikiPage#addPageWithWorkflowPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
@@ -1055,7 +1081,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="WikiPage#gotoDraftPagesPG" />
+		<execute macro="WikiNavigator#gotoDraftPagesPG" />
 
 		<execute macro="WikiPage#viewPageWithWorkflowPG">
 			<var name="wikiPageStatus" value="Pending" />
@@ -1100,7 +1126,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="WikiPage#gotoDraftPagesPG" />
+		<execute macro="WikiNavigator#gotoDraftPagesPG" />
 
 		<execute macro="WikiPage#viewPageWithWorkflowPG">
 			<var name="wikiPageStatus" value="Pending" />
@@ -1122,7 +1148,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="WikiPage#gotoPG">
+		<execute macro="WikiNavigator#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
@@ -1145,7 +1171,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="WikiPage#gotoPG">
+		<execute macro="WikiNavigator#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
@@ -1224,13 +1250,15 @@
 	<command name="ViewBlogsEntryWorkflowViaNotifications" priority="3">
 		<property name="portlet.plugins.includes" value="notifications-portlet" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Workflow Configuration" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Workflow Configuration" />
 		</execute>
 
 		<execute macro="Workflow#configureWorkflow">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
-			<var name="workflowResourceKey" value="RESOURCE_TABLE_BLOGS_ENTRY_SELECT" />
+			<var name="workflowResourceValue" value="Blogs Entry" />
 		</execute>
 
 		<execute macro="Page#addPG">
@@ -1299,13 +1327,15 @@
 		<var name="webContentContent" value="WC WebContent Content" />
 		<var name="webContentTitle" value="WC WebContent Title" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Workflow Configuration" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Workflow Configuration" />
 		</execute>
 
 		<execute macro="Workflow#configureWorkflow">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
-			<var name="workflowResourceKey" value="RESOURCE_TABLE_BLOGS_ENTRY_SELECT" />
+			<var name="workflowResourceValue" value="Blogs Entry" />
 		</execute>
 
 		<execute macro="Navigator#openURL" />
@@ -1407,7 +1437,7 @@
 
 		<execute macro="Workflow#configureWorkflow">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
-			<var name="workflowResourceKey" value="RESOURCE_TABLE_BLOGS_ENTRY_SELECT" />
+			<var name="workflowResourceValue" value="Blogs Entry" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -1418,6 +1448,7 @@
 			<var name="permissionDefinitionKey" value="SITE_ADMIN_CONTENT_BLOGS_GENERAL_PERMISSIONS_ACCESS_IN_SITE_ADMINISTRATION_CHECKBOX" />
 			<var name="permissionDefinitionValue" value="Access in Site Administration" />
 			<var name="roleName" value="Site Member" />
+			<var name="roleType" value="Site" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -1428,6 +1459,7 @@
 			<var name="permissionDefinitionKey" value="SITE_ADMIN_CONTENT_BLOGS_RESOURCE_PERMISSIONS_BLOGS_ENTRIES_ADD_ENTRY_CHECKBOX" />
 			<var name="permissionDefinitionValue" value="Add Entry" />
 			<var name="roleName" value="Site Member" />
+			<var name="roleType" value="Site" />
 		</execute>
 
 		<for list="1,2" param="n">
@@ -1465,8 +1497,10 @@
 				<var name="userScreenName" value="usersn${n}" />
 			</execute>
 
-			<execute macro="Page#gotoContentCP">
-				<var name="portletName" value="Blogs" />
+			<execute macro="Navigator#openURL" />
+
+			<execute macro="ProductMenu#gotoSitesContent">
+				<var name="portlet" value="Blogs" />
 			</execute>
 
 			<execute macro="Blogs#addWithWorkflow">
@@ -1475,8 +1509,10 @@
 				<var name="entryTitle" value="User ${n} Blog Title Approved" />
 			</execute>
 
-			<execute macro="Page#gotoContentCP">
-				<var name="portletName" value="Blogs" />
+			<execute macro="Navigator#openURL" />
+
+			<execute macro="ProductMenu#gotoSitesContent">
+				<var name="portlet" value="Blogs" />
 			</execute>
 
 			<execute macro="Blogs#addWithWorkflow">

@@ -17,13 +17,15 @@
 
 		<execute macro="User#firstLoginPG" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Workflow Configuration" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Workflow Configuration" />
 		</execute>
 
 		<execute macro="Workflow#configureWorkflow">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
-			<var name="workflowResourceKey" value="RESOURCE_TABLE_WIKI_PAGE_SELECT" />
+			<var name="workflowResourceValue" value="Wiki Page" />
 		</execute>
 
 		<execute macro="Page#addPG">
@@ -82,8 +84,10 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="Page#gotoUsersCP">
-			<var name="portletName" value="Site Memberships" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesUsers">
+			<var name="portlet" value="Site Memberships" />
 		</execute>
 
 		<execute macro="Site#addMemberCP">
@@ -182,7 +186,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="WikiPage#gotoAllPagesPG" />
+		<execute macro="WikiNavigator#gotoAllPagesPG" />
 
 		<execute macro="WikiPage#addPageWithWorkflowPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
@@ -194,7 +198,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="WikiPage#gotoDraftPagesPG" />
+		<execute macro="WikiNavigator#gotoDraftPagesPG" />
 
 		<execute macro="WikiPage#viewPageWithWorkflowPG">
 			<var name="wikiPageStatus" value="Pending" />
@@ -216,7 +220,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="WikiPage#gotoDraftPagesPG" />
+		<execute macro="WikiNavigator#gotoDraftPagesPG" />
 
 		<execute macro="WikiPage#viewPageWithWorkflowPG">
 			<var name="wikiPageStatus" value="Pending" />
@@ -238,7 +242,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="WikiPage#gotoPG">
+		<execute macro="WikiNavigator#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
@@ -285,8 +289,10 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="Page#gotoUsersCP">
-			<var name="portletName" value="Site Memberships" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesUsers">
+			<var name="portlet" value="Site Memberships" />
 		</execute>
 
 		<execute macro="Site#addMemberCP">
@@ -383,7 +389,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="WikiPage#gotoAllPagesPG" />
+		<execute macro="WikiNavigator#gotoAllPagesPG" />
 
 		<execute macro="WikiPage#addPageWithWorkflowPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
@@ -395,7 +401,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="WikiPage#gotoDraftPagesPG" />
+		<execute macro="WikiNavigator#gotoDraftPagesPG" />
 
 		<execute macro="WikiPage#viewPageWithWorkflowPG">
 			<var name="wikiPageStatus" value="Pending" />
@@ -436,7 +442,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="WikiPage#gotoDraftPagesPG" />
+		<execute macro="WikiNavigator#gotoDraftPagesPG" />
 
 		<execute macro="WikiPage#viewPageWithWorkflowPG">
 			<var name="wikiPageStatus" value="Pending" />

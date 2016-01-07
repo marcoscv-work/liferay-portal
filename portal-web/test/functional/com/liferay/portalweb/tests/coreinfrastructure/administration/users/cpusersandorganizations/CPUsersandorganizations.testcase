@@ -462,9 +462,12 @@
 			<var name="sitePageName" value="Organization Public Page" />
 		</execute>
 
-		<execute macro="Page#gotoUsersCP">
-			<var name="portletName" value="Site Teams" />
-			<var name="siteScopeName" value="Organization Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Organization Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesUsers">
+			<var name="portlet" value="Site Teams" />
 		</execute>
 
 		<execute macro="Team#addCP">
@@ -748,7 +751,7 @@
 
 		<execute macro="User#addCP">
 			<var name="userEmailAddress" value="" />
-			<var name="userEmailAddressVariation" value="Invalid" />
+			<var name="userEmailAddressVariation" value="Null" />
 			<var name="userFirstName" value="userfn" />
 			<var name="userLastName" value="userln" />
 			<var name="userScreenName" value="usersn" />
@@ -1630,9 +1633,12 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Site Settings" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Site Settings" />
 		</execute>
 
 		<var name="siteID" value="siteID" />
@@ -1983,6 +1989,8 @@
 			<var name="pageName" value="Sites Directory Page" />
 		</execute>
 
+		<var name="key_siteName" value="Liferay" />
+
 		<var name="key_orgName" value="Organization Name 1" />
 
 		<execute function="AssertTextEquals" locator1="SitesDirectory#SITE_ENTRY" value1="Liferay" />
@@ -2013,7 +2021,5 @@
 			<var name="breadcrumbListVisible" value="Test Page" />
 			<var name="pathLocator" value="PAGE" />
 		</execute>
-
-		<execute macro="Page#tearDownPG" />
 	</command>
 </definition>

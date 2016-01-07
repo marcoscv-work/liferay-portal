@@ -48,9 +48,12 @@
 	</command>
 
 	<command name="gotoEditPage" summary="Navigate to Product Menu > Sites > Pages > Public Pages > ${page}">
-		<var name="page" value="${page}" />
 
-		<execute macro="ProductMenuHelper#gotoEditPage" />
+		<execute macro="ProductMenuHelper#gotoSites" />
+
+		<var name="key_page" value="${page}" />
+
+		<execute function="Click#makeVisibleClickAt" locator1="ProductMenu#EDIT_PAGE" />
 	</command>
 
 	<command name="gotoEditPublicPages" summary="Navigate to Product Menu > Sites > Pages > Public Pages > ${page}">
@@ -117,6 +120,16 @@
 		</execute>
 	</command>
 
+	<command name="gotoPrivateSite" summary="Navigate to Product Menu > Sites > Site Popup > ${site}">
+		<execute macro="ProductMenuHelper#gotoSites" />
+
+		<execute macro="ProductMenuHelper#openSitesPopup" />
+
+		<var name="key_site" value="${site}" />
+
+		<execute function="AssertClick" locator1="ProductMenu#PRIVATE_SITE_LINK" value1="${site}" />
+	</command>
+
 	<command name="gotoPublicPages" summary="Navigate to Product Menu > Sites > Pages > Public Pages > ${page}">
 		<execute macro="ProductMenuHelper#gotoSites" />
 
@@ -129,20 +142,20 @@
 		</execute>
 	</command>
 
-	<command name="gotoSite" summary="Navigate to Product Menu > Sites > Back Arrow > ${site}">
+	<command name="gotoPublicSite" summary="Navigate to Product Menu > Sites > Site Popup > ${site}">
 		<execute macro="ProductMenuHelper#gotoSites" />
 
-		<if>
-			<and>
-				<condition function="IsElementPresent" locator1="ProductMenu#SITES_COMPASS" />
-				<condition function="IsVisible" locator1="ProductMenu#SITES_COMPASS" />
-			</and>
-			<then>
-				<execute function="Click" locator1="ProductMenu#SITES_COMPASS" />
+		<execute macro="ProductMenuHelper#openSitesPopup" />
 
-				<execute function="AssertVisible" locator1="ProductMenu#SITES_POPUP" />
-			</then>
-		</if>
+		<var name="key_site" value="${site}" />
+
+		<execute function="AssertClick" locator1="ProductMenu#PUBLIC_SITE_LINK" value1="${site}" />
+	</command>
+
+	<command name="gotoSite" summary="Navigate to Product Menu > Sites > Sites Popup > ${site}">
+		<execute macro="ProductMenuHelper#gotoSites" />
+
+		<execute macro="ProductMenuHelper#openSitesPopup" />
 
 		<execute macro="ProductMenuHelper#gotoSite">
 			<var name="site" value="${site}" />
@@ -256,11 +269,13 @@
 
 		<if>
 			<and>
-				<condition function="IsElementPresent" locator1="ProductMenu#BACK_ARROW" />
-				<condition function="IsVisible" locator1="ProductMenu#BACK_ARROW" />
+				<condition function="IsElementPresent" locator1="ProductMenu#SITES_POPUP" />
+				<condition function="IsNotVisible" locator1="ProductMenu#SITES_POPUP" />
 			</and>
 			<then>
-				<execute function="Click" locator1="ProductMenu#BACK_ARROW" />
+				<execute function="Click" locator1="ProductMenu#SITES_COMPASS" />
+
+				<execute function="AssertVisible" locator1="ProductMenu#SITES_POPUP" />
 			</then>
 		</if>
 

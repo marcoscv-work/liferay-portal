@@ -192,10 +192,12 @@
 
 		<execute macro="BlogsConfiguration#saveConfigurationIFrame" />
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Blogs" />
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="Site Name" />
-			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Blogs" />
 		</execute>
 
 		<execute macro="Portlet#gotoPortletOptions">
@@ -224,10 +226,12 @@
 
 		<execute macro="BlogsConfiguration#viewDefaultConfiguration" />
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Blogs" />
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="Liferay" />
-			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Blogs" />
 		</execute>
 
 		<execute macro="Portlet#gotoPortletOptions">
@@ -396,7 +400,7 @@
 		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_CONTENT" value1="Blogs Entry2 Content" />
 
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
-			<var name="portlet" value="Portal Instances" />
+			<var name="portlet" value="Instances" />
 		</execute>
 
 		<execute macro="PortalInstances#addCP">
@@ -433,7 +437,7 @@
 		<execute function="AssertClick" locator1="PGBlogs#ENTRY_COMMENT_1" value1="0 Comments" />
 		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_TITLE" value1="Blogs Entry3 Title" />
 		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_CONTENT" value1="Blogs Entry3 Content" />
-		<execute function="AssertTextEquals#assertValue" locator1="PGBlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/blogs-page/-/blogs/trackback/blogs-entry3-title" />
+		<execute function="AssertTextEquals#assertValue" locator1="BlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/blogs-page/-/blogs/trackback/blogs-entry3-title" />
 
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="${pageName}" />
@@ -467,7 +471,7 @@
 			<var name="userFullName" value="Test Test" />
 		</execute>
 
-		<execute function="AssertTextEquals#assertValue" locator1="PGBlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/blogs-page/-/blogs/trackback/blogs-entry3-title" />
+		<execute function="AssertTextEquals#assertValue" locator1="BlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/blogs-page/-/blogs/trackback/blogs-entry3-title" />
 		<execute function="AssertClick" locator1="//div[@class='lfr-discussion-message']/a" value1="Read More" />
 		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_TITLE" value1="Blogs Entry4 Title" />
 		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_CONTENT" value1="Blogs Entry4 Content" />
@@ -491,7 +495,7 @@
 		<execute function="AssertClick" locator1="PGBlogs#ENTRY_COMMENT_1" value1="0 Comments" />
 		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_TITLE" value1="Blogs Entry5 Title" />
 		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_CONTENT" value1="Blogs Entry5 Content" />
-		<execute function="AssertTextEquals#assertValue" locator1="PGBlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://${ipAddress}:8080/web/guest/blogs-page/-/blogs/trackback/blogs-entry5-title" />
+		<execute function="AssertTextEquals#assertValue" locator1="BlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://${ipAddress}:8080/web/guest/blogs-page/-/blogs/trackback/blogs-entry5-title" />
 
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="${pageName}" />
@@ -523,7 +527,7 @@
 			<var name="userFullName" value="Test Test" />
 		</execute>
 
-		<execute function="AssertTextEquals#assertValue" locator1="PGBlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://${ipAddress}:8080/web/guest/blogs-page/-/blogs/trackback/blogs-entry5-title" />
+		<execute function="AssertTextEquals#assertValue" locator1="BlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://${ipAddress}:8080/web/guest/blogs-page/-/blogs/trackback/blogs-entry5-title" />
 		<execute function="AssertClick" locator1="//div[@class='lfr-discussion-message']/a" value1="Read More" />
 		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_TITLE" value1="Blogs Entry6 Title" />
 		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_CONTENT" value1="Blogs Entry6 Content" />
@@ -641,6 +645,8 @@
 	</command>
 
 	<command name="RestoreBlogsEntry" priority="5">
+		<property name="portal.acceptance" value="true" />
+
 		<var name="assetRestoreLocation" value="Blogs" />
 
 		<execute macro="Navigator#openURL" />
@@ -789,7 +795,7 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
-			<var name="portlet" value="Portal Instances" />
+			<var name="portlet" value="Instances" />
 		</execute>
 
 		<execute macro="PortalInstances#addCP">
@@ -1436,10 +1442,6 @@
 	</command>
 
 	<command name="ViewParentOrganizationViaSelectOrganizationInBlogsConfiguration" priority="4">
-		<execute macro="Page#addPG">
-			<var name="pageName" value="${pageName}" />
-		</execute>
-
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="${pageName}" />
 		</execute>
@@ -1466,6 +1468,8 @@
 		<execute function="SelectFrame" locator1="UsersAndOrganizationsSelectOrganization#SELECT_ORGANIZATION_IFRAME" />
 
 		<execute function="AssertElementPresent" locator1="Message#INFO_1" />
+
+		<execute macro="IFrame#selectTopFrame" />
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
 			<var name="portlet" value="Users and Organizations" />

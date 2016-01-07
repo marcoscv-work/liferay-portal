@@ -237,6 +237,14 @@ public class GroupServiceWrapper implements GroupService,
 		return _groupService.getGroup(groupId);
 	}
 
+	@Override
+	public java.lang.String getGroupDisplayURL(long groupId,
+		boolean privateLayout, boolean secureConnection)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _groupService.getGroupDisplayURL(groupId, privateLayout,
+			secureConnection);
+	}
+
 	/**
 	* Returns all the groups that are direct children of the parent group.
 	*
@@ -806,22 +814,6 @@ public class GroupServiceWrapper implements GroupService,
 		java.util.Map<java.lang.String, java.lang.String> stagedPortletIds)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_groupService.updateStagedPortlets(groupId, stagedPortletIds);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public GroupService getWrappedGroupService() {
-		return _groupService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedGroupService(GroupService groupService) {
-		_groupService = groupService;
 	}
 
 	@Override

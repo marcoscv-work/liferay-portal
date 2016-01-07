@@ -651,21 +651,6 @@
 		<body-content>JSP</body-content>
 	</tag>
 	<tag>
-		<name>asset-categories-navigation</name>
-		<tag-class>com.liferay.taglib.ui.AssetCategoriesNavigationTag</tag-class>
-		<body-content>JSP</body-content>
-		<attribute>
-			<name>hidePortletWhenEmpty</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-		<attribute>
-			<name>vocabularyIds</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-	</tag>
-	<tag>
 		<name>asset-categories-selector</name>
 		<tag-class>com.liferay.taglib.ui.AssetCategoriesSelectorTag</tag-class>
 		<body-content>JSP</body-content>
@@ -3234,11 +3219,6 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
-			<name>rootPortletURL</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-		<attribute>
 			<name>saveState</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -3260,6 +3240,11 @@
 		</attribute>
 		<attribute>
 			<name>treeId</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>portletURLs</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
@@ -3311,46 +3296,6 @@
 		</attribute>
 		<attribute>
 			<name>tempImageFileName</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-	</tag>
-	<tag>
-		<name>map</name>
-		<tag-class>com.liferay.taglib.ui.MapTag</tag-class>
-		<body-content>JSP</body-content>
-		<attribute>
-			<name>apiKey</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-		<attribute>
-			<name>geolocation</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-		<attribute>
-			<name>latitude</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-		<attribute>
-			<name>longitude</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-		<attribute>
-			<name>name</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-		<attribute>
-			<name>points</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-		<attribute>
-			<name>provider</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
@@ -5453,61 +5398,6 @@
 		<attribute>
 			<name>var</name>
 			<required>true</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-	</tag>
-	<tag>
-		<description>Creates a component for users to permanently delete items such as images, articles, etc. from the recycle bin.</description>
-		<name>trash-empty</name>
-		<tag-class>com.liferay.taglib.ui.TrashEmptyTag</tag-class>
-		<body-content>empty</body-content>
-		<attribute>
-			<description>A message to display to confirm that the user wants to remove the item(s) from the recycle bin</description>
-			<name>confirmMessage</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-		<attribute>
-			<description>A message to be used for the <![CDATA[<code>empty-trash</code>]]> button and link</description>
-			<name>emptyMessage</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-		<attribute>
-			<description>A message to display to give users information about removing items from the recycle bin</description>
-			<name>infoMessage</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-		<attribute>
-			<description>A URL for the <![CDATA[<code>empty-trash</code>]]> button/link</description>
-			<name>portletURL</name>
-			<required>true</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-		<attribute>
-			<description>The number of items to be removed from the recycle bin</description>
-			<name>totalEntries</name>
-			<required>true</required>
-			<rtexprvalue>true</rtexprvalue>
-			<type>int</type>
-		</attribute>
-	</tag>
-	<tag>
-		<description>Creates a message confirming items were moved to the recycle bin and presenting an option to restore them.</description>
-		<name>trash-undo</name>
-		<tag-class>com.liferay.taglib.ui.TrashUndoTag</tag-class>
-		<body-content>empty</body-content>
-		<attribute>
-			<description>The URL of the undo link</description>
-			<name>portletURL</name>
-			<required>true</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-		<attribute>
-			<description>A redirect URL</description>
-			<name>redirect</name>
-			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 	</tag>

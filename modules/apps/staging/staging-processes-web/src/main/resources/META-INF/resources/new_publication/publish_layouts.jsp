@@ -199,21 +199,19 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 
 			<%
 			String scheduleCMD = StringPool.BLANK;
-			String unscheduleCMD = StringPool.BLANK;
 
 			if (cmd.equals(Constants.PUBLISH_TO_LIVE)) {
 				scheduleCMD = "schedule_publish_to_live";
-				unscheduleCMD = "unschedule_publish_to_live";
 			}
 			else if (cmd.equals(Constants.PUBLISH_TO_REMOTE)) {
 				scheduleCMD = "schedule_publish_to_remote";
-				unscheduleCMD = "unschedule_publish_to_remote";
 			}
 			else if (cmd.equals("copy_from_live")) {
 				scheduleCMD = "schedule_copy_from_live";
-				unscheduleCMD = "unschedule_copy_from_live";
 			}
 			%>
+
+			<aui:input name="name" />
 
 			<aui:fieldset cssClass="options-group" label="date">
 				<%@ include file="/new_publication/publish_layouts_scheduler.jspf" %>

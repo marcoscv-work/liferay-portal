@@ -26,13 +26,15 @@
 			<var name="portletName" value="Calendar" />
 		</execute>
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Workflow Configuration" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Workflow Configuration" />
 		</execute>
 
 		<execute macro="Workflow#configureWorkflow">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
-			<var name="workflowResourceKey" value="RESOURCE_TABLE_CALENDAR_EVENT_SELECT" />
+			<var name="workflowResourceValue" value="Calendar Event" />
 		</execute>
 	</set-up>
 

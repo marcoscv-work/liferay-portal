@@ -21,11 +21,9 @@ import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManager;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
-import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.CompanyConstants;
 import com.liferay.portal.search.internal.background.task.ReindexPortalBackgroundTaskExecutor;
 import com.liferay.portal.search.internal.background.task.ReindexSingleIndexerBackgroundTaskExecutor;
-import com.liferay.portal.theme.ThemeDisplay;
 
 import java.util.Locale;
 import java.util.Map;
@@ -57,11 +55,6 @@ public class IndexingControlMenuEntry
 
 		data.put("qa-id", "indexing");
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		data.put("title", getLabel(themeDisplay.getLocale()));
-
 		return data;
 	}
 
@@ -85,9 +78,7 @@ public class IndexingControlMenuEntry
 	}
 
 	@Override
-	public boolean hasAccessPermission(HttpServletRequest request)
-		throws PortalException {
-
+	public boolean isShow(HttpServletRequest request) throws PortalException {
 		int count = _backgroundTaskManager.getBackgroundTasksCount(
 			CompanyConstants.SYSTEM,
 			new String[] {
@@ -100,7 +91,7 @@ public class IndexingControlMenuEntry
 			return false;
 		}
 
-		return super.hasAccessPermission(request);
+		return super.isShow(request);
 	}
 
 	@Reference(unbind = "-")

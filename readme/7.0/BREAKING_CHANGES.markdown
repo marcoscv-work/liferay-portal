@@ -20,7 +20,7 @@ feature or API will be dropped in an upcoming version.
 replaces an old API, in spite of the old API being kept in Liferay Portal for
 backwards compatibility.
 
-*This document has been reviewed through commit `202b3b7`.*
+*This document has been reviewed through commit `489b33c`.*
 
 ## Breaking Changes Contribution Guidelines
 
@@ -2986,6 +2986,58 @@ time to focus on other areas of the product that add more value.
 
 ---------------------------------------
 
+### Removed the liferay-ui:trash-empty Tag and Replaced with liferay-trash:empty
+- **Date:** 2015-Nov-30
+- **JIRA Ticket:** LPS-60779
+
+#### What changed?
+
+The `liferay-ui:trash-empty` tag has been removed and replaced with the
+`liferay-trash:empty` tag.
+
+#### Who is affected?
+
+Plugins and templates that are using the `liferay-ui:trash-empty` tag need to
+update their usage of the tag.
+
+#### How should I update my code?
+
+You should import the `liferay-trash` tag library (if necessary) and update the
+tag namespace from `liferay-ui:trash-empty` to `liferay-trash:empty`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
+
+---------------------------------------
+
+### Removed the liferay-ui:trash-undo Tag and Replaced with liferay-trash:undo
+- **Date:** 2015-Nov-30
+- **JIRA Ticket:** LPS-60779
+
+#### What changed?
+
+The `liferay-ui:trash-undo` taglib has been removed and replaced with the
+`liferay-trash:undo` tag.
+
+#### Who is affected?
+
+Plugins and templates that are using the `liferay-ui:trash-undo` tag need to
+update their usage of the tag.
+
+#### How should I update my code?
+
+You should import the `liferay-trash` tag library (if necessary) and update the
+tag namespace from `liferay-ui:trash-undo` to `liferay-trash:undo`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
+
+---------------------------------------
+
 ### Removed the getPageOrderByComparator Method from WikiUtil
 - **Date:** 2015-Dec-01
 - **JIRA Ticket:** LPS-60843
@@ -3119,24 +3171,103 @@ services from `DLAppService` was the only sensible solution to this circularity.
 
 ---------------------------------------
 
-### The liferay-ui:diff has been removed and replaced with liferay-frontend:diff
+### Removed the liferay-ui:diff Tag and Replaced with liferay-frontend:diff
 - **Date:** 2015-Dec-14
 - **JIRA Ticket:** LPS-61326
 
 #### What changed?
 
-The `liferay-ui:diff` taglib has been removed and replaced with `liferay-frontend:diff` taglib.
+The `liferay-ui:diff` tag has been removed and replaced with the
+`liferay-frontend:diff` tag.
 
 #### Who is affected?
 
-Plugins or templates that are using the `liferay-ui:diff` tag need to update their usage of the tag.
+Plugins and templates that are using the `liferay-ui:diff` tag need to update
+their usage of the tag.
 
 #### How should I update my code?
 
-You should import the `liferay-frontend` tag library if it isn't already and
-update the tag namespace from `liferay-ui:diff` to `liferay-frontend:diff`.
+You should import the `liferay-frontend` tag library (if necessary) and update
+the tag namespace from `liferay-ui:diff` to `liferay-frontend:diff`.
 
 #### Why was this change made?
 
 This change was made as a part of the ongoing strategy to modularize Liferay
 Portal by means of an OSGi container.
+
+---------------------------------------
+
+### The liferay-ui:asset-categories-navigation taglib has been removed and replaced with liferay-asset:asset-categories-navigation taglib
+- **Date:** 2015-Nov-25
+- **JIRA Ticket:** LPS-60753
+
+#### What changed?
+
+The `liferay-ui:asset-categories-navigation` taglib has been removed and
+replaced with `liferay-asset:asset-categories-navigation` taglib.
+
+#### Who is affected?
+
+Plugins or templates that are using the `liferay-ui:asset-categories-navigation`
+tag need to update their usage of the tag.
+
+#### How should I update my code?
+
+You should import the `liferay-asset` tag library if it isn't already and update
+the tag namespace from `liferay-ui:asset-categories-navigation` to
+`liferay-asset:asset-categories-navigation`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
+
+---------------------------------------
+
+### The `${theme}` variable is no longer injected in the Freemarker context
+- **Date:** 2016-Jan-06
+- **JIRA Ticket:** LPS-61683
+
+#### What changed?
+
+The `${theme}` variable that was injected in the freemarker context providing access to some taglibs or utils is no longer being injected.
+
+#### Who is affected?
+
+Freemarker templates that are using the `${theme}` variable to access any of its provided methods.
+
+#### How should I update my code?
+
+All the provided functionality available in the `${theme}` variable can be replaced by the direct usage of a taglib. For example:
+
+- `${theme.runtime("com.liferay.portal.kernel.servlet.taglib.ui.BreadcrumbEntry", portletProviderAction.VIEW, "", default_preferences)}` can be replaced by:
+```
+<@liferay_portlet["runtime"]
+    defaultPreferences=default_preferences
+    portletProviderAction=portletProviderAction.VIEW
+    portletProviderClassName="com.liferay.portal.kernel.servlet.taglib.ui.BreadcrumbEntry"
+/>
+```
+
+- `${theme.include(content_include)}` can be replaced by:
+```
+<@liferay_util["include"] page=content_include />
+```
+
+- `${theme.wrapPortlet("portlet.ftl", content_include)}` can be replaced by:
+```
+<@liferay_theme["wrap-portlet"] page="portlet.ftl">
+    <@liferay_util["include"] page=content_include />
+</@>
+```
+
+- `${theme.iconHelp(portlet_description)}` can be replaced by:
+```
+<@liferay_ui["icon-help"] message=portlet_description />
+```
+
+#### Why was this change made?
+
+For historic reasons, the `{$theme} variable was being injected with the `VelocityTaglibImpl` class. This was creating some coupling between the template engines and between some specific taglibs and the template engines at the same time.
+
+Freemarker already offers native support for taglibs which cover all the functionality originally provided by the `{$theme}` variable. Removing this coupling would help future developments while still keeping all the existing functionality.

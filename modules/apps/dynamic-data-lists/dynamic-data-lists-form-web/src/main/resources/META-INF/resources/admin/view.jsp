@@ -28,7 +28,7 @@ RecordSetSearch recordSetSearch = new RecordSetSearch(renderRequest, portletURL)
 String orderByCol = ParamUtil.getString(request, "orderByCol", "modified-date");
 String orderByType = ParamUtil.getString(request, "orderByType", "asc");
 
-OrderByComparator<DDLRecordSet> orderByComparator = DDLFormPortletUtil.getDDLRecordSetOrderByComparator(orderByCol, orderByType);
+OrderByComparator<DDLRecordSet> orderByComparator = DDLFormAdminPortletUtil.getDDLRecordSetOrderByComparator(orderByCol, orderByType);
 
 recordSetSearch.setOrderByCol(orderByCol);
 recordSetSearch.setOrderByComparator(orderByComparator);
@@ -163,3 +163,5 @@ recordSetSearch.setOrderByType(orderByType);
 </c:if>
 
 <%@ include file="/admin/export_record_set.jspf" %>
+
+<aui:script use="liferay-ddl-portlet"></aui:script>

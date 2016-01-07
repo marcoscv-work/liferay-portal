@@ -56,11 +56,6 @@ public class ManageLayoutControlMenuEntry
 
 		data.put("qa-id", "edit");
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		data.put("title", getLabel(themeDisplay.getLocale()));
-
 		return data;
 	}
 
@@ -71,7 +66,7 @@ public class ManageLayoutControlMenuEntry
 
 	@Override
 	public String getLabel(Locale locale) {
-		return LanguageUtil.get(locale, "edit");
+		return LanguageUtil.get(locale, "edit-page");
 	}
 
 	@Override
@@ -99,9 +94,7 @@ public class ManageLayoutControlMenuEntry
 	}
 
 	@Override
-	public boolean hasAccessPermission(HttpServletRequest request)
-		throws PortalException {
-
+	public boolean isShow(HttpServletRequest request) throws PortalException {
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
@@ -117,7 +110,7 @@ public class ManageLayoutControlMenuEntry
 			return false;
 		}
 
-		return super.hasAccessPermission(request);
+		return super.isShow(request);
 	}
 
 }

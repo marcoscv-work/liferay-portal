@@ -469,10 +469,13 @@
 	</command>
 
 	<command name="AddBlogsEntryWithTrackbackURL" priority="4">
+		<property name="custom.properties" value="blogs.trackback.enabled=true" />
+
 		<var name="entryContent" value="Blogs Entry1 Content" />
 		<var name="entryContent2" value="Blogs Entry2 Content" />
 		<var name="entryTitle" value="Blogs Entry1 Title" />
 		<var name="entryTitle2" value="Blogs Entry2 Title" />
+		<var name="ipAddress" value="${getIPAddress()}" />
 
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="${pageName}" />
@@ -567,6 +570,8 @@
 	</command>
 
 	<command name="DeleteBlogsEntries" priority="5">
+		<property name="portal.acceptance" value="true" />
+
 		<var name="blogsEntryCounterList" value="1,2,3" />
 		<var name="blogsEntryCounterList2" value="3,2,1" />
 
@@ -1028,11 +1033,11 @@
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
-			<var name="pageName" value="Search Page" />
-		</execute>
-
 		<for list="${blogsEntrySearchResult}" param="searchTerm">
+			<execute macro="Page#gotoPG">
+				<var name="pageName" value="Search Page" />
+			</execute>
+
 			<execute macro="Search#searchPG">
 				<var name="searchTerm" value="${searchTerm}" />
 			</execute>
@@ -1044,11 +1049,11 @@
 			</execute>
 		</for>
 
-		<execute macro="Page#gotoPG">
-			<var name="pageName" value="Search Page" />
-		</execute>
-
 		<for list="${blogsEntrySearchNoResult}" param="searchTerm">
+			<execute macro="Page#gotoPG">
+				<var name="pageName" value="Search Page" />
+			</execute>
+
 			<execute macro="Search#searchPG">
 				<var name="searchTerm" value="${searchTerm}" />
 			</execute>
@@ -1078,11 +1083,11 @@
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
-			<var name="pageName" value="Search Page" />
-		</execute>
-
 		<for list="${blogsEntrySearchResult}" param="searchTerm">
+			<execute macro="Page#gotoPG">
+				<var name="pageName" value="Search Page" />
+			</execute>
+
 			<execute macro="Search#searchPG">
 				<var name="searchTerm" value="${searchTerm}" />
 			</execute>
@@ -1094,11 +1099,11 @@
 			</execute>
 		</for>
 
-		<execute macro="Page#gotoPG">
-			<var name="pageName" value="Search Page" />
-		</execute>
-
 		<for list="${blogsEntrySearchNoResult}" param="searchTerm">
+			<execute macro="Page#gotoPG">
+				<var name="pageName" value="Search Page" />
+			</execute>
+
 			<execute macro="Search#searchPG">
 				<var name="searchTerm" value="${searchTerm}" />
 			</execute>
@@ -1128,11 +1133,11 @@
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
-			<var name="pageName" value="Search Page" />
-		</execute>
-
 		<for list="${blogsEntrySearchResult}" param="searchTerm">
+			<execute macro="Page#gotoPG">
+				<var name="pageName" value="Search Page" />
+			</execute>
+
 			<execute macro="Search#searchPG">
 				<var name="searchTerm" value="${searchTerm}" />
 			</execute>
@@ -1144,11 +1149,11 @@
 			</execute>
 		</for>
 
-		<execute macro="Page#gotoPG">
-			<var name="pageName" value="Search Page" />
-		</execute>
-
 		<for list="${blogsEntrySearchNoResult}" param="searchTerm">
+			<execute macro="Page#gotoPG">
+				<var name="pageName" value="Search Page" />
+			</execute>
+
 			<execute macro="Search#searchPG">
 				<var name="searchTerm" value="${searchTerm}" />
 			</execute>
@@ -1182,11 +1187,11 @@
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
-			<var name="pageName" value="Search Page" />
-		</execute>
-
 		<for list="${blogsEntrySearchResult}" param="searchTerm" >
+			<execute macro="Page#gotoPG">
+				<var name="pageName" value="Search Page" />
+			</execute>
+
 			<execute macro="Search#searchPG">
 				<var name="searchTerm" value="${searchTerm}" />
 			</execute>
@@ -1198,11 +1203,11 @@
 			</execute>
 		</for>
 
-		<execute macro="Page#gotoPG">
-			<var name="pageName" value="Search Page" />
-		</execute>
-
 		<for list="${blogsEntrySearchNoResult}" param="searchTerm" >
+			<execute macro="Page#gotoPG">
+				<var name="pageName" value="Search Page" />
+			</execute>
+
 			<execute macro="Search#searchPG">
 				<var name="searchTerm" value="${searchTerm}" />
 			</execute>

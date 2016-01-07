@@ -395,9 +395,7 @@
 		</execute>
 
 		<execute macro="AssetPublisherPortlet#configureAddSiteScopes">
-			<var name="addSite" value="true" />
-			<var name="defaultSite" value="true" />
-			<var name="siteName" value="Test Site" />
+			<var name="otherSite" value="Test Site" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
@@ -586,8 +584,10 @@
 		</execute>
 
 		<for list="first tag,second tag,third tag" param="tagName">
-			<execute macro="Page#gotoContentCP">
-				<var name="portletName" value="Tags" />
+			<execute macro="Navigator#openURL" />
+
+			<execute macro="ProductMenu#gotoSitesContent">
+				<var name="portlet" value="Tags" />
 			</execute>
 
 			<execute macro="Tag#addCP">
