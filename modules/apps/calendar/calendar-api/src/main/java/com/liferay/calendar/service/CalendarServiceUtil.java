@@ -107,6 +107,11 @@ public class CalendarServiceUtil {
 		getService().importCalendar(calendarId, data, type);
 	}
 
+	public static boolean isManageableFromGroup(long calendarId, long groupId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().isManageableFromGroup(calendarId, groupId);
+	}
+
 	public static java.util.List<com.liferay.calendar.model.Calendar> search(
 		long companyId, long[] groupIds, long[] calendarResourceIds,
 		java.lang.String keywords, boolean andOperator, int start, int end,
@@ -222,13 +227,6 @@ public class CalendarServiceUtil {
 
 	public static CalendarService getService() {
 		return _serviceTracker.getService();
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(CalendarService service) {
 	}
 
 	private static ServiceTracker<CalendarService, CalendarService> _serviceTracker =

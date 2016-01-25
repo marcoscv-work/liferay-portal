@@ -97,7 +97,7 @@ request.setAttribute("view.jsp-orderByType", orderByType);
 	<portlet:param name="<%= Constants.CMD %>" value="<%= Constants.RESTORE %>" />
 </portlet:actionURL>
 
-<liferay-ui:trash-undo
+<liferay-trash:undo
 	portletURL="<%= restoreTrashEntriesURL %>"
 />
 
@@ -114,11 +114,17 @@ request.setAttribute("view.jsp-orderByType", orderByType);
 	%>
 
 	<div class="closed <%= portletTitleBasedNavigation ? "container-fluid-1280" : StringPool.BLANK %> sidenav-container sidenav-right" id="<portlet:namespace />infoPanelId">
-		<div class="sidenav-menu-slider">
-			<div class="sidebar sidebar-default sidenav-menu">
-				<liferay-util:include page="/document_library/info_panel.jsp" servletContext="<%= application %>" />
-			</div>
-		</div>
+		<portlet:resourceURL id="/document_library/info_panel" var="sidebarPanelURL">
+			<portlet:param name="folderId" value="<%= String.valueOf(folderId) %>" />
+			<portlet:param name="repositoryId" value="<%= String.valueOf(repositoryId) %>" />
+		</portlet:resourceURL>
+
+		<liferay-frontend:sidebar-panel
+			resourceURL="<%= sidebarPanelURL %>"
+			searchContainerId="entries"
+		>
+			<liferay-util:include page="/document_library/info_panel.jsp" servletContext="<%= application %>" />
+		</liferay-frontend:sidebar-panel>
 
 		<div class="sidenav-content">
 			<div class="document-library-breadcrumb" id="<portlet:namespace />breadcrumbContainer">
@@ -271,7 +277,7 @@ if (!defaultFolderView && (folder != null) && (portletName.equals(DLPortletKeys.
 	);
 
 	var clearDocumentLibraryHandles = function(event) {
-		if (event.portletId === '<%= portletDisplay.getRootPortletId() %>') {
+		if (event.portletId === '<%= portletDisplay.getId() %>') {
 			documentLibrary.destroy();
 
 			Liferay.detach('destroyPortlet', clearDocumentLibraryHandles);

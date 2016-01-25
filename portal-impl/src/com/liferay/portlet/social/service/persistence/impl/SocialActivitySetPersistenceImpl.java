@@ -34,9 +34,10 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.service.persistence.CompanyProvider;
+import com.liferay.portal.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
-import com.liferay.portlet.social.NoSuchActivitySetException;
+import com.liferay.portlet.social.exception.NoSuchActivitySetException;
 import com.liferay.portlet.social.model.SocialActivitySet;
 import com.liferay.portlet.social.model.impl.SocialActivitySetImpl;
 import com.liferay.portlet.social.model.impl.SocialActivitySetModelImpl;
@@ -3624,6 +3625,8 @@ public class SocialActivitySetPersistenceImpl extends BasePersistenceImpl<Social
 		socialActivitySet.setNew(true);
 		socialActivitySet.setPrimaryKey(activitySetId);
 
+		socialActivitySet.setCompanyId(companyProvider.getCompanyId());
+
 		return socialActivitySet;
 	}
 
@@ -3915,7 +3918,7 @@ public class SocialActivitySetPersistenceImpl extends BasePersistenceImpl<Social
 	}
 
 	/**
-	 * Returns the social activity set with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the social activity set with the primary key or throws a {@link com.liferay.portal.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the social activity set
 	 * @return the social activity set
@@ -4316,7 +4319,7 @@ public class SocialActivitySetPersistenceImpl extends BasePersistenceImpl<Social
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@BeanReference(type = CompanyProvider.class)
+	@BeanReference(type = CompanyProviderWrapper.class)
 	protected CompanyProvider companyProvider;
 	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
 	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();

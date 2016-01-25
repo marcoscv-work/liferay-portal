@@ -34,9 +34,10 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.service.persistence.CompanyProvider;
+import com.liferay.portal.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
-import com.liferay.portlet.asset.NoSuchLinkException;
+import com.liferay.portlet.asset.exception.NoSuchLinkException;
 import com.liferay.portlet.asset.model.AssetLink;
 import com.liferay.portlet.asset.model.impl.AssetLinkImpl;
 import com.liferay.portlet.asset.model.impl.AssetLinkModelImpl;
@@ -3107,6 +3108,8 @@ public class AssetLinkPersistenceImpl extends BasePersistenceImpl<AssetLink>
 		assetLink.setNew(true);
 		assetLink.setPrimaryKey(linkId);
 
+		assetLink.setCompanyId(companyProvider.getCompanyId());
+
 		return assetLink;
 	}
 
@@ -3362,7 +3365,7 @@ public class AssetLinkPersistenceImpl extends BasePersistenceImpl<AssetLink>
 	}
 
 	/**
-	 * Returns the asset link with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the asset link with the primary key or throws a {@link com.liferay.portal.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the asset link
 	 * @return the asset link
@@ -3760,7 +3763,7 @@ public class AssetLinkPersistenceImpl extends BasePersistenceImpl<AssetLink>
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@BeanReference(type = CompanyProvider.class)
+	@BeanReference(type = CompanyProviderWrapper.class)
 	protected CompanyProvider companyProvider;
 	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
 	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();

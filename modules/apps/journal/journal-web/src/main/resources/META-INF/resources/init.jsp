@@ -24,6 +24,7 @@ taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
 taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %><%@
 taglib uri="http://liferay.com/tld/security" prefix="liferay-security" %><%@
 taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
+taglib uri="http://liferay.com/tld/trash" prefix="liferay-trash" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
 taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 
@@ -102,18 +103,18 @@ page import="com.liferay.journal.web.portlet.action.ActionUtil" %><%@
 page import="com.liferay.journal.web.search.ArticleSearch" %><%@
 page import="com.liferay.journal.web.search.ArticleSearchTerms" %><%@
 page import="com.liferay.journal.web.search.EntriesChecker" %><%@
-page import="com.liferay.journal.web.search.FeedDisplayTerms" %><%@
 page import="com.liferay.journal.web.search.FeedSearch" %><%@
 page import="com.liferay.journal.web.search.FeedSearchTerms" %><%@
 page import="com.liferay.journal.web.search.JournalSearcher" %><%@
 page import="com.liferay.journal.web.util.JournalPortletUtil" %><%@
 page import="com.liferay.layout.item.selector.criterion.LayoutItemSelectorCriterion" %><%@
 page import="com.liferay.portal.LocaleException" %><%@
-page import="com.liferay.portal.NoSuchWorkflowDefinitionLinkException" %><%@
+page import="com.liferay.portal.exception.NoSuchImageException" %><%@
+page import="com.liferay.portal.exception.NoSuchLayoutException" %><%@
+page import="com.liferay.portal.exception.NoSuchWorkflowDefinitionLinkException" %><%@
 page import="com.liferay.portal.kernel.bean.BeanParamUtil" %><%@
 page import="com.liferay.portal.kernel.dao.orm.QueryUtil" %><%@
 page import="com.liferay.portal.kernel.dao.search.EmptyOnClickRowChecker" %><%@
-page import="com.liferay.portal.kernel.dao.search.RowChecker" %><%@
 page import="com.liferay.portal.kernel.dao.search.SearchContainer" %><%@
 page import="com.liferay.portal.kernel.language.LanguageUtil" %><%@
 page import="com.liferay.portal.kernel.language.UnicodeLanguageUtil" %><%@
@@ -131,6 +132,7 @@ page import="com.liferay.portal.kernel.search.SearchContextFactory" %><%@
 page import="com.liferay.portal.kernel.search.SearchResult" %><%@
 page import="com.liferay.portal.kernel.search.SearchResultUtil" %><%@
 page import="com.liferay.portal.kernel.search.Summary" %><%@
+page import="com.liferay.portal.kernel.security.permission.ActionKeys" %><%@
 page import="com.liferay.portal.kernel.servlet.SessionMessages" %><%@
 page import="com.liferay.portal.kernel.servlet.taglib.ui.FormNavigatorConstants" %><%@
 page import="com.liferay.portal.kernel.upload.LiferayFileItemException" %><%@
@@ -159,13 +161,11 @@ page import="com.liferay.portal.kernel.workflow.WorkflowEngineManagerUtil" %><%@
 page import="com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil" %><%@
 page import="com.liferay.portal.model.*" %><%@
 page import="com.liferay.portal.model.impl.*" %><%@
-page import="com.liferay.portal.security.permission.ActionKeys" %><%@
 page import="com.liferay.portal.service.*" %><%@
 page import="com.liferay.portal.upload.LiferayFileItem" %><%@
 page import="com.liferay.portal.util.PortalUtil" %><%@
 page import="com.liferay.portal.util.PrefsPropsUtil" %><%@
 page import="com.liferay.portlet.PortletURLFactoryUtil" %><%@
-page import="com.liferay.portlet.PortletURLImpl" %><%@
 page import="com.liferay.portlet.PortletURLUtil" %><%@
 page import="com.liferay.portlet.RequestBackedPortletURLFactoryUtil" %><%@
 page import="com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil" %><%@
@@ -174,8 +174,9 @@ page import="com.liferay.portlet.asset.model.AssetRenderer" %><%@
 page import="com.liferay.portlet.asset.model.AssetRendererFactory" %><%@
 page import="com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil" %><%@
 page import="com.liferay.portlet.asset.util.AssetUtil" %><%@
-page import="com.liferay.portlet.documentlibrary.DuplicateFileEntryException" %><%@
-page import="com.liferay.portlet.documentlibrary.FileSizeException" %><%@
+page import="com.liferay.portlet.documentlibrary.exception.DuplicateFileEntryException" %><%@
+page import="com.liferay.portlet.documentlibrary.exception.FileSizeException" %><%@
+page import="com.liferay.portlet.documentlibrary.exception.NoSuchFileEntryException" %><%@
 page import="com.liferay.portlet.documentlibrary.model.DLFileEntry" %><%@
 page import="com.liferay.portlet.trash.util.TrashUtil" %><%@
 page import="com.liferay.taglib.search.ResultRow" %><%@
@@ -185,6 +186,7 @@ page import="com.liferay.util.RSSUtil" %>
 <%@ page import="java.text.Format" %>
 
 <%@ page import="java.util.ArrayList" %><%@
+page import="java.util.Arrays" %><%@
 page import="java.util.Collections" %><%@
 page import="java.util.Date" %><%@
 page import="java.util.HashMap" %><%@

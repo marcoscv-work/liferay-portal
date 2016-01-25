@@ -16,7 +16,7 @@ package com.liferay.portal.service.persistence.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.NoSuchRepositoryException;
+import com.liferay.portal.exception.NoSuchRepositoryException;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
@@ -43,6 +43,7 @@ import com.liferay.portal.model.impl.RepositoryModelImpl;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextThreadLocal;
 import com.liferay.portal.service.persistence.CompanyProvider;
+import com.liferay.portal.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.service.persistence.RepositoryPersistence;
 
 import java.io.Serializable;
@@ -2487,6 +2488,8 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 
 		repository.setUuid(uuid);
 
+		repository.setCompanyId(companyProvider.getCompanyId());
+
 		return repository;
 	}
 
@@ -2737,7 +2740,7 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	}
 
 	/**
-	 * Returns the repository with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the repository with the primary key or throws a {@link com.liferay.portal.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the repository
 	 * @return the repository
@@ -3136,7 +3139,7 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@BeanReference(type = CompanyProvider.class)
+	@BeanReference(type = CompanyProviderWrapper.class)
 	protected CompanyProvider companyProvider;
 	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
 	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();

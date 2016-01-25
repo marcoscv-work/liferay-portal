@@ -16,7 +16,7 @@ package com.liferay.portal.service.persistence.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.NoSuchRecentLayoutBranchException;
+import com.liferay.portal.exception.NoSuchRecentLayoutBranchException;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
@@ -38,6 +38,7 @@ import com.liferay.portal.model.RecentLayoutBranch;
 import com.liferay.portal.model.impl.RecentLayoutBranchImpl;
 import com.liferay.portal.model.impl.RecentLayoutBranchModelImpl;
 import com.liferay.portal.service.persistence.CompanyProvider;
+import com.liferay.portal.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.service.persistence.RecentLayoutBranchPersistence;
 
 import java.io.Serializable;
@@ -2029,6 +2030,8 @@ public class RecentLayoutBranchPersistenceImpl extends BasePersistenceImpl<Recen
 		recentLayoutBranch.setNew(true);
 		recentLayoutBranch.setPrimaryKey(recentLayoutBranchId);
 
+		recentLayoutBranch.setCompanyId(companyProvider.getCompanyId());
+
 		return recentLayoutBranch;
 	}
 
@@ -2246,7 +2249,7 @@ public class RecentLayoutBranchPersistenceImpl extends BasePersistenceImpl<Recen
 	}
 
 	/**
-	 * Returns the recent layout branch with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the recent layout branch with the primary key or throws a {@link com.liferay.portal.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the recent layout branch
 	 * @return the recent layout branch
@@ -2643,7 +2646,7 @@ public class RecentLayoutBranchPersistenceImpl extends BasePersistenceImpl<Recen
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@BeanReference(type = CompanyProvider.class)
+	@BeanReference(type = CompanyProviderWrapper.class)
 	protected CompanyProvider companyProvider;
 	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
 	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();

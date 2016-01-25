@@ -42,6 +42,7 @@ import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextThreadLocal;
 import com.liferay.portal.service.persistence.CompanyProvider;
+import com.liferay.portal.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.spring.extender.service.ServiceReference;
 
@@ -291,7 +292,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a matching microblogs entry could not be found
+	 * @throws NoSuchEntryException if a matching microblogs entry could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByCompanyId_First(long companyId,
@@ -342,7 +343,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a matching microblogs entry could not be found
+	 * @throws NoSuchEntryException if a matching microblogs entry could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByCompanyId_Last(long companyId,
@@ -400,7 +401,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a microblogs entry with the primary key could not be found
+	 * @throws NoSuchEntryException if a microblogs entry with the primary key could not be found
 	 */
 	@Override
 	public MicroblogsEntry[] findByCompanyId_PrevAndNext(
@@ -797,7 +798,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a matching microblogs entry could not be found
+	 * @throws NoSuchEntryException if a matching microblogs entry could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByUserId_First(long userId,
@@ -848,7 +849,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a matching microblogs entry could not be found
+	 * @throws NoSuchEntryException if a matching microblogs entry could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByUserId_Last(long userId,
@@ -906,7 +907,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a microblogs entry with the primary key could not be found
+	 * @throws NoSuchEntryException if a microblogs entry with the primary key could not be found
 	 */
 	@Override
 	public MicroblogsEntry[] findByUserId_PrevAndNext(long microblogsEntryId,
@@ -1318,7 +1319,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param type the type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a matching microblogs entry could not be found
+	 * @throws NoSuchEntryException if a matching microblogs entry could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByU_T_First(long userId, int type,
@@ -1374,7 +1375,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param type the type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a matching microblogs entry could not be found
+	 * @throws NoSuchEntryException if a matching microblogs entry could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByU_T_Last(long userId, int type,
@@ -1437,7 +1438,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param type the type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a microblogs entry with the primary key could not be found
+	 * @throws NoSuchEntryException if a microblogs entry with the primary key could not be found
 	 */
 	@Override
 	public MicroblogsEntry[] findByU_T_PrevAndNext(long microblogsEntryId,
@@ -1873,7 +1874,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param creatorClassPK the creator class p k
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a matching microblogs entry could not be found
+	 * @throws NoSuchEntryException if a matching microblogs entry could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByCCNI_CCPK_First(long creatorClassNameId,
@@ -1931,7 +1932,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param creatorClassPK the creator class p k
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a matching microblogs entry could not be found
+	 * @throws NoSuchEntryException if a matching microblogs entry could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByCCNI_CCPK_Last(long creatorClassNameId,
@@ -1996,7 +1997,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param creatorClassPK the creator class p k
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a microblogs entry with the primary key could not be found
+	 * @throws NoSuchEntryException if a microblogs entry with the primary key could not be found
 	 */
 	@Override
 	public MicroblogsEntry[] findByCCNI_CCPK_PrevAndNext(
@@ -2713,7 +2714,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param type the type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a matching microblogs entry could not be found
+	 * @throws NoSuchEntryException if a matching microblogs entry could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByCCNI_T_First(long creatorClassNameId,
@@ -2769,7 +2770,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param type the type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a matching microblogs entry could not be found
+	 * @throws NoSuchEntryException if a matching microblogs entry could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByCCNI_T_Last(long creatorClassNameId, int type,
@@ -2832,7 +2833,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param type the type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a microblogs entry with the primary key could not be found
+	 * @throws NoSuchEntryException if a microblogs entry with the primary key could not be found
 	 */
 	@Override
 	public MicroblogsEntry[] findByCCNI_T_PrevAndNext(long microblogsEntryId,
@@ -3261,7 +3262,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param parentMicroblogsEntryId the parent microblogs entry ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a matching microblogs entry could not be found
+	 * @throws NoSuchEntryException if a matching microblogs entry could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByT_P_First(int type,
@@ -3319,7 +3320,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param parentMicroblogsEntryId the parent microblogs entry ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a matching microblogs entry could not be found
+	 * @throws NoSuchEntryException if a matching microblogs entry could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByT_P_Last(int type,
@@ -3384,7 +3385,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param parentMicroblogsEntryId the parent microblogs entry ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a microblogs entry with the primary key could not be found
+	 * @throws NoSuchEntryException if a microblogs entry with the primary key could not be found
 	 */
 	@Override
 	public MicroblogsEntry[] findByT_P_PrevAndNext(long microblogsEntryId,
@@ -3843,7 +3844,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param type the type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a matching microblogs entry could not be found
+	 * @throws NoSuchEntryException if a matching microblogs entry could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByCCNI_CCPK_T_First(long creatorClassNameId,
@@ -3906,7 +3907,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param type the type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a matching microblogs entry could not be found
+	 * @throws NoSuchEntryException if a matching microblogs entry could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByCCNI_CCPK_T_Last(long creatorClassNameId,
@@ -3976,7 +3977,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param type the type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a microblogs entry with the primary key could not be found
+	 * @throws NoSuchEntryException if a microblogs entry with the primary key could not be found
 	 */
 	@Override
 	public MicroblogsEntry[] findByCCNI_CCPK_T_PrevAndNext(
@@ -4773,7 +4774,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param socialRelationType the social relation type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a matching microblogs entry could not be found
+	 * @throws NoSuchEntryException if a matching microblogs entry could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByU_C_T_S_First(long userId, Date createDate,
@@ -4841,7 +4842,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param socialRelationType the social relation type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a matching microblogs entry could not be found
+	 * @throws NoSuchEntryException if a matching microblogs entry could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByU_C_T_S_Last(long userId, Date createDate,
@@ -4916,7 +4917,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 * @param socialRelationType the social relation type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a microblogs entry with the primary key could not be found
+	 * @throws NoSuchEntryException if a microblogs entry with the primary key could not be found
 	 */
 	@Override
 	public MicroblogsEntry[] findByU_C_T_S_PrevAndNext(long microblogsEntryId,
@@ -5279,6 +5280,8 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 		microblogsEntry.setNew(true);
 		microblogsEntry.setPrimaryKey(microblogsEntryId);
 
+		microblogsEntry.setCompanyId(companyProvider.getCompanyId());
+
 		return microblogsEntry;
 	}
 
@@ -5287,7 +5290,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 *
 	 * @param microblogsEntryId the primary key of the microblogs entry
 	 * @return the microblogs entry that was removed
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a microblogs entry with the primary key could not be found
+	 * @throws NoSuchEntryException if a microblogs entry with the primary key could not be found
 	 */
 	@Override
 	public MicroblogsEntry remove(long microblogsEntryId)
@@ -5300,7 +5303,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	 *
 	 * @param primaryKey the primary key of the microblogs entry
 	 * @return the microblogs entry that was removed
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a microblogs entry with the primary key could not be found
+	 * @throws NoSuchEntryException if a microblogs entry with the primary key could not be found
 	 */
 	@Override
 	public MicroblogsEntry remove(Serializable primaryKey)
@@ -5629,11 +5632,11 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	}
 
 	/**
-	 * Returns the microblogs entry with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the microblogs entry with the primary key or throws a {@link com.liferay.portal.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the microblogs entry
 	 * @return the microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a microblogs entry with the primary key could not be found
+	 * @throws NoSuchEntryException if a microblogs entry with the primary key could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByPrimaryKey(Serializable primaryKey)
@@ -5653,11 +5656,11 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 	}
 
 	/**
-	 * Returns the microblogs entry with the primary key or throws a {@link com.liferay.microblogs.NoSuchEntryException} if it could not be found.
+	 * Returns the microblogs entry with the primary key or throws a {@link NoSuchEntryException} if it could not be found.
 	 *
 	 * @param microblogsEntryId the primary key of the microblogs entry
 	 * @return the microblogs entry
-	 * @throws com.liferay.microblogs.NoSuchEntryException if a microblogs entry with the primary key could not be found
+	 * @throws NoSuchEntryException if a microblogs entry with the primary key could not be found
 	 */
 	@Override
 	public MicroblogsEntry findByPrimaryKey(long microblogsEntryId)
@@ -6029,7 +6032,7 @@ public class MicroblogsEntryPersistenceImpl extends BasePersistenceImpl<Microblo
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@ServiceReference(type = CompanyProvider.class)
+	@ServiceReference(type = CompanyProviderWrapper.class)
 	protected CompanyProvider companyProvider;
 	@ServiceReference(type = EntityCache.class)
 	protected EntityCache entityCache;

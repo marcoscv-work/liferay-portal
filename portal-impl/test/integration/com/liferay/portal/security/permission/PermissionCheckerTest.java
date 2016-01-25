@@ -14,6 +14,9 @@
 
 package com.liferay.portal.security.permission;
 
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
@@ -283,13 +286,19 @@ public class PermissionCheckerTest {
 
 	@Test
 	public void testIsOmniAdminWithCompanyAdmin() throws Exception {
+		long companyId = CompanyThreadLocal.getCompanyId();
+
 		_company = CompanyTestUtil.addCompany();
+
+		CompanyThreadLocal.setCompanyId(_company.getCompanyId());
 
 		_user = UserTestUtil.addCompanyAdminUser(_company);
 
 		PermissionChecker permissionChecker = _getPermissionChecker(_user);
 
 		Assert.assertFalse(permissionChecker.isOmniadmin());
+
+		CompanyThreadLocal.setCompanyId(companyId);
 	}
 
 	@Test

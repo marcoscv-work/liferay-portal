@@ -34,9 +34,10 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.service.persistence.CompanyProvider;
+import com.liferay.portal.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
-import com.liferay.portlet.social.NoSuchActivityAchievementException;
+import com.liferay.portlet.social.exception.NoSuchActivityAchievementException;
 import com.liferay.portlet.social.model.SocialActivityAchievement;
 import com.liferay.portlet.social.model.impl.SocialActivityAchievementImpl;
 import com.liferay.portlet.social.model.impl.SocialActivityAchievementModelImpl;
@@ -3342,6 +3343,8 @@ public class SocialActivityAchievementPersistenceImpl
 		socialActivityAchievement.setNew(true);
 		socialActivityAchievement.setPrimaryKey(activityAchievementId);
 
+		socialActivityAchievement.setCompanyId(companyProvider.getCompanyId());
+
 		return socialActivityAchievement;
 	}
 
@@ -3611,7 +3614,7 @@ public class SocialActivityAchievementPersistenceImpl
 	}
 
 	/**
-	 * Returns the social activity achievement with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the social activity achievement with the primary key or throws a {@link com.liferay.portal.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the social activity achievement
 	 * @return the social activity achievement
@@ -4009,7 +4012,7 @@ public class SocialActivityAchievementPersistenceImpl
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@BeanReference(type = CompanyProvider.class)
+	@BeanReference(type = CompanyProviderWrapper.class)
 	protected CompanyProvider companyProvider;
 	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
 	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();

@@ -59,6 +59,13 @@ public class CalendarPortletDataHandler extends BasePortletDataHandler {
 
 	public static final String NAMESPACE = "calendar";
 
+	public static final String SCHEMA_VERSION = "1.0.0";
+
+	@Override
+	public String getSchemaVersion() {
+		return SCHEMA_VERSION;
+	}
+
 	@Activate
 	protected void activate() {
 		setDataLocalized(true);
@@ -345,10 +352,10 @@ public class CalendarPortletDataHandler extends BasePortletDataHandler {
 	protected static final String RESOURCE_NAME =
 		"com.liferay.portlet.calendar";
 
-	private volatile CalendarBookingLocalService _calendarBookingLocalService;
-	private volatile CalendarLocalService _calendarLocalService;
-	private volatile CalendarNotificationTemplateLocalService
+	private CalendarBookingLocalService _calendarBookingLocalService;
+	private CalendarLocalService _calendarLocalService;
+	private CalendarNotificationTemplateLocalService
 		_calendarNotificationTemplateLocalService;
-	private volatile CalendarResourceLocalService _calendarResourceLocalService;
+	private CalendarResourceLocalService _calendarResourceLocalService;
 
 }

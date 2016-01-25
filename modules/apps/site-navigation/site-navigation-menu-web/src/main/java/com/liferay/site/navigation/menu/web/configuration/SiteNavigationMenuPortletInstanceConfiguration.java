@@ -16,14 +16,14 @@ package com.liferay.site.navigation.menu.web.configuration;
 
 import aQute.bnd.annotation.metatype.Meta;
 
-import com.liferay.configuration.admin.ConfigurationAdmin;
+import com.liferay.portal.metatype.annotations.ExtendedObjectClassDefinition;
 
 /**
  * @author Juergen Kappler
  */
-@ConfigurationAdmin(
+@ExtendedObjectClassDefinition(
 	category = "web-experience-management",
-	scope = ConfigurationAdmin.Scope.PORTLET_INSTANCE
+	scope = ExtendedObjectClassDefinition.Scope.PORTLET_INSTANCE
 )
 @Meta.OCD(
 	id = "com.liferay.site.navigation.menu.web.configuration.SiteNavigationMenuPortletInstanceConfiguration",
@@ -52,5 +52,8 @@ public interface SiteNavigationMenuPortletInstanceConfiguration {
 
 	@Meta.AD(deflt = "absolute", required = false)
 	public String rootLayoutType();
+
+	@Meta.AD(required = false)
+	public String rootLayoutUuid();
 
 }

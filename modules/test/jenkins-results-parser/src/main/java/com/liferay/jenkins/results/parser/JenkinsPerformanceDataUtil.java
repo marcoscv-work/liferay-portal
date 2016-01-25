@@ -14,6 +14,8 @@
 
 package com.liferay.jenkins.results.parser;
 
+import java.io.FileNotFoundException;
+
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -31,29 +33,55 @@ import org.json.JSONObject;
 public class JenkinsPerformanceDataUtil {
 
 	public static List<Result> getSlowestResults() {
+		if (_broken) {
+			return null;
+		}
+
 		return _results;
 	}
 
 	public static void processPerformanceData(
-			String jobName, String url, int size)
-		throws Exception {
+		String jobName, String url, int size) {
 
-		JSONObject jsonObject = null;
-
-		if (url.contains("-source")) {
-			jsonObject = JenkinsResultsParserUtil.toJSONObject(
-				JenkinsResultsParserUtil.getLocalURL(url + "/api/json"), false);
-
-			_results.add(new Result(jobName, jsonObject));
+		if (_broken) {
+			return;
 		}
-		else {
+
+		try {
+			JSONObject jsonObject = null;
+
+			if (url.contains("-source")) {
+				jsonObject = JenkinsResultsParserUtil.toJSONObject(
+					JenkinsResultsParserUtil.getLocalURL(url + "/api/json"),
+					false);
+
+				_results.add(new Result(jobName, jsonObject));
+
+				Collections.sort(_results);
+
+				_truncate(_results, size);
+
+				return;
+			}
+
 			int retryCount = 0;
 
 			while (true) {
-				jsonObject = JenkinsResultsParserUtil.toJSONObject(
-					JenkinsResultsParserUtil.getLocalURL(
-						url + "/testReport/api/json"),
-					false);
+				try {
+					jsonObject = JenkinsResultsParserUtil.toJSONObject(
+						JenkinsResultsParserUtil.getLocalURL(
+							url + "/testReport/api/json"),
+						false);
+				}
+				catch (FileNotFoundException fnfe) {
+					jsonObject = JenkinsResultsParserUtil.toJSONObject(
+						JenkinsResultsParserUtil.getLocalURL(url + "/api/json"),
+						false);
+
+					_results.add(new Result(jobName, jsonObject));
+
+					break;
+				}
 
 				try {
 					_results.addAll(
@@ -62,12 +90,6 @@ public class JenkinsPerformanceDataUtil {
 					break;
 				}
 				catch (IllegalArgumentException iae) {
-					String message = iae.getMessage();
-
-					if (!message.contains("Result is not available for ")) {
-						throw iae;
-					}
-
 					retryCount++;
 
 					if (retryCount > 5) {
@@ -76,19 +98,29 @@ public class JenkinsPerformanceDataUtil {
 						throw iae;
 					}
 
-					System.out.println("Retry in 30 seconds: " + message);
+					System.out.println(
+						"Retry in 60 seconds: " + iae.getMessage());
 
-					Thread.sleep(30 * 1000);
+					Thread.sleep(60 * 1000);
 				}
 			}
+
+			Collections.sort(_results);
+
+			_truncate(_results, size);
 		}
+		catch (Exception e) {
+			System.out.println("Unable to parse performance data.");
 
-		Collections.sort(_results);
+			e.printStackTrace();
 
-		_truncate(_results, size);
+			_broken = true;
+		}
 	}
 
 	public static void reset() {
+		_broken = false;
+
 		_results.clear();
 	}
 
@@ -229,12 +261,20 @@ public class JenkinsPerformanceDataUtil {
 			JSONObject childReportJSONObject =
 				childReportsJSONArray.getJSONObject(i);
 
+			if (!childReportJSONObject.has("child") ||
+				childReportJSONObject.isNull("child")) {
+
+				throw new IllegalArgumentException("Child element is missing");
+			}
+
 			JSONObject childJSONObject = childReportJSONObject.getJSONObject(
 				"child");
 
-			if (!childReportJSONObject.has("result")) {
+			if (!childReportJSONObject.has("result") ||
+				childReportJSONObject.isNull("result")) {
+
 				throw new IllegalArgumentException(
-					"Result is not available for " +
+					"Result element is missing for " +
 						childJSONObject.getString("url"));
 			}
 
@@ -278,6 +318,7 @@ public class JenkinsPerformanceDataUtil {
 		subList.clear();
 	}
 
+	private static boolean _broken;
 	private static final List<Result> _results = new ArrayList<>();
 
 }

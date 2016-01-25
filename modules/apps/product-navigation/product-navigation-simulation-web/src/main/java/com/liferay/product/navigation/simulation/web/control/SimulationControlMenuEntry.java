@@ -20,9 +20,9 @@ import com.liferay.control.menu.BaseJSPControlMenuEntry;
 import com.liferay.control.menu.ControlMenuEntry;
 import com.liferay.control.menu.constants.ControlMenuCategoryKeys;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.Layout;
-import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.product.navigation.simulation.application.list.SimulationPanelCategory;
@@ -55,9 +55,7 @@ public class SimulationControlMenuEntry
 	}
 
 	@Override
-	public boolean hasAccessPermission(HttpServletRequest request)
-		throws PortalException {
-
+	public boolean isShow(HttpServletRequest request) throws PortalException {
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
@@ -79,7 +77,7 @@ public class SimulationControlMenuEntry
 			return false;
 		}
 
-		return super.hasAccessPermission(request);
+		return super.isShow(request);
 	}
 
 	@Override
@@ -104,6 +102,6 @@ public class SimulationControlMenuEntry
 		_panelAppRegistry = panelAppRegistry;
 	}
 
-	private volatile PanelAppRegistry _panelAppRegistry;
+	private PanelAppRegistry _panelAppRegistry;
 
 }

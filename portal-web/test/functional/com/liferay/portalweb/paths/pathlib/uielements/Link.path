@@ -14,6 +14,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>BACK</td>
+	<td>//a[contains(.,'Back')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>CHANGE_EMAIL_ADDRESS</td>
 	<td>//div/a[contains(.,'Change Email Address')]</td>
 	<td></td>
@@ -81,6 +86,11 @@
 <tr>
 	<td>SEND_NEW_VERIFICATION_CODE</td>
 	<td>//div/a[contains(.,'Send New Verification Code')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>STAGING</td>
+	<td>//a[contains(@data-qa-id,'staging')]</td>
 	<td></td>
 </tr>
 <tr>

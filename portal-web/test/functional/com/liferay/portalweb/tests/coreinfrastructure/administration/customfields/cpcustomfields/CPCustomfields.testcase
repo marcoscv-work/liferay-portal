@@ -2,14 +2,7 @@
 	<property name="testray.main.component.name" value="Custom Fields" />
 
 	<set-up>
-		<var method="TestPropsUtil#get('test.portal.instance')" name="testPortalInstance" />
-
-		<if>
-			<equals arg1="${testPortalInstance}" arg2="true" />
-			<then>
-				<execute macro="SignIn#signInPortalInstanceSetUp" />
-			</then>
-		</if>
+		<execute macro="TestCase#setUpPortalInstance" />
 
 		<execute macro="User#firstLoginPG" />
 	</set-up>
@@ -280,7 +273,7 @@
 			<var name="resourceName" value="Wiki Page" />
 		</execute>
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="Wiki Test Page" />
 		</execute>
 
@@ -296,7 +289,7 @@
 			<var name="pageName" value="Wiki Test Page" />
 		</execute>
 
-		<execute macro="WikiPage#gotoAllPagesPG" />
+		<execute macro="WikiNavigator#gotoAllPagesPG" />
 
 		<execute macro="WikiPage#addPG">
 			<var name="customFieldText" value="Wiki Text Custom Field" />
@@ -320,7 +313,7 @@
 			<var name="pageName" value="Wiki Test Page" />
 		</execute>
 
-		<execute macro="WikiPage#gotoPG">
+		<execute macro="WikiNavigator#gotoPG">
 			<var name="wikiPageTitle" value="Wiki Page Title" />
 		</execute>
 
@@ -335,7 +328,7 @@
 			<var name="pageName" value="Wiki Test Page" />
 		</execute>
 
-		<execute macro="WikiPage#gotoPG">
+		<execute macro="WikiNavigator#gotoPG">
 			<var name="wikiPageTitle" value="Wiki Page Title" />
 		</execute>
 

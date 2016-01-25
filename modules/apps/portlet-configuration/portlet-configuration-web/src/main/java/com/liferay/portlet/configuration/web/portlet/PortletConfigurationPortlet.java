@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.ConfigurationAction;
 import com.liferay.portal.kernel.portlet.PortletLayoutListener;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.security.permission.PermissionPropagator;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.settings.ArchivedSettings;
@@ -44,7 +45,6 @@ import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.PortletConstants;
 import com.liferay.portal.model.PortletPreferencesIds;
 import com.liferay.portal.model.PublicRenderParameter;
-import com.liferay.portal.security.permission.PermissionPropagator;
 import com.liferay.portal.service.GroupLocalService;
 import com.liferay.portal.service.LayoutLocalService;
 import com.liferay.portal.service.PortletLocalService;
@@ -58,9 +58,9 @@ import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.PortletConfigFactoryUtil;
 import com.liferay.portlet.PortletConfigImpl;
+import com.liferay.portlet.configuration.kernel.util.PortletConfigurationUtil;
 import com.liferay.portlet.configuration.web.upgrade.PortletConfigurationWebUpgrade;
 import com.liferay.portlet.portletconfiguration.action.ActionUtil;
-import com.liferay.portlet.portletconfiguration.util.PortletConfigurationUtil;
 import com.liferay.portlet.portletconfiguration.util.PublicRenderParameterConfiguration;
 
 import java.io.IOException;
@@ -985,16 +985,15 @@ public class PortletConfigurationPortlet extends MVCPortlet {
 	private static final Log _log = LogFactoryUtil.getLog(
 		PortletConfigurationPortlet.class);
 
-	private volatile GroupLocalService _groupLocalService;
-	private volatile LayoutLocalService _layoutLocalService;
-	private volatile PortletLocalService _portletLocalService;
-	private volatile PortletPreferencesLocalService
-		_portletPreferencesLocalService;
+	private GroupLocalService _groupLocalService;
+	private LayoutLocalService _layoutLocalService;
+	private PortletLocalService _portletLocalService;
+	private PortletPreferencesLocalService _portletPreferencesLocalService;
 	private final ThreadLocal<PortletRequest> _portletRequestThreadLocal =
 		new AutoResetThreadLocal<>("_portletRequestThreadLocal");
-	private volatile ResourceBlockLocalService _resourceBlockLocalService;
-	private volatile ResourceBlockService _resourceBlockService;
-	private volatile ResourcePermissionService _resourcePermissionService;
+	private ResourceBlockLocalService _resourceBlockLocalService;
+	private ResourceBlockService _resourceBlockService;
+	private ResourcePermissionService _resourcePermissionService;
 
 	private class PortletConfigurationPortletPortletConfig
 		extends PortletConfigImpl {

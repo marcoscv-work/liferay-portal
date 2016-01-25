@@ -19,12 +19,12 @@ import com.liferay.portal.kernel.dao.search.RowChecker;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.wiki.model.WikiNode;
 import com.liferay.wiki.service.WikiNodeServiceUtil;
@@ -81,21 +81,17 @@ public class NodesChecker extends EmptyOnClickRowChecker {
 		String name = WikiNode.class.getSimpleName();
 		boolean showInput = false;
 
-		try {
-			if (WikiNodePermissionChecker.contains(
-					_permissionChecker, node, ActionKeys.DELETE)) {
+		if (WikiNodePermissionChecker.contains(
+				_permissionChecker, node, ActionKeys.DELETE)) {
 
-				showInput = true;
-			}
-		}
-		catch (Exception e) {
+			showInput = true;
 		}
 
 		if (!showInput) {
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(9);
+		StringBundler sb = new StringBundler(5);
 
 		sb.append("['");
 		sb.append(_liferayPortletResponse.getNamespace());
