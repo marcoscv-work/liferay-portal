@@ -97,7 +97,7 @@ request.setAttribute("view.jsp-orderByType", orderByType);
 	<portlet:param name="<%= Constants.CMD %>" value="<%= Constants.RESTORE %>" />
 </portlet:actionURL>
 
-<liferay-ui:trash-undo
+<liferay-trash:undo
 	portletURL="<%= restoreTrashEntriesURL %>"
 />
 
@@ -271,7 +271,7 @@ if (!defaultFolderView && (folder != null) && (portletName.equals(DLPortletKeys.
 	);
 
 	var clearDocumentLibraryHandles = function(event) {
-		if (event.portletId === '<%= portletDisplay.getRootPortletId() %>') {
+		if (event.portletId === '<%= portletDisplay.getId() %>') {
 			documentLibrary.destroy();
 
 			Liferay.detach('destroyPortlet', clearDocumentLibraryHandles);

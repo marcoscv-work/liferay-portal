@@ -45,6 +45,7 @@ import com.liferay.portal.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextThreadLocal;
 import com.liferay.portal.service.persistence.CompanyProvider;
+import com.liferay.portal.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.spring.extender.service.ServiceReference;
 
@@ -304,7 +305,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByUuid_First(String uuid,
@@ -353,7 +354,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByUuid_Last(String uuid,
@@ -410,7 +411,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByUuid_PrevAndNext(long pageId, String uuid,
@@ -655,12 +656,12 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 			new String[] { String.class.getName(), Long.class.getName() });
 
 	/**
-	 * Returns the wiki page where uuid = &#63; and groupId = &#63; or throws a {@link com.liferay.wiki.NoSuchPageException} if it could not be found.
+	 * Returns the wiki page where uuid = &#63; and groupId = &#63; or throws a {@link NoSuchPageException} if it could not be found.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @return the matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByUUID_G(String uuid, long groupId)
@@ -1121,7 +1122,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByUuid_C_First(String uuid, long companyId,
@@ -1177,7 +1178,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByUuid_C_Last(String uuid, long companyId,
@@ -1240,7 +1241,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByUuid_C_PrevAndNext(long pageId, String uuid,
@@ -1685,7 +1686,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param resourcePrimKey the resource prim key
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByResourcePrimKey_First(long resourcePrimKey,
@@ -1736,7 +1737,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param resourcePrimKey the resource prim key
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByResourcePrimKey_Last(long resourcePrimKey,
@@ -1794,7 +1795,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param resourcePrimKey the resource prim key
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByResourcePrimKey_PrevAndNext(long pageId,
@@ -2189,7 +2190,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param nodeId the node ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByNodeId_First(long nodeId,
@@ -2238,7 +2239,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param nodeId the node ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByNodeId_Last(long nodeId,
@@ -2295,7 +2296,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param nodeId the node ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByNodeId_PrevAndNext(long pageId, long nodeId,
@@ -2704,7 +2705,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param format the format
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByFormat_First(String format,
@@ -2753,7 +2754,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param format the format
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByFormat_Last(String format,
@@ -2810,7 +2811,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param format the format
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByFormat_PrevAndNext(long pageId, String format,
@@ -3252,7 +3253,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param nodeId the node ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByR_N_First(long resourcePrimKey, long nodeId,
@@ -3308,7 +3309,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param nodeId the node ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByR_N_Last(long resourcePrimKey, long nodeId,
@@ -3371,7 +3372,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param nodeId the node ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByR_N_PrevAndNext(long pageId, long resourcePrimKey,
@@ -3795,7 +3796,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByR_S_First(long resourcePrimKey, int status,
@@ -3851,7 +3852,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByR_S_Last(long resourcePrimKey, int status,
@@ -3914,7 +3915,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByR_S_PrevAndNext(long pageId, long resourcePrimKey,
@@ -4349,7 +4350,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param title the title
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_T_First(long nodeId, String title,
@@ -4403,7 +4404,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param title the title
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_T_Last(long nodeId, String title,
@@ -4465,7 +4466,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param title the title
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByN_T_PrevAndNext(long pageId, long nodeId,
@@ -4917,7 +4918,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_First(long nodeId, boolean head,
@@ -4971,7 +4972,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_Last(long nodeId, boolean head,
@@ -5033,7 +5034,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByN_H_PrevAndNext(long pageId, long nodeId,
@@ -5471,7 +5472,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param parentTitle the parent title
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_P_First(long nodeId, String parentTitle,
@@ -5527,7 +5528,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param parentTitle the parent title
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_P_Last(long nodeId, String parentTitle,
@@ -5590,7 +5591,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param parentTitle the parent title
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByN_P_PrevAndNext(long pageId, long nodeId,
@@ -6058,7 +6059,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param redirectTitle the redirect title
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_R_First(long nodeId, String redirectTitle,
@@ -6114,7 +6115,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param redirectTitle the redirect title
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_R_Last(long nodeId, String redirectTitle,
@@ -6177,7 +6178,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param redirectTitle the redirect title
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByN_R_PrevAndNext(long pageId, long nodeId,
@@ -6628,7 +6629,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_S_First(long nodeId, int status,
@@ -6682,7 +6683,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_S_Last(long nodeId, int status,
@@ -6744,7 +6745,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByN_S_PrevAndNext(long pageId, long nodeId,
@@ -6977,13 +6978,13 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 			});
 
 	/**
-	 * Returns the wiki page where resourcePrimKey = &#63; and nodeId = &#63; and version = &#63; or throws a {@link com.liferay.wiki.NoSuchPageException} if it could not be found.
+	 * Returns the wiki page where resourcePrimKey = &#63; and nodeId = &#63; and version = &#63; or throws a {@link NoSuchPageException} if it could not be found.
 	 *
 	 * @param resourcePrimKey the resource prim key
 	 * @param nodeId the node ID
 	 * @param version the version
 	 * @return the matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByR_N_V(long resourcePrimKey, long nodeId,
@@ -7437,7 +7438,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByR_N_H_First(long resourcePrimKey, long nodeId,
@@ -7498,7 +7499,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByR_N_H_Last(long resourcePrimKey, long nodeId,
@@ -7566,7 +7567,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByR_N_H_PrevAndNext(long pageId,
@@ -8021,7 +8022,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByR_N_S_First(long resourcePrimKey, long nodeId,
@@ -8082,7 +8083,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByR_N_S_Last(long resourcePrimKey, long nodeId,
@@ -8150,7 +8151,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByR_N_S_PrevAndNext(long pageId,
@@ -8603,7 +8604,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByG_N_H_First(long groupId, long nodeId, boolean head,
@@ -8664,7 +8665,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByG_N_H_Last(long groupId, long nodeId, boolean head,
@@ -8732,7 +8733,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByG_N_H_PrevAndNext(long pageId, long groupId,
@@ -9028,7 +9029,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] filterFindByG_N_H_PrevAndNext(long pageId, long groupId,
@@ -9578,7 +9579,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByG_N_S_First(long groupId, long nodeId, int status,
@@ -9639,7 +9640,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByG_N_S_Last(long groupId, long nodeId, int status,
@@ -9707,7 +9708,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByG_N_S_PrevAndNext(long pageId, long groupId,
@@ -10003,7 +10004,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] filterFindByG_N_S_PrevAndNext(long pageId, long groupId,
@@ -10553,7 +10554,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByU_N_S_First(long userId, long nodeId, int status,
@@ -10614,7 +10615,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByU_N_S_Last(long userId, long nodeId, int status,
@@ -10682,7 +10683,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByU_N_S_PrevAndNext(long pageId, long userId,
@@ -10926,13 +10927,13 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 			});
 
 	/**
-	 * Returns the wiki page where nodeId = &#63; and title = &#63; and version = &#63; or throws a {@link com.liferay.wiki.NoSuchPageException} if it could not be found.
+	 * Returns the wiki page where nodeId = &#63; and title = &#63; and version = &#63; or throws a {@link NoSuchPageException} if it could not be found.
 	 *
 	 * @param nodeId the node ID
 	 * @param title the title
 	 * @param version the version
 	 * @return the matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_T_V(long nodeId, String title, double version)
@@ -11427,7 +11428,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_T_H_First(long nodeId, String title, boolean head,
@@ -11488,7 +11489,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_T_H_Last(long nodeId, String title, boolean head,
@@ -11556,7 +11557,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByN_T_H_PrevAndNext(long pageId, long nodeId,
@@ -12052,7 +12053,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_T_S_First(long nodeId, String title, int status,
@@ -12113,7 +12114,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_T_S_Last(long nodeId, String title, int status,
@@ -12181,7 +12182,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByN_T_S_PrevAndNext(long pageId, long nodeId,
@@ -12680,7 +12681,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param parentTitle the parent title
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_P_First(long nodeId, boolean head,
@@ -12741,7 +12742,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param parentTitle the parent title
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_P_Last(long nodeId, boolean head,
@@ -12809,7 +12810,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param parentTitle the parent title
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByN_H_P_PrevAndNext(long pageId, long nodeId,
@@ -13309,7 +13310,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param redirectTitle the redirect title
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_R_First(long nodeId, boolean head,
@@ -13370,7 +13371,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param redirectTitle the redirect title
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_R_Last(long nodeId, boolean head,
@@ -13438,7 +13439,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param redirectTitle the redirect title
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByN_H_R_PrevAndNext(long pageId, long nodeId,
@@ -13921,7 +13922,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_S_First(long nodeId, boolean head, int status,
@@ -13982,7 +13983,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_S_Last(long nodeId, boolean head, int status,
@@ -14050,7 +14051,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByN_H_S_PrevAndNext(long pageId, long nodeId,
@@ -14483,7 +14484,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_NotS_First(long nodeId, boolean head, int status,
@@ -14544,7 +14545,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_NotS_Last(long nodeId, boolean head, int status,
@@ -14612,7 +14613,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByN_H_NotS_PrevAndNext(long pageId, long nodeId,
@@ -15078,7 +15079,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByG_U_N_S_First(long groupId, long userId, long nodeId,
@@ -15144,7 +15145,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByG_U_N_S_Last(long groupId, long userId, long nodeId,
@@ -15217,7 +15218,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByG_U_N_S_PrevAndNext(long pageId, long groupId,
@@ -15527,7 +15528,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] filterFindByG_U_N_S_PrevAndNext(long pageId,
@@ -16123,7 +16124,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByG_N_T_H_First(long groupId, long nodeId,
@@ -16191,7 +16192,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByG_N_T_H_Last(long groupId, long nodeId, String title,
@@ -16265,7 +16266,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByG_N_T_H_PrevAndNext(long pageId, long groupId,
@@ -16604,7 +16605,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param head the head
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] filterFindByG_N_T_H_PrevAndNext(long pageId,
@@ -17233,7 +17234,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByG_N_H_S_First(long groupId, long nodeId,
@@ -17299,7 +17300,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByG_N_H_S_Last(long groupId, long nodeId, boolean head,
@@ -17372,7 +17373,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByG_N_H_S_PrevAndNext(long pageId, long groupId,
@@ -17682,7 +17683,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] filterFindByG_N_H_S_PrevAndNext(long pageId,
@@ -18281,7 +18282,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_P_S_First(long nodeId, boolean head,
@@ -18349,7 +18350,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_P_S_Last(long nodeId, boolean head,
@@ -18424,7 +18425,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByN_H_P_S_PrevAndNext(long pageId, long nodeId,
@@ -18931,7 +18932,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_P_NotS_First(long nodeId, boolean head,
@@ -18999,7 +19000,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_P_NotS_Last(long nodeId, boolean head,
@@ -19074,7 +19075,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByN_H_P_NotS_PrevAndNext(long pageId, long nodeId,
@@ -19601,7 +19602,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_R_S_First(long nodeId, boolean head,
@@ -19669,7 +19670,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_R_S_Last(long nodeId, boolean head,
@@ -19744,7 +19745,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByN_H_R_S_PrevAndNext(long pageId, long nodeId,
@@ -20251,7 +20252,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_R_NotS_First(long nodeId, boolean head,
@@ -20319,7 +20320,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByN_H_R_NotS_Last(long nodeId, boolean head,
@@ -20394,7 +20395,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByN_H_R_NotS_PrevAndNext(long pageId, long nodeId,
@@ -20936,7 +20937,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByG_N_H_P_S_First(long groupId, long nodeId,
@@ -21009,7 +21010,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a matching wiki page could not be found
+	 * @throws NoSuchPageException if a matching wiki page could not be found
 	 */
 	@Override
 	public WikiPage findByG_N_H_P_S_Last(long groupId, long nodeId,
@@ -21089,7 +21090,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] findByG_N_H_P_S_PrevAndNext(long pageId, long groupId,
@@ -21440,7 +21441,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage[] filterFindByG_N_H_P_S_PrevAndNext(long pageId,
@@ -22099,6 +22100,8 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 
 		wikiPage.setUuid(uuid);
 
+		wikiPage.setCompanyId(companyProvider.getCompanyId());
+
 		return wikiPage;
 	}
 
@@ -22107,7 +22110,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 *
 	 * @param pageId the primary key of the wiki page
 	 * @return the wiki page that was removed
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage remove(long pageId) throws NoSuchPageException {
@@ -22119,7 +22122,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	 *
 	 * @param primaryKey the primary key of the wiki page
 	 * @return the wiki page that was removed
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage remove(Serializable primaryKey) throws NoSuchPageException {
@@ -22943,11 +22946,11 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	}
 
 	/**
-	 * Returns the wiki page with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the wiki page with the primary key or throws a {@link com.liferay.portal.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the wiki page
 	 * @return the wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage findByPrimaryKey(Serializable primaryKey)
@@ -22967,11 +22970,11 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 	}
 
 	/**
-	 * Returns the wiki page with the primary key or throws a {@link com.liferay.wiki.NoSuchPageException} if it could not be found.
+	 * Returns the wiki page with the primary key or throws a {@link NoSuchPageException} if it could not be found.
 	 *
 	 * @param pageId the primary key of the wiki page
 	 * @return the wiki page
-	 * @throws com.liferay.wiki.NoSuchPageException if a wiki page with the primary key could not be found
+	 * @throws NoSuchPageException if a wiki page with the primary key could not be found
 	 */
 	@Override
 	public WikiPage findByPrimaryKey(long pageId) throws NoSuchPageException {
@@ -23339,7 +23342,7 @@ public class WikiPagePersistenceImpl extends BasePersistenceImpl<WikiPage>
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@ServiceReference(type = CompanyProvider.class)
+	@ServiceReference(type = CompanyProviderWrapper.class)
 	protected CompanyProvider companyProvider;
 	@ServiceReference(type = EntityCache.class)
 	protected EntityCache entityCache;

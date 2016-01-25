@@ -16,7 +16,7 @@ package com.liferay.portal.service.persistence.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.NoSuchPortletException;
+import com.liferay.portal.exception.NoSuchPortletException;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
@@ -40,6 +40,7 @@ import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.impl.PortletImpl;
 import com.liferay.portal.model.impl.PortletModelImpl;
 import com.liferay.portal.service.persistence.CompanyProvider;
+import com.liferay.portal.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.service.persistence.PortletPersistence;
 
 import java.io.Serializable;
@@ -989,6 +990,8 @@ public class PortletPersistenceImpl extends BasePersistenceImpl<Portlet>
 		portlet.setNew(true);
 		portlet.setPrimaryKey(id);
 
+		portlet.setCompanyId(companyProvider.getCompanyId());
+
 		return portlet;
 	}
 
@@ -1161,7 +1164,7 @@ public class PortletPersistenceImpl extends BasePersistenceImpl<Portlet>
 	}
 
 	/**
-	 * Returns the portlet with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the portlet with the primary key or throws a {@link com.liferay.portal.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the portlet
 	 * @return the portlet
@@ -1557,7 +1560,7 @@ public class PortletPersistenceImpl extends BasePersistenceImpl<Portlet>
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@BeanReference(type = CompanyProvider.class)
+	@BeanReference(type = CompanyProviderWrapper.class)
 	protected CompanyProvider companyProvider;
 	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
 	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();

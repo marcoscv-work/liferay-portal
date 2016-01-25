@@ -322,7 +322,7 @@ public class DLFileVersionWrapper implements DLFileVersion,
 	}
 
 	@Override
-	public java.util.List<com.liferay.portlet.dynamicdatamapping.DDMStructure> getDDMStructures()
+	public java.util.List<com.liferay.dynamic.data.mapping.kernel.DDMStructure> getDDMStructures()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _dlFileVersion.getDDMStructures();
 	}
@@ -1141,14 +1141,6 @@ public class DLFileVersionWrapper implements DLFileVersion,
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _dlFileVersion.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public DLFileVersion getWrappedDLFileVersion() {
-		return _dlFileVersion;
 	}
 
 	@Override

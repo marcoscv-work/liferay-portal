@@ -23,6 +23,7 @@ taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
 taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %><%@
 taglib uri="http://liferay.com/tld/security" prefix="liferay-security" %><%@
 taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
+taglib uri="http://liferay.com/tld/trash" prefix="liferay-trash" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
 taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 
@@ -47,6 +48,7 @@ page import="com.liferay.bookmarks.web.dao.search.BookmarksResultRowSplitter" %>
 page import="com.liferay.bookmarks.web.portlet.toolbar.contributor.BookmarksPortletToolbarContributor" %><%@
 page import="com.liferay.bookmarks.web.portlet.util.BookmarksUtil" %><%@
 page import="com.liferay.bookmarks.web.search.EntriesChecker" %><%@
+page import="com.liferay.bookmarks.web.search.EntriesMover" %><%@
 page import="com.liferay.frontend.taglib.servlet.taglib.AddMenuItem" %><%@
 page import="com.liferay.portal.kernel.bean.BeanParamUtil" %><%@
 page import="com.liferay.portal.kernel.dao.search.ResultRow" %><%@

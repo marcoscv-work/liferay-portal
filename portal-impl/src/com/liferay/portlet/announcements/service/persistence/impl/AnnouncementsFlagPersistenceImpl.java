@@ -33,9 +33,10 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.service.persistence.CompanyProvider;
+import com.liferay.portal.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
-import com.liferay.portlet.announcements.NoSuchFlagException;
+import com.liferay.portlet.announcements.exception.NoSuchFlagException;
 import com.liferay.portlet.announcements.model.AnnouncementsFlag;
 import com.liferay.portlet.announcements.model.impl.AnnouncementsFlagImpl;
 import com.liferay.portlet.announcements.model.impl.AnnouncementsFlagModelImpl;
@@ -1005,6 +1006,8 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 		announcementsFlag.setNew(true);
 		announcementsFlag.setPrimaryKey(flagId);
 
+		announcementsFlag.setCompanyId(companyProvider.getCompanyId());
+
 		return announcementsFlag;
 	}
 
@@ -1180,7 +1183,7 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	}
 
 	/**
-	 * Returns the announcements flag with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the announcements flag with the primary key or throws a {@link com.liferay.portal.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the announcements flag
 	 * @return the announcements flag
@@ -1576,7 +1579,7 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@BeanReference(type = CompanyProvider.class)
+	@BeanReference(type = CompanyProviderWrapper.class)
 	protected CompanyProvider companyProvider;
 	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
 	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();

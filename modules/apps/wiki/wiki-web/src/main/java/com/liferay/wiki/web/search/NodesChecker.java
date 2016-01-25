@@ -81,21 +81,17 @@ public class NodesChecker extends EmptyOnClickRowChecker {
 		String name = WikiNode.class.getSimpleName();
 		boolean showInput = false;
 
-		try {
-			if (WikiNodePermissionChecker.contains(
-					_permissionChecker, node, ActionKeys.DELETE)) {
+		if (WikiNodePermissionChecker.contains(
+				_permissionChecker, node, ActionKeys.DELETE)) {
 
-				showInput = true;
-			}
-		}
-		catch (Exception e) {
+			showInput = true;
 		}
 
 		if (!showInput) {
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(9);
+		StringBundler sb = new StringBundler(5);
 
 		sb.append("['");
 		sb.append(_liferayPortletResponse.getNamespace());

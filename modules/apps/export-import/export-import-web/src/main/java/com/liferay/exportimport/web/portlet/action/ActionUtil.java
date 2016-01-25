@@ -14,6 +14,8 @@
 
 package com.liferay.exportimport.web.portlet.action;
 
+import com.liferay.portal.kernel.backgroundtask.BackgroundTaskConstants;
+import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManagerUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.PortletConfigurationLayoutUtil;
 import com.liferay.portal.kernel.util.Constants;
@@ -33,10 +35,10 @@ import com.liferay.portal.service.permission.PortletPermissionUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.PortletPreferencesFactoryUtil;
+import com.liferay.portlet.configuration.kernel.util.PortletConfigurationUtil;
 import com.liferay.portlet.portletconfiguration.util.ConfigurationActionRequest;
 import com.liferay.portlet.portletconfiguration.util.ConfigurationRenderRequest;
 import com.liferay.portlet.portletconfiguration.util.ConfigurationResourceRequest;
-import com.liferay.portlet.portletconfiguration.util.PortletConfigurationUtil;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.PortletPreferences;
@@ -51,6 +53,15 @@ import javax.servlet.http.HttpServletRequest;
  * @author Daniel Kocsis
  */
 public class ActionUtil {
+
+	public static void deleteBackgroundTask(ActionRequest actionRequest)
+		throws PortalException {
+
+		long backgroundTaskId = ParamUtil.getLong(
+			actionRequest, BackgroundTaskConstants.BACKGROUND_TASK_ID);
+
+		BackgroundTaskManagerUtil.deleteBackgroundTask(backgroundTaskId);
+	}
 
 	public static Group getGroup(HttpServletRequest request) throws Exception {
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(

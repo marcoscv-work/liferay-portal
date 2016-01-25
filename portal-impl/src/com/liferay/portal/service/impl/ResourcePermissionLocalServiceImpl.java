@@ -14,14 +14,14 @@
 
 package com.liferay.portal.service.impl;
 
-import com.liferay.portal.NoSuchResourcePermissionException;
+import com.liferay.portal.exception.NoSuchResourcePermissionException;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.SQLQuery;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.Type;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.search.SearchEngineUtil;
+import com.liferay.portal.kernel.search.IndexWriterHelperUtil;
 import com.liferay.portal.kernel.spring.aop.Property;
 import com.liferay.portal.kernel.spring.aop.Retry;
 import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
@@ -1284,7 +1284,7 @@ public class ResourcePermissionLocalServiceImpl
 
 		resourcePermissionPersistence.update(resourcePermission);
 
-		SearchEngineUtil.updatePermissionFields(name, primKey);
+		IndexWriterHelperUtil.updatePermissionFields(name, primKey);
 	}
 
 	protected boolean isGuestRoleId(long companyId, long roleId)
@@ -1408,7 +1408,7 @@ public class ResourcePermissionLocalServiceImpl
 			PermissionCacheUtil.clearResourcePermissionCache(
 				scope, name, primKey);
 
-			SearchEngineUtil.updatePermissionFields(name, primKey);
+			IndexWriterHelperUtil.updatePermissionFields(name, primKey);
 		}
 	}
 

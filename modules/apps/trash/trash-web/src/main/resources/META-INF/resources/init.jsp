@@ -21,6 +21,7 @@
 <%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
 taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %><%@
 taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
+taglib uri="http://liferay.com/tld/trash" prefix="liferay-trash" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
 taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 
@@ -51,7 +52,7 @@ page import="com.liferay.portlet.PortletURLUtil" %><%@
 page import="com.liferay.portlet.asset.model.AssetEntry" %><%@
 page import="com.liferay.portlet.asset.model.AssetRenderer" %><%@
 page import="com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil" %><%@
-page import="com.liferay.portlet.trash.RestoreEntryException" %><%@
+page import="com.liferay.portlet.trash.exception.RestoreEntryException" %><%@
 page import="com.liferay.portlet.trash.model.TrashEntry" %><%@
 page import="com.liferay.portlet.trash.model.TrashEntryList" %><%@
 page import="com.liferay.portlet.trash.model.impl.TrashEntryImpl" %><%@

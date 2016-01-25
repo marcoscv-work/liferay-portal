@@ -2,14 +2,7 @@
 	<property name="testray.main.component.name" value="Documents Management" />
 
 	<set-up>
-		<var method="TestPropsUtil#get('test.portal.instance')" name="testPortalInstance" />
-
-		<if>
-			<equals arg1="${testPortalInstance}" arg2="true" />
-			<then>
-				<execute macro="SignIn#signInPortalInstanceSetUp" />
-			</then>
-		</if>
+		<execute macro="TestCase#setUpPortalInstance" />
 
 		<execute macro="User#firstLoginPG" />
 	</set-up>
@@ -103,15 +96,15 @@
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="SitePage#addCP">
+		<execute macro="Page#add">
 			<var name="page" value="Public Pages" />
-			<var name="sitePageName" value="Site Page 1" />
+			<var name="pageName" value="Site Page 1" />
 			<var name="siteScopeSelected" value="true" />
 		</execute>
 
-		<execute macro="SitePage#addCP">
+		<execute macro="Page#add">
 			<var name="page" value="Public Pages" />
-			<var name="sitePageName" value="Site Page 2" />
+			<var name="pageName" value="Site Page 2" />
 			<var name="siteScopeSelected" value="true" />
 		</execute>
 
@@ -201,8 +194,10 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="Page#gotoUsersCP">
-			<var name="portletName" value="Site Memberships" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesUsers">
+			<var name="portlet" value="Site Memberships" />
 		</execute>
 
 		<execute macro="Site#addMemberCP">
@@ -211,7 +206,7 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -434,7 +429,7 @@
 			<var name="dmDocumentTitle" value="Zero Document File" />
 		</execute>
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -562,10 +557,29 @@
 		</execute>
 
 		<execute macro="ServerAdministration#configureExternalServices">
+			<var name="installNativeLibraries" value="true" />
+		</execute>
+
+		<execute macro="Portlet#shutdownServer" />
+
+		<execute macro="Portlet#startServer" />
+
+		<execute macro="Page#openURL" />
+
+		<execute macro="User#loginPG">
+			<var name="password" value="test" />
+			<var name="userEmailAddress" value="test@liferay.com" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoControlPanelConfiguration">
+			<var name="portlet" value="Server Administration" />
+		</execute>
+
+		<execute macro="ServerAdministration#configureExternalServices">
 			<var name="enableXuggler" value="true" />
 		</execute>
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
@@ -581,6 +595,10 @@
 			<var name="columnNumberFrom" value="1" />
 			<var name="columnNumberTo" value="2" />
 			<var name="portletName" value="Documents and Media" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
 		<execute function="Click" locator1="Icon#DISPLAY_STYLE_DESCRIPTIVE" />
@@ -684,18 +702,24 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Documents and Media" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Documents and Media" />
 		</execute>
 
 		<execute macro="LAR#importPortlet">
 			<var name="larFileName" value="DM_Test_DB_Store.lar" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Documents and Media" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Documents and Media" />
 		</execute>
 
 		<execute macro="DMNavigator#gotoDocumentCP">
@@ -708,7 +732,7 @@
 	</command>
 
 	<command name="RemoveCurrentDisplayStyleViews" priority="4">
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
@@ -738,7 +762,7 @@
 	<command name="SelectMultipleDocumentsAndDeleteViaActionsButton" priority="4">
 		<var name="dmDocumentCounterList" value="1,2,3" />
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
@@ -831,6 +855,7 @@
 		<execute macro="Role#definePermissionsCP">
 			<var name="permissionDefinitionKeys" value="SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_GENERAL_PERMISSIONS_ACCESS_IN_SITE_ADMINISTRATION_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_GENERAL_PERMISSIONS_VIEW_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENTS_ADD_DOCUMENT_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENTS_ADD_FOLDER_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENTS_FOLDER_ADD_DOCUMENT_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENTS_FOLDER_ADD_SUBFOLDER_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENTS_FOLDER_UPDATE_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENT_DELETE_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENT_UPDATE_CHECKBOX" />
 			<var name="roleName" value="Site Member" />
+			<var name="roleType" value="Site" />
 		</execute>
 
 		<execute macro="Role#viewPermissionCP">
@@ -946,7 +971,7 @@
 			<var name="userScreenName" value="usersn2" />
 		</execute>
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
@@ -965,6 +990,10 @@
 		</execute>
 
 		<execute macro="DMDocument#enableActionsMenuOnPortlet" />
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Documents and Media Page" />
+		</execute>
 
 		<execute function="Click" locator1="Icon#DISPLAY_STYLE_DESCRIPTIVE" />
 
@@ -1007,7 +1036,7 @@
 	</command>
 
 	<command name="ViewDocumentWithGlobalScope" priority="4">
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
@@ -1025,7 +1054,7 @@
 			<var name="portletName" value="Documents and Media" />
 		</execute>
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="Documents and Media Page - Global" />
 		</execute>
 
@@ -1043,9 +1072,12 @@
 			<var name="portletName" value="Documents and Media" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Documents and Media" />
-			<var name="siteScopeName" value="Global" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Global" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Documents and Media" />
 		</execute>
 
 		<execute macro="DMFolder#addCP">
@@ -1057,14 +1089,17 @@
 			<var name="dmFolderName" value="DM Folder Name" />
 		</execute>
 
-		<execute macro="DMFolder#addSubfolderPG">
+		<execute macro="DMFolder#addSubfolderCP">
 			<var name="dmSubFolderDescription" value="DM SubFolder Description" />
 			<var name="dmSubFolderName" value="DM SubFolder Name" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Documents and Media" />
-			<var name="siteScopeName" value="Global" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Global" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Documents and Media" />
 		</execute>
 
 		<execute macro="DMFolder#gotoCP">
@@ -1097,6 +1132,12 @@
 		<execute macro="DMPortlet#configureRootFolderPG">
 			<var name="dmFolderName" value="DM Folder Name" />
 		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Documents and Media Page - Global" />
+		</execute>
+
+		<execute function="Click" locator1="Icon#DISPLAY_STYLE_DESCRIPTIVE" />
 
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="Documents and Media Page - Global" />
@@ -1210,7 +1251,7 @@
 		<var name="pageName" value="Documents and Media Page" />
 		<var name="tagNameList" value="tag1,tag2" />
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -1291,7 +1332,7 @@
 	</command>
 
 	<command name="ViewPortletAfterRenamingDocumentWithDuplicateTitlePG" priority="4">
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 

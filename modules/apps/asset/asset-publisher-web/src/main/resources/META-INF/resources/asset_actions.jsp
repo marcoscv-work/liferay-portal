@@ -43,12 +43,13 @@ if (showEditURL && assetRenderer.hasEditPermission(permissionChecker)) {
 
 	editPortletURL = assetRenderer.getURLEdit(liferayPortletRequest, liferayPortletResponse, LiferayWindowState.POP_UP, redirectURL);
 
+	editPortletURL.setParameter("hideDefaultSuccessMessage", Boolean.TRUE.toString());
 	editPortletURL.setParameter("showHeader", Boolean.FALSE.toString());
 }
 %>
 
 <c:if test="<%= editPortletURL != null %>">
-	<div class="asset-actions lfr-meta-actions">
+	<div class="pull-right">
 
 		<%
 		Map<String, Object> data = new HashMap<String, Object>();
@@ -60,8 +61,9 @@ if (showEditURL && assetRenderer.hasEditPermission(permissionChecker)) {
 
 		<liferay-ui:icon
 			data="<%= data %>"
-			iconCssClass="icon-edit-sign"
+			icon="pencil"
 			label="<%= false %>"
+			markupView="lexicon"
 			message='<%= showIconLabel ? LanguageUtil.format(request, "edit-x-x", new Object[] {"hide-accessible", HtmlUtil.escape(assetRenderer.getTitle(locale))}, false) : LanguageUtil.format(request, "edit-x", HtmlUtil.escape(assetRenderer.getTitle(locale)), false) %>'
 			method="get"
 			url="<%= editPortletURL.toString() %>"

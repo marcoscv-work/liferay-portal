@@ -17,12 +17,13 @@ package com.liferay.portal.kernel.dao.orm;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskThreadLocal;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.search.Document;
-import com.liferay.portal.kernel.search.SearchEngineUtil;
+import com.liferay.portal.kernel.search.IndexWriterHelperUtil;
+import com.liferay.portal.kernel.search.SearchEngineHelperUtil;
 import com.liferay.portal.kernel.search.background.task.ReindexStatusMessageSenderUtil;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -33,6 +34,10 @@ public class IndexableActionableDynamicQuery
 	extends DefaultActionableDynamicQuery {
 
 	public void addDocuments(Document... documents) throws PortalException {
+		if (ArrayUtil.isEmpty(documents)) {
+			return;
+		}
+
 		if (_documents == null) {
 			if (isParallel()) {
 				_documents = new ConcurrentLinkedDeque<>();
@@ -42,7 +47,11 @@ public class IndexableActionableDynamicQuery
 			}
 		}
 
-		_documents.addAll(Arrays.asList(documents));
+		for (Document document : documents) {
+			if (document != null) {
+				_documents.add(document);
+			}
+		}
 
 		if (_documents.size() >= getInterval()) {
 			indexInterval();
@@ -72,7 +81,7 @@ public class IndexableActionableDynamicQuery
 	@Override
 	protected void actionsCompleted() throws PortalException {
 		if (Validator.isNotNull(_searchEngineId)) {
-			SearchEngineUtil.commit(_searchEngineId, getCompanyId());
+			IndexWriterHelperUtil.commit(_searchEngineId, getCompanyId());
 		}
 
 		sendStatusMessage();
@@ -100,10 +109,11 @@ public class IndexableActionableDynamicQuery
 		}
 
 		if (Validator.isNull(_searchEngineId)) {
-			_searchEngineId = SearchEngineUtil.getSearchEngineId(_documents);
+			_searchEngineId = SearchEngineHelperUtil.getSearchEngineId(
+				_documents);
 		}
 
-		SearchEngineUtil.updateDocuments(
+		IndexWriterHelperUtil.updateDocuments(
 			_searchEngineId, getCompanyId(), new ArrayList<>(_documents),
 			false);
 

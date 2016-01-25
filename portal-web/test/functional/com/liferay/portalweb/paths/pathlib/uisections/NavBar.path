@@ -14,6 +14,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ACTIVE_NAV_ITEM_LINK</td>
+	<td>//div[contains(@class,'navbar-default')]//li[contains(@class,'active')]/a/span[contains(.,'${key_navItem}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ADD</td>
 	<td>//div[contains(@class,'navbar-default')]//a/span[contains(.,'Add')]</td>
 	<td></td>
@@ -22,6 +27,16 @@
 	<td>APPLICATION_SEARCH_FIELD</td>
 	<td>//input[contains(@id,'searchApplication')]</td>
 	<td>Application Search Field</td>
+</tr>
+<tr>
+	<td>ALL_ORGANIZATION</td>
+	<td>//ul[contains(@class,'navbar-nav')]/li/a/span[contains(text(),'All Organizations')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ALL_USERS</td>
+	<td>//ul[contains(@class,'navbar-nav')]/li/a/span[contains(text(),'All Users')]</td>
+	<td></td>
 </tr>
 <tr>
 	<td>AVAILABLE_SITES</td>
@@ -96,6 +111,11 @@
 <tr>
 	<td>SCOPE</td>
 	<td>//ul[contains(@class,'navbar-nav')]/li/a[contains(.,'Scope')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SEARCH_BUTTON</td>
+	<td>//*[@data-qa-id='searchButton']</td>
 	<td></td>
 </tr>
 <tr>

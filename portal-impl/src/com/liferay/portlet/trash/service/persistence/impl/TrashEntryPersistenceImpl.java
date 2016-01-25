@@ -33,9 +33,10 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.service.persistence.CompanyProvider;
+import com.liferay.portal.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
-import com.liferay.portlet.trash.NoSuchEntryException;
+import com.liferay.portlet.trash.exception.NoSuchEntryException;
 import com.liferay.portlet.trash.model.TrashEntry;
 import com.liferay.portlet.trash.model.impl.TrashEntryImpl;
 import com.liferay.portlet.trash.model.impl.TrashEntryModelImpl;
@@ -2570,6 +2571,8 @@ public class TrashEntryPersistenceImpl extends BasePersistenceImpl<TrashEntry>
 		trashEntry.setNew(true);
 		trashEntry.setPrimaryKey(entryId);
 
+		trashEntry.setCompanyId(companyProvider.getCompanyId());
+
 		return trashEntry;
 	}
 
@@ -2786,7 +2789,7 @@ public class TrashEntryPersistenceImpl extends BasePersistenceImpl<TrashEntry>
 	}
 
 	/**
-	 * Returns the trash entry with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the trash entry with the primary key or throws a {@link com.liferay.portal.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the trash entry
 	 * @return the trash entry
@@ -3180,7 +3183,7 @@ public class TrashEntryPersistenceImpl extends BasePersistenceImpl<TrashEntry>
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@BeanReference(type = CompanyProvider.class)
+	@BeanReference(type = CompanyProviderWrapper.class)
 	protected CompanyProvider companyProvider;
 	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
 	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();

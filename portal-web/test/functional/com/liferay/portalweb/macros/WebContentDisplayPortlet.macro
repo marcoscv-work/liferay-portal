@@ -37,8 +37,8 @@
 
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
-		<execute macro="Panel#expandPanel">
-			<var name="panelHeading" value="Permissions" />
+		<execute macro="Navigator#gotoNavItem">
+			<var name="navItem" value="Permissions" />
 		</execute>
 	</command>
 
@@ -54,13 +54,11 @@
 			<var name="navItem" value="Scope" />
 		</execute>
 
-		<var name="key_scopeSelection" value="${scopeSelection}" />
-
-		<execute function="Select" locator1="Select#SCOPE" value1="${scopeSelection}" />
+		<execute function="Select" locator1="Select#SCOPE" value1="regexp:.*${scopeSelection}.*" />
 
 		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
 
-		<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="You have successfully updated the setup." />
+		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
 	</command>
 
 	<command name="configureSetupPG">
@@ -156,9 +154,9 @@
 			</else>
 		</if>
 
-		<execute function="SelectFrame" value1="relative=top" />
-		<execute function="SelectFrame" locator1="IFrame#DDL" />
-		<execute function="Type" locator1="TextInput#NAME" value1="Template Edit" />
+		<execute function="SelectFrameTop" />
+		<execute function="SelectFrame" locator1="IFrame#EDIT_ASSET" />
+		<execute function="Type#clickAtSendKeys" locator1="TextInput#NAME" value1="Template Edit" />
 
 		<if>
 			<isset var="templateScript" />
@@ -208,7 +206,7 @@
 
 		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
 
-		<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="You have successfully updated the setup." />
+		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
 
 		<execute function="SelectFrame" value1="relative=top" />
 	</command>
@@ -252,7 +250,7 @@
 
 				<execute function="AssertTextEquals" locator1="Message#INFO_ARTICLE" value1="${webContentTitle} (Modified)" />
 				<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
-				<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="You have successfully updated the setup." />
+				<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
 			</then>
 		</if>
 
@@ -299,7 +297,7 @@
 		<execute function="SelectFrame" value1="relative=top" />
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
-		<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="You have successfully updated the setup." />
+		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
 		<execute function="SelectFrame" value1="relative=top" />
 	</command>
 

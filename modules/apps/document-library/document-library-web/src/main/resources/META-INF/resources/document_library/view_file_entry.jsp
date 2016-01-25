@@ -16,6 +16,8 @@
 
 <%@ include file="/document_library/init.jsp" %>
 
+<liferay-util:dynamic-include key="com.liferay.document.library.web#/document_library/view_file_entry.jsp#pre" />
+
 <%
 String tabs2 = ParamUtil.getString(request, "tabs2", "version-history");
 
@@ -113,7 +115,7 @@ if (portletTitleBasedNavigation) {
 	</c:if>
 
 	<div class="view">
-		<c:if test="<%= dlPortletInstanceSettingsHelper.isShowActions() %>">
+		<c:if test="<%= dlPortletInstanceSettingsHelper.isShowActions() && !portletTitleBasedNavigation %>">
 			<liferay-ui:app-view-toolbar>
 				<aui:button-row cssClass="edit-toolbar" id='<%= renderResponse.getNamespace() + "fileEntryToolbar" %>' />
 			</liferay-ui:app-view-toolbar>
@@ -121,7 +123,7 @@ if (portletTitleBasedNavigation) {
 
 		<aui:row>
 			<aui:col cssClass="lfr-asset-column-details" width="<%= 70 %>">
-				<c:if test="<%= dlPortletInstanceSettingsHelper.isShowActions() %>">
+				<c:if test="<%= dlPortletInstanceSettingsHelper.isShowActions() && !portletTitleBasedNavigation %>">
 					<liferay-ui:app-view-toolbar>
 						<aui:button-row cssClass="edit-toolbar" id='<%= renderResponse.getNamespace() + "fileEntryToolbar" %>' />
 					</liferay-ui:app-view-toolbar>
@@ -199,7 +201,7 @@ if (portletTitleBasedNavigation) {
 							}
 							%>
 
-							<liferay-ui:icon iconCssClass="icon-plus" label="<%= true %>" message='<%= LanguageUtil.format(request, "uploaded-by-x-x", new Object[] {displayURL, HtmlUtil.escape(fileEntry.getUserName()), dateFormatDateTime.format(fileEntry.getCreateDate())}, false) %>' />
+							<liferay-ui:icon iconCssClass="icon-plus" label="<%= true %>" message='<%= LanguageUtil.format(resourceBundle, "uploaded-by-x-x", new Object[] {displayURL, HtmlUtil.escape(fileEntry.getUserName()), dateFormatDateTime.format(fileEntry.getCreateDate())}, false) %>' />
 						</span>
 
 						<c:if test="<%= dlPortletInstanceSettings.isEnableRatings() && fileEntry.isSupportsSocial() %>">
@@ -307,7 +309,7 @@ if (portletTitleBasedNavigation) {
 								<liferay-ui:icon
 									iconCssClass="icon-download"
 									label="<%= true %>"
-									message='<%= LanguageUtil.get(request, "download") + " (" + TextFormatter.formatStorageSize(fileVersion.getSize(), locale) + ")" %>'
+									message='<%= LanguageUtil.get(resourceBundle, "download") + " (" + TextFormatter.formatStorageSize(fileVersion.getSize(), locale) + ")" %>'
 									url="<%= DLUtil.getDownloadURL(fileEntry, fileVersion, themeDisplay, StringPool.BLANK) %>"
 								/>
 							</span>
@@ -322,7 +324,7 @@ if (portletTitleBasedNavigation) {
 									<liferay-ui:icon
 										iconCssClass="<%= DLUtil.getFileIconCssClass(conversion) %>"
 										label="<%= true %>"
-										message='<%= LanguageUtil.get(request, "download") + " (" + TextFormatter.formatStorageSize(fileVersion.getSize(), locale) + ")" %>'
+										message='<%= LanguageUtil.get(resourceBundle, "download") + " (" + TextFormatter.formatStorageSize(fileVersion.getSize(), locale) + ")" %>'
 										method="get"
 										url="<%= DLUtil.getDownloadURL(fileEntry, fileVersion, themeDisplay, StringPool.BLANK) %>"
 									/>
@@ -356,10 +358,10 @@ if (portletTitleBasedNavigation) {
 									String webDavHelpMessage = null;
 
 									if (BrowserSnifferUtil.isWindows(request)) {
-										webDavHelpMessage = LanguageUtil.format(request, "webdav-windows-help", new Object[] {"http://www.microsoft.com/downloads/details.aspx?FamilyId=17C36612-632E-4C04-9382-987622ED1D64", "http://www.liferay.com/web/guest/community/wiki/-/wiki/Main/WebDAV"}, false);
+										webDavHelpMessage = LanguageUtil.format(resourceBundle, "webdav-windows-help", new Object[] {"http://www.microsoft.com/downloads/details.aspx?FamilyId=17C36612-632E-4C04-9382-987622ED1D64", "http://www.liferay.com/web/guest/community/wiki/-/wiki/Main/WebDAV"}, false);
 									}
 									else {
-										webDavHelpMessage = LanguageUtil.format(request, "webdav-help", "http://www.liferay.com/web/guest/community/wiki/-/wiki/Main/WebDAV", false);
+										webDavHelpMessage = LanguageUtil.format(resourceBundle, "webdav-help", "http://www.liferay.com/web/guest/community/wiki/-/wiki/Main/WebDAV", false);
 									}
 									%>
 
@@ -626,7 +628,7 @@ if (portletTitleBasedNavigation) {
 	<%@ include file="/document_library/action/open_document_js.jspf" %>
 </c:if>
 
-<c:if test="<%= dlPortletInstanceSettingsHelper.isShowActions() %>">
+<c:if test="<%= dlPortletInstanceSettingsHelper.isShowActions() && !portletTitleBasedNavigation %>">
 	<aui:script use="aui-toolbar">
 		var buttonRow = A.one('#<portlet:namespace />fileEntryToolbar');
 
@@ -685,3 +687,5 @@ if (addPortletBreadcrumbEntries) {
 	DLBreadcrumbUtil.addPortletBreadcrumbEntries(fileEntry, request, renderResponse);
 }
 %>
+
+<liferay-util:dynamic-include key="com.liferay.document.library.web#/document_library/view_file_entry.jsp#post" />

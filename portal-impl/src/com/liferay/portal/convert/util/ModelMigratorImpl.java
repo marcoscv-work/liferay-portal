@@ -37,6 +37,7 @@ import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -67,14 +68,18 @@ public class ModelMigratorImpl implements ModelMigrator {
 				_log.debug("Migrating database tables");
 			}
 
-			for (Class<? extends BaseModel<?>> model : models) {
-				Map<String, Tuple> modelTableDetails = getModelTableDetails(
-					model);
+			Map<String, Tuple> modelTableDetails = new HashMap<>();
 
-				migrateModel(
-					modelTableDetails, DBManagerUtil.getDB(dialect, dataSource),
-					connection);
+			for (Class<? extends BaseModel<?>> model : models) {
+				modelTableDetails.putAll(getModelTableDetails(model));
 			}
+
+			MaintenanceUtil.appendStatus(
+				"Processing " + modelTableDetails.size() + " models");
+
+			migrateModel(
+				modelTableDetails, DBManagerUtil.getDB(dialect, dataSource),
+				connection);
 		}
 		finally {
 			DataAccess.cleanUp(connection);
@@ -136,22 +141,20 @@ public class ModelMigratorImpl implements ModelMigrator {
 			Map<String, Tuple> modelTableDetails, DB db, Connection connection)
 		throws IOException {
 
-		int i = 0;
+		MaintenanceUtil.appendStatus("<ul>");
 
 		for (Tuple tuple : modelTableDetails.values()) {
-			if ((i > 0) && (i % (modelTableDetails.size() / 4) == 0)) {
-				MaintenanceUtil.appendStatus(
-					(i * 100 / modelTableDetails.size()) + "%");
-			}
-
 			String table = (String)tuple.getObject(0);
 			Object[][] columns = (Object[][])tuple.getObject(1);
 			String sqlCreate = (String)tuple.getObject(2);
 
-			migrateTable(db, connection, table, columns, sqlCreate);
+			MaintenanceUtil.appendStatus(
+				"<li>Migrating table " + table + "</li>");
 
-			i++;
+			migrateTable(db, connection, table, columns, sqlCreate);
 		}
+
+		MaintenanceUtil.appendStatus("</ul>");
 
 		if (_log.isDebugEnabled()) {
 			_log.debug("Migrating database indexes");

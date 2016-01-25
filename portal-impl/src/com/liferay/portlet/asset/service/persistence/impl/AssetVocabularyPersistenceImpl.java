@@ -43,9 +43,10 @@ import com.liferay.portal.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextThreadLocal;
 import com.liferay.portal.service.persistence.CompanyProvider;
+import com.liferay.portal.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
-import com.liferay.portlet.asset.NoSuchVocabularyException;
+import com.liferay.portlet.asset.exception.NoSuchVocabularyException;
 import com.liferay.portlet.asset.model.AssetVocabulary;
 import com.liferay.portlet.asset.model.impl.AssetVocabularyImpl;
 import com.liferay.portlet.asset.model.impl.AssetVocabularyModelImpl;
@@ -4773,6 +4774,8 @@ public class AssetVocabularyPersistenceImpl extends BasePersistenceImpl<AssetVoc
 
 		assetVocabulary.setUuid(uuid);
 
+		assetVocabulary.setCompanyId(companyProvider.getCompanyId());
+
 		return assetVocabulary;
 	}
 
@@ -5039,7 +5042,7 @@ public class AssetVocabularyPersistenceImpl extends BasePersistenceImpl<AssetVoc
 	}
 
 	/**
-	 * Returns the asset vocabulary with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the asset vocabulary with the primary key or throws a {@link com.liferay.portal.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the asset vocabulary
 	 * @return the asset vocabulary
@@ -5439,7 +5442,7 @@ public class AssetVocabularyPersistenceImpl extends BasePersistenceImpl<AssetVoc
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@BeanReference(type = CompanyProvider.class)
+	@BeanReference(type = CompanyProviderWrapper.class)
 	protected CompanyProvider companyProvider;
 	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
 	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();
