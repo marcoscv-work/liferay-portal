@@ -44,17 +44,19 @@
 
 <liferay-util:buffer var="removeLinkIcon">
 	<liferay-ui:icon
-		iconCssClass="icon-remove"
+		icon="times"
+		label="<%= true %>"
+		markupView="lexicon"
 		message="remove"
 	/>
 </liferay-util:buffer>
 
 <liferay-ui:search-container
 	headerNames="type,title,scope,null"
+	total="<%= inputAssetLinksDisplayContext.getAssetLinksCount() %>"
 >
 	<liferay-ui:search-container-results
 		results="<%= inputAssetLinksDisplayContext.getAssetLinks() %>"
-		total="<%= inputAssetLinksDisplayContext.getAssetLinksCount() %>"
 	/>
 
 	<liferay-ui:search-container-row

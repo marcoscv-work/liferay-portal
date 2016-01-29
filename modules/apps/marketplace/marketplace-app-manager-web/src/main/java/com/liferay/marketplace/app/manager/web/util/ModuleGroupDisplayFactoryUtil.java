@@ -17,7 +17,7 @@ package com.liferay.marketplace.app.manager.web.util;
 import com.liferay.marketplace.app.manager.web.constants.BundleConstants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.StringPool;
 
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -39,9 +39,9 @@ public class ModuleGroupDisplayFactoryUtil {
 		ModuleGroupDisplay moduleGroupDisplay = null;
 
 		if (moduleGroupTitle.equals(
-				ModuleGroupDisplay.MODULE_GROUP_TITLE_UNCATEGORIZED)) {
+				ModuleGroupDisplay.MODULE_GROUP_TITLE_INDEPENDENT_MODULES)) {
 
-			moduleGroupTitle = null;
+			moduleGroupTitle = StringPool.BLANK;
 		}
 
 		List<Bundle> bundles = appDisplay.getBundles();
@@ -49,15 +49,10 @@ public class ModuleGroupDisplayFactoryUtil {
 		for (Bundle bundle : bundles) {
 			Dictionary<String, String> headers = bundle.getHeaders();
 
-			String curModuleGroupTitle = headers.get(
-				BundleConstants.LIFERAY_RELENG_MODULE_GROUP_TITLE);
+			String curModuleGroupTitle = GetterUtil.getString(
+				headers.get(BundleConstants.LIFERAY_RELENG_MODULE_GROUP_TITLE));
 
-			if (Validator.isNotNull(moduleGroupTitle) &&
-				!moduleGroupTitle.equals(curModuleGroupTitle)) {
-
-				continue;
-			}
-			else if (curModuleGroupTitle == null) {
+			if (!moduleGroupTitle.equals(curModuleGroupTitle)) {
 				continue;
 			}
 
@@ -95,7 +90,7 @@ public class ModuleGroupDisplayFactoryUtil {
 
 			if (moduleGroupTitle == null) {
 				moduleGroupTitle =
-					ModuleGroupDisplay.MODULE_GROUP_TITLE_UNCATEGORIZED;
+					ModuleGroupDisplay.MODULE_GROUP_TITLE_INDEPENDENT_MODULES;
 			}
 
 			ModuleGroupDisplay moduleGroupDisplay = moduleGroupDisplaysMap.get(

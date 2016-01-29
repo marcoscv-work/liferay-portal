@@ -356,6 +356,14 @@ public class JournalFolderLocalServiceWrapper
 	}
 
 	@Override
+	public java.util.List<java.lang.Object> getFoldersAndArticles(
+		long groupId, long folderId, int status, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<?> obc) {
+		return _journalFolderLocalService.getFoldersAndArticles(groupId,
+			folderId, status, start, end, obc);
+	}
+
+	@Override
 	public int getFoldersAndArticlesCount(long groupId, long folderId) {
 		return _journalFolderLocalService.getFoldersAndArticlesCount(groupId,
 			folderId);
@@ -646,23 +654,6 @@ public class JournalFolderLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_journalFolderLocalService.validateFolderDDMStructures(folderId,
 			parentFolderId);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public JournalFolderLocalService getWrappedJournalFolderLocalService() {
-		return _journalFolderLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedJournalFolderLocalService(
-		JournalFolderLocalService journalFolderLocalService) {
-		_journalFolderLocalService = journalFolderLocalService;
 	}
 
 	@Override

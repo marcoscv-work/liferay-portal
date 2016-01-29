@@ -64,6 +64,13 @@ public class WikiPortletDataHandler extends BasePortletDataHandler {
 
 	public static final String NAMESPACE = "wiki";
 
+	public static final String SCHEMA_VERSION = "1.0.0";
+
+	@Override
+	public String getSchemaVersion() {
+		return SCHEMA_VERSION;
+	}
+
 	@Override
 	public String getServiceName() {
 		return WikiConstants.SERVICE_NAME;
@@ -235,7 +242,7 @@ public class WikiPortletDataHandler extends BasePortletDataHandler {
 		_wikiPageLocalService = wikiPageLocalService;
 	}
 
-	private volatile WikiNodeLocalService _wikiNodeLocalService;
-	private volatile WikiPageLocalService _wikiPageLocalService;
+	private WikiNodeLocalService _wikiNodeLocalService;
+	private WikiPageLocalService _wikiPageLocalService;
 
 }

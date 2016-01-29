@@ -14,55 +14,37 @@
 
 package com.liferay.portal.servlet.jsp.compiler.internal;
 
-import com.liferay.portal.kernel.util.ReflectionUtil;
+import com.liferay.portal.kernel.zip.ZipFileUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.net.JarURLConnection;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-
-import java.util.jar.JarFile;
 
 /**
  * @author Shuyang Zhou
  */
 public class JarJavaFileObject extends BaseJavaFileObject {
 
-	public JarJavaFileObject(String className, URL url, String entryName)
-		throws IOException {
-
+	public JarJavaFileObject(String className, File file, String entryName) {
 		super(Kind.CLASS, className);
 
-		_url = url;
+		_file = file;
 		_entryName = entryName;
-
-		_jarURLConnection =(JarURLConnection)_url.openConnection();
 	}
 
 	@Override
 	public InputStream openInputStream() throws IOException {
-		JarFile jarFile = _jarURLConnection.getJarFile();
-
-		return jarFile.getInputStream(jarFile.getJarEntry(_entryName));
+		return ZipFileUtil.openInputStream(_file, _entryName);
 	}
 
 	@Override
 	public URI toUri() {
-		try {
-			URL url = _jarURLConnection.getJarFileURL();
-
-			return url.toURI();
-		}
-		catch (URISyntaxException urise) {
-			return ReflectionUtil.throwException(urise);
-		}
+		return _file.toURI();
 	}
 
 	private final String _entryName;
-	private final JarURLConnection _jarURLConnection;
-	private final URL _url;
+	private final File _file;
 
 }

@@ -75,8 +75,8 @@ public interface UserLocalService extends BaseLocalService,
 	public void addDefaultGroups(long userId) throws PortalException;
 
 	/**
-	* Adds the user to the default roles, unless the user already has these
-	* roles. The default roles can be specified in
+	* Adds the user to the default regular roles, unless the user already has
+	* these regular roles. The default regular roles can be specified in
 	* <code>portal.properties</code> with the key
 	* <code>admin.default.role.names</code>.
 	*
@@ -1401,19 +1401,6 @@ public interface UserLocalService extends BaseLocalService,
 		java.lang.String screenName) throws PortalException;
 
 	/**
-	* Returns the user with the UUID.
-	*
-	* @param uuid the user's UUID
-	* @return the user with the UUID
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getUserByUuidAndCompanyId(String, long)}
-	*/
-	@java.lang.Deprecated
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.User getUserByUuid(java.lang.String uuid)
-		throws PortalException;
-
-	/**
 	* Returns the user with the matching UUID and company.
 	*
 	* @param uuid the user's UUID
@@ -2497,10 +2484,9 @@ public interface UserLocalService extends BaseLocalService,
 	* @deprecated As of 7.0.0, replaced by {@link #updateUser(long, String,
 	String, String, boolean, String, String, String, String,
 	long, String, boolean, byte[], String, String, String,
-	String, String, String, String, int, int, boolean, int, int,
-	int, String, String, String, String, String, String, String,
-	String, String, String, String, long[], long[], long[], List,
-	long[], ServiceContext)}
+	String, String, String, String, long, long, boolean, int,
+	int, int, String, String, String, String, String, String,
+	long[], long[], long[], List, long[], ServiceContext)}
 	*/
 	@java.lang.Deprecated
 	public com.liferay.portal.model.User updateUser(long userId,

@@ -48,6 +48,13 @@ public class PageRatingsPortletDataHandler extends BasePortletDataHandler {
 
 	public static final String NAMESPACE = "ratings";
 
+	public static final String SCHEMA_VERSION = "1.0.0";
+
+	@Override
+	public String getSchemaVersion() {
+		return SCHEMA_VERSION;
+	}
+
 	@Activate
 	protected void activate() {
 		setDataAlwaysStaged(true);
@@ -117,7 +124,7 @@ public class PageRatingsPortletDataHandler extends BasePortletDataHandler {
 		_ratingsEntryLocalService = ratingsEntryLocalService;
 	}
 
-	private volatile RatingsEntryLocalService _ratingsEntryLocalService;
+	private RatingsEntryLocalService _ratingsEntryLocalService;
 
 	private class ImportRatingsCallable implements Callable<Void> {
 

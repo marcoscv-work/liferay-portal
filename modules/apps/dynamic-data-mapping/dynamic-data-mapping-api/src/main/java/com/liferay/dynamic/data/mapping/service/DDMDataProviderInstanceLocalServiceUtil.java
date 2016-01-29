@@ -103,7 +103,8 @@ public class DDMDataProviderInstanceLocalServiceUtil {
 	}
 
 	public static void deleteDataProviderInstance(
-		com.liferay.dynamic.data.mapping.model.DDMDataProviderInstance dataProviderInstance) {
+		com.liferay.dynamic.data.mapping.model.DDMDataProviderInstance dataProviderInstance)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().deleteDataProviderInstance(dataProviderInstance);
 	}
 
@@ -402,13 +403,6 @@ public class DDMDataProviderInstanceLocalServiceUtil {
 
 	public static DDMDataProviderInstanceLocalService getService() {
 		return _serviceTracker.getService();
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(DDMDataProviderInstanceLocalService service) {
 	}
 
 	private static ServiceTracker<DDMDataProviderInstanceLocalService, DDMDataProviderInstanceLocalService> _serviceTracker =

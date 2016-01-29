@@ -1,4 +1,4 @@
-package ${packagePath}.service;
+package ${apiPackagePath}.service;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -151,13 +151,6 @@ public class ${entity.name}${sessionTypeName}ServiceUtil {
 
 			return _service;
 		</#if>
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(${entity.name}${sessionTypeName}Service service) {
 	}
 
 	<#if osgiModule>

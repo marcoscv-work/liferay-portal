@@ -17,10 +17,10 @@ package com.liferay.product.navigation.simulation.device.application.list;
 import com.liferay.application.list.BaseJSPPanelApp;
 import com.liferay.application.list.PanelApp;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Portlet;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.service.permission.GroupPermissionUtil;
 import com.liferay.product.navigation.simulation.application.list.SimulationPanelCategory;
 import com.liferay.product.navigation.simulation.web.constants.ProductNavigationSimulationPortletKeys;
@@ -31,10 +31,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- *
  * @author Eduardo Garcia
  */
-
 @Component(
 	immediate = true,
 	property = {
@@ -57,8 +55,7 @@ public class DevicePreviewPanelApp extends BaseJSPPanelApp {
 	}
 
 	@Override
-	public boolean hasAccessPermission(
-			PermissionChecker permissionChecker, Group group)
+	public boolean isShow(PermissionChecker permissionChecker, Group group)
 		throws PortalException {
 
 		if (group.isControlPanel()) {
@@ -69,7 +66,7 @@ public class DevicePreviewPanelApp extends BaseJSPPanelApp {
 			return false;
 		}
 
-		return super.hasAccessPermission(permissionChecker, group);
+		return super.isShow(permissionChecker, group);
 	}
 
 	@Override

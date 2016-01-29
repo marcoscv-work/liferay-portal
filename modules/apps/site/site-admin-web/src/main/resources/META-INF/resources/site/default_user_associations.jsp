@@ -55,7 +55,8 @@ for (long defaultTeamId : defaultTeamIds) {
 
 <liferay-util:buffer var="removeRoleIcon">
 	<liferay-ui:icon
-		iconCssClass="icon-remove"
+		icon="times"
+		markupView="lexicon"
 		message="remove"
 	/>
 </liferay-util:buffer>
@@ -63,17 +64,15 @@ for (long defaultTeamId : defaultTeamIds) {
 <aui:input name="siteRolesRoleIds" type="hidden" value="<%= ListUtil.toString(defaultSiteRoles, Role.ROLE_ID_ACCESSOR) %>" />
 <aui:input name="teamsTeamIds" type="hidden" value="<%= ListUtil.toString(defaultTeams, TeamImpl.TEAM_ID_ACCESSOR) %>" />
 
-<h3><liferay-ui:message key="default-user-associations" /></h3>
-
 <h3><liferay-ui:message key="site-roles" /> <liferay-ui:icon-help message="default-site-roles-assignment-help" /></h3>
 
 <liferay-ui:search-container
 	headerNames="title,null"
 	id="siteRolesSearchContainer"
+	total="<%= defaultSiteRoles.size() %>"
 >
 	<liferay-ui:search-container-results
 		results="<%= defaultSiteRoles %>"
-		total="<%= defaultSiteRoles.size() %>"
 	/>
 
 	<liferay-ui:search-container-row
@@ -106,10 +105,10 @@ for (long defaultTeamId : defaultTeamIds) {
 <liferay-ui:search-container
 	headerNames="title,null"
 	id="teamsSearchContainer"
+	total="<%= defaultTeams.size() %>"
 >
 	<liferay-ui:search-container-results
 		results="<%= defaultTeams %>"
-		total="<%= defaultTeams.size() %>"
 	/>
 
 	<liferay-ui:search-container-row

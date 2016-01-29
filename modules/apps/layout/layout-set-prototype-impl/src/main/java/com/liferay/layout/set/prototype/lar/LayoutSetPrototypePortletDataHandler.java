@@ -52,6 +52,13 @@ public class LayoutSetPrototypePortletDataHandler
 
 	public static final String NAMESPACE = "layout_set_prototypes";
 
+	public static final String SCHEMA_VERSION = "1.0.0";
+
+	@Override
+	public String getSchemaVersion() {
+		return SCHEMA_VERSION;
+	}
+
 	@Activate
 	protected void activate() {
 		setDataLevel(DataLevel.PORTAL);
@@ -80,7 +87,7 @@ public class LayoutSetPrototypePortletDataHandler
 			return portletPreferences;
 		}
 
-		_layoutSetPrototypeLocalService.deleteNondefaultLayoutSetPrototypes(
+		layoutSetPrototypeLocalService.deleteNondefaultLayoutSetPrototypes(
 			portletDataContext.getCompanyId());
 
 		return portletPreferences;
@@ -100,7 +107,7 @@ public class LayoutSetPrototypePortletDataHandler
 			"group-id", String.valueOf(portletDataContext.getScopeGroupId()));
 
 		ActionableDynamicQuery actionableDynamicQuery =
-			_layoutSetPrototypeLocalService.getExportActionableDynamicQuery(
+			layoutSetPrototypeLocalService.getExportActionableDynamicQuery(
 				portletDataContext);
 
 		actionableDynamicQuery.performActions();
@@ -138,7 +145,7 @@ public class LayoutSetPrototypePortletDataHandler
 		throws Exception {
 
 		ActionableDynamicQuery layoutSetPrototypeExportActionableDynamicQuery =
-			_layoutSetPrototypeLocalService.getExportActionableDynamicQuery(
+			layoutSetPrototypeLocalService.getExportActionableDynamicQuery(
 				portletDataContext);
 
 		layoutSetPrototypeExportActionableDynamicQuery.performCount();
@@ -148,7 +155,7 @@ public class LayoutSetPrototypePortletDataHandler
 	protected void setLayoutSetPrototypeLocalService(
 		LayoutSetPrototypeLocalService layoutSetPrototypeLocalService) {
 
-		_layoutSetPrototypeLocalService = layoutSetPrototypeLocalService;
+		this.layoutSetPrototypeLocalService = layoutSetPrototypeLocalService;
 	}
 
 	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")
@@ -156,7 +163,6 @@ public class LayoutSetPrototypePortletDataHandler
 		ModuleServiceLifecycle moduleServiceLifecycle) {
 	}
 
-	private volatile LayoutSetPrototypeLocalService
-		_layoutSetPrototypeLocalService;
+	protected LayoutSetPrototypeLocalService layoutSetPrototypeLocalService;
 
 }

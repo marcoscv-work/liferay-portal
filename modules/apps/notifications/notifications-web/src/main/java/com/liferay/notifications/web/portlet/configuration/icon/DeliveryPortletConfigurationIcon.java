@@ -20,7 +20,6 @@ import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.configuration.icon.BasePortletConfigurationIcon;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.theme.PortletDisplay;
 import com.liferay.portlet.PortletURLFactoryUtil;
 
 import javax.portlet.PortletRequest;
@@ -49,11 +48,10 @@ public class DeliveryPortletConfigurationIcon
 
 	@Override
 	public String getOnClick() {
-		StringBundler sb = new StringBundler(11);
+		StringBundler sb = new StringBundler(12);
 
-		sb.append("Liferay.Portlet.openWindow({namespace: '");
-
-		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
+		sb.append("Liferay.Portlet.openWindow({bodyCssClass: ");
+		sb.append("'dialog-with-footer', namespace: '");
 
 		sb.append(portletDisplay.getNamespace());
 

@@ -54,7 +54,7 @@ User selUser = (User)request.getAttribute("user.selUser");
 	/>
 </liferay-util:buffer>
 
-<liferay-ui:error-marker key="errorSection" value="details" />
+<liferay-ui:error-marker key="<%= WebKeys.ERROR_SECTION %>" value="details" />
 
 <aui:model-context bean="<%= organization %>" model="<%= Organization.class %>" />
 
@@ -179,10 +179,10 @@ if (parentOrganization != null) {
 <liferay-ui:search-container
 	headerNames="name,type,null"
 	id="parentOrganizationSearchContainer"
+	total="<%= parentOrganizations.size() %>"
 >
 	<liferay-ui:search-container-results
 		results="<%= parentOrganizations %>"
-		total="<%= parentOrganizations.size() %>"
 	/>
 
 	<liferay-ui:search-container-row
@@ -214,7 +214,7 @@ if (parentOrganization != null) {
 		</liferay-ui:search-container-column-text>
 	</liferay-ui:search-container-row>
 
-	<liferay-ui:search-iterator paginate="<%= false %>" />
+	<liferay-ui:search-iterator markupView="lexicon" paginate="<%= false %>" />
 </liferay-ui:search-container>
 
 <liferay-ui:icon

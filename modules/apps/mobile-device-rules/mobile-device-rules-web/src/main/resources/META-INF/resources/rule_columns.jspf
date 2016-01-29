@@ -15,15 +15,20 @@
 --%>
 
 <liferay-ui:search-container-column-text
+	cssClass="text-strong"
 	href="<%= rowURL %>"
 	name="name"
->
-	<strong><%= rule.getName(locale) %></strong>
-</liferay-ui:search-container-column-text>
+	value="<%= rule.getName(locale) %>"
+/>
 
 <liferay-ui:search-container-column-text
 	name="description"
 	value="<%= rule.getDescription(locale) %>"
+/>
+
+<liferay-ui:search-container-column-date
+	name="create-date"
+	property="createDate"
 />
 
 <liferay-ui:search-container-column-text

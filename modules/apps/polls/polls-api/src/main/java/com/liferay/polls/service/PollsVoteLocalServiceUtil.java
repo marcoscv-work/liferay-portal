@@ -196,6 +196,11 @@ public class PollsVoteLocalServiceUtil {
 		return getService().fetchPollsVoteByUuidAndGroupId(uuid, groupId);
 	}
 
+	public static com.liferay.polls.model.PollsVote fetchQuestionUserVote(
+		long questionId, long userId) {
+		return getService().fetchQuestionUserVote(questionId, userId);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery() {
 		return getService().getActionableDynamicQuery();
 	}
@@ -323,11 +328,6 @@ public class PollsVoteLocalServiceUtil {
 		return getService().getQuestionVotesCount(questionId);
 	}
 
-	public static com.liferay.polls.model.PollsVote getVote(long questionId,
-		long userId) throws com.liferay.portal.kernel.exception.PortalException {
-		return getService().getVote(questionId, userId);
-	}
-
 	/**
 	* Updates the polls vote in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
@@ -341,13 +341,6 @@ public class PollsVoteLocalServiceUtil {
 
 	public static PollsVoteLocalService getService() {
 		return _serviceTracker.getService();
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(PollsVoteLocalService service) {
 	}
 
 	private static ServiceTracker<PollsVoteLocalService, PollsVoteLocalService> _serviceTracker =

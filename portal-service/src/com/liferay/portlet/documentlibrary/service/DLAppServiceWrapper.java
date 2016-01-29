@@ -289,17 +289,6 @@ public class DLAppServiceWrapper implements DLAppService,
 	}
 
 	/**
-	* @deprecated As of 6.2.0, replaced by {@link #checkInFileEntry(long,
-	String, ServiceContext)}
-	*/
-	@Deprecated
-	@Override
-	public void checkInFileEntry(long fileEntryId, java.lang.String lockUuid)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		_dlAppService.checkInFileEntry(fileEntryId, lockUuid);
-	}
-
-	/**
 	* Checks in the file entry using the lock's UUID. If a user has not checked
 	* out the specified file entry, invoking this method will result in no
 	* changes. This method is primarily used by WebDAV.
@@ -1773,28 +1762,6 @@ public class DLAppServiceWrapper implements DLAppService,
 	}
 
 	/**
-	* @deprecated As of 6.2.0, replaced by {@link #checkInFileEntry(long,
-	boolean, String, ServiceContext)}.
-	*/
-	@Deprecated
-	@Override
-	public void unlockFileEntry(long fileEntryId)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		_dlAppService.unlockFileEntry(fileEntryId);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #checkInFileEntry(long,
-	String)}.
-	*/
-	@Deprecated
-	@Override
-	public void unlockFileEntry(long fileEntryId, java.lang.String lockUuid)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		_dlAppService.unlockFileEntry(fileEntryId, lockUuid);
-	}
-
-	/**
 	* Unlocks the folder. This method is primarily used by WebDAV.
 	*
 	* @param repositoryId the primary key of the repository
@@ -2106,22 +2073,6 @@ public class DLAppServiceWrapper implements DLAppService,
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _dlAppService.verifyInheritableLock(repositoryId, folderId,
 			lockUuid);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public DLAppService getWrappedDLAppService() {
-		return _dlAppService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedDLAppService(DLAppService dlAppService) {
-		_dlAppService = dlAppService;
 	}
 
 	@Override

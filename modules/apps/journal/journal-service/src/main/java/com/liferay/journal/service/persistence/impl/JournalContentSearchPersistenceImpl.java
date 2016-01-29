@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.service.persistence.CompanyProvider;
+import com.liferay.portal.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.spring.extender.service.ServiceReference;
 
@@ -298,7 +299,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param portletId the portlet ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a matching journal content search could not be found
+	 * @throws NoSuchContentSearchException if a matching journal content search could not be found
 	 */
 	@Override
 	public JournalContentSearch findByPortletId_First(String portletId,
@@ -349,7 +350,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param portletId the portlet ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a matching journal content search could not be found
+	 * @throws NoSuchContentSearchException if a matching journal content search could not be found
 	 */
 	@Override
 	public JournalContentSearch findByPortletId_Last(String portletId,
@@ -407,7 +408,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param portletId the portlet ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a journal content search with the primary key could not be found
+	 * @throws NoSuchContentSearchException if a journal content search with the primary key could not be found
 	 */
 	@Override
 	public JournalContentSearch[] findByPortletId_PrevAndNext(
@@ -854,7 +855,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param articleId the article ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a matching journal content search could not be found
+	 * @throws NoSuchContentSearchException if a matching journal content search could not be found
 	 */
 	@Override
 	public JournalContentSearch findByArticleId_First(String articleId,
@@ -905,7 +906,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param articleId the article ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a matching journal content search could not be found
+	 * @throws NoSuchContentSearchException if a matching journal content search could not be found
 	 */
 	@Override
 	public JournalContentSearch findByArticleId_Last(String articleId,
@@ -963,7 +964,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param articleId the article ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a journal content search with the primary key could not be found
+	 * @throws NoSuchContentSearchException if a journal content search with the primary key could not be found
 	 */
 	@Override
 	public JournalContentSearch[] findByArticleId_PrevAndNext(
@@ -1410,7 +1411,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param privateLayout the private layout
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a matching journal content search could not be found
+	 * @throws NoSuchContentSearchException if a matching journal content search could not be found
 	 */
 	@Override
 	public JournalContentSearch findByG_P_First(long groupId,
@@ -1468,7 +1469,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param privateLayout the private layout
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a matching journal content search could not be found
+	 * @throws NoSuchContentSearchException if a matching journal content search could not be found
 	 */
 	@Override
 	public JournalContentSearch findByG_P_Last(long groupId,
@@ -1533,7 +1534,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param privateLayout the private layout
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a journal content search with the primary key could not be found
+	 * @throws NoSuchContentSearchException if a journal content search with the primary key could not be found
 	 */
 	@Override
 	public JournalContentSearch[] findByG_P_PrevAndNext(long contentSearchId,
@@ -1975,7 +1976,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param articleId the article ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a matching journal content search could not be found
+	 * @throws NoSuchContentSearchException if a matching journal content search could not be found
 	 */
 	@Override
 	public JournalContentSearch findByG_A_First(long groupId, String articleId,
@@ -2032,7 +2033,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param articleId the article ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a matching journal content search could not be found
+	 * @throws NoSuchContentSearchException if a matching journal content search could not be found
 	 */
 	@Override
 	public JournalContentSearch findByG_A_Last(long groupId, String articleId,
@@ -2095,7 +2096,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param articleId the article ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a journal content search with the primary key could not be found
+	 * @throws NoSuchContentSearchException if a journal content search with the primary key could not be found
 	 */
 	@Override
 	public JournalContentSearch[] findByG_A_PrevAndNext(long contentSearchId,
@@ -2572,7 +2573,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param layoutId the layout ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a matching journal content search could not be found
+	 * @throws NoSuchContentSearchException if a matching journal content search could not be found
 	 */
 	@Override
 	public JournalContentSearch findByG_P_L_First(long groupId,
@@ -2635,7 +2636,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param layoutId the layout ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a matching journal content search could not be found
+	 * @throws NoSuchContentSearchException if a matching journal content search could not be found
 	 */
 	@Override
 	public JournalContentSearch findByG_P_L_Last(long groupId,
@@ -2705,7 +2706,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param layoutId the layout ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a journal content search with the primary key could not be found
+	 * @throws NoSuchContentSearchException if a journal content search with the primary key could not be found
 	 */
 	@Override
 	public JournalContentSearch[] findByG_P_L_PrevAndNext(
@@ -3179,7 +3180,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param articleId the article ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a matching journal content search could not be found
+	 * @throws NoSuchContentSearchException if a matching journal content search could not be found
 	 */
 	@Override
 	public JournalContentSearch findByG_P_A_First(long groupId,
@@ -3242,7 +3243,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param articleId the article ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a matching journal content search could not be found
+	 * @throws NoSuchContentSearchException if a matching journal content search could not be found
 	 */
 	@Override
 	public JournalContentSearch findByG_P_A_Last(long groupId,
@@ -3312,7 +3313,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param articleId the article ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a journal content search with the primary key could not be found
+	 * @throws NoSuchContentSearchException if a journal content search with the primary key could not be found
 	 */
 	@Override
 	public JournalContentSearch[] findByG_P_A_PrevAndNext(
@@ -3835,7 +3836,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param portletId the portlet ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a matching journal content search could not be found
+	 * @throws NoSuchContentSearchException if a matching journal content search could not be found
 	 */
 	@Override
 	public JournalContentSearch findByG_P_L_P_First(long groupId,
@@ -3903,7 +3904,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param portletId the portlet ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a matching journal content search could not be found
+	 * @throws NoSuchContentSearchException if a matching journal content search could not be found
 	 */
 	@Override
 	public JournalContentSearch findByG_P_L_P_Last(long groupId,
@@ -3978,7 +3979,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param portletId the portlet ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a journal content search with the primary key could not be found
+	 * @throws NoSuchContentSearchException if a journal content search with the primary key could not be found
 	 */
 	@Override
 	public JournalContentSearch[] findByG_P_L_P_PrevAndNext(
@@ -4279,7 +4280,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 			});
 
 	/**
-	 * Returns the journal content search where groupId = &#63; and privateLayout = &#63; and layoutId = &#63; and portletId = &#63; and articleId = &#63; or throws a {@link com.liferay.journal.NoSuchContentSearchException} if it could not be found.
+	 * Returns the journal content search where groupId = &#63; and privateLayout = &#63; and layoutId = &#63; and portletId = &#63; and articleId = &#63; or throws a {@link NoSuchContentSearchException} if it could not be found.
 	 *
 	 * @param groupId the group ID
 	 * @param privateLayout the private layout
@@ -4287,7 +4288,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 * @param portletId the portlet ID
 	 * @param articleId the article ID
 	 * @return the matching journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a matching journal content search could not be found
+	 * @throws NoSuchContentSearchException if a matching journal content search could not be found
 	 */
 	@Override
 	public JournalContentSearch findByG_P_L_P_A(long groupId,
@@ -4799,6 +4800,8 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 		journalContentSearch.setNew(true);
 		journalContentSearch.setPrimaryKey(contentSearchId);
 
+		journalContentSearch.setCompanyId(companyProvider.getCompanyId());
+
 		return journalContentSearch;
 	}
 
@@ -4807,7 +4810,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 *
 	 * @param contentSearchId the primary key of the journal content search
 	 * @return the journal content search that was removed
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a journal content search with the primary key could not be found
+	 * @throws NoSuchContentSearchException if a journal content search with the primary key could not be found
 	 */
 	@Override
 	public JournalContentSearch remove(long contentSearchId)
@@ -4820,7 +4823,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	 *
 	 * @param primaryKey the primary key of the journal content search
 	 * @return the journal content search that was removed
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a journal content search with the primary key could not be found
+	 * @throws NoSuchContentSearchException if a journal content search with the primary key could not be found
 	 */
 	@Override
 	public JournalContentSearch remove(Serializable primaryKey)
@@ -5108,11 +5111,11 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	}
 
 	/**
-	 * Returns the journal content search with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the journal content search with the primary key or throws a {@link com.liferay.portal.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the journal content search
 	 * @return the journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a journal content search with the primary key could not be found
+	 * @throws NoSuchContentSearchException if a journal content search with the primary key could not be found
 	 */
 	@Override
 	public JournalContentSearch findByPrimaryKey(Serializable primaryKey)
@@ -5132,11 +5135,11 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 	}
 
 	/**
-	 * Returns the journal content search with the primary key or throws a {@link com.liferay.journal.NoSuchContentSearchException} if it could not be found.
+	 * Returns the journal content search with the primary key or throws a {@link NoSuchContentSearchException} if it could not be found.
 	 *
 	 * @param contentSearchId the primary key of the journal content search
 	 * @return the journal content search
-	 * @throws com.liferay.journal.NoSuchContentSearchException if a journal content search with the primary key could not be found
+	 * @throws NoSuchContentSearchException if a journal content search with the primary key could not be found
 	 */
 	@Override
 	public JournalContentSearch findByPrimaryKey(long contentSearchId)
@@ -5505,7 +5508,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@ServiceReference(type = CompanyProvider.class)
+	@ServiceReference(type = CompanyProviderWrapper.class)
 	protected CompanyProvider companyProvider;
 	@ServiceReference(type = EntityCache.class)
 	protected EntityCache entityCache;

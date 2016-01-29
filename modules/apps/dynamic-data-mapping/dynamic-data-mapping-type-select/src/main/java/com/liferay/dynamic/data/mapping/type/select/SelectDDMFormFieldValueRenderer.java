@@ -20,6 +20,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
@@ -45,14 +46,14 @@ public class SelectDDMFormFieldValueRenderer
 		DDMFormFieldOptions ddmFormFieldOptions = getDDMFormFieldOptions(
 			ddmFormFieldValue);
 
+		if (optionsValuesJSONArray.length() == 0) {
+			return StringPool.BLANK;
+		}
+
 		StringBundler sb = new StringBundler(
-			optionsValuesJSONArray.length() * 2);
+			optionsValuesJSONArray.length() * 2 - 1);
 
 		for (int i = 0; i < optionsValuesJSONArray.length(); i++) {
-			if (i > 0) {
-				sb.append(StringPool.COMMA_AND_SPACE);
-			}
-
 			String optionValue = optionsValuesJSONArray.getString(i);
 
 			if (isManualDataSourceType(ddmFormFieldValue.getDDMFormField())) {
@@ -64,7 +65,11 @@ public class SelectDDMFormFieldValueRenderer
 			else {
 				sb.append(optionValue);
 			}
+
+			sb.append(StringPool.COMMA_AND_SPACE);
 		}
+
+		sb.setIndex(sb.index() - 1);
 
 		return sb.toString();
 	}
@@ -78,8 +83,8 @@ public class SelectDDMFormFieldValueRenderer
 	}
 
 	protected boolean isManualDataSourceType(DDMFormField ddmFormField) {
-		String dataSourceType = (String)ddmFormField.getProperty(
-			"dataSourceType");
+		String dataSourceType = GetterUtil.getString(
+			ddmFormField.getProperty("dataSourceType"), "manual");
 
 		if (Validator.equals(dataSourceType, "manual")) {
 			return true;
@@ -95,7 +100,6 @@ public class SelectDDMFormFieldValueRenderer
 		_selectDDMFormFieldValueAccessor = selectDDMFormFieldValueAccessor;
 	}
 
-	private volatile SelectDDMFormFieldValueAccessor
-		_selectDDMFormFieldValueAccessor;
+	private SelectDDMFormFieldValueAccessor _selectDDMFormFieldValueAccessor;
 
 }

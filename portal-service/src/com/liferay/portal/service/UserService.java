@@ -160,7 +160,7 @@ public interface UserService extends BaseService {
 		java.util.List<com.liferay.portal.model.EmailAddress> emailAddresses,
 		java.util.List<com.liferay.portal.model.Phone> phones,
 		java.util.List<com.liferay.portal.model.Website> websites,
-		java.util.List<com.liferay.portlet.announcements.model.AnnouncementsDelivery> announcementsDelivers,
+		java.util.List<com.liferay.announcements.kernel.model.AnnouncementsDelivery> announcementsDelivers,
 		boolean sendEmail,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws PortalException;
@@ -296,7 +296,7 @@ public interface UserService extends BaseService {
 		java.util.List<com.liferay.portal.model.EmailAddress> emailAddresses,
 		java.util.List<com.liferay.portal.model.Phone> phones,
 		java.util.List<com.liferay.portal.model.Website> websites,
-		java.util.List<com.liferay.portlet.announcements.model.AnnouncementsDelivery> announcementsDelivers,
+		java.util.List<com.liferay.announcements.kernel.model.AnnouncementsDelivery> announcementsDelivers,
 		boolean sendEmail,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws PortalException;
@@ -936,10 +936,10 @@ public interface UserService extends BaseService {
 	* @deprecated As of 7.0.0, replaced by {@link #updateUser(long, String,
 	String, String, boolean, String, String, String, String,
 	long, String, boolean, byte[], String, String, String,
-	String, String, String, String, int, int, boolean, int, int,
-	int, String, String, String, String, String, String, String,
-	String, String, String, String, long[], long[], long[], List,
-	long[], List, List, List, List, List, ServiceContext)}
+	String, String, String, String, long, long, boolean, int,
+	int, int, String, String, String, String, String, String,
+	long[], long[], long[], List, long[], List, List, List, List,
+	List, ServiceContext)}
 	*/
 	@java.lang.Deprecated
 	public com.liferay.portal.model.User updateUser(long userId,
@@ -963,7 +963,7 @@ public interface UserService extends BaseService {
 		java.util.List<com.liferay.portal.model.EmailAddress> emailAddresses,
 		java.util.List<com.liferay.portal.model.Phone> phones,
 		java.util.List<com.liferay.portal.model.Website> websites,
-		java.util.List<com.liferay.portlet.announcements.model.AnnouncementsDelivery> announcementsDelivers,
+		java.util.List<com.liferay.announcements.kernel.model.AnnouncementsDelivery> announcementsDelivers,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws PortalException;
 
@@ -1112,7 +1112,7 @@ public interface UserService extends BaseService {
 		java.util.List<com.liferay.portal.model.EmailAddress> emailAddresses,
 		java.util.List<com.liferay.portal.model.Phone> phones,
 		java.util.List<com.liferay.portal.model.Website> websites,
-		java.util.List<com.liferay.portlet.announcements.model.AnnouncementsDelivery> announcementsDelivers,
+		java.util.List<com.liferay.announcements.kernel.model.AnnouncementsDelivery> announcementsDelivers,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws PortalException;
 }

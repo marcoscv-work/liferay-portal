@@ -100,7 +100,8 @@ public class DDMDataProviderInstanceLocalServiceWrapper
 
 	@Override
 	public void deleteDataProviderInstance(
-		com.liferay.dynamic.data.mapping.model.DDMDataProviderInstance dataProviderInstance) {
+		com.liferay.dynamic.data.mapping.model.DDMDataProviderInstance dataProviderInstance)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		_ddmDataProviderInstanceLocalService.deleteDataProviderInstance(dataProviderInstance);
 	}
 
@@ -423,23 +424,6 @@ public class DDMDataProviderInstanceLocalServiceWrapper
 		return _ddmDataProviderInstanceLocalService.updateDataProviderInstance(userId,
 			dataProviderInstanceId, nameMap, descriptionMap, ddmFormValues,
 			serviceContext);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public DDMDataProviderInstanceLocalService getWrappedDDMDataProviderInstanceLocalService() {
-		return _ddmDataProviderInstanceLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedDDMDataProviderInstanceLocalService(
-		DDMDataProviderInstanceLocalService ddmDataProviderInstanceLocalService) {
-		_ddmDataProviderInstanceLocalService = ddmDataProviderInstanceLocalService;
 	}
 
 	@Override

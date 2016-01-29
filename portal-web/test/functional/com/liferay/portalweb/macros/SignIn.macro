@@ -106,7 +106,7 @@
 
 	<command name="signInPortalInstanceSetUp">
 		<execute macro="SignIn#signInSpecificURL">
-			<var name="url" value="http://localhost:8080" />
+			<var name="url" value="http://localhost:8080/" />
 		</execute>
 
 		<if>
@@ -124,7 +124,7 @@
 		</if>
 
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
-			<var name="portlet" value="Portal Instances" />
+			<var name="portlet" value="Instances" />
 		</execute>
 
 		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
