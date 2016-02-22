@@ -20,7 +20,7 @@ import com.liferay.sync.engine.documentlibrary.model.SyncDLObjectUpdate;
 import com.liferay.sync.engine.documentlibrary.util.FileEventUtil;
 import com.liferay.sync.engine.documentlibrary.util.comparator.SyncFileComparator;
 import com.liferay.sync.engine.filesystem.Watcher;
-import com.liferay.sync.engine.filesystem.util.WatcherRegistry;
+import com.liferay.sync.engine.filesystem.util.WatcherManager;
 import com.liferay.sync.engine.model.SyncAccount;
 import com.liferay.sync.engine.model.SyncFile;
 import com.liferay.sync.engine.model.SyncSite;
@@ -288,7 +288,7 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 			tempFilePath, String.valueOf(targetSyncFile.getSyncFileId()),
 			false);
 
-		Watcher watcher = WatcherRegistry.getWatcher(getSyncAccountId());
+		Watcher watcher = WatcherManager.getWatcher(getSyncAccountId());
 
 		List<String> downloadedFilePathNames =
 			watcher.getDownloadedFilePathNames();
@@ -322,14 +322,16 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 		SyncFileService.update(targetSyncFile);
 	}
 
-	protected void deleteFile(SyncFile sourceSyncFile, boolean trashed)
+	protected void deleteFile(SyncFile sourceSyncFile, SyncFile targetSyncFile)
 		throws Exception {
 
 		if (sourceSyncFile.getUiEvent() == SyncFile.UI_EVENT_DELETED_LOCAL) {
 			return;
 		}
 
-		if (trashed) {
+		sourceSyncFile.setModifiedTime(targetSyncFile.getModifiedTime());
+
+		if (targetSyncFile.getEvent() == SyncFile.EVENT_TRASH) {
 			sourceSyncFile.setUiEvent(SyncFile.UI_EVENT_TRASHED_REMOTE);
 		}
 		else {
@@ -344,7 +346,7 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 			return;
 		}
 
-		final Watcher watcher = WatcherRegistry.getWatcher(getSyncAccountId());
+		final Watcher watcher = WatcherManager.getWatcher(getSyncAccountId());
 
 		final List<String> deletedFilePathNames =
 			watcher.getDeletedFilePathNames();
@@ -580,7 +582,7 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 					return;
 				}
 
-				deleteFile(sourceSyncFile, false);
+				deleteFile(sourceSyncFile, targetSyncFile);
 			}
 			else if (event.equals(SyncFile.EVENT_MOVE)) {
 				if (sourceSyncFile == null) {
@@ -613,7 +615,7 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 					return;
 				}
 
-				deleteFile(sourceSyncFile, true);
+				deleteFile(sourceSyncFile, targetSyncFile);
 			}
 			else if (event.equals(SyncFile.EVENT_UPDATE)) {
 				if (sourceSyncFile == null) {

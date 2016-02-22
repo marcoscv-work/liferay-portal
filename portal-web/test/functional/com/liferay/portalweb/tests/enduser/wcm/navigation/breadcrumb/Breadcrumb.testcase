@@ -272,7 +272,6 @@
 			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Parent Page Name" />
 			<var name="siteName" value="Site Name" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelSites">
@@ -455,6 +454,10 @@
 
 		<execute macro="ProductMenu#gotoControlPanelSites">
 			<var name="portlet" value="Sites" />
+		</execute>
+
+		<execute macro="Site#searchInputCP">
+			<var name="siteName" value="Child SiteName" />
 		</execute>
 
 		<execute macro="Page#add">

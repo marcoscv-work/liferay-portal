@@ -224,7 +224,6 @@
 			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Site Page" />
 			<var name="siteName" value="Site Name" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelSites">
@@ -270,7 +269,6 @@
 			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Site Page" />
 			<var name="siteName" value="Site Name" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
@@ -397,6 +395,8 @@
 	</command>
 
 	<command name="DeleteSitePages" priority="5">
+		<property name="portal.acceptance" value="true" />
+
 		<execute macro="ProductMenu#gotoControlPanelSites">
 			<var name="portlet" value="Sites" />
 		</execute>
@@ -416,7 +416,6 @@
 				<var name="page" value="Public Pages" />
 				<var name="pageName" value="${pageName}" />
 				<var name="siteName" value="Site Name" />
-				<var name="siteURL" value="true" />
 			</execute>
 		</for>
 
@@ -441,7 +440,6 @@
 		<execute macro="Page#add">
 			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Site Page" />
-			<var name="siteScopeSelected" value="Liferay" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoSitesPages" >
