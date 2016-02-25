@@ -10,6 +10,11 @@
 	font-family: oswaldlight;
 }
 
+.portlet, .navbar-nav, .navbar {
+	margin-bottom: 0;
+	margin-top: 0;
+}
+
 .text-info {
 	color: $primary-brand-color;
 }
@@ -27,12 +32,14 @@
 	background-color: $tertiary-brand-color;
 	color: $secondary-brand-color;
 	margin-bottom: 0;
-	padding: 200px 0;
+	padding: 8% 0;
 	position: static;
 
 	&.aspect-ratio-bg-cover {
-		@include md() {
-			padding: 350px 0 250px;
+		padding-top: 25%;
+
+		@include sm() {
+			padding-bottom: 14%;
 		}
 	}
 }
@@ -43,36 +50,48 @@
 }
 
 #image-tiles {
-	position: relative;
-
-	[class*="col-"] {
-		position: static
+	@include sm() {
+		position: relative;
 	}
 
-	@include md() {
-		.container {
-			left: 0;
-			position: absolute;
+	.background-placeholder {
+		background-position: center;
+		background-size: cover;
+		bottom: 0;
+		left: 0;
+		position: absolute;
+		top: 0;
+
+		@include media-query(null, $breakpoint_tablet - 1) {
 			right: 0;
 		}
+	}
 
-		.aspect-ratio {
-			position: static
-		}
+	.texture-background {
+		padding: 2% 0 10%;
 
-		.xl-background.aspect-ratio {
-			padding-bottom: 61%;
+		@include lg() {
+			padding-bottom: 25%;
 		}
 	}
 }
 
-.xl-background  {
-	padding-left: 0;
-	padding-right: 0;
+.xl-background {
+	@include sm() {
+		position: static;
+	}
+
+	@include media-query(null, $breakpoint_tablet - 1) {
+		position: relative;
+	}
 
 	.lead {
 		color: $tertiary-brand-color;
-		margin: 104px 0 60px;
+		margin: 10% 0 8%;
+
+		@include md() {
+			margin-top: 104px;
+		}
 	}
 
 	.small {
@@ -81,20 +100,16 @@
 }
 
 .texture-background {
-	.h1 {
-		font-size: 60px;
-	}
-
-	&.aspect-ratio-bg-cover {
-		padding-bottom: 30%;
-
-		@include lg() {
-			padding-bottom: 91%
+	@include md() {
+		.h1 {
+			font-size: 60px;
 		}
 	}
 }
 
 .list-module {
+	margin-bottom: 20px;
+
 	.icon-minus {
 		font-size: 7px;
 		vertical-align: middle;

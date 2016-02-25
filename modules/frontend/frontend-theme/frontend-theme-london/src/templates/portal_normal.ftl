@@ -23,7 +23,11 @@
 			<header id="banner" role="banner">
 				<div class="container">
 
-					<nav class="navbar">
+					<nav class="navbar navbar-inverse">
+						<#if has_navigation && is_setup_complete>
+							<#include full_templates_path + "/navigation.ftl">
+						</#if>
+
 						<div class="navbar-header">
 							<a class="${logo_css_class}" href="${site_default_url}" rel="home" title="<@liferay.language_format arguments="${site_name}" key="go-to-x" />">
 								<img alt="${logo_description}" height="${company_logo_height}" src="${site_logo}" width="${company_logo_width}" />
@@ -37,18 +41,36 @@
 							<button class="collapsed navbar-toggle" data-target="#navigationCollapse" data-toggle="collapse" type="button">
 								<span class="icon-bar"></span>
 								<span class="icon-bar"></span>
+								<span class="icon-bar"></span>
 							</button>
 						</div>
 
-						<#if has_navigation && is_setup_complete>
-							<#include full_templates_path + "/navigation.ftl">
-						</#if>
 					</nav>
 
 				</div>
 			</header>
 
+			<main id="content" role="main">
 			<#include "${full_templates_path}/TEMP-content.ftl" />
+				<#--<#if selectable>
+					<@liferay_util["include"] page=content_include />
+				<#else>
+					${portletDisplay.recycle()}
+
+					${portletDisplay.setTitle(the_title)}
+
+					<@liferay_theme["wrap-portlet"] page="portlet.ftl">
+						<@liferay_util["include"] page=content_include />
+					</@>
+				</#if>-->
+
+				<@liferay_util["include"] page=body_bottom_include />
+
+				<@liferay_util["include"] page=bottom_include />
+
+			</main>
+
+
 
 			<footer id="footer" role="contentinfo">
 
@@ -96,30 +118,6 @@
 
 			</footer>
 
-		</div>
-
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12">
-
-					<#if selectable>
-						<@liferay_util["include"] page=content_include />
-					<#else>
-						${portletDisplay.recycle()}
-
-						${portletDisplay.setTitle(the_title)}
-
-						<@liferay_theme["wrap-portlet"] page="portlet.ftl">
-							<@liferay_util["include"] page=content_include />
-						</@>
-					</#if>
-
-					<@liferay_util["include"] page=body_bottom_include />
-
-					<@liferay_util["include"] page=bottom_include />
-
-				</div>
-			</div>
 		</div>
 
 	</body>
