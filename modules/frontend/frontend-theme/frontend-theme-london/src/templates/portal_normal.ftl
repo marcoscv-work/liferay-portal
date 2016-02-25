@@ -64,19 +64,13 @@
 					</@>
 				</#if>-->
 
-				<@liferay_util["include"] page=body_bottom_include />
-
-				<@liferay_util["include"] page=bottom_include />
-
 			</main>
-
-
 
 			<footer id="footer" role="contentinfo">
 
 				<nav class="container lead" id="company-info">
 					<div class="row" id="footer-logo">
-						<div class="col-md-12">
+						<div class="container">
 							<img alt="1975 London" src="${images_folder}/content/footer-logo@1x.png">
 						</div>
 					</div>
@@ -97,7 +91,7 @@
 						</ul>
 					</div>
 					<div class="row" id="legal-links">
-						<ul class="col-xs-12 list-inline">
+						<ul class="container list-inline">
 							<li><a href="#">Legal</a></li>
 							<li><a href="#">Cookies</a></li>
 							<li><a href="#">Legal Terms</a></li>
@@ -117,8 +111,11 @@
 				</#if> -->
 
 			</footer>
-
 		</div>
+
+		<@liferay_util["include"] page=body_bottom_include />
+
+		<@liferay_util["include"] page=bottom_include />
 
 	</body>
 </html>

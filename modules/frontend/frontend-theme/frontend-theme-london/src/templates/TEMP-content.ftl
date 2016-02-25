@@ -1,5 +1,4 @@
-
-
+<main id="content" role="main">
 	<h1 class="hide-accessible">${the_title}</h1>
 
 	<div class="aspect-ratio aspect-ratio-bg-cover jumbotron" style="background-image: url(${images_folder}/content/primary-background.jpg)">
@@ -16,20 +15,20 @@
 	</div>
 
 	<div class="container-fluid">
-		<div class="col-no-padding row">
-			<div class="col-md-4">
+		<div class="row">
+			<div class="col-md-4 col-no-padding">
 				<a href="#" title="[Text Hint]">
 					<div class="aspect-ratio aspect-ratio-4-to-3 aspect-ratio-bg-cover" style="background-image:url(${images_folder}/content/640x480_1.jpg);">
 					</div>
 				</a>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-4 col-no-padding">
 				<a href="#" title="[Text Hint]">
 					<div class="aspect-ratio aspect-ratio-4-to-3 aspect-ratio-bg-cover" style="background-image:url(${images_folder}/content/640x480_2.jpg);">
 					</div>
 				</a>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-4 col-no-padding">
 				<a href="#" title="[Text Hint]">
 					<div class="aspect-ratio aspect-ratio-4-to-3 aspect-ratio-bg-cover" style="background-image:url(${images_folder}/content/640x480_3.jpg);">
 					</div>
@@ -39,8 +38,8 @@
 	</div>
 
 	<div class="container-fluid">
-		<div class="col-no-padding row" id="image-tiles">
-			<div class="col-lg-8 col-md-8 xl-background">
+		<div class="row" id="image-tiles">
+			<div class="col-lg-8 col-md-8 col-no-padding xl-background">
 				<span class="background-placeholder col-md-8" style="background-image: url(${images_folder}/content/background_2_2.jpg)"></span>
 				<div class="container-fluid">
 					<div class=" col-lg-4 col-md-6 col-xs-6 h1">
@@ -49,7 +48,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-lg-4 col-md-4">
+			<div class="col-lg-4 col-md-4 col-no-padding">
 				<div class="texture-background" style="background-image: url(${images_folder}/content/background_1_2_1.png)">
 					<div class="container-fluid">
 						<div class="col-lg-8">
@@ -114,4 +113,35 @@
 			</div>
 		</section>
 	</div>
-
+	<nav class="container lead" id="company-info">
+		<div class="row" id="footer-logo">
+			<div class="container">
+				<img alt="1975 London" src="${images_folder}/content/footer-logo@1x.png">
+			</div>
+		</div>
+		<div class="row text-lowercase" id="site-links">
+			<ul class="col-md-2 col-xs-6 list-unstyled">
+				<li><a href="#">About</a></li>
+				<li><a href="#">Careers</a></li>
+				<li><a href="#">Blogs</a></li>
+				<li><a href="#">Media</a></li>
+				<li><a href="#">Shop</a></li>
+				<li><a href="#">Help</a></li>
+			</ul>
+			<ul class="col-md-2 col-xs-6 list-unstyled">
+				<li><a href="#">Developers</a></li>
+				<li><a href="#">Goals</a></li>
+				<li><a href="#">Market</a></li>
+				<li><a href="#">Visit us</a></li>
+			</ul>
+		</div>
+		<div class="row" id="legal-links">
+			<ul class="container list-inline">
+				<li><a href="#">Legal</a></li>
+				<li><a href="#">Cookies</a></li>
+				<li><a href="#">Legal Terms</a></li>
+				<li><a href="#">2015 1975 London Inc.</a></li>
+			</ul>
+		</div>
+	</nav>
+</main>
