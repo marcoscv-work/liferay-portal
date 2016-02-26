@@ -51,64 +51,31 @@
 			</header>
 
 			<main id="content" role="main">
-			<#include "${full_templates_path}/TEMP-content.ftl" />
-				<#--<#if selectable>
-					<@liferay_util["include"] page=content_include />
-				<#else>
-					${portletDisplay.recycle()}
+				<#include "${full_templates_path}/TEMP-content.ftl" />
+				<div class="container">
+					<h1 class="hide-accessible">${the_title}</h1>
 
-					${portletDisplay.setTitle(the_title)}
-
-					<@liferay_theme["wrap-portlet"] page="portlet.ftl">
+					<#if selectable>
 						<@liferay_util["include"] page=content_include />
-					</@>
-				</#if>-->
+					<#else>
+						${portletDisplay.recycle()}
 
+						${portletDisplay.setTitle(the_title)}
+
+						<@liferay_theme["wrap-portlet"] page="portlet.ftl">
+							<@liferay_util["include"] page=content_include />
+						</@>
+					</#if>
+				</div>
 			</main>
 
 			<footer id="footer" role="contentinfo">
-
-				<nav class="container lead" id="company-info">
-					<div class="row" id="footer-logo">
-						<div class="container">
-							<img alt="1975 London" src="${images_folder}/content/footer-logo@1x.png">
-						</div>
-					</div>
-					<div class="row text-lowercase" id="site-links">
-						<ul class="col-md-2 col-xs-6 list-unstyled">
-							<li><a href="#">About</a></li>
-							<li><a href="#">Careers</a></li>
-							<li><a href="#">Blogs</a></li>
-							<li><a href="#">Media</a></li>
-							<li><a href="#">Shop</a></li>
-							<li><a href="#">Help</a></li>
-						</ul>
-						<ul class="col-md-2 col-xs-6 list-unstyled">
-							<li><a href="#">Developers</a></li>
-							<li><a href="#">Goals</a></li>
-							<li><a href="#">Market</a></li>
-							<li><a href="#">Visit us</a></li>
-						</ul>
-					</div>
-					<div class="row" id="legal-links">
-						<ul class="container list-inline">
-							<li><a href="#">Legal</a></li>
-							<li><a href="#">Cookies</a></li>
-							<li><a href="#">Legal Terms</a></li>
-							<li><a href="#">2015 1975 London Inc.</a></li>
-						</ul>
-					</div>
-				</nav>
 
 				<div class="container">
 					<p id="copyright">
 						<small><@liferay.language key="powered-by" /> <a href="http://www.liferay.com" rel="external">Liferay</a></small>
 					</p>
 				</div>
-
-				<#-- <#if has_navigation>
-					<#include "${full_templates_path}/footer.ftl" />
-				</#if> -->
 
 			</footer>
 		</div>
