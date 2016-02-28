@@ -1,0 +1,124 @@
+#wrapper  {
+	.signed-in & {
+		margin-top: 20px;
+	}
+
+	.signed-out & {
+		margin-top: 0;
+		padding-top: 0;
+	}
+
+	@include sm() {
+		.signed-in & {
+			margin-top: 32px;
+		}
+
+		.signed-out & {
+			margin-top: 0;
+		}
+	}
+}
+
+a.logo {
+	position: absolute;
+
+	img {
+		@include transition-delay(0s);
+		@include transition-duration(0.3s);
+		@include transition-property(width, height, -o-transform);
+		@include transition-timing-function(ease-in);
+	}
+}
+
+@include media-query(null, $breakpoint_tablet - 1) {
+	.collapsing + div a.logo img, .collapse.in + div a.logo img {
+		height: 48px;
+		width: 48px;
+	}
+}
+
+.navbar-inverse, #banner {
+	background-color: $tertiary-background-color;
+}
+
+.navbar.navbar-inverse {
+	border-width: 0;
+
+	.navbar-header {
+		position: absolute;
+		top: 0;
+		width: 100%;
+	}
+
+	.navbar-collapse:first-child {
+		@include media-query(null, $screen-xs-max)  {
+			background-color: $tertiary-background-color;
+			border: solid rgba($secondary-brand-color, 0.5);
+			border-width: 1px 0 0;
+			margin: 50px -15px 0;
+			position: static;
+
+			li {
+				border-bottom: 1px solid rgba($secondary-brand-color, 0.3);
+			}
+		}
+	}
+}
+
+.portlet:hover .portlet-topper {
+	z-index: 500;
+}
+
+.navbar-inverse {
+	margin-bottom: 0;
+
+	& .navbar-toggle {
+		border: 1px solid $secondary-brand-color;
+
+		&:hover, &:focus {
+			background-color: $primary-brand-background-color;
+		}
+	}
+}
+
+#navigationCollapse {
+	@include sm() {
+		position: absolute;
+		right: 0;
+		z-index: auto;
+	}
+
+	.user-avatar-image {
+		display: inline-block;
+		vertical-align: middle;
+	}
+
+	a {
+		color: $secondary-brand-color;
+		display: block;
+
+		&:hover, &:focus {
+			text-decoration: none;
+		}
+	}
+
+	.user-personal-bar a {
+		padding: 11px 15px;
+    }
+}
+
+@include sm() {
+	#banner .navbar {
+		margin: 0;
+		min-height: 0;
+	}
+
+	#navigation, .user-personal-bar {
+		display: inline-block;
+		vertical-align: middle;
+	}
+}
+
+.controls-hidden .navbar-inverse {
+	border-width: 0;
+}
