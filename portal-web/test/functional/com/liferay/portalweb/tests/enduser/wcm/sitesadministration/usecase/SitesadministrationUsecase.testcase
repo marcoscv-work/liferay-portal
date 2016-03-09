@@ -167,10 +167,18 @@
 			<var name="userEmailAddress" value="userea@liferay.com" />
 		</execute>
 
+		<execute macro="Navigator#openSiteURL">
+			<var name="siteName" value="Organization Name 1" />
+		</execute>
+
 		<execute macro="Page#viewDefaultSiteTemplatePagesPG">
 			<var name="pageName" value="Home" />
 			<var name="siteName" value="Organization Name 1" />
 			<var name="siteTemplate" value="Community" />
+		</execute>
+
+		<execute macro="Navigator#openSiteURL">
+			<var name="siteName" value="Organization Name 2" />
 		</execute>
 
 		<execute macro="Page#viewDefaultSiteTemplatePagesPG">
@@ -224,7 +232,7 @@
 		</execute>
 
 		<execute function="Select" locator1="SitesEditSite#APPLICATION_ADAPTER_SELECT" value1="Sample Application Adapter Hook" />
-		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
+		<execute macro="Button#clickSave" />
 
 		<execute macro="ProductMenu#gotoControlPanelSites">
 			<var name="portlet" value="Sites" />
@@ -289,7 +297,7 @@
 		</execute>
 
 		<execute function="Select" locator1="SitesEditSite#APPLICATION_ADAPTER_SELECT" value1="Sample Application Adapter Hook" />
-		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
+		<execute macro="Button#clickSave" />
 
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="Test Page B" />
@@ -310,7 +318,7 @@
 		</execute>
 
 		<execute function="Select" locator1="SitesEditSite#APPLICATION_ADAPTER_SELECT" value1="None" />
-		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
+		<execute macro="Button#clickSave" />
 
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="Test Page B" />
@@ -544,7 +552,7 @@
 			<var name="privateVirtualHosts" value="true" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesPages">
+		<execute macro="SitePageNavigator#gotoPages">
 			<var name="page" value="Private Pages" />
 		</execute>
 
@@ -555,8 +563,8 @@
 
 		<execute macro="User#logoutPG" />
 
-		<execute macro="Page#openURL">
-			<var name="virtualHostsURL" value="http://www.able.com:8080/test-private-page" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="http://www.able.com:8080/test-private-page" />
 		</execute>
 
 		<execute macro="Site#viewPrivateVirtualHostUrlUserLoginRedirect">
@@ -651,12 +659,11 @@
 			<var name="publicVirtualHosts" value="true" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesPages">
+		<execute macro="SitePageNavigator#gotoPages">
 			<var name="page" value="Public Pages" />
 		</execute>
 
 		<execute macro="Page#add">
-			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Site Page Name" />
 		</execute>
 
@@ -669,14 +676,12 @@
 			<var method="TestPropsUtil#get('email.password.1')" name="userPassword" />
 		</execute>
 
-		<execute macro="Page#openURL">
-			<var name="siteURL" value="true" />
-			<var name="virtualHostsURL" value="http://www.able.com:8080/" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="http://www.able.com:8080/" />
 		</execute>
 
-		<execute macro="Page#openURL">
-			<var name="siteURL" value="true" />
-			<var name="virtualHostsURL" value="http://www.baker.com:8080/" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="http://www.baker.com:8080/" />
 		</execute>
 
 		<execute macro="User#logoutPG" />
@@ -711,9 +716,8 @@
 
 		<var locator="Gmail#EMAIL_VERIFICATION_CODE" name="emailVerification" />
 
-		<execute macro="Page#openURL">
-			<var name="siteURL" value="true" />
-			<var name="virtualHostsURL" value="http://www.baker.com:8080/" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="http://www.baker.com:8080/" />
 		</execute>
 
 		<execute macro="User#signInPG">
@@ -735,9 +739,8 @@
 			<var name="emailVerificationURL" value="true" />
 		</execute>
 
-		<execute macro="Page#openURL">
-			<var name="siteURL" value="true" />
-			<var name="virtualHostsURL" value="http://www.baker.com:8080/" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="http://www.baker.com:8080/" />
 		</execute>
 
 		<execute macro="User#editEmailViaMyAccount">
@@ -928,6 +931,10 @@
 			<var name="userEmailAddress" value="userea@liferay.com" />
 		</execute>
 
+		<execute macro="Navigator#openSiteURL">
+			<var name="siteName" value="Site1 Name" />
+		</execute>
+
 		<execute macro="Page#viewDefaultSiteTemplatePagesPG">
 			<var name="pageName" value="Home" />
 			<var name="siteName" value="Site1 Name" />
@@ -1102,7 +1109,6 @@
 
 		<execute macro="User#firstLoginPG">
 			<var name="password" value="test" />
-			<var name="siteURL" value="true" />
 			<var name="userEmailAddress" value="userea@liferay.com" />
 			<var name="virtualHostsURL" value="www.baker.com:8080/group/russia2018" />
 		</execute>
@@ -1489,7 +1495,7 @@
 			<var name="userEmailAddress" value="userea1@liferay.com" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blog Page Template" />
 		</execute>
 

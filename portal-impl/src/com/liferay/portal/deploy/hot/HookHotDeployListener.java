@@ -480,7 +480,7 @@ public class HookHotDeployListener
 
 		Element rootElement = document.getRootElement();
 
-		ClassLoader portletClassLoader = hotDeployEvent.getContextClassLoader();
+		ClassLoader portletClassLoader = servletContext.getClassLoader();
 
 		initPortalProperties(
 			servletContextName, portletClassLoader, rootElement);
@@ -498,8 +498,7 @@ public class HookHotDeployListener
 				_log.warn(servletContextName + " will be undeployed");
 			}
 
-			HotDeployUtil.fireUndeployEvent(
-				new HotDeployEvent(servletContext, portletClassLoader));
+			HotDeployUtil.fireUndeployEvent(new HotDeployEvent(servletContext));
 
 			DeployManagerUtil.undeploy(servletContextName);
 
@@ -543,8 +542,6 @@ public class HookHotDeployListener
 
 		// End backwards compatibility for 5.1.0
 
-		registerClpMessageListeners(servletContext, portletClassLoader);
-
 		DirectServletRegistryUtil.clearServlets();
 		FileAvailabilityUtil.clearAvailabilities();
 
@@ -582,8 +579,6 @@ public class HookHotDeployListener
 		if (portalProperties != null) {
 			destroyPortalProperties(servletContextName, portalProperties);
 		}
-
-		unregisterClpMessageListeners(servletContext);
 
 		Map<Object, ServiceRegistration<?>> serviceRegistrations =
 			_serviceRegistrations.remove(servletContextName);

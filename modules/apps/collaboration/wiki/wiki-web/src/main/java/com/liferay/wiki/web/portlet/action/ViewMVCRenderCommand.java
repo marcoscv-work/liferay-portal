@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.wiki.constants.WikiPortletKeys;
 import com.liferay.wiki.constants.WikiWebKeys;
+import com.liferay.wiki.engine.impl.WikiEngineRenderer;
 
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
@@ -29,6 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Iván Zaera
@@ -57,10 +60,17 @@ public class ViewMVCRenderCommand extends BaseViewPageMVCRenderCommand {
 			WikiWebKeys.DL_MIME_TYPE_DISPLAY_CONTEXT,
 			_dlMimeTypeDisplayContext);
 
+		request.setAttribute(
+			WikiWebKeys.WIKI_ENGINE_RENDERER, _wikiEngineRenderer);
+
 		return super.render(renderRequest, renderResponse);
 	}
 
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL, unbind = "-")
+	@Reference(
+		cardinality = ReferenceCardinality.OPTIONAL,
+		policy = ReferencePolicy.DYNAMIC,
+		policyOption = ReferencePolicyOption.GREEDY, unbind = "-"
+	)
 	public void setDLMimeTypeDisplayContext(
 		DLMimeTypeDisplayContext dlMimeTypeDisplayContext) {
 
@@ -72,6 +82,14 @@ public class ViewMVCRenderCommand extends BaseViewPageMVCRenderCommand {
 		return "/wiki/view.jsp";
 	}
 
+	@Reference(unbind = "-")
+	protected void setWikiEngineRenderer(
+		WikiEngineRenderer wikiEngineRenderer) {
+
+		_wikiEngineRenderer = wikiEngineRenderer;
+	}
+
 	private DLMimeTypeDisplayContext _dlMimeTypeDisplayContext;
+	private WikiEngineRenderer _wikiEngineRenderer;
 
 }

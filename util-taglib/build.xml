@@ -6,7 +6,7 @@
 	<property name="deploy.dir" value="${app.server.lib.portal.dir}" />
 	<property name="jar.file" value="${ant.project.name}" />
 	<property name="manifest.bundle.name" value="Liferay Util Taglib" />
-	<property name="manifest.bundle.symbolic.name" value="util-taglib" />
+	<property name="manifest.bundle.symbolic.name" value="com.liferay.util.taglib" />
 
 	<macrodef name="clean">
 		<sequential>
@@ -101,6 +101,28 @@
 			<jvmarg value="-Dtagbuilder.templates.dir=com/liferay/alloy/tools/tagbuilder/templates/" />
 			<jvmarg value="-Dtagbuilder.tld.dir=${project.dir}/util-taglib/src/META-INF/" />
 		</java>
+	</target>
+
+	<target name="jar-tlddoc" depends="taglibdoc">
+		<zip destfile="util-taglib-tlddoc.jar">
+			<zipfileset dir="${doc.dir}/taglibs" />
+		</zip>
+	</target>
+
+	<target name="publish-portal-release" depends="jar,jar-javadoc,jar-sources,jar-tlddoc">
+		<publish-portal-artifact >
+			<attach classifier="javadoc" file="${artifact.name}-javadoc.jar" />
+			<attach classifier="sources" file="${artifact.name}-sources.jar" />
+			<attach classifier="tlddoc" file="${artifact.name}-tlddoc.jar" />
+		</publish-portal-artifact>
+	</target>
+
+	<target name="publish-portal-snapshot" depends="jar,jar-javadoc,jar-sources,jar-tlddoc">
+		<publish-portal-artifact snapshot="true">
+			<attach classifier="javadoc" file="${artifact.name}-javadoc.jar" />
+			<attach classifier="sources" file="${artifact.name}-sources.jar" />
+			<attach classifier="tlddoc" file="${artifact.name}-tlddoc.jar" />
+		</publish-portal-artifact>
 	</target>
 
 	<target name="taglibdoc" depends="validate-tld">

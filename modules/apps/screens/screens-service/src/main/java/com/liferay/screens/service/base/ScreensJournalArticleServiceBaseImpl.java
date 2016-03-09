@@ -114,25 +114,6 @@ public abstract class ScreensJournalArticleServiceBaseImpl
 	}
 
 	/**
-	 * Returns the screens user remote service.
-	 *
-	 * @return the screens user remote service
-	 */
-	public com.liferay.screens.service.ScreensUserService getScreensUserService() {
-		return screensUserService;
-	}
-
-	/**
-	 * Sets the screens user remote service.
-	 *
-	 * @param screensUserService the screens user remote service
-	 */
-	public void setScreensUserService(
-		com.liferay.screens.service.ScreensUserService screensUserService) {
-		this.screensUserService = screensUserService;
-	}
-
-	/**
 	 * Returns the counter local service.
 	 *
 	 * @return the counter local service
@@ -409,7 +390,7 @@ public abstract class ScreensJournalArticleServiceBaseImpl
 			sql = PortalUtil.transformSQL(sql);
 
 			SqlUpdate sqlUpdate = SqlUpdateFactoryUtil.getSqlUpdate(dataSource,
-					sql, new int[0]);
+					sql);
 
 			sqlUpdate.update();
 		}
@@ -424,8 +405,6 @@ public abstract class ScreensJournalArticleServiceBaseImpl
 	protected com.liferay.screens.service.ScreensDDLRecordService screensDDLRecordService;
 	@BeanReference(type = com.liferay.screens.service.ScreensJournalArticleService.class)
 	protected ScreensJournalArticleService screensJournalArticleService;
-	@BeanReference(type = com.liferay.screens.service.ScreensUserService.class)
-	protected com.liferay.screens.service.ScreensUserService screensUserService;
 	@ServiceReference(type = com.liferay.counter.kernel.service.CounterLocalService.class)
 	protected com.liferay.counter.kernel.service.CounterLocalService counterLocalService;
 	@ServiceReference(type = com.liferay.journal.service.JournalArticleLocalService.class)

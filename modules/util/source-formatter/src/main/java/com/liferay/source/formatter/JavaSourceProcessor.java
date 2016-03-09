@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.tools.ImportsFormatter;
 import com.liferay.portal.tools.JavaImportsFormatter;
 import com.liferay.portal.tools.ToolsUtil;
 import com.liferay.source.formatter.util.FileUtil;
@@ -52,13 +53,49 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		return _INCLUDES;
 	}
 
-	protected static String checkAnnotationParameterProperties(
+	protected String applyDiamondOperator(String content) {
+		Matcher matcher = _diamondOperatorPattern.matcher(content);
+
+		while (matcher.find()) {
+			String match = matcher.group();
+			String whitespace = matcher.group(4);
+			String parameterType = matcher.group(5);
+
+			String replacement = StringUtil.replaceFirst(
+				match, whitespace + "<" + parameterType + ">", "<>");
+
+			content = StringUtil.replace(content, match, replacement);
+		}
+
+		return content;
+	}
+
+	protected String checkAnnotationMetaTypeProperties(
+		String content, String annotation) {
+
+		if (!annotation.contains("@Meta.")) {
+			return content;
+		}
+
+		Matcher matcher = _annotationMetaTypePattern.matcher(annotation);
+
+		if (!matcher.find()) {
+			return content;
+		}
+
+		String newAnnotation = StringUtil.replaceFirst(
+			annotation, StringPool.PERCENT, StringPool.BLANK, matcher.start());
+
+		return StringUtil.replace(content, annotation, newAnnotation);
+	}
+
+	protected String checkAnnotationParameterProperties(
 		String content, String annotation) {
 
 		int x = annotation.indexOf("property = {");
 
 		if (x == -1) {
-			return null;
+			return content;
 		}
 
 		int y = x;
@@ -99,7 +136,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			}
 
 			if ((x == -1) || (y == -1) || (z == -1)) {
-				return null;
+				return content;
 			}
 
 			String propertyName = parameterProperty.substring(x + 1, y);
@@ -120,23 +157,6 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 			previousPropertyName = propertyName;
 			previousPropertyNameAndValue = propertyNameAndValue;
-		}
-
-		return null;
-	}
-
-	protected String applyDiamondOperator(String content) {
-		Matcher matcher = _diamondOperatorPattern.matcher(content);
-
-		while (matcher.find()) {
-			String match = matcher.group();
-			String whitespace = matcher.group(4);
-			String parameterType = matcher.group(5);
-
-			String replacement = StringUtil.replaceFirst(
-				match, whitespace + "<" + parameterType + ">", "<>");
-
-			content = StringUtil.replace(content, match, replacement);
 		}
 
 		return content;
@@ -229,12 +249,12 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			boolean bndInheritRequired = (Boolean)bndInheritTuple.getObject(1);
 
 			if (bndContent.contains("-dsannotations-options: inherit")) {
-				if (!bndInheritRequired) {
+				/*if (!bndInheritRequired) {
 					printError(
 						bndFileLocation,
 						"Redundant '-dsannotations-options: inherit': " +
 							bndFileLocation + "bnd.bnd");
-				}
+				}*/
 			}
 			else if (bndInheritRequired) {
 				printError(
@@ -435,6 +455,21 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		}
 	}
 
+	protected void checkUpgradeClass(String fileName, String content) {
+		Matcher matcher = _upgradeExtendsPattern.matcher(content);
+
+		if (!matcher.find()) {
+			return;
+		}
+
+		if (content.contains("\tupgradeTable(") &&
+			!content.contains("void upgradeTable(")) {
+
+			processErrorMessage(
+				fileName, "Use UpgradeProcess.alter: " + fileName);
+		}
+	}
+
 	protected void checkXMLSecurity(
 		String fileName, String content, boolean isRunOutsidePortalExclusion) {
 
@@ -551,7 +586,9 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 		newContent = fixCompatClassImports(absolutePath, newContent);
 
-		newContent = JavaImportsFormatter.stripJavaImports(
+		ImportsFormatter importsFormatter = new JavaImportsFormatter();
+
+		newContent = importsFormatter.format(
 			newContent, packagePath, className);
 
 		newContent = StringUtil.replace(
@@ -597,6 +634,31 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 						"\n" + matcher.group(1) + "}\n", matcher.start(3) - 1);
 
 					continue;
+				}
+			}
+
+			matcher = _incorrectLineBreakPattern5.matcher(newContent);
+
+			if (matcher.find()) {
+				String tabs = matcher.group(2);
+
+				Pattern pattern = Pattern.compile(
+					"\n" + tabs + "([^\t]{2})(?!.*\n" + tabs + "[^\t])",
+					Pattern.DOTALL);
+
+				Matcher matcher2 = pattern.matcher(
+					newContent.substring(0, matcher.start(2)));
+
+				if (matcher2.find()) {
+					String match = matcher2.group(1);
+
+					if (!match.equals(").")) {
+						newContent = StringUtil.replaceFirst(
+							newContent, "\n" + matcher.group(2), StringPool.BLANK,
+							matcher.end(1));
+
+						continue;
+					}
 				}
 			}
 
@@ -815,12 +877,12 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		newContent = fixIncorrectParameterTypeForLanguageUtil(
 			newContent, false, fileName);
 
-		if (portalSource && fileName.contains("/portal-service/") &&
+		if (portalSource && fileName.contains("/portal-kernel/") &&
 			content.contains("import javax.servlet.jsp.")) {
 
 			processErrorMessage(
 				fileName,
-				"Never import javax.servlet.jsp.* from portal-service " +
+				"Never import javax.servlet.jsp.* from portal-kernel " +
 					fileName);
 		}
 
@@ -898,6 +960,14 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 				"Use AutoBatchPreparedStatementUtil instead of " +
 					"DatabaseMetaData.supportsBatchUpdates: " + fileName);
 		}
+
+		// LPS-62786
+
+		checkPropertyUtils(fileName, newContent);
+
+		// LPS-63652
+
+		checkUpgradeClass(fileName, newContent);
 
 		newContent = getCombinedLinesContent(
 			newContent, _combinedLinesPattern1);
@@ -1077,7 +1147,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 				String codeBlock = content.substring(pos + 1, matcher1.end());
 
 				String firstLine = codeBlock.substring(
-					0, codeBlock.indexOf(CharPool.NEW_LINE));
+					0, codeBlock.indexOf(CharPool.NEW_LINE) + 1);
 
 				Matcher matcher2 = _incorrectCloseCurlyBracePattern2.matcher(
 					firstLine);
@@ -1250,7 +1320,10 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 					String newContent = checkAnnotationParameterProperties(
 						content, annotation);
 
-					if (newContent != null) {
+					newContent = checkAnnotationMetaTypeProperties(
+						newContent, annotation);
+
+					if (!newContent.equals(content)) {
 						return formatAnnotations(
 							fileName, javaTermName, newContent, indent);
 					}
@@ -1556,7 +1629,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 	}
 
 	protected String formatIfClause(String ifClause) throws IOException {
-		String strippedQuotesIfClause = stripQuotes(ifClause, CharPool.QUOTE);
+		String strippedQuotesIfClause = stripQuotes(ifClause);
 
 		if (strippedQuotesIfClause.contains("!(") ||
 			strippedQuotesIfClause.contains("//")) {
@@ -1600,11 +1673,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			line = StringUtil.replace(
 				line, StringPool.TAB, StringPool.FOUR_SPACES);
 
-			String strippedQuotesLine = stripQuotes(
-				trimmedLine, CharPool.QUOTE);
-
-			strippedQuotesLine = stripQuotes(
-				strippedQuotesLine, CharPool.APOSTROPHE);
+			String strippedQuotesLine = stripQuotes(trimmedLine);
 
 			int closeParenthesesCount = StringUtil.count(
 				strippedQuotesLine, StringPool.CLOSE_PARENTHESIS);
@@ -1953,11 +2022,25 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 				if (!trimmedLine.startsWith(StringPool.DOUBLE_SLASH) &&
 					!trimmedLine.startsWith(StringPool.STAR)) {
 
-					String strippedQuotesLine = stripQuotes(
-						trimmedLine, CharPool.QUOTE);
+					String strippedQuotesLine = stripQuotes(trimmedLine);
 
-					strippedQuotesLine = stripQuotes(
-						strippedQuotesLine, CharPool.APOSTROPHE);
+					int strippedQuotesLineCloseParenthesisCount =
+						StringUtil.count(
+							strippedQuotesLine, StringPool.CLOSE_PARENTHESIS);
+					int strippedQuotesLineOpenParenthesisCount =
+						StringUtil.count(
+							strippedQuotesLine, StringPool.OPEN_PARENTHESIS);
+
+					if (!trimmedLine.startsWith(StringPool.OPEN_PARENTHESIS) &&
+						trimmedLine.endsWith(") {") &&
+						(strippedQuotesLineOpenParenthesisCount > 0) &&
+						(strippedQuotesLineOpenParenthesisCount >
+							strippedQuotesLineCloseParenthesisCount)) {
+
+						processErrorMessage(
+							fileName,
+							"line break: " + fileName + " " + lineCount);
+					}
 
 					if (line.endsWith(StringPool.OPEN_PARENTHESIS)) {
 						if (line.contains(" && ") || line.contains(" || ")) {
@@ -2022,9 +2105,6 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 					}
 
 					if (Validator.isNull(ifClause) &&
-						!previousLine.endsWith(")") &&
-						!previousLine.endsWith(") {") &&
-						!previousLine.endsWith(") +") &&
 						!previousLine.contains("\tthrows ") &&
 						!previousLine.contains(" throws ") &&
 						(previousLineLeadingTabCount ==
@@ -2045,8 +2125,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 							String linePart = previousLine.substring(0, x);
 
-							linePart = BaseSourceProcessor.stripQuotes(
-								linePart, CharPool.QUOTE);
+							linePart = stripQuotes(linePart);
 
 							int closeParenthesesCount = StringUtil.count(
 								linePart, StringPool.CLOSE_PARENTHESIS);
@@ -2055,6 +2134,27 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 							int lessThanCount = StringUtil.count(
 								linePart, StringPool.LESS_THAN);
 							int openParenthesesCount = StringUtil.count(
+								linePart, StringPool.OPEN_PARENTHESIS);
+
+							if ((closeParenthesesCount !=
+									openParenthesesCount) ||
+								(greaterThanCount != lessThanCount)) {
+
+								continue;
+							}
+
+							linePart = previousLine.substring(x);
+
+							linePart = BaseSourceProcessor.stripQuotes(
+								linePart, CharPool.QUOTE);
+
+							closeParenthesesCount = StringUtil.count(
+								linePart, StringPool.CLOSE_PARENTHESIS);
+							greaterThanCount = StringUtil.count(
+								linePart, StringPool.GREATER_THAN);
+							lessThanCount = StringUtil.count(
+								linePart, StringPool.LESS_THAN);
+							openParenthesesCount = StringUtil.count(
 								linePart, StringPool.OPEN_PARENTHESIS);
 
 							if ((closeParenthesesCount !=
@@ -2135,12 +2235,9 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 					else if (trimmedLine.endsWith(StringPool.COMMA) &&
 							 !trimmedLine.startsWith("for (")) {
 
-						int closeParenthesisCount = StringUtil.count(
-							strippedQuotesLine, StringPool.CLOSE_PARENTHESIS);
-						int openParenthesisCount = StringUtil.count(
-							strippedQuotesLine, StringPool.OPEN_PARENTHESIS);
+						if (strippedQuotesLineCloseParenthesisCount <
+								strippedQuotesLineOpenParenthesisCount) {
 
-						if (closeParenthesisCount < openParenthesisCount) {
 							processErrorMessage(
 								fileName,
 								"line break: " + fileName + " " + lineCount);
@@ -2982,6 +3079,52 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			}
 		}
 
+		if (previousLine.endsWith(StringPool.PLUS) &&
+			(lineTabCount == (previousLineTabCount + 1))) {
+
+			int x = -1;
+
+			while (true) {
+				x = trimmedLine.indexOf(" +", x + 1);
+
+				if ((x == -1) ||
+					(previousLineLength + 3 + x) > _MAX_LINE_LENGTH) {
+
+					break;
+				}
+
+				if (ToolsUtil.isInsideQuotes(trimmedLine, x)) {
+					continue;
+				}
+
+				String linePart = trimmedLine.substring(0, x + 2);
+
+				String strippedQuotesLinePart = stripQuotes(linePart);
+
+				int closeParenthesesCount = StringUtil.count(
+					strippedQuotesLinePart, StringPool.CLOSE_PARENTHESIS);
+				int openParenthesesCount = StringUtil.count(
+					strippedQuotesLinePart, StringPool.OPEN_PARENTHESIS);
+
+				if (closeParenthesesCount != openParenthesesCount) {
+					continue;
+				}
+
+				if (trimmedLine.equals(linePart)) {
+					processErrorMessage(
+						fileName,
+						"line break: " + fileName + " " + lineCount);
+
+					return null;
+				}
+
+				return getCombinedLinesContent(
+					content, fileName, line, trimmedLine, lineLength, lineCount,
+					previousLine, linePart + StringPool.SPACE, tabDiff, true,
+					true, 0);
+			}
+		}
+
 		if (previousLine.endsWith(StringPool.COMMA) &&
 			(previousLineTabCount == lineTabCount) &&
 			!trimmedPreviousLine.equals("},")) {
@@ -3081,8 +3224,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		}
 
 		if (line.endsWith(StringPool.COMMA)) {
-			String strippedQuotesLine = stripQuotes(
-				trimmedLine, CharPool.QUOTE);
+			String strippedQuotesLine = stripQuotes(trimmedLine);
 
 			int openParenthesisCount = StringUtil.count(
 				strippedQuotesLine, StringPool.OPEN_PARENTHESIS);
@@ -3339,8 +3481,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			}
 
 			if (Validator.isNotNull(previousLine)) {
-				String linePart1 = stripQuotes(
-					line.substring(0, x), CharPool.QUOTE);
+				String linePart1 = stripQuotes(line.substring(0, x));
 
 				int closeParenthesesCount = StringUtil.count(
 					linePart1, StringPool.CLOSE_PARENTHESIS);
@@ -3356,7 +3497,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 				continue;
 			}
 
-			String linePart2 = stripQuotes(line.substring(x), CharPool.QUOTE);
+			String linePart2 = stripQuotes(line.substring(x));
 
 			int closeParenthesesCount = StringUtil.count(
 				linePart2, StringPool.CLOSE_PARENTHESIS);
@@ -3845,7 +3986,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			return false;
 		}
 
-		javaParameter = stripQuotes(javaParameter, CharPool.QUOTE);
+		javaParameter = stripQuotes(javaParameter);
 
 		int openParenthesisCount = StringUtil.count(
 			javaParameter, StringPool.OPEN_PARENTHESIS);
@@ -3953,6 +4094,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 	private boolean _addMissingDeprecationReleaseVersion;
 	private boolean _allowUseServiceUtilInServiceImpl;
+	private Pattern _annotationMetaTypePattern = Pattern.compile(
+		"\\s(name|description) = \"%");
 	private Map<String, Tuple> _bndInheritRequiredTupleMap = new HashMap<>();
 	private Pattern _catchExceptionPattern = Pattern.compile(
 		"\n(\t+)catch \\((.+Exception) (.+)\\) \\{\n");
@@ -3978,7 +4121,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 	private Pattern _incorrectCloseCurlyBracePattern1 = Pattern.compile(
 		"\n(.+)\n\n(\t+)}\n");
 	private Pattern _incorrectCloseCurlyBracePattern2 = Pattern.compile(
-		"(\t| )@?(class |enum |interface |new )");
+		"(\t| )@?(class|enum|interface|new)\\s");
 	private Pattern _incorrectLineBreakPattern1 = Pattern.compile(
 		"\t(catch |else |finally |for |if |try |while ).*\\{\n\n\t+\\w");
 	private Pattern _incorrectLineBreakPattern2 = Pattern.compile(
@@ -3987,6 +4130,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		", new .*\\(.*\\) \\{\n");
 	private Pattern _incorrectLineBreakPattern4 = Pattern.compile(
 		"\n(\t*)(.*\\) \\{)([\t ]*\\}\n)");
+	private Pattern _incorrectLineBreakPattern5 = Pattern.compile(
+		"\n(\t*).*\\}\n(\t*)\\);");
 	private Pattern[] _javaSerializationVulnerabilityPatterns = new Pattern[] {
 		Pattern.compile(
 			".*(new [a-z\\.\\s]*ObjectInputStream).*", Pattern.DOTALL),
@@ -4033,6 +4178,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 	private List<String> _testAnnotationsExcludes;
 	private Pattern _throwsSystemExceptionPattern = Pattern.compile(
 		"(\n\t+.*)throws(.*) SystemException(.*)( \\{|;\n)");
+	private Pattern _upgradeExtendsPattern = Pattern.compile(
+		"extends (BaseUpgrade|UpgradeProcess )");
 	private List<String> _upgradeServiceUtilExcludes;
 
 }

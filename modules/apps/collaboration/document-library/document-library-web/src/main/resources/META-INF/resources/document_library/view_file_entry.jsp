@@ -314,10 +314,10 @@ if (portletTitleBasedNavigation) {
 								<liferay-ddm:html
 									classNameId="<%= PortalUtil.getClassNameId(com.liferay.dynamic.data.mapping.model.DDMStructure.class) %>"
 									classPK="<%= ddmStructure.getPrimaryKey() %>"
-									ddmFormValues="<%= DDMBeanTranslatorUtil.translate(ddmFormValues) %>"
+									ddmFormValues="<%= ddmFormValues %>"
 									fieldsNamespace="<%= String.valueOf(ddmStructure.getPrimaryKey()) %>"
 									readOnly="<%= true %>"
-									requestedLocale="<%= locale %>"
+									requestedLocale="<%= (ddmFormValues != null) ? ddmFormValues.getDefaultLocale() : locale %>"
 									showEmptyFieldLabel="<%= false %>"
 								/>
 							</liferay-ui:panel>
@@ -350,12 +350,12 @@ if (portletTitleBasedNavigation) {
 					List<DDMStructure> ddmStructures = DDMStructureManagerUtil.getClassStructures(company.getCompanyId(), PortalUtil.getClassNameId(RawMetadataProcessor.class), DDMStructureManager.STRUCTURE_COMPARATOR_STRUCTURE_KEY);
 
 					for (DDMStructure ddmStructure : ddmStructures) {
-						com.liferay.dynamic.data.mapping.storage.DDMFormValues ddmFormValues = null;
+						DDMFormValues ddmFormValues = null;
 
 						try {
 							DLFileEntryMetadata fileEntryMetadata = DLFileEntryMetadataLocalServiceUtil.getFileEntryMetadata(ddmStructure.getStructureId(), fileVersionId);
 
-							ddmFormValues = StorageEngineUtil.getDDMFormValues(fileEntryMetadata.getDDMStorageId());
+							ddmFormValues = dlViewFileVersionDisplayContext.getDDMFormValues(fileEntryMetadata.getDDMStorageId());
 
 						}
 						catch (Exception e) {
@@ -542,7 +542,16 @@ if (portletTitleBasedNavigation) {
 			</c:if>
 
 			<c:if test="<%= PropsValues.DL_FILE_ENTRY_COMMENTS_ENABLED && showComments %>">
-				<liferay-util:include page="/document_library/file_entry_discussion.jsp" servletContext="<%= application %>" />
+				<liferay-ui:panel collapsible="<%= true %>" cssClass="lfr-document-library-comments" extended="<%= true %>" markupView="lexicon" persistState="<%= true %>" title="<%= dlViewFileVersionDisplayContext.getDiscussionLabel(locale) %>">
+					<liferay-ui:discussion
+						className="<%= dlViewFileVersionDisplayContext.getDiscussionClassName() %>"
+						classPK="<%= dlViewFileVersionDisplayContext.getDiscussionClassPK() %>"
+						formName="fm2"
+						ratingsEnabled="<%= dlPortletInstanceSettings.isEnableCommentRatings() %>"
+						redirect="<%= currentURL %>"
+						userId="<%= fileEntry.getUserId() %>"
+					/>
+				</liferay-ui:panel>
 			</c:if>
 		</div>
 	</div>

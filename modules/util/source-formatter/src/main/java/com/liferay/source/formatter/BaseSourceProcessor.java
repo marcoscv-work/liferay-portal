@@ -63,7 +63,7 @@ import org.apache.tools.ant.types.selectors.SelectorUtils;
  */
 public abstract class BaseSourceProcessor implements SourceProcessor {
 
-	public static final int PORTAL_MAX_DIR_LEVEL = 5;
+	public static final int PORTAL_MAX_DIR_LEVEL = 7;
 
 	@Override
 	public final void format() throws Exception {
@@ -195,7 +195,14 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		return false;
 	}
 
-	protected static String stripQuotes(String s, char delimeter) {
+	protected static String stripQuotes(String s) {
+		return stripQuotes(s, CharPool.APOSTROPHE, CharPool.QUOTE);
+	}
+
+	protected static String stripQuotes(String s, char... delimeters) {
+		List<Character> delimetersList = ListUtil.toList(delimeters);
+
+		char delimeter = CharPool.SPACE;
 		boolean insideQuotes = false;
 
 		StringBundler sb = new StringBundler();
@@ -223,7 +230,8 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 					}
 				}
 			}
-			else if (c == delimeter) {
+			else if (delimetersList.contains(c)) {
+				delimeter = c;
 				insideQuotes = true;
 			}
 			else {
@@ -261,9 +269,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 			return;
 		}
 
-		ifClause = stripQuotes(ifClause, CharPool.QUOTE);
-
-		ifClause = stripQuotes(ifClause, CharPool.APOSTROPHE);
+		ifClause = stripQuotes(ifClause);
 
 		if (ifClause.contains(StringPool.DOUBLE_SLASH) ||
 			ifClause.contains("/*") || ifClause.contains("*/")) {
@@ -277,6 +283,8 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 			processErrorMessage(
 				fileName,
 				"redundant parentheses: " + fileName + " " + lineCount);
+
+			return;
 		}
 
 		ifClause = stripRedundantParentheses(ifClause);
@@ -302,6 +310,8 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 							fileName,
 							"missing parentheses: " + fileName + " " +
 								lineCount);
+
+						return;
 					}
 				}
 
@@ -332,6 +342,8 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 									fileName,
 									"redundant parentheses: " + fileName + " " +
 										lineCount);
+
+								return;
 							}
 						}
 
@@ -342,6 +354,8 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 								fileName,
 								"redundant parentheses: " + fileName + " " +
 									lineCount);
+
+							return;
 						}
 					}
 
@@ -475,6 +489,15 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		}
 
 		return newContent;
+	}
+
+	protected void checkPropertyUtils(String fileName, String content) {
+		if (content.contains("org.apache.commons.beanutils.PropertyUtils")) {
+			processErrorMessage(
+				fileName,
+				"Do not use org.apache.commons.beanutils.PropertyUtils: " +
+					fileName);
+		}
 	}
 
 	protected void checkResourceUtil(
@@ -1525,7 +1548,27 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		return _mainReleaseVersion;
 	}
 
-	protected String getModuleLangDir(String moduleLocation) {
+	protected List<String> getModuleLangDirNames(
+		String moduleLocation, String buildGradleContent) {
+
+		List<String> moduleLangDirNames = new ArrayList<>();
+
+		Matcher matcher = mergeLangPattern.matcher(buildGradleContent);
+
+		if (matcher.find()) {
+			String[] sourceDirs = StringUtil.split(matcher.group(1));
+
+			for (String sourceDir : sourceDirs) {
+				sourceDir = StringUtil.trim(sourceDir);
+
+				moduleLangDirNames.add(
+					moduleLocation + StringPool.SLASH +
+						sourceDir.substring(1, sourceDir.length() - 1));
+			}
+
+			return moduleLangDirNames;
+		}
+
 		int x = moduleLocation.lastIndexOf(StringPool.SLASH);
 
 		String baseModuleName = moduleLocation.substring(0, x);
@@ -1535,7 +1578,22 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		baseModuleName = baseModuleName.substring(
 			y + 1, baseModuleName.length());
 
-		return moduleLocation.substring(0, x + 1) + baseModuleName + "-lang";
+		String moduleLangDirName =
+			moduleLocation.substring(0, x + 1) + baseModuleName +
+				"-lang/src/main/resources/content";
+
+		File moduleLangDir = new File(moduleLangDirName);
+
+		if (!moduleLangDir.exists() &&
+			moduleLangDirName.contains("/modules/ee/")) {
+
+			moduleLangDirName = StringUtil.replaceFirst(
+				moduleLangDirName, "/modules/ee/", "/modules/");
+		}
+
+		moduleLangDirNames.add(moduleLangDirName);
+
+		return moduleLangDirNames;
 	}
 
 	protected Properties getModuleLangLanguageProperties(String absolutePath)
@@ -1572,7 +1630,8 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 				buildGradleFileLocation, StringPool.SLASH, StringPool.BLANK);
 		}
 
-		Matcher matcher = langMergerPluginPattern.matcher(buildGradleContent);
+		Matcher matcher = applyLangMergerPluginPattern.matcher(
+			buildGradleContent);
 
 		if (!matcher.find()) {
 			return null;
@@ -1581,22 +1640,25 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		String moduleLocation = StringUtil.replaceLast(
 			buildGradleFileLocation, StringPool.SLASH, StringPool.BLANK);
 
-		String moduleLangDir = getModuleLangDir(moduleLocation);
-
-		String moduleLangLanguagePropertiesFileName =
-			moduleLangDir + "/src/main/resources/content/Language.properties";
-
-		File file = new File(moduleLangLanguagePropertiesFileName);
-
-		if (!file.exists()) {
-			return null;
-		}
+		List<String> moduleLangDirNames = getModuleLangDirNames(
+			moduleLocation, buildGradleContent);
 
 		properties = new Properties();
 
-		InputStream inputStream = new FileInputStream(file);
+		for (String moduleLangDirName : moduleLangDirNames) {
+			String moduleLangLanguagePropertiesFileName =
+				moduleLangDirName + "/Language.properties";
 
-		properties.load(inputStream);
+			File file = new File(moduleLangLanguagePropertiesFileName);
+
+			if (!file.exists()) {
+				continue;
+			}
+
+			InputStream inputStream = new FileInputStream(file);
+
+			properties.load(inputStream);
+		}
 
 		_moduleLangLanguageProperties.put(absolutePath, properties);
 
@@ -1735,6 +1797,34 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	protected boolean hasRedundantParentheses(
 		String s, String operator1, String operator2) {
 
+		while (true) {
+			int x = s.indexOf("!(");
+
+			if (x == -1) {
+				break;
+			}
+
+			int y = x;
+
+			while (true) {
+				y = s.indexOf(")", y + 1);
+
+				String linePart = s.substring(x, y + 1);
+
+				int closeParenthesesCount = StringUtil.count(
+					linePart, StringPool.CLOSE_PARENTHESIS);
+				int openParenthesesCount = StringUtil.count(
+					linePart, StringPool.OPEN_PARENTHESIS);
+
+				if (closeParenthesesCount == openParenthesesCount) {
+					break;
+				}
+			}
+
+			s = StringUtil.replaceFirst(s, ")", StringPool.BLANK, y);
+			s = StringUtil.replaceFirst(s, "!(", StringPool.BLANK, x);
+		}
+
 		String[] parts = StringUtil.split(s, operator1);
 
 		if (parts.length < 3) {
@@ -1744,7 +1834,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		for (int i = 1; i < (parts.length - 1); i++) {
 			String part = parts[i];
 
-			if (part.contains(operator2) || part.contains("!(")) {
+			if (part.contains(operator2)) {
 				continue;
 			}
 
@@ -2113,6 +2203,9 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		return line;
 	}
 
+	protected static Pattern applyLangMergerPluginPattern = Pattern.compile(
+		"^apply[ \t]+plugin[ \t]*:[ \t]+\"com.liferay.lang.merger\"$",
+		Pattern.MULTILINE);
 	protected static Pattern attributeNamePattern = Pattern.compile(
 		"[a-z]+[-_a-zA-Z0-9]*");
 	protected static Pattern bndContentDirPattern = Pattern.compile(
@@ -2121,11 +2214,10 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		"Collections\\.EMPTY_(LIST|MAP|SET)");
 	protected static Pattern javaSourceInsideJSPTagPattern = Pattern.compile(
 		"<%=(.+?)%>");
-	protected static Pattern langMergerPluginPattern = Pattern.compile(
-		"^apply[ \t]+plugin[ \t]*:[ \t]+\"com.liferay.lang.merger\"$",
-		Pattern.MULTILINE);
 	protected static Pattern languageKeyPattern = Pattern.compile(
 		"LanguageUtil.(?:get|format)\\([^;%]+|Liferay.Language.get\\('([^']+)");
+	protected static Pattern mergeLangPattern = Pattern.compile(
+		"mergeLang \\{\\s*sourceDirs = \\[(.*)\\]");
 	protected static boolean portalSource;
 	protected static Pattern principalExceptionPattern = Pattern.compile(
 		"SessionErrors\\.contains\\(\n?\t*(renderR|r)equest, " +

@@ -376,6 +376,10 @@
 		<priority value="ERROR" />
 	</category>
 
+	<category name="com.liferay.portal.kernel.util.LoggingTimer">
+		<priority value="INFO" />
+	</category>
+
 	<category name="com.liferay.portal.kernel.util.ReferenceRegistry">
 		<priority value="WARN" />
 	</category>
@@ -794,6 +798,10 @@
 
 	<category name="com.liferay.portal.struts.StrutsUtil">
 		<priority value="ERROR" />
+	</category>
+
+	<category name="com.liferay.portal.template.URLResourceParser">
+		<priority value="INFO" />
 	</category>
 
 	<category name="com.liferay.portal.theme.ThemeLoader">

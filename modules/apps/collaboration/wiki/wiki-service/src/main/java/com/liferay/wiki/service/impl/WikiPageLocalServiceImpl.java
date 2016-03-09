@@ -78,10 +78,11 @@ import com.liferay.social.kernel.model.SocialActivityConstants;
 import com.liferay.trash.kernel.model.TrashEntry;
 import com.liferay.trash.kernel.model.TrashVersion;
 import com.liferay.trash.kernel.util.TrashUtil;
-import com.liferay.wiki.configuration.WikiGroupServiceConfiguration;
 import com.liferay.wiki.configuration.WikiGroupServiceOverriddenConfiguration;
 import com.liferay.wiki.constants.WikiConstants;
 import com.liferay.wiki.constants.WikiPortletKeys;
+import com.liferay.wiki.engine.WikiEngine;
+import com.liferay.wiki.engine.impl.WikiEngineRenderer;
 import com.liferay.wiki.escape.WikiEscapeUtil;
 import com.liferay.wiki.exception.DuplicatePageException;
 import com.liferay.wiki.exception.NoSuchPageException;
@@ -102,6 +103,7 @@ import com.liferay.wiki.util.WikiCacheUtil;
 import com.liferay.wiki.util.WikiUtil;
 import com.liferay.wiki.util.comparator.PageCreateDateComparator;
 import com.liferay.wiki.util.comparator.PageVersionComparator;
+import com.liferay.wiki.validator.WikiPageTitleValidator;
 
 import java.io.File;
 import java.io.IOException;
@@ -118,8 +120,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
@@ -289,7 +289,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 		FileEntry fileEntry = PortletFileRepositoryUtil.addPortletFileEntry(
 			page.getGroupId(), userId, WikiPage.class.getName(),
-			page.getResourcePrimKey(), WikiPortletKeys.WIKI,
+			page.getResourcePrimKey(), WikiConstants.SERVICE_NAME,
 			folder.getFolderId(), file, fileName, mimeType, true);
 
 		if (userId == 0) {
@@ -325,7 +325,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 		FileEntry fileEntry = PortletFileRepositoryUtil.addPortletFileEntry(
 			page.getGroupId(), userId, WikiPage.class.getName(),
-			page.getResourcePrimKey(), WikiPortletKeys.WIKI,
+			page.getResourcePrimKey(), WikiConstants.SERVICE_NAME,
 			folder.getFolderId(), inputStream, fileName, mimeType, true);
 
 		if (userId == 0) {
@@ -1100,7 +1100,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		List<WikiPage> pages = wikiPagePersistence.findByN_H_S(
 			nodeId, true, WorkflowConstants.STATUS_APPROVED);
 
-		return WikiUtil.filterOrphans(pages);
+		return wikiEngineRenderer.filterOrphans(pages);
 	}
 
 	@Override
@@ -1111,7 +1111,8 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 		Map<String, WikiPage> pages = new LinkedHashMap<>();
 
-		Map<String, Boolean> links = WikiCacheUtil.getOutgoingLinks(page);
+		Map<String, Boolean> links = WikiCacheUtil.getOutgoingLinks(
+			page, wikiEngineRenderer);
 
 		for (Map.Entry<String, Boolean> entry : links.entrySet()) {
 			String curTitle = entry.getKey();
@@ -1245,7 +1246,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 			String attachmentURLPrefix)
 		throws PortalException {
 
-		String formattedContent = WikiUtil.convert(
+		String formattedContent = wikiEngineRenderer.convert(
 			page, viewPageURL, editPageURL, attachmentURLPrefix);
 
 		return new WikiPageDisplayImpl(
@@ -1718,7 +1719,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 			boolean strict, ServiceContext serviceContext)
 		throws PortalException {
 
-		validateTitle(newTitle);
+		wikiPageTitleValidator.validate(newTitle);
 
 		if (StringUtil.equalsIgnoreCase(title, newTitle)) {
 			throw new DuplicatePageException(newTitle);
@@ -1874,15 +1875,16 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 				userId, page.getGroupId(), page.getCreateDate(),
 				page.getModifiedDate(), WikiPage.class.getName(),
 				page.getPrimaryKey(), page.getUuid(), 0, assetCategoryIds,
-				assetTagNames, false, null, null, null, ContentTypes.TEXT_HTML,
-				page.getTitle(), null, null, null, null, 0, 0, priority);
+				assetTagNames, true, false, null, null, null,
+				ContentTypes.TEXT_HTML, page.getTitle(), null, null, null, null,
+				0, 0, priority);
 		}
 		else {
 			assetEntry = assetEntryLocalService.updateEntry(
 				userId, page.getGroupId(), page.getCreateDate(),
 				page.getModifiedDate(), WikiPage.class.getName(),
 				page.getResourcePrimKey(), page.getUuid(), 0, assetCategoryIds,
-				assetTagNames, page.isApproved(), null, null, null,
+				assetTagNames, true, page.isApproved(), null, null, null,
 				ContentTypes.TEXT_HTML, page.getTitle(), null, null, null, null,
 				0, 0, priority);
 		}
@@ -2025,9 +2027,9 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 						userId, page.getGroupId(), page.getCreateDate(),
 						page.getModifiedDate(), WikiPage.class.getName(),
 						page.getResourcePrimKey(), page.getUuid(), 0,
-						assetCategoryIds, assetTagNames, true, null, null, null,
-						ContentTypes.TEXT_HTML, page.getTitle(), null, null,
-						null, null, 0, 0, null);
+						assetCategoryIds, assetTagNames, true, true, null, null,
+						null, ContentTypes.TEXT_HTML, page.getTitle(), null,
+						null, null, null, 0, 0, null);
 
 					// Asset Links
 
@@ -2143,26 +2145,14 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		return wikiPagePersistence.update(page);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0 replaced by {@link
+	 *             WikiPageTitleValidator#validate(String)}
+	 */
+	@Deprecated
 	@Override
 	public void validateTitle(String title) throws PortalException {
-		if (title.equals("all_pages") || title.equals("orphan_pages") ||
-			title.equals("recent_changes")) {
-
-			throw new PageTitleException(title + " is reserved");
-		}
-
-		if (Validator.isNotNull(
-				wikiGroupServiceConfiguration.pageTitlesRegexp())) {
-
-			Pattern pattern = Pattern.compile(
-				wikiGroupServiceConfiguration.pageTitlesRegexp());
-
-			Matcher matcher = pattern.matcher(title);
-
-			if (!matcher.matches()) {
-				throw new PageTitleException();
-			}
-		}
+		wikiPageTitleValidator.validate(title);
 	}
 
 	protected void clearPageCache(WikiPage page) {
@@ -2304,7 +2294,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		}
 		else {
 			portletURL = PortletURLFactoryUtil.create(
-				request, WikiPortletKeys.WIKI, plid,
+				request, WikiConstants.SERVICE_NAME, plid,
 				PortletRequest.RENDER_PHASE);
 		}
 
@@ -2393,7 +2383,8 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 	protected boolean isLinkedTo(WikiPage page, String targetTitle)
 		throws PortalException {
 
-		Map<String, Boolean> links = WikiCacheUtil.getOutgoingLinks(page);
+		Map<String, Boolean> links = WikiCacheUtil.getOutgoingLinks(
+			page, wikiEngineRenderer);
 
 		Boolean link = links.get(StringUtil.toLowerCase(targetTitle));
 
@@ -2912,7 +2903,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		String pageDiffs = StringPool.BLANK;
 
 		try {
-			pageDiffs = WikiUtil.diffHtml(
+			pageDiffs = wikiEngineRenderer.diffHtml(
 				previousVersionPage, page, null, null, attachmentURLPrefix);
 		}
 		catch (Exception e) {
@@ -2921,7 +2912,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		String pageContent = null;
 
 		if (Validator.equals(page.getFormat(), "creole")) {
-			pageContent = WikiUtil.convert(
+			pageContent = wikiEngineRenderer.convert(
 				page, null, null, attachmentURLPrefix);
 		}
 		else {
@@ -3180,7 +3171,9 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 	protected void validate(long nodeId, String content, String format)
 		throws PortalException {
 
-		if (!WikiUtil.validate(nodeId, content, format)) {
+		WikiEngine wikiEngine = wikiEngineRenderer.fetchWikiEngine(format);
+
+		if (!wikiEngine.validate(nodeId, content)) {
 			throw new PageContentException();
 		}
 	}
@@ -3197,7 +3190,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 			throw new DuplicatePageException("{nodeId=" + nodeId + "}");
 		}
 
-		validateTitle(title);
+		wikiPageTitleValidator.validate(title);
 
 		validate(nodeId, content, format);
 	}
@@ -3205,7 +3198,10 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 	@ServiceReference(type = ConfigurationProvider.class)
 	protected ConfigurationProvider configurationProvider;
 
-	@ServiceReference(type = WikiGroupServiceConfiguration.class)
-	protected WikiGroupServiceConfiguration wikiGroupServiceConfiguration;
+	@ServiceReference(type = WikiEngineRenderer.class)
+	protected WikiEngineRenderer wikiEngineRenderer;
+
+	@ServiceReference(type = WikiPageTitleValidator.class)
+	protected WikiPageTitleValidator wikiPageTitleValidator;
 
 }

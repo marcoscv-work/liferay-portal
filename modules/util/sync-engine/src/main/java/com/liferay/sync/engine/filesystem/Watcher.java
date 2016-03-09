@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
@@ -57,19 +58,27 @@ public abstract class Watcher implements Runnable {
 		init();
 	}
 
+	public void addDeletedFilePathName(String filePathName) {
+		_deletedFilePathNames.add(filePathName);
+	}
+
+	public void addDownloadedFilePathName(String filePathName) {
+		_downloadedFilePathNames.add(filePathName);
+	}
+
 	public void close() {
 		WatcherManager.removeWatcher(_watchEventListener.getSyncAccountId());
 	}
 
-	public List<String> getDeletedFilePathNames() {
-		return _deletedFilePathNames;
-	}
-
-	public List<String> getDownloadedFilePathNames() {
-		return _downloadedFilePathNames;
-	}
-
 	public abstract void registerFilePath(Path filePath) throws IOException;
+
+	public void removeDeletedFilePathName(String filePathName) {
+		_deletedFilePathNames.remove(filePathName);
+	}
+
+	public void removeDownloadedFilePathName(String filePathName) {
+		_downloadedFilePathNames.remove(filePathName);
+	}
 
 	public abstract void unregisterFilePath(Path filePath);
 
@@ -130,9 +139,7 @@ public abstract class Watcher implements Runnable {
 						Path filePath, BasicFileAttributes basicFileAttributes)
 					throws IOException {
 
-					if (Files.notExists(filePath) ||
-						isIgnoredFilePath(filePath)) {
-
+					if (isIgnoredFilePath(filePath)) {
 						return FileVisitResult.CONTINUE;
 					}
 
@@ -161,8 +168,7 @@ public abstract class Watcher implements Runnable {
 					return FileVisitResult.CONTINUE;
 				}
 
-			}
-		);
+			});
 	}
 
 	protected void addCreatedFilePathName(String filePathName) {
@@ -252,8 +258,7 @@ public abstract class Watcher implements Runnable {
 		SyncAccount syncAccount = SyncAccountService.fetchSyncAccount(
 			_watchEventListener.getSyncAccountId());
 
-		Path syncAccountFilePath = java.nio.file.Paths.get(
-			syncAccount.getFilePathName());
+		Path syncAccountFilePath = Paths.get(syncAccount.getFilePathName());
 
 		if (!FileUtil.exists(syncAccountFilePath)) {
 			if (_logger.isTraceEnabled()) {
@@ -323,7 +328,11 @@ public abstract class Watcher implements Runnable {
 
 			removeCreatedFilePathName(filePath.toString());
 
-			if (_deletedFilePathNames.remove(filePath.toString())) {
+			if (_deletedFilePathNames.remove(filePath.toString()) ||
+				FileUtil.isIgnoredFileName(
+					String.valueOf(filePath.getFileName())) ||
+				FileUtil.isTempFile(filePath)) {
+
 				return;
 			}
 
@@ -341,7 +350,9 @@ public abstract class Watcher implements Runnable {
 				 !FileUtil.isValidChecksum(filePath)) ||
 				FileUtil.isIgnoredFileName(
 					String.valueOf(filePath.getFileName())) ||
-				Files.notExists(filePath) || Files.isDirectory(filePath)) {
+				FileUtil.isTempFile(filePath) ||
+				Files.notExists(filePath) || Files.isDirectory(filePath) ||
+				FileUtil.isHidden(filePath) || FileUtil.isShortcut(filePath)) {
 
 				return;
 			}
@@ -351,6 +362,10 @@ public abstract class Watcher implements Runnable {
 		else if (eventType.equals(SyncWatchEvent.EVENT_TYPE_RENAME_FROM)) {
 			removeCreatedFilePathName(filePath.toString());
 
+			if (FileUtil.isTempFile(filePath)) {
+				return;
+			}
+
 			processMissingFilePath(filePath);
 
 			fireWatchEventListener(
@@ -358,7 +373,14 @@ public abstract class Watcher implements Runnable {
 		}
 		else if (eventType.equals(SyncWatchEvent.EVENT_TYPE_RENAME_TO)) {
 			if (_downloadedFilePathNames.remove(filePath.toString()) ||
-				isIgnoredFilePath(filePath)) {
+				FileUtil.isIgnoredFileName(
+					String.valueOf(filePath.getFileName())) ||
+				Files.notExists(filePath) || Files.isDirectory(filePath) ||
+				FileUtil.isHidden(filePath) || FileUtil.isShortcut(filePath)) {
+
+				if (_logger.isDebugEnabled()) {
+					_logger.debug("Ignored file path {}", filePath);
+				}
 
 				return;
 			}

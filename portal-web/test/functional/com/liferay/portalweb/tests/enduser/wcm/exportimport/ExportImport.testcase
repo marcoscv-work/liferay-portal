@@ -111,7 +111,7 @@
 			<var name="webContentTitle" value="Web Content Title" />
 		</execute>
 
-		<execute macro="WebContent#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="WebContent#viewTitle">
 			<var name="webContentTitle" value="Web Content Title" />
@@ -142,7 +142,7 @@
 			<var name="exportTemplateName" value="Export Template Name" />
 		</execute>
 
-		<var method="selenium#getText('//div[contains(@id,\'exportLayoutProcessesSearchContainer\')]//table//tr/td[7]/span/a/span')" name="valueName" />
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
 
 		<echo message="value name ${valueName}" />
 
@@ -213,7 +213,7 @@
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
 
-		<var method="selenium#getText('//div[contains(@id,\'exportLayoutProcessesSearchContainer\')]//table//tr/td[7]/span/a/span')" name="valueName" />
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
 
 		<echo message="value name ${valueName}" />
 
@@ -257,7 +257,6 @@
 		</execute>
 
 		<execute macro="Page#add">
-			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Test Page" />
 			<var name="siteName" value="Site Name" />
 		</execute>
@@ -314,7 +313,7 @@
 			<var name="fieldName" value="TextName" />
 		</execute>
 
-		<execute macro="DDLRecord#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="ProductMenu#gotoControlPanelSites">
 			<var name="portlet" value="Sites" />
@@ -383,7 +382,7 @@
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
 
-		<var method="selenium#getText('//tr/td[7]/span/a')" name="valueName" />
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
 
 		<echo message="value name ${valueName}" />
 
@@ -432,7 +431,7 @@
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
 
-		<var method="selenium#getText('//tr/td[7]/span/a')" name="valueName" />
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
 
 		<echo message="value name ${valueName}" />
 
@@ -484,7 +483,7 @@
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Test Page Name" />
 		</execute>
 
@@ -492,7 +491,7 @@
 			<var name="adtType" value="Blogs" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Test Page Name" />
 		</execute>
 
@@ -508,7 +507,7 @@
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
 
-		<var method="selenium#getText('//tr/td[7]/span/a')" name="valueName" />
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
 
 		<echo message="value name ${valueName}" />
 
@@ -546,21 +545,20 @@
 	</command>
 
 	<command name="ExportImportSampleLARPortlet" priority="5">
+		<property name="portal.acceptance" value="true" />
 		<property name="portlet.plugins.includes" value="sample-lar-portlet" />
 
 		<execute macro="Page#add">
 			<var name="pageName" value="Test Page Name" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Test Page Name" />
 		</execute>
 
 		<execute macro="Portlet#addPG">
 			<var name="portletName" value="Sample LAR" />
 		</execute>
-
-		<execute function="Refresh" />
 
 		<execute macro="SampleLARPortlet#addSampleBooking" />
 
@@ -590,7 +588,6 @@
 		</execute>
 
 		<execute macro="Page#add">
-			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Test Site Page" />
 			<var name="siteName" value="Test Site Name" />
 		</execute>
@@ -604,8 +601,6 @@
 		<execute macro="Portlet#addPG">
 			<var name="portletName" value="Sample LAR" />
 		</execute>
-
-		<execute function="Refresh" />
 
 		<execute macro="LAR#importPortlet">
 			<var name="larFileName" value="SampleLARPortlet.lar" />
@@ -685,7 +680,7 @@
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
 
-		<var method="selenium#getText('//tr/td[7]/span/a')" name="valueName" />
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
 
 		<echo message="value name ${valueName}" />
 
@@ -755,7 +750,7 @@
 			<var name="uploadFileName" value="DM Document Title" />
 		</execute>
 
-		<execute macro="BlogsEntry#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="LAR#configureExportSiteCP">
 			<var name="mainContent" value="Blogs" />
@@ -767,7 +762,7 @@
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
 
-		<var method="selenium#getText('//tr/td[7]/span/a')" name="valueName" />
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
 
 		<echo message="value name ${valueName}" />
 
@@ -820,7 +815,7 @@
 			<var name="exportTemplateName" value="Export Template Name" />
 		</execute>
 
-		<var method="selenium#getText('//div[contains(@id,\'exportLayoutProcessesSearchContainer\')]//table//tr/td[7]/span/a/span')" name="valueName" />
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
 
 		<echo message="value name ${valueName}" />
 
@@ -886,7 +881,7 @@
 			<var name="pageName" value="WSRP Page" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="WSRP Page" />
 		</execute>
 
@@ -910,7 +905,7 @@
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
 
-		<var method="selenium#getText('//tr/td[7]/span/a')" name="valueName" />
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
 
 		<echo message="value name ${valueName}" />
 

@@ -20,7 +20,7 @@
 			</if>
 		</for>
 
-		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
+		<execute macro="Button#clickSave" />
 		<execute function="AssertTextEquals#assertPartialText" locator1="Permissions#SUCCESS_MESSAGE" value1="Your request completed successfully." />
 	</command>
 
@@ -101,6 +101,12 @@
 		<execute function="AssertClick" locator1="Blogs#PERMISSIONS" value1="Permissions" />
 
 		<execute function="SelectFrame" locator1="Permissions#PERMISSIONS_IFRAME" />
+	</command>
+
+	<command name="gotoBlogsEntriesCP">
+		<execute function="Click" locator1="Icon#HEADER_VERTICAL_ELLIPSIS" />
+
+		<execute function="AssertClick" locator1="MenuItem#PERMISSIONS_LEXICON" value1="Entries Permissions" />
 	</command>
 
 	<command name="gotoBlogsEntryCP">
@@ -207,7 +213,7 @@
 
 		<execute function="AssertClick" locator1="MessageBoards#CATEGORY_LIST_CATEGORY" value1="${categoryName}" />
 
-		<execute function="AssertClick" locator1="MessageBoards#PERMISSIONS_BUTTON" value1="Permissions" />
+		<execute function="AssertClick" locator1="Button#PERMISSIONS" value1="Permissions" />
 
 		<execute function="SelectFrame" locator1="Permissions#PERMISSIONS_IFRAME" />
 	</command>
@@ -223,7 +229,7 @@
 			<var name="soPage" value="${soPage}" />
 		</execute>
 
-		<execute function="AssertClick" locator1="MessageBoards#PERMISSIONS_BUTTON" value1="Permissions" />
+		<execute function="AssertClick" locator1="Button#PERMISSIONS" value1="Permissions" />
 
 		<execute function="SelectFrame" locator1="Permissions#PERMISSIONS_IFRAME" />
 	</command>
@@ -275,7 +281,7 @@
 			</then>
 		</if>
 
-		<execute macro="ProductMenu#gotoEditPage">
+		<execute macro="SitePageNavigator#gotoEditPage">
 			<var name="page" value="${pageName}" />
 		</execute>
 
@@ -326,7 +332,7 @@
 	</command>
 
 	<command name="gotoSiteTemplateCP">
-		<execute macro="ProductMenu#gotoSitesPages">
+		<execute macro="SitePageNavigator#gotoPages">
 			<var name="page" value="${page}" />
 			<var name="site" value="${site}" />
 		</execute>
@@ -358,11 +364,7 @@
 		<execute function="Click#waitForMenuToggleJSClick" locator1="Icon#ROW_VERTICAL_ELLIPSIS" />
 		<execute function="AssertClick" locator1="MenuItem#PERMISSIONS_LEXICON" value1="Permissions" />
 
-		<execute function="SelectFrame" locator1="Permissions#PERMISSIONS_IFRAME" />
-
-		<var name="key_assetTitle" value="${webContentTitle}" />
-
-		<execute function="AssertTextEquals" locator1="Permissions#ASSET_TITLE" value1="${webContentTitle}" />
+		<execute macro="IFrame#selectPermissionsFrame" />
 	</command>
 
 	<command name="viewPermissionsChecked">

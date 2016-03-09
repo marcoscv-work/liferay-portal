@@ -14,8 +14,34 @@
 	<td></td>
 </tr>
 <tr>
-	<td>ASSIGN_USERS</td>
-	<td>//tr[contains(.,'${key_orgName}')]//a[@role='menuitem' and contains(.,'Assign Users')]</td>
+	<td>BREADCRUMB</td>
+	<td>//ul[contains(@class,'breadcrumb')]//a</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!--EDIT_TABS-->
+<tr>
+	<td>IDENTIFICATION</td>
+	<td>//li[contains(@class,'tab')]/a[contains(.,'Identification')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MISCELLANEOUS</td>
+	<td>//li[contains(@class,'tab')]/a[contains(.,'Miscellaneous')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ORGANIZATION_INFORMATION</td>
+	<td>//li[contains(@class,'tab')]/a[contains(.,'Organization Information')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>USER_INFORMATION</td>
+	<td>//li[contains(@class,'tab')]/a[contains(.,'User Information')]</td>
 	<td></td>
 </tr>
 <tr>
