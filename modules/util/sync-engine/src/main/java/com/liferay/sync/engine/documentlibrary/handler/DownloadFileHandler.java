@@ -35,14 +35,15 @@ import com.liferay.sync.engine.util.StreamUtil;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import java.nio.file.AccessDeniedException;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.io.IOUtils;
@@ -80,8 +81,14 @@ public class DownloadFileHandler extends BaseHandler {
 
 				removeEvent();
 
+				SyncFile localSyncFile = getLocalSyncFile();
+
+				if (localSyncFile == null) {
+					return;
+				}
+
 				FileEventUtil.downloadFile(
-					getSyncAccountId(), getLocalSyncFile(), false);
+					getSyncAccountId(), localSyncFile, false);
 
 				return;
 			}
@@ -110,6 +117,10 @@ public class DownloadFileHandler extends BaseHandler {
 
 			SyncFile syncFile = getLocalSyncFile();
 
+			if (syncFile == null) {
+				return;
+			}
+
 			if ((boolean)getParameterValue("patch")) {
 				removeEvent();
 
@@ -128,6 +139,10 @@ public class DownloadFileHandler extends BaseHandler {
 	@Override
 	public boolean handlePortalException(String exception) throws Exception {
 		SyncFile syncFile = getLocalSyncFile();
+
+		if (syncFile == null) {
+			return true;
+		}
 
 		if (_logger.isDebugEnabled()) {
 			_logger.debug(
@@ -172,9 +187,6 @@ public class DownloadFileHandler extends BaseHandler {
 
 		Watcher watcher = WatcherManager.getWatcher(getSyncAccountId());
 
-		List<String> downloadedFilePathNames =
-			watcher.getDownloadedFilePathNames();
-
 		try {
 			Path tempFilePath = FileUtil.getTempFilePath(syncFile);
 
@@ -201,7 +213,7 @@ public class DownloadFileHandler extends BaseHandler {
 				}
 			}
 
-			downloadedFilePathNames.add(filePath.toString());
+			watcher.addDownloadedFilePathName(filePath.toString());
 
 			if (GetterUtil.getBoolean(
 					syncFile.getLocalExtraSettingValue("restoreEvent"))) {
@@ -249,20 +261,36 @@ public class DownloadFileHandler extends BaseHandler {
 
 			executorService.execute(runnable);
 		}
-
 		catch (FileSystemException fse) {
-			downloadedFilePathNames.remove(filePath.toString());
+			if (fse instanceof AccessDeniedException) {
+				syncFile.setState(SyncFile.STATE_ERROR);
+				syncFile.setUiEvent(SyncFile.UI_EVENT_ACCESS_DENIED_LOCAL);
+
+				SyncFileService.update(syncFile);
+
+				return;
+			}
+			else if (fse instanceof NoSuchFileException) {
+				if (isEventCancelled()) {
+					SyncFileService.deleteSyncFile(syncFile);
+
+					return;
+				}
+			}
+
+			watcher.removeDownloadedFilePathName(filePath.toString());
 
 			String message = fse.getMessage();
 
 			_logger.error(message, fse);
 
-			if (message.contains("File name too long")) {
-				syncFile.setState(SyncFile.STATE_ERROR);
-				syncFile.setUiEvent(SyncFile.UI_EVENT_FILE_NAME_TOO_LONG);
+			syncFile.setState(SyncFile.STATE_ERROR);
 
-				SyncFileService.update(syncFile);
+			if (message.contains("File name too long")) {
+				syncFile.setUiEvent(SyncFile.UI_EVENT_FILE_NAME_TOO_LONG);
 			}
+
+			SyncFileService.update(syncFile);
 		}
 		finally {
 			StreamUtil.cleanUp(outputStream);
@@ -291,7 +319,7 @@ public class DownloadFileHandler extends BaseHandler {
 
 		SyncFile syncFile = getLocalSyncFile();
 
-		if (isUnsynced(syncFile)) {
+		if ((syncFile == null) || isUnsynced(syncFile)) {
 			return;
 		}
 

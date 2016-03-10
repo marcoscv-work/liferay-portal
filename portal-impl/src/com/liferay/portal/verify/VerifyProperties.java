@@ -17,6 +17,7 @@ package com.liferay.portal.verify;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portlet.documentlibrary.store.StoreFactory;
@@ -37,74 +38,11 @@ public class VerifyProperties extends VerifyProcess {
 
 	@Override
 	protected void doVerify() throws Exception {
+		verifySystemProperties();
 
-		// system.properties
+		verifyPortalProperties();
 
-		for (String[] keys : _MIGRATED_SYSTEM_KEYS) {
-			String oldKey = keys[0];
-			String newKey = keys[1];
-
-			verifyMigratedSystemProperty(oldKey, newKey);
-		}
-
-		for (String[] keys : _RENAMED_SYSTEM_KEYS) {
-			String oldKey = keys[0];
-			String newKey = keys[1];
-
-			verifyRenamedSystemProperty(oldKey, newKey);
-		}
-
-		for (String key : _OBSOLETE_SYSTEM_KEYS) {
-			verifyObsoleteSystemProperty(key);
-		}
-
-		Properties systemProperties = SystemProperties.getProperties();
-
-		for (String[] keys : _MODULARIZED_SYSTEM_KEYS) {
-			String oldKey = keys[0];
-			String newKey = keys[1];
-			String moduleName = keys[2];
-
-			verifyModularizedSystemProperty(
-				systemProperties, oldKey, newKey, moduleName);
-		}
-
-		// portal.properties
-
-		Properties portalProperties = loadPortalProperties();
-
-		for (String[] keys : _MIGRATED_PORTAL_KEYS) {
-			String oldKey = keys[0];
-			String newKey = keys[1];
-
-			verifyMigratedPortalProperty(portalProperties, oldKey, newKey);
-		}
-
-		for (String[] keys : _RENAMED_PORTAL_KEYS) {
-			String oldKey = keys[0];
-			String newKey = keys[1];
-
-			verifyRenamedPortalProperty(portalProperties, oldKey, newKey);
-		}
-
-		for (String key : _OBSOLETE_PORTAL_KEYS) {
-			verifyObsoletePortalProperty(portalProperties, key);
-		}
-
-		for (String[] keys : _MODULARIZED_PORTAL_KEYS) {
-			String oldKey = keys[0];
-			String newKey = keys[1];
-			String moduleName = keys[2];
-
-			verifyModularizedPortalProperty(
-				portalProperties, oldKey, newKey, moduleName);
-		}
-
-		// Document library
-
-		StoreFactory storeFactory = StoreFactory.getInstance();
-
-		storeFactory.checkProperties();
+		verifyDocumentLibrary();
 	}
 
 	protected InputStream getPropertiesResourceAsStream(String resourceName)
@@ -144,6 +82,14 @@ public class VerifyProperties extends VerifyProcess {
 		}
 
 		return properties;
+	}
+
+	protected void verifyDocumentLibrary() {
+		try (LoggingTimer loggingTimer = new LoggingTimer()) {
+			StoreFactory storeFactory = StoreFactory.getInstance();
+
+			storeFactory.checkProperties();
+		}
 	}
 
 	protected void verifyMigratedPortalProperty(
@@ -212,6 +158,39 @@ public class VerifyProperties extends VerifyProcess {
 		}
 	}
 
+	protected void verifyPortalProperties() throws Exception {
+		try (LoggingTimer loggingTimer = new LoggingTimer()) {
+			Properties portalProperties = loadPortalProperties();
+
+			for (String[] keys : _MIGRATED_PORTAL_KEYS) {
+				String oldKey = keys[0];
+				String newKey = keys[1];
+
+				verifyMigratedPortalProperty(portalProperties, oldKey, newKey);
+			}
+
+			for (String[] keys : _RENAMED_PORTAL_KEYS) {
+				String oldKey = keys[0];
+				String newKey = keys[1];
+
+				verifyRenamedPortalProperty(portalProperties, oldKey, newKey);
+			}
+
+			for (String key : _OBSOLETE_PORTAL_KEYS) {
+				verifyObsoletePortalProperty(portalProperties, key);
+			}
+
+			for (String[] keys : _MODULARIZED_PORTAL_KEYS) {
+				String oldKey = keys[0];
+				String newKey = keys[1];
+				String moduleName = keys[2];
+
+				verifyModularizedPortalProperty(
+					portalProperties, oldKey, newKey, moduleName);
+			}
+		}
+	}
+
 	protected void verifyRenamedPortalProperty(
 			Properties portalProperties, String oldKey, String newKey)
 		throws Exception {
@@ -232,6 +211,39 @@ public class VerifyProperties extends VerifyProcess {
 			_log.error(
 				"System property \"" + oldKey + "\" was renamed to \"" +
 					newKey + "\"");
+		}
+	}
+
+	protected void verifySystemProperties() throws Exception {
+		try (LoggingTimer loggingTimer = new LoggingTimer()) {
+			for (String[] keys : _MIGRATED_SYSTEM_KEYS) {
+				String oldKey = keys[0];
+				String newKey = keys[1];
+
+				verifyMigratedSystemProperty(oldKey, newKey);
+			}
+
+			for (String[] keys : _RENAMED_SYSTEM_KEYS) {
+				String oldKey = keys[0];
+				String newKey = keys[1];
+
+				verifyRenamedSystemProperty(oldKey, newKey);
+			}
+
+			for (String key : _OBSOLETE_SYSTEM_KEYS) {
+				verifyObsoleteSystemProperty(key);
+			}
+
+			Properties systemProperties = SystemProperties.getProperties();
+
+			for (String[] keys : _MODULARIZED_SYSTEM_KEYS) {
+				String oldKey = keys[0];
+				String newKey = keys[1];
+				String moduleName = keys[2];
+
+				verifyModularizedSystemProperty(
+					systemProperties, oldKey, newKey, moduleName);
+			}
 		}
 	}
 

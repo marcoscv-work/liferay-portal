@@ -26,12 +26,17 @@
 <!--PROCESSES-->
 <tr>
 	<td>INITIAL_PROCESS_SUCCESSFUL</td>
-	<td>//tr[contains(.,'Initial Publication')]//h5[contains(@class,'background-task-status-successful')]</td>
+	<td>//div[contains(.,'Initial Publication')]//h6[contains(@class,'background-task-status-successful')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>SCHEDULED</td>
 	<td>//ul[contains(@id,'StagingProcessesPortlet')]/li/a[contains(@title,'Scheduled')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PROCESS_SUCCESSFUL</td>
+	<td>//h6[contains(.,'Successful')]</td>
 	<td></td>
 </tr>
 <!--STAGING-->
@@ -135,7 +140,7 @@
 <!--PAGE_VARIATION_MENULIST-->
 <tr>
 	<td>PAGE_VARIATION_MENULIST_NAME</td>
-	<td>xpath=(//ul//li//a[contains(.,'${key_pageVariationName}')])[2]</td>
+	<td>//ul//li//a[contains(.,'${key_pageVariationName}') and contains(@class,'disabled')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -183,7 +188,7 @@
 </tr>
 <tr>
 	<td>STAGING_MENU_MARK_AS_READY_FOR_PUBLICATION_BUTTON</td>
-	<td>//span[contains(@data-label-on,'Ready for Publication')]</td>
+	<td>//span[@class='staging-bar-control-toggle']//span[@class='toggle-switch-bar' and not (@aria-hidden='true')] </td>
 	<td></td>
 </tr>
 <tr>
@@ -218,7 +223,7 @@
 </tr>
 <tr>
 	<td>STAGING_MENU_REVISION_DETAILS_MESSAGE</td>
-	<td>//span[contains(@id,'layoutRevisionDetails')]/li/p</td>
+	<td>//li[contains(@id,'layoutRevisionDetails')]/ul/li/p</td>
 	<td></td>
 </tr>
 <tr>

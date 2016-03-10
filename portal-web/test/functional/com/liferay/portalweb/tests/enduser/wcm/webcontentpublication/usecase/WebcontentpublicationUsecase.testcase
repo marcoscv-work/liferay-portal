@@ -14,7 +14,7 @@
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -22,7 +22,7 @@
 			<var name="portletName" value="Asset Publisher" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 	</set-up>
@@ -113,10 +113,6 @@
 			<var name="siteName" value="Organization Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoPrivateSite">
-			<var name="site" value="Organization Name" />
-		</execute>
-
 		<execute macro="ProductMenu#gotoSitesConfiguration">
 			<var name="portlet" value="Site Settings" />
 		</execute>
@@ -128,10 +124,6 @@
 
 		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="Organization Name" />
-		</execute>
-
-		<execute macro="ProductMenu#gotoPrivateSite">
-			<var name="site" value="Organization Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoSitesConfiguration">
@@ -157,9 +149,8 @@
 			<execute function="AssertElementNotPresent" locator1="Home#PAGE" value1="Asset Publisher Page" />
 		</for>
 
-		<execute macro="Page#openURL">
-			<var name="siteURL" value="true" />
-			<var name="virtualHostsURL" value="http://www.able.com:8080" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="http://www.able.com:8080" />
 		</execute>
 
 		<for list="Documents and Media,News" param="pageName">
@@ -256,7 +247,7 @@
 
 		<execute macro="User#firstLoginPG" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Web Content Page" />
 		</execute>
 
@@ -297,23 +288,15 @@
 			<var name="dmDocumentTypeName" value="Local Document Type Name" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
 		<execute macro="AssetPublisherPortlet#configureManualAssetSelectionPG" />
 
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
-
-		<execute function="AssertClick" locator1="APConfigurationManual#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_SELECT" value1="Select" />
-
-		<for list="Global Document Type Name,Local Document Type Name" param="assetEntryType">
-			<var name="key_assetEntryType" value="${assetEntryType}" />
-
-			<execute function="AssertTextEquals" locator1="APConfigurationManual#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_MENULIST_ITEM" value1="${assetEntryType}" />
-		</for>
-
-		<execute macro="IFrame#selectTopFrame" />
+		<execute macro="AssetPublisherPortlet#viewManualAssetTypesPG">
+			<var name="assetEntryTypes" value="Global Document Type Name,Local Document Type Name" />
+		</execute>
 	</command>
 
 	<command name="AssetPublisherCategoriesLocalization" priority="3">
@@ -357,7 +340,7 @@
 			<var name="vocabularyName" value="Vocabulary Name" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -365,7 +348,7 @@
 			<var name="portletName" value="Web Content Display" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -373,7 +356,7 @@
 			<var name="portletName" value="Language Selector" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -396,7 +379,7 @@
 			<var name="webContentContent" value="Web Content1 Content" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -427,7 +410,7 @@
 			<var name="webContentTranslationTitle" value="Titre de Contenu Web1" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -438,14 +421,17 @@
 			<var name="webContentTitle" value="Web Content1 Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
 		<execute macro="AssetPublisherPortlet#viewAssetPG">
-			<var name="addMetadata" value="true" />
 			<var name="assetContent" value="Web Content1 Content" />
 			<var name="assetTitle" value="Web Content1 Title" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#viewAssetMetadataPG">
+			<var name="addMetadata" value="true" />
 			<var name="categoryName" value="Vocabulary1 Category" />
 			<var name="vocabularyName" value="Vocabulary Name" />
 		</execute>
@@ -454,14 +440,17 @@
 			<var name="language" value="German (Germany)" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
 		<execute macro="AssetPublisherPortlet#viewAssetPG">
-			<var name="addMetadata" value="true" />
 			<var name="assetContent" value="Netz Content1 Inhalt" />
 			<var name="assetTitle" value="Netz Content1 Titel" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#viewAssetMetadataPG">
+			<var name="addMetadata" value="true" />
 			<var name="categoryName" value="Kategorienamen" />
 			<var name="vocabularyName" value="Vokabular Namen" />
 		</execute>
@@ -470,19 +459,22 @@
 			<var name="language" value="French (France)" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
 		<execute macro="AssetPublisherPortlet#viewAssetPG">
-			<var name="addMetadata" value="true" />
 			<var name="assetContent" value="Contenu de Contenu Web1" />
 			<var name="assetTitle" value="Titre de Contenu Web1" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#viewAssetMetadataPG">
+			<var name="addMetadata" value="true" />
 			<var name="categoryName" value="Nom de la Catégorie" />
 			<var name="vocabularyName" value="Nom Vocabulaire" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -648,7 +640,7 @@
 			<var name="vocabularyName" value="Vocabulary Name" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -662,7 +654,7 @@
 			<var name="portletName" value="Asset Publisher Portlet" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -681,7 +673,7 @@
 			<var name="paginationType" value="Regular" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -690,7 +682,7 @@
 			<var name="sortOrder" value="Ascending" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -774,7 +766,7 @@
 			<var name="templateFieldNames" value="Boolean,Date,Decimal,Documents and Media,HTML,Image,Integer,Link to Page,Number,Radio,Select,Text,Text Box" />
 		</execute>
 
-		<execute macro="WebContentTemplates#save" />
+		<execute macro="PortletEntry#save" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -794,7 +786,7 @@
 			<var name="webContentTitle" value="Web Content1 Title" />
 		</execute>
 
-		<execute macro="WebContent#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="WebContent#viewTitle">
 			<var name="webContentTitle" value="Web Content1 Title" />
@@ -817,7 +809,7 @@
 			<var name="webContentTitle" value="Web Content1 Title" />
 		</execute>
 
-		<execute macro="WebContent#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -837,7 +829,7 @@
 			<var name="webContentTitle" value="Web Content2 Title" />
 		</execute>
 
-		<execute macro="WebContent#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="WebContent#viewTitle">
 			<var name="webContentTitle" value="Web Content2 Title" />
@@ -860,7 +852,7 @@
 			<var name="webContentTitle" value="Web Content2 Title" />
 		</execute>
 
-		<execute macro="WebContent#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -880,7 +872,7 @@
 			<var name="webContentTitle" value="Web Content3 Title" />
 		</execute>
 
-		<execute macro="WebContent#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="WebContent#viewTitle">
 			<var name="webContentTitle" value="Web Content3 Title" />
@@ -903,7 +895,7 @@
 			<var name="webContentTitle" value="Web Content3 Title" />
 		</execute>
 
-		<execute macro="WebContent#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -918,13 +910,13 @@
 			<var name="webContentTitle" value="Web Content4 Title" />
 		</execute>
 
-		<execute macro="WebContent#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="WebContent#viewTitle">
 			<var name="webContentTitle" value="Web Content4 Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -934,7 +926,7 @@
 			<var name="selectedAsset" value="Web Content Article" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -943,7 +935,7 @@
 			<var name="sortOrder" value="Ascending" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -961,7 +953,7 @@
 			<var name="language" value="German (Germany)" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -975,7 +967,7 @@
 			<var name="language" value="English (United States)" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -985,7 +977,7 @@
 			<var name="selectedAsset" value="Document" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -995,7 +987,7 @@
 			<var name="selectedAsset" value="Document" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -1005,7 +997,7 @@
 			<var name="selectedAsset" value="Document" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -1029,7 +1021,7 @@
 			<var name="structureName" value="WC Structure Name" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -1050,7 +1042,7 @@
 			<var name="enableOpenOfficeIntegration" value="true" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -1064,7 +1056,7 @@
 			<var name="documentTypes" value="doc,odt,pdf,rtf,sxw,txt" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -1074,7 +1066,7 @@
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -1083,7 +1075,7 @@
 			<var name="documentTypes" value="doc,pdf,txt" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -1092,7 +1084,7 @@
 			<var name="uncheck" value="true" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -1102,7 +1094,7 @@
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -1112,7 +1104,7 @@
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -1121,7 +1113,7 @@
 			<var name="uncheck" value="true" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -1133,6 +1125,9 @@
 	</command>
 
 	<command name="AssetPublisherSiteAndGlobalScopeAccessibility" priority="5">
+		<property name="portal.acceptance" value="true" />
+		<property name="test.name.skip.portal.instance" value="WebcontentpublicationUsecase#AssetPublisherSiteAndGlobalScopeAccessibility" />
+
 		<execute macro="ProductMenu#gotoControlPanelSites">
 			<var name="portlet" value="Sites" />
 		</execute>
@@ -1146,7 +1141,6 @@
 		</execute>
 
 		<execute macro="Page#add">
-			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Site Page" />
 			<var name="siteName" value="Site Name" />
 		</execute>
@@ -1172,7 +1166,7 @@
 				<var name="webContentTitle" value="${siteName} WC Title" />
 			</execute>
 
-			<execute macro="WebContent#publish" />
+			<execute macro="PortletEntry#publish" />
 		</for>
 
 		<execute macro="Navigator#gotoSitePage">
@@ -1229,7 +1223,6 @@
 		</execute>
 
 		<execute macro="Page#add">
-			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Site Page" />
 			<var name="siteName" value="Site Name" />
 		</execute>
@@ -1250,7 +1243,7 @@
 				<var name="webContentTitle" value="${siteName} WC Title" />
 			</execute>
 
-			<execute macro="WebContent#publish" />
+			<execute macro="PortletEntry#publish" />
 		</for>
 
 		<execute macro="Navigator#gotoSitePage">
@@ -1319,223 +1312,6 @@
 		</execute>
 	</command>
 
-	<command name="ValidateRelatedAssetsAdvancedSearchFunction" priority="3">
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="ProductMenu#gotoSitesContent">
-			<var name="portlet" value="Documents and Media" />
-		</execute>
-
-		<execute macro="DMDocument#addCP">
-			<var name="dmDocumentDescription" value="DM Document1 Image Description" />
-			<var name="dmDocumentFile" value="Document_1.jpeg" />
-			<var name="dmDocumentTitle" value="DM Document1 Image Title" />
-		</execute>
-
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="ProductMenu#gotoSitesContent">
-			<var name="portlet" value="Documents and Media" />
-		</execute>
-
-		<execute macro="DMNavigator#gotoDocumentCP">
-			<var name="dmDocumentTitle" value="DM Document1 Image Title" />
-		</execute>
-
-		<execute macro="DMDocument#viewCP">
-			<var name="dmDocumentTitle" value="DM Document1 Image Title" />
-		</execute>
-
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="ProductMenu#gotoSitesContent">
-			<var name="portlet" value="Documents and Media" />
-		</execute>
-
-		<execute macro="DMDocument#addCP">
-			<var name="dmDocumentDescription" value="DM Document2 Image Description" />
-			<var name="dmDocumentFile" value="Document_2.jpeg" />
-			<var name="dmDocumentTitle" value="DM Document2 Image Title" />
-		</execute>
-
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="ProductMenu#gotoSitesContent">
-			<var name="portlet" value="Documents and Media" />
-		</execute>
-
-		<execute macro="DMNavigator#gotoDocumentCP">
-			<var name="dmDocumentTitle" value="DM Document2 Image Title" />
-		</execute>
-
-		<execute macro="DMDocument#viewCP">
-			<var name="dmDocumentTitle" value="DM Document2 Image Title" />
-		</execute>
-
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="ProductMenu#gotoSitesContent">
-			<var name="portlet" value="Documents and Media" />
-		</execute>
-
-		<execute macro="DMDocument#addCP">
-			<var name="dmDocumentDescription" value="DM Document3 Description" />
-			<var name="dmDocumentFile" value="Document_1.doc" />
-			<var name="dmDocumentTitle" value="DM Document3 Document Title" />
-		</execute>
-
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="ProductMenu#gotoSitesContent">
-			<var name="portlet" value="Documents and Media" />
-		</execute>
-
-		<execute macro="DMNavigator#gotoDocumentCP">
-			<var name="dmDocumentTitle" value="DM Document3 Document Title" />
-		</execute>
-
-		<execute macro="DMDocument#viewCP">
-			<var name="dmDocumentTitle" value="DM Document3 Document Title" />
-		</execute>
-
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="ProductMenu#gotoSitesContent">
-			<var name="portlet" value="Web Content" />
-		</execute>
-
-		<execute macro="RelatedAssets#gotoWebContentSelectionCP">
-			<var name="assetType" value="Basic Document" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewViaSelectCP">
-			<var name="forList" value="DM Document1 Image Title,DM Document2 Image Title,DM Document3 Document Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#searchAdvancedRelatedAssetsCP">
-			<var name="searchTitle" value="Image" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewAdvancedSearchResultTitleCP">
-			<var name="forList" value="DM Document1 Image Title,DM Document2 Image Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewAdvancedSearchNoResultCP">
-			<var name="forList" value="DM Document3 Document Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#searchAdvancedRelatedAssetsCP">
-			<var name="searchTitle" value="DM" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewAdvancedSearchResultTitleCP">
-			<var name="forList" value="DM Document1 Image Title,DM Document2 Image Title,DM Document3 Document Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#searchAdvancedRelatedAssetsCP">
-			<var name="searchTitle" value="Document1" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewAdvancedSearchResultTitleCP">
-			<var name="forList" value="DM Document1 Image Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewAdvancedSearchNoResultCP">
-			<var name="forList" value="DM Document2 Image Title,DM Document3 Document Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#searchAdvancedRelatedAssetsCP">
-			<var name="searchTitle" value="Document2" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewAdvancedSearchResultTitleCP">
-			<var name="forList" value="DM Document2 Image Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewAdvancedSearchNoResultCP">
-			<var name="forList" value="DM Document1 Image Title,DM Document3 Document Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#searchAdvancedRelatedAssetsCP">
-			<var name="searchTitle" value="Document3" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewAdvancedSearchResultTitleCP">
-			<var name="forList" value="DM Document3 Document Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewAdvancedSearchNoResultCP">
-			<var name="forList" value="DM Document1 Image Title,DM Document2 Image Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#searchAdvancedRelatedAssetsCP">
-			<var name="searchTitle" value="Document" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewAdvancedSearchResultTitleCP">
-			<var name="forList" value="DM Document3 Document Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewAdvancedSearchNoResultCP">
-			<var name="forList" value="DM Document1 Image Title,DM Document2 Image Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#searchAdvancedRelatedAssetsCP">
-			<var name="searchUserName" value="Test" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewAdvancedSearchResultTitleCP">
-			<var name="forList" value="DM Document1 Image Title,DM Document2 Image Title,DM Document3 Document Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#searchAdvancedRelatedAssetsCP">
-			<var name="searchUserName" value="Test1" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewNoSearchResultsCP" />
-
-		<execute macro="RelatedAssets#viewAdvancedSearchNoResultCP">
-			<var name="forList" value="DM Document1 Image Title,DM Document2 Image Title,DM Document3 Document Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#searchAdvancedRelatedAssetsCP">
-			<var name="searchSite" value="Global" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewNoSearchResultsCP" />
-
-		<execute macro="RelatedAssets#viewAdvancedSearchNoResultCP">
-			<var name="forList" value="DM Document1 Image Title,DM Document2 Image Title,DM Document3 Document Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#searchAdvancedRelatedAssetsCP">
-			<var name="searchDescription" value="Document2" />
-			<var name="searchSite" value="Liferay" />
-			<var name="searchTitle" value="Document1" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewNoSearchResultsCP" />
-
-		<execute macro="RelatedAssets#viewAdvancedSearchNoResultCP">
-			<var name="forList" value="DM Document1 Image Title,DM Document2 Image Title,DM Document3 Document Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#searchAdvancedRelatedAssetsCP">
-			<var name="searchDescription" value="Document2" />
-			<var name="searchOperator" value="Any" />
-			<var name="searchSite" value="Liferay" />
-			<var name="searchTitle" value="Document2" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewAdvancedSearchResultTitleCP">
-			<var name="forList" value="DM Document2 Image Title" />
-		</execute>
-
-		<execute macro="RelatedAssets#viewAdvancedSearchNoResultCP">
-			<var name="forList" value="DM Document1 Image Title,DM Document3 Document Title" />
-		</execute>
-	</command>
-
 	<command name="ViewAPPortletAsNewUserSiteAdministratorViaUserSite" priority="4">
 		<execute macro="ProductMenu#gotoControlPanelSites">
 			<var name="portlet" value="Sites" />
@@ -1550,7 +1326,6 @@
 		</execute>
 
 		<execute macro="Page#add">
-			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Asset Publisher Page" />
 			<var name="siteName" value="Site Name" />
 		</execute>
@@ -1610,9 +1385,7 @@
 			<var name="portletName" value="Asset Publisher" />
 		</execute>
 
-		<execute macro="AssetPublisherPortlet#viewDynamicAssetSelectionConfigurationPG">
-			<var name="portletName" value="Asset Publisher" />
-		</execute>
+		<execute macro="AssetPublisherPortlet#viewDynamicAssetSelectionConfigurationPG" />
 
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="Asset Publisher Page" />
@@ -1712,13 +1485,13 @@
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
-		<execute macro="WebContent#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="WebContent#viewTitle">
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -1749,7 +1522,7 @@
 			<var name="webContentTitleEdit" value="WC WebContent Title Edit" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -1765,7 +1538,7 @@
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
@@ -1773,7 +1546,7 @@
 			<var name="portletName" value="Blogs" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
@@ -1795,20 +1568,22 @@
 			<var name="entryTitle" value="Blogs Entry2 Title" />
 		</execute>
 
-		<execute macro="BlogsNavigator#gotoSettings" />
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Related Assets" />
+		</execute>
 
 		<execute macro="BlogsEntry#addRelatedAsset">
 			<var name="assetTitle" value="Blogs Entry1 Title" />
 			<var name="assetType" value="Blogs Entry" />
 		</execute>
 
-		<execute macro="BlogsEntry#publish" />
+		<execute macro="PortletEntry#publish" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
-		<execute macro="BlogsNavigator#gotoEntrySpecific">
+		<execute macro="BlogsNavigator#gotoEntryPG">
 			<var name="entryContent" value="Blogs Entry1 Content" />
 			<var name="entryTitle" value="Blogs Entry1 Title" />
 		</execute>
@@ -1822,11 +1597,11 @@
 		<execute function="AssertElementNotPresent" locator1="Relatedassets#ASSET_TITLE_2" />
 		<execute function="AssertElementNotPresent" locator1="Relatedassets#ASSET_EDIT_2" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
-		<execute macro="BlogsNavigator#gotoEntrySpecific">
+		<execute macro="BlogsNavigator#gotoEntryPG">
 			<var name="entryContent" value="Blogs Entry2 Content" />
 			<var name="entryTitle" value="Blogs Entry2 Title" />
 		</execute>
@@ -1861,13 +1636,13 @@
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
-		<execute macro="WebContent#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="WebContent#viewTitle">
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -1875,7 +1650,7 @@
 			<var name="pageName" value="Web Content Display Page" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Web Content Display Page" />
 		</execute>
 
@@ -1883,7 +1658,7 @@
 			<var name="portletName" value="Web Content Display" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Web Content Display Page" />
 		</execute>
 
@@ -1892,7 +1667,7 @@
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Web Content Display Page" />
 		</execute>
 
@@ -1911,7 +1686,7 @@
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Web Content Display Page" />
 		</execute>
 
@@ -1919,7 +1694,7 @@
 
 		<execute macro="User#logoutPG" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Web Content Display Page" />
 		</execute>
 
@@ -1931,7 +1706,7 @@
 	</command>
 
 	<command name="ViewRelatedAssetsViaRelatedAssetsPortlet" priority="3">
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -1943,7 +1718,7 @@
 			<var name="pageName" value="Web Content Display Page" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Web Content Display Page" />
 		</execute>
 
@@ -1955,7 +1730,7 @@
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
@@ -1963,7 +1738,7 @@
 			<var name="portletName" value="Blogs" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Web Content Display Page" />
 		</execute>
 
@@ -1972,7 +1747,7 @@
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
@@ -1983,16 +1758,18 @@
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
-		<execute macro="BlogsNavigator#gotoSettings" />
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Related Assets" />
+		</execute>
 
 		<execute macro="BlogsEntry#addRelatedAsset">
 			<var name="assetTitle" value="WC WebContent Title" />
 			<var name="assetType" value="Basic Web Content" />
 		</execute>
 
-		<execute macro="BlogsEntry#publish" />
+		<execute macro="PortletEntry#publish" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -2008,7 +1785,7 @@
 			<var name="assetTitle" value="Blogs Entry Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -2030,7 +1807,7 @@
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
@@ -2043,7 +1820,7 @@
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
@@ -2051,7 +1828,7 @@
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
@@ -2059,7 +1836,7 @@
 			<var name="portletName" value="Documents and Media" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
@@ -2072,7 +1849,7 @@
 			<var name="dmDocumentTitle" value="DM Document Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
@@ -2087,7 +1864,7 @@
 			<var name="workflow" value="Approved" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
@@ -2098,7 +1875,7 @@
 			<var name="dmDocumentTitleEdit" value="DM Document Title Edit" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
@@ -2113,7 +1890,7 @@
 			<var name="workflow" value="Approved" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
@@ -2130,7 +1907,7 @@
 	</command>
 
 	<command name="ViewWebContentWithConfiguredDisplayPageViaAP" priority="4">
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -2138,7 +1915,7 @@
 			<var name="pageName" value="Asset Publisher Page 2" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page 2" />
 		</execute>
 
@@ -2146,7 +1923,7 @@
 			<var name="portletName" value="Asset Publisher" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -2154,7 +1931,7 @@
 			<var name="assetLinkBehavior" value="View in Context" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page 2" />
 		</execute>
 
@@ -2162,7 +1939,7 @@
 			<var name="setAsDefaultPage" value="true" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -2171,7 +1948,7 @@
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -2180,7 +1957,7 @@
 			<var name="displayPageSelection" value="Asset Publisher Page 2" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 

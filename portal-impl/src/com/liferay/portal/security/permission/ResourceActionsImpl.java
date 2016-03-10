@@ -43,6 +43,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
+import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -54,7 +55,7 @@ import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.UnsecureSAXReaderUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.registry.collections.ServiceTrackerCollections;
-import com.liferay.registry.collections.ServiceTrackerMap;
+import com.liferay.registry.collections.ServiceTrackerList;
 import com.liferay.util.JS;
 
 import java.io.InputStream;
@@ -84,8 +85,8 @@ import org.apache.struts.util.RequestUtils;
 public class ResourceActionsImpl implements ResourceActions {
 
 	public ResourceActionsImpl() {
-		_resourceBundles = ServiceTrackerCollections.openMultiValueMap(
-			ResourceBundle.class, "language.id");
+		_resourceBundleLoaders = ServiceTrackerCollections.openList(
+			ResourceBundleLoader.class);
 	}
 
 	public void afterPropertiesSet() {
@@ -93,7 +94,9 @@ public class ResourceActionsImpl implements ResourceActions {
 		_modelResourceActionsBags = new HashMap<>();
 
 		try {
-			ClassLoader classLoader = getClass().getClassLoader();
+			Class<?> clazz = getClass();
+
+			ClassLoader classLoader = clazz.getClassLoader();
 
 			for (String config : PropsValues.RESOURCE_ACTIONS_CONFIGS) {
 				read(null, classLoader, config);
@@ -117,7 +120,7 @@ public class ResourceActionsImpl implements ResourceActions {
 	}
 
 	public void destroy() {
-		_resourceBundles.close();
+		_resourceBundleLoaders.close();
 	}
 
 	@Override
@@ -561,18 +564,6 @@ public class ResourceActionsImpl implements ResourceActions {
 		return actions;
 	}
 
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getRoles(long, Group,
-	 *             String, int[])}
-	 */
-	@Deprecated
-	@Override
-	public List<Role> getRoles(
-		long companyId, Group group, String modelResource) {
-
-		return getRoles(companyId, group, modelResource, null);
-	}
-
 	@Override
 	public List<Role> getRoles(
 		long companyId, Group group, String modelResource, int[] roleTypes) {
@@ -893,20 +884,18 @@ public class ResourceActionsImpl implements ResourceActions {
 			return null;
 		}
 
-		List<ResourceBundle> resourceBundles = null;
+		String languageId = LocaleUtil.toLanguageId(locale);
 
-		try {
-			String languageId = LocaleUtil.toLanguageId(locale);
+		for (ResourceBundleLoader resourceBundleLoader :
+				_resourceBundleLoaders) {
 
-			resourceBundles = _resourceBundles.getService(languageId);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
+			ResourceBundle resourceBundle =
+				resourceBundleLoader.loadResourceBundle(languageId);
 
-			return null;
-		}
+			if (resourceBundle == null) {
+				continue;
+			}
 
-		for (ResourceBundle resourceBundle : resourceBundles) {
 			if (resourceBundle.containsKey(key)) {
 				return ResourceBundleUtil.getString(resourceBundle, key);
 			}
@@ -1269,7 +1258,7 @@ public class ResourceActionsImpl implements ResourceActions {
 	private final Set<String> _organizationModelResources = new HashSet<>();
 	private final Set<String> _portalModelResources = new HashSet<>();
 	private Map<String, PortletResourceActionsBag> _portletResourceActionsBags;
-	private final ServiceTrackerMap<String, List<ResourceBundle>>
-		_resourceBundles;
+	private final ServiceTrackerList<ResourceBundleLoader>
+		_resourceBundleLoaders;
 
 }

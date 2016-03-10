@@ -38,6 +38,7 @@ import com.liferay.sync.engine.util.SyncEngineUtil;
 
 import java.io.IOException;
 
+import java.nio.file.AccessDeniedException;
 import java.nio.file.FileSystemException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -186,6 +187,8 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 			if (response.startsWith("\"")) {
 				response = StringEscapeUtils.unescapeJava(response);
 
+				response = response.replaceAll("\n", "\\n");
+
 				response = response.substring(1, response.length() - 1);
 			}
 
@@ -250,12 +253,12 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 
 		syncFile.setFilePathName(filePathName);
 		syncFile.setSyncAccountId(getSyncAccountId());
-		syncFile.setUiEvent(SyncFile.UI_EVENT_ADDED_REMOTE);
 
 		if (syncFile.isFolder()) {
 			Files.createDirectories(filePath);
 
 			syncFile.setState(SyncFile.STATE_SYNCED);
+			syncFile.setUiEvent(SyncFile.UI_EVENT_ADDED_REMOTE);
 
 			SyncFileService.update(syncFile);
 
@@ -263,6 +266,8 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 				filePath, String.valueOf(syncFile.getSyncFileId()), false);
 		}
 		else {
+			syncFile.setUiEvent(SyncFile.UI_EVENT_DOWNLOADING);
+
 			SyncFileService.update(syncFile);
 
 			downloadFile(syncFile, null, 0, false);
@@ -290,18 +295,25 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 
 		Watcher watcher = WatcherManager.getWatcher(getSyncAccountId());
 
-		List<String> downloadedFilePathNames =
-			watcher.getDownloadedFilePathNames();
-
-		downloadedFilePathNames.add(targetSyncFile.getFilePathName());
+		watcher.addDownloadedFilePathName(targetSyncFile.getFilePathName());
 
 		boolean exists = Files.exists(
 			Paths.get(targetSyncFile.getFilePathName()));
 
-		Files.move(
-			tempFilePath, Paths.get(targetSyncFile.getFilePathName()),
-			StandardCopyOption.ATOMIC_MOVE,
-			StandardCopyOption.REPLACE_EXISTING);
+		try {
+			Files.move(
+				tempFilePath, Paths.get(targetSyncFile.getFilePathName()),
+				StandardCopyOption.ATOMIC_MOVE,
+				StandardCopyOption.REPLACE_EXISTING);
+		}
+		catch (AccessDeniedException ade) {
+			targetSyncFile.setState(SyncFile.STATE_ERROR);
+			targetSyncFile.setUiEvent(SyncFile.UI_EVENT_ACCESS_DENIED_LOCAL);
+
+			SyncFileService.update(targetSyncFile);
+
+			return;
+		}
 
 		targetSyncFile.setState(SyncFile.STATE_SYNCED);
 
@@ -348,11 +360,8 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 
 		final Watcher watcher = WatcherManager.getWatcher(getSyncAccountId());
 
-		final List<String> deletedFilePathNames =
-			watcher.getDeletedFilePathNames();
-
 		if (sourceSyncFile.isFile()) {
-			deletedFilePathNames.add(sourceSyncFile.getFilePathName());
+			watcher.addDeletedFilePathName(sourceSyncFile.getFilePathName());
 
 			FileUtil.deleteFile(sourceFilePath);
 
@@ -372,7 +381,7 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 						return super.postVisitDirectory(filePath, ioe);
 					}
 
-					deletedFilePathNames.add(filePath.toString());
+					watcher.addDeletedFilePathName(filePath.toString());
 
 					FileUtil.deleteFile(filePath);
 
@@ -395,7 +404,7 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 						Path filePath, BasicFileAttributes basicFileAttributes)
 					throws IOException {
 
-					deletedFilePathNames.add(filePath.toString());
+					watcher.addDeletedFilePathName(filePath.toString());
 
 					FileUtil.deleteFile(filePath);
 
@@ -455,6 +464,8 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 		try {
 			if (response.startsWith("\"")) {
 				response = StringEscapeUtils.unescapeJava(response);
+
+				response = response.replaceAll("\n", "\\n");
 
 				response = response.substring(1, response.length() - 1);
 			}
@@ -682,6 +693,8 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 		sourceSyncFile.setLockUserName(targetSyncFile.getLockUserName());
 		sourceSyncFile.setModifiedTime(targetSyncFile.getModifiedTime());
 		sourceSyncFile.setSize(targetSyncFile.getSize());
+		sourceSyncFile.setUserId(targetSyncFile.getUserId());
+		sourceSyncFile.setUserName(targetSyncFile.getUserName());
 		sourceSyncFile.setVersion(targetSyncFile.getVersion());
 		sourceSyncFile.setVersionId(targetSyncFile.getVersionId());
 

@@ -14,13 +14,11 @@
 
 package com.liferay.portal.upgrade.v6_0_2;
 
-import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -37,16 +35,8 @@ public class UpgradeNestedPortlets extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(_GET_LAYOUT);
-
-			rs = ps.executeQuery();
+		try (PreparedStatement ps = connection.prepareStatement(_GET_LAYOUT);
+			ResultSet rs = ps.executeQuery()) {
 
 			while (rs.next()) {
 				long plid = rs.getLong("plid");
@@ -77,29 +67,17 @@ public class UpgradeNestedPortlets extends UpgradeProcess {
 				}
 			}
 		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
-		}
 	}
 
 	protected void updateLayout(long plid, String typeSettings)
 		throws Exception {
 
-		Connection con = null;
-		PreparedStatement ps = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
-				"update Layout set typeSettings = ? where plid = " + plid);
+		try (PreparedStatement ps = connection.prepareStatement(
+				"update Layout set typeSettings = ? where plid = " + plid)) {
 
 			ps.setString(1, typeSettings);
 
 			ps.executeUpdate();
-		}
-		finally {
-			DataAccess.cleanUp(con, ps);
 		}
 	}
 
@@ -114,7 +92,7 @@ public class UpgradeNestedPortlets extends UpgradeProcess {
 		_INSTANCE_SEPARATOR, StringPool.UNDERLINE) + 1;
 
 	private static final Pattern _pattern = Pattern.compile(
-		"(" + PortletKeys.NESTED_PORTLETS +
-			_INSTANCE_SEPARATOR + "[^_,\\s=]+_)([^_,\\s=]+)");
+		"(" + PortletKeys.NESTED_PORTLETS + _INSTANCE_SEPARATOR +
+			"[^_,\\s=]+_)([^_,\\s=]+)");
 
 }

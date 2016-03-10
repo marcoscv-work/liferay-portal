@@ -19,7 +19,6 @@
 		</execute>
 
 		<execute macro="Page#add">
-			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Test Page Name" />
 			<var name="siteName" value="Site Name" />
 		</execute>
@@ -52,7 +51,7 @@
 
 		<execute macro="WebContent#addWithThreeTranslations" />
 
-		<execute macro="WebContent#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="Test Page Name" />
@@ -119,7 +118,7 @@
 		</execute>
 
 		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Webcontent-Anzeige" />
+			<var name="portletName" value="Webcontentanzeige" />
 			<var name="portletOption" value="Webcontent bearbeiten" />
 		</execute>
 
@@ -148,7 +147,7 @@
 
 		<execute macro="Portlet#gotoPortletOptions">
 			<var name="portletName" value="Web-sisällön esitys" />
-			<var name="portletOption" value="Muokkaa web-sisällön esitys" />
+			<var name="portletOption" value="Muokkaa web-sisältöä" />
 		</execute>
 
 		<execute macro="WebContent#viewTranslationPGViaWCD">
@@ -183,7 +182,7 @@
 			<var name="webContentTitle" value="WC Title" />
 		</execute>
 
-		<execute macro="WebContent#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="Test Page Name" />
@@ -209,13 +208,17 @@
 			<var name="portletName" value="Language Selector" />
 		</execute>
 
-		<execute function="Refresh" />
+		<execute macro="Navigator#openSiteURL">
+			<var name="siteName" value="Site Name" />
+		</execute>
 
 		<execute macro="LanguagePortlet#selectLanguagePG">
 			<var name="language" value="Spanish (Spain)" />
 		</execute>
 
-		<execute function="Refresh" />
+		<execute macro="Navigator#openSiteURL">
+			<var name="siteName" value="Site Name" />
+		</execute>
 
 		<execute macro="WebContent#viewPGViaWCD">
 			<var name="webContentContent" value="WC Contenido" />

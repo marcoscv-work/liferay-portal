@@ -17,15 +17,20 @@ package com.liferay.portal.image;
 import com.liferay.portal.kernel.image.ImageBag;
 import com.liferay.portal.kernel.image.ImageToolUtil;
 import com.liferay.portal.kernel.image.SpriteProcessor;
+import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.servlet.ServletContextUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.SortedProperties;
+import com.liferay.portal.kernel.util.StringBundler;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.URLUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -40,6 +45,7 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import java.net.URL;
@@ -217,9 +223,25 @@ public class SpriteProcessorImpl implements SpriteProcessor {
 
 			File spriteDir = spriteFile.getParentFile();
 
+			_debugLogExistence(spriteDir);
+			_debugLogExistence(spriteFile);
+
 			FileUtil.mkdirs(spriteDir);
 
-			ImageIO.write(renderedImage, "png", spriteFile);
+			try (FileOutputStream fileOutputStream = new FileOutputStream(
+					spriteFile)) {
+
+				ImageIO.write(renderedImage, "png", fileOutputStream);
+
+				_debugLog(spriteFile, "written via fileOutputStream");
+			}
+			catch (Exception e) {
+				_log.error(e);
+
+				_writeViaMemory(renderedImage, "png", spriteFile);
+
+				_debugLog(spriteFile, "written via memory");
+			}
 
 			if (lastModified > 0) {
 				spriteFile.setLastModified(lastModified);
@@ -417,6 +439,53 @@ public class SpriteProcessorImpl implements SpriteProcessor {
 			}
 
 			System.out.println();
+		}
+	}
+
+	private void _debugLog(File file, String message) {
+		StringBundler sb = new StringBundler(6);
+
+		sb.append(StringPool.EIGHT_STARS);
+		sb.append(PortalUtil.getComputerName());
+		sb.append(StringPool.EIGHT_STARS);
+		sb.append(file.getAbsolutePath());
+		sb.append(CharPool.SPACE);
+		sb.append(message);
+
+		System.out.println(sb);
+	}
+
+	private void _debugLogExistence(File file) throws IOException {
+		if (file.exists()) {
+			if (file.isDirectory()) {
+				_debugLog(file, "exists and is a directory");
+			}
+			else if (file.isFile()) {
+				_debugLog(
+					file,
+					"exists and is a file, here is the dump: " +
+						FileUtil.getBytes(file));
+			}
+			else {
+				_debugLog(file, "exists but I have no idea what it is :-(");
+			}
+		}
+		else {
+			_debugLog(file, "does not exist");
+		}
+	}
+
+	private void _writeViaMemory(
+			RenderedImage renderedImage, String formatName, File file)
+		throws IOException {
+
+		try (UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
+				new UnsyncByteArrayOutputStream()) {
+
+			ImageIO.write(
+				renderedImage, formatName, unsyncByteArrayOutputStream);
+
+			FileUtil.write(file, unsyncByteArrayOutputStream.toByteArray());
 		}
 	}
 

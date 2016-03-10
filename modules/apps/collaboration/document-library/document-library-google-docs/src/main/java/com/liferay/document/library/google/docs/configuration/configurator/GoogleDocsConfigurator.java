@@ -19,9 +19,14 @@ import com.liferay.document.library.google.docs.util.GoogleDocsDLFileEntryTypeHe
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryMetadataLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
+import com.liferay.dynamic.data.mapping.io.DDMFormXSDDeserializer;
 import com.liferay.dynamic.data.mapping.kernel.DDMStructureLinkManager;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMStructureVersionLocalService;
 import com.liferay.dynamic.data.mapping.storage.StorageEngine;
+import com.liferay.dynamic.data.mapping.util.DDM;
+import com.liferay.dynamic.data.mapping.util.DDMFormValuesToFieldsConverter;
+import com.liferay.dynamic.data.mapping.util.FieldsToDDMFormValuesConverter;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Company;
@@ -55,17 +60,20 @@ public class GoogleDocsConfigurator {
 					GoogleDocsDLFileEntryTypeHelper
 						googleDocsDLFileEntryTypeHelper =
 							new GoogleDocsDLFileEntryTypeHelper(
-								company, _classNameLocalService,
+								company, _classNameLocalService, _ddm,
+								_ddmFormXSDDeserializer,
 								_ddmStructureLocalService,
 								_dlFileEntryTypeLocalService,
 								_userLocalService);
 
 					LegacyGoogleDocsMigration legacyGoogleDocsMigration =
 						new LegacyGoogleDocsMigration(
-							company, _ddmStructureLocalService,
+							company, _ddmFormValuesToFieldsConverter,
+							_ddmStructureLocalService,
 							_dlFileEntryTypeLocalService,
 							_dlFileEntryLocalService,
 							_dlFileEntryMetadataLocalService,
+							_fieldsToDDMFormValuesConverter,
 							googleDocsDLFileEntryTypeHelper, _storageEngine);
 
 					if (legacyGoogleDocsMigration.isMigrationNeeded()) {
@@ -77,10 +85,16 @@ public class GoogleDocsConfigurator {
 					}
 				}
 
-			}
-		);
+			});
 
 		actionableDynamicQuery.performActions();
+	}
+
+	@Reference(unbind = "-")
+	public void setFieldsToDDMFormValuesConverter(
+		FieldsToDDMFormValuesConverter fieldsToDDMFormValuesConverter) {
+
+		_fieldsToDDMFormValuesConverter = fieldsToDDMFormValuesConverter;
 	}
 
 	@Reference(unbind = "-")
@@ -98,6 +112,25 @@ public class GoogleDocsConfigurator {
 	}
 
 	@Reference(unbind = "-")
+	protected void setDDM(DDM ddm) {
+		_ddm = ddm;
+	}
+
+	@Reference(unbind = "-")
+	protected void setDDMFormValuesToFieldsConverter(
+		DDMFormValuesToFieldsConverter ddmFormValuesToFieldsConverter) {
+
+		_ddmFormValuesToFieldsConverter = ddmFormValuesToFieldsConverter;
+	}
+
+	@Reference(unbind = "-")
+	protected void setDDMFormXSDDeserializer(
+		DDMFormXSDDeserializer ddmFormXSDDeserializer) {
+
+		_ddmFormXSDDeserializer = ddmFormXSDDeserializer;
+	}
+
+	@Reference(unbind = "-")
 	protected void setDDMStructureLinkManager(
 		DDMStructureLinkManager ddmStructureLinkManager) {
 	}
@@ -107,6 +140,13 @@ public class GoogleDocsConfigurator {
 		DDMStructureLocalService ddmStructureLocalService) {
 
 		_ddmStructureLocalService = ddmStructureLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setDDMStructureVersionLocalService(
+		DDMStructureVersionLocalService ddmStructureVersionLocalService) {
+
+		_ddmStructureVersionLocalService = ddmStructureVersionLocalService;
 	}
 
 	@Reference(unbind = "-")
@@ -147,10 +187,15 @@ public class GoogleDocsConfigurator {
 
 	private ClassNameLocalService _classNameLocalService;
 	private CompanyLocalService _companyLocalService;
+	private DDM _ddm;
+	private DDMFormValuesToFieldsConverter _ddmFormValuesToFieldsConverter;
+	private DDMFormXSDDeserializer _ddmFormXSDDeserializer;
 	private DDMStructureLocalService _ddmStructureLocalService;
+	private DDMStructureVersionLocalService _ddmStructureVersionLocalService;
 	private DLFileEntryLocalService _dlFileEntryLocalService;
 	private DLFileEntryMetadataLocalService _dlFileEntryMetadataLocalService;
 	private DLFileEntryTypeLocalService _dlFileEntryTypeLocalService;
+	private FieldsToDDMFormValuesConverter _fieldsToDDMFormValuesConverter;
 	private StorageEngine _storageEngine;
 	private UserLocalService _userLocalService;
 

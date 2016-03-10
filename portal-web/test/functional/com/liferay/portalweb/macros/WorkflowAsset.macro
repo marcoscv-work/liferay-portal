@@ -1,5 +1,7 @@
 <definition>
 	<command name="createNewUserAccount">
+		<execute function="AssertClick" locator1="UserBar#USER_SIGN_IN" value1="Sign In" />
+
 		<execute macro="User#createAccount">
 			<var name="userEmailAddress" value="${userEmailAddress}" />
 			<var name="userFirstName" value="${userFirstName}" />
@@ -7,7 +9,7 @@
 			<var name="userScreenName" value="${userScreenName}" />
 		</execute>
 
-		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="Thank you for creating an account. You will be notified via email at ${userEmailAddress} when your account has been approved." />
+		<execute function="AssertElementPresent" locator1="Message#SUCCESS" />
 	</command>
 
 	<command name="gotoViaNotification">

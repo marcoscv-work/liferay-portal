@@ -70,9 +70,7 @@
 
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="Alert#viewSuccessMessage" />
 	</command>
 
 	<command name="configureAnyCategoriesFilterPG">
@@ -96,24 +94,7 @@
 
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
-	</command>
-
-	<command name="configureAnyTagsFilterPG">
-		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
-
-		<execute macro="Panel#expandPanel">
-			<var name="panelHeading" value="Filter" />
-		</execute>
-
-		<execute function="Type" locator1="APConfiguration#FILTER_TAGS_FIELD" value1="${tagNames}" />
-		<execute function="Type" locator1="Button#ADD_TAGS" />
-
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="PortletEntry#save" />
 	</command>
 
 	<command name="configureAPSelectMoreThanOnePG">
@@ -146,9 +127,7 @@
 			</if>
 		</for>
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="PortletEntry#save" />
 	</command>
 
 	<command name="configureAssetDisplayOrderPG">
@@ -162,9 +141,7 @@
 
 		<execute function="Select" locator1="APConfiguration#ORDERING_AND_GROUPING_ORDER_DIRECTION_SELECT" value1="${sortOrder}" />
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="PortletEntry#save" />
 	</command>
 
 	<command name="configureAssetLinkBehaviorPG">
@@ -174,9 +151,7 @@
 
 		<execute function="Select" locator1="APConfigurationDisplaysettings#ASSET_LINK_BEHAVIOR_SELECT" value1="${assetLinkBehavior}" />
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="PortletEntry#save" />
 	</command>
 
 	<command name="configureAssetTypePG">
@@ -190,9 +165,7 @@
 
 		<execute function="Select" locator1="APConfiguration#SOURCE_SCOPE_ASSET_SUBTYPE_SELECT" value1="${assetSubtype}" />
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="PortletEntry#save" />
 	</command>
 
 	<command name="configureDisplayConversionsPG">
@@ -217,36 +190,7 @@
 			</if>
 		</for>
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
-	</command>
-
-	<command name="configureDisplayFullContentPG">
-		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
-
-		<execute function="AssertClick" locator1="NavTab#DISPLAY_SETTINGS" value1="Display Settings" />
-
-		<execute function="Select" locator1="APConfigurationDisplaysettings#DISPLAY_TEMPLATE_SELECT" value1="Full Content" />
-
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
-		<execute function="AssertChecked#assertCheckedToggleSwitch" locator1="APConfiguration#FILTER_ONLY_LAYOUT_ASSETS_CHECKBOX" value1="Show only assets with Test Page as its display page." />
-	</command>
-
-	<command name="configureDisplayPagePG">
-		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
-
-		<execute macro="Panel#expandPanel">
-			<var name="panelHeading" value="Source" />
-		</execute>
-
-		<execute function="Check#checkToggleSwitch" locator1="APConfiguration#FILTER_ONLY_LAYOUT_ASSETS_CHECKBOX" value1="Show only assets with Test Page as its display page." />
-
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="PortletEntry#save" />
 	</command>
 
 	<command name="configureDisplayTemplatePG">
@@ -256,9 +200,7 @@
 
 		<execute function="Select" locator1="APConfigurationDisplaysettings#DISPLAY_TEMPLATE_SELECT" value1="${displayTemplate}" />
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="PortletEntry#save" />
 
 		<execute function="SelectFrame" value1="relative=top" />
 	</command>
@@ -311,9 +253,7 @@
 			</then>
 		</if>
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="PortletEntry#save" />
 
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Source" />
@@ -346,9 +286,7 @@
 		<execute function="Check#checkToggleSwitch" locator1="Checkbox#ENABLE_COMMENT_RATINGS" />
 		<execute function="Check" locator1="Checkbox#ENABLE_SOCIAL_BOOKMARKS" />
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="PortletEntry#save" />
 
 		<execute function="SelectFrameTop" value1="relative=top" />
 	</command>
@@ -372,9 +310,7 @@
 			</then>
 		</if>
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="PortletEntry#save" />
 	</command>
 
 	<command name="configureManualAssetSelectionPG">
@@ -414,9 +350,7 @@
 			</then>
 		</if>
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="Alert#viewSuccessMessage" />
 
 		<execute function="SelectFrameTop" />
 	</command>
@@ -429,9 +363,7 @@
 		<execute function="Type" locator1="APConfigurationDisplaysettings#NUMBER_OF_ITEMS_TO_DISPLAY_FIELD" value1="${paginationNumber}" />
 		<execute function="Select" locator1="APConfigurationDisplaysettings#PAGINATION_TYPE_SELECT" value1="${paginationType}" />
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="PortletEntry#save" />
 	</command>
 
 	<command name="configureSelectedPG">
@@ -443,9 +375,7 @@
 
 		<execute function="Select" locator1="APConfiguration#SOURCE_SCOPE_ASSET_TYPE_SELECT" value1="${selectedAsset}" />
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="PortletEntry#save" />
 	</command>
 
 	<command name="configureShowMetadataFieldsPG">
@@ -479,9 +409,7 @@
 			</then>
 		</if>
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="PortletEntry#save" />
 
 		<execute function="SelectFrameTop" />
 	</command>
@@ -525,7 +453,7 @@
 			<var name="panelHeading" value="Source" />
 		</execute>
 
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="Alert#viewSuccessMessage" />
 
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Source" />
@@ -556,9 +484,7 @@
 
 		<execute function="Click" locator1="APConfiguration#SOURCE_SCOPE_DELETE" />
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="Alert#viewSuccessMessage" />
 
 		<execute function="AssertTextNotPresent" locator1="APConfiguration#SOURCE_SCOPE_NAME" value1="${siteName}" />
 		<execute function="AssertTextNotPresent" locator1="APConfiguration#SOURCE_SCOPE_TYPE" value1="${siteScopeType}" />
@@ -566,22 +492,23 @@
 		<execute function="SelectFrameTop" />
 	</command>
 
-	<command name="deleteArchivedSetupPG">
-		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
+	<command name="deleteConfigurationTemplatePG">
+		<execute macro="Portlet#gotoPortletOptions">
+			<var name="portletName" value="Asset Publisher" />
+			<var name="portletOption" value="Configuration Templates" />
+		</execute>
 
-		<execute function="AssertClick" locator1="Configuration#ARCHIVE_RESTORE" value1="Archive/Restore Setup" />
+		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
-		<var name="key_archiveName" value="${archiveName}" />
+		<var name="key_rowEntry" value="${configurationName}" />
 
-		<execute function="AssertTextEquals" locator1="APConfigurationArchivedsetup#ARCHIVED_SETUPS_TABLE_NAME" value1="${archiveName}" />
+		<execute function="Click" locator1="Icon#ROW_VERTICAL_ELLIPSIS" />
 
-		<execute function="Click" locator1="APConfigurationArchivedsetup#ARCHIVED_SETUPS_TABLE_DROPDOWN" />
+		<execute function="AssertClick" locator1="MenuItem#DELETE" value1="Delete" />
 
-		<execute function="AssertClickNoError" locator1="MenuItem#DELETE" value1="Delete" />
+		<execute function="Confirm#waitForConfirmation" value1="Are you sure you want to delete this? It will be deleted immediately." />
 
-		<execute function="Confirm" value1="Are you sure you want to delete this? It will be deleted immediately." />
-
-		<execute macro="Alert#viewRequestCompletedSuccessMessage" />
+		<execute macro="Alert#viewSuccessMessage" />
 
 		<execute function="AssertTextEquals" locator1="Message#EMPTY_INFO" value1="There are no archived setups." />
 	</command>
@@ -626,35 +553,39 @@
 			<execute function="Click" locator1="APConfiguration#SOURCE_SCOPE_DELETE" />
 		</for>
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="Alert#viewSuccessMessage" />
 
 		<execute function="SelectFrameTop" />
 	</command>
 
-	<command name="restoreArchivedSetupPG">
-		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
+	<command name="restoreConfigurationTemplatePG">
+		<execute macro="Portlet#gotoPortletOptions">
+			<var name="portletName" value="Asset Publisher" />
+			<var name="portletOption" value="Configuration Templates" />
+		</execute>
 
-		<execute function="Click" locator1="APConfiguration#ASSET_SELECTION_DYNAMIC" />
+		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
-		<execute macro="Button#clickSave" />
+		<var name="key_rowEntry" value="${configurationName}" />
 
-		<execute function="AssertClick" locator1="Configuration#ARCHIVE_RESTORE" value1="Archive/Restore Setup" />
+		<execute function="Click" locator1="Icon#ROW_VERTICAL_ELLIPSIS" />
 
-		<var name="key_archiveName" value="${archiveName}" />
+		<execute function="AssertClick" locator1="MenuItem#APPLY" value1="Apply" />
 
-		<execute function="Click" locator1="APConfigurationArchivedsetup#ARCHIVED_SETUPS_TABLE_DROPDOWN" />
-
-		<execute function="AssertClick" locator1="MenuItem#RESTORE" value1="Restore" />
+		<execute macro="Alert#viewSuccessMessage" />
 	</command>
 
 	<command name="saveConfigurationTemplatePG">
+		<execute macro="Portlet#gotoPortletOptions">
+			<var name="portletName" value="Asset Publisher" />
+			<var name="portletOption" value="Configuration Templates" />
+		</execute>
+
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
-		<execute function="AssertClick" locator1="Configuration#SAVE_CONFIGURATION_TEMPLATE" value1="Save Current Configuration as Template" />
-
 		<execute function="AssertTextEquals" locator1="Message#EMPTY_INFO" value1="There are no archived setups." />
+
+		<execute function="AssertClick" locator1="Configuration#SAVE_CONFIGURATION_TEMPLATE" value1="Save Current Configuration as Template" />
 
 		<execute function="Type" locator1="TextInput#NAME" value1="${configurationName}" />
 
@@ -664,7 +595,7 @@
 
 		<execute function="AssertTextEquals" locator1="Configuration#CONFIGURATION_TEMPLATE_TABLE_NAME" value1="${configurationName}" />
 
-		<execute macro="Alert#viewRequestCompletedSuccessMessage" />
+		<execute macro="Alert#viewSuccessMessage" />
 
 		<execute function="SelectFrameTop" />
 	</command>
@@ -680,6 +611,14 @@
 		<execute function="AssertTextEquals#assertPartialText" locator1="AP#ASSET_ABSTRACT_DETAIL_CONTENT" value1="${assetContent}" />
 	</command>
 
+	<command name="viewAssetMetadataPG">
+		<var name="key_categoryName" value="${categoryName}" />
+		<var name="key_vocabularyName" value="${vocabularyName}" />
+
+		<execute function="AssertTextEquals#assertPartialText" locator1="AP#METADATA_VOCABULARY" value1="${vocabularyName}" />
+		<execute function="AssertTextEquals#assertPartialText" locator1="AP#METADATA_CATEGORY" value1="${categoryName}" />
+	</command>
+
 	<command name="viewAssetNotPresentPG">
 		<var name="key_assetTitle" value="${assetTitle}" />
 
@@ -692,17 +631,6 @@
 
 		<execute function="AssertTextEquals" locator1="AP#ASSET_ABSTRACT_TITLE" value1="${assetTitle}" />
 		<execute function="AssertTextEquals#assertPartialText" locator1="AP#ASSET_ABSTRACT_DESCRIPTION" value1="${assetContent}" />
-
-		<if>
-			<equals arg1="${addMetadata}" arg2="true" />
-			<then>
-				<var name="key_categoryName" value="${categoryName}" />
-				<var name="key_vocabularyName" value="${vocabularyName}" />
-
-				<execute function="AssertTextEquals#assertPartialText" locator1="AP#METADATA_VOCABULARY" value1="${vocabularyName}" />
-				<execute function="AssertTextEquals#assertPartialText" locator1="AP#METADATA_CATEGORY" value1="${categoryName}" />
-			</then>
-		</if>
 	</command>
 
 	<command name="viewAssetTypeNotAvailable">
@@ -777,9 +705,7 @@
 			</then>
 		</if>
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSetupUpdatedSuccessMessage" />
+		<execute macro="PortletEntry#save" />
 
 		<execute function="SelectFrameTop" />
 	</command>
@@ -877,19 +803,8 @@
 		<execute function="AssertElementPresent" locator1="Icon#FLAG" />
 		<execute function="AssertElementPresent" locator1="Ratings#YOUR_RATING_LABEL" />
 		<execute function="AssertElementPresent" locator1="Ratings#AVERAGE_LABEL" />
-
-		<if>
-			<equals arg1="${pageStaging}" arg2="true" />
-			<then>
-				<execute function="AssertElementNotPresent" locator1="Comments#BE_THE_FIRST_LINK" />
-				<execute function="AssertElementNotPresent" locator1="Comments#SUBSCRIBE_TO_COMMENTS_LINK" />
-				<execute function="AssertElementNotPresent" locator1="Icon#CUSTOM_EDIT" />
-			</then>
-			<else>
-				<execute function="AssertElementPresent" locator1="Comments#SUBSCRIBE_TO_COMMENTS_LINK" />
-				<execute function="AssertElementPresent" locator1="Icon#CUSTOM_EDIT" />
-			</else>
-		</if>
+		<execute function="AssertElementPresent" locator1="Comments#SUBSCRIBE_TO_COMMENTS_LINK" />
+		<execute function="AssertElementPresent" locator1="Icon#CUSTOM_EDIT" />
 
 		<execute function="Click" locator1="Icon#SHARE" value1="Share" />
 
@@ -908,7 +823,7 @@
 
 	<command name="viewDynamicAssetSelectionConfigurationPG">
 		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="${portletName}" />
+			<var name="portletName" value="Asset Publisher" />
 			<var name="portletOption" value="Configuration" />
 		</execute>
 
@@ -972,11 +887,15 @@
 
 	<command name="viewManualAssetSelectionConfigurationPG">
 		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="${portletName}" />
+			<var name="portletName" value="Asset Publisher" />
 			<var name="portletOption" value="Configuration" />
 		</execute>
 
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
+
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Asset Entries" />
+		</execute>
 
 		<execute function="Click" locator1="APConfiguration#ASSET_SELECTION_MANUAL" />
 
@@ -990,6 +909,28 @@
 		<execute function="AssertElementNotPresent" locator1="APConfiguration#ORDERING_AND_GROUPING_DROPDOWN_COLLAPSED" />
 
 		<execute function="SelectFrameTop" />
+	</command>
+
+	<command name="viewManualAssetTypesPG">
+		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
+
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Asset Entries" />
+		</execute>
+
+		<execute function="Click" locator1="APConfigurationManual#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_SELECT" />
+
+		<for list="${assetEntryTypes}" param="assetEntryType">
+			<var name="key_assetEntryType" value="${assetEntryType}" />
+
+			<execute function="AssertTextEquals#assertPartialText" locator1="APConfigurationManual#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_MENULIST_ITEM" value1="${assetEntryType}" />
+		</for>
+
+		<execute macro="IFrame#selectTopFrame" />
+	</command>
+
+	<command name="viewManualNoAssetsMessagePG">
+		<execute function="AssertTextEquals" locator1="Message#INFO" value1="There are no results." />
 	</command>
 
 	<command name="viewMultipleAssetOrderPGViaAP">
@@ -1120,7 +1061,7 @@
 			<var name="panelHeading" value="Asset Entries" />
 		</execute>
 
-		<execute function="AssertTextEquals" locator1="Message#EMPTY_INFO" value1="No assets selected." />
+		<execute function="AssertTextEquals" locator1="APConfigurationManual#ASSET_SELECTION_MANUAL_NONE" value1="none" />
 
 		<execute function="SelectFrameTop" />
 	</command>

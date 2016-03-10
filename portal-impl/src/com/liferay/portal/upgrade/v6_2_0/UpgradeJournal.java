@@ -15,13 +15,13 @@
 package com.liferay.portal.upgrade.v6_2_0;
 
 import com.liferay.journal.kernel.util.JournalConverterManagerUtil;
-import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.upgrade.BaseUpgradePortletPreferences;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -30,10 +30,8 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.upgrade.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.upgrade.v6_2_0.util.JournalFeedTable;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import java.util.HashMap;
@@ -58,25 +56,17 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 			String storageType, int type)
 		throws Exception {
 
-		Connection con = null;
-		PreparedStatement ps = null;
+		StringBundler sb = new StringBundler(5);
 
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
+		sb.append("insert into DDMStructure (uuid_, structureId, groupId, ");
+		sb.append("companyId, userId, userName, createDate, modifiedDate, ");
+		sb.append("parentStructureId, classNameId, structureKey, name, ");
+		sb.append("description, xsd, storageType, type_) values (?, ?, ?, ?, ");
+		sb.append("?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-			StringBundler sb = new StringBundler(6);
+		String sql = sb.toString();
 
-			sb.append("insert into DDMStructure (uuid_, structureId, ");
-			sb.append("groupId, companyId, userId, userName, createDate, ");
-			sb.append("modifiedDate, parentStructureId, classNameId, ");
-			sb.append("structureKey, name, description, xsd, storageType, ");
-			sb.append("type_) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ");
-			sb.append("?, ?, ?)");
-
-			String sql = sb.toString();
-
-			ps = con.prepareStatement(sql);
-
+		try (PreparedStatement ps = connection.prepareStatement(sql)) {
 			ps.setString(1, uuid_);
 			ps.setLong(2, ddmStructureId);
 			ps.setLong(3, groupId);
@@ -105,9 +95,6 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 					uuid_);
 
 			throw e;
-		}
-		finally {
-			DataAccess.cleanUp(con, ps);
 		}
 	}
 
@@ -147,25 +134,18 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 			boolean smallImage, long smallImageId, String smallImageURL)
 		throws Exception {
 
-		Connection con = null;
-		PreparedStatement ps = null;
+		StringBundler sb = new StringBundler(6);
 
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
+		sb.append("insert into DDMTemplate (uuid_, templateId, groupId, ");
+		sb.append("companyId, userId, userName, createDate, modifiedDate,");
+		sb.append("classNameId, classPK , templateKey, name, description,");
+		sb.append("type_, mode_, language, script, cacheable, smallImage,");
+		sb.append("smallImageId, smallImageURL) values (?, ?, ?, ?, ?, ?,");
+		sb.append("?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-			StringBundler sb = new StringBundler(6);
+		String sql = sb.toString();
 
-			sb.append("insert into DDMTemplate (uuid_, templateId, groupId, ");
-			sb.append("companyId, userId, userName, createDate, modifiedDate,");
-			sb.append("classNameId, classPK , templateKey, name, description,");
-			sb.append("type_, mode_, language, script, cacheable, smallImage,");
-			sb.append("smallImageId, smallImageURL) values (?, ?, ?, ?, ?, ?,");
-			sb.append("?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-			String sql = sb.toString();
-
-			ps = con.prepareStatement(sql);
-
+		try (PreparedStatement ps = connection.prepareStatement(sql)) {
 			ps.setString(1, uuid_);
 			ps.setLong(2, ddmTemplateId);
 			ps.setLong(3, groupId);
@@ -197,24 +177,13 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 
 			throw e;
 		}
-		finally {
-			DataAccess.cleanUp(con, ps);
-		}
 	}
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		try {
-			runSQL(
-				"alter_column_name JournalFeed feedType feedFormat " +
-					"VARCHAR(75) null");
-		}
-		catch (SQLException sqle) {
-			upgradeTable(
-				JournalFeedTable.TABLE_NAME, JournalFeedTable.TABLE_COLUMNS,
-				JournalFeedTable.TABLE_SQL_CREATE,
-				JournalFeedTable.TABLE_SQL_ADD_INDEXES);
-		}
+		alter(
+			JournalFeedTable.class,
+			new AlterColumnName("feedType", "feedFormat VARCHAR(75) null"));
 
 		updateStructures();
 		updateTemplates();
@@ -225,32 +194,22 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 	}
 
 	protected long getCompanyGroupId(long companyId) throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+		try (PreparedStatement ps = connection.prepareStatement(
 				"select groupId from Group_ where classNameId = ? and " +
-					"classPK = ?");
+					"classPK = ?")) {
 
 			ps.setLong(
 				1,
 				PortalUtil.getClassNameId("com.liferay.portal.model.Company"));
 			ps.setLong(2, companyId);
 
-			rs = ps.executeQuery();
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					return rs.getLong("groupId");
+				}
 
-			if (rs.next()) {
-				return rs.getLong("groupId");
+				return 0;
 			}
-
-			return 0;
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
 		}
 	}
 
@@ -309,30 +268,20 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 	}
 
 	protected Locale getDefaultLocale(long companyId) throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+		try (PreparedStatement ps = connection.prepareStatement(
 				"select languageId from User_ where companyId = ? and " +
-					"defaultUser = ?");
+					"defaultUser = ?")) {
 
 			ps.setLong(1, companyId);
 			ps.setBoolean(2, true);
 
-			rs = ps.executeQuery();
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					String languageId = rs.getString("languageId");
 
-			if (rs.next()) {
-				String languageId = rs.getString("languageId");
-
-				return LocaleUtil.fromLanguageId(languageId);
+					return LocaleUtil.fromLanguageId(languageId);
+				}
 			}
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
 		}
 
 		return LocaleUtil.getSiteDefault();
@@ -346,24 +295,17 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 	}
 
 	protected void updateAssetEntryClassTypeId() throws Exception {
-		Connection con = null;
-		PreparedStatement ps1 = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps1 = con.prepareStatement(
+		try (LoggingTimer loggingTimer = new LoggingTimer();
+			PreparedStatement ps1 = connection.prepareStatement(
 				"select companyId, groupId, resourcePrimKey, structureId " +
 					"from JournalArticle where structureId != ''");
-
-			rs = ps1.executeQuery();
+			ResultSet rs = ps1.executeQuery()) {
 
 			try (PreparedStatement ps2 =
-					AutoBatchPreparedStatementUtil.autoBatch(
-						con.prepareStatement(
-							"update AssetEntry set classTypeId = ? where " +
-								"classPK = ?"))) {
+					AutoBatchPreparedStatementUtil.concurrentAutoBatch(
+						connection,
+						"update AssetEntry set classTypeId = ? where classPK " +
+							"= ?")) {
 
 				while (rs.next()) {
 					long groupId = rs.getLong("groupId");
@@ -382,9 +324,6 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 
 				ps2.executeBatch();
 			}
-		}
-		finally {
-			DataAccess.cleanUp(con, ps1, rs);
 		}
 	}
 
@@ -489,25 +428,18 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 	}
 
 	protected long updateStructure(String structureId) throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
-				"select * from JournalStructure where structureId = ?");
+		try (PreparedStatement ps = connection.prepareStatement(
+				"select * from JournalStructure where structureId = ?")) {
 
 			ps.setString(1, structureId);
 
-			rs = ps.executeQuery();
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					return updateStructure(rs);
+				}
 
-			if (rs.next()) {
-				return updateStructure(rs);
+				return 0;
 			}
-
-			return 0;
 		}
 		catch (Exception e) {
 			_log.error(
@@ -516,45 +448,27 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 
 			throw e;
 		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
-		}
 	}
 
 	protected void updateStructures() throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement("select * from JournalStructure");
-
-			rs = ps.executeQuery();
+		try (LoggingTimer loggingTimer = new LoggingTimer();
+			PreparedStatement ps = connection.prepareStatement(
+				"select * from JournalStructure");
+			ResultSet rs = ps.executeQuery()) {
 
 			while (rs.next()) {
 				updateStructure(rs);
 			}
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
-		}
 
-		runSQL("drop table JournalStructure");
+			runSQL("drop table JournalStructure");
+		}
 	}
 
 	protected void updateTemplates() throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement("select * from JournalTemplate");
-
-			rs = ps.executeQuery();
+		try (LoggingTimer loggingTimer = new LoggingTimer();
+			PreparedStatement ps = connection.prepareStatement(
+				"select * from JournalTemplate");
+			ResultSet rs = ps.executeQuery()) {
 
 			while (rs.next()) {
 				String uuid_ = rs.getString("uuid_");
@@ -596,12 +510,9 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 					"com.liferay.portlet.dynamicdatamapping.DDMTemplate", id_,
 					ddmTemplateId);
 			}
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
-		}
 
-		runSQL("drop table JournalTemplate");
+			runSQL("drop table JournalTemplate");
+		}
 	}
 
 	@Override

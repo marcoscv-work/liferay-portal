@@ -464,6 +464,12 @@
 			<finder-column name="liveGroupId" />
 			<finder-column name="groupKey" />
 		</finder>
+		<finder name="G_C_C_P" return-type="Collection" db-index="false">
+			<finder-column name="groupId" comparator="&gt;" />
+			<finder-column name="companyId" />
+			<finder-column name="classNameId" />
+			<finder-column name="parentGroupId" />
+		</finder>
 		<finder name="C_C_L_GK" return-type="Group" unique="true">
 			<finder-column name="companyId" />
 			<finder-column name="classNameId" />
@@ -2179,6 +2185,11 @@
 			<finder-column name="name" />
 			<finder-column name="scope" />
 		</finder>
+		<finder name="C_S_P" return-type="Collection">
+			<finder-column name="companyId" />
+			<finder-column name="scope" />
+			<finder-column name="primKey" />
+		</finder>
 		<finder name="C_N_S_P" return-type="Collection">
 			<finder-column name="companyId" />
 			<finder-column name="name" />
@@ -3343,6 +3354,7 @@
 		<exception>GroupInheritContent</exception>
 		<exception>GroupKey</exception>
 		<exception>GroupParent</exception>
+		<exception>ImageResolution</exception>
 		<exception>ImageType</exception>
 		<exception>InvalidRepository</exception>
 		<exception>LayoutBranchName</exception>
