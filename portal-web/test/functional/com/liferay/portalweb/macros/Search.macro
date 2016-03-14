@@ -35,9 +35,7 @@
 			</then>
 		</if>
 
-		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
-
-		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="You have successfully updated the setup." />
+		<execute macro="PortletEntry#save" />
 	</command>
 
 	<command name="gotoModifiedRangeFacetPG">
@@ -63,7 +61,7 @@
 		<execute function="AssertClick" locator1="BasePortlet#OPTIONS_MENULIST_CONFIGURATION" value1="Configuration" />
 		<execute function="SelectFrame" locator1="BasePortletConfiguration#CONFIGURATION_IFRAME" />
 		<execute function="Uncheck" locator1="SearchConfiguration#BASIC_DISPLAY_USER_FACET_CHECKBOX" />
-		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
+		<execute macro="Button#clickSave" />
 		<execute function="SelectFrame" value1="relative=top" />
 	</command>
 
@@ -103,6 +101,9 @@
 	</command>
 
 	<command name="searchPG">
+		<execute function="AssertElementPresent" locator1="Search#SEARCH_FIELD" />
+		<execute function="AssertElementPresent" locator1="Search#SEARCH_PORTLET_SEARCH_BUTTON" />
+
 		<execute function="Type" locator1="Search#SEARCH_FIELD" value1="${searchTerm}" />
 
 		<if>
@@ -129,8 +130,6 @@
 				</then>
 			</elseif>
 		</if>
-
-		<var name="key_searchIDName" value="Search" />
 
 		<execute function="KeyPress" locator1="Search#SEARCH_FIELD" value1="\RETURN" />
 	</command>

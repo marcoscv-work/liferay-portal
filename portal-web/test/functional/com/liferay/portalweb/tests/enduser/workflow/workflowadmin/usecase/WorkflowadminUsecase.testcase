@@ -551,7 +551,6 @@
 		</execute>
 
 		<execute macro="Page#add">
-			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Organization Page" />
 			<var name="siteName" value="Organization Name" />
 			<var name="sitePagePrivacy" value="Public" />
@@ -645,6 +644,12 @@
 			<var name="workflowDefinition" value="Scripted Single Approver (Version 1)" />
 		</execute>
 
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Documents and Media" />
+		</execute>
+
 		<execute macro="DMDocument#addWithWorkflowCP">
 			<var name="dmDocumentDescription" value="DM Document Description" />
 			<var name="dmDocumentFile" value="Document_1.txt" />
@@ -659,6 +664,12 @@
 
 		<execute macro="Workflow#configureWorkflowViaPortlet">
 			<var name="workflowDefinition" value="Scripted Single Approver (Version 1)" />
+		</execute>
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Documents and Media" />
 		</execute>
 
 		<execute macro="DMDocument#addWithWorkflowCP">
@@ -875,7 +886,7 @@
 
 		<execute macro="Button#clickSubmitForPublication" />
 
-		<execute macro="Alert#viewRequestCompletedSuccessMessage" />
+		<execute macro="Alert#viewSuccessMessage" />
 
 		<execute macro="WebContent#viewWithWorkflowCP">
 			<var name="webContentContent" value="legal category" />
@@ -908,7 +919,7 @@
 
 		<execute macro="Button#clickSubmitForPublication" />
 
-		<execute macro="Alert#viewRequestCompletedSuccessMessage" />
+		<execute macro="Alert#viewSuccessMessage" />
 
 		<execute macro="WebContent#viewWithWorkflowCP">
 			<var name="webContentContent" value="legal category" />
@@ -936,7 +947,7 @@
 
 		<execute macro="Button#clickSubmitForPublication" />
 
-		<execute macro="Alert#viewRequestCompletedSuccessMessage" />
+		<execute macro="Alert#viewSuccessMessage" />
 
 		<execute macro="WebContent#viewWithWorkflowCP">
 			<var name="webContentContent" value="other category" />
@@ -1018,7 +1029,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -1062,7 +1073,7 @@
 			<var name="userEmailAddress" value="${userEmailAddress}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -1074,7 +1085,7 @@
 			<var name="wikiPageUsername" value="${userFirstName} ${userLastName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -1119,7 +1130,7 @@
 			<var name="workflowTask" value="Review" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -1141,7 +1152,7 @@
 			<var name="workflowTask" value="Review" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -1164,7 +1175,7 @@
 			<var name="userEmailAddress" value="${userEmailAddress}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -1199,6 +1210,10 @@
 
 		<execute macro="Workflow#deactivateAddedWorkflowDefinition" />
 
+		<execute macro="ProductMenu#gotoControlPanelConfiguration">
+			<var name="portlet" value="Workflow Definition" />
+		</execute>
+
 		<execute macro="Workflow#reactivateInactiveWorkflowDefinition">
 			<var name="workflowDefinitionName" value="Uploaded Definition" />
 		</execute>
@@ -1223,6 +1238,10 @@
 		</execute>
 
 		<execute macro="Workflow#deactivateAddedWorkflowDefinition" />
+
+		<execute macro="ProductMenu#gotoControlPanelConfiguration">
+			<var name="portlet" value="Workflow Definition" />
+		</execute>
 
 		<execute macro="Workflow#deleteWorkflowDefinition" />
 	</command>
@@ -1262,7 +1281,7 @@
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
@@ -1276,7 +1295,7 @@
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
@@ -1293,7 +1312,7 @@
 
 		<execute macro="Workflow#confirmAndViewSucessMessageViaDetails" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
@@ -1310,7 +1329,7 @@
 
 		<execute macro="Workflow#confirmAndViewSucessMessageViaDetails" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
@@ -1764,12 +1783,11 @@
 		</execute>
 
 		<execute macro="Page#add">
-			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Asset Publisher Test Page" />
 			<var name="siteName" value="Liferay" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Test Page" />
 		</execute>
 

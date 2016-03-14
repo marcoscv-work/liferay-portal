@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutRevisionLocalServiceUtil;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalServiceUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.LoggingTimer;
 
 import java.util.List;
 
@@ -43,12 +44,14 @@ public class VerifyPortletPreferences extends VerifyProcess {
 	public static void cleanUpLayoutRevisionPortletPreferences()
 		throws Exception {
 
-		ActionableDynamicQuery actionableDynamicQuery =
-			getPortletPreferencesActionableDynamicQuery();
+		try (LoggingTimer loggingTimer = new LoggingTimer()) {
+			ActionableDynamicQuery actionableDynamicQuery =
+				getPortletPreferencesActionableDynamicQuery();
 
-		actionableDynamicQuery.setParallel(true);
+			actionableDynamicQuery.setParallel(true);
 
-		actionableDynamicQuery.performActions();
+			actionableDynamicQuery.performActions();
+		}
 	}
 
 	protected static ActionableDynamicQuery

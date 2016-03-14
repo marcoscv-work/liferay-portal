@@ -9,11 +9,6 @@
 </thead>
 <tbody>
 <tr>
-	<td>ENTRY_CONTENT_SPECIFIC</td>
-	<td>//div[contains(@class,'entry') and contains(@class,'approved')]//div[contains(@class,'entry-body') and contains(.,'${key_entryContent}')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>ENTRY_COVER_IMAGE</td>
 	<td>//div[contains(@class,'cover-image-container') and contains(@style,'${key_uploadFileName}')] | //div[contains(@class,'cover-image')]//img[contains(@src,'${key_uploadFileName}')]</td>
 	<td></td>
@@ -75,7 +70,7 @@
 </tr>
 <tr>
 	<td>CONTENT</td>
-	<td>//div[contains(@class,'entry-body')]//p[contains(.,'${key_entryContent}')]</td>
+	<td>//div[contains(@class,'entry-body')]//p[contains(.,'${key_entryContent}')] | //div[contains(@class,'wrapper')]//p[contains(.,'${key_entryContent}')] </td>
 	<td></td>
 </tr>
 <tr>
@@ -90,7 +85,7 @@
 </tr>
 <tr>
 	<td>CONTENT_INLINE_IMAGE</td>
-	<td>//div[contains(@class,'entry-body')]//img[contains(@src,'${key_uploadFileName}')]</td>
+	<td>//div[contains(@class,'entry-content')]//img[contains(@src,'${key_uploadFileName}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -120,7 +115,7 @@
 </tr>
 <tr>
 	<td>TAG</td>
-	<td>//div[contains(@class,'entry') and contains(@class,'approved') and contains(.,'${key_entryTitle}')]//span/a[contains(.,'${key_tagName}')]</td>
+	<td>//div[contains(@class,'entry') and contains(.,'${key_entryTitle}')]//span/a[contains(.,'${key_tagName}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -140,7 +135,7 @@
 </tr>
 <tr>
 	<td>RELATED_ASSETS_TITLE</td>
-	<td>//div[contains(@class,'entry') and contains(@class,'approved') and contains(.,'${key_entryTitle}')]//div/div[contains(@class,'asset-links')]/ul//a[contains(.,'${key_assetTitle}')]</td>
+	<td>//div[contains(@class,'asset-links')]/ul//a[contains(.,'${key_assetTitle}')]</td>
 	<td></td>
 </tr>
 <tr>

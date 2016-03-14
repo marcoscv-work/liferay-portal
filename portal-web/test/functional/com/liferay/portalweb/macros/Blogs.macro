@@ -32,7 +32,7 @@
 			<var name="entryTitle" value="${entryTitle}" />
 		</execute>
 
-		<execute macro="BlogsEntry#publish" />
+		<execute macro="PortletEntry#publish" />
 	</command>
 
 	<command name="addEntryWithCategory">
@@ -44,14 +44,16 @@
 			<var name="entryTitle" value="${entryTitle}" />
 		</execute>
 
-		<execute macro="BlogsNavigator#gotoSettings" />
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Categorization" />
+		</execute>
 
 		<execute macro="AssetCategorization#addCategory">
 			<var name="categoryName" value="${categoryName}" />
 			<var name="vocabularyName" value="${vocabularyName}" />
 		</execute>
 
-		<execute macro="BlogsEntry#publish" />
+		<execute macro="PortletEntry#publish" />
 	</command>
 
 	<command name="addEntryWithHTML">
@@ -71,9 +73,7 @@
 
 		<execute function="Type#sendKeysAceEditor" locator1="TextArea#ACE_EDITOR" value1="${entryContent}" />
 
-		<execute function="AssertClick" locator1="Button#PUBLISH" value1="Publish" />
-
-		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="Your request completed successfully." />
+		<execute macro="PortletEntry#publish" />
 	</command>
 
 	<command name="addEntryWithPermissions">
@@ -85,13 +85,15 @@
 			<var name="entryTitle" value="${entryTitle}" />
 		</execute>
 
-		<execute macro="BlogsNavigator#gotoSettings" />
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Permissions" />
+		</execute>
 
 		<execute macro="BlogsEntry#entryAddPermissions">
 			<var name="viewableBy" value="${viewableBy}" />
 		</execute>
 
-		<execute macro="BlogsEntry#publish" />
+		<execute macro="PortletEntry#publish" />
 	</command>
 
 	<command name="addEntryWithTag">
@@ -103,13 +105,15 @@
 			<var name="entryTitle" value="${entryTitle}" />
 		</execute>
 
-		<execute macro="BlogsNavigator#gotoSettings" />
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Categorization" />
+		</execute>
 
 		<execute macro="AssetCategorization#addTag">
 			<var name="tagName" value="${tagName}" />
 		</execute>
 
-		<execute macro="BlogsEntry#publish" />
+		<execute macro="PortletEntry#publish" />
 	</command>
 
 	<command name="addEntryWithTags">
@@ -121,7 +125,9 @@
 			<var name="entryTitle" value="${entryTitle}" />
 		</execute>
 
-		<execute macro="BlogsNavigator#gotoSettings" />
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Categorization" />
+		</execute>
 
 		<for list="${tagNameList}" param="tagName">
 			<execute macro="AssetCategorization#addTag">
@@ -129,7 +135,7 @@
 			</execute>
 		</for>
 
-		<execute macro="BlogsEntry#publish" />
+		<execute macro="PortletEntry#publish" />
 	</command>
 
 	<command name="addEntryWithUploadedCoverImage">
@@ -164,8 +170,8 @@
 
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
-		<execute function="Type#typeAlloyEditor" locator1="AlloyEditor#TITLE_FIELD" value1="${entryTitle}" />
-		<execute function="Type#typeAlloyEditor" locator1="AlloyEditor#CONTENT_FIELD" value1="${entryContent}" />
+		<execute function="Type#typeEditor" locator1="AlloyEditor#TITLE_FIELD" value1="${entryTitle}" />
+		<execute function="Type#typeEditor" locator1="AlloyEditor#CONTENT_FIELD" value1="${entryContent}" />
 
 		<execute function="AssertClick" locator1="Button#PUBLISH" value1="Publish" />
 
@@ -188,17 +194,19 @@
 			<var name="entryTitle" value="${entryTitle}" />
 		</execute>
 
-		<execute function="Click" locator1="Button#COG" />
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Configuration" />
+		</execute>
 
 		<execute function="Click" locator1="Radio#CUSTOM_ABSTRACT" />
 
 		<execute function="Click" locator1="AlloyEditor#DESCRIPTION_FIELD" />
 
-		<execute function="Type#typeAlloyEditor" locator1="AlloyEditor#DESCRIPTION_FIELD" value1="${entryAbstractDescription}" />
+		<execute function="Type#typeEditor" locator1="AlloyEditor#DESCRIPTION_FIELD" value1="${entryAbstractDescription}" />
 
-		<execute macro="BlogsEntry#publish" />
+		<execute macro="PortletEntry#publish" />
 
-		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="Your request completed successfully." />
+		<execute macro="Alert#viewSuccessMessage" />
 	</command>
 
 	<command name="addWithCustomAbstractImage">
@@ -210,7 +218,9 @@
 			<var name="entryTitle" value="${entryTitle}" />
 		</execute>
 
-		<execute function="Click" locator1="Button#COG" />
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Configuration" />
+		</execute>
 
 		<execute function="Click" locator1="Radio#CUSTOM_ABSTRACT" />
 
@@ -223,9 +233,7 @@
 		<execute function="Type" locator1="TextInput#TITLE" value1="${dmDocumentTitle}" />
 		<execute function="Type" locator1="TextArea#DESCRIPTION" value1="${dmDocumentDescription}" />
 
-		<execute function="AssertClick" locator1="Button#PUBLISH" value1="Publish" />
-
-		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="Your request completed successfully." />
+		<execute macro="PortletEntry#publish" />
 	</command>
 
 	<command name="addWithDefaultAbstract">
@@ -237,13 +245,13 @@
 			<var name="entryTitle" value="${entryTitle}" />
 		</execute>
 
-		<execute function="Click" locator1="Button#COG" />
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Configuration" />
+		</execute>
 
 		<execute function="AssertChecked" locator1="Radio#FIRST_400_ABSTRACT" value1="Use the first 400 characters of the entry content." />
 
-		<execute function="AssertClick" locator1="Button#PUBLISH" value1="Publish" />
-
-		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="Your request completed successfully." />
+		<execute macro="PortletEntry#publish" />
 	</command>
 
 	<command name="addWithInvalidContent">
@@ -301,8 +309,8 @@
 
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
-		<execute function="Type#typeAlloyEditor" locator1="AlloyEditor#TITLE_FIELD" value1="${entryTitle}" />
-		<execute function="Type#typeAlloyEditor" locator1="AlloyEditor#CONTENT_FIELD" value1="${entryContent}" />
+		<execute function="Type#typeEditor" locator1="AlloyEditor#TITLE_FIELD" value1="${entryTitle}" />
+		<execute function="Type#typeEditor" locator1="AlloyEditor#CONTENT_FIELD" value1="${entryContent}" />
 
 		<execute function="AssertClick" locator1="Button#SUBMIT_FOR_PUBLICATION" value1="Submit for Publication" />
 
@@ -346,7 +354,7 @@
 
 		<execute function="AssertClick" locator1="Button#SAVE_AS_DRAFT" value1="Save as Draft" />
 
-		<execute macro="Alert#viewRequestCompletedSuccessMessage" />
+		<execute macro="Alert#viewSuccessMessage" />
 	</command>
 
 	<command name="editEntryPG">
@@ -363,7 +371,7 @@
 			<var name="entryTitleEdit" value="${entryTitleEdit}" />
 		</execute>
 
-		<execute macro="BlogsEntry#publish" />
+		<execute macro="PortletEntry#publish" />
 	</command>
 
 	<command name="enableSocialBookmarkSites">
@@ -403,13 +411,13 @@
 			<var name="entryTitle" value="${entryTitle}" />
 		</execute>
 
-		<execute macro="BlogsEntry#publish" />
+		<execute macro="PortletEntry#publish" />
 	</command>
 
 	<command name="subscribePG">
 		<execute function="AssertClick" locator1="Blogs#SUBSCRIBE_LINK" value1="Subscribe" />
 
-		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="Your request completed successfully." />
+		<execute macro="Alert#viewSuccessMessage" />
 	</command>
 
 	<command name="tearDownConfigurationDisplaySettingsPG">
@@ -458,7 +466,7 @@
 
 				<execute function="AssertClick" locator1="Button#MOVE_TO_THE_RECYCLE_BIN" value1="Move to the Recycle Bin" />
 
-				<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="moved to the Recycle Bin. Undo" />
+				<execute function="AssertElementPresent" locator1="Message#SUCCESS" />
 			</then>
 		</if>
 
@@ -479,13 +487,13 @@
 		</execute>
 
 		<execute function="AssertClick" locator1="Link#UNSUBSCRIBE" value1="Unsubscribe" />
-		<execute macro="Alert#viewRequestCompletedSuccessMessage" />
+		<execute macro="Alert#viewSuccessMessage" />
 	</command>
 
 	<command name="unsubscribePG">
 		<execute function="AssertClick" locator1="Link#UNSUBSCRIBE" value1="Unsubscribe" />
 
-		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="Your request completed successfully." />
+		<execute macro="Alert#viewSuccessMessage" />
 	</command>
 
 	<command name="viewControlsPG">
