@@ -177,6 +177,7 @@ create index IX_1827A2E5 on ExportImportConfiguration (companyId);
 create index IX_38FA468D on ExportImportConfiguration (groupId, status);
 create index IX_47CC6234 on ExportImportConfiguration (groupId, type_, status);
 
+create index IX_BD3CB13A on Group_ (classNameId, groupId, companyId, parentGroupId);
 create index IX_DDC91A87 on Group_ (companyId, active_);
 create unique index IX_D0D5E397 on Group_ (companyId, classNameId, classPK);
 create unique index IX_A729E3A6 on Group_ (companyId, classNameId, liveGroupId, groupKey[$COLUMN_LENGTH:150$]);
@@ -391,6 +392,7 @@ create index IX_20A2E3D9 on ResourceBlockPermission (roleId);
 create unique index IX_8D83D0CE on ResourcePermission (companyId, name[$COLUMN_LENGTH:255$], scope, primKey[$COLUMN_LENGTH:255$], roleId);
 create index IX_49AEC6F3 on ResourcePermission (companyId, name[$COLUMN_LENGTH:255$], scope, primKeyId, roleId, viewActionId);
 create index IX_26284944 on ResourcePermission (companyId, primKey[$COLUMN_LENGTH:255$]);
+create index IX_F6BAE86A on ResourcePermission (companyId, scope, primKey[$COLUMN_LENGTH:255$]);
 create index IX_A37A0588 on ResourcePermission (roleId);
 create index IX_F4555981 on ResourcePermission (scope);
 

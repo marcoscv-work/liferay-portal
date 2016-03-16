@@ -49,9 +49,8 @@
 
 		<execute macro="DMNavigator#gotoAddRepositoryCP" />
 
-		<execute macro="DMRepository#select">
+		<execute macro="DMRepository#edit">
 			<var name="dmRepositoryName" value="Sharepoint Repository Name" />
-			<var name="dmRepositoryType" value="Sharepoint" />
 		</execute>
 
 		<execute macro="DMRepository#addSharepoint">
@@ -59,7 +58,7 @@
 			<var name="dmRepositorySiteURL" value="http://${sharepointVMHostName}" />
 		</execute>
 
-		<execute macro="DMRepository#save" />
+		<execute macro="PortletEntry#save" />
 	</set-up>
 
 	<tear-down>

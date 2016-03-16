@@ -70,6 +70,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
@@ -1842,7 +1843,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 					assetEntryLocalService.updateEntry(
 						message.getWorkflowClassName(), message.getMessageId(),
-						publishDate, true);
+						publishDate, null, true, true);
 				}
 
 				if (serviceContext.isCommandAdd()) {
@@ -1852,7 +1853,13 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 					JSONObject extraDataJSONObject =
 						JSONFactoryUtil.createJSONObject();
 
-					extraDataJSONObject.put("title", message.getSubject());
+					String title = message.getSubject();
+
+					if (message.isDiscussion()) {
+						title = HtmlUtil.stripHtml(title);
+					}
+
+					extraDataJSONObject.put("title", title);
 
 					if (!message.isDiscussion()) {
 						if (!message.isAnonymous() && !user.isDefaultUser()) {
@@ -2301,8 +2308,8 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			}
 			catch (Exception e) {
 				_log.error(
-					"Could not parse message " + message.getMessageId() +
-						" " + e.getMessage());
+					"Could not parse message " + message.getMessageId() + " " +
+						e.getMessage());
 			}
 		}
 
@@ -2435,9 +2442,9 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			userId, message.getGroupId(), message.getCreateDate(),
 			message.getModifiedDate(), message.getWorkflowClassName(),
 			message.getMessageId(), message.getUuid(), 0, assetCategoryIds,
-			assetTagNames, visible, null, null, null, ContentTypes.TEXT_HTML,
-			message.getSubject(), null, null, null, null, 0, 0,
-			message.getPriority());
+			assetTagNames, true, visible, null, null, null,
+			ContentTypes.TEXT_HTML, message.getSubject(), null, null, null,
+			null, 0, 0, message.getPriority());
 
 		assetLinkLocalService.updateLinks(
 			userId, assetEntry.getEntryId(), assetLinkEntryIds,

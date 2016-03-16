@@ -111,8 +111,7 @@ public class SPIAgentRequestTest {
 					}
 				}
 
-			}
-		);
+			});
 
 		PortalUtil portalUtil = new PortalUtil();
 
@@ -644,8 +643,7 @@ public class SPIAgentRequestTest {
 		sb.append(spiAgentRequest.distributedRequestAttributes);
 		sb.append(", headerMap=");
 		sb.append(spiAgentRequest.headerMap);
-		sb.append(", multipartParameterMap=null");
-		sb.append(", originalSessionAttributes=");
+		sb.append(", multipartParameterMap=null, originalSessionAttributes=");
 		sb.append(spiAgentRequest.getOriginalSessionAttributes());
 		sb.append(", parameterMap={");
 
@@ -658,8 +656,8 @@ public class SPIAgentRequestTest {
 
 		sb.setIndex(sb.index() - 1);
 
-		sb.append("}, regularParameterMap=null, requestBodyFile=null");
-		sb.append(", serverName=");
+		sb.append("}, regularParameterMap=null, requestBodyFile=null, ");
+		sb.append("serverName=");
 		sb.append(_SERVER_NAME);
 		sb.append(", serverPort=");
 		sb.append(_SERVER_PORT);
@@ -673,13 +671,12 @@ public class SPIAgentRequestTest {
 
 		sb = new StringBundler(13 + parameterMap.size() * 4);
 
-		sb.append(
-			"{contentType=null, cookies=[], distributedRequestAttributes=");
+		sb.append("{contentType=null, cookies=[], ");
+		sb.append("distributedRequestAttributes=");
 		sb.append(spiAgentRequest.distributedRequestAttributes);
 		sb.append(", headerMap=");
 		sb.append(spiAgentRequest.headerMap);
-		sb.append(", multipartParameterMap=null");
-		sb.append(", originalSessionAttributes=");
+		sb.append(", multipartParameterMap=null, originalSessionAttributes=");
 		sb.append(spiAgentRequest.getOriginalSessionAttributes());
 		sb.append(", parameterMap={");
 
@@ -692,8 +689,8 @@ public class SPIAgentRequestTest {
 
 		sb.setIndex(sb.index() - 1);
 
-		sb.append("}, regularParameterMap=null, requestBodyFile=null");
-		sb.append(", serverName=");
+		sb.append("}, regularParameterMap=null, requestBodyFile=null, ");
+		sb.append("serverName=");
 		sb.append(_SERVER_NAME);
 		sb.append(", serverPort=");
 		sb.append(_SERVER_PORT);

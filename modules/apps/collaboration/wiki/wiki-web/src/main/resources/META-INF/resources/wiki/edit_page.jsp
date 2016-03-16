@@ -19,6 +19,7 @@
 <%
 String redirect = ParamUtil.getString(request, "redirect");
 
+WikiEngineRenderer wikiEngineRenderer = (WikiEngineRenderer)request.getAttribute(WikiWebKeys.WIKI_ENGINE_RENDERER);
 WikiNode node = (WikiNode)request.getAttribute(WikiWebKeys.WIKI_NODE);
 WikiPage wikiPage = (WikiPage)request.getAttribute(WikiWebKeys.WIKI_PAGE);
 
@@ -29,12 +30,6 @@ boolean editTitle = ParamUtil.getBoolean(request, "editTitle");
 
 String selectedFormat = BeanParamUtil.getString(wikiPage, request, "format", wikiGroupServiceOverriddenConfiguration.defaultFormat());
 String parentTitle = BeanParamUtil.getString(wikiPage, request, "parentTitle");
-
-boolean newPage = ParamUtil.getBoolean(request, "newPage");
-
-if ((wikiPage == null) || wikiPage.isNew()) {
-	newPage = true;
-}
 
 boolean editable = false;
 
@@ -56,7 +51,9 @@ else if ((wikiPage == null) && editTitle) {
 
 if (Validator.isNotNull(title)) {
 	try {
-		WikiPageLocalServiceUtil.validateTitle(title);
+		WikiPageTitleValidator wikiPageTitleValidator = (WikiPageTitleValidator)request.getAttribute(WikiWebKeys.WIKI_PAGE_TITLE_VALIDATOR);
+
+		wikiPageTitleValidator.validate(title);
 
 		editable = true;
 	}
@@ -77,7 +74,7 @@ if ((templateNodeId > 0) && Validator.isNotNull(templateTitle)) {
 		if (Validator.isNull(parentTitle)) {
 			parentTitle = templatePage.getParentTitle();
 
-			if (newPage) {
+			if (wikiPage.isNew()) {
 				selectedFormat = templatePage.getFormat();
 
 				wikiPage.setContent(templatePage.getContent());
@@ -98,7 +95,7 @@ if (Validator.isNull(redirect)) {
 	redirect = backToViewPagesURL.toString();
 }
 
-String headerTitle = newPage ? LanguageUtil.get(request, "new-wiki-page") : wikiPage.getTitle();
+String headerTitle = ((wikiPage == null) || wikiPage.isNew()) ? LanguageUtil.get(request, "new-wiki-page") : wikiPage.getTitle();
 
 boolean portletTitleBasedNavigation = GetterUtil.getBoolean(portletConfig.getInitParameter("portlet-title-based-navigation"));
 
@@ -110,9 +107,9 @@ if (portletTitleBasedNavigation) {
 }
 %>
 
-<c:if test="<%= portletTitleBasedNavigation && !newPage %>">
+<c:if test="<%= portletTitleBasedNavigation && (wikiPage != null) && !wikiPage.isNew() %>">
 	<liferay-frontend:info-bar>
-		<aui:workflow-status markupView="lexicon" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= wikiPage.getStatus() %>" version="<%= String.valueOf(wikiPage.getVersion()) %>" />
+		<aui:workflow-status markupView="lexicon" showHelpMessage="<%= false %>" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= wikiPage.getStatus() %>" version="<%= String.valueOf(wikiPage.getVersion()) %>" />
 	</liferay-frontend:info-bar>
 </c:if>
 
@@ -130,7 +127,6 @@ if (portletTitleBasedNavigation) {
 		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 		<aui:input name="editTitle" type="hidden" value="<%= editTitle %>" />
 		<aui:input name="nodeId" type="hidden" value="<%= nodeId %>" />
-		<aui:input name="newPage" type="hidden" value="<%= newPage %>" />
 		<aui:input name="title" type="hidden" value="<%= title %>" />
 		<aui:input name="parentTitle" type="hidden" value="<%= parentTitle %>" />
 		<aui:input name="workflowAction" type="hidden" value="<%= WorkflowConstants.ACTION_SAVE_DRAFT %>" />
@@ -153,33 +149,11 @@ if (portletTitleBasedNavigation) {
 
 		<liferay-ui:asset-tags-error />
 
-		<%
-		boolean approved = false;
-		boolean pending = false;
-
-		if (wikiPage != null) {
-			approved = wikiPage.isApproved();
-			pending = wikiPage.isPending();
-		}
-		%>
-
-		<c:if test="<%= !newPage && approved %>">
-			<div class="alert alert-info">
-				<liferay-ui:message key="a-new-version-is-created-automatically-if-this-content-is-modified" />
-			</div>
-		</c:if>
-
-		<c:if test="<%= pending %>">
-			<div class="alert alert-info">
-				<liferay-ui:message key="there-is-a-publication-workflow-in-process" />
-			</div>
-		</c:if>
-
-		<aui:model-context bean="<%= !newPage ? wikiPage : templatePage %>" model="<%= WikiPage.class %>" />
+		<aui:model-context bean="<%= ((wikiPage != null) && !wikiPage.isNew()) ? wikiPage : templatePage %>" model="<%= WikiPage.class %>" />
 
 		<c:choose>
 			<c:when test="<%= !editable %>">
-				<c:if test="<%= newPage %>">
+				<c:if test="<%= (wikiPage == null) || wikiPage.isNew() %>">
 					<div class="alert alert-info">
 						<liferay-ui:message key="this-page-does-not-exist-yet-and-the-title-is-not-valid" />
 					</div>
@@ -201,13 +175,13 @@ if (portletTitleBasedNavigation) {
 			<c:otherwise>
 				<aui:fieldset-group markupView="lexicon">
 					<aui:fieldset>
-						<c:if test="<%= !portletTitleBasedNavigation && (wikiPage != null) && !newPage %>">
+						<c:if test="<%= !portletTitleBasedNavigation && (wikiPage != null) && !wikiPage.isNew() %>">
 							<div class="text-center">
 								<aui:workflow-status markupView="lexicon" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= wikiPage.getStatus() %>" version="<%= String.valueOf(wikiPage.getVersion()) %>" />
 							</div>
 						</c:if>
 
-						<c:if test="<%= newPage && Validator.isNotNull(title) %>">
+						<c:if test="<%= ((wikiPage == null) || wikiPage.isNew()) && Validator.isNotNull(title) %>">
 							<div class="alert alert-info">
 								<liferay-ui:message key="this-page-does-not-exist-yet-use-the-form-below-to-create-it" />
 							</div>
@@ -231,7 +205,7 @@ if (portletTitleBasedNavigation) {
 						<div>
 
 							<%
-							WikiUtil.renderEditPageHTML(selectedFormat, pageContext, node, wikiPage);
+							wikiEngineRenderer.renderEditPageHTML(selectedFormat, pageContext, node, wikiPage);
 							%>
 
 						</div>
@@ -250,7 +224,7 @@ if (portletTitleBasedNavigation) {
 					<%
 					long resourcePrimKey = 0;
 
-					if (!newPage) {
+					if ((wikiPage != null) && !wikiPage.isNew()) {
 						resourcePrimKey = wikiPage.getResourcePrimKey();
 					}
 					else if (templatePage != null) {
@@ -260,7 +234,7 @@ if (portletTitleBasedNavigation) {
 					long assetEntryId = 0;
 					long classPK = resourcePrimKey;
 
-					if (!newPage && !wikiPage.isApproved() && (wikiPage.getVersion() != WikiPageConstants.VERSION_DEFAULT)) {
+					if ((wikiPage != null) && !wikiPage.isNew() && !wikiPage.isApproved() && (wikiPage.getVersion() != WikiPageConstants.VERSION_DEFAULT)) {
 						AssetEntry assetEntry = AssetEntryLocalServiceUtil.fetchEntry(WikiPage.class.getName(), wikiPage.getPrimaryKey());
 
 						if (assetEntry != null) {
@@ -285,14 +259,14 @@ if (portletTitleBasedNavigation) {
 					</aui:fieldset>
 
 					<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="configuration">
-						<c:if test="<%= newPage || wikiPage.isApproved() %>">
+						<c:if test="<%= (wikiPage == null) || wikiPage.isNew() || wikiPage.isApproved() %>">
 							<aui:model-context bean="<%= new WikiPageImpl() %>" model="<%= WikiPage.class %>" />
 						</c:if>
 
 						<aui:input label="Summary" name="summary" />
 
 						<%
-						Collection<String> formats = WikiUtil.getFormats();
+						Collection<String> formats = wikiEngineRenderer.getFormats();
 						%>
 
 						<c:choose>
@@ -303,7 +277,7 @@ if (portletTitleBasedNavigation) {
 									for (String format : formats) {
 									%>
 
-										<aui:option label="<%= WikiUtil.getFormatLabel(format, locale) %>" selected="<%= selectedFormat.equals(format) %>" value="<%= format %>" />
+										<aui:option label="<%= wikiEngineRenderer.getFormatLabel(format, locale) %>" selected="<%= selectedFormat.equals(format) %>" value="<%= format %>" />
 
 									<%
 									}
@@ -316,7 +290,7 @@ if (portletTitleBasedNavigation) {
 							</c:otherwise>
 						</c:choose>
 
-						<c:if test="<%= !newPage %>">
+						<c:if test="<%= (wikiPage != null) && !wikiPage.isNew() %>">
 							<aui:input label="this-is-a-minor-edit" name="minorEdit" />
 						</c:if>
 					</aui:fieldset>
@@ -334,7 +308,7 @@ if (portletTitleBasedNavigation) {
 						</liferay-ui:custom-attributes-available>
 					</c:if>
 
-					<c:if test="<%= wikiPage == null %>">
+					<c:if test="<%= (wikiPage == null) || wikiPage.isNew() %>">
 						<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="permissions">
 							<liferay-ui:input-permissions
 								modelName="<%= WikiPage.class.getName() %>"
@@ -342,6 +316,20 @@ if (portletTitleBasedNavigation) {
 						</aui:fieldset>
 					</c:if>
 				</aui:fieldset-group>
+
+				<%
+				boolean pending = false;
+
+				if (wikiPage != null) {
+					pending = wikiPage.isPending();
+				}
+				%>
+
+				<c:if test="<%= pending %>">
+					<div class="alert alert-info">
+						<liferay-ui:message key="there-is-a-publication-workflow-in-process" />
+					</div>
+				</c:if>
 
 				<%
 				String saveButtonLabel = "save";
@@ -424,7 +412,7 @@ if (portletTitleBasedNavigation) {
 	function <portlet:namespace />savePage() {
 		var form = AUI.$(document.<portlet:namespace />fm);
 
-		form.fm('<%= Constants.CMD %>').val('<%= newPage ? Constants.ADD : Constants.UPDATE %>');
+		form.fm('<%= Constants.CMD %>').val('<%= ((wikiPage == null) || wikiPage.isNew()) ? Constants.ADD : Constants.UPDATE %>');
 
 		var titleEditor = window.<portlet:namespace />titleEditor;
 
@@ -443,7 +431,7 @@ if (portletTitleBasedNavigation) {
 </aui:script>
 
 <%
-if (!newPage) {
+if ((wikiPage != null) && !wikiPage.isNew()) {
 	PortletURL viewPageURL = wikiURLHelper.getViewPageURL(node, title);
 
 	PortalUtil.addPortletBreadcrumbEntry(request, wikiPage.getTitle(), viewPageURL.toString());

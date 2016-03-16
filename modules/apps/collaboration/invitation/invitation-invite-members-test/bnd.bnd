@@ -3,4 +3,5 @@ Bundle-SymbolicName: com.liferay.invitation.invite.members.test
 Bundle-Version: 1.0.0
 Liferay-Releng-Module-Group-Description:
 Liferay-Releng-Module-Group-Title:
--include: ../../../../../marketplace/collaboration/bnd.bnd
+-include: ../../app.bnd
+-includeresource: test-classes/integration

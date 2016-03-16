@@ -24,6 +24,10 @@ public class WikiWebKeys {
 
 	public static final String SHOW_SIDEBAR_HEADER = "SHOW_SIDEBAR_HEADER";
 
+	public static final String WIKI_ENGINE_RENDERER = "WIKI_ENGINE_RENDERER";
+
+	public static final String WIKI_IMPORTER_TRACKER = "WIKI_IMPORTER_TRACKER";
+
 	public static final String WIKI_NODE = "WIKI_NODE";
 
 	public static final String WIKI_NODE_ID = "WIKI_NODE_ID";
@@ -31,6 +35,9 @@ public class WikiWebKeys {
 	public static final String WIKI_NODES = "WIKI_NODES";
 
 	public static final String WIKI_PAGE = "WIKI_PAGE";
+
+	public static final String WIKI_PAGE_TITLE_VALIDATOR =
+		"WIKI_PAGE_TITLE_VALIDATOR";
 
 	public static final String WIKI_PAGES = "WIKI_PAGES";
 

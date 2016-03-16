@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.wiki.configuration.WikiGroupServiceConfiguration;
 import com.liferay.wiki.constants.WikiPortletKeys;
 import com.liferay.wiki.constants.WikiWebKeys;
+import com.liferay.wiki.engine.impl.WikiEngineRenderer;
 import com.liferay.wiki.exception.DuplicatePageException;
 import com.liferay.wiki.exception.NoSuchNodeException;
 import com.liferay.wiki.exception.NoSuchPageException;
@@ -32,6 +33,7 @@ import com.liferay.wiki.model.WikiNode;
 import com.liferay.wiki.model.WikiPage;
 import com.liferay.wiki.model.WikiPageConstants;
 import com.liferay.wiki.service.WikiPageService;
+import com.liferay.wiki.validator.WikiPageTitleValidator;
 import com.liferay.wiki.web.util.WikiWebComponentProvider;
 
 import javax.portlet.PortletException;
@@ -63,6 +65,12 @@ public class EditPageMVCRenderCommand implements MVCRenderCommand {
 		throws PortletException {
 
 		try {
+			renderRequest.setAttribute(
+				WikiWebKeys.WIKI_ENGINE_RENDERER, _wikiEngineRenderer);
+
+			renderRequest.setAttribute(
+				WikiWebKeys.WIKI_PAGE_TITLE_VALIDATOR, _wikiPageTitleValidator);
+
 			WikiNode node = ActionUtil.getNode(renderRequest);
 
 			renderRequest.setAttribute(WikiWebKeys.WIKI_NODE, node);
@@ -161,10 +169,26 @@ public class EditPageMVCRenderCommand implements MVCRenderCommand {
 	}
 
 	@Reference(unbind = "-")
+	protected void setWikiEngineRenderer(
+		WikiEngineRenderer wikiEngineRenderer) {
+
+		_wikiEngineRenderer = wikiEngineRenderer;
+	}
+
+	@Reference(unbind = "-")
 	protected void setWikiPageService(WikiPageService wikiPageService) {
 		_wikiPageService = wikiPageService;
 	}
 
+	@Reference(unbind = "-")
+	protected void setWikiPageTitleValidator(
+		WikiPageTitleValidator wikiPageTitleValidator) {
+
+		_wikiPageTitleValidator = wikiPageTitleValidator;
+	}
+
+	private WikiEngineRenderer _wikiEngineRenderer;
 	private WikiPageService _wikiPageService;
+	private WikiPageTitleValidator _wikiPageTitleValidator;
 
 }

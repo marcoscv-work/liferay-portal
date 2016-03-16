@@ -1,5 +1,4 @@
 <definition component-name="portal-security">
-	<property name="hook.plugins.includes" value="antisamy-hook" />
 	<property name="testray.main.component.name" value="Antisamy Hook" />
 
 	<var name="pageName" value="Antisamy Test Page" />
@@ -14,7 +13,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 

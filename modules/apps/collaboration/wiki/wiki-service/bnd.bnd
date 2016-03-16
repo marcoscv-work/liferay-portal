@@ -16,6 +16,7 @@ Export-Package:\
 	com.liferay.wiki.trash,\
 	com.liferay.wiki.util,\
 	com.liferay.wiki.util.comparator,\
+	com.liferay.wiki.validator,\
 	com.liferay.wiki.verify
 Import-Package:\
 	!com.liferay.portal.tools.sql,\
@@ -53,7 +54,11 @@ Import-Package:\
 	\
 	!org.jgroups.*,\
 	*
-Include-Resource:\
+Liferay-Releng-Module-Group-Description:
+Liferay-Releng-Module-Group-Title: Wiki
+Liferay-Service: true
+-include: ../../app.bnd
+-liferay-includeresource:\
 	@../../../../../lib/portal/antlr2.jar,\
 	@../../../../../lib/portal/antlr3.jar,\
 	@../../../../../lib/portal/bnd.jar!/aQute/bnd/annotation/metatype/*,\
@@ -66,16 +71,7 @@ Include-Resource:\
 	@../../../../../lib/portal/oro.jar,\
 	@../../../../../lib/portal/oscache.jar,\
 	@../../../../../lib/portal/stringtemplate.jar,\
-	@../../../../../util-java/util-java.jar!/com/liferay/util/RSSThreadLocal.class,\
-	@../../../../../util-java/util-java.jar!/com/liferay/util/RSSUtil.class,\
-	@../../../../../util-java/util-java.jar!/com/liferay/util/dao/orm/CustomSQL.class,\
-	@../../../../../util-java/util-java.jar!/com/liferay/util/dao/orm/CustomSQLUtil.class
-Liferay-Releng-Module-Group-Description:
-Liferay-Releng-Module-Group-Title: Wiki
-Liferay-Service: true
-Liferay-Spring-Context: META-INF/spring
-Require-Capability:\
-	liferay.extender;\
-	filter:="(&(liferay.extender=spring.extender)(version>=1.0)(!(version>=2.0)))"
--include: ../../../../../marketplace/collaboration/bnd.bnd
--liferay-spring-dependency: com.liferay.portal.spring.extender.service.ServiceReference
+	@com.liferay.util.java-*.jar!/com/liferay/util/RSSThreadLocal.class,\
+	@com.liferay.util.java-*.jar!/com/liferay/util/RSSUtil.class,\
+	@com.liferay.util.java-*.jar!/com/liferay/util/dao/orm/CustomSQL.class,\
+	@com.liferay.util.java-*.jar!/com/liferay/util/dao/orm/CustomSQLUtil.class

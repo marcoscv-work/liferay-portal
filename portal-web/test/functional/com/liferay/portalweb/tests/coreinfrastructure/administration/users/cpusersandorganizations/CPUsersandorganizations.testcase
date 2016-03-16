@@ -129,6 +129,8 @@
 	</command>
 
 	<command name="AddMember" priority="5">
+		<property name="portal.acceptance" value="true" />
+
 		<execute macro="ProductMenu#gotoControlPanelUsers">
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
@@ -219,25 +221,7 @@
 			<var name="orgType" value="Organization" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
-			<var name="portlet" value="Users and Organizations" />
-		</execute>
-
-		<execute macro="UsersAndOrganizationsNavigator#gotoOrganizations" />
-
 		<execute macro="Organization#addCommentCP">
-			<var name="orgComment" value="This is a test comment!" />
-			<var name="orgName" value="Organization Name" />
-			<var name="orgType" value="Organization" />
-		</execute>
-
-		<execute macro="ProductMenu#gotoControlPanelUsers">
-			<var name="portlet" value="Users and Organizations" />
-		</execute>
-
-		<execute macro="UsersAndOrganizationsNavigator#gotoOrganizations" />
-
-		<execute macro="Organization#viewCommentCP">
 			<var name="orgComment" value="This is a test comment!" />
 			<var name="orgName" value="Organization Name" />
 			<var name="orgType" value="Organization" />
@@ -454,7 +438,6 @@
 		</execute>
 
 		<execute macro="Page#add">
-			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Public Page" />
 			<var name="siteName" value="Organization Name" />
 		</execute>
@@ -518,7 +501,6 @@
 		</execute>
 
 		<execute macro="Page#add">
-			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Organization Public Page" />
 			<var name="siteName" value="Organization Name" />
 		</execute>
@@ -564,22 +546,29 @@
 			<var name="orgType" value="Organization" />
 		</execute>
 
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Users and Organizations" />
+		</execute>
+
+		<execute macro="UsersAndOrganizationsNavigator#gotoOrganizations" />
+
 		<execute macro="Suborganization#addCP">
 			<var name="orgName" value="Organization Name" />
 			<var name="orgType" value="Organization" />
 			<var name="suborgName" value="Suborganization Name" />
-			<var name="suborgType" value="Regular Organization" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
+		<execute macro="UsersAndOrganizationsNavigator#gotoOrganizations" />
+
 		<execute macro="Suborganization#viewCP">
 			<var name="orgName" value="Organization Name" />
 			<var name="orgType" value="Organization" />
 			<var name="suborgName" value="Suborganization Name" />
-			<var name="suborgType" value="Regular Organization" />
+			<var name="suborgType" value="Organization" />
 		</execute>
 	</command>
 
@@ -1444,7 +1433,6 @@
 		</execute>
 
 		<execute macro="Page#add">
-			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Public Page" />
 			<var name="siteName" value="Organization Name" />
 		</execute>
@@ -1633,6 +1621,8 @@
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
+		<execute macro="UsersAndOrganizationsNavigator#gotoOrganizations" />
+
 		<execute macro="Organization#removeMemberCP">
 			<var name="orgName" value="Organization Name" />
 			<var name="userFirstName" value="userfn" />
@@ -1642,6 +1632,8 @@
 		<execute macro="ProductMenu#gotoControlPanelUsers">
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
+
+		<execute macro="UsersAndOrganizationsNavigator#gotoOrganizations" />
 
 		<execute macro="Organization#viewRemoveMemberCP">
 			<var name="orgName" value="Organization Name" />
@@ -1847,11 +1839,7 @@
 			<var name="orgType" value="Organization" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
-			<var name="portlet" value="Users and Organizations" />
-		</execute>
-
-		<execute function="AssertElementPresent" locator1="UsersAndOrganizationsEditOrganization#BACK" />
+		<execute function="AssertElementPresent" locator1="Icon#BACK" />
 
 		<take-screenshot />
 	</command>
@@ -1861,7 +1849,7 @@
 			<var name="pageName" value="Sites Directory Page" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Sites Directory Page" />
 		</execute>
 
@@ -1893,7 +1881,6 @@
 		</execute>
 
 		<execute macro="Page#add">
-			<var name="page" value="Public Pages" />
 			<var name="pageName" value="Test Page" />
 			<var name="siteName" value="Organization Name" />
 		</execute>
@@ -1907,7 +1894,7 @@
 			<var name="orgType" value="Organization" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Sites Directory Page" />
 		</execute>
 
@@ -1925,7 +1912,7 @@
 			<var name="portletName" value="Breadcrumb" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Sites Directory Page" />
 		</execute>
 

@@ -3594,8 +3594,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			passwordResetURL =
 				serviceContext.getPortalURL() + serviceContext.getPathMain() +
 					"/portal/update_password?p_l_id="+
-						serviceContext.getPlid() +
-							"&ticketKey=" + ticket.getKey();
+						serviceContext.getPlid() + "&ticketKey=" +
+							ticket.getKey();
 		}
 		else {
 			if (!Validator.equals(
@@ -3608,8 +3608,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 					if (_log.isWarnEnabled()) {
 						StringBundler sb = new StringBundler(5);
 
-						sb.append("When LDAP password policy is enabled, ");
-						sb.append("it is possible that portal generated ");
+						sb.append("When LDAP password policy is enabled, it ");
+						sb.append("is possible that portal generated ");
 						sb.append("passwords will not match the LDAP policy.");
 						sb.append("Using RegExpToolkit to generate new ");
 						sb.append("password.");
@@ -4072,9 +4072,9 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		assetEntryLocalService.updateEntry(
 			userId, companyGroup.getGroupId(), user.getCreateDate(),
 			user.getModifiedDate(), User.class.getName(), user.getUserId(),
-			user.getUuid(), 0, assetCategoryIds, assetTagNames, false, null,
-			null, null, null, user.getFullName(), null, null, null, null, 0, 0,
-			null);
+			user.getUuid(), 0, assetCategoryIds, assetTagNames, true, false,
+			null, null, null, null, user.getFullName(), null, null, null, null,
+			0, 0, null);
 	}
 
 	/**
@@ -5904,12 +5904,9 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			}
 		}
 
-		Boolean forceDatabase = (Boolean)params.get("forceDatabase");
 		Boolean inherit = (Boolean)params.get("inherit");
 
-		if (((forceDatabase != null) && forceDatabase) ||
-			((inherit != null) && inherit)) {
-
+		if ((inherit != null) && inherit) {
 			return true;
 		}
 

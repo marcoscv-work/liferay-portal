@@ -146,7 +146,7 @@ if (portletTitleBasedNavigation) {
 	%>
 
 	<liferay-frontend:info-bar>
-		<aui:workflow-status markupView="lexicon" model="<%= DLFileEntry.class %>" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= fileVersion.getStatus() %>" version="<%= version %>" />
+		<aui:workflow-status markupView="lexicon" model="<%= DLFileEntry.class %>" showHelpMessage="<%= false %>" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= fileVersion.getStatus() %>" version="<%= version %>" />
 	</liferay-frontend:info-bar>
 </c:if>
 
@@ -387,7 +387,7 @@ if (portletTitleBasedNavigation) {
 										try {
 											DLFileEntryMetadata fileEntryMetadata = DLFileEntryMetadataLocalServiceUtil.getFileEntryMetadata(ddmStructure.getStructureId(), fileVersionId);
 
-											ddmFormValues = StorageEngineUtil.getDDMFormValues(fileEntryMetadata.getDDMStorageId());
+											ddmFormValues = dlEditFileEntryDisplayContext.getDDMFormValues(fileEntryMetadata.getDDMStorageId());
 										}
 										catch (Exception e) {
 										}
@@ -592,7 +592,7 @@ if (portletTitleBasedNavigation) {
 		if (!title) {
 			var filePath = $('#<portlet:namespace />file').val();
 
-			var fileName = filePath.replace(/^.*[\\\/]/, '')
+			var fileName = filePath.replace(/^.*[\\\/]/, '');
 
 			$('#<portlet:namespace />title').val(fileName);
 		}

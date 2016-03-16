@@ -800,20 +800,13 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			// Resources
 
 			List<ResourcePermission> resourcePermissions =
-				resourcePermissionPersistence.findByC_LikeP(
-					group.getCompanyId(), String.valueOf(group.getGroupId()));
+				resourcePermissionPersistence.findByC_S_P(
+					group.getCompanyId(), ResourceConstants.SCOPE_GROUP,
+					String.valueOf(group.getGroupId()));
 
 			for (ResourcePermission resourcePermission : resourcePermissions) {
 				resourcePermissionLocalService.deleteResourcePermission(
 					resourcePermission);
-			}
-
-			if (!group.isStagingGroup() &&
-				(group.isOrganization() || group.isRegularSite())) {
-
-				resourceLocalService.deleteResource(
-					group.getCompanyId(), Group.class.getName(),
-					ResourceConstants.SCOPE_INDIVIDUAL, group.getGroupId());
 			}
 
 			// Trash
@@ -878,6 +871,14 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 					userGroupGroupRoleLocalService.
 						deleteUserGroupGroupRolesByGroupId(group.getGroupId());
+				}
+
+				if (!group.isStagingGroup() &&
+					(group.isOrganization() || group.isRegularSite())) {
+
+					resourceLocalService.deleteResource(
+						group.getCompanyId(), Group.class.getName(),
+						ResourceConstants.SCOPE_INDIVIDUAL, group.getGroupId());
 				}
 
 				groupPersistence.remove(group);
@@ -1572,6 +1573,11 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		return group.getAncestors();
 	}
 
+	@Override
+	public List<Group> getStagedSites() {
+		return groupFinder.findByL_TS_S_RSGC(0, "staged=true", true, 0);
+	}
+
 	/**
 	 * Returns the staging group.
 	 *
@@ -1943,6 +1949,9 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 */
 	@Override
 	public void rebuildTree(long companyId) throws PortalException {
+		final long classNameId = classNameLocalService.getClassNameId(
+			Group.class);
+
 		TreePathUtil.rebuildTree(
 			companyId, GroupConstants.DEFAULT_PARENT_GROUP_ID, StringPool.SLASH,
 			new TreeModelTasksAdapter<Group>() {
@@ -1952,13 +1961,12 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 					long previousId, long companyId, long parentPrimaryKey,
 					int size) {
 
-					return groupPersistence.findByG_C_P(
-						previousId, companyId, parentPrimaryKey,
+					return groupPersistence.findByG_C_C_P(
+						previousId, companyId, classNameId, parentPrimaryKey,
 						QueryUtil.ALL_POS, size, new GroupIdComparator(true));
 				}
 
-			}
-		);
+			});
 	}
 
 	/**
@@ -3067,9 +3075,9 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		assetEntryLocalService.updateEntry(
 			userId, companyGroup.getGroupId(), null, null,
 			Group.class.getName(), group.getGroupId(), null, 0,
-			assetCategoryIds, assetTagNames, false, null, null, null, null,
-			group.getDescriptiveName(), group.getDescription(), null, null,
-			null, 0, 0, null);
+			assetCategoryIds, assetTagNames, true, false, null, null, null,
+			null, group.getDescriptiveName(), group.getDescription(), null,
+			null, null, 0, 0, null);
 	}
 
 	/**
@@ -4278,7 +4286,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			}
 		}
 
-		if (StringUtil.count(friendlyURL, StringPool.SLASH) > 1) {
+		if (StringUtil.count(friendlyURL, CharPool.SLASH) > 1) {
 			throw new GroupFriendlyURLException(
 				GroupFriendlyURLException.TOO_DEEP);
 		}

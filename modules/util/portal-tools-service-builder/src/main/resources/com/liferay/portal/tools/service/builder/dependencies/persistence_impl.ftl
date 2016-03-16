@@ -27,11 +27,6 @@ import ${apiPackagePath}.service.persistence.${entity.name}Persistence;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.dao.jdbc.MappingSqlQuery;
-import com.liferay.portal.kernel.dao.jdbc.MappingSqlQueryFactoryUtil;
-import com.liferay.portal.kernel.dao.jdbc.RowMapper;
-import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
-import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -40,8 +35,8 @@ import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
-import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SQLQuery;
+import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
@@ -96,7 +91,7 @@ import java.util.Map;
 import java.util.Set;
 
 <#list referenceList as tempEntity>
-	<#if tempEntity.hasColumns() && (entity.name == "Counter" || tempEntity.name != "Counter")>
+	<#if tempEntity.hasColumns() && ((entity.name == "Counter") || (tempEntity.name != "Counter"))>
 		import ${tempEntity.apiPackagePath}.service.persistence.${tempEntity.name}Persistence;
 	</#if>
 </#list>
@@ -1743,10 +1738,6 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 				${entity.varName}To${tempEntity.name}TableMapper = TableMapperFactory.getTableMapper("${column.mappingTable}", "${companyEntity.PKDBName}", "${entity.PKDBName}", "${tempEntity.PKDBName}", this, ${tempEntity.varName}Persistence);
 			</#if>
 		</#list>
-
-		<#if entity.isHierarchicalTree()>
-			updateTree = new UpdateTree();
-		</#if>
 	}
 
 	public void destroy() {
@@ -1808,21 +1799,6 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 	<#if entity.isHierarchicalTree()>
 		protected NestedSetsTreeManager<${entity.name}> nestedSetsTreeManager = new PersistenceNestedSetsTreeManager<${entity.name}>(this, "${entity.table}", "${entity.name}", ${entity.name}Impl.class, "${pkColumn.DBName}", "${scopeColumn.DBName}", "left${pkColumn.methodName}", "right${pkColumn.methodName}");
 		protected boolean rebuildTreeEnabled = true;
-		protected UpdateTree updateTree;
-
-		protected class UpdateTree {
-
-			protected UpdateTree() {
-				_sqlUpdate = SqlUpdateFactoryUtil.getSqlUpdate(getDataSource(), "UPDATE ${entity.table} SET left${pkColumn.methodName} = ?, right${pkColumn.methodName} = ? WHERE ${pkColumn.name} = ?", new int[] {java.sql.Types.${serviceBuilder.getSqlType("long")}, java.sql.Types.${serviceBuilder.getSqlType("long")}, java.sql.Types.${serviceBuilder.getSqlType("long")}});
-			}
-
-			protected void update(long ${pkColumn.name}, long left${pkColumn.methodName}, long right${pkColumn.methodName}) {
-				_sqlUpdate.update(new Object[] {left${pkColumn.methodName}, right${pkColumn.methodName}, ${pkColumn.name}});
-			}
-
-			private SqlUpdate _sqlUpdate;
-
-		}
 	</#if>
 
 	private static final String _SQL_SELECT_${entity.alias?upper_case} = "SELECT ${entity.alias} FROM ${entity.name} ${entity.alias}";
@@ -1845,7 +1821,7 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 		private static final String _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN = "${entity.alias}.${entity.filterPKColumn.DBName}";
 
 		<#if entity.isPermissionedModel()>
-			<#if entity.hasColumn("userId") >
+			<#if entity.hasColumn("userId")>
 				private static final String _FILTER_ENTITY_TABLE_FILTER_USERID_COLUMN = "${entity.alias}.userId";
 			<#else>
 				private static final String _FILTER_ENTITY_TABLE_FILTER_USERID_COLUMN = null;
@@ -1943,7 +1919,7 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 
 <#function bindParameter finderColsList>
 	<#list finderColsList as finderCol>
-		<#if !finderCol.hasArrayableOperator() || finderCol.type == "String">
+		<#if !finderCol.hasArrayableOperator() || (finderCol.type == "String")>
 			<#return true>
 		</#if>
 	</#list>
@@ -1971,7 +1947,7 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 				qPos.add(
 					<#if finderCol.type == "Date">
 						new Timestamp(${finderCol.name}.getTime())
-					<#elseif finderCol.type == "String" && !finderCol.isCaseSensitive()>
+					<#elseif (finderCol.type == "String") && !finderCol.isCaseSensitive()>
 						StringUtil.toLowerCase(${finderCol.name})
 					<#else>
 						${finderCol.name}

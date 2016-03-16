@@ -2125,8 +2125,8 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 		assetEntryLocalService.updateEntry(
 			userId, layout.getGroupId(), layout.getCreateDate(),
 			layout.getModifiedDate(), Layout.class.getName(), layout.getPlid(),
-			layout.getUuid(), 0, assetCategoryIds, assetTagNames, false, null,
-			null, null, ContentTypes.TEXT_HTML,
+			layout.getUuid(), 0, assetCategoryIds, assetTagNames, true, false,
+			null, null, null, ContentTypes.TEXT_HTML,
 			layout.getName(LocaleUtil.getDefault()), null, null, null, null, 0,
 			0, null);
 	}
@@ -2593,9 +2593,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 		layout.setModifiedDate(now);
 		layout.setParentLayoutId(parentLayoutId);
 
-		layoutPersistence.update(layout);
-
-		return layout;
+		return layoutPersistence.update(layout);
 	}
 
 	/**
@@ -2613,7 +2611,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 
 		Layout layout = updateParentLayoutId(plid, parentPlid);
 
-		return updatePriority(layout, priority);
+		return layoutLocalService.updatePriority(layout, priority);
 	}
 
 	/**

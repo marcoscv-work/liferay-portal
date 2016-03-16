@@ -14,9 +14,8 @@
 
 package com.liferay.document.library.repository.cmis.internal;
 
-import aQute.bnd.annotation.metatype.Configurable;
-
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
+import com.liferay.bnd.util.ConfigurableUtil;
 import com.liferay.document.library.kernel.service.DLAppHelperLocalService;
 import com.liferay.document.library.kernel.service.DLFolderLocalService;
 import com.liferay.document.library.repository.cmis.configuration.CMISRepositoryConfiguration;
@@ -40,7 +39,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	immediate = true,
 	property = {
-		"repository.targetClassName=" + CMISRepositoryConstants.CMIS_ATOMPUB_REPOSITORY_CLASSNAME
+		"repository.target.class.name=" + CMISRepositoryConstants.CMIS_ATOMPUB_REPOSITORY_CLASSNAME
 	},
 	service = RepositoryFactory.class
 )
@@ -50,7 +49,7 @@ public class CMISAtomPubRepositoryFactory
 	@Activate
 	protected void activate(Map<String, Object> properties) {
 		CMISRepositoryConfiguration cmisRepositoryConfiguration =
-			Configurable.createConfigurable(
+			ConfigurableUtil.createConfigurable(
 				CMISRepositoryConfiguration.class, properties);
 
 		super.setCMISRepositoryConfiguration(cmisRepositoryConfiguration);
