@@ -93,6 +93,10 @@ public interface PropsKeys {
 
 	public static final String ASSET_CATEGORIES_SELECTOR_MAX_ENTRIES = "asset.categories.selector.max.entries";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static final String ASSET_ENTRY_VALIDATOR = "asset.entry.validator";
 
 	public static final String ASSET_FILTER_SEARCH_LIMIT = "asset.filter.search.limit";
@@ -2302,6 +2306,18 @@ public interface PropsKeys {
 	public static final String VIRTUAL_HOSTS_VALID_HOSTS = "virtual.hosts.valid.hosts";
 
 	public static final String WEB_SERVER_DISPLAY_NODE = "web.server.display.node";
+
+	public static final String WEB_SERVER_FORWARDED_HOST_ENABLED = "web.server.forwarded.host.enabled";
+
+	public static final String WEB_SERVER_FORWARDED_HOST_HEADER = "web.server.forwarded.host.header";
+
+	public static final String WEB_SERVER_FORWARDED_PORT_ENABLED = "web.server.forwarded.port.enabled";
+
+	public static final String WEB_SERVER_FORWARDED_PORT_HEADER = "web.server.forwarded.port.header";
+
+	public static final String WEB_SERVER_FORWARDED_PROTOCOL_ENABLED = "web.server.forwarded.protocol.enabled";
+
+	public static final String WEB_SERVER_FORWARDED_PROTOCOL_HEADER = "web.server.forwarded.protocol.header";
 
 	public static final String WEB_SERVER_HOST = "web.server.host";
 

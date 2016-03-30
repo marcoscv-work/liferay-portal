@@ -247,13 +247,15 @@ public class UpgradePortletId extends UpgradeProcess {
 		throws Exception {
 
 		try {
-			runSQL(
-				"update Portlet set portletId = '" + newRootPortletId +
-					"' where portletId = '" + oldRootPortletId + "'");
+			updatePortletId(oldRootPortletId, newRootPortletId);
 
 			updateResourceAction(oldRootPortletId, newRootPortletId);
 
 			updateResourcePermission(oldRootPortletId, newRootPortletId, true);
+
+			updateUserNotificationDelivery(oldRootPortletId, newRootPortletId);
+
+			updateUserNotificationEvent(oldRootPortletId, newRootPortletId);
 
 			updateInstanceablePortletPreferences(
 				oldRootPortletId, newRootPortletId);
@@ -263,6 +265,15 @@ public class UpgradePortletId extends UpgradeProcess {
 				_log.warn(e, e);
 			}
 		}
+	}
+
+	protected void updatePortletId(
+			String oldRootPortletId, String newRootPortletId)
+		throws Exception {
+
+		runSQL(
+			"update Portlet set portletId = '" + newRootPortletId +
+				"' where portletId = '" + oldRootPortletId + "'");
 	}
 
 	protected void updateResourceAction(String oldName, String newName)
@@ -343,6 +354,24 @@ public class UpgradePortletId extends UpgradeProcess {
 				_log.warn(sqle, sqle);
 			}
 		}
+	}
+
+	protected void updateUserNotificationDelivery(
+			String oldPortletId, String newPortletId)
+		throws Exception {
+
+		runSQL(
+			"update UserNotificationDelivery set portletId = '" + newPortletId +
+				"' where portletId = '" + oldPortletId +"'");
+	}
+
+	protected void updateUserNotificationEvent(
+			String oldPortletId, String newPortletId)
+		throws Exception {
+
+		runSQL(
+			"update UserNotificationEvent set type_ = '" + newPortletId +
+				"' where type_ = '" + oldPortletId + "'");
 	}
 
 	protected void upgradeInstanceablePortletIds() throws Exception {
