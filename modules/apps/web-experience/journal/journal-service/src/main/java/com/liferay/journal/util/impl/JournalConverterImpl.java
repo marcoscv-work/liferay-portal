@@ -24,7 +24,7 @@ import com.liferay.dynamic.data.mapping.util.FieldsToDDMFormValuesConverter;
 import com.liferay.dynamic.data.mapping.util.impl.DDMFieldsCounter;
 import com.liferay.dynamic.data.mapping.util.impl.DDMImpl;
 import com.liferay.journal.util.JournalConverter;
-import com.liferay.petra.xml.util.XMLUtil;
+import com.liferay.petra.xml.XMLUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
@@ -1053,7 +1053,10 @@ public class JournalConverterImpl implements JournalConverter {
 
 				removeAttribute(element, "index-type");
 
-				element.addAttribute("name", "option" + StringUtil.randomId());
+				element.addAttribute(
+					"name",
+					"option" + parentElement.attributeValue("name") +
+						StringUtil.randomString(8));
 				element.addAttribute("type", "option");
 				element.addAttribute("value", decodeURL(type));
 
