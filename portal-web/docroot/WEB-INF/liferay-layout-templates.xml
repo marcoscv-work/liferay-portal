@@ -13,13 +13,6 @@
 		</layout-template>
 	</standard>
 	<custom>
-		<layout-template id="freeform">
-			<template-path>/layouttpl/custom/freeform.tpl</template-path>
-			<thumbnail-path>/layouttpl/custom/freeform.png</thumbnail-path>
-			<roles>
-				<role-name>User</role-name>
-			</roles>
-		</layout-template>
 		<layout-template id="1_column">
 			<template-path>/layouttpl/custom/1_column.tpl</template-path>
 			<thumbnail-path>/layouttpl/custom/1_column.png</thumbnail-path>
@@ -55,6 +48,13 @@
 		<layout-template id="2_2_columns">
 			<template-path>/layouttpl/custom/2_2_columns.tpl</template-path>
 			<thumbnail-path>/layouttpl/custom/2_2_columns.png</thumbnail-path>
+		</layout-template>
+		<layout-template id="freeform">
+			<template-path>/layouttpl/custom/freeform.tpl</template-path>
+			<thumbnail-path>/layouttpl/custom/freeform.png</thumbnail-path>
+			<roles>
+				<role-name>User</role-name>
+			</roles>
 		</layout-template>
 	</custom>
 </layout-templates>
