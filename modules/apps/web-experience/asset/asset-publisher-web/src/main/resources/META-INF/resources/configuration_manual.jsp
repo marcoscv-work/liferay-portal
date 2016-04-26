@@ -142,6 +142,10 @@ String eventName = "_" + HtmlUtil.escapeJS(assetPublisherDisplayContext.getPortl
 
 									PortletURL assetBrowserURL = PortletProviderUtil.getPortletURL(request, curRendererFactory.getClassName(), PortletProvider.Action.BROWSE);
 
+									if (assetBrowserURL == null) {
+										continue;
+									}
+
 									assetBrowserURL.setParameter("groupId", String.valueOf(groupId));
 									assetBrowserURL.setParameter("selectedGroupIds", String.valueOf(groupId));
 									assetBrowserURL.setParameter("typeSelection", curRendererFactory.getClassName());
@@ -160,6 +164,7 @@ String eventName = "_" + HtmlUtil.escapeJS(assetPublisherDisplayContext.getPortl
 
 										String type = curRendererFactory.getTypeName(locale);
 
+										data.put("destroyOnHide", true);
 										data.put("title", LanguageUtil.format(request, "select-x", type, false));
 										data.put("type", type);
 								%>
@@ -188,6 +193,7 @@ String eventName = "_" + HtmlUtil.escapeJS(assetPublisherDisplayContext.getPortl
 
 											String type = assetAvailableClassType.getName();
 
+											data.put("destroyOnHide", true);
 											data.put("title", LanguageUtil.format(request, "select-x", type, false));
 											data.put("type", type);
 								%>

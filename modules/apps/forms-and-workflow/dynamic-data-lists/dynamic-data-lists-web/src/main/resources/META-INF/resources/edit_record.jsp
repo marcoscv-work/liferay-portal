@@ -61,7 +61,7 @@ if (ddmFormValues != null) {
 
 	String ddmFormValueDefaultLanguageId = LocaleUtil.toLanguageId(ddmFormValues.getDefaultLocale());
 
-	if (!Validator.equals(defaultLanguageId, ddmFormValueDefaultLanguageId)) {
+	if (!Objects.equals(defaultLanguageId, ddmFormValueDefaultLanguageId)) {
 		changeableDefaultLanguage = true;
 	}
 
@@ -130,7 +130,6 @@ else {
 									<liferay-ui:message arguments="<%= new Object[] {HtmlUtil.escape(recordVersion.getUserName()), dateFormatDateTime.format(recordVersion.getCreateDate())} %>" key="by-x-on-x" translateArguments="<%= false %>" />
 								</p>
 							</div>
-
 						</div>
 					</liferay-ui:section>
 
@@ -143,7 +142,6 @@ else {
 					</liferay-ui:section>
 				</liferay-ui:tabs>
 			</div>
-
 		</div>
 	</c:if>
 

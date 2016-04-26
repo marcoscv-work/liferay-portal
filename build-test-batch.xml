@@ -693,6 +693,7 @@ app.server.type=@{app.server.type}]]></echo>
 
 							<gradle-execute dir="modules" task="testIntegration">
 								<arg value="-Ddatabase.type=@{database.type}" />
+								<arg value="-Dmodules.only.build=true" />
 								<arg value="-Dtest.class.group.index=${axis.variable}" />
 							</gradle-execute>
 
@@ -739,7 +740,9 @@ app.server.type=@{app.server.type}]]></echo>
 			<test-action>
 				<ant dir="portal-web" target="compile-tomcat" />
 
-				<gradle-execute dir="modules" task="compileJSP" />
+				<gradle-execute dir="modules" task="compileJSP">
+					<arg value="-Dmodules.only.build=true" />
+				</gradle-execute>
 			</test-action>
 
 			<test-set-up>
@@ -775,6 +778,18 @@ app.server.type=@{app.server.type}]]></echo>
 		/>
 	</target>
 
+	<target name="functional-jboss64-mysql56-jdk8">
+		<run-functional-test app.server.type="jboss" database.type="mysql" />
+	</target>
+
+	<target name="functional-resin40-mysql56-jdk8">
+		<run-functional-test app.server.type="resin" database.type="mysql" />
+	</target>
+
+	<target name="functional-tcserver26-mysql56-jdk8">
+		<run-functional-test app.server.type="tcserver" database.type="mysql" />
+	</target>
+
 	<target name="functional-tomcat8-hypersonic20-jdk7">
 		<run-functional-test app.server.type="tomcat" database.type="hypersonic" />
 	</target>
@@ -791,8 +806,24 @@ app.server.type=@{app.server.type}]]></echo>
 		<antcall target="functional-tomcat8-mysql56-jdk7" />
 	</target>
 
+	<target name="functional-tomcat8-oracle12-jdk8">
+		<run-functional-test app.server.type="tomcat" database.type="oracle" />
+	</target>
+
 	<target name="functional-tomcat8-postgresql94-jdk8">
 		<run-functional-test app.server.type="tomcat" database.type="postgresql" />
+	</target>
+
+	<target name="functional-tomcat8-sybase16-jdk8">
+		<run-functional-test app.server.type="tomcat" database.type="sybase" />
+	</target>
+
+	<target name="functional-weblogic121-mysql56-jdk8">
+		<run-functional-test app.server.type="weblogic" database.type="mysql" />
+	</target>
+
+	<target name="functional-websphere85-mysql56-jdk8">
+		<run-functional-test app.server.type="websphere" database.type="mysql" />
 	</target>
 
 	<target name="functional-wildfly10-mariadb100-jdk8">
@@ -865,6 +896,7 @@ app.server.type=@{app.server.type}]]></echo>
 		<run-batch-test>
 			<test-action>
 				<gradle-execute dir="modules" task="test">
+					<arg value="-Dmodules.only.build=true" />
 					<arg value="-Dtest.class.group.index=${axis.variable}" />
 				</gradle-execute>
 			</test-action>
@@ -1001,6 +1033,14 @@ ${output.content}</echo>
 		</run-batch-test>
 	</target>
 
+	<target name="release-functional-bundle-tomcat-mysql56-jdk7">
+		<antcall target="functional-bundle-tomcat-mysql56-jdk7" />
+	</target>
+
+	<target name="release-functional-smoke-bundle-tomcat-mysql56-jdk7">
+		<antcall target="functional-bundle-tomcat-mysql56-jdk7" />
+	</target>
+
 	<target name="ruby-sass-compiler-jdk7">
 		<antcall if:set="env.JENKINS_HOME" inheritAll="false" target="clean-up-java-processes" />
 
@@ -1020,7 +1060,9 @@ ${output.content}</echo>
 
 		<record action="start" name="${project.dir}/sass-compiler-log" />
 
-		<gradle-execute dir="modules" task="buildCSS" />
+		<gradle-execute dir="modules" task="buildCSS">
+			<arg value="-Dmodules.only.build=true" />
+		</gradle-execute>
 
 		<record action="stop" name="${project.dir}/sass-compiler-log" />
 
@@ -1096,11 +1138,39 @@ ${output.content}</echo>
 						<if>
 							<isset property="modules.base.dir.names.with.changes" />
 							<then>
-								<for list="${modules.base.dir.names.with.changes}" param="modules.base.dir.name">
+								<for list="${modules.base.dir.names.with.changes}" param="module.base.dir.name">
 									<sequential>
-										<echo>Executing baseline on @{modules.base.dir.name}.</echo>
+										<var name="module.baseline.task.name" unset="true" />
+										<var name="modules.base.dir.name" unset="true" />
 
-										<gradle-execute dir="@{modules.base.dir.name}" forcedcacheenabled="false" task="baseline" />
+										<propertyregex
+											input="@{module.base.dir.name}"
+											override="true"
+											property="modules.base.dir.name"
+											regexp="(.*/modules)(/.*)"
+											replace="\1"
+										/>
+
+										<propertyregex
+											input="@{module.base.dir.name}"
+											override="true"
+											property="module.baseline.task.name"
+											regexp="(.*/modules)(/.*)"
+											replace="\2"
+										/>
+
+										<antelope:stringutil property="module.baseline.task.name" string="${module.baseline.task.name}">
+											<antelope:replace regex="/" replacement=":" />
+										</antelope:stringutil>
+
+										<var name="module.baseline.task.name" value="${module.baseline.task.name}:baseline" />
+
+										<echo>Executing ${module.baseline.task.name} on ${modules.base.dir.name}.</echo>
+
+										<gradle-execute dir="${modules.base.dir.name}" forcedcacheenabled="false" task="${module.baseline.task.name}" />
+
+										<var name="module.baseline.task.name" unset="true" />
+										<var name="modules.base.dir.name" unset="true" />
 									</sequential>
 								</for>
 							</then>
