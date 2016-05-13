@@ -156,7 +156,8 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 	public static final String COPY_LIBS_TASK_NAME = "copyLibs";
 
 	public static final String DEFAULT_REPOSITORY_URL =
-		"http://cdn.repository.liferay.com/nexus/content/groups/public";
+		"https://cdn.lfrs.sl/repository.liferay.com/nexus/content/groups/" +
+			"public";
 
 	public static final String INSTALL_CACHE_TASK_NAME = "installCache";
 
@@ -241,7 +242,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 			project);
 
 		configureBasePlugin(project, portalRootDir);
-		configureBundleDefaultInstructions(project, publishing);
+		configureBundleDefaultInstructions(project, portalRootDir, publishing);
 		configureConfigurations(project);
 		configureDeployDir(project);
 		configureJavaPlugin(project);
@@ -266,8 +267,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 					configureLocalPortalTool(
 						project, portalRootDir,
 						ServiceBuilderPlugin.CONFIGURATION_NAME,
-						ServiceBuilderDefaultsPlugin.PORTAL_TOOL_NAME,
-						"portal-tools-service-builder");
+						ServiceBuilderDefaultsPlugin.PORTAL_TOOL_NAME);
 				}
 
 			});
@@ -1062,7 +1062,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 	}
 
 	protected void configureBundleDefaultInstructions(
-		Project project, boolean publishing) {
+		Project project, File portalRootDir, boolean publishing) {
 
 		LiferayOSGiExtension liferayOSGiExtension = GradleUtil.getExtension(
 			project, LiferayOSGiExtension.class);
@@ -1083,13 +1083,20 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 				"Git-SHA", "${system-allow-fail;git rev-list -1 HEAD}");
 		}
 
-		File appDir = GradleUtil.getRootDir(project, _APP_BND_FILE_NAME);
+		File appBndFile = getAppBndFile(project, portalRootDir);
 
-		if (appDir != null) {
-			File appFile = new File(appDir, _APP_BND_FILE_NAME);
-
+		if (appBndFile != null) {
 			bundleDefaultInstructions.put(
-				Constants.INCLUDE, FileUtil.getRelativePath(project, appFile));
+				Constants.INCLUDE,
+				FileUtil.getRelativePath(project, appBndFile));
+		}
+
+		File packageJsonFile = project.file("package.json");
+
+		if (packageJsonFile.exists()) {
+			bundleDefaultInstructions.put(
+				Constants.INCLUDERESOURCE + ".packagejson",
+				FileUtil.getRelativePath(project, packageJsonFile));
 		}
 
 		liferayOSGiExtension.bundleDefaultInstructions(
@@ -1345,7 +1352,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 
 	protected void configureLocalPortalTool(
 		Project project, File portalRootDir, String configurationName,
-		String portalToolName, String portalToolDirName) {
+		String portalToolName) {
 
 		if (portalRootDir == null) {
 			return;
@@ -1362,7 +1369,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		configuration.exclude(args);
 
 		File dir = new File(
-			portalRootDir, "tools/sdk/tmp/portal-tools/" + portalToolDirName);
+			portalRootDir, "tools/sdk/dependencies/" + portalToolName + "/lib");
 
 		FileTree fileTree = FileUtil.getJarsFileTree(project, dir);
 
@@ -1504,12 +1511,19 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 	protected void configureTaskBaseline(BaselineTask baselineTask) {
 		Project project = baselineTask.getProject();
 
-		boolean reportDiff = false;
-
 		String reportLevel = GradleUtil.getProperty(
 			project, "baseline.jar.report.level", "standard");
 
-		if (reportLevel.equals("diff") || reportLevel.equals("persist")) {
+		boolean reportLevelIsDiff = reportLevel.equals("diff");
+		boolean reportLevelIsPersist = reportLevel.equals("persist");
+
+		if (reportLevelIsPersist && FileUtil.exists(project, "bnd.bnd")) {
+			baselineTask.setBndFile("bnd.bnd");
+		}
+
+		boolean reportDiff = false;
+
+		if (reportLevelIsDiff || reportLevelIsPersist) {
 			reportDiff = true;
 		}
 
@@ -1912,6 +1926,45 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 					}
 
 				});
+		}
+	}
+
+	protected File getAppBndFile(Project project, File portalRootDir) {
+		File dir = GradleUtil.getRootDir(project, _APP_BND_FILE_NAME);
+
+		if (dir != null) {
+			return new File(dir, _APP_BND_FILE_NAME);
+		}
+
+		File modulesDir = new File(portalRootDir, "modules");
+
+		File modulesPrivateDir = new File(modulesDir, "private");
+
+		if (!FileUtil.isChild(project.getProjectDir(), modulesPrivateDir)) {
+			return null;
+		}
+
+		String path = FileUtil.relativize(
+			project.getProjectDir(), modulesPrivateDir);
+
+		if (File.pathSeparatorChar != '/') {
+			path = path.replace(File.pathSeparatorChar, '/');
+		}
+
+		while (true) {
+			File file = new File(modulesDir, path + "/" + _APP_BND_FILE_NAME);
+
+			if (file.exists()) {
+				return file;
+			}
+
+			int index = path.lastIndexOf('/');
+
+			if (index == -1) {
+				return null;
+			}
+
+			path = path.substring(0, index);
 		}
 	}
 

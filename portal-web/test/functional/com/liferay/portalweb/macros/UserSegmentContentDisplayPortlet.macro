@@ -1,6 +1,6 @@
 <definition>
 	<command name="configureDisplayContent">
-		<execute function="SelectFrame" locator1="IFrame#CONFIGURATION" />
+		<execute function="SelectFrame" locator1="IFrame#CONFIGURATION_DIALOG" />
 
 		<var method="selenium#getNumberDecrement('${rowNumber}')" name="rowIndexNumber" />
 
@@ -47,6 +47,8 @@
 
 		<execute function="Click" locator1="UserSegmentContentDisplay#RULE_PANEL_USER_SEGMENT_SELECT_BUTTON" />
 
+		<execute function="SelectFrame" value1="relative=top" />
+
 		<for list="${userSegmentName}" param="userSegmentName">
 			<var name="key_userSegmentName" value="${userSegmentName}" />
 
@@ -58,11 +60,14 @@
 			<then>
 				<var name="key_siteScope" value="${siteScope}" />
 
-				<execute function="AssertTextEquals" locator1="UserSegmentContentDisplay#RULE_PANEL_USER_SEGMENT_SELECT_USER_SEGMENT_SCOPE" value1="User Segment (${siteScope})" />
+				<execute function="AssertTextEquals#assertPartialText" locator1="UserSegmentContentDisplay#RULE_PANEL_USER_SEGMENT_SELECT_USER_SEGMENT_SCOPE" value1="User Segment (${siteScope})" />
 			</then>
 		</if>
 
-		<execute function="Click" locator1="UserSegmentContentDisplay#RULE_PANEL_USER_SEGMENT_SELECT_USER_SEGMENT_CLOSE_BUTTON" />
+		<execute function="Click" locator1="Icon#CLOSE" />
+
+		<execute function="SelectFrame" locator1="IFrame#CONFIGURATION" />
+
 		<execute function="Click" locator1="UserSegmentContentDisplay#RULE_PANEL_DISPLAY_CONTENT_SELECT" />
 
 		<var name="key_menuItem" value="${contentType}" />
@@ -70,7 +75,7 @@
 		<execute function="AssertClick" locator1="MenuItem#ANY_MENU_ITEM" value1="${contentType}" />
 
 		<execute function="SelectFrame" value1="relative=top" />
-		<execute function="SelectFrame" locator1="IFrame#CONFIGURATION_DIALOG" />
+		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
 		<var name="key_rowEntry" value="${contentTitle}" />
 
@@ -97,7 +102,7 @@
 				<execute function="Click" locator1="MenuItem#ANY_MENU_ITEM" />
 
 				<execute function="SelectFrame" value1="relative=top" />
-				<execute function="SelectFrame" locator1="IFrame#CONFIGURATION_DIALOG" />
+				<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
 				<var name="key_rowEntry" value="${otherwiseContentTitle}" />
 
@@ -170,7 +175,7 @@
 
 		<var name="key_contentType" value="${contentType}" />
 
-		<execute function="AssertTextEquals#assertPartialText" locator1="ContentTargeting#CARD_CONTENT_TYPE" value1="Type: ${contentType}" />
+		<execute function="AssertTextEquals#assertPartialText" locator1="ContentTargeting#CARD_CONTENT_TYPE" value1="${contentType}" />
 
 		<if>
 			<isset var="otherwiseContentType" />
@@ -180,7 +185,7 @@
 
 				<var name="key_contentType" value="${otherwiseContentType}" />
 
-				<execute function="AssertTextEquals#assertPartialText" locator1="ContentTargeting#OTHERWISE_PANEL_SELECTED_CONTENT_TYPE" value1="Type: ${otherwiseContentType}" />
+				<execute function="AssertTextEquals#assertPartialText" locator1="ContentTargeting#OTHERWISE_PANEL_SELECTED_CONTENT_TYPE" value1="${otherwiseContentType}" />
 
 				<var name="key_contentTitle" value="${otherwiseContentTitle}" />
 
@@ -190,49 +195,58 @@
 	</command>
 
 	<command name="viewEntryPG">
+		<execute macro="ContentTargeting#expandPreview">
+			<var name="portletName" value="User Segment Content Display" />
+		</execute>
+
 		<if>
 			<isset var="viewUserSegmentSelected" />
 			<then>
-				<var name="key_viewUserSegmentSelected" value="${viewUserSegmentSelected}" />
-				<execute function="AssertElementPresent" locator1="UserSegmentContentDisplay#PREVIEW_USER_SEGMENT_SELECTED" value1="${viewUserSegmentSelected}" />
+				<var name="key_viewEntrySelected" value="${viewUserSegmentSelected}" />
+
+				<execute function="AssertElementPresent" locator1="ContentTargeting#PREVIEW_ENTRY_SELECTED" />
 			</then>
 		</if>
 
 		<if>
-			<isset var="entryContentText" />
+			<isset var="previewUserSegmentList" />
 			<then>
-				<execute function="AssertTextEquals" locator1="UserSegmentContentDisplay#ENTRY_CONTENT" value1="${entryContentText}" />
-			</then>
-		</if>
+				<for list="${previewUserSegmentList}" param="previewEntry">
+					<execute macro="ContentTargeting#expandPreview">
+						<var name="portletName" value="User Segment Content Display" />
+					</execute>
 
-		<if>
-			<isset var="preview1Text" />
-			<then>
-				<execute function="MouseOver" locator1="ContentTargeting#PREVIEW_1" />
-				<execute function="AssertTextEquals" locator1="ContentTargeting#PREVIEW_1" value1="${preview1Text}" />
-			</then>
-		</if>
+					<var name="key_previewEntry" value="${previewEntry}" />
 
-		<execute function="Pause" locator1="5000" />
+					<execute function="AssertClick" locator1="ContentTargeting#PREVIEW" value1="${previewEntry}" />
 
-		<if>
-			<isset var="preview2Text" />
-			<then>
-				<execute function="MouseOver" locator1="ContentTargeting#PREVIEW_2" />
-				<execute function="AssertTextEquals" locator1="ContentTargeting#PREVIEW_2" value1="${preview2Text}" />
-			</then>
-		</if>
+					<if>
+						<and>
+							<isset var="entryContentText" />
+							<not>
+								<equals arg1="${previewEntry}" arg2="default" />
+							</not>
+						</and>
+						<then>
+							<execute function="AssertTextEquals" locator1="UserSegmentContentDisplay#ENTRY_CONTENT" value1="${entryContentText}" />
+						</then>
+					</if>
 
-		<if>
-			<isset var="viewDontDisplay" />
-			<then>
-				<execute function="MouseOverNoError" locator1="PGUsersegmentcontentdisplay#${viewDontDisplay}" />
-				<execute function="AssertTextEquals" locator1="UserSegmentContentDisplay#ENTRY_CONTENT" value1="" />
+					<if>
+						<and>
+							<equals arg1="viewDontDisplay" arg2="true" />
+							<equals arg1="${previewEntry}" arg2="default" />
+						</and>
+						<then>
+							<execute function="AssertTextEquals" locator1="UserSegmentContentDisplay#ENTRY_CONTENT" value1="There are no matching rules" />
+						</then>
+					</if>
+				</for>
 			</then>
 		</if>
 	</command>
 
 	<command name="viewNoContentPG">
-		<execute function="AssertTextEquals" locator1="UserSegmentContentDisplay#ENTRY_CONTENT" value1="" />
+		<execute function="AssertTextEquals" locator1="UserSegmentContentDisplay#ENTRY_CONTENT" value1="There are no matching rules" />
 	</command>
 </definition>

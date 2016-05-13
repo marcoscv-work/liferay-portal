@@ -23,8 +23,10 @@ import com.liferay.portal.kernel.upgrade.util.UpgradeTableFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.upgrade.v7_0_0.util.ClassNameTable;
 import com.liferay.portal.upgrade.v7_0_0.util.ClusterGroupTable;
+import com.liferay.portal.upgrade.v7_0_0.util.CompanyTable;
 import com.liferay.portal.upgrade.v7_0_0.util.CounterTable;
 import com.liferay.portal.upgrade.v7_0_0.util.CountryTable;
 import com.liferay.portal.upgrade.v7_0_0.util.PortalPreferencesTable;
@@ -35,9 +37,12 @@ import com.liferay.portal.upgrade.v7_0_0.util.ServiceComponentTable;
 import com.liferay.portal.upgrade.v7_0_0.util.VirtualHostTable;
 import com.liferay.portal.util.PropsUtil;
 
+import java.io.IOException;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,10 +54,54 @@ import javax.sql.DataSource;
  */
 public class UpgradeSharding extends UpgradeProcess {
 
+	protected void copyCompanyTable(
+			Connection sourceConnection, Connection targetConnection,
+			String shardName)
+		throws Exception {
+
+		copyControlTable(
+			sourceConnection, targetConnection, CompanyTable.TABLE_NAME,
+			CompanyTable.TABLE_COLUMNS, CompanyTable.TABLE_SQL_CREATE);
+
+		List<Long> companyIds = getCompanyIds(shardName);
+
+		String companyIdsString = ListUtil.toString(
+			companyIds, StringPool.NULL, StringPool.COMMA);
+
+		runSQL(
+			sourceConnection,
+			"delete from Company where companyId in (" + companyIdsString +
+				")");
+
+		runSQL(
+			targetConnection,
+			"delete from Company where companyId not in (" + companyIdsString +
+				")");
+	}
+
 	protected void copyControlTable(
 			Connection sourceConnection, Connection targetConnection,
 			String tableName, Object[][] columns, String createSQL)
 		throws Exception {
+
+		try {
+			if (hasRows(targetConnection, tableName)) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						"Control table " + tableName + " should not contain " +
+							"data in a nondefault shard");
+				}
+			}
+
+			dropTable(targetConnection, tableName);
+		}
+		catch (SQLException sqle) {
+			if (_log.isInfoEnabled()) {
+				_log.info(
+					"Unable to drop control table " + tableName +
+						" because it  does not exist in the target shard");
+			}
+		}
 
 		UpgradeTable upgradeTable = UpgradeTableFactoryUtil.getUpgradeTable(
 			tableName, columns);
@@ -96,6 +145,7 @@ public class UpgradeSharding extends UpgradeProcess {
 		DataSource dataSource = dataSourceFactoryBean.createInstance();
 
 		try (Connection targetConnection = dataSource.getConnection()) {
+			copyCompanyTable(connection, targetConnection, shardName);
 			copyControlTable(
 				connection, targetConnection, ClassNameTable.TABLE_NAME,
 				ClassNameTable.TABLE_COLUMNS, ClassNameTable.TABLE_SQL_CREATE);
@@ -146,6 +196,35 @@ public class UpgradeSharding extends UpgradeProcess {
 		}
 
 		copyControlTables(shardNames);
+	}
+
+	protected void dropTable(Connection connection, String tableName)
+		throws IOException, SQLException {
+
+		runSQL(connection, "drop table " + tableName);
+
+		if (_log.isDebugEnabled()) {
+			_log.debug("Deleted table " + tableName);
+		}
+	}
+
+	protected List<Long> getCompanyIds(String shardName) throws Exception {
+		try (LoggingTimer loggingTimer = new LoggingTimer();
+			PreparedStatement ps = connection.prepareStatement(
+				"select classPK from Shard where name = ?")) {
+
+			ps.setString(1, shardName);
+
+			List<Long> companyIds = new ArrayList<>();
+
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					companyIds.add(rs.getLong("classPK"));
+				}
+			}
+
+			return companyIds;
+		}
 	}
 
 	protected List<String> getShardNames() throws Exception {

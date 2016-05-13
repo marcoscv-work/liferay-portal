@@ -40,6 +40,7 @@ import com.liferay.dynamic.data.mapping.model.DDMStorageLink;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureConstants;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
+import com.liferay.dynamic.data.mapping.model.DDMTemplateConstants;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.model.UnlocalizedValue;
 import com.liferay.dynamic.data.mapping.model.Value;
@@ -63,12 +64,14 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.CompanyConstants;
-import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.RoleConstants;
-import com.liferay.portal.kernel.service.ResourceActionLocalService;
+import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.permission.ModelPermissions;
+import com.liferay.portal.kernel.service.permission.ModelPermissionsFactory;
 import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
@@ -112,6 +115,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -137,7 +141,7 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 		ExpandoRowLocalService expandoRowLocalService,
 		ExpandoTableLocalService expandoTableLocalService,
 		ExpandoValueLocalService expandoValueLocalService,
-		ResourceActionLocalService resourceActionLocalService,
+		ResourceLocalService resourceLocalService,
 		ResourcePermissionLocalService resourcePermissionLocalService) {
 
 		_assetEntryLocalService = assetEntryLocalService;
@@ -154,8 +158,14 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 		_expandoRowLocalService = expandoRowLocalService;
 		_expandoTableLocalService = expandoTableLocalService;
 		_expandoValueLocalService = expandoValueLocalService;
-		_resourceActionLocalService = resourceActionLocalService;
+		_resourceLocalService = resourceLocalService;
 		_resourcePermissionLocalService = resourcePermissionLocalService;
+
+		_dlFolderModelPermissions = ModelPermissionsFactory.create(
+			_DLFOLDER_GROUP_PERMISSIONS, _DLFOLDER_GUEST_PERMISSIONS);
+
+		_dlFolderModelPermissions.addRolePermissions(
+			RoleConstants.OWNER, _DLFOLDER_OWNER_PERMISSIONS);
 	}
 
 	protected void addDynamicContentElements(
@@ -245,6 +255,22 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 		upgradeTemplatesPermissions();
 	}
 
+	protected List<String> getDDMDateFieldNames(DDMForm ddmForm)
+		throws Exception {
+
+		List<String> ddmDateFieldNames = new ArrayList<>();
+
+		for (DDMFormField ddmFormField : ddmForm.getDDMFormFields()) {
+			String dataType = ddmFormField.getType();
+
+			if (dataType.equals("ddm-date")) {
+				ddmDateFieldNames.add(ddmFormField.getName());
+			}
+		}
+
+		return ddmDateFieldNames;
+	}
+
 	protected DDMForm getDDMForm(long structureId) throws Exception {
 		DDMForm ddmForm = _ddmForms.get(structureId);
 
@@ -322,6 +348,33 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 			new DDMFormValuesXSDDeserializer(companyId);
 
 		return ddmFormValuesXSDDeserializer.deserialize(ddmForm, xml);
+	}
+
+	protected Map<String, String> getDDMTemplateScriptMap(long structureId)
+		throws Exception {
+
+		try (PreparedStatement ps = connection.prepareStatement(
+				"select * from DDMTemplate where classPK = ? and type_ = ?")) {
+
+			ps.setLong(1, structureId);
+			ps.setString(2, DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY);
+
+			try (ResultSet rs = ps.executeQuery()) {
+				Map<String, String> ddmTemplateScriptMap = new HashMap<>();
+
+				while (rs.next()) {
+					long templateId = rs.getLong("templateId");
+					String language = rs.getString("language");
+					String script = rs.getString("script");
+
+					String key = templateId + StringPool.DOLLAR + language;
+
+					ddmTemplateScriptMap.put(key, script);
+				}
+
+				return ddmTemplateScriptMap;
+			}
+		}
 	}
 
 	protected String getDefaultDDMFormLayoutDefinition(DDMForm ddmForm) {
@@ -591,6 +644,179 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 		runSQL(
 			"update DDMStructureVersion set storageType='json' where " +
 				"storageType = 'xml'");
+	}
+
+	protected void updateTemplateScript(long templateId, String script)
+		throws Exception {
+
+		try (PreparedStatement ps = connection.prepareStatement(
+				"update DDMTemplate set script = ? where templateId = ?")) {
+
+			ps.setString(1, script);
+			ps.setLong(2, templateId);
+
+			ps.executeUpdate();
+		}
+		catch (Exception e) {
+			_log.error(
+				"Unable to update dynamic data mapping template with " +
+					"template ID " + templateId);
+
+			throw e;
+		}
+	}
+
+	protected String updateTemplateScriptDateAssignStatement(
+		String dateFieldName, String language, String script) {
+
+		StringBundler oldTemplateScriptSB = new StringBundler(7);
+		StringBundler newTemplateScriptSB = new StringBundler(5);
+
+		if (language.equals("ftl")) {
+			oldTemplateScriptSB.append("<#assign\\s+");
+			oldTemplateScriptSB.append(dateFieldName);
+			oldTemplateScriptSB.append("_Data\\s*=\\s*getterUtil\\s*");
+			oldTemplateScriptSB.append(".\\s*getLong\\s*\\(\\s*");
+			oldTemplateScriptSB.append(dateFieldName);
+			oldTemplateScriptSB.append(".\\s*getData\\s*\\(\\s*\\)");
+			oldTemplateScriptSB.append("\\s*\\)\\s*>");
+
+			newTemplateScriptSB.append("<#assign ");
+			newTemplateScriptSB.append(dateFieldName);
+			newTemplateScriptSB.append("_Data = getterUtil.getString(");
+			newTemplateScriptSB.append(dateFieldName);
+			newTemplateScriptSB.append(".getData())>");
+		}
+		else if (language.equals("vm")) {
+			dateFieldName =
+				StringPool.BACK_SLASH + StringPool.DOLLAR + dateFieldName;
+
+			oldTemplateScriptSB.append("#set\\s+\\(\\s*");
+			oldTemplateScriptSB.append(dateFieldName);
+			oldTemplateScriptSB.append("_Data\\s*=\\s*\\$getterUtil");
+			oldTemplateScriptSB.append(".getLong\\(\\s*");
+			oldTemplateScriptSB.append(dateFieldName);
+			oldTemplateScriptSB.append(".getData\\(\\)\\s*\\)");
+			oldTemplateScriptSB.append("\\s*\\)");
+
+			newTemplateScriptSB.append("#set (");
+			newTemplateScriptSB.append(dateFieldName);
+			newTemplateScriptSB.append("_Data = \\$getterUtil.getString(");
+			newTemplateScriptSB.append(dateFieldName);
+			newTemplateScriptSB.append(".getData()))");
+		}
+
+		return script.replaceAll(
+			oldTemplateScriptSB.toString(), newTemplateScriptSB.toString());
+	}
+
+	protected void updateTemplateScriptDateFields(
+			long structureId, DDMForm ddmForm)
+		throws Exception {
+
+		List<String> ddmDateFieldNames = getDDMDateFieldNames(ddmForm);
+
+		if (ddmDateFieldNames.isEmpty()) {
+			return;
+		}
+
+		Map<String, String> ddmTemplateScriptMap = getDDMTemplateScriptMap(
+			structureId);
+
+		for (Entry<String, String> entrySet : ddmTemplateScriptMap.entrySet()) {
+			String[] templateIdAndLanguage = StringUtil.split(
+				entrySet.getKey(), StringPool.DOLLAR);
+
+			long ddmTemplateId = Long.parseLong(templateIdAndLanguage[0]);
+			String language = templateIdAndLanguage[1];
+
+			String script = entrySet.getValue();
+
+			for (String ddmDateFieldName : ddmDateFieldNames) {
+				script = updateTemplateScriptDateAssignStatement(
+					ddmDateFieldName, language, script);
+
+				script = updateTemplateScriptDateIfStatement(
+					ddmDateFieldName, language, script);
+
+				script = updateTemplateScriptDateParseStatement(
+					ddmDateFieldName, language, script);
+			}
+
+			updateTemplateScript(ddmTemplateId, script);
+		}
+	}
+
+	protected String updateTemplateScriptDateIfStatement(
+		String dateFieldName, String language, String script) {
+
+		String oldTemplateScript = StringPool.BLANK;
+		String newTemplateScript = StringPool.BLANK;
+
+		if (language.equals("ftl")) {
+			oldTemplateScript =
+				"<#if\\s*\\(?\\s*" + dateFieldName + "_Data\\s*>\\s*0\\s*\\)?" +
+					"\\s*>";
+
+			newTemplateScript =
+				"<#if validator.isNotNull(" + dateFieldName + "_Data)>";
+		}
+		else if (language.equals("vm")) {
+			dateFieldName =
+				StringPool.BACK_SLASH + StringPool.DOLLAR + dateFieldName;
+
+			oldTemplateScript =
+				"#if\\s*\\(\\s*" + dateFieldName + "_Data\\s*>\\s*0\\s*\\)";
+
+			newTemplateScript =
+				"#if (\\$validator.isNotNull(" + dateFieldName + "_Data))";
+		}
+
+		return script.replaceAll(oldTemplateScript, newTemplateScript);
+	}
+
+	protected String updateTemplateScriptDateParseStatement(
+		String dateFieldName, String language, String script) {
+
+		StringBundler oldTemplateScriptSB = new StringBundler(6);
+		StringBundler newTemplateScriptSB = new StringBundler(5);
+
+		if (language.equals("ftl")) {
+			oldTemplateScriptSB.append("<#assign\\s+");
+			oldTemplateScriptSB.append(dateFieldName);
+			oldTemplateScriptSB.append("_DateObj\\s*=\\s*dateUtil\\s*");
+			oldTemplateScriptSB.append(".\\s*newDate\\(\\s*");
+			oldTemplateScriptSB.append(dateFieldName);
+			oldTemplateScriptSB.append("_Data\\s*\\)\\s*>");
+
+			newTemplateScriptSB.append("<#assign ");
+			newTemplateScriptSB.append(dateFieldName);
+			newTemplateScriptSB.append(
+				"_DateObj = dateUtil.parseDate(\"yyyy-MM-dd\", ");
+			newTemplateScriptSB.append(dateFieldName);
+			newTemplateScriptSB.append("_Data, locale)>");
+		}
+		else if (language.equals("vm")) {
+			dateFieldName =
+				StringPool.BACK_SLASH + StringPool.DOLLAR + dateFieldName;
+
+			oldTemplateScriptSB.append("#set\\s*\\(");
+			oldTemplateScriptSB.append(dateFieldName);
+			oldTemplateScriptSB.append("_DateObj\\s*=\\s*\\$dateUtil");
+			oldTemplateScriptSB.append(".newDate\\(\\s*");
+			oldTemplateScriptSB.append(dateFieldName);
+			oldTemplateScriptSB.append("_Data\\s*\\)\\s*\\)");
+
+			newTemplateScriptSB.append("#set (");
+			newTemplateScriptSB.append(dateFieldName);
+			newTemplateScriptSB.append(
+				"_DateObj = \\$dateUtil.parseDate(\"yyyy-MM-dd\", ");
+			newTemplateScriptSB.append(dateFieldName);
+			newTemplateScriptSB.append("_Data, \\$locale))");
+		}
+
+		return script.replaceAll(
+			oldTemplateScriptSB.toString(), newTemplateScriptSB.toString());
 	}
 
 	protected void upgradeDDLFieldTypeReferences() throws Exception {
@@ -880,6 +1106,8 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 				ps2.setLong(2, structureId);
 
 				ps2.addBatch();
+
+				updateTemplateScriptDateFields(structureId, ddmForm);
 
 				// Structure version
 
@@ -1171,6 +1399,17 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 	private static final String _CLASS_NAME_DDM_TEMPLATE =
 		"com.liferay.dynamic.data.mapping.model.DDMTemplate";
 
+	private static final String[] _DLFOLDER_GROUP_PERMISSIONS = {
+		"ADD_DOCUMENT", "ADD_SHORTCUT", "ADD_SUBFOLDER", "SUBSCRIBE", "VIEW"
+	};
+
+	private static final String[] _DLFOLDER_GUEST_PERMISSIONS = {"VIEW"};
+
+	private static final String[] _DLFOLDER_OWNER_PERMISSIONS = {
+		"ACCESS", "ADD_DOCUMENT", "ADD_SHORTCUT", "ADD_SUBFOLDER", "DELETE",
+		"PERMISSIONS", "SUBSCRIBE", "UPDATE", "VIEW"
+	};
+
 	private static final String _INVALID_FIELD_NAME_CHARS_REGEX =
 		"([\\p{Punct}&&[^_]]|\\p{Space})+";
 
@@ -1185,6 +1424,11 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 		new HashMap<>();
 
 	static {
+		_structureModelResourceNames.put(
+			"com.liferay.document.library.kernel.model.DLFileEntry",
+			"com.liferay.document.library.kernel.model.DLFileEntry-" +
+				_CLASS_NAME_DDM_STRUCTURE);
+
 		_structureModelResourceNames.put(
 			"com.liferay.document.library.kernel.model.DLFileEntryMetadata",
 			"com.liferay.document.library.kernel.model.DLFileEntryMetadata-" +
@@ -1232,11 +1476,12 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 	private final DLFileEntryLocalService _dlFileEntryLocalService;
 	private final DLFileVersionLocalService _dlFileVersionLocalService;
 	private final DLFolderLocalService _dlFolderLocalService;
+	private final ModelPermissions _dlFolderModelPermissions;
 	private final ExpandoRowLocalService _expandoRowLocalService;
 	private long _expandoStorageAdapterClassNameId;
 	private final ExpandoTableLocalService _expandoTableLocalService;
 	private final ExpandoValueLocalService _expandoValueLocalService;
-	private final ResourceActionLocalService _resourceActionLocalService;
+	private final ResourceLocalService _resourceLocalService;
 	private final ResourcePermissionLocalService
 		_resourcePermissionLocalService;
 	private final Map<Long, Long> _structureClassNameIds = new HashMap<>();
@@ -1784,6 +2029,12 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 			_createDate = createDate;
 			_entryId = entryId;
 			_entryVersion = entryVersion;
+
+			_modelPermissions = ModelPermissionsFactory.create(
+				_groupPermissions, _guestPermissions);
+
+			_modelPermissions.addRolePermissions(
+				RoleConstants.OWNER, _ownerPermissions);
 		}
 
 		@Override
@@ -1998,6 +2249,12 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 			dlFolder.setRestrictionType(0);
 
 			_dlFolderLocalService.updateDLFolder(dlFolder);
+
+			ServiceContext serviceContext = new ServiceContext();
+
+			serviceContext.setModelPermissions(_dlFolderModelPermissions);
+
+			_resourceLocalService.addModelResources(dlFolder, serviceContext);
 		}
 
 		protected long addDLFolderTree(String ddmFormFieldName)
@@ -2056,24 +2313,6 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 				entryIdFolderId, _entryVersion, StringPool.BLANK, _now);
 
 			return entryVersionFolderId;
-		}
-
-		protected long getActionBitwiseValue(String actionId)throws Exception {
-			ResourceAction resourceAction =
-				_resourceActionLocalService.getResourceAction(
-					DLFileEntry.class.getName(), actionId);
-
-			return resourceAction.getBitwiseValue();
-		}
-
-		protected long getActionIdsLong(String[] actions) throws Exception {
-			long actionIdsLong = 0;
-
-			for (String action : actions) {
-				actionIdsLong |= getActionBitwiseValue(action);
-			}
-
-			return actionIdsLong;
 		}
 
 		protected long getDLFolderId(
@@ -2161,24 +2400,14 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 
 				_dlFileEntryLocalService.updateDLFileEntry(dlFileEntry);
 
-				// Resource permissions
+				// Resources
 
-				_resourcePermissionLocalService.addResourcePermissions(
-					DLFileEntry.class.getName(), RoleConstants.OWNER,
-					ResourceConstants.SCOPE_INDIVIDUAL,
-					getActionIdsLong(_ownerPermissions));
+				ServiceContext serviceContext = new ServiceContext();
 
-				if (_groupId > 0) {
-					_resourcePermissionLocalService.addResourcePermissions(
-						DLFileEntry.class.getName(), RoleConstants.SITE_MEMBER,
-						ResourceConstants.SCOPE_INDIVIDUAL,
-						getActionIdsLong(_groupPermissions));
-				}
+				serviceContext.setModelPermissions(_modelPermissions);
 
-				_resourcePermissionLocalService.addResourcePermissions(
-					DLFileEntry.class.getName(), RoleConstants.GUEST,
-					ResourceConstants.SCOPE_INDIVIDUAL,
-					getActionIdsLong(_guestPermissions));
+				_resourceLocalService.addModelResources(
+					dlFileEntry, serviceContext);
 
 				// Asset entry
 
@@ -2210,6 +2439,7 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 		private final long _groupId;
 		private final String[] _groupPermissions = {"ADD_DISCUSSION", "VIEW"};
 		private final String[] _guestPermissions = {"ADD_DISCUSSION", "VIEW"};
+		private final ModelPermissions _modelPermissions;
 		private final Timestamp _now = new Timestamp(
 			System.currentTimeMillis());
 		private final String[] _ownerPermissions = {

@@ -14,6 +14,7 @@
 
 package com.liferay.source.formatter;
 
+import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -35,6 +36,71 @@ public class BNDSourceProcessor extends BaseSourceProcessor {
 	@Override
 	public String[] getIncludes() {
 		return _INCLUDES;
+	}
+
+	protected void checkDirectoryAndBundleName(
+		String fileName, String absolutePath, String content) {
+
+		if (!portalSource || !isModulesFile(absolutePath) ||
+			!fileName.endsWith("/bnd.bnd") ||
+			absolutePath.contains("/testIntegration/") ||
+			absolutePath.contains("/third-party/")) {
+
+			return;
+		}
+
+		int x = absolutePath.lastIndexOf(StringPool.SLASH);
+
+		int y = absolutePath.lastIndexOf(StringPool.SLASH, x - 1);
+
+		String dirName = absolutePath.substring(y + 1, x);
+
+		if (dirName.endsWith("-taglib-web")) {
+			String newDirName = dirName.substring(0, dirName.length() - 4);
+
+			processErrorMessage(
+				fileName,
+				"Rename module '" + dirName + "' to '" + newDirName + "'");
+		}
+
+		Matcher matcher = _bundleNamePattern.matcher(content);
+
+		if (matcher.find()) {
+			String strippedBundleName = StringUtil.removeChars(
+				matcher.group(1), CharPool.DASH, CharPool.SPACE);
+
+			strippedBundleName = strippedBundleName.replaceAll(
+				"Implementation$", "Impl");
+			strippedBundleName = strippedBundleName.replaceAll(
+				"Utilities$", "Util");
+
+			String expectedBundleName =
+				"liferay" + StringUtil.removeChars(dirName, CharPool.DASH);
+
+			if (!strippedBundleName.equalsIgnoreCase(expectedBundleName)) {
+				processErrorMessage(fileName, "Bundle-Name: " + fileName);
+			}
+		}
+
+		matcher = _bundleSymbolicNamePattern.matcher(content);
+
+		if (matcher.find()) {
+			String bundleSymbolicName = matcher.group(1);
+
+			String expectedBundleSymbolicName =
+				"com.liferay." +
+					StringUtil.replace(
+						dirName, StringPool.DASH, StringPool.PERIOD);
+
+			if (!expectedBundleSymbolicName.contains(".import.") &&
+				!expectedBundleSymbolicName.contains(".private.") &&
+				!bundleSymbolicName.equalsIgnoreCase(
+					expectedBundleSymbolicName)) {
+
+				processErrorMessage(
+					fileName, "Bundle-SymbolicName: " + fileName);
+			}
+		}
 	}
 
 	@Override
@@ -79,6 +145,8 @@ public class BNDSourceProcessor extends BaseSourceProcessor {
 
 		content = importsFormatter.format(content, _exportsPattern);
 		content = importsFormatter.format(content, _importsPattern);
+
+		checkDirectoryAndBundleName(fileName, absolutePath, content);
 
 		if (portalSource && isModulesFile(absolutePath) &&
 			!fileName.endsWith("test-bnd.bnd")) {
@@ -243,6 +311,10 @@ public class BNDSourceProcessor extends BaseSourceProcessor {
 
 	private final Pattern _bndDefinitionPattern = Pattern.compile(
 		"^[A-Za-z-][\\s\\S]*?([^\\\\]\n|\\Z)", Pattern.MULTILINE);
+	private final Pattern _bundleNamePattern = Pattern.compile(
+		"^Bundle-Name: (.*)\n", Pattern.MULTILINE);
+	private final Pattern _bundleSymbolicNamePattern = Pattern.compile(
+		"^Bundle-SymbolicName: (.*)\n", Pattern.MULTILINE);
 	private final Pattern _exportsPattern = Pattern.compile(
 		"\nExport-Package:\\\\\n(.*?\n)[^\t]",
 		Pattern.DOTALL | Pattern.MULTILINE);

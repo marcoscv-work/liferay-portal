@@ -239,6 +239,16 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		}
 
 		if (Validator.isNull(appServerType)) {
+			String appServerType2 = ServerDetector.getServerId();
+
+			ServerDetector.init(StringPool.BLANK);
+
+			String appServerType3 = ServerDetector.getServerId();
+
+			_log.error(
+				"App server type: " + appServerType + ", app server type 2: " +
+					appServerType2 + ", app server type 3: " + appServerType3);
+
 			throw new IllegalArgumentException(
 				"The system property deployer.app.server.type is not set");
 		}
@@ -764,7 +774,9 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 
 			excludes += "/WEB-INF/web.xml";
 
-			WarTask.war(srcFile, tempDir, excludes, webXml);
+			File tempFile = new File(tempDir, displayName + ".war");
+
+			WarTask.war(srcFile, tempFile, excludes, webXml);
 
 			if (isJEEDeploymentEnabled()) {
 				File tempWarDir = new File(
@@ -787,7 +799,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 				DeleteTask.deleteDirectory(tempWarDir);
 			}
 			else {
-				if (!tempDir.renameTo(deployDir)) {
+				if (!tempFile.renameTo(deployDir)) {
 					WarTask.war(srcFile, deployDir, excludes, webXml);
 				}
 

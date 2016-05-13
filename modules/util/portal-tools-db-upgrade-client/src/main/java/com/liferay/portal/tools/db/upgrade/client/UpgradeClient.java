@@ -70,8 +70,8 @@ public class UpgradeClient {
 
 			String jvmOpts = null;
 
-			if (commandLine.hasOption("jvmOpts")) {
-				jvmOpts = commandLine.getOptionValue("jvmOpts");
+			if (commandLine.hasOption("jvm-opts")) {
+				jvmOpts = commandLine.getOptionValue("jvm-opts");
 			}
 			else {
 				jvmOpts =
@@ -81,8 +81,8 @@ public class UpgradeClient {
 
 			File logFile = null;
 
-			if (commandLine.hasOption("logFile")) {
-				logFile = new File(commandLine.getOptionValue("logFile"));
+			if (commandLine.hasOption("log-file")) {
+				logFile = new File(commandLine.getOptionValue("log-file"));
 			}
 			else {
 				logFile = new File("upgrade.log");
@@ -97,7 +97,14 @@ public class UpgradeClient {
 				logFile = new File(logFileName);
 			}
 
-			UpgradeClient upgradeClient = new UpgradeClient(jvmOpts, logFile);
+			boolean shell = false;
+
+			if (commandLine.hasOption("shell")) {
+				shell = true;
+			}
+
+			UpgradeClient upgradeClient = new UpgradeClient(
+				jvmOpts, logFile, shell);
 
 			upgradeClient.upgrade();
 		}
@@ -113,9 +120,12 @@ public class UpgradeClient {
 		}
 	}
 
-	public UpgradeClient(String jvmOpts, File logFile) throws IOException {
+	public UpgradeClient(String jvmOpts, File logFile, boolean shell)
+		throws IOException {
+
 		_jvmOpts = jvmOpts;
 		_logFile = logFile;
+		_shell = shell;
 
 		_appServerPropertiesFile = new File("app-server.properties");
 
@@ -188,10 +198,8 @@ public class UpgradeClient {
 			ioe.printStackTrace();
 		}
 
-		boolean upgrading = true;
-
-		while (upgrading) {
-			try (GogoTelnetClient gogoTelnetClient = new GogoTelnetClient()) {
+		try (GogoTelnetClient gogoTelnetClient = new GogoTelnetClient()) {
+			if (_shell || !_isFinished(gogoTelnetClient)) {
 				System.out.println("You are connected to Gogo shell.");
 
 				_printHelp();
@@ -211,38 +219,10 @@ public class UpgradeClient {
 						System.out.println(gogoTelnetClient.send(line));
 					}
 				}
-
-				System.out.print(
-					"Checking to see if all upgrades steps have completed...");
-
-				String upgradeSteps = gogoTelnetClient.send(
-					"upgrade:list | grep Registered | grep step");
-
-				upgrading = upgradeSteps.contains("true");
-
-				if (upgrading) {
-					System.out.println(
-						" one of your upgrades is still running or failed.");
-					System.out.println("Are you sure you want to exit (y/N)?");
-
-					_consoleReader.setPrompt("");
-
-					String response = _consoleReader.readLine();
-
-					if (response.equals("y")) {
-						upgrading = false;
-					}
-				}
-				else {
-					System.out.println(" done.");
-				}
-			}
-			catch (Exception e) {
-				upgrading = false;
 			}
 		}
-
-		System.out.println("Exiting from Gogo shell.");
+		catch (Exception e) {
+		}
 
 		_close(process.getErrorStream());
 		_close(process.getInputStream());
@@ -271,10 +251,13 @@ public class UpgradeClient {
 			new Option("h", "help", false, "Print this message."));
 		options.addOption(
 			new Option(
-				"j", "jvmOpts", true,
+				"j", "jvm-opts", true,
 				"Set the JVM_OPTS used for the upgrade."));
 		options.addOption(
-			new Option("l", "logFile", true, "Set the name of log file."));
+			new Option("l", "log-file", true, "Set the name of log file."));
+		options.addOption(
+			new Option(
+				"s", "shell", false, "Automatically connect to GoGo shell."));
 
 		return options;
 	}
@@ -321,13 +304,14 @@ public class UpgradeClient {
 
 		_appendClassPath(sb, new File("lib"));
 		_appendClassPath(sb, new File("."));
-		_appendClassPath(sb, new File(_appServer.getDir(), "bin"));
 		_appendClassPath(sb, _appServer.getGlobalLibDir());
 		_appendClassPath(sb, _appServer.getExtraLibDirs());
 
 		File portalClassesDir = _appServer.getPortalClassesDir();
 
 		sb.append(portalClassesDir.getCanonicalPath());
+
+		sb.append(File.pathSeparator);
 
 		_appendClassPath(sb, _appServer.getPortalLibDir());
 
@@ -357,25 +341,56 @@ public class UpgradeClient {
 		return relativeFileNames;
 	}
 
+	private boolean _isFinished(GogoTelnetClient gogoTelnetClient)
+		throws IOException {
+
+		System.out.print("Checking to see if all upgrades have completed...");
+
+		String upgradeCheck = gogoTelnetClient.send("upgrade:check");
+
+		String upgradeSteps = gogoTelnetClient.send(
+			"upgrade:list | grep Registered | grep step");
+
+		if (!upgradeCheck.equals("upgrade:check") ||
+			upgradeSteps.contains("true")) {
+
+			System.out.println(
+				" your upgrades have failed, have not started, or are still " +
+					"running.");
+
+			return false;
+		}
+		else {
+			System.out.println(" done.");
+
+			return true;
+		}
+	}
+
 	private void _printHelp() {
 		System.out.println("\nUpgrade commands:");
-		System.out.println("exit or quit - exit Gogo Shell");
-		System.out.println("upgrade:help - show upgrade commands");
+		System.out.println("exit or quit - Exit Gogo Shell");
 		System.out.println(
-			"upgrade:execute {module_name} - Execute upgrade for that module");
-		System.out.println("upgrade:list - List all registered upgrades");
+			"upgrade:check - List upgrades that have failed, have not " +
+				"started, or are still running");
 		System.out.println(
-			"upgrade:list {module_name} - " +
-				"List the upgrade steps required for that module");
+			"upgrade:execute {module_name} - Execute upgrade for specified " +
+				"module");
+		System.out.println("upgrade:help - Show upgrade commands");
+		System.out.println("upgrade:list - List registered upgrades");
 		System.out.println(
-			"upgrade:list | grep Registered - " +
-				"List upgrades that are registered and what version they are " +
-					"at");
+			"upgrade:list {module_name} - List upgrade steps required for " +
+				"specified module");
 		System.out.println(
-			"upgrade:list | grep Registered | grep steps - " +
-				"List upgrades in progress");
-		System.out.println("verify:execute {module_name} - execute a verifier");
-		System.out.println("verify:list - List all registered verifiers");
+			"upgrade:list | grep Registered - List registered upgrades and " +
+				"their current version");
+		System.out.println(
+			"upgrade:list | grep Registered | grep steps - List upgrades in " +
+				"progress");
+		System.out.println(
+			"verify:execute {module_name} - Execute verifier for specified " +
+				"module");
+		System.out.println("verify:list - List registered verifiers");
 	}
 
 	private Properties _readProperties(File file) {
@@ -684,5 +699,6 @@ public class UpgradeClient {
 	private final File _portalUpgradeDatabasePropertiesFile;
 	private final Properties _portalUpgradeExtProperties;
 	private final File _portalUpgradeExtPropertiesFile;
+	private final boolean _shell;
 
 }
