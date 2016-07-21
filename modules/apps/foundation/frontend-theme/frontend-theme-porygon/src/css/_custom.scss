@@ -1,0 +1,16 @@
+@import "partials/fonts";
+@import "partials/footer";
+@import "partials/header";
+
+@import "partials/aspect-ratio";
+@import "partials/navbar-porygon";
+
+@import "portlet_decorator";
+
+body {
+	background-color: $main-bg-color;
+}
+
+#wrapper {
+	padding: 0;
+}
