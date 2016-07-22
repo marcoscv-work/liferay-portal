@@ -1,6 +1,5 @@
 header {
 	.portlet:hover {
-		background: $main-black;
 		z-index: 1050;
 	}
 
@@ -12,6 +11,16 @@ header {
 
 	a {
 		color: #FFF;
+	}
+
+	#search {
+		@include sm {
+			@include position(absolute, 0 80px 0 0);
+
+			background-color: $main-black;
+			display: none;
+			height: 0;
+		}
 	}
 
 	.lfr-nav-child-toggle {
