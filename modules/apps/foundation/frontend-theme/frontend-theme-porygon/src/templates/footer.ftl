@@ -1,6 +1,5 @@
 <footer id="footer" role="contentinfo">
-
-	<nav id="footer-recursive">
+	<nav id="navbar-footer">
 		<div class="container-fluid-1280">
 			<div class="nav navbar-right small text-uppercase" role="menubar">
 				<#assign VOID = freeMarkerPortletPreferences.setValue("displayDepth", "1")>

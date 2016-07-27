@@ -1,11 +1,14 @@
 @import "partials/fonts";
 @import "partials/footer";
 @import "partials/header";
+@import "partials/layout";
+@import "partials/modules";
 
 @import "partials/aspect-ratio";
 @import "partials/navbar-porygon";
 
 @import "portlet_decorator";
+@import "partials/portlet-blogs";
 
 body {
 	background-color: $main-bg-color;
@@ -13,4 +16,8 @@ body {
 
 #wrapper {
 	padding: 0;
+}
+
+.portlet-body a {
+	color: $main-black-color;
 }
