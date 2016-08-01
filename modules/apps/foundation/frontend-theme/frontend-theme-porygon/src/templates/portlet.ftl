@@ -40,6 +40,14 @@
 	</#if>
 
 	<div class="${portlet_content_css_class}">
+		<#if portlet_display.getPortletDecoratorId() == "trending">
+			<div class="user-icon user-icon-porygon user-icon-xl">
+				<svg class="lexicon-icon">
+					<use xlink:href="${themeDisplay.getPathThemeImages()}/lexicon/icons.svg#star" />
+				</svg>
+			</div>
+		</#if>
+
 		<#if portlet_display.isShowBackIcon()>
 			<a class="icon-monospaced portlet-icon-back text-default" href="${portlet_back_url}" title="<@liferay.language key="return-to-full-page" />">
 				<span class="icon-angle-left"></span>

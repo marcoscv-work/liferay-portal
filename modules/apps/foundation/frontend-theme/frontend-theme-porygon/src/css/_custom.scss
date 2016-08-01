@@ -4,11 +4,12 @@
 @import "partials/layout";
 @import "partials/modules";
 
-@import "partials/aspect-ratio";
-@import "partials/navbar-porygon";
+@import "partials/aspect_ratio";
+@import "partials/navbar_porygon";
 
 @import "portlet_decorator";
-@import "partials/portlet-blogs";
+@import "partials/portlet_blogs";
+@import "partials/portlet_search";
 
 body {
 	background-color: $main-bg-color;
@@ -16,6 +17,8 @@ body {
 
 #wrapper {
 	padding: 0;
+
+	@import "partials/user_icon";
 }
 
 .portlet-body a {
