@@ -2,6 +2,7 @@
 
 <#assign portlet_back_url = htmlUtil.escapeHREF(portlet_display.getURLBack())>
 <#assign portlet_content_css_class = "portlet-content">
+<#assign portlet_decorator_name = portlet_display.getPortletDecoratorId() >
 <#assign portlet_display_name = htmlUtil.escape(portlet_display.getPortletDisplayName())>
 <#assign portlet_display_root_portlet_id = htmlUtil.escapeAttribute(portlet_display.getRootPortletId())>
 <#assign portlet_id = htmlUtil.escapeAttribute(portlet_display.getId())>
@@ -19,7 +20,7 @@
 		<#if (portlet_configuration_icons?has_content || portlet_title_menus?has_content)>
 			<header class="portlet-topper">
 				<div class="portlet-title-default">
-					<span class="portlet-name-text">${portlet_display_name}</span>
+					<span class="portlet-name-text">${portlet_display_name} <small>Portlet decorator: ${portlet_decorator_name}</small></span>
 				</div>
 
 				<#foreach portletTitleMenu in portlet_title_menus>
@@ -54,7 +55,9 @@
 			</a>
 		</#if>
 
-		<#if portlet_display.getPortletDecoratorId() != "barebone">
+		<#if portlet_decorator_name == "trending">
+			<div class="text-center"><h2 class="portlet-title-text">${portlet_title}</h2></div>
+		<#elseif portlet_decorator_name != "barebone">
 			<h2 class="portlet-title-text">${portlet_title}</h2>
 		</#if>
 
