@@ -1,29 +1,76 @@
-AUI().ready(
-	'liferay-sign-in-modal',
-	function(A) {
-		var BODY = A.getBody();
+(function() {
+	AUI().ready(
+		'liferay-sign-in-modal',
+		function(A) {
+			var BODY = A.getBody();
 
-		var signIn = A.one('.sign-in > a');
+			var signIn = A.one('.sign-in > a');
 
-		if (signIn && signIn.getData('redirect') !== 'true') {
-			signIn.plug(Liferay.SignInModal);
+			if (signIn && signIn.getData('redirect') !== 'true') {
+				signIn.plug(Liferay.SignInModal);
+			}
 		}
+	);
 
-		var searchIcon = A.one('#banner .btn-search');
+	require(
+		'metal-dom/src/dom',
+		function (domModule) {
+			var dom = domModule.default;
 
-		var searchInput = A.one('#banner .search-input');
+			var topSearch = function() {
+				var instance = this;
 
-		if (searchIcon && searchInput) {
-			searchIcon.on(
-				'click',
-				function(event) {
-					this.toggleClass('open');
+				this.searchInput = dom.toElement('#banner .search-input');
 
-					BODY.toggleClass('search-opened', event.currentTarget.hasClass('open'));
+				this.searchIcon = dom.toElement('#banner .btn-search');
 
-					searchInput.focus();
+				this.search = dom.toElement('#search');
+
+				this.searchIcon.setAttribute('data-displayclick', 'hidden');
+
+				if (this.searchInput && this.searchIcon) {
+					dom.on(this.searchIcon, 'click', function(event) {
+						if (instance.searchIcon.getAttribute('data-displayclick') === 'display') {
+							instance.hideInputSearch();
+						}
+						else {
+							instance.showInputSearch();
+						}
+					});
+
+					dom.on(this.searchInput, 'keydown', function(event) {
+						if (event.keyCode === 27) {
+							instance.hideInputSearch();
+						}
+					})
+
+					dom.on(this.searchInput, 'blur', function(event) {
+						if (!instance.searchInput.value || instance.searchInput.value === '') {
+							instance.searchIcon.setAttribute('data-displayclick', 'display');
+							instance.hideInputSearch();
+						}
+					});
 				}
-			);
+			};
+
+			topSearch.prototype = {
+				hideInputSearch: function() {
+					dom.removeClasses(this.searchIcon, 'open');
+					dom.removeClasses(document.body, 'search-opened');
+					dom.removeClasses(this.search, 'focus');
+					this.searchInput.style.overflow = 'hidden';
+					this.searchIcon.setAttribute('data-displayclick', 'hidden');
+				},
+
+				showInputSearch: function() {
+					dom.addClasses(this.searchIcon, 'open');
+					dom.addClasses(document.body, 'search-opened');
+					dom.addClasses(this.search, 'focus');
+					this.searchIcon.setAttribute('data-displayclick', 'display');
+				}
+			}
+
+			new topSearch();
 		}
-	}
-);
+	);
+})();
