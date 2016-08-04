@@ -36,6 +36,7 @@ import com.liferay.sync.engine.util.GetterUtil;
 import com.liferay.sync.engine.util.IODeltaUtil;
 import com.liferay.sync.engine.util.JSONUtil;
 import com.liferay.sync.engine.util.SyncEngineUtil;
+import com.liferay.sync.engine.util.Validator;
 
 import java.io.IOException;
 
@@ -211,6 +212,8 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 				response, SyncDLObjectUpdate.class);
 		}
 
+		updateSettings(_syncDLObjectUpdate.getSettingsModifiedTimes());
+
 		List<SyncFile> syncFiles = _syncDLObjectUpdate.getSyncFiles();
 
 		if (!syncFiles.isEmpty()) {
@@ -376,12 +379,17 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 
 		sourceSyncFile.setModifiedTime(targetSyncFile.getModifiedTime());
 
-		if (targetSyncFile.getEvent() == SyncFile.EVENT_TRASH) {
+		String event = targetSyncFile.getEvent();
+
+		if (event.equals(SyncFile.EVENT_TRASH)) {
 			sourceSyncFile.setUiEvent(SyncFile.UI_EVENT_TRASHED_REMOTE);
 		}
 		else {
 			sourceSyncFile.setUiEvent(SyncFile.UI_EVENT_DELETED_REMOTE);
 		}
+
+		sourceSyncFile.setUserId(targetSyncFile.getUserId());
+		sourceSyncFile.setUserName(targetSyncFile.getUserName());
 
 		if (!sourceSyncFile.isUnsynced()) {
 			SyncFileService.deleteSyncFile(sourceSyncFile);
@@ -667,10 +675,19 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 				FileUtil.getSanitizedFileName(
 					targetSyncFile.getName(), targetSyncFile.getExtension()));
 
-			if (isIgnoredFilePath(sourceSyncFile, filePathName) ||
-				((sourceSyncFile != null) &&
-				 (sourceSyncFile.getModifiedTime() ==
-					 targetSyncFile.getModifiedTime()))) {
+			if (isIgnoredFilePath(sourceSyncFile, filePathName)) {
+				return;
+			}
+
+			if ((sourceSyncFile != null) &&
+				(sourceSyncFile.getModifiedTime() ==
+					targetSyncFile.getModifiedTime())) {
+
+				if (!Validator.isBlank(targetSyncFile.getChecksum())) {
+					sourceSyncFile.setChecksum(targetSyncFile.getChecksum());
+
+					SyncFileService.update(sourceSyncFile);
+				}
 
 				return;
 			}
@@ -854,6 +871,29 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 			}
 
 			SyncFileService.update(sourceSyncFile);
+		}
+	}
+
+	protected void updateSettings(Map<String, Long> settingsModifiedTimes) {
+		if (settingsModifiedTimes == null) {
+			return;
+		}
+
+		for (Map.Entry<String, Long> entry : settingsModifiedTimes.entrySet()) {
+			String setting = entry.getKey();
+			long modifiedTime = entry.getValue();
+
+			if (setting.equals(
+					SyncDLObjectUpdate.
+						PREFERENCE_KEY_SYNC_CONTEXT_MODIFIED_TIME)) {
+
+				SyncAccount syncAccount = SyncAccountService.fetchSyncAccount(
+					getSyncAccountId());
+
+				syncAccount.setSyncContextModifiedTime(modifiedTime);
+
+				SyncAccountService.update(syncAccount);
+			}
 		}
 	}
 

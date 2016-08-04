@@ -164,15 +164,15 @@ AssetCategoryUtil.addPortletBreadcrumbEntry(assetCategoriesDisplayContext.getVoc
 				</c:when>
 				<c:when test='<%= Objects.equals(assetCategoriesDisplayContext.getDisplayStyle(), "list") %>'>
 					<liferay-ui:search-container-column-text
+						cssClass="table-cell-content"
 						href="<%= rowURL %>"
 						name="category"
-						truncate="<%= true %>"
 						value="<%= HtmlUtil.escape(curCategory.getTitle(locale)) %>"
 					/>
 
 					<liferay-ui:search-container-column-text
+						cssClass="table-cell-content"
 						name="description"
-						truncate="<%= true %>"
 						value="<%= HtmlUtil.escape(curCategory.getDescription(locale)) %>"
 					/>
 
@@ -207,6 +207,17 @@ AssetCategoryUtil.addPortletBreadcrumbEntry(assetCategoriesDisplayContext.getVoc
 		<liferay-frontend:add-menu-item title='<%= LanguageUtil.get(request, "add-category") %>' url="<%= addCategoryURL.toString() %>" />
 	</liferay-frontend:add-menu>
 </c:if>
+
+<portlet:actionURL name="moveCategory" var="moveCategoryURL">
+	<portlet:param name="redirect" value="<%= currentURL %>" />
+	<portlet:param name="mvcPath" value="/view_categories.jsp" />
+</portlet:actionURL>
+
+<aui:form action="<%= moveCategoryURL %>" name="moveCategoryFm">
+	<aui:input name="categoryId" type="hidden" />
+	<aui:input name="parentCategoryId" type="hidden" />
+	<aui:input name="vocabularyId" type="hidden" />
+</aui:form>
 
 <aui:script sandbox="<%= true %>">
 	$('#<portlet:namespace />deleteSelectedCategories').on(

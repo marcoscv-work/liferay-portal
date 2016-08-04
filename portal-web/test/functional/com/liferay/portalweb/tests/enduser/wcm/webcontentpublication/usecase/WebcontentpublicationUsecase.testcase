@@ -97,6 +97,14 @@
 			</execute>
 		</for>
 
+		<execute macro="ProductMenu#gotoControlPanelConfiguration">
+			<var name="portlet" value="Server Administration" />
+		</execute>
+
+		<execute macro="ServerAdministration#executeServerResourcesActions">
+			<var name="actionsDescription" value="Reindex all search indexes." />
+		</execute>
+
 		<execute macro="ProductMenu#gotoControlPanelUsers">
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
@@ -195,6 +203,11 @@
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
+		<execute macro="Navigator#gotoSpecificURLPage">
+			<var name="pageName" value="Web Content Page" />
+			<var name="url" value="http://www.able.com:8080" />
+		</execute>
+
 		<execute macro="WebContent#viewPGViaWCD">
 			<var name="webContentContent" value="WC WebContent Content" />
 		</execute>
@@ -224,7 +237,7 @@
 
 		<execute function="Click#mouseOverClick" locator1="Icon#EDIT" />
 
-		<execute function="AssertElementNotPresent" locator1="PGSignin#PORTLET_TITLE" value1="Sign" />
+		<execute function="AssertElementNotPresent" locator1="SignIn#PORTLET_TITLE" value1="Sign" />
 
 		<execute macro="Navigator#gotoSpecificURLPage">
 			<var name="pageName" value="Web Content Page" />
@@ -1131,8 +1144,7 @@
 	</command>
 
 	<command name="AssetPublisherSiteAndGlobalScopeAccessibility" priority="5">
-		<property name="portal.acceptance" value="false" />
-		<property name="portal.acceptance.quarantine" value="true" />
+		<property name="portal.acceptance" value="true" />
 		<property name="test.name.skip.portal.instance" value="WebcontentpublicationUsecase#AssetPublisherSiteAndGlobalScopeAccessibility" />
 
 		<execute macro="ProductMenu#gotoControlPanelSites">
@@ -1879,6 +1891,16 @@
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
+		<execute macro="DMDocument#enableActionsMenuOnPortlet" />
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Documents and Media Page" />
+		</execute>
+
+		<execute macro="Portlet#changeDisplayStyle">
+			<var name="displayStyle" value="Descriptive" />
+		</execute>
+
 		<execute macro="DMDocument#editPG">
 			<var name="dmDocumentDescriptionEdit" value="DM Document Description Edit" />
 			<var name="dmDocumentFileEdit" value="Document_2.docx" />
@@ -1974,7 +1996,7 @@
 
 		<execute macro="WebContent#editDisplayPagePGViaAP">
 			<var name="assetTitle" value="WC WebContent Title" />
-			<var name="displayPageSelection" value="Asset Publisher Page 2" />
+			<var name="displayPageName" value="Asset Publisher Page 2" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">

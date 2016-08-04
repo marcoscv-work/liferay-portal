@@ -116,6 +116,9 @@ import org.gradle.api.plugins.ReportingBasePlugin;
 import org.gradle.api.plugins.quality.FindBugs;
 import org.gradle.api.plugins.quality.FindBugsPlugin;
 import org.gradle.api.plugins.quality.FindBugsReports;
+import org.gradle.api.plugins.quality.Pmd;
+import org.gradle.api.plugins.quality.PmdExtension;
+import org.gradle.api.plugins.quality.PmdPlugin;
 import org.gradle.api.reporting.SingleFileReport;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Copy;
@@ -219,6 +222,8 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 
 		applyConfigScripts(project);
 
+		addDependenciesPmd(project);
+
 		if (testProject || hasTests(project)) {
 			GradleUtil.applyPlugin(project, WhipDefaultsPlugin.class);
 			GradleUtil.applyPlugin(project, WhipPlugin.class);
@@ -277,6 +282,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		configureConfigurations(project);
 		configureDeployDir(project, deployToAppServerLibs, deployToTools);
 		configureJavaPlugin(project);
+		configurePmd(project, portalRootDir);
 		configureProject(project);
 		configureRepositories(project);
 		configureSourceSetMain(project);
@@ -288,6 +294,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		configureTasksBaseline(project);
 		configureTasksFindBugs(project);
 		configureTasksJavaCompile(project);
+		configureTasksPmd(project);
 		configureTasksPublishNodeModule(project);
 
 		GradleUtil.withPlugin(
@@ -483,6 +490,17 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 			String.valueOf(project.getGroup()),
 			GradleUtil.getArchivesBaseName(project),
 			"(," + String.valueOf(project.getVersion()) + ")", false);
+	}
+
+	protected void addDependenciesPmd(Project project) {
+		String version = GradleUtil.getPortalToolVersion(
+			project, _PMD_PORTAL_TOOL_NAME);
+
+		if (Validator.isNotNull(version)) {
+			GradleUtil.addDependency(
+				project, "pmd", GradleUtil.PORTAL_TOOL_GROUP,
+				_PMD_PORTAL_TOOL_NAME, version);
+		}
 	}
 
 	protected void addDependenciesPortalTest(Project project) {
@@ -928,10 +946,16 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 						return content;
 					}
 
+					String configuration =
+						ProvidedBasePlugin.getPROVIDED_CONFIGURATION_NAME() +
+							" ";
+
 					return content.replaceAll(
-						Pattern.quote(getProjectDependency(project)),
+						Pattern.quote(
+							configuration + getProjectDependency(project)),
 						Matcher.quoteReplacement(
-							getModuleDependency(project, true)));
+							configuration +
+								getModuleDependency(project, true)));
 				}
 
 			});
@@ -1053,6 +1077,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		GradleUtil.applyPlugin(project, IdeaPlugin.class);
 		GradleUtil.applyPlugin(project, MavenPlugin.class);
 		GradleUtil.applyPlugin(project, OptionalBasePlugin.class);
+		GradleUtil.applyPlugin(project, PmdPlugin.class);
 		GradleUtil.applyPlugin(project, ProvidedBasePlugin.class);
 
 		if (FileUtil.exists(project, "service.xml")) {
@@ -1474,6 +1499,24 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		mappings.remove(configuration);
 	}
 
+	protected void configurePmd(Project project, File portalRootDir) {
+		PmdExtension pmdExtension = GradleUtil.getExtension(
+			project, PmdExtension.class);
+
+		if (portalRootDir != null) {
+			File ruleSetFile = new File(
+				portalRootDir,
+				"tools/sdk/dependencies/net.sourceforge.pmd/rulesets/java/" +
+					"standard-rules.xml");
+
+			pmdExtension.setRuleSetFiles(project.files(ruleSetFile));
+		}
+
+		List<String> ruleSets = Collections.emptyList();
+
+		pmdExtension.setRuleSets(ruleSets);
+	}
+
 	protected void configureProject(Project project) {
 		project.setGroup(_GROUP);
 	}
@@ -1764,6 +1807,9 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 	protected void configureTaskJavadocOptions(Javadoc javadoc) {
 		StandardJavadocDocletOptions standardJavadocDocletOptions =
 			(StandardJavadocDocletOptions)javadoc.getOptions();
+
+		standardJavadocDocletOptions.setEncoding(StandardCharsets.UTF_8.name());
+
 		Project project = javadoc.getProject();
 
 		File overviewFile = null;
@@ -1789,6 +1835,10 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		}
 
 		standardJavadocDocletOptions.tags("generated");
+	}
+
+	protected void configureTaskPmd(Pmd pmd) {
+		pmd.setClasspath(null);
 	}
 
 	protected void configureTaskPublishNodeModule(
@@ -1848,6 +1898,21 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 			});
 	}
 
+	protected void configureTasksPmd(Project project) {
+		TaskContainer taskContainer = project.getTasks();
+
+		taskContainer.withType(
+			Pmd.class,
+			new Action<Pmd>() {
+
+				@Override
+				public void execute(Pmd pmd) {
+					configureTaskPmd(pmd);
+				}
+
+			});
+	}
+
 	protected void configureTasksPublishNodeModule(Project project) {
 		TaskContainer taskContainer = project.getTasks();
 
@@ -1869,9 +1934,8 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		Test test = (Test)GradleUtil.getTask(
 			project, JavaPlugin.TEST_TASK_NAME);
 
-		test.jvmArgs(_TEST_JVM_ARGS);
-
 		configureTaskTestIgnoreFailures(test);
+		configureTaskTestJvmArgs(test, "junit.java.unit.gc");
 		configureTaskTestLogging(test);
 	}
 
@@ -1883,9 +1947,8 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		Test test = (Test)GradleUtil.getTask(
 			project, TestIntegrationBasePlugin.TEST_INTEGRATION_TASK_NAME);
 
-		test.jvmArgs(_TEST_INTEGRATION_JVM_ARGS);
-
 		configureTaskTestIgnoreFailures(test);
+		configureTaskTestJvmArgs(test, "junit.java.integration.gc");
 		configureTaskTestLogging(test);
 
 		File resultsDir = project.file("test-results/integration");
@@ -1897,6 +1960,15 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		JUnitXmlReport jUnitXmlReport = testTaskReports.getJunitXml();
 
 		jUnitXmlReport.setDestination(resultsDir);
+	}
+
+	protected void configureTaskTestJvmArgs(Test test, String propertyName) {
+		String jvmArgs = GradleUtil.getProperty(
+			test.getProject(), propertyName, (String)null);
+
+		if (Validator.isNotNull(jvmArgs)) {
+			test.jvmArgs((Object[])jvmArgs.split("\\s+"));
+		}
 	}
 
 	protected void configureTaskTestLogging(Test test) {
@@ -1934,7 +2006,9 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		}
 
 		args.put("dir", portalRootDir);
-		args.put("include", "**/*.gradle");
+		args.put(
+			"includes",
+			Arrays.asList("**/*.gradle", "**/sdk/*/README.markdown"));
 
 		updateFileVersionsTask.match(regex, project.fileTree(args));
 	}
@@ -2245,6 +2319,8 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 	private static final boolean _MAVEN_LOCAL_IGNORE = Boolean.getBoolean(
 		"maven.local.ignore");
 
+	private static final String _PMD_PORTAL_TOOL_NAME = "com.liferay.pmd";
+
 	private static final String _REPOSITORY_PRIVATE_PASSWORD =
 		System.getProperty("repository.private.password");
 
@@ -2256,23 +2332,6 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 
 	private static final String _REPOSITORY_URL = System.getProperty(
 		"repository.url", DEFAULT_REPOSITORY_URL);
-
-	private static final Object[] _TEST_INTEGRATION_JVM_ARGS = {
-		"-Xms512m", "-Xmx512m", "-XX:MaxNewSize=32m", "-XX:MaxPermSize=200m",
-		"-XX:MaxTenuringThreshold=0", "-XX:NewSize=32m",
-		"-XX:ParallelGCThreads=2", "-XX:PermSize=200m",
-		"-XX:SurvivorRatio=65536", "-XX:TargetSurvivorRatio=0",
-		"-XX:-UseAdaptiveSizePolicy", "-XX:+UseParallelOldGC"
-	};
-
-	private static final Object[] _TEST_JVM_ARGS = {
-		"-Xms256m", "-Xmx256m", "-XX:MaxNewSize=32m", "-XX:MaxPermSize=64m",
-		"-XX:MaxTenuringThreshold=0", "-XX:NewSize=32m",
-		"-XX:ParallelGCThreads=2", "-XX:PermSize=64m",
-		"-XX:SurvivorRatio=65536", "-XX:TargetSurvivorRatio=0",
-		"-XX:-UseAdaptiveSizePolicy", "-XX:+UseParallelOldGC",
-		"-XX:-UseSplitVerifier"
-	};
 
 	private static final Logger _logger = Logging.getLogger(
 		LiferayOSGiDefaultsPlugin.class);

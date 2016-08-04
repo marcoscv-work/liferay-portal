@@ -59,6 +59,12 @@ public class GetSyncContextHandler extends BaseJSONHandler {
 		SyncUser localSyncUser = SyncUserService.fetchSyncUser(
 			syncAccount.getSyncAccountId());
 
+		if (localSyncUser == null) {
+			remoteSyncUser.setSyncAccountId(getSyncAccountId());
+
+			localSyncUser = SyncUserService.update(remoteSyncUser);
+		}
+
 		if ((localSyncUser.getUserId() > 0) &&
 			(localSyncUser.getUserId() != remoteSyncUser.getUserId())) {
 
@@ -125,6 +131,18 @@ public class GetSyncContextHandler extends BaseJSONHandler {
 			1);
 
 		syncAccount.setMaxConnections(maxConnections);
+
+		int maxDownloadRate = GetterUtil.getInteger(
+			portletPreferencesMap.get(
+				SyncContext.PREFERENCE_KEY_MAX_DOWNLOAD_RATE));
+
+		syncAccount.setMaxDownloadRate(maxDownloadRate);
+
+		int maxUploadRate = GetterUtil.getInteger(
+			portletPreferencesMap.get(
+				SyncContext.PREFERENCE_KEY_MAX_UPLOAD_RATE));
+
+		syncAccount.setMaxUploadRate(maxUploadRate);
 
 		syncAccount.setPluginVersion(syncContext.getPluginVersion());
 

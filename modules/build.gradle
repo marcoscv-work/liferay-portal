@@ -1,3 +1,5 @@
+import com.liferay.gradle.plugins.node.tasks.DownloadNodeTask
+import com.liferay.gradle.plugins.node.tasks.ExecuteNpmTask
 import com.liferay.gradle.util.FileUtil
 import com.liferay.gradle.util.GradleUtil
 
@@ -53,8 +55,6 @@ gradle.beforeProject {
 		}
 
 		pluginManager.withPlugin("com.liferay.osgi.plugin") {
-			apply plugin: "pmd"
-
 			afterEvaluate {
 				bundle.jarBuilderFactory.contextClassLoader = buildscript.classLoader
 
@@ -70,13 +70,7 @@ gradle.beforeProject {
 			}
 
 			dependencies {
-				pmd group: "com.liferay", name: "com.liferay.pmd", version: "1.0.1"
 				xmltask rootProject.files("../lib/development/xmltask.jar")
-			}
-
-			pmd {
-				ruleSetFiles = rootProject.files("../tools/sdk/dependencies/net.sourceforge.pmd/rulesets/java/standard-rules.xml")
-				ruleSets = []
 			}
 
 			testIntegration {
@@ -103,10 +97,6 @@ gradle.beforeProject {
 						delete file
 					}
 				}
-			}
-
-			tasks.withType(Pmd) {
-				classpath = null
 			}
 
 			if (bndPrintJarFiles != null) {
@@ -138,11 +128,26 @@ gradle.beforeProject {
 		}
 
 		if (System.getenv("JENKINS_HOME")) {
-			pluginManager.withPlugin("com.liferay.node") {
-				downloadNode {
-					doFirst {
+			pluginManager.withPlugin("com.liferay.theme.plugin") {
+				npmInstall {
+					nodeModulesCacheDir = new File(System.properties["user.home"], ".liferay/node-modules-cache")
+					removeShrinkwrappedUrls = true
+				}
+			}
+
+			tasks.withType(DownloadNodeTask) {
+				doFirst {
+					if (plugins.hasPlugin("com.liferay.cache")) {
 						throw new GradleException("Unable to use Node.js on CI, please configure com.liferay.cache or update the cache")
 					}
+				}
+			}
+
+			String ciRegistry = project.properties["nodejs.npm.ci.registry"]
+
+			if (ciRegistry) {
+				tasks.withType(ExecuteNpmTask) {
+					registry = ciRegistry
 				}
 			}
 		}

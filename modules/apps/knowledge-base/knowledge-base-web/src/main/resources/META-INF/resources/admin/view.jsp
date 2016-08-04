@@ -24,7 +24,7 @@ long parentResourcePrimKey = ParamUtil.getLong(request, "parentResourcePrimKey",
 
 String keywords = ParamUtil.getString(request, "keywords");
 
-SearchContainer kbObjectsSearchContainer = new KBArticleSearch(renderRequest, PortletURLUtil.clone(currentURLObj, renderResponse));
+SearchContainer kbObjectsSearchContainer = new KBObjectsSearch(renderRequest, PortletURLUtil.clone(currentURLObj, renderResponse));
 
 boolean kbFolderView = (parentResourceClassNameId == kbFolderClassNameId);
 
@@ -56,12 +56,12 @@ if (parentResourcePrimKey != KBFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 	String headerTitle = StringPool.BLANK;
 
 	if (kbFolderView) {
-		KBFolder kbFolder = KBFolderLocalServiceUtil.getKBFolder(parentResourcePrimKey);
+		KBFolder kbFolder = KBFolderServiceUtil.getKBFolder(parentResourcePrimKey);
 
 		headerTitle = kbFolder.getName();
 	}
 	else {
-		KBArticle kbArticle = KBArticleLocalServiceUtil.getLatestKBArticle(parentResourcePrimKey, WorkflowConstants.STATUS_ANY);
+		KBArticle kbArticle = KBArticleServiceUtil.getLatestKBArticle(parentResourcePrimKey, WorkflowConstants.STATUS_ANY);
 
 		headerTitle = kbArticle.getTitle();
 	}
@@ -105,6 +105,13 @@ if (parentResourcePrimKey != KBFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 				navigationKeys='<%= new String[] {"all"} %>'
 				portletURL="<%= navigationPortletURL %>"
 			/>
+
+			<liferay-frontend:management-bar-sort
+				orderByCol="<%= kbObjectsSearchContainer.getOrderByCol() %>"
+				orderByType="<%= kbObjectsSearchContainer.getOrderByType() %>"
+				orderColumns='<%= new String[] {"priority", "modified-date", "title", "view-count"} %>'
+				portletURL="<%= PortletURLUtil.clone(currentURLObj, liferayPortletResponse) %>"
+			/>
 		</liferay-frontend:management-bar-filters>
 	</c:if>
 
@@ -119,7 +126,7 @@ if (parentResourcePrimKey != KBFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 </liferay-frontend:management-bar>
 
 <div class="closed container-fluid-1280 sidenav-container sidenav-right" id="<portlet:namespace />infoPanelId">
-	<liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" var="sidebarPanelURL">
+	<liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" id="infoPanel" var="sidebarPanelURL">
 		<portlet:param name="parentResourceClassNameId" value="<%= String.valueOf(parentResourceClassNameId) %>" />
 		<portlet:param name="parentResourcePrimKey" value="<%= String.valueOf(parentResourcePrimKey) %>" />
 	</liferay-portlet:resourceURL>
@@ -134,7 +141,9 @@ if (parentResourcePrimKey != KBFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 	<div class="sidenav-content">
 
 		<%
-		KnowledgeBaseUtil.addPortletBreadcrumbEntries(parentResourceClassNameId, parentResourcePrimKey, StringPool.BLANK, request, renderResponse);
+		KBAdminViewDisplayContext kbAdminViewDisplayContext = new KBAdminViewDisplayContext(parentResourceClassNameId, parentResourcePrimKey, request, liferayPortletResponse);
+
+		kbAdminViewDisplayContext.populatePortletBreadcrumbEntries(currentURLObj);
 		%>
 
 		<liferay-ui:breadcrumb
@@ -296,7 +305,6 @@ if (parentResourcePrimKey != KBFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 									<span class="kb-descriptive-details">
 										<liferay-ui:message arguments="<%= BigDecimal.valueOf(kbArticle.getPriority()).toPlainString() %>" key="priority-x" />
 									</span>
-
 									<span class="kb-descriptive-details">
 										<liferay-ui:message arguments="<%= kbArticle.getViewCount() %>" key="x-views" />
 									</span>

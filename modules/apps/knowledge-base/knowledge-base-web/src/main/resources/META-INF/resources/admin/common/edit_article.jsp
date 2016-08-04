@@ -33,7 +33,7 @@ String title = BeanParamUtil.getString(kbArticle, request, "title", BeanProperti
 String urlTitle = BeanParamUtil.getString(kbArticle, request, "urlTitle");
 String content = BeanParamUtil.getString(kbArticle, request, "content", BeanPropertiesUtil.getString(kbTemplate, "content"));
 
-String[] sections = AdminUtil.unescapeSections(BeanPropertiesUtil.getString(kbArticle, "sections", StringUtil.merge(kbSectionPortletInstanceConfiguration.adminKBArticleSections())));
+String[] sections = AdminUtil.unescapeSections(BeanPropertiesUtil.getString(kbArticle, "sections", StringUtil.merge(kbSectionPortletInstanceConfiguration.adminKBArticleSectionsDefault())));
 
 String headerTitle = LanguageUtil.get(request, "new-article");
 
@@ -157,13 +157,22 @@ if (portletTitleBasedNavigation) {
 		<aui:fieldset-group markupView="lexicon">
 			<aui:fieldset>
 				<h1 class="kb-title">
-					<liferay-ui:input-editor contents="<%= title %>" editorName="alloyeditor" name="titleEditor" onChangeMethod='<%= (kbArticle == null) ? "OnChangeEditor" : StringPool.BLANK %>' placeholder="title" showSource="<%= false %>" />
+					<liferay-ui:input-editor contents="<%= HtmlUtil.escape(title) %>" editorName="alloyeditor" name="titleEditor" onChangeMethod='<%= (kbArticle == null) ? "OnChangeEditor" : StringPool.BLANK %>' placeholder="title" showSource="<%= false %>" />
 				</h1>
 
 				<aui:input name="title" type="hidden" />
 
 				<div class="kb-entity-body">
-					<liferay-ui:input-editor contents="<%= content %>" editorName="<%= kbGroupServiceConfiguration.getEditorName() %>" name="contentEditor" placeholder="content" />
+
+					<%
+					Map<String, String> fileBrowserParams = new HashMap();
+
+					if (kbArticle != null) {
+						fileBrowserParams.put("resourcePrimKey", String.valueOf(kbArticle.getResourcePrimKey()));
+					}
+					%>
+
+					<liferay-ui:input-editor contents="<%= content %>" editorName="<%= kbGroupServiceConfiguration.getEditorName() %>" fileBrowserParams="<%= fileBrowserParams %>" name="contentEditor" placeholder="content" />
 
 					<aui:input name="content" type="hidden" />
 				</div>
@@ -176,9 +185,9 @@ if (portletTitleBasedNavigation) {
 			</aui:fieldset>
 
 			<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="categorization">
-				<aui:input classPK="<%= (kbArticle != null) ? kbArticle.getClassPK() : 0 %>" name="categories" type="assetCategories" />
+				<liferay-asset:asset-categories-selector className="<%= KBArticle.class.getName() %>" classPK="<%= (kbArticle != null) ? kbArticle.getClassPK() : 0 %>" />
 
-				<aui:input classPK="<%= (kbArticle != null) ? kbArticle.getClassPK() : 0 %>" name="tags" type="assetTags" />
+				<liferay-asset:asset-tags-selector className="<%= KBArticle.class.getName() %>" classPK="<%= (kbArticle != null) ? kbArticle.getClassPK() : 0 %>" />
 			</aui:fieldset>
 
 			<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="related-assets">

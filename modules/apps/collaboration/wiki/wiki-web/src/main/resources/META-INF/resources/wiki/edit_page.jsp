@@ -191,7 +191,7 @@ if (portletTitleBasedNavigation) {
 							<c:when test="<%= editTitle %>">
 								<aui:field-wrapper required="<%= true %>">
 									<div class="entry-title">
-										<h1><liferay-ui:input-editor contents="<%= title %>" editorName="alloyeditor" name="titleEditor" placeholder="title" showSource="<%= false %>" /></h1>
+										<h1><liferay-ui:input-editor contents="<%= HtmlUtil.escape(title) %>" editorName="alloyeditor" name="titleEditor" placeholder="title" showSource="<%= false %>" /></h1>
 									</div>
 								</aui:field-wrapper>
 							</c:when>
@@ -258,9 +258,9 @@ if (portletTitleBasedNavigation) {
 					%>
 
 					<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="categorization">
-						<aui:input classPK="<%= classPK %>" name="categories" type="assetCategories" />
+						<liferay-asset:asset-categories-selector className="<%= WikiPage.class.getName() %>" classPK="<%= classPK %>" />
 
-						<aui:input classPK="<%= classPK %>" name="tags" type="assetTags" />
+						<liferay-asset:asset-tags-selector className="<%= WikiPage.class.getName() %>" classPK="<%= classPK %>" />
 					</aui:fieldset>
 
 					<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="related-assets">
@@ -408,10 +408,10 @@ if (portletTitleBasedNavigation) {
 				form.fm('title').val(titleEditor.getText());
 			}
 
-			var editor = window.<portlet:namespace />editor;
+			var contentEditor = window.<portlet:namespace />contentEditor;
 
-			if (editor) {
-				form.fm('content').val(editor.getHTML());
+			if (contentEditor) {
+				form.fm('content').val(contentEditor.getHTML());
 			}
 
 			form.attr('action', '<%= editPageRenderURL %>');
@@ -441,10 +441,10 @@ if (portletTitleBasedNavigation) {
 			form.fm('title').val(titleEditor.getText());
 		}
 
-		var editor = window.<portlet:namespace />editor;
+		var contentEditor = window.<portlet:namespace />contentEditor;
 
-		if (editor) {
-			form.fm('content').val(editor.getHTML());
+		if (contentEditor) {
+			form.fm('content').val(contentEditor.getHTML());
 		}
 
 		submitForm(form);

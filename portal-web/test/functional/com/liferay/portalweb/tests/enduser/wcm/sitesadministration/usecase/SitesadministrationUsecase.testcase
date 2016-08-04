@@ -215,7 +215,6 @@
 
 	<command name="MySitesDropDownDoesNotShowUserOrganizationOnTop" priority="3">
 		<for list="Site1 Name,Site2 Name,Site3 Name,Site4 Name,Site5 Name,Site6 Name,Site7 Name,Site8 Name,Site9 Name,Site10 Name" param="siteNameListsCount" >
-
 			<execute macro="ProductMenu#gotoControlPanelSites">
 				<var name="portlet" value="Sites" />
 			</execute>
@@ -668,10 +667,8 @@
 
 		<execute function="Click" locator1="Gmail#EMAIL_ADDRESS_VERIFICATION_URL" />
 
-		<execute function="SelectWindow" locator1="title=Verify Email Address - Site Name - ${siteName}" />
+		<execute function="SelectWindow" locator1="title=Verify Email Address - ${siteName}" />
 		<execute function="AssertLocation" value1="${emailAddressVerificationURL}" />
-
-		<execute macro="Site#viewDefaultThemePG" />
 	</command>
 
 	<command name="SiteFriendlyURLLayoutImporter" priority="3">
@@ -1233,9 +1230,21 @@
 	</command>
 
 	<command name="SiteTeamsPermissions" priority="4">
-		<execute macro="TestCase#getSiteName">
-			<return from="siteName" name="siteName" />
-			<var name="siteName" value="${siteName}" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
+		</execute>
+
+		<execute macro="Site#addBlankCP">
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="Page#add">
+			<var name="pageName" value="Blog Page Template" />
+			<var name="pageTemplateName" value="Blog" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -1263,7 +1272,7 @@
 		</execute>
 
 		<execute macro="User#editUserSiteCP">
-			<var name="siteName" value="${siteName}" />
+			<var name="siteName" value="Site Name" />
 			<var name="userScreenName" value="usersn1" />
 		</execute>
 
@@ -1292,11 +1301,13 @@
 		</execute>
 
 		<execute macro="User#editUserSiteCP">
-			<var name="siteName" value="${siteName}" />
+			<var name="siteName" value="Site Name" />
 			<var name="userScreenName" value="usersn2" />
 		</execute>
 
-		<execute macro="Navigator#openURL" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
 
 		<execute macro="ProductMenu#gotoSitesMembers">
 			<var name="portlet" value="Site Teams" />
@@ -1307,7 +1318,9 @@
 			<var name="teamName" value="Site Team Name" />
 		</execute>
 
-		<execute macro="Navigator#openURL" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
 
 		<execute macro="ProductMenu#gotoSitesMembers">
 			<var name="portlet" value="Site Teams" />
@@ -1316,37 +1329,6 @@
 		<execute macro="Team#assignMembersCP">
 			<var name="teamName" value="Site Team Name" />
 			<var name="userScreenName" value="usersn1" />
-		</execute>
-
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
-		</execute>
-
-		<execute macro="Site#addBlankCP">
-			<var name="siteName" value="Site Name" />
-		</execute>
-
-		<execute macro="ProductMenu#gotoSite">
-			<var name="site" value="Site Name" />
-		</execute>
-
-		<execute macro="ProductMenu#gotoSitesMembers">
-			<var name="portlet" value="Site Teams" />
-		</execute>
-
-		<execute macro="Team#viewDefaultCP">
-			<var name="teamName" value="Site Team Name" />
-		</execute>
-
-		<execute macro="ProductMenu#gotoSite">
-			<var name="site" value="Site Name" />
-		</execute>
-
-		<execute macro="ProductMenu#gotoPublicPages" />
-
-		<execute macro="Page#add">
-			<var name="pageName" value="Blog Page Template" />
-			<var name="pageTemplateName" value="Blog" />
 		</execute>
 
 		<execute macro="Navigator#gotoSitePage">
@@ -1373,7 +1355,6 @@
 		</execute>
 
 		<for list="CONTENT_PERMISSIONS_ADD_DISCUSSION_CHECKBOX,CONTENT_PERMISSIONS_VIEW_CHECKBOX" param="permissionsInLineUncheckListsCount" >
-
 			<execute macro="Role#removePermissionPG">
 				<var name="permissionDefinitionKey" value="${permissionsInLineUncheckListsCount}" />
 				<var name="roleName" value="Site Member" />
@@ -1390,7 +1371,6 @@
 		</execute>
 
 		<for list="ACTION_ADD_DISCUSSION,ACTION_ADD_LAYOUT,ACTION_CONFIGURE_PORTLETS,ACTION_CUSTOMIZE,ACTION_DELETE,ACTION_DELETE_DISCUSSION,ACTION_PERMISSIONS,ACTION_UPDATE,ACTION_UPDATE_DISCUSSION,ACTION_VIEW" param="permissionsInLineCheckListsCount" >
-
 			<execute macro="Team#definePermissionPG">
 				<var name="permissionDefinitionKey" value="${permissionsInLineCheckListsCount}" />
 				<var name="teamName" value="Site Team Name" />
@@ -1402,8 +1382,9 @@
 			<var name="userEmailAddress" value="userea1@liferay.com" />
 		</execute>
 
-		<execute macro="Navigator#gotoPage">
+		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="Blog Page Template" />
+			<var name="siteName" value="Site Name" />
 		</execute>
 
 		<execute macro="PageTemplate#viewDefaultPortletPG">
@@ -1416,9 +1397,11 @@
 			<var name="userEmailAddress" value="userea2@liferay.com" />
 		</execute>
 
-		<execute macro="Navigator#openURL" />
+		<execute macro="Navigator#openSiteURL">
+			<var name="siteName" value="Site Name" />
+		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="Home#PAGE_2" />
+		<execute function="AssertElementNotPresent" locator1="Home#PAGE" />
 
 		<execute macro="User#firstLoginPG">
 			<var name="password" value="test" />

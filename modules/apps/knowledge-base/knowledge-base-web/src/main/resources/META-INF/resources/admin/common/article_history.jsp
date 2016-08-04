@@ -24,7 +24,7 @@ int selStatus = KBArticlePermission.contains(permissionChecker, kbArticle, KBAct
 String orderByCol = ParamUtil.getString(request, "orderByCol", "version");
 String orderByType = ParamUtil.getString(request, "orderByType", "desc");
 
-OrderByComparator orderByComparator = KnowledgeBaseUtil.getKBArticleOrderByComparator(orderByCol, orderByType);
+OrderByComparator orderByComparator = KBUtil.getKBArticleOrderByComparator(orderByCol, orderByType);
 
 List<KBArticle> kbArticles = KBArticleServiceUtil.getKBArticleVersions(scopeGroupId, kbArticle.getResourcePrimKey(), selStatus, QueryUtil.ALL_POS, QueryUtil.ALL_POS, orderByComparator);
 
@@ -56,6 +56,65 @@ for (KBArticle curKBArticle : kbArticles) {
 								url="<%= revertURL.toString() %>"
 							/>
 						</c:if>
+
+						<portlet:renderURL var="compareVersionsURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
+							<portlet:param name="mvcPath" value="/admin/common/select_version.jsp" />
+							<portlet:param name="redirect" value="<%= currentURL %>" />
+							<portlet:param name="resourcePrimKey" value="<%= String.valueOf(kbArticle.getResourcePrimKey()) %>" />
+							<portlet:param name="sourceVersion" value="<%= String.valueOf(curKBArticle.getVersion()) %>" />
+						</portlet:renderURL>
+
+						<%
+						Map<String, Object> data = new HashMap<String, Object>();
+
+						data.put("uri", compareVersionsURL);
+						%>
+
+						<liferay-ui:icon
+							cssClass="compare-to-link"
+							data="<%= data %>"
+							label="<%= true %>"
+							message="compare-to"
+							url="javascript:;"
+						/>
+
+						<aui:script sandbox="<%= true %>">
+							$('body').on(
+								'click',
+								'.compare-to-link a',
+								function(event) {
+									var currentTarget = $(event.currentTarget);
+
+									Liferay.Util.selectEntity(
+										{
+											dialog: {
+												constrain: true,
+												destroyOnHide: true,
+												modal: true
+											},
+											eventName: '<portlet:namespace />selectVersionFm',
+											id: '<portlet:namespace />compareVersions' + currentTarget.attr('id'),
+											title: '<liferay-ui:message key="compare-versions" />',
+											uri: currentTarget.data('uri')
+										},
+										function(event) {
+											<portlet:renderURL var="compareVersionURL">
+												<portlet:param name="mvcPath" value="/admin/common/compare_versions.jsp" />
+												<portlet:param name="backURL" value="<%= currentURL %>" />
+												<portlet:param name="resourcePrimKey" value="<%= String.valueOf(kbArticle.getResourcePrimKey()) %>" />
+											</portlet:renderURL>
+
+											var uri = '<%= compareVersionURL %>';
+
+											uri = Liferay.Util.addParams('<portlet:namespace />sourceVersion=' + event.sourceversion, uri);
+											uri = Liferay.Util.addParams('<portlet:namespace />targetVersion=' + event.targetversion, uri);
+
+											location.href = uri;
+										}
+									);
+								}
+							);
+						</aui:script>
 					</liferay-ui:icon-menu>
 				</li>
 			</ul>
@@ -64,7 +123,6 @@ for (KBArticle curKBArticle : kbArticles) {
 				<dt class="h5">
 					<h4><liferay-ui:message arguments="<%= curKBArticle.getVersion() %>" key="version-x" /></h4>
 				</dt>
-
 				<dd>
 					<small class="text-muted">
 						<liferay-ui:message arguments="<%= new Object[] {curKBArticle.getUserName(), dateFormatDateTime.format(curKBArticle.getModifiedDate())} %>" key="by-x-on-x" />

@@ -358,7 +358,7 @@ renderResponse.setTitle(title);
 	function <portlet:namespace />openDDMStructureSelector() {
 		Liferay.Util.openDDMPortlet(
 			{
-				basePortletURL: '<%= PortletURLFactoryUtil.create(request, PortletProviderUtil.getPortletId(DDMStructure.class.getName(), PortletProvider.Action.VIEW), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>',
+				basePortletURL: '<%= PortletURLFactoryUtil.create(request, PortletProviderUtil.getPortletId(DDMStructure.class.getName(), PortletProvider.Action.VIEW), PortletRequest.RENDER_PHASE) %>',
 				dialog: {
 					destroyOnHide: true
 				},
@@ -366,7 +366,7 @@ renderResponse.setTitle(title);
 				groupId: <%= scopeGroupId %>,
 				mvcPath: '/select_structure.jsp',
 				navigationStartsOn: '<%= DDMNavigationHelper.SELECT_STRUCTURE %>',
-				refererPortletName: '<%= JournalPortletKeys.JOURNAL + ".selectStructure" %>',
+				refererPortletName: '<%= JournalPortletKeys.JOURNAL + ".selectStructureRestriction" %>',
 				showAncestorScopes: true,
 				title: '<%= UnicodeLanguageUtil.get(request, "structures") %>'
 			},

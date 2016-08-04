@@ -1,0 +1,26 @@
+@import "partials/fonts";
+@import "partials/footer";
+@import "partials/header";
+@import "partials/layout";
+@import "partials/modules";
+
+@import "partials/aspect_ratio";
+@import "partials/navbar_porygon";
+
+@import "portlet_decorator";
+@import "partials/portlet_blogs";
+@import "partials/portlet_search";
+
+body {
+	background-color: $main-bg-color;
+}
+
+#wrapper {
+	padding: 0;
+
+	@import "partials/user_icon";
+}
+
+.portlet-body a {
+	color: $main-black-color;
+}
