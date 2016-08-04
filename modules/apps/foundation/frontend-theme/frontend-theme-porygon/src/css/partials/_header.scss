@@ -48,7 +48,7 @@ header {
 	#search {
 		overflow: hidden;
 
-		&:hover {
+		&.focus:hover {
 			overflow: visible;
 		}
 
