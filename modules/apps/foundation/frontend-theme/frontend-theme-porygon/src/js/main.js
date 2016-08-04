@@ -2,8 +2,6 @@
 	AUI().ready(
 		'liferay-sign-in-modal',
 		function(A) {
-			var BODY = A.getBody();
-
 			var signIn = A.one('.sign-in > a');
 
 			if (signIn && signIn.getData('redirect') !== 'true') {
@@ -14,7 +12,7 @@
 
 	require(
 		'metal-dom/src/dom',
-		function (domModule) {
+		function(domModule) {
 			var dom = domModule.default;
 
 			var topSearch = function() {
@@ -40,13 +38,17 @@
 								instance.hideInputSearch();
 							}
 						}
-					});
+					);
 
-					dom.on(this.searchInput, 'keydown', function(event) {
-						if (event.keyCode === 27) {
-							instance.hideInputSearch();
+					dom.on(
+						this.searchInput,
+						'keydown',
+						function(event) {
+							if (event.keyCode === 27) {
+								instance.hideInputSearch();
+							}
 						}
-					})
+					);
 
 					dom.on(
 						this.searchInput,
@@ -75,7 +77,7 @@
 					dom.addClasses(this.search, 'focus');
 					dom.removeClasses(this.searchInput, 'hidden');
 				}
-			}
+			};
 
 			new topSearch();
 		}
