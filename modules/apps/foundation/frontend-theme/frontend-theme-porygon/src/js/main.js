@@ -33,9 +33,12 @@
 						function(event) {
 							if (dom.hasClass(instance.searchInput, 'hidden')) {
 								instance.showInputSearch();
+								dom.removeClasses(instance.searchInput, 'hidden');
+								instance.searchInput.focus();
 							}
 							else {
 								instance.hideInputSearch();
+								dom.addClasses(instance.searchInput, 'hidden');
 							}
 						}
 					);
@@ -55,7 +58,6 @@
 						'blur',
 						function(event) {
 							if (!instance.searchInput.value || instance.searchInput.value === '') {
-								dom.removeClasses(instance.searchInput, 'hidden');
 								instance.hideInputSearch();
 							}
 						}
@@ -68,14 +70,12 @@
 					dom.removeClasses(this.searchIcon, 'open');
 					dom.removeClasses(document.body, 'search-opened');
 					dom.removeClasses(this.search, 'focus');
-					dom.addClasses(this.searchInput, 'hidden');
 				},
 
 				showInputSearch: function() {
 					dom.addClasses(this.searchIcon, 'open');
 					dom.addClasses(document.body, 'search-opened');
 					dom.addClasses(this.search, 'focus');
-					dom.removeClasses(this.searchInput, 'hidden');
 				}
 			};
 
