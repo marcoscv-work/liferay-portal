@@ -1,5 +1,10 @@
+<#assign floatingHeader = getterUtil.getBoolean(themeDisplay.getThemeSetting("floating-header"))>
 <#assign fullScreenNavigation = getterUtil.getBoolean(themeDisplay.getThemeSetting("full-screen-navigation"))>
 <#assign siteLogoRetina = getterUtil.getBoolean(themeDisplay.getThemeSetting("site-logo-retina"))>
+
+<#if floatingHeader>
+	<#assign css_class = css_class + " floating-header">
+</#if>
 
 <#if fullScreenNavigation>
 	<#assign css_class = css_class + " full-screen-navigation">
