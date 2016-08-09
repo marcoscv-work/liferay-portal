@@ -1,0 +1,32 @@
+@import "portlet_decorator";
+
+@import "partials/buttons";
+@import "partials/footer";
+@import "partials/navbar";
+
+#content {
+	background-color: $content-color-2;
+	color: $content-color-1;
+}
+
+#wrapper {
+	padding-top: 0;
+}
+
+.jumbotron {
+	background-color: transparent;
+	margin-bottom: 0;
+}
+
+.h1 {
+	font-size: 54px;
+
+	@include sm {
+		font-weight: normal;
+		line-height: 1.1;
+	}
+}
+
+.img-spacing {
+	margin-bottom: 15px;
+}
