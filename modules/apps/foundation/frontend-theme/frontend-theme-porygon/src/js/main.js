@@ -49,6 +49,7 @@
 						function(event) {
 							if (event.keyCode === 27) {
 								instance.hideInputSearch();
+								dom.addClasses(instance.searchInput, 'hidden');
 							}
 						}
 					);
@@ -57,9 +58,13 @@
 						this.searchInput,
 						'blur',
 						function(event) {
-							if (!instance.searchInput.value || instance.searchInput.value === '') {
-								instance.hideInputSearch();
-							}
+							setTimeout(function() {
+								var isActiveElementBlur = document.activeElement !== instance.searchIcon && document.activeElement !== this.searchInput;
+								if (isActiveElementBlur && !instance.searchInput.value || instance.searchInput.value === '') {
+									instance.hideInputSearch();
+									dom.addClasses(instance.searchInput, 'hidden');
+								}
+							}, 0);
 						}
 					);
 				}
