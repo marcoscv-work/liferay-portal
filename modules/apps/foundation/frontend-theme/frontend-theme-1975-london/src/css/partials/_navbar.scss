@@ -40,11 +40,7 @@
 
 	a.logo {
 		color: $content-color-2;
-		margin-top: 10px;
-
-		@include sm {
-			margin-top: 17px;
-		}
+		margin: 10px 0;
 	}
 }
 
