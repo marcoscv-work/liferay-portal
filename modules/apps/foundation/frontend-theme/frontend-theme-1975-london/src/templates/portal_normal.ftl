@@ -64,8 +64,8 @@
 
 			<footer id="footer" role="contentinfo">
 				<div class="container-fluid-1280" id="company-info">
-					<div class="text-center" id="footer-brand">
-						<img alt="${logo_description}" height="${company_logo_height}" src="${site_logo}" width="${company_logo_width}" />
+					<div id="footer-brand">
+						<img alt="${logo_description}" height="${company_logo_height/2}" src="${site_logo}" />
 					</div>
 
 					<#if has_navigation>

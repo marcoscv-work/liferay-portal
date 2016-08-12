@@ -1,21 +1,37 @@
 @import "portlet_decorator";
 
 @import "partials/buttons";
+@import "partials/fonts";
 @import "partials/footer";
+@import "partials/layout";
 @import "partials/navbar";
 
-#content {
+#wrapper {
 	background-color: $content-color-2;
 	color: $content-color-1;
+	padding-top: 0;
 }
 
-#wrapper {
-	padding-top: 0;
+.portlet {
+	margin: 0;
+
+	&:hover, &.focus {
+		z-index: 1035;
+	}
+}
+
+.portlet-layout {
+	margin-left: 0;
+	margin-right: 0;
 }
 
 .jumbotron {
 	background-color: transparent;
 	margin-bottom: 0;
+}
+
+.lead {
+	margin-bottom: 40px;
 }
 
 .h1 {
@@ -29,4 +45,23 @@
 
 .img-spacing {
 	margin-bottom: 15px;
+}
+
+[class$="-background-image"] {
+	background-position: top center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	color: $content-color-1;
+	padding-bottom: 95px;
+	padding-top: 95px;
+
+	p a {
+		color: $content-color-2;
+	}
+
+	@include sm {
+		min-height: 560px;
+		padding-bottom: 190px;
+		padding-top: 190px;
+	}
 }

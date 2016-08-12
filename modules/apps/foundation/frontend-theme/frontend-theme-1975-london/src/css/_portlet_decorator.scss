@@ -1,4 +1,6 @@
 .portlet-decorate {
+	color: $content-color-2;
+
 	.portlet {
 		margin-bottom: 0;
 	}
@@ -9,8 +11,8 @@
 }
 
 .portlet-solid .portlet-content {
-	background: #FFF;
-	border: 1px solid #DEEEEE;
+	background: transparent;
+	border: 1px solid #FFF;
 }
 
 .portlet-barebone .portlet-content {

@@ -6,38 +6,26 @@
 }
 
 .btn-theme-default {
-	background-color: $content-color-2;
-	border-color: $content-color-2;
-	color: #0A0A0A;
+	background-color: $background-color-1;
+	border-color: $background-color-1;
+	color: $background-color-3;
 
 	&:hover, &:focus {
-		background-color: $content-color-2;
-		border-color: transparent;
-		color: $background-color-2;
+		background-color: darken($background-color-1, 10);
+		border-color: darken($background-color-1, 10);
+		color: darken($background-color-3, 10);
 		text-decoration: none;
 	}
 }
 
 .btn-theme-primary {
 	background-color: transparent;
-	border-color: $content-color-2;
+	border-color: $content-color-1;
 
 	&:hover, &:focus {
-		background-color: $content-color-2;
-		border-color: transparent;
-		color: #0A0A0A;
-		text-decoration: none;
-	}
-}
-
-.btn-theme-info {
-	background-color: $background-color-2;
-	border-color: $content-color-2;
-
-	&:hover, &:focus {
-		background-color: $content-color-2;
-		border-color: $background-color-2;
-		color: #0A0A0A;
+		background-color: $background-color-1;
+		border-color: darken($content-color-1, 10);
+		color: darken($content-color-1, 10);
 		text-decoration: none;
 	}
 }
