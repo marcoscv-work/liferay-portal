@@ -4,6 +4,7 @@
 @import "partials/fonts";
 @import "partials/footer";
 @import "partials/layout";
+@import "partials/modules";
 @import "partials/navbar";
 
 #wrapper {
@@ -25,15 +26,6 @@
 	margin-right: 0;
 }
 
-.jumbotron {
-	background-color: transparent;
-	margin-bottom: 0;
-}
-
-.lead {
-	margin-bottom: 40px;
-}
-
 .h1 {
 	font-size: 54px;
 
@@ -45,23 +37,4 @@
 
 .img-spacing {
 	margin-bottom: 15px;
-}
-
-[class$="-background-image"] {
-	background-position: top center;
-	background-repeat: no-repeat;
-	background-size: cover;
-	color: $content-color-1;
-	padding-bottom: 95px;
-	padding-top: 95px;
-
-	p a {
-		color: $content-color-2;
-	}
-
-	@include sm {
-		min-height: 560px;
-		padding-bottom: 190px;
-		padding-top: 190px;
-	}
 }
