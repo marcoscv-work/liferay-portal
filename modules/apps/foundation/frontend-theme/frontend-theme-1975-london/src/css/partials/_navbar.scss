@@ -178,6 +178,7 @@
 
 	&[aria-expanded="true"] {
 		.icon-bar {
+			left: 2px;
 			position: relative;
 
 			&:first-child {

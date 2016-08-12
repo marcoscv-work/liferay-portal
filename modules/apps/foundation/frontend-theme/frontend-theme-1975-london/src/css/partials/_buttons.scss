@@ -10,7 +10,7 @@
 	border-color: $background-color-1;
 	color: $background-color-3;
 
-	&:hover, &:focus {
+	&:active, &:hover, &:focus {
 		background-color: darken($background-color-1, 10);
 		border-color: darken($background-color-1, 10);
 		color: darken($background-color-3, 10);
@@ -22,10 +22,10 @@
 	background-color: transparent;
 	border-color: $content-color-1;
 
-	&:hover, &:focus {
-		background-color: $background-color-1;
-		border-color: darken($content-color-1, 10);
-		color: darken($content-color-1, 10);
+	&:active, &:hover, &:focus {
+		background-color: darken($background-color-1, 10);
+		border-color: darken($background-color-1, 10);
+		color: $content-color-1;
 		text-decoration: none;
 	}
 }
