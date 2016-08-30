@@ -1,0 +1,9 @@
+{
+  "LiferayTheme": {
+    "deployPath": "/Users/marcoscastro/Proyects/7.0/bundles/deploy",
+    "themeName": "frontend-theme-porygon",
+    "appServerPathTheme": "/Users/marcoscastro/Proyects/7.0/bundles/tomcat-8.0.32/webapps/frontend-theme-porygon",
+    "deployed": false,
+    "appServerPath": "/Users/marcoscastro/Proyects/7.0/bundles/tomcat-8.0.32"
+  }
+}
