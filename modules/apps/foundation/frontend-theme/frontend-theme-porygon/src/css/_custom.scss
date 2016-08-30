@@ -7,9 +7,9 @@
 @import "partials/aspect_ratio";
 @import "partials/navbar_porygon";
 
-@import "portlet_decorator";
 @import "partials/portlet_blogs";
 @import "partials/portlet_search";
+@import "portlet_decorator";
 
 body {
 	background-color: $main-bg-color;
