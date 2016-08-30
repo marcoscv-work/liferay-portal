@@ -24,21 +24,21 @@
 
 				this.search = dom.toElement('#search');
 
-				dom.addClasses(this.searchInput, 'hidden');
+				dom.addClasses(this.searchInput, 'visible-xs');
 
 				if (this.searchInput && this.searchIcon) {
 					dom.on(
 						this.searchIcon,
 						'click',
 						function(event) {
-							if (dom.hasClass(instance.searchInput, 'hidden')) {
+							if (dom.hasClass(instance.searchInput, 'visible-xs')) {
 								instance.showInputSearch();
-								dom.removeClasses(instance.searchInput, 'hidden');
+								dom.removeClasses(instance.searchInput, 'visible-xs');
 								instance.searchInput.focus();
 							}
 							else {
 								instance.hideInputSearch();
-								dom.addClasses(instance.searchInput, 'hidden');
+								dom.addClasses(instance.searchInput, 'visible-xs');
 							}
 						}
 					);
@@ -49,7 +49,7 @@
 						function(event) {
 							if (event.keyCode === 27) {
 								instance.hideInputSearch();
-								dom.addClasses(instance.searchInput, 'hidden');
+								dom.addClasses(instance.searchInput, 'visible-xs');
 							}
 						}
 					);
@@ -63,7 +63,7 @@
 
 								if (isActiveElementBlur && (!instance.searchInput.value || instance.searchInput.value === '')) {
 									instance.hideInputSearch();
-									dom.addClasses(instance.searchInput, 'hidden');
+									dom.addClasses(instance.searchInput, 'visible-xs');
 								}
 							}, 0);
 						}
