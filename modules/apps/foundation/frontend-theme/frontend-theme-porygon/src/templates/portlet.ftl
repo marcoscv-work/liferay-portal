@@ -20,7 +20,7 @@
 		<#if (portlet_configuration_icons?has_content || portlet_title_menus?has_content)>
 			<header class="portlet-topper">
 				<div class="portlet-title-default">
-					<span class="portlet-name-text">${portlet_display_name} <small>Portlet decorator: ${portlet_decorator_name}</small></span>
+					<span class="portlet-name-text">${portlet_display_name}</span>
 				</div>
 
 				<#foreach portletTitleMenu in portlet_title_menus>
