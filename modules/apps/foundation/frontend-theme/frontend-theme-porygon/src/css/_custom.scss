@@ -22,6 +22,16 @@ body {
 	@import "partials/user_icon";
 }
 
+.portlet-layout {
+	&.row {
+		margin: 0;
+
+		.col-md-12 {
+			padding: 0;
+		}
+	}
+}
+
 .portlet-body a {
 	color: $main-black-color;
 }
