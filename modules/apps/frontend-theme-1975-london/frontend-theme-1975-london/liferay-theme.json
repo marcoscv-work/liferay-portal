@@ -1,0 +1,9 @@
+{
+  "LiferayTheme": {
+    "deployPath": "/Users/marcoscastro/Proyects/7.0/bundles/deploy",
+    "themeName": "frontend-theme-1975-london",
+    "appServerPathTheme": "/Users/marcoscastro/Proyects/7.0/bundles/tomcat-8.0.32/webapps/frontend-theme-1975-london",
+    "deployed": true,
+    "appServerPath": "/Users/marcoscastro/Proyects/7.0/bundles/tomcat-8.0.32"
+  }
+}
