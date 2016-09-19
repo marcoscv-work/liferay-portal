@@ -25,3 +25,49 @@
 		padding-top: 18%;
 	}
 }
+
+.blog-list-card {
+	color: $content-color-1;
+
+	.portlet-body a {
+		color: $content-color-1;
+	}
+
+	.aspect-ratio {
+		background-color: $content-color-2;
+	}
+
+	.asset-abstract {
+		overflow: hidden;
+	}
+
+	.asset-title {
+		@include sm {
+			font-size: 40px;
+			font-weight: 300;
+		}
+
+		a {
+			color: $content-color-1;
+			cursor: pointer;
+			text-decoration: none;
+		}
+	}
+
+	.blog-list-card-content {
+		position: absolute;
+		width: 100%;
+
+		@include media-query($breakpoint_tablet, null) {
+			padding: 10px 30px;
+		}
+
+		&.bottom {
+			bottom: 10px;
+		}
+
+		&.top {
+			top: 10px;
+		}
+	}
+}
