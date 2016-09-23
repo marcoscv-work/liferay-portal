@@ -1,9 +1,0 @@
-{
-  "LiferayTheme": {
-    "deployPath": "/Users/antoniopol/Dev/portal/bundles/deploy",
-    "themeName": "frontend-theme-1975-london",
-    "appServerPathTheme": "/Users/antoniopol/Dev/portal/bundles/tomcat-8.0.32/webapps/frontend-theme-1975-london",
-    "deployed": false,
-    "appServerPath": "/Users/antoniopol/Dev/portal/bundles/tomcat-8.0.32"
-  }
-}
