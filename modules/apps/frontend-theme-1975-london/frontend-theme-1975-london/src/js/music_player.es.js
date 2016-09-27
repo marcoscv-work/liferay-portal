@@ -42,7 +42,7 @@ class MusicPlayer extends State {
 
 			var progressBar = album.getElementsByClassName('progress-bar')[0];
 
-			if (dom.hasClass(album.parentNode, 'playing')) {
+			if (dom.hasClass(album, 'playing')) {
 				audioAlbum.pause();
 				audioAlbum.currentTime = 0;
 			}
@@ -53,7 +53,7 @@ class MusicPlayer extends State {
 
 				audioAlbum.play();
 				instance.activeAlbum = {
-					parentNode: album.parentNode,
+					album: album,
 					audio: audioAlbum,
 					progressBar: progressBar
 				};
@@ -67,7 +67,7 @@ class MusicPlayer extends State {
 				}
 			}
 
-			dom.toggleClasses(album.parentNode, 'playing')
+			dom.toggleClasses(album, 'playing')
 
 		});
 	}
@@ -76,7 +76,7 @@ class MusicPlayer extends State {
 		this.activeAlbum.audio.pause();
 		this.activeAlbum.audio.currentTime = 0;
 		this.activeAlbum.progressBar.style.width = '0%';
-		dom.removeClasses(this.activeAlbum.parentNode, 'playing');
+		dom.removeClasses(this.activeAlbum.album, 'playing');
 	}
 
 }
