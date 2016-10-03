@@ -1,0 +1,5 @@
+@include respond-to(desktop) {
+	.firefox .dropdown-menu > li > a > span {
+		margin-right: 15px;
+	}
+}
