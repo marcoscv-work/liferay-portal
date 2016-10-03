@@ -36,38 +36,41 @@ class MusicPlayer extends State {
 
 		dom.delegate(body, 'click', '.album', function(event) {
 
-			var album = event.target;
+			var album = event.delegateTarget;
 
-			var audioAlbum = album.getElementsByTagName('audio')[0];
+			if (album) {
 
-			var progressBar = album.getElementsByClassName('progress-bar')[0];
+				var audioAlbum = album.getElementsByTagName('audio')[0];
 
-			if (dom.hasClass(album, 'playing')) {
-				audioAlbum.pause();
-				audioAlbum.currentTime = 0;
+				var progressBar = album.getElementsByClassName('progress-bar')[0];
+
+				if (dom.hasClass(album, 'playing')) {
+					audioAlbum.pause();
+					audioAlbum.currentTime = 0;
+				}
+				else {
+					if (instance.activeAlbum) {
+						instance.resetAlbum_();
+					}
+
+					audioAlbum.play();
+					instance.activeAlbum = {
+						album: album,
+						audio: audioAlbum,
+						progressBar: progressBar
+					};
+
+					if (window.requestAnimationFrame) {
+						window.requestAnimationFrame(updateProgressBarAnimation);
+					}
+					else{
+						instance.activeAlbum.audio.removeEventListener('timeupdate', updateProgressBarAnimation);
+						instance.activeAlbum.audio.addEventListener('timeupdate', updateProgressBarAnimation);
+					}
+				}
+
+				dom.toggleClasses(album, 'playing');
 			}
-			else {
-				if (instance.activeAlbum) {
-					instance.resetAlbum_();
-				}
-
-				audioAlbum.play();
-				instance.activeAlbum = {
-					album: album,
-					audio: audioAlbum,
-					progressBar: progressBar
-				};
-
-				if (window.requestAnimationFrame) {
-					window.requestAnimationFrame(updateProgressBarAnimation);
-				}
-				else{
-					instance.activeAlbum.audio.removeEventListener('timeupdate', updateProgressBarAnimation);
-					instance.activeAlbum.audio.addEventListener('timeupdate', updateProgressBarAnimation);
-				}
-			}
-
-			dom.toggleClasses(album, 'playing')
 
 		});
 	}
