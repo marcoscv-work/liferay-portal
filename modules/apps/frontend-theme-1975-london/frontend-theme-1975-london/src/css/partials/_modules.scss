@@ -2,8 +2,20 @@
 	background-color: transparent;
 	margin-bottom: 0;
 
+	p {
+		padding-top: 15px;
+	}
+
 	.lead {
 		margin-bottom: 40px;
+	}
+
+	&.spaced {
+		@include sm {
+			min-height: 560px;
+			padding-bottom: 18%;
+			padding-top: 18%;
+		}
 	}
 }
 
@@ -18,12 +30,21 @@
 	p a {
 		color: $content-color-2;
 	}
+}
 
-	@include sm {
-		min-height: 560px;
-		padding-bottom: 18%;
-		padding-top: 18%;
-	}
+[class$="-background-color"] {
+	background-repeat: repeat;
+	color: $content-color-1;
+}
+
+.main-background-color {
+	background-color: $background-color-2;
+	background-image: url(@theme_image_path@/texture/bg_texture_A.png);
+}
+
+.secondary-background-color {
+	background-color: $background-color-1;
+	background-image: url(@theme_image_path@/texture/bg_texture_B.png);
 }
 
 .blog-list-card {
