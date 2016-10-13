@@ -64,6 +64,12 @@
 		}
 	}
 
+	.portlet {
+		&:hover, &.focus {
+			z-index: 1035;
+		}
+	}
+
 	&.has-control-menu {
 		#banner:hover {
 			z-index: 1035;

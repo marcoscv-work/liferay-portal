@@ -17,10 +17,6 @@
 
 .portlet {
 	margin: 0;
-
-	&:hover, &.focus {
-		z-index: 1035;
-	}
 }
 
 .portlet-layout {
