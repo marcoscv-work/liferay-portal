@@ -59,9 +59,19 @@
 		@include sm {
 			left: 0;
 			position: absolute;
-			width: 100%;
+			right: 0;
 			z-index: 1;
 		}
+	}
+
+	&.open #banner {
+		@include sm {
+			left: 320px;
+		}
+	}
+
+	&.sidenav-transition #banner {
+		@include transition(left 0.5s ease);
 	}
 
 	&.has-control-menu {
