@@ -15,6 +15,12 @@
 	border: 1px solid #FFF;
 }
 
-.portlet-barebone .portlet-content {
-	padding: 0;
+.portlet-barebone {
+	.portlet-content {
+		padding: 0;
+	}
+
+	.portlet-content-editable {
+		border-radius: 0;
+	}
 }

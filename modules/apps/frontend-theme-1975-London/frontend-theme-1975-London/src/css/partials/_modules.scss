@@ -72,12 +72,9 @@
 	}
 
 	.blog-list-card-content {
+		padding: 10px 30px;
 		position: absolute;
 		width: 100%;
-
-		@include media-query($breakpoint_tablet, null) {
-			padding: 10px 30px;
-		}
 
 		&.bottom {
 			bottom: 10px;

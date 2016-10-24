@@ -29,4 +29,8 @@
 		<name>contentMetadataAssetAddonEntryKeys</name>
 		<value/>
 	</preference>
+	<preference>
+		<name>portletSetupPortletDecoratorId</name>
+		<value>barebone</value>
+	</preference>
 </portlet-preferences>

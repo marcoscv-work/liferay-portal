@@ -41,4 +41,8 @@
 		<name>assetEntryId</name>
 		<value>37716</value>
 	</preference>
+	<preference>
+		<name>portletSetupPortletDecoratorId</name>
+		<value>barebone</value>
+	</preference>
 </portlet-preferences>
