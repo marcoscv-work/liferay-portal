@@ -66,7 +66,7 @@ public class MicroblogsEntryLocalServiceImpl
 
 		// Microblogs entry
 
-		User user = userPersistence.findByPrimaryKey(userId);
+		User user = userLocalService.getUser(userId);
 
 		Date now = new Date();
 
@@ -116,7 +116,7 @@ public class MicroblogsEntryLocalServiceImpl
 
 		// Microblogs entry
 
-		User user = userPersistence.findByPrimaryKey(userId);
+		User user = userLocalService.getUser(userId);
 
 		Date now = new Date();
 
@@ -717,7 +717,7 @@ public class MicroblogsEntryLocalServiceImpl
 			int pages = count / Indexer.DEFAULT_INTERVAL;
 
 			for (int i = 0; i <= pages; i++) {
-				int start = (i * Indexer.DEFAULT_INTERVAL);
+				int start = i * Indexer.DEFAULT_INTERVAL;
 
 				int end = start + Indexer.DEFAULT_INTERVAL;
 

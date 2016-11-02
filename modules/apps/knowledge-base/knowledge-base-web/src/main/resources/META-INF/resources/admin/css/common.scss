@@ -306,6 +306,15 @@
 	.kb-select-article-breadcrumbs {
 		margin: 0 0 5px;
 	}
+
+	.lfr-dynamic-uploader {
+		position: relative;
+		top: 0;
+	}
+
+	.list-group-item h3 {
+		margin-top: 5px;
+	}
 }
 
 #wrapper .knowledge-base-portlet .card-horizontal.main-content-card {
@@ -322,7 +331,7 @@
 	}
 }
 
-/* Skin */
+/* ---------- Skin ---------- */
 
 .knowledge-base-portlet {
 	a.text-default, a.text-default:hover {
@@ -398,5 +407,9 @@
 			font-weight: bold;
 			word-wrap: break-word;
 		}
+	}
+
+	.list-group-item a {
+		color: #29353D;
 	}
 }

@@ -46,10 +46,9 @@ AUI.add(
 						var instance = this;
 
 						instance._eventHandlers.push(
-							instance.after('optionsChange', instance._afterOptionsChange)
+							instance.after('optionsChange', instance._afterOptionsChange),
+							instance.on('valueChanged', instance._onContentChange)
 						);
-
-						instance.bindInputEvent('focus', instance._onFocusInput);
 					},
 
 					bindInputEvent: function(eventName, callback, volatile) {
@@ -73,21 +72,8 @@ AUI.add(
 							autoComplete.set('inputNode', inputNode);
 						}
 						else {
-							autoComplete = new A.AutoComplete(
-								{
-									after: {
-										select: A.bind(instance.evaluate, instance)
-									},
-									inputNode: inputNode,
-									maxResults: 10,
-									render: true,
-									resultFilters: ['charMatch', 'subWordMatch'],
-									resultHighlighter: 'subWordMatch',
-									resultTextLocator: 'label'
-								}
-							);
-
-							instance._autoComplete = autoComplete;
+							instance._createAutocomplete();
+							autoComplete = instance._autoComplete;
 						}
 
 						return autoComplete;
@@ -104,10 +90,8 @@ AUI.add(
 
 						var options = instance.get('options');
 
-						if (options.length) {
-							var autoComplete = instance.getAutoComplete();
-
-							autoComplete.set('source', instance.get('options'));
+						if (options.length && instance.get('visible')) {
+							instance._createAutocomplete();
 						}
 
 						return instance;
@@ -144,19 +128,39 @@ AUI.add(
 						}
 					},
 
-					_onFocusInput: function() {
+					_createAutocomplete: function() {
 						var instance = this;
 
-						if (instance.get('displayStyle') === 'multiline') {
-							var textAreaNode = instance.getInputNode();
+						var inputNode = instance.getInputNode();
 
-							if (!textAreaNode.autosize) {
-								textAreaNode.plug(A.Plugin.Autosize);
-								textAreaNode.height(textAreaNode.get('scrollHeight'));
-							}
-
-							textAreaNode.autosize._uiAutoSize();
+						if (instance._autoComplete) {
+							instance._autoComplete.destroy();
 						}
+
+						instance._autoComplete = new A.AutoComplete(
+							{
+								after: {
+									select: A.bind(instance.evaluate, instance)
+								},
+								inputNode: inputNode,
+								maxResults: 10,
+								render: true,
+								resultFilters: ['charMatch', 'subWordMatch'],
+								resultHighlighter: 'subWordMatch',
+								resultTextLocator: 'label',
+								source: instance.get('options')
+							}
+						);
+					},
+
+					_onContentChange: function() {
+						var instance = this;
+
+						var inputNode = instance.getInputNode();
+
+						var rows = inputNode.val().split('\n');
+
+						inputNode.set('rows', rows.length + 1);
 					}
 				}
 			}

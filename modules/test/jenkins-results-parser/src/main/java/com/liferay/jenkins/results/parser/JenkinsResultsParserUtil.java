@@ -23,11 +23,13 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.Writer;
 
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
+import java.net.UnknownHostException;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -96,6 +98,12 @@ public class JenkinsResultsParserUtil {
 
 	public static String decode(String url) throws Exception {
 		return URLDecoder.decode(url, "UTF-8");
+	}
+
+	public static String encode(String url) throws Exception {
+		URL encodedURL = encode(new URL(url));
+
+		return encodedURL.toExternalForm();
 	}
 
 	public static URL encode(URL url) throws Exception {
@@ -335,6 +343,47 @@ public class JenkinsResultsParserUtil {
 		}
 
 		return "";
+	}
+
+	public static String getAxisVariable(String axisBuildURL) throws Exception {
+		String url = decode(axisBuildURL);
+
+		String label = "AXIS_VARIABLE=";
+
+		int x = url.indexOf(label);
+
+		if (x != -1) {
+			url = url.substring(x + label.length());
+
+			int y = url.indexOf(",");
+
+			return url.substring(0, y);
+		}
+
+		return "";
+	}
+
+	public static Properties getBuildProperties() throws Exception {
+		Properties properties = new Properties();
+
+		String url =
+			"http://mirrors-no-cache.lax.liferay.com/github.com/liferay" +
+				"/liferay-jenkins-ee/commands/build.properties";
+
+		properties.load(new StringReader(toString(getLocalURL(url), false)));
+
+		return properties;
+	}
+
+	public static String getHostName(String defaultHostName) {
+		try {
+			InetAddress inetAddress = InetAddress.getLocalHost();
+
+			return inetAddress.getHostName();
+		}
+		catch (UnknownHostException uhe) {
+			return defaultHostName;
+		}
 	}
 
 	public static String getJobVariant(JSONObject jsonObject) throws Exception {

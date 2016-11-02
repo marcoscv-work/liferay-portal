@@ -71,6 +71,7 @@ import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
+import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
@@ -87,10 +88,10 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.portal.kernel.workflow.WorkflowThreadLocal;
+import com.liferay.portal.linkback.LinkbackProducerUtil;
 import com.liferay.portal.util.LayoutURLUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portlet.blogs.util.LinkbackProducerUtil;
 import com.liferay.portlet.messageboards.MBGroupServiceSettings;
 import com.liferay.portlet.messageboards.model.impl.MBCategoryImpl;
 import com.liferay.portlet.messageboards.model.impl.MBMessageDisplayImpl;
@@ -2128,6 +2129,10 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 		String contentURL = (String)serviceContext.getAttribute("contentURL");
 
+		contentURL = HttpUtil.addParameter(
+			contentURL, serviceContext.getAttribute("namespace") + "messageId",
+			message.getMessageId());
+
 		String userAddress = StringPool.BLANK;
 		String userName = (String)serviceContext.getAttribute(
 			"pingbackUserName");
@@ -2155,7 +2160,8 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 		subscriptionSender.setClassName(MBDiscussion.class.getName());
 		subscriptionSender.setClassPK(mbDiscussion.getDiscussionId());
 		subscriptionSender.setContextAttribute(
-			"[$COMMENTS_BODY$]", message.getBody(true), false);
+			"[$COMMENTS_BODY$]", message.getBody(message.isFormatBBCode()),
+			false);
 		subscriptionSender.setContextAttributes(
 			"[$COMMENTS_USER_ADDRESS$]", userAddress, "[$COMMENTS_USER_NAME$]",
 			userName, "[$CONTENT_URL$]", contentURL);
@@ -2400,7 +2406,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			layoutFullURL + Portal.FRIENDLY_URL_SEPARATOR +
 				"message_boards/view_message/" + message.getMessageId();
 
-		Source source = new Source(message.getBody(true));
+		Source source = new Source(message.getBody(message.isFormatBBCode()));
 
 		List<StartTag> startTags = source.getAllStartTags("a");
 

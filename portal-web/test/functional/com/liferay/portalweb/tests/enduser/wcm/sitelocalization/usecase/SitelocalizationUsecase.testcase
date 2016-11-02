@@ -507,7 +507,7 @@
 	</command>
 
 	<command name="SiteTemplateLocalization" priority="5">
-		<property name="portal.acceptance" value="quarantine" />
+		<property name="portal.acceptance" value="true" />
 		<property name="test.name.skip.portal.instance" value="SitelocalizationUsecase#SiteTemplateLocalization" />
 
 		<execute macro="ProductMenu#gotoControlPanelSites">
@@ -694,13 +694,13 @@
 
 		<execute macro="Alert#closePortalLocalizationWarning" />
 
-		<execute function="AssertLocation" value1="http://localhost:8080/en/web/guest" />
+		<execute function="AssertLocation" value1="http://localhost:8080/en/web/guest/home" />
 
 		<execute macro="User#loginPG">
 			<var name="specificURL" value="http://localhost:8080/fr" />
 		</execute>
 
-		<execute function="AssertLocation" value1="http://localhost:8080/web/guest" />
+		<execute function="AssertLocation" value1="http://localhost:8080/web/guest/home" />
 
 		<execute macro="ProductMenu#gotoSite">
 			<var name="site" value="Site Name" />
