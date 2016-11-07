@@ -22,7 +22,6 @@ import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCacheManager;
 import com.liferay.portal.kernel.deploy.hot.HotDeployUtil;
 import com.liferay.portal.kernel.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
@@ -55,20 +54,21 @@ import com.liferay.portal.kernel.service.ResourceActionLocalServiceUtil;
 import com.liferay.portal.kernel.service.ThemeLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.DynamicServletRequest;
+import com.liferay.portal.kernel.servlet.InactiveRequestHandler;
 import com.liferay.portal.kernel.servlet.PortalSessionThreadLocal;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.template.TemplateManager;
 import com.liferay.portal.kernel.util.ClassLoaderUtil;
-import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalLifecycleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.ProxyFactory;
 import com.liferay.portal.kernel.util.ReleaseInfo;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -99,17 +99,15 @@ import com.liferay.registry.ServiceRegistration;
 import com.liferay.registry.dependency.ServiceDependencyListener;
 import com.liferay.registry.dependency.ServiceDependencyManager;
 import com.liferay.social.kernel.util.SocialConfigurationUtil;
-import com.liferay.util.ContentUtil;
 import com.liferay.util.servlet.EncryptedServletRequest;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.portlet.PortletConfig;
@@ -219,10 +217,43 @@ public class MainServlet extends ActionServlet {
 					_log.warn(
 						"Set the property \"verify.patch.levels.disabled\" " +
 							"to override stopping the server due to the " +
-								"inconsistent patch levels");
+								"inconsistent patch levels",
+						pie);
 				}
 
 				System.exit(0);
+			}
+		}
+
+		if (_log.isDebugEnabled()) {
+			_log.debug("Verify JVM configuration");
+		}
+
+		if (_log.isWarnEnabled()) {
+			if (!StringPool.DEFAULT_CHARSET_NAME.startsWith("UTF-")) {
+				StringBundler sb = new StringBundler(4);
+
+				sb.append("The default JVM character set \"");
+				sb.append(StringPool.DEFAULT_CHARSET_NAME);
+				sb.append("\" is not UTF. Please review the JVM property ");
+				sb.append("\"file.encoding\".");
+
+				_log.warn(sb.toString());
+			}
+
+			String userTimeZone = System.getProperty("user.timezone");
+
+			if (!Objects.equals("UTC", userTimeZone) &&
+				!Objects.equals("GMT", userTimeZone)) {
+
+				StringBundler sb = new StringBundler(4);
+
+				sb.append("The default JVM time zone \"");
+				sb.append(userTimeZone);
+				sb.append("\" is not UTC or GMT. Please review the JVM ");
+				sb.append("property \"user.timezone\".");
+
+				_log.warn(sb.toString());
 			}
 		}
 
@@ -1067,7 +1098,7 @@ public class MainServlet extends ActionServlet {
 			return false;
 		}
 
-		processInactiveRequest(
+		_inactiveRequesthandler.processInactiveRequest(
 			request, response,
 			"this-instance-is-inactive-please-contact-the-administrator");
 
@@ -1101,43 +1132,25 @@ public class MainServlet extends ActionServlet {
 
 		Group group = layout.getGroup();
 
-		if (group.isActive()) {
+		if (GroupLocalServiceUtil.isLiveGroupActive(group)) {
 			return false;
 		}
 
-		processInactiveRequest(
+		_inactiveRequesthandler.processInactiveRequest(
 			request, response,
 			"this-site-is-inactive-please-contact-the-administrator");
 
 		return true;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	protected void processInactiveRequest(
 			HttpServletRequest request, HttpServletResponse response,
 			String messageKey)
 		throws IOException {
-
-		response.setContentType(ContentTypes.TEXT_HTML_UTF8);
-
-		Locale locale = PortalUtil.getLocale(request);
-
-		String message = null;
-
-		if (LanguageUtil.isValidLanguageKey(locale, messageKey)) {
-			message = LanguageUtil.get(locale, messageKey);
-		}
-		else {
-			message = HtmlUtil.escape(messageKey);
-		}
-
-		String html = ContentUtil.get(
-			"com/liferay/portal/dependencies/inactive.html");
-
-		html = StringUtil.replace(html, "[$MESSAGE$]", message);
-
-		PrintWriter printWriter = response.getWriter();
-
-		printWriter.print(html);
 	}
 
 	protected boolean processMaintenanceRequest(
@@ -1284,7 +1297,8 @@ public class MainServlet extends ActionServlet {
 			messageKey = "the-system-is-shutdown-please-try-again-later";
 		}
 
-		processInactiveRequest(request, response, messageKey);
+		_inactiveRequesthandler.processInactiveRequest(
+			request, response, messageKey);
 
 		return true;
 	}
@@ -1367,6 +1381,11 @@ public class MainServlet extends ActionServlet {
 		"Liferay-Portal";
 
 	private static final Log _log = LogFactoryUtil.getLog(MainServlet.class);
+
+	private static volatile InactiveRequestHandler _inactiveRequesthandler =
+		ProxyFactory.newServiceTrackedInstance(
+			InactiveRequestHandler.class, MainServlet.class,
+			"_inactiveRequesthandler");
 
 	private ServiceRegistration<ModuleServiceLifecycle>
 		_moduleServiceLifecycleServiceRegistration;

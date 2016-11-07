@@ -93,7 +93,7 @@
 
 		<execute macro="Site#assignSiteRoleCP">
 			<var name="resourceName" value="userfn userln" />
-			<var name="roleName" value="Site Content Reviewer" />
+			<var name="roleTitle" value="Site Content Reviewer" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoSitesMembers">
@@ -102,7 +102,7 @@
 
 		<execute macro="Site#viewSiteRoleViaSiteMembershipsCP">
 			<var name="resourceName" value="userfn userln" />
-			<var name="roleName" value="Site Content Reviewer" />
+			<var name="roleTitle" value="Site Content Reviewer" />
 		</execute>
 	</command>
 
@@ -239,7 +239,7 @@
 
 		<execute macro="Site#assignSiteRoleCP">
 			<var name="resourceName" value="User Group Name" />
-			<var name="roleName" value="Site Content Reviewer" />
+			<var name="roleTitle" value="Site Content Reviewer" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoSitesMembers">
@@ -252,7 +252,7 @@
 
 		<execute macro="Site#viewSiteRoleViaSiteMembershipsCP">
 			<var name="resourceName" value="User Group Name" />
-			<var name="roleName" value="Site Content Reviewer" />
+			<var name="roleTitle" value="Site Content Reviewer" />
 		</execute>
 	</command>
 
@@ -449,6 +449,7 @@
 			<var name="orgName" value="Organization Name 1" />
 			<var name="userFirstName" value="userfn" />
 			<var name="userLastName" value="userln" />
+			<var name="userName" value="userfn userln" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
@@ -462,6 +463,7 @@
 			<var name="orgName" value="Organization Name 1" />
 			<var name="userFirstName" value="Test" />
 			<var name="userLastName" value="Test" />
+			<var name="userName" value="Test Test" />
 			<var name="userScreenName" value="test" />
 		</execute>
 

@@ -24,6 +24,7 @@ import com.liferay.gradle.plugins.node.tasks.PublishNodeModuleTask;
 import com.liferay.gradle.util.Validator;
 
 import org.gradle.api.Action;
+import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskContainer;
 
@@ -32,14 +33,24 @@ import org.gradle.api.tasks.TaskContainer;
  */
 public class NodeDefaultsPlugin extends BaseDefaultsPlugin<NodePlugin> {
 
+	public static final Plugin<Project> INSTANCE = new NodeDefaultsPlugin();
+
 	@Override
 	protected void configureDefaults(Project project, NodePlugin nodePlugin) {
-		configureTasksExecuteNpm(project);
-		configureTasksNpmInstall(project);
-		configureTasksPublishNodeModule(project);
+		_configureTasksExecuteNpm(project);
+		_configureTasksNpmInstall(project);
+		_configureTasksPublishNodeModule(project);
 	}
 
-	protected void configureTaskExecuteNpm(ExecuteNpmTask executeNpmTask) {
+	@Override
+	protected Class<NodePlugin> getPluginClass() {
+		return NodePlugin.class;
+	}
+
+	private NodeDefaultsPlugin() {
+	}
+
+	private void _configureTaskExecuteNpm(ExecuteNpmTask executeNpmTask) {
 		String registry = GradleUtil.getProperty(
 			executeNpmTask.getProject(), "nodejs.npm.registry", (String)null);
 
@@ -48,27 +59,19 @@ public class NodeDefaultsPlugin extends BaseDefaultsPlugin<NodePlugin> {
 		}
 	}
 
-	protected void configureTaskNpmInstall(NpmInstallTask npmInstallTask) {
+	private void _configureTaskNpmInstall(NpmInstallTask npmInstallTask) {
 		Project project = npmInstallTask.getProject();
-
-		String removeShrinkwrappedUrls = GradleUtil.getProperty(
-			project, "nodejs.npm.remove.shrinkwrapped.urls", (String)null);
-
-		if (Validator.isNotNull(removeShrinkwrappedUrls)) {
-			npmInstallTask.setRemoveShrinkwrappedUrls(
-				Boolean.parseBoolean(removeShrinkwrappedUrls));
-		}
 
 		String sassBinarySite = GradleUtil.getProperty(
 			project, "nodejs.npm.sass.binary.site", (String)null);
 
 		if (Validator.isNotNull(sassBinarySite)) {
-			setTaskExecuteNodeArgDefault(
+			_setTaskExecuteNodeArgDefault(
 				npmInstallTask, _SASS_BINARY_SITE_ARG, sassBinarySite);
 		}
 	}
 
-	protected void configureTaskPublishNodeModule(
+	private void _configureTaskPublishNodeModule(
 		PublishNodeModuleTask publishNodeModuleTask) {
 
 		Project project = publishNodeModuleTask.getProject();
@@ -123,7 +126,7 @@ public class NodeDefaultsPlugin extends BaseDefaultsPlugin<NodePlugin> {
 		}
 	}
 
-	protected void configureTasksExecuteNpm(Project project) {
+	private void _configureTasksExecuteNpm(Project project) {
 		TaskContainer taskContainer = project.getTasks();
 
 		taskContainer.withType(
@@ -132,13 +135,13 @@ public class NodeDefaultsPlugin extends BaseDefaultsPlugin<NodePlugin> {
 
 				@Override
 				public void execute(ExecuteNpmTask executeNpmTask) {
-					configureTaskExecuteNpm(executeNpmTask);
+					_configureTaskExecuteNpm(executeNpmTask);
 				}
 
 			});
 	}
 
-	protected void configureTasksNpmInstall(Project project) {
+	private void _configureTasksNpmInstall(Project project) {
 		TaskContainer taskContainer = project.getTasks();
 
 		taskContainer.withType(
@@ -147,13 +150,13 @@ public class NodeDefaultsPlugin extends BaseDefaultsPlugin<NodePlugin> {
 
 				@Override
 				public void execute(NpmInstallTask npmInstallTask) {
-					configureTaskNpmInstall(npmInstallTask);
+					_configureTaskNpmInstall(npmInstallTask);
 				}
 
 			});
 	}
 
-	protected void configureTasksPublishNodeModule(Project project) {
+	private void _configureTasksPublishNodeModule(Project project) {
 		TaskContainer taskContainer = project.getTasks();
 
 		taskContainer.withType(
@@ -164,18 +167,13 @@ public class NodeDefaultsPlugin extends BaseDefaultsPlugin<NodePlugin> {
 				public void execute(
 					PublishNodeModuleTask publishNodeModuleTask) {
 
-					configureTaskPublishNodeModule(publishNodeModuleTask);
+					_configureTaskPublishNodeModule(publishNodeModuleTask);
 				}
 
 			});
 	}
 
-	@Override
-	protected Class<NodePlugin> getPluginClass() {
-		return NodePlugin.class;
-	}
-
-	protected void setTaskExecuteNodeArgDefault(
+	private void _setTaskExecuteNodeArgDefault(
 		ExecuteNodeTask executeNodeTask, String key, String value) {
 
 		for (String arg : executeNodeTask.getArgs()) {

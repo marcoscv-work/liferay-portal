@@ -15,7 +15,6 @@
 package com.liferay.dynamic.data.lists.internal.search;
 
 import com.liferay.dynamic.data.lists.model.DDLRecord;
-import com.liferay.dynamic.data.lists.model.DDLRecordConstants;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
 import com.liferay.dynamic.data.lists.model.DDLRecordSetConstants;
 import com.liferay.dynamic.data.lists.model.DDLRecordVersion;
@@ -44,6 +43,8 @@ import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.IndexWriterHelperUtil;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.SearchContext;
+import com.liferay.portal.kernel.search.SearchEngineHelperUtil;
+import com.liferay.portal.kernel.search.SearchPermissionChecker;
 import com.liferay.portal.kernel.search.Summary;
 import com.liferay.portal.kernel.search.filter.BooleanFilter;
 import com.liferay.portal.kernel.search.filter.QueryFilter;
@@ -57,7 +58,6 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import java.io.Serializable;
 
 import java.util.Locale;
-import java.util.Objects;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
@@ -91,13 +91,23 @@ public class DDLRecordIndexer extends BaseIndexer<DDLRecord> {
 			String className, SearchContext searchContext)
 		throws Exception {
 
-		BooleanFilter booleanFilter = super.getFacetBooleanFilter(
-			DDLRecordSet.class.getName(), searchContext);
+		BooleanFilter facetBooleanFilter = new BooleanFilter();
 
-		booleanFilter.addTerm(
+		facetBooleanFilter.addTerm(
 			Field.ENTRY_CLASS_NAME, DDLRecord.class.getName());
 
-		return booleanFilter;
+		if (searchContext.getUserId() > 0) {
+			SearchPermissionChecker searchPermissionChecker =
+				SearchEngineHelperUtil.getSearchPermissionChecker();
+
+			facetBooleanFilter =
+				searchPermissionChecker.getPermissionBooleanFilter(
+					searchContext.getCompanyId(), searchContext.getGroupIds(),
+					searchContext.getUserId(), DDLRecordSet.class.getName(),
+					facetBooleanFilter, searchContext);
+		}
+
+		return facetBooleanFilter;
 	}
 
 	@Override
@@ -214,22 +224,7 @@ public class DDLRecordIndexer extends BaseIndexer<DDLRecord> {
 
 	@Override
 	protected void doReindex(DDLRecord ddlRecord) throws Exception {
-		DDLRecordVersion recordVersion = ddlRecord.getRecordVersion();
-
 		Document document = getDocument(ddlRecord);
-
-		if (!recordVersion.isApproved()) {
-			if (Objects.equals(
-					recordVersion.getVersion(),
-					DDLRecordConstants.VERSION_DEFAULT)) {
-
-				IndexWriterHelperUtil.deleteDocument(
-					getSearchEngineId(), ddlRecord.getCompanyId(),
-					document.get(Field.UID), isCommitImmediately());
-			}
-
-			return;
-		}
 
 		IndexWriterHelperUtil.updateDocument(
 			getSearchEngineId(), ddlRecord.getCompanyId(), document,
@@ -306,12 +301,6 @@ public class DDLRecordIndexer extends BaseIndexer<DDLRecord> {
 
 					recordVersionDynamicQuery.setProjection(
 						ProjectionFactoryUtil.property("recordId"));
-
-					Property statusProperty = PropertyFactoryUtil.forName(
-						"status");
-
-					recordVersionDynamicQuery.add(
-						statusProperty.eq(WorkflowConstants.STATUS_APPROVED));
 
 					dynamicQuery.add(
 						recordIdProperty.in(recordVersionDynamicQuery));
@@ -408,7 +397,8 @@ public class DDLRecordIndexer extends BaseIndexer<DDLRecord> {
 
 	private static final int[] _REINDEX_SCOPES = new int[] {
 		DDLRecordSetConstants.SCOPE_DYNAMIC_DATA_LISTS,
-		DDLRecordSetConstants.SCOPE_FORMS
+		DDLRecordSetConstants.SCOPE_FORMS,
+		DDLRecordSetConstants.SCOPE_KALEO_FORMS
 	};
 
 	private static final Log _log = LogFactoryUtil.getLog(

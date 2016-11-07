@@ -21,19 +21,15 @@ import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
-import com.liferay.asset.kernel.service.persistence.AssetCategoryUtil;
 import com.liferay.asset.kernel.service.persistence.AssetEntryQuery;
-import com.liferay.asset.kernel.service.persistence.AssetVocabularyUtil;
 import com.liferay.asset.publisher.web.constants.AssetPublisherPortletKeys;
 import com.liferay.asset.publisher.web.internal.configuration.AssetPublisherWebConfigurationValues;
 import com.liferay.asset.publisher.web.util.AssetPublisherUtil;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
-import com.liferay.document.library.kernel.service.persistence.DLFileEntryTypeUtil;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
-import com.liferay.dynamic.data.mapping.service.persistence.DDMStructureUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataException;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
@@ -116,8 +112,7 @@ public class AssetPublisherExportImportPortletPreferencesProcessor
 	public List<Capability> getImportCapabilities() {
 		return ListUtil.toList(
 			new Capability[] {
-				_assetPublisherPortletDisplayTemplateImportCapability,
-				_referencedStagedModelImporterCapability
+				_assetPublisherPortletDisplayTemplateImportCapability
 			});
 	}
 
@@ -146,6 +141,11 @@ public class AssetPublisherExportImportPortletPreferencesProcessor
 		throws PortletDataException {
 
 		try {
+			importLayoutReferences(portletDataContext);
+
+			_referencedStagedModelImporterCapability.process(
+				portletDataContext, portletPreferences);
+
 			return updateImportPortletPreferences(
 				portletDataContext, portletPreferences);
 		}
@@ -415,32 +415,36 @@ public class AssetPublisherExportImportPortletPreferencesProcessor
 		}
 
 		if (className.equals(AssetCategory.class.getName())) {
-			AssetCategory assetCategory = AssetCategoryUtil.fetchByUUID_G(
-				uuid, groupId);
+			AssetCategory assetCategory =
+				_assetCategoryLocalService.fetchAssetCategoryByUuidAndGroupId(
+					uuid, groupId);
 
 			if (assetCategory != null) {
 				return assetCategory.getCategoryId();
 			}
 		}
 		else if (className.equals(AssetVocabulary.class.getName())) {
-			AssetVocabulary assetVocabulary = AssetVocabularyUtil.fetchByUUID_G(
-				uuid, groupId);
+			AssetVocabulary assetVocabulary =
+				_assetVocabularyLocalService.
+					fetchAssetVocabularyByUuidAndGroupId(uuid, groupId);
 
 			if (assetVocabulary != null) {
 				return assetVocabulary.getVocabularyId();
 			}
 		}
 		else if (className.equals(DDMStructure.class.getName())) {
-			DDMStructure ddmStructure = DDMStructureUtil.fetchByUUID_G(
-				uuid, groupId);
+			DDMStructure ddmStructure =
+				_ddmStructureLocalService.fetchDDMStructureByUuidAndGroupId(
+					uuid, groupId);
 
 			if (ddmStructure != null) {
 				return ddmStructure.getStructureId();
 			}
 		}
 		else if (className.equals(DLFileEntryType.class.getName())) {
-			DLFileEntryType dlFileEntryType = DLFileEntryTypeUtil.fetchByUUID_G(
-				uuid, groupId);
+			DLFileEntryType dlFileEntryType =
+				_dlFileEntryTypeLocalService.
+					fetchDLFileEntryTypeByUuidAndGroupId(uuid, groupId);
 
 			if (dlFileEntryType == null) {
 				Element rootElement =
@@ -471,6 +475,35 @@ public class AssetPublisherExportImportPortletPreferencesProcessor
 		}
 
 		return null;
+	}
+
+	protected void importLayoutReferences(PortletDataContext portletDataContext)
+		throws PortletDataException {
+
+		Element importDataRootElement =
+			portletDataContext.getImportDataRootElement();
+
+		Element referencesElement = importDataRootElement.element("references");
+
+		if (referencesElement == null) {
+			return;
+		}
+
+		List<Element> referenceElements = referencesElement.elements();
+
+		for (Element referenceElement : referenceElements) {
+			String className = referenceElement.attributeValue("class-name");
+
+			if (!className.equals(Layout.class.getName())) {
+				continue;
+			}
+
+			long classPK = GetterUtil.getLong(
+				referenceElement.attributeValue("class-pk"));
+
+			StagedModelDataHandlerUtil.importReferenceStagedModel(
+				portletDataContext, className, classPK);
+		}
 	}
 
 	protected void mergeAnyCategoryIds(
@@ -805,9 +838,34 @@ public class AssetPublisherExportImportPortletPreferencesProcessor
 					layout.getGroupId(), layout.isPrivateLayout(),
 					scopeIdLayoutId);
 
+				if (plid != scopeIdLayout.getPlid()) {
+					StagedModelDataHandlerUtil.exportReferenceStagedModel(
+						portletDataContext, portletDataContext.getPortletId(),
+						scopeIdLayout);
+				}
+
 				newValues[i] =
 					AssetPublisherUtil.SCOPE_ID_LAYOUT_UUID_PREFIX +
 						scopeIdLayout.getUuid();
+			}
+			else if (oldValue.startsWith(
+						AssetPublisherUtil.SCOPE_ID_LAYOUT_UUID_PREFIX)) {
+
+				String scopeLayoutUuid = oldValue.substring(
+					AssetPublisherUtil.SCOPE_ID_LAYOUT_UUID_PREFIX.length());
+
+				Layout scopeUuidLayout =
+					_layoutLocalService.getLayoutByUuidAndGroupId(
+						scopeLayoutUuid, portletDataContext.getGroupId(),
+						portletDataContext.isPrivateLayout());
+
+				if (plid != scopeUuidLayout.getPlid()) {
+					StagedModelDataHandlerUtil.exportReferenceStagedModel(
+						portletDataContext, portletDataContext.getPortletId(),
+						scopeUuidLayout);
+				}
+
+				newValues[i] = oldValue;
 			}
 			else {
 				newValues[i] = oldValue;

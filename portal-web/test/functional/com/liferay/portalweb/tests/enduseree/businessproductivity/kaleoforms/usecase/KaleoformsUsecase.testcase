@@ -479,7 +479,7 @@
 		</execute>
 
 		<execute macro="Role#addCP">
-			<var name="roleName" value="KaleoRegRole Name" />
+			<var name="roleTitle" value="KaleoRegRole Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -491,7 +491,7 @@
 			<var name="permissionDefinitionValue" value="Action" />
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_KALEO_FORMS_ADMIN" />
 			<var name="permissionNavigationValue" value="Kaleo Forms Admin" />
-			<var name="roleName" value="KaleoRegRole Name" />
+			<var name="roleTitle" value="KaleoRegRole Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -503,7 +503,7 @@
 			<var name="permissionDefinitionValue" value="Action" />
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_KALEO_FORMS_ADMIN" />
 			<var name="permissionNavigationValue" value="Kaleo Forms Admin" />
-			<var name="roleName" value="KaleoRegRole Name" />
+			<var name="roleTitle" value="KaleoRegRole Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -531,7 +531,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="KaleoRegRole Name" />
+			<var name="roleTitle" value="KaleoRegRole Name" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
@@ -612,7 +612,7 @@
 			<var name="permissionDefinitionValue" value="View" />
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_KALEO_FORMS_ADMIN" />
 			<var name="permissionNavigationValue" value="Kaleo Forms Admin" />
-			<var name="roleName" value="Portal Content Reviewer" />
+			<var name="roleTitle" value="Portal Content Reviewer" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -624,7 +624,7 @@
 			<var name="permissionDefinitionValue" value="Update" />
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_KALEO_FORMS_ADMIN" />
 			<var name="permissionNavigationValue" value="Kaleo Forms Admin" />
-			<var name="roleName" value="Portal Content Reviewer" />
+			<var name="roleTitle" value="Portal Content Reviewer" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -652,7 +652,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Portal Content Reviewer" />
+			<var name="roleTitle" value="Portal Content Reviewer" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
@@ -805,7 +805,7 @@
 			<var name="permissionDefinitionValue" value="View" />
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_KALEO_FORMS_ADMIN" />
 			<var name="permissionNavigationValue" value="Kaleo Forms Admin" />
-			<var name="roleName" value="Portal Content Reviewer" />
+			<var name="roleTitle" value="Portal Content Reviewer" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -817,7 +817,7 @@
 			<var name="permissionDefinitionValue" value="Complete Form" />
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_KALEO_FORMS_ADMIN" />
 			<var name="permissionNavigationValue" value="Kaleo Forms Admin" />
-			<var name="roleName" value="Portal Content Reviewer" />
+			<var name="roleTitle" value="Portal Content Reviewer" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -845,7 +845,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Portal Content Reviewer" />
+			<var name="roleTitle" value="Portal Content Reviewer" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
@@ -1007,7 +1007,7 @@
 			<var name="permissionDefinitionValue" value="View" />
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_KALEO_FORMS_ADMIN" />
 			<var name="permissionNavigationValue" value="Kaleo Forms Admin" />
-			<var name="roleName" value="Portal Content Reviewer" />
+			<var name="roleTitle" value="Portal Content Reviewer" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -1019,7 +1019,7 @@
 			<var name="permissionDefinitionValue" value="Update" />
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_KALEO_FORMS_ADMIN" />
 			<var name="permissionNavigationValue" value="Kaleo Forms Admin" />
-			<var name="roleName" value="Portal Content Reviewer" />
+			<var name="roleTitle" value="Portal Content Reviewer" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -1047,7 +1047,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Portal Content Reviewer" />
+			<var name="roleTitle" value="Portal Content Reviewer" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
@@ -1203,7 +1203,7 @@
 		</execute>
 
 		<execute macro="Role#addCP">
-			<var name="roleName" value="KaleoRegRole Name" />
+			<var name="roleTitle" value="KaleoRegRole Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -1215,7 +1215,7 @@
 			<var name="permissionDefinitionValue" value="Access in Site Administration" />
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_KALEO_FORMS_ADMIN" />
 			<var name="permissionNavigationValue" value="Kaleo Forms Admin" />
-			<var name="roleName" value="KaleoRegRole Name" />
+			<var name="roleTitle" value="KaleoRegRole Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -1227,7 +1227,7 @@
 			<var name="permissionDefinitionValue" value="Submit" />
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_KALEO_FORMS_ADMIN" />
 			<var name="permissionNavigationValue" value="Kaleo Forms Admin" />
-			<var name="roleName" value="KaleoRegRole Name" />
+			<var name="roleTitle" value="KaleoRegRole Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -1239,7 +1239,7 @@
 			<var name="permissionDefinitionValue" value="View" />
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_KALEO_FORMS_ADMIN" />
 			<var name="permissionNavigationValue" value="Kaleo Forms Admin" />
-			<var name="roleName" value="KaleoRegRole Name" />
+			<var name="roleTitle" value="KaleoRegRole Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -1295,7 +1295,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="KaleoRegRole Name" />
+			<var name="roleTitle" value="KaleoRegRole Name" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
@@ -1418,7 +1418,7 @@
 		</execute>
 
 		<execute macro="Role#addCP">
-			<var name="roleName" value="KaleoRegRole Name" />
+			<var name="roleTitle" value="KaleoRegRole Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -1430,7 +1430,7 @@
 			<var name="permissionDefinitionValue" value="View" />
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_KALEO_FORMS_ADMIN" />
 			<var name="permissionNavigationValue" value="Kaleo Forms Admin" />
-			<var name="roleName" value="KaleoRegRole Name" />
+			<var name="roleTitle" value="KaleoRegRole Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -1468,7 +1468,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="KaleoRegRole Name" />
+			<var name="roleTitle" value="KaleoRegRole Name" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
@@ -1962,7 +1962,9 @@
 		</execute>
 	</command>
 
-	<command name="CompleteProcessAndViewEmailNotifications" priority="4">
+	<!-- LPS-66727 -->
+
+	<!--<command name="CompleteProcessAndViewEmailNotifications" priority="4">
 		<property name="test.assert.javascript.errors" value="false" />
 		<property name="test.smtp.server.enabled" value="true" />
 
@@ -1977,7 +1979,7 @@
 		</execute>
 
 		<execute macro="Role#addCP">
-			<var name="roleName" value="Reviewer Name" />
+			<var name="roleTitle" value="Reviewer Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -1985,7 +1987,7 @@
 		</execute>
 
 		<execute macro="Role#addCP">
-			<var name="roleName" value="Updater Name" />
+			<var name="roleTitle" value="Updater Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -2013,7 +2015,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="creator" />
 		</execute>
 
@@ -2042,7 +2044,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="reviewer" />
 		</execute>
 
@@ -2051,7 +2053,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Reviewer Name" />
+			<var name="roleTitle" value="Reviewer Name" />
 			<var name="userScreenName" value="reviewer" />
 		</execute>
 
@@ -2080,7 +2082,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="updater" />
 		</execute>
 
@@ -2089,7 +2091,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Updater Name" />
+			<var name="roleTitle" value="Updater Name" />
 			<var name="userScreenName" value="updater" />
 		</execute>
 
@@ -2111,7 +2113,7 @@
 
 		<execute macro="KaleoDesigner#editNodeAssignments">
 			<var name="nodeAssignmentType" value="Role" />
-			<var name="roleName" value="Reviewer Name" />
+			<var name="roleTitle" value="Reviewer Name" />
 		</execute>
 
 		<execute macro="KaleoDesigner#editNodeNotifications">
@@ -2119,7 +2121,7 @@
 			<var name="nodeNotificationsName" value="Review Notification" />
 			<var name="nodeNotificationsRecipientType" value="Role" />
 			<var name="nodeNotificationsType" value="Email" />
-			<var name="roleName" value="Reviewer Name" />
+			<var name="roleTitle" value="Reviewer Name" />
 		</execute>
 
 		<execute macro="KaleoDesigner#selectNode">
@@ -2128,7 +2130,7 @@
 
 		<execute macro="KaleoDesigner#editNodeAssignments">
 			<var name="nodeAssignmentType" value="Role" />
-			<var name="roleName" value="Updater Name" />
+			<var name="roleTitle" value="Updater Name" />
 		</execute>
 
 		<execute macro="KaleoDesigner#editNodeNotifications">
@@ -2136,7 +2138,7 @@
 			<var name="nodeNotificationsName" value="Updater Modification Notification" />
 			<var name="nodeNotificationsRecipientType" value="Role" />
 			<var name="nodeNotificationsType" value="Email" />
-			<var name="roleName" value="Updater Name" />
+			<var name="roleTitle" value="Updater Name" />
 		</execute>
 
 		<execute macro="KaleoDesigner#publishWorkflowDefinitionViaWorkflowCP" />
@@ -2347,7 +2349,7 @@
 			<var name="fieldLabel" value="Assigned To" />
 			<var name="fieldValue" value="Test Test" />
 		</execute>
-	</command>
+	</command>-->
 
 	<command name="CompleteProcessAndViewNotifications" priority="5">
 		<execute macro="Navigator#openURL" />
@@ -6976,7 +6978,10 @@
 		</execute>
 	</command>
 
-	<command name="ViewApprovedProcessNotificationWithComments" priority="3">
+	<!-- LPS-66727 -->
+
+	<!--<command name="ViewApprovedProcessNotificationWithComments" priority="3">
+
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
 			<var name="portlet" value="Kaleo Designer" />
 		</execute>
@@ -7118,7 +7123,7 @@
 		<execute macro="WorkflowAsset#viewNotification">
 			<var name="contentBody" value="Submission reviewed. The reviewer left the following: Process is approved." />
 		</execute>
-	</command>
+	</command>-->
 
 	<command name="ViewApprovedProcessRecords" priority="5">
 		<execute macro="Navigator#openURL" />
@@ -7355,7 +7360,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
@@ -7549,7 +7554,9 @@
 		</execute>
 	</command>
 
-	<command name="ViewEmailNotificationSentToTaskAssignees" priority="4">
+	<!-- LPS-66727 -->
+
+	<!--<command name="ViewEmailNotificationSentToTaskAssignees" priority="4">
 		<description message="This is a use case for LPS-50688 and LPS-35263." />
 
 		<property name="test.assert.javascript.errors" value="false" />
@@ -7568,7 +7575,7 @@
 		</execute>
 
 		<execute macro="Role#addCP">
-			<var name="roleName" value="aleoSubmitRole Name" />
+			<var name="roleTitle" value="aleoSubmitRole Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -7576,7 +7583,7 @@
 		</execute>
 
 		<execute macro="Role#addCP">
-			<var name="roleName" value="KaleoReviewRole Name" />
+			<var name="roleTitle" value="KaleoReviewRole Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -7588,7 +7595,7 @@
 			<var name="permissionDefinitionValue" value="Submit" />
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_KALEO_FORMS_ADMIN" />
 			<var name="permissionNavigationValue" value="Kaleo Forms Admin" />
-			<var name="roleName" value="aleoSubmitRole Name" />
+			<var name="roleTitle" value="aleoSubmitRole Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -7600,7 +7607,7 @@
 			<var name="permissionDefinitionValue" value="View" />
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_KALEO_FORMS_ADMIN" />
 			<var name="permissionNavigationValue" value="Kaleo Forms Admin" />
-			<var name="roleName" value="aleoSubmitRole Name" />
+			<var name="roleTitle" value="aleoSubmitRole Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -7612,7 +7619,7 @@
 			<var name="permissionDefinitionValue" value="Access in Site Administration" />
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_KALEO_FORMS_ADMIN" />
 			<var name="permissionNavigationValue" value="Kaleo Forms Admin" />
-			<var name="roleName" value="aleoSubmitRole Name" />
+			<var name="roleTitle" value="aleoSubmitRole Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
@@ -7633,7 +7640,7 @@
 
 		<execute macro="KaleoDesigner#editNodeAssignments">
 			<var name="nodeAssignmentType" value="Role" />
-			<var name="roleName" value="KaleoReviewRole Name" />
+			<var name="roleTitle" value="KaleoReviewRole Name" />
 		</execute>
 
 		<execute macro="KaleoDesigner#editNodeNotifications">
@@ -7670,7 +7677,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="aleoSubmitRole Name" />
+			<var name="roleTitle" value="aleoSubmitRole Name" />
 			<var name="userScreenName" value="kaloesubmitter" />
 		</execute>
 
@@ -7699,7 +7706,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="kaleoupdater" />
 		</execute>
 
@@ -7708,7 +7715,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="KaleoReviewRole Name" />
+			<var name="roleTitle" value="KaleoReviewRole Name" />
 			<var name="userScreenName" value="kaleoupdater" />
 		</execute>
 
@@ -7737,7 +7744,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="admin" />
 		</execute>
 
@@ -7887,7 +7894,7 @@
 			<var name="asset" value="Update Notification Description" />
 			<var name="recipient" value="userfn1 Updater" />
 		</execute>
-	</command>
+	</command>-->
 
 	<command name="ViewKaleoProcessNameOpenedViaNotifications" priority="3">
 		<description message="This is a use case for LPS-51098." />

@@ -924,6 +924,10 @@ public class PortletDataContextImpl implements PortletDataContext {
 		return _layoutIds;
 	}
 
+	public String getLayoutSetPrototypeUuid() {
+		return _layoutSetPrototypeUuid;
+	}
+
 	@Override
 	public Map<String, Lock> getLocks() {
 		return _locksMap;
@@ -1225,6 +1229,10 @@ public class PortletDataContextImpl implements PortletDataContext {
 		return _startDate;
 	}
 
+	public String getType() {
+		return _type;
+	}
+
 	@Override
 	public long getUserId(String userUuid) {
 		return _userIdStrategy.getUserId(userUuid);
@@ -1484,7 +1492,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 				}
 				catch (NoSuchTeamException nste) {
 					if (_log.isWarnEnabled()) {
-						_log.warn("Team " + roleName + " does not exist");
+						_log.warn("Team " + roleName + " does not exist", nste);
 					}
 
 					continue;
@@ -1502,7 +1510,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 			}
 			catch (NoSuchRoleException nsre) {
 				if (_log.isWarnEnabled()) {
-					_log.warn("Role " + roleName + " does not exist");
+					_log.warn("Role " + roleName + " does not exist", nsre);
 				}
 
 				continue;
@@ -1769,6 +1777,10 @@ public class PortletDataContextImpl implements PortletDataContext {
 		_layoutIds = layoutIds;
 	}
 
+	public void setLayoutSetPrototypeUuid(String layoutSetPrototypeUuid) {
+		_layoutSetPrototypeUuid = layoutSetPrototypeUuid;
+	}
+
 	@Override
 	public void setManifestSummary(ManifestSummary manifestSummary) {
 		_manifestSummary = manifestSummary;
@@ -1866,6 +1878,10 @@ public class PortletDataContextImpl implements PortletDataContext {
 	@Override
 	public void setStartDate(Date startDate) {
 		_startDate = startDate;
+	}
+
+	public void setType(String type) {
+		_type = type;
 	}
 
 	@Override
@@ -2129,7 +2145,8 @@ public class PortletDataContextImpl implements PortletDataContext {
 					catch (NoSuchLayoutException nsle) {
 						if (_log.isWarnEnabled()) {
 							_log.warn(
-								"Unable to find layout " + group.getClassPK());
+								"Unable to find layout " + group.getClassPK(),
+								nsle);
 						}
 					}
 				}
@@ -2542,6 +2559,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 	private long _groupId;
 	private transient Element _importDataRootElement;
 	private transient long[] _layoutIds;
+	private String _layoutSetPrototypeUuid;
 	private final transient LockManager _lockManager;
 	private final transient Map<String, Lock> _locksMap = new HashMap<>();
 	private transient ManifestSummary _manifestSummary = new ManifestSummary();
@@ -2569,6 +2587,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 	private long _sourceGroupId;
 	private long _sourceUserPersonalSiteGroupId;
 	private Date _startDate;
+	private String _type;
 	private transient UserIdStrategy _userIdStrategy;
 	private long _userPersonalSiteGroupId;
 	private transient XStream _xStream;

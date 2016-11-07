@@ -29,7 +29,6 @@ import com.liferay.gradle.util.copy.StripPathSegmentsAction;
 import groovy.lang.Closure;
 
 import java.io.File;
-import java.io.IOException;
 
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -51,6 +50,7 @@ import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.Upload;
 import org.gradle.api.tasks.bundling.Zip;
+import org.gradle.util.GUtil;
 
 /**
  * @author Andrea Di Giorgi
@@ -455,29 +455,41 @@ public class LiferayThemeDefaultsPlugin implements Plugin<Project> {
 	}
 
 	protected void configureTaskUploadArchives(
-		Project project, Task updateThemeVersionTask) {
-
-		if (GradleUtil.isSnapshot(project)) {
-			return;
-		}
+		final Project project, Task updateThemeVersionTask) {
 
 		Task uploadArchivesTask = GradleUtil.getTask(
 			project, BasePlugin.UPLOAD_ARCHIVES_TASK_NAME);
 
-		uploadArchivesTask.finalizedBy(updateThemeVersionTask);
+		if (FileUtil.exists(project, ".lfrbuild-missing-resources-importer")) {
+			uploadArchivesTask.doFirst(
+				new Action<Task>() {
+
+					@Override
+					public void execute(Task task) {
+						throw new GradleException(
+							"Unable to publish " + project +
+								", resources-importer directory is missing");
+					}
+
+				});
+		}
+
+		if (!GradleUtil.isSnapshot(project)) {
+			uploadArchivesTask.finalizedBy(updateThemeVersionTask);
+		}
 	}
 
 	protected boolean getPluginPackageProperty(Project project, String key) {
-		try {
-			Properties properties = FileUtil.readProperties(
-				project, "src/WEB-INF/liferay-plugin-package.properties");
+		File file = project.file(
+			"src/WEB-INF/liferay-plugin-package.properties");
 
-			return Boolean.parseBoolean(properties.getProperty(key));
+		if (!file.exists()) {
+			return false;
 		}
-		catch (IOException ioe) {
-			throw new GradleException(
-				"Unable to read liferay-plugin-package.properties", ioe);
-		}
+
+		Properties properties = GUtil.loadProperties(file);
+
+		return Boolean.parseBoolean(properties.getProperty(key));
 	}
 
 	protected Project getThemeProject(Project project, String name) {
