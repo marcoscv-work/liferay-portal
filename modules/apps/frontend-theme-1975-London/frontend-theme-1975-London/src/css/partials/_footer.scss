@@ -7,11 +7,9 @@
 		color: $brand-color;
 	}
 
-	#footer-brand {
-		img {
-			@include sm {
-				margin-bottom: 28px;
-			}
+	#footer-brand img {
+		@include sm {
+			margin-bottom: 28px;
 		}
 	}
 
