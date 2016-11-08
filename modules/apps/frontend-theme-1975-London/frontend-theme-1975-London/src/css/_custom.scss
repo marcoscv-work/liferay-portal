@@ -17,12 +17,6 @@
 
 .portlet {
 	margin: 0;
-
-	&:hover, &.focus {
-		@include sm {
-			z-index: 1035;
-		}
-	}
 }
 
 .portlet-layout {
@@ -40,6 +34,14 @@
 	@include sm {
 		font-weight: normal;
 		line-height: 1.1;
+	}
+}
+
+.floating-header .portlet-column-content .portlet-boundary:first-of-type .portlet-configurable, #banner .portlet {
+	&:hover, &.focus {
+		@include sm {
+			z-index: 1035;
+		}
 	}
 }
 
