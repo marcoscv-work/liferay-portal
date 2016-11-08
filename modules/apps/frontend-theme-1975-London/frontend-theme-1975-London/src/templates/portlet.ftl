@@ -1,12 +1,17 @@
 <#assign portlet_display = portletDisplay>
 <#assign portlet_back_url = htmlUtil.escapeHREF(portlet_display.getURLBack())>
+<#assign portlet_configurable = "">
 <#assign portlet_content_css_class = "portlet-content">
 <#assign portlet_display_name = htmlUtil.escape(portlet_display.getPortletDisplayName())>
 <#assign portlet_display_root_portlet_id = htmlUtil.escapeAttribute(portlet_display.getRootPortletId())>
 <#assign portlet_id = htmlUtil.escapeAttribute(portlet_display.getId())>
 <#assign portlet_title = htmlUtil.escape(portlet_display.getTitle())>
 
-<section class="portlet" id="portlet_${portlet_id}">
+<#if portlet_display.getPortletConfigurationIconMenu()?? && portlet_display.getPortletToolbar()??>
+	<#assign portlet_configurable = "portlet-configurable">
+</#if>
+
+<section class="portlet ${portlet_configurable}" id="portlet_${portlet_id}">
 	<#if portlet_display.isPortletDecorate() && !portlet_display.isStateMax() && portlet_display.getPortletConfigurationIconMenu()?? && portlet_display.getPortletToolbar()??>
 		<#assign portlet_configuration_icon_menu = portlet_display.getPortletConfigurationIconMenu()>
 		<#assign portlet_toolbar = portlet_display.getPortletToolbar()>
