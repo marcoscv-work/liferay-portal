@@ -69,11 +69,11 @@
 		</#if>
 	</section>
 
-	<footer class="container-fluid-1280" id="footer" role="contentinfo">
-		<div class="row">
+	<div class="container-fluid-1280">
+		<footer class="col-md-12" id="footer" role="contentinfo">
 			<@liferay.language key="powered-by" /> <a href="http://www.liferay.com" rel="external">Liferay</a>
-		</div>
-	</footer>
+		</footer>
+	</div>
 </div>
 
 <@liferay_util["include"] page=body_bottom_include />
