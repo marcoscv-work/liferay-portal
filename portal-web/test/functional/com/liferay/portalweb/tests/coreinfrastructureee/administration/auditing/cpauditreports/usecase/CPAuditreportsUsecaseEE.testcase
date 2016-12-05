@@ -1,5 +1,6 @@
 <definition component-name="portal-core-infrastructure-portal-services-ee">
 	<property name="portal.release" value="true" />
+	<property name="test.run.environment" value="EE" />
 	<property name="testray.main.component.name" value="Auditing" />
 	<property name="testray.testcase.product.edition" value="EE" />
 
@@ -167,7 +168,7 @@
 		</execute>
 
 		<execute macro="Role#addCP">
-			<var name="roleName" value="Role1" />
+			<var name="roleTitle" value="Role1" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -175,7 +176,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Role1" />
+			<var name="roleTitle" value="Role1" />
 			<var name="userScreenName" value="test1" />
 		</execute>
 

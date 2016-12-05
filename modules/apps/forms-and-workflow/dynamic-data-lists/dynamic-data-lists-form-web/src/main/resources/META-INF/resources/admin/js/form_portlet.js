@@ -2,13 +2,24 @@ AUI.add(
 	'liferay-ddl-portlet',
 	function(A) {
 		var DefinitionSerializer = Liferay.DDL.DefinitionSerializer;
+
 		var LayoutSerializer = Liferay.DDL.LayoutSerializer;
+
+		var EMPTY_FN = A.Lang.emptyFn;
+
+		var MINUTE = 60000;
 
 		var TPL_BUTTON_SPINNER = '<span aria-hidden="true"><span class="icon-spinner icon-spin"></span></span>';
 
 		var DDLPortlet = A.Component.create(
 			{
 				ATTRS: {
+					autosaveInterval: {
+					},
+
+					autosaveURL: {
+					},
+
 					availableLanguageIds: {
 						value: [
 							themeDisplay.getDefaultLanguageId()
@@ -39,6 +50,9 @@ AUI.add(
 
 					formBuilder: {
 						valueFn: '_valueFormBuilder'
+					},
+
+					formURL: {
 					},
 
 					getFieldTypeSettingFormContextURL: {
@@ -113,7 +127,7 @@ AUI.add(
 
 						instance.bindUI();
 
-						instance.initialState = instance.getState();
+						instance.savedState = instance.initialState = instance.getState();
 					},
 
 					renderUI: function() {
@@ -134,24 +148,32 @@ AUI.add(
 					bindUI: function() {
 						var instance = this;
 
-						var editForm = instance.get('editForm');
-
-						editForm.set('onSubmit', A.bind('_onSubmitEditForm', instance));
-
 						var formBuilder = instance.get('formBuilder');
 
 						instance._eventHandlers = [
+							instance.after('autosave', instance._afterAutosave),
 							formBuilder._layoutBuilder.after('layout-builder:moveEnd', A.bind(instance._afterFormBuilderLayoutBuilderMoveEnd, instance)),
 							formBuilder._layoutBuilder.after('layout-builder:moveStart', A.bind(instance._afterFormBuilderLayoutBuilderMoveStart, instance)),
 							instance.one('.btn-cancel').on('click', A.bind('_onCancel', instance)),
+							instance.one('#preview').on('click', A.bind('_onPreviewButtonClick', instance)),
+							instance.one('#publish').on('click', A.bind('_onPublishButtonClick', instance)),
+							instance.one('#save').on('click', A.bind('_onSaveButtonClick', instance)),
 							instance.one('#showRules').on('click', A.bind('_onRulesButtonClick', instance)),
 							instance.one('#showForm').on('click', A.bind('_onFormButtonClick', instance)),
 							Liferay.on('destroyPortlet', A.bind('_onDestroyPortlet', instance))
 						];
+
+						var autosaveInterval = instance.get('autosaveInterval');
+
+						if (autosaveInterval > 0) {
+							instance._intervalId = setInterval(A.bind('_autosave', instance), autosaveInterval * MINUTE);
+						}
 					},
 
 					destructor: function() {
 						var instance = this;
+
+						clearInterval(instance._intervalId);
 
 						instance.get('formBuilder').destroy();
 						instance.get('ruleBuilder').destroy();
@@ -239,6 +261,18 @@ AUI.add(
 						};
 					},
 
+					isEmpty: function() {
+						var instance = this;
+
+						var state = instance.getState();
+
+						var definition = state.definition;
+
+						var fields = definition.fields;
+
+						return fields.length === 0;
+					},
+
 					openConfirmationModal: function(confirm, cancel) {
 						var instance = this;
 
@@ -312,7 +346,7 @@ AUI.add(
 									width: 720
 								},
 								id: instance.ns('publishModalContainer'),
-								title: Liferay.Language.get('publish')
+								title: Liferay.Language.get('publish-form')
 							},
 							function(dialogWindow) {
 								var publishNode = instance.byId(instance.ns('publishModal'));
@@ -324,6 +358,10 @@ AUI.add(
 								}
 							}
 						);
+					},
+
+					publishForm: function() {
+
 					},
 
 					serializeFormBuilder: function() {
@@ -365,15 +403,24 @@ AUI.add(
 
 						instance.serializeFormBuilder();
 
-						var submitButton = instance.one('#submit');
-
-						submitButton.html(Liferay.Language.get('saving'));
-
-						submitButton.append(TPL_BUTTON_SPINNER);
-
 						var editForm = instance.get('editForm');
 
 						submitForm(editForm.form);
+					},
+
+					_afterAutosave: function(event) {
+						var instance = this;
+
+						var modifiedDate = new Date(event.modifiedDate);
+
+						var autosaveMessage = A.Lang.sub(
+							Liferay.Language.get('draft-saved-at-x'),
+							[
+								modifiedDate
+							]
+						);
+
+						instance.one('#autosaveMessage').set('innerHTML', autosaveMessage);
 					},
 
 					_afterFormBuilderLayoutBuilderMoveEnd: function() {
@@ -390,10 +437,100 @@ AUI.add(
 						instance.disableNameEditor();
 					},
 
+					_autosave: function(callback) {
+						var instance = this;
+
+						callback = callback || EMPTY_FN;
+
+						instance.serializeFormBuilder();
+
+						var state = instance.getState();
+
+						var definition = state.definition;
+
+						if (!instance.isEmpty()) {
+							if (!instance._isSameState(instance.savedState, state)) {
+								var editForm = instance.get('editForm');
+
+								var formData = instance._getFormData(A.IO.stringify(editForm.form));
+
+								A.io.request(
+									instance.get('autosaveURL'),
+									{
+										after: {
+											success: function() {
+												var responseData = this.get('responseData');
+
+												instance._defineIds(responseData);
+
+												instance.savedState = state;
+
+												instance.fire(
+													'autosave',
+													{
+														modifiedDate: responseData.modifiedDate
+													}
+												);
+
+												callback.call();
+											}
+										},
+										data: formData,
+										dataType: 'JSON',
+										method: 'POST'
+									}
+								);
+							}
+							else {
+								callback.call();
+							}
+						}
+					},
+
+					_createPreviewURL: function() {
+						var instance = this;
+
+						var formURL = instance.get('formURL');
+
+						var recordSetId = instance.byId('recordSetId').val();
+
+						return formURL + recordSetId + '/preview';
+					},
+
+					_defineIds: function(response) {
+						var instance = this;
+
+						var recordSetIdNode = instance.byId('recordSetId');
+
+						var ddmStructureIdNode = instance.byId('ddmStructureId');
+
+						if (recordSetIdNode.val() === '0') {
+							recordSetIdNode.val(response.recordSetId);
+						}
+
+						if (ddmStructureIdNode.val() === '0') {
+							ddmStructureIdNode.val(response.ddmStructureId);
+						}
+					},
+
 					_getDescription: function() {
 						var instance = this;
 
 						return window[instance.ns('descriptionEditor')].getHTML();
+					},
+
+					_getFormData: function(formString) {
+						var instance = this;
+
+						if (!instance.get('name').trim()) {
+							var formObject = A.QueryString.parse(formString);
+
+							formObject[instance.ns('name')] = Liferay.Language.get('untitled-form');
+
+							formString = A.QueryString.stringify(formObject);
+						}
+
+						return formString;
 					},
 
 					_getName: function() {
@@ -402,12 +539,12 @@ AUI.add(
 						return window[instance.ns('nameEditor')].getHTML();
 					},
 
-					_isSameState: function() {
+					_isSameState: function(state1, state2) {
 						var instance = this;
 
 						return AUI._.isEqual(
-							instance.getState(),
-							instance.initialState,
+							state1,
+							state2,
 							function(value1, value2, key) {
 								return (key === 'instanceId') || undefined;
 							}
@@ -417,7 +554,7 @@ AUI.add(
 					_onCancel: function(event) {
 						var instance = this;
 
-						if (!instance._isSameState()) {
+						if (!instance._isSameState(instance.getState(), instance.initialState)) {
 							event.preventDefault();
 							event.stopPropagation();
 
@@ -472,6 +609,36 @@ AUI.add(
 						instance.one('#showForm').addClass('active');
 					},
 
+					_onPreviewButtonClick: function() {
+						var instance = this;
+
+						instance._autosave(
+							function() {
+								var previewURL = instance._createPreviewURL();
+
+								window.open(previewURL, '_blank');
+							}
+						);
+					},
+
+					_onPublishButtonClick: function(event) {
+						var instance = this;
+
+						event.preventDefault();
+
+						var publishButton = instance.one('#publish');
+
+						publishButton.html(Liferay.Language.get('saving'));
+
+						publishButton.append(TPL_BUTTON_SPINNER);
+
+						var saveAndPublish = instance.one('input[name*="saveAndPublish"]');
+
+						saveAndPublish.set('value', 'true');
+
+						instance.submitForm();
+					},
+
 					_onRulesButtonClick: function() {
 						var instance = this;
 
@@ -486,10 +653,20 @@ AUI.add(
 						instance.one('#showForm').removeClass('active');
 					},
 
-					_onSubmitEditForm: function(event) {
+					_onSaveButtonClick: function(event) {
 						var instance = this;
 
 						event.preventDefault();
+
+						var saveButton = instance.one('#save');
+
+						saveButton.html(Liferay.Language.get('saving'));
+
+						saveButton.append(TPL_BUTTON_SPINNER);
+
+						var saveAndPublish = instance.one('input[name*="saveAndPublish"]');
+
+						saveAndPublish.set('value', 'false');
 
 						instance.submitForm();
 					},
@@ -559,6 +736,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['liferay-ddl-form-builder', 'liferay-ddl-form-builder-definition-serializer', 'liferay-ddl-form-builder-layout-serializer', 'liferay-ddl-form-builder-rule-builder', 'liferay-portlet-base', 'liferay-util-window']
+		requires: ['io-base', 'liferay-ddl-form-builder', 'liferay-ddl-form-builder-definition-serializer', 'liferay-ddl-form-builder-layout-serializer', 'liferay-ddl-form-builder-rule-builder', 'liferay-portlet-base', 'liferay-util-window', 'querystring-parse']
 	}
 );

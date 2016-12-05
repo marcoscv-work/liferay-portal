@@ -469,7 +469,7 @@
 		<execute macro="Calendar#removeViewPermissions">
 			<var name="calendarName" value="${siteName}" />
 			<var name="calendarType" value="Current Site Calendars" />
-			<var name="roleName" value="Site Member" />
+			<var name="roleTitle" value="Site Member" />
 			<var name="site" value="${siteName}" />
 		</execute>
 
@@ -1962,7 +1962,7 @@
 		</execute>
 
 		<execute macro="User#assignRegularRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
@@ -4087,6 +4087,8 @@
 	</command>
 
 	<command name="SearchForOtherCalendars" priority="5">
+		<property name="portal.acceptance" value="pending" />
+
 		<execute macro="TestCase#getSiteName">
 			<return from="siteName" name="siteName" />
 			<var name="siteName" value="${siteName}" />
@@ -4117,7 +4119,7 @@
 		</execute>
 
 		<execute macro="User#assignRegularRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
@@ -4469,7 +4471,7 @@
 		</execute>
 
 		<execute macro="User#assignRegularRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
@@ -4671,6 +4673,32 @@
 
 		<execute macro="Calendar#viewWeekCountViaMonthView">
 			<var name="weekNumber" value="6" />
+		</execute>
+	</command>
+
+	<command name="ViewCreatedEventVisibleOnScheduler" priority="2">
+		<description message="This is a use case for LPS-67400." />
+
+		<execute macro="CalendarNavigator#gotoAddEvent" />
+
+		<var locator="CalendarEditEvent#END_DATE_TIME" name="endDateTime" />
+		<var locator="CalendarEditEvent#START_DATE_TIME" name="startDateTime" />
+
+		<execute macro="CalendarEvent#viewTimes">
+			<var name="endDateTime" value="${endDateTime}" />
+			<var name="startDateTime" value="${startDateTime}" />
+		</execute>
+
+		<execute macro="CalendarEvent#editTitle">
+			<var name="eventTitle" value="Calendar Event" />
+		</execute>
+
+		<execute macro="CalendarEvent#publish" />
+
+		<execute macro="IFrame#closeFrame" />
+
+		<execute macro="CalendarScheduler#selectSpecificEvent">
+			<var name="eventTitle" value="Calendar Event" />
 		</execute>
 	</command>
 
@@ -5391,7 +5419,7 @@
 		</execute>
 
 		<execute macro="Role#addCP">
-			<var name="roleName" value="Calendar Site Role Name" />
+			<var name="roleTitle" value="Calendar Site Role Name" />
 			<var name="roleType" value="Site" />
 		</execute>
 
@@ -5402,7 +5430,7 @@
 		<execute macro="Role#definePermissionCP">
 			<var name="permissionDefinitionKey" value="SITE_ADMIN_APPLICATIONS_CALENDAR_MANAGE_EVENTS_CHECKBOX" />
 			<var name="permissionDefinitionValue" value="Manage Events" />
-			<var name="roleName" value="Calendar Site Role Name" />
+			<var name="roleTitle" value="Calendar Site Role Name" />
 			<var name="roleType" value="Site" />
 		</execute>
 
@@ -5413,7 +5441,7 @@
 		<execute macro="Role#definePermissionCP">
 			<var name="permissionDefinitionKey" value="SITE_ADMIN_PAGES_SITE_PAGES_RESOURCE_PERMISSIONS_PAGE_UPDATE_CHECKBOX" />
 			<var name="permissionDefinitionValue" value="Update" />
-			<var name="roleName" value="Authenticated" />
+			<var name="roleTitle" value="Authenticated" />
 			<var name="roleUser" value="User" />
 		</execute>
 
@@ -5466,7 +5494,7 @@
 
 		<execute macro="Site#assignSiteRoleCP">
 			<var name="resourceName" value="userfn userln" />
-			<var name="roleName" value="Calendar Site Role Name" />
+			<var name="roleTitle" value="Calendar Site Role Name" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -5483,7 +5511,7 @@
 
 		<execute macro="Site#assignSiteRoleCP">
 			<var name="resourceName" value="userfn userln" />
-			<var name="roleName" value="Calendar Site Role Name" />
+			<var name="roleTitle" value="Calendar Site Role Name" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">

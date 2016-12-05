@@ -14,6 +14,7 @@ AUI.add(
 					},
 
 					multiple: {
+						state: true,
 						value: false
 					},
 
@@ -45,6 +46,16 @@ AUI.add(
 				NAME: 'liferay-ddm-form-field-select',
 
 				prototype: {
+					cleanSelect: function() {
+						var instance = this;
+
+						var inputNode = instance.getInputNode();
+
+						inputNode.setAttribute('selected', false);
+
+						instance.set('value', []);
+					},
+
 					getTemplateContext: function() {
 						var instance = this;
 
@@ -52,6 +63,7 @@ AUI.add(
 							SelectField.superclass.getTemplateContext.apply(instance, arguments),
 							{
 								options: instance.get('options'),
+								strings: instance.get('strings'),
 								value: instance.getValueArray()
 							}
 						);
@@ -74,6 +86,8 @@ AUI.add(
 									}
 								}
 							);
+
+							value = value.join();
 						}
 						else {
 							value = inputNode.val();
