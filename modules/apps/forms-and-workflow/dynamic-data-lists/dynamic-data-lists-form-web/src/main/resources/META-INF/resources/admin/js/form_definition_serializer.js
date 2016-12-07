@@ -25,6 +25,11 @@ AUI.add(
 
 					fieldTypesDefinitions: {
 						value: {}
+					},
+
+					rules: {
+						validator: Array.isArray,
+						value: []
 					}
 				},
 
@@ -42,7 +47,8 @@ AUI.add(
 							{
 								availableLanguageIds: instance.get('availableLanguageIds'),
 								defaultLanguageId: instance.get('defaultLanguageId'),
-								fields: instance.get('fields')
+								fields: instance.get('fields'),
+								rules: instance.get('rules')
 							}
 						);
 
@@ -60,7 +66,7 @@ AUI.add(
 
 						var definitionFields = fieldTypesDefinitions[field.get('type')];
 
-						var languageId = themeDisplay.getDefaultLanguageId();
+						var languageId = instance.get('defaultLanguageId');
 
 						definitionFields.forEach(
 							function(fieldSetting) {

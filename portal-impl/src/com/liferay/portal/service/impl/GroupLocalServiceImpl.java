@@ -684,6 +684,12 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 					group.getGroupId(), true, serviceContext);
 			}
 			catch (NoSuchLayoutSetException nslse) {
+
+				// LPS-52675
+
+				if (_log.isDebugEnabled()) {
+					_log.debug(nslse, nslse);
+				}
 			}
 
 			try {
@@ -691,6 +697,12 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 					group.getGroupId(), false, serviceContext);
 			}
 			catch (NoSuchLayoutSetException nslse) {
+
+				// LPS-52675
+
+				if (_log.isDebugEnabled()) {
+					_log.debug(nslse, nslse);
+				}
 			}
 
 			// Membership requests
@@ -1891,6 +1903,25 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		else {
 			return false;
 		}
+	}
+
+	@Override
+	public boolean isLiveGroupActive(Group group) {
+		if (group == null) {
+			return false;
+		}
+
+		if (!group.isStagingGroup()) {
+			return group.isActive();
+		}
+
+		Group liveGroup = group.getLiveGroup();
+
+		if (liveGroup == null) {
+			return false;
+		}
+
+		return liveGroup.isActive();
 	}
 
 	/**
@@ -3587,7 +3618,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			// Filter by active
 
 			if (active != null) {
-				if (active != group.isActive()) {
+				if (active != isLiveGroupActive(group)) {
 					iterator.remove();
 
 					continue;
@@ -4280,6 +4311,12 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			}
 		}
 		catch (NoSuchGroupException nsge) {
+
+			// LPS-52675
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(nsge, nsge);
+			}
 		}
 
 		if (site) {

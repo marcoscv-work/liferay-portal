@@ -67,7 +67,7 @@ import javax.mail.internet.MimeMultipart;
  * @author Neil Griffin
  * @author Thiago Moreira
  * @author Brett Swaim
- * @see com.liferay.util.mail.MailEngine
+ * @see    com.liferay.util.mail.MailEngine
  */
 public class MailEngine {
 
@@ -465,7 +465,7 @@ public class MailEngine {
 			return null;
 		}
 
-		int end = ((index + 1) * batchSize);
+		int end = (index + 1) * batchSize;
 
 		if (end > addresses.length) {
 			end = addresses.length;

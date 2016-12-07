@@ -99,7 +99,7 @@
 		</execute>
 
 		<execute macro="User#assignRegularRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
@@ -138,13 +138,17 @@
 		</execute>
 
 		<execute macro="Role#addCP">
-			<var name="roleName" value="Impersonating Role Name" />
+			<var name="roleTitle" value="Impersonating Role Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Roles" />
 		</execute>
 
 		<execute macro="Role#editPermissionCmdCP">
 			<var name="define" value="true" />
 			<var name="permissionDefinitionKey" value="CONTROL_PANEL_USERS_USERS_AND_ORGANIZATIONS_GENERAL_PERMISSIONS_ACCESS_IN_CONTROL_PANEL_CHECKBOX,CONTROL_PANEL_USERS_USERS_AND_ORGANIZATIONS_GENERAL_PERMISSIONS_VIEW_CHECKBOX,CONTROL_PANEL_USERS_USERS_AND_ORGANIZATIONS_RESOURCE_PERMISSIONS_USER_IMPERSONATE_CHECKBOX,CONTROL_PANEL_USERS_USERS_AND_ORGANIZATIONS_RESOURCE_PERMISSIONS_USER_VIEW_CHECKBOX" />
-			<var name="roleName" value="Impersonating Role Name" />
+			<var name="roleTitle" value="Impersonating Role Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -194,7 +198,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Impersonating Role Name" />
+			<var name="roleTitle" value="Impersonating Role Name" />
 			<var name="userScreenName" value="usersn1" />
 		</execute>
 
@@ -203,7 +207,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="usersn3" />
 		</execute>
 
@@ -273,7 +277,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="usersn1" />
 		</execute>
 
@@ -320,8 +324,6 @@
 	</command>
 
 	<command name="MultipleUsersandOrganizations" priority="4">
-		<var name="count" value="1" />
-
 		<execute macro="TestCase#getSiteName">
 			<return from="siteName" name="siteName" />
 			<var name="siteName" value="${siteName}" />
@@ -334,6 +336,8 @@
 		<execute macro="ServerAdministration#executeServerResourcesActions">
 			<var name="actionsDescription" value="Reindex all search indexes." />
 		</execute>
+
+		<var name="count" value="1" />
 
 		<while>
 			<not>
@@ -499,6 +503,7 @@
 			<var name="orgName" value="Organization Name 1" />
 			<var name="userFirstName" value="userfn1" />
 			<var name="userLastName" value="userln1" />
+			<var name="userName" value="userfn1 userln1" />
 			<var name="userScreenName" value="usersn1" />
 		</execute>
 
@@ -512,6 +517,7 @@
 			<var name="orgName" value="Organization Name 1" />
 			<var name="userFirstName" value="userfn3" />
 			<var name="userLastName" value="userln3" />
+			<var name="userName" value="userfn3 userln3" />
 			<var name="userScreenName" value="usersn3" />
 		</execute>
 
@@ -525,6 +531,7 @@
 			<var name="orgName" value="Organization Name 1" />
 			<var name="userFirstName" value="userfn5" />
 			<var name="userLastName" value="userln5" />
+			<var name="userName" value="userfn5 userln5" />
 			<var name="userScreenName" value="usersn5" />
 		</execute>
 
@@ -588,6 +595,7 @@
 			<var name="orgName" value="Organization Name 2" />
 			<var name="userFirstName" value="Test" />
 			<var name="userLastName" value="Test" />
+			<var name="userName" value="Test Test" />
 			<var name="userScreenName" value="test" />
 		</execute>
 
@@ -683,7 +691,7 @@
 			<var name="permissionDefinitionValue" value="View Control Panel Menu" />
 			<var name="permissionNavigationKey" value="CONTROL_PANEL_GENERAL_PERMISSIONS" />
 			<var name="permissionNavigationValue" value="General Permissions" />
-			<var name="roleName" value="Authenticated" />
+			<var name="roleTitle" value="Authenticated" />
 			<var name="roleUser" value="User" />
 		</execute>
 
@@ -726,6 +734,7 @@
 			<var name="orgName" value="Organization Name" />
 			<var name="userFirstName" value="userfn1" />
 			<var name="userLastName" value="userln1" />
+			<var name="userName" value="userfn1 userln1" />
 			<var name="userScreenName" value="usersn1" />
 		</execute>
 
@@ -737,7 +746,7 @@
 
 		<execute macro="Organization#assignOrgRoleCP">
 			<var name="orgName" value="Organization Name" />
-			<var name="roleName" value="Organization Administrator" />
+			<var name="roleTitle" value="Organization Administrator" />
 			<var name="userFirstName" value="userfn1" />
 			<var name="userLastName" value="userln1" />
 			<var name="userScreenName" value="usersn1" />
@@ -766,6 +775,7 @@
 			<var name="orgName" value="Organization Name" />
 			<var name="userFirstName" value="userfn2" />
 			<var name="userLastName" value="userln2" />
+			<var name="userName" value="userfn2 userln2" />
 			<var name="userScreenName" value="usersn2" />
 		</execute>
 
@@ -803,9 +813,7 @@
 	</command>
 
 	<command name="OrganizationDropDownItems" priority="3">
-		<var name="siteNameList" value="Site Name A,Site Name B,Site Name C,Site Name D,Site Name E,Site Name F,Site Name G,Site Name H" />
-
-		<for list="${siteNameList}" param="siteName" >
+		<for list="Site Name A,Site Name B,Site Name C,Site Name D,Site Name E,Site Name F,Site Name G,Site Name H" param="siteName" >
 			<execute macro="ProductMenu#gotoControlPanelSites">
 				<var name="portlet" value="Sites" />
 			</execute>
@@ -819,7 +827,7 @@
 			<var name="portlet" value="Sites" />
 		</execute>
 
-		<for list="${siteNameList}" param="siteName" >
+		<for list="Site Name A,Site Name B,Site Name C,Site Name D,Site Name E,Site Name F,Site Name G,Site Name H" param="siteName" >
 			<var name="key_siteName" value="${siteName}" />
 
 			<execute function="AssertTextEquals#assertPartialText" locator1="Sites#SITE_TABLE_NAME" value1="${siteName}" />
@@ -844,6 +852,7 @@
 			<var name="orgName" value="Site Name M" />
 			<var name="userFirstName" value="Test" />
 			<var name="userLastName" value="Test" />
+			<var name="userName" value="Test Test" />
 			<var name="userScreenName" value="test" />
 		</execute>
 
@@ -978,9 +987,6 @@
 	</command>
 
 	<command name="ValidateRegExPasswordPolicyCP" priority="4">
-		<var name="atLeastFourCharNoNumbers" value="(?=.{4})(?:[a-zA-Z]*)" />
-		<var name="atLeastSixCharNumbersPermitted" value="(?=.{6})(?:[a-zA-Z0-9]*)" />
-
 		<execute macro="ProductMenu#gotoControlPanelUsers">
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
@@ -1012,7 +1018,7 @@
 		<execute function="Type" locator1="TextInput#MINIMUM_SYMBOLS" value1="0" />
 		<execute function="Type" locator1="TextInput#MINIMUM_UPPER_CASE" value1="0" />
 
-		<execute function="Type" locator1="TextInput#REGULAR_EXPRESSION" value1="${atLeastFourCharNoNumbers}" />
+		<execute function="Type" locator1="TextInput#REGULAR_EXPRESSION" value1="(?=.{4})(?:[a-zA-Z]*)" />
 
 		<execute macro="Button#clickSave" />
 
@@ -1022,7 +1028,7 @@
 
 		<execute macro="User#editPasswordInvalidCP">
 			<var name="newPassword" value="NO1else" />
-			<var name="regex" value="${atLeastFourCharNoNumbers}" />
+			<var name="regex" value="(?=.{4})(?:[a-zA-Z]*)" />
 			<var name="userEmailAddress" value="test1@liferay.com" />
 			<var name="userScreenName" value="test1" />
 		</execute>
@@ -1051,7 +1057,7 @@
 			<var name="panelHeading" value="Password Syntax Checking" />
 		</execute>
 
-		<execute function="Type" locator1="TextInput#REGULAR_EXPRESSION" value1="${atLeastSixCharNumbersPermitted}" />
+		<execute function="Type" locator1="TextInput#REGULAR_EXPRESSION" value1="(?=.{6})(?:[a-zA-Z0-9]*)" />
 
 		<execute macro="Button#clickSave" />
 
@@ -1085,7 +1091,7 @@
 
 		<execute macro="User#editPasswordInvalidCP">
 			<var name="newPassword" value="1-2-3ABC" />
-			<var name="regex" value="${atLeastSixCharNumbersPermitted}" />
+			<var name="regex" value="(?=.{6})(?:[a-zA-Z0-9]*)" />
 			<var name="userEmailAddress" value="test1@liferay.com" />
 			<var name="userScreenName" value="test1" />
 		</execute>
@@ -1123,7 +1129,7 @@
 
 		<execute macro="User#editPasswordInvalidCP">
 			<var name="newPassword" value="12AB" />
-			<var name="regex" value="${atLeastSixCharNumbersPermitted}" />
+			<var name="regex" value="(?=.{6})(?:[a-zA-Z0-9]*)" />
 			<var name="userEmailAddress" value="test1@liferay.com" />
 			<var name="userScreenName" value="test1" />
 		</execute>
@@ -1149,12 +1155,12 @@
 		</execute>
 
 		<execute macro="Role#addCP">
-			<var name="roleName" value="Canada Orgrole" />
+			<var name="roleTitle" value="Canada Orgrole" />
 			<var name="roleType" value="Organization" />
 		</execute>
 
 		<execute macro="Role#addCP">
-			<var name="roleName" value="United States Orgrole" />
+			<var name="roleTitle" value="United States Orgrole" />
 			<var name="roleType" value="Organization" />
 		</execute>
 
@@ -1257,6 +1263,7 @@
 			<var name="orgName" value="Canada" />
 			<var name="userFirstName" value="userfn1" />
 			<var name="userLastName" value="userln1" />
+			<var name="userName" value="userfn1 userln1" />
 			<var name="userScreenName" value="usersn1" />
 		</execute>
 
@@ -1270,6 +1277,7 @@
 			<var name="orgName" value="United States" />
 			<var name="userFirstName" value="userfn2" />
 			<var name="userLastName" value="userln2" />
+			<var name="userName" value="userfn2 userln2" />
 			<var name="userScreenName" value="usersn2" />
 		</execute>
 
@@ -1278,14 +1286,14 @@
 		</execute>
 
 		<execute macro="User#assignOrgRoleCP">
-			<var name="roleName" value="Canada Orgrole" />
+			<var name="roleTitle" value="Canada Orgrole" />
 			<var name="userScreenName" value="usersn1" />
 		</execute>
 
 		<execute macro="Navigator#gotoBack" />
 
 		<execute macro="User#assignOrgRoleCP">
-			<var name="roleName" value="United States Orgrole" />
+			<var name="roleTitle" value="United States Orgrole" />
 			<var name="userScreenName" value="usersn2" />
 		</execute>
 

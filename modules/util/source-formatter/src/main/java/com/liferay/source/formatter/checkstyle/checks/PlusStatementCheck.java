@@ -23,7 +23,9 @@ import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import com.puppycrawl.tools.checkstyle.utils.CommonUtils;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Hugo Huijser
@@ -33,6 +35,8 @@ public class PlusStatementCheck extends AbstractCheck {
 	public static final String MSG_COMBINE_LITERAL_STRINGS =
 		"literal.string.combine";
 
+	public static final String MSG_INCORRECT_TABBING = "tabbing.incorrect";
+
 	public static final String MSG_INVALID_END_CHARACTER =
 		"end.character.invalid";
 
@@ -40,6 +44,9 @@ public class PlusStatementCheck extends AbstractCheck {
 		"start.character.invalid";
 
 	public static final String MSG_MOVE_LITERAL_STRING = "literal.string.move";
+
+	public static final String MSG_STATEMENT_TOO_LONG =
+		"plus.statement.too.long";
 
 	@Override
 	public int[] getDefaultTokens() {
@@ -52,6 +59,9 @@ public class PlusStatementCheck extends AbstractCheck {
 
 	@Override
 	public void visitToken(DetailAST detailAST) {
+		_checkMultiLinesPlusStatement(detailAST);
+		_checkTabbing(detailAST);
+
 		if (detailAST.getChildCount() != 2) {
 			return;
 		}
@@ -101,15 +111,10 @@ public class PlusStatementCheck extends AbstractCheck {
 			return;
 		}
 
-		String[] lines = getLines();
+		String line1 = getLine(lastChild.getLineNo() - 2);
+		String line2 = getLine(lastChild.getLineNo() - 1);
 
-		String line1 = lines[lastChild.getLineNo() - 2];
-		String line2 = lines[lastChild.getLineNo() - 1];
-
-		int tabCount1 = _getLeadingTabCount(line1);
-		int tabCount2 = _getLeadingTabCount(line2);
-
-		if (tabCount1 == tabCount2) {
+		if (_getLeadingTabCount(line1) == _getLeadingTabCount(line2)) {
 			return;
 		}
 
@@ -139,12 +144,75 @@ public class PlusStatementCheck extends AbstractCheck {
 		}
 
 		int pos = _getStringBreakPos(
-			literalString1, literalString2, (_maxLineLength - lineLength1));
+			literalString1, literalString2, _maxLineLength - lineLength1);
 
 		if (pos != -1) {
 			log(
 				lastChild.getLineNo(), MSG_MOVE_LITERAL_STRING,
 				literalString2.substring(0, pos + 1));
+		}
+	}
+
+	private void _checkMultiLinesPlusStatement(DetailAST detailAST) {
+		DetailAST firstChildAST = detailAST.getFirstChild();
+
+		if (firstChildAST.getType() == TokenTypes.PLUS) {
+			return;
+		}
+
+		if (DetailASTUtil.hasParentWithTokenType(
+				detailAST, TokenTypes.ANNOTATION) ||
+			!DetailASTUtil.hasParentWithTokenType(
+				detailAST, TokenTypes.CTOR_DEF, TokenTypes.METHOD_DEF)) {
+
+			return;
+		}
+
+		Set<Integer> lineNumbers = new HashSet<>();
+
+		lineNumbers.add(detailAST.getLineNo());
+
+		DetailAST parentAST = detailAST;
+
+		while (true) {
+			if (parentAST.getType() != TokenTypes.PLUS) {
+				break;
+			}
+
+			DetailAST lastChildAST = parentAST.getLastChild();
+
+			lineNumbers.add(lastChildAST.getLineNo());
+
+			parentAST = parentAST.getParent();
+		}
+
+		if (lineNumbers.size() > 3) {
+			log(detailAST.getLineNo(), MSG_STATEMENT_TOO_LONG);
+		}
+	}
+
+	private void _checkTabbing(DetailAST detailAST) {
+		DetailAST afterPlusAST = detailAST.getLastChild();
+
+		if (afterPlusAST.getType() == TokenTypes.RPAREN) {
+			while (afterPlusAST.getType() != TokenTypes.LPAREN) {
+				afterPlusAST = afterPlusAST.getPreviousSibling();
+			}
+		}
+
+		int afterPlusLineNo = DetailASTUtil.getStartLine(afterPlusAST);
+
+		if (afterPlusLineNo == detailAST.getLineNo()) {
+			return;
+		}
+
+		String line1 = getLine(detailAST.getLineNo() - 1);
+		String line2 = getLine(afterPlusLineNo - 1);
+
+		int tabCount = _getLeadingTabCount(line1);
+
+		if ((tabCount + 1) != _getLeadingTabCount(line2)) {
+			log(afterPlusLineNo, MSG_INCORRECT_TABBING, tabCount + 1);
 		}
 	}
 
@@ -230,7 +298,7 @@ public class PlusStatementCheck extends AbstractCheck {
 			}
 
 			List<DetailAST> nameASTList = DetailASTUtil.getAllChildTokens(
-				firstChild, TokenTypes.IDENT, false);
+				firstChild, false, TokenTypes.IDENT);
 
 			if (nameASTList.size() != 2) {
 				return false;
