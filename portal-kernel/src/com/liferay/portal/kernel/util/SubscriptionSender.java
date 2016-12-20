@@ -225,7 +225,7 @@ public class SubscriptionSender implements Serializable {
 	}
 
 	public String getMailId() {
-		return this.mailId;
+		return mailId;
 	}
 
 	/**
@@ -333,7 +333,7 @@ public class SubscriptionSender implements Serializable {
 	}
 
 	public void setEntryTitle(String entryTitle) {
-		this._entryTitle = entryTitle;
+		_entryTitle = entryTitle;
 	}
 
 	public void setEntryURL(String entryURL) {
@@ -359,6 +359,40 @@ public class SubscriptionSender implements Serializable {
 
 	public void setLocalizedBodyMap(Map<Locale, String> localizedBodyMap) {
 		this.localizedBodyMap = localizedBodyMap;
+	}
+
+	public void setLocalizedContextAttribute(
+		String key, EscapableLocalizableFunction value) {
+
+		_localizedContext.put(key, value);
+	}
+
+	public <T extends Serializable & Function<Locale, String>>
+		void setLocalizedContextAttribute(
+			String key, T function) {
+
+		setLocalizedContextAttribute(key, function, true);
+	}
+
+	public <T extends Serializable & Function<Locale, String>>
+		void setLocalizedContextAttribute(
+			String key, T function, boolean escape) {
+
+		setLocalizedContextAttribute(
+			key, new EscapableLocalizableFunction(function, escape));
+	}
+
+	public void setLocalizedContextAttributeWithFunction(
+		String key, Function<Locale, String> function) {
+
+		setLocalizedContextAttributeWithFunction(key, function, true);
+	}
+
+	public void setLocalizedContextAttributeWithFunction(
+		String key, Function<Locale, String> function, boolean escape) {
+
+		setLocalizedContextAttribute(
+			key, new EscapableLocalizableFunction(function, escape));
 	}
 
 	public void setLocalizedPortletTitleMap(
@@ -688,6 +722,24 @@ public class SubscriptionSender implements Serializable {
 			String content, Locale locale, boolean escape)
 		throws Exception {
 
+		for (Map.Entry<String, EscapableLocalizableFunction> entry :
+				_localizedContext.entrySet()) {
+
+			String key = entry.getKey();
+			EscapableLocalizableFunction value = entry.getValue();
+
+			String valueString = null;
+
+			if (escape) {
+				valueString = value.getEscapedValue(locale);
+			}
+			else {
+				valueString = value.getOriginalValue(locale);
+			}
+
+			content = StringUtil.replace(content, key, valueString);
+		}
+
 		for (Map.Entry<String, EscapableObject<String>> entry :
 				_context.entrySet()) {
 
@@ -771,7 +823,7 @@ public class SubscriptionSender implements Serializable {
 			}
 		}
 		else {
-			processedSubject = this.subject;
+			processedSubject = subject;
 		}
 
 		String processedBody = null;
@@ -789,7 +841,7 @@ public class SubscriptionSender implements Serializable {
 			}
 		}
 		else {
-			processedBody = this.body;
+			processedBody = body;
 		}
 
 		MailMessage mailMessage = new MailMessage(
@@ -960,6 +1012,8 @@ public class SubscriptionSender implements Serializable {
 	private String _entryTitle;
 	private String _entryURL;
 	private boolean _initialized;
+	private final Map<String, EscapableLocalizableFunction> _localizedContext =
+		new HashMap<>();
 	private Object[] _mailIdIds;
 	private String _mailIdPopPortletPrefix;
 	private long _notificationClassNameId;

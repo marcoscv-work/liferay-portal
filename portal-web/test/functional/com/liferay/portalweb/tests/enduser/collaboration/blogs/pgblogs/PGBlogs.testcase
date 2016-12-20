@@ -1,5 +1,6 @@
 <definition component-name="portal-collaboration">
 	<property name="portal.release" value="true" />
+	<property name="portal.upstream" value="true" />
 	<property name="custom.properties" value="default.layout.template.id=1_column" />
 	<property name="testray.main.component.name" value="Blogs" />
 
@@ -290,7 +291,7 @@
 		</execute>
 	</command>
 
-	<command name="AddBlogsEntryWithSamePageScope" priority="4">
+	<!-- <command name="AddBlogsEntryWithSamePageScope" priority="4">
 		<execute macro="TestCase#getSiteName">
 			<return from="siteName" name="siteName" />
 			<var name="siteName" value="${siteName}" />
@@ -427,7 +428,7 @@
 		<execute macro="Portlet#viewTitle">
 			<var name="portletName" value="Blogs" />
 		</execute>
-	</command>
+	</command> -->
 
 	<command name="AddBlogsEntryWithSubtitle" priority="4">
 		<execute macro="Navigator#gotoPage">
@@ -1172,7 +1173,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="usersn1" />
 		</execute>
 
@@ -1339,7 +1340,7 @@
 			<var name="entryTitle" value="Blogs Entry Title" />
 			<var name="pageName" value="Blogs Page" />
 			<var name="permissionDefinitionKey" value="CONTENT_PERMISSIONS_ADD_DISCUSSION_CHECKBOX" />
-			<var name="roleName" value="Guest" />
+			<var name="roleTitle" value="Guest" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -1693,7 +1694,7 @@
 
 		<execute macro="BlogsEntry#removeViewPermissionsPG">
 			<var name="entryTitle" value="Blogs Entry1 Title" />
-			<var name="roleName" value="Guest" />
+			<var name="roleTitle" value="Guest" />
 		</execute>
 
 		<execute macro="User#logoutPG" />
@@ -1765,6 +1766,10 @@
 			<var name="uploadFileName" value="Document_1.jpg" />
 		</execute>
 
+		<execute function="AssertVisible" locator1="BlogsEntry#ENTRY_COVER_IMAGE_UNPUBLISHED">
+			<var name="key_uploadFileName" value="Document_1" />
+		</execute>
+
 		<execute macro="PortletEntry#publish" />
 
 		<execute macro="Navigator#gotoPage">
@@ -1796,18 +1801,18 @@
 
 		<execute macro="Role#removePermissionPG">
 			<var name="permissionDefinitionKey" value="CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX" />
-			<var name="roleName" value="Guest" />
+			<var name="roleTitle" value="Guest" />
 		</execute>
 
 		<execute macro="Role#removePermissionPG">
 			<var name="permissionDefinitionKey" value="CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX" />
-			<var name="roleName" value="Site Member" />
+			<var name="roleTitle" value="Site Member" />
 		</execute>
 
 		<for list="CONFIGURATION_PERMISSIONS_ADD_DISPLAY_TEMPLATE_CHECKBOX,CONFIGURATION_PERMISSIONS_ADD_TO_PAGE_CHECKBOX,CONFIGURATION_PERMISSIONS_CONFIGURATION_CHECKBOX,CONFIGURATION_PERMISSIONS_CONFIGURATION_CHECKBOX,CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX,CONFIGURATION_PERMISSIONS_PERMISSIONS_CHECKBOX" param="permissionDefinitionKeyValue" >
 			<execute macro="Role#removePermissionPG">
 				<var name="permissionDefinitionKey" value="${permissionDefinitionKeyValue}" />
-				<var name="roleName" value="Owner" />
+				<var name="roleTitle" value="Owner" />
 			</execute>
 		</for>
 
@@ -1824,60 +1829,19 @@
 
 		<execute macro="PermissionsInline#viewPermissionsRemoved">
 			<var name="permissionDefinitionKey" value="CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX" />
-			<var name="roleName" value="Guest" />
+			<var name="roleTitle" value="Guest" />
 		</execute>
 
 		<execute macro="PermissionsInline#viewPermissionsRemoved">
 			<var name="permissionDefinitionKey" value="CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX" />
-			<var name="roleName" value="Site Member" />
+			<var name="roleTitle" value="Site Member" />
 		</execute>
 
 		<for list="CONFIGURATION_PERMISSIONS_ADD_DISPLAY_TEMPLATE_CHECKBOX,CONFIGURATION_PERMISSIONS_ADD_TO_PAGE_CHECKBOX,CONFIGURATION_PERMISSIONS_CONFIGURATION_CHECKBOX,CONFIGURATION_PERMISSIONS_CONFIGURATION_CHECKBOX,CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX,CONFIGURATION_PERMISSIONS_PERMISSIONS_CHECKBOX" param="permissionDefinitionKeyValue" >
 			<execute macro="PermissionsInline#viewPermissionsRemoved">
 				<var name="permissionDefinitionKey" value="${permissionDefinitionKeyValue}" />
-				<var name="roleName" value="Owner" />
+				<var name="roleTitle" value="Owner" />
 			</execute>
 		</for>
-	</command>
-
-	<command name="ViewEntryWithSocialBookmarksSites" priority="3">
-		<property name="hook.plugins.includes" value="social-bookmarks-hook" />
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Blogs Page" />
-		</execute>
-
-		<execute macro="Blogs#addEntry">
-			<var name="entryContent" value="Blogs Entry Content" />
-			<var name="entrySubtitle" value="Blogs Entry Subtitle" />
-			<var name="entryTitle" value="Blogs Entry Title" />
-		</execute>
-
-		<execute macro="Blogs#enableSocialBookmarkSites">
-			<var name="socialBookmarkSites" value="twitter,facebook,plusone,addthis,blinklist,delicious,digg,evernote,linkedin,newsvine,reddit,slashdot,stumbleupon,technorati,tuenti" />
-		</execute>
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Blogs Page" />
-		</execute>
-
-		<execute macro="BlogsNavigator#gotoEntryPG">
-			<var name="entryContent" value="Blogs Entry Content" />
-			<var name="entryTitle" value="Blogs Entry Title" />
-		</execute>
-
-		<execute macro="BlogsEntry#viewEnabledSocialBookmarkSites">
-			<var name="socialBookmarkSites" value="Twitter,Facebook,Google+,LinkedIn,BlinkList,Delicious,Digg,Evernote,Newsvine,Reddit,Slashdot,StumbleUpon,Technorati,Tuenti" />
-		</execute>
-
-		<execute macro="Blogs#disableSocialBookmarkSites">
-			<var name="socialBookmarkSites" value="twitter,facebook,plusone,addthis,blinklist,delicious,digg,evernote,linkedin,newsvine,reddit,slashdot,stumbleupon,technorati,tuenti" />
-		</execute>
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Blogs Page" />
-		</execute>
-
-		<execute macro="BlogsEntry#viewDisabledSocialBookmarkSites" />
 	</command>
 </definition>

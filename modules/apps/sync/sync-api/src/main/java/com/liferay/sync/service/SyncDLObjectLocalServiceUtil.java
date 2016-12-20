@@ -69,16 +69,44 @@ public class SyncDLObjectLocalServiceUtil {
 	}
 
 	/**
-	* Adds the sync d l object to the database. Also notifies the appropriate model listeners.
+	* Adds the sync dl object to the database. Also notifies the appropriate model listeners.
 	*
-	* @param syncDLObject the sync d l object
-	* @return the sync d l object that was added
+	* @param syncDLObject the sync dl object
+	* @return the sync dl object that was added
 	*/
 	public static com.liferay.sync.model.SyncDLObject addSyncDLObject(
 		com.liferay.sync.model.SyncDLObject syncDLObject) {
 		return getService().addSyncDLObject(syncDLObject);
 	}
 
+	public static com.liferay.sync.model.SyncDLObject addSyncDLObject(
+		long companyId, long userId, java.lang.String userName,
+		long modifiedTime, long repositoryId, long parentFolderId,
+		java.lang.String treePath, java.lang.String name,
+		java.lang.String extension, java.lang.String mimeType,
+		java.lang.String description, java.lang.String changeLog,
+		java.lang.String extraSettings, java.lang.String version,
+		long versionId, long size, java.lang.String checksum,
+		java.lang.String event, java.lang.String lanTokenKey,
+		java.util.Date lockExpirationDate, long lockUserId,
+		java.lang.String lockUserName, java.lang.String type, long typePK,
+		java.lang.String typeUuid)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .addSyncDLObject(companyId, userId, userName, modifiedTime,
+			repositoryId, parentFolderId, treePath, name, extension, mimeType,
+			description, changeLog, extraSettings, version, versionId, size,
+			checksum, event, lanTokenKey, lockExpirationDate, lockUserId,
+			lockUserName, type, typePK, typeUuid);
+	}
+
+	/**
+	* @deprecated As of 1.3.0, replaced by {@link #addSyncDLObject(long, long,
+	String, long, long, long, String, String, String, String,
+	String, String, String, String, long, long, String, String,
+	String, Date, long, String, String, long, String)}
+	*/
+	@Deprecated
 	public static com.liferay.sync.model.SyncDLObject addSyncDLObject(
 		long companyId, long userId, java.lang.String userName,
 		long modifiedTime, long repositoryId, long parentFolderId,
@@ -100,10 +128,10 @@ public class SyncDLObjectLocalServiceUtil {
 	}
 
 	/**
-	* Creates a new sync d l object with the primary key. Does not add the sync d l object to the database.
+	* Creates a new sync dl object with the primary key. Does not add the sync dl object to the database.
 	*
-	* @param syncDLObjectId the primary key for the new sync d l object
-	* @return the new sync d l object
+	* @param syncDLObjectId the primary key for the new sync dl object
+	* @return the new sync dl object
 	*/
 	public static com.liferay.sync.model.SyncDLObject createSyncDLObject(
 		long syncDLObjectId) {
@@ -111,10 +139,10 @@ public class SyncDLObjectLocalServiceUtil {
 	}
 
 	/**
-	* Deletes the sync d l object from the database. Also notifies the appropriate model listeners.
+	* Deletes the sync dl object from the database. Also notifies the appropriate model listeners.
 	*
-	* @param syncDLObject the sync d l object
-	* @return the sync d l object that was removed
+	* @param syncDLObject the sync dl object
+	* @return the sync dl object that was removed
 	*/
 	public static com.liferay.sync.model.SyncDLObject deleteSyncDLObject(
 		com.liferay.sync.model.SyncDLObject syncDLObject) {
@@ -122,11 +150,11 @@ public class SyncDLObjectLocalServiceUtil {
 	}
 
 	/**
-	* Deletes the sync d l object with the primary key from the database. Also notifies the appropriate model listeners.
+	* Deletes the sync dl object with the primary key from the database. Also notifies the appropriate model listeners.
 	*
-	* @param syncDLObjectId the primary key of the sync d l object
-	* @return the sync d l object that was removed
-	* @throws PortalException if a sync d l object with the primary key could not be found
+	* @param syncDLObjectId the primary key of the sync dl object
+	* @return the sync dl object that was removed
+	* @throws PortalException if a sync dl object with the primary key could not be found
 	*/
 	public static com.liferay.sync.model.SyncDLObject deleteSyncDLObject(
 		long syncDLObjectId)
@@ -145,11 +173,11 @@ public class SyncDLObjectLocalServiceUtil {
 	}
 
 	/**
-	* Returns the sync d l object with the primary key.
+	* Returns the sync dl object with the primary key.
 	*
-	* @param syncDLObjectId the primary key of the sync d l object
-	* @return the sync d l object
-	* @throws PortalException if a sync d l object with the primary key could not be found
+	* @param syncDLObjectId the primary key of the sync dl object
+	* @return the sync dl object
+	* @throws PortalException if a sync dl object with the primary key could not be found
 	*/
 	public static com.liferay.sync.model.SyncDLObject getSyncDLObject(
 		long syncDLObjectId)
@@ -158,10 +186,10 @@ public class SyncDLObjectLocalServiceUtil {
 	}
 
 	/**
-	* Updates the sync d l object in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	* Updates the sync dl object in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
-	* @param syncDLObject the sync d l object
-	* @return the sync d l object that was updated
+	* @param syncDLObject the sync dl object
+	* @return the sync dl object that was updated
 	*/
 	public static com.liferay.sync.model.SyncDLObject updateSyncDLObject(
 		com.liferay.sync.model.SyncDLObject syncDLObject) {
@@ -169,9 +197,9 @@ public class SyncDLObjectLocalServiceUtil {
 	}
 
 	/**
-	* Returns the number of sync d l objects.
+	* Returns the number of sync dl objects.
 	*
-	* @return the number of sync d l objects
+	* @return the number of sync dl objects
 	*/
 	public static int getSyncDLObjectsCount() {
 		return getService().getSyncDLObjectsCount();
@@ -237,15 +265,15 @@ public class SyncDLObjectLocalServiceUtil {
 	}
 
 	/**
-	* Returns a range of all the sync d l objects.
+	* Returns a range of all the sync dl objects.
 	*
 	* <p>
 	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.sync.model.impl.SyncDLObjectModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
-	* @param start the lower bound of the range of sync d l objects
-	* @param end the upper bound of the range of sync d l objects (not inclusive)
-	* @return the range of sync d l objects
+	* @param start the lower bound of the range of sync dl objects
+	* @param end the upper bound of the range of sync dl objects (not inclusive)
+	* @return the range of sync dl objects
 	*/
 	public static java.util.List<com.liferay.sync.model.SyncDLObject> getSyncDLObjects(
 		int start, int end) {

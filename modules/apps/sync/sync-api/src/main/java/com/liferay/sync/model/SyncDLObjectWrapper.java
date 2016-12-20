@@ -78,6 +78,7 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 		attributes.put("size", getSize());
 		attributes.put("checksum", getChecksum());
 		attributes.put("event", getEvent());
+		attributes.put("lanTokenKey", getLanTokenKey());
 		attributes.put("lastPermissionChangeDate", getLastPermissionChangeDate());
 		attributes.put("lockExpirationDate", getLockExpirationDate());
 		attributes.put("lockUserId", getLockUserId());
@@ -211,6 +212,12 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 			setEvent(event);
 		}
 
+		String lanTokenKey = (String)attributes.get("lanTokenKey");
+
+		if (lanTokenKey != null) {
+			setLanTokenKey(lanTokenKey);
+		}
+
 		Date lastPermissionChangeDate = (Date)attributes.get(
 				"lastPermissionChangeDate");
 
@@ -316,9 +323,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the change log of this sync d l object.
+	* Returns the change log of this sync dl object.
 	*
-	* @return the change log of this sync d l object
+	* @return the change log of this sync dl object
 	*/
 	@Override
 	public java.lang.String getChangeLog() {
@@ -326,9 +333,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the checksum of this sync d l object.
+	* Returns the checksum of this sync dl object.
 	*
-	* @return the checksum of this sync d l object
+	* @return the checksum of this sync dl object
 	*/
 	@Override
 	public java.lang.String getChecksum() {
@@ -336,9 +343,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the description of this sync d l object.
+	* Returns the description of this sync dl object.
 	*
-	* @return the description of this sync d l object
+	* @return the description of this sync dl object
 	*/
 	@Override
 	public java.lang.String getDescription() {
@@ -346,9 +353,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the event of this sync d l object.
+	* Returns the event of this sync dl object.
 	*
-	* @return the event of this sync d l object
+	* @return the event of this sync dl object
 	*/
 	@Override
 	public java.lang.String getEvent() {
@@ -356,9 +363,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the extension of this sync d l object.
+	* Returns the extension of this sync dl object.
 	*
-	* @return the extension of this sync d l object
+	* @return the extension of this sync dl object
 	*/
 	@Override
 	public java.lang.String getExtension() {
@@ -366,9 +373,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the extra settings of this sync d l object.
+	* Returns the extra settings of this sync dl object.
 	*
-	* @return the extra settings of this sync d l object
+	* @return the extra settings of this sync dl object
 	*/
 	@Override
 	public java.lang.String getExtraSettings() {
@@ -376,9 +383,19 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the lock user name of this sync d l object.
+	* Returns the lan token key of this sync dl object.
 	*
-	* @return the lock user name of this sync d l object
+	* @return the lan token key of this sync dl object
+	*/
+	@Override
+	public java.lang.String getLanTokenKey() {
+		return _syncDLObject.getLanTokenKey();
+	}
+
+	/**
+	* Returns the lock user name of this sync dl object.
+	*
+	* @return the lock user name of this sync dl object
 	*/
 	@Override
 	public java.lang.String getLockUserName() {
@@ -386,9 +403,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the lock user uuid of this sync d l object.
+	* Returns the lock user uuid of this sync dl object.
 	*
-	* @return the lock user uuid of this sync d l object
+	* @return the lock user uuid of this sync dl object
 	*/
 	@Override
 	public java.lang.String getLockUserUuid() {
@@ -396,9 +413,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the mime type of this sync d l object.
+	* Returns the mime type of this sync dl object.
 	*
-	* @return the mime type of this sync d l object
+	* @return the mime type of this sync dl object
 	*/
 	@Override
 	public java.lang.String getMimeType() {
@@ -406,9 +423,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the name of this sync d l object.
+	* Returns the name of this sync dl object.
 	*
-	* @return the name of this sync d l object
+	* @return the name of this sync dl object
 	*/
 	@Override
 	public java.lang.String getName() {
@@ -416,9 +433,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the tree path of this sync d l object.
+	* Returns the tree path of this sync dl object.
 	*
-	* @return the tree path of this sync d l object
+	* @return the tree path of this sync dl object
 	*/
 	@Override
 	public java.lang.String getTreePath() {
@@ -426,9 +443,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the type of this sync d l object.
+	* Returns the type of this sync dl object.
 	*
-	* @return the type of this sync d l object
+	* @return the type of this sync dl object
 	*/
 	@Override
 	public java.lang.String getType() {
@@ -436,9 +453,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the type uuid of this sync d l object.
+	* Returns the type uuid of this sync dl object.
 	*
-	* @return the type uuid of this sync d l object
+	* @return the type uuid of this sync dl object
 	*/
 	@Override
 	public java.lang.String getTypeUuid() {
@@ -446,9 +463,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the user name of this sync d l object.
+	* Returns the user name of this sync dl object.
 	*
-	* @return the user name of this sync d l object
+	* @return the user name of this sync dl object
 	*/
 	@Override
 	public java.lang.String getUserName() {
@@ -456,9 +473,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the user uuid of this sync d l object.
+	* Returns the user uuid of this sync dl object.
 	*
-	* @return the user uuid of this sync d l object
+	* @return the user uuid of this sync dl object
 	*/
 	@Override
 	public java.lang.String getUserUuid() {
@@ -466,9 +483,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the version of this sync d l object.
+	* Returns the version of this sync dl object.
 	*
-	* @return the version of this sync d l object
+	* @return the version of this sync dl object
 	*/
 	@Override
 	public java.lang.String getVersion() {
@@ -486,9 +503,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the last permission change date of this sync d l object.
+	* Returns the last permission change date of this sync dl object.
 	*
-	* @return the last permission change date of this sync d l object
+	* @return the last permission change date of this sync dl object
 	*/
 	@Override
 	public Date getLastPermissionChangeDate() {
@@ -496,9 +513,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the lock expiration date of this sync d l object.
+	* Returns the lock expiration date of this sync dl object.
 	*
-	* @return the lock expiration date of this sync d l object
+	* @return the lock expiration date of this sync dl object
 	*/
 	@Override
 	public Date getLockExpirationDate() {
@@ -506,9 +523,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the company ID of this sync d l object.
+	* Returns the company ID of this sync dl object.
 	*
-	* @return the company ID of this sync d l object
+	* @return the company ID of this sync dl object
 	*/
 	@Override
 	public long getCompanyId() {
@@ -516,9 +533,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the create time of this sync d l object.
+	* Returns the create time of this sync dl object.
 	*
-	* @return the create time of this sync d l object
+	* @return the create time of this sync dl object
 	*/
 	@Override
 	public long getCreateTime() {
@@ -526,9 +543,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the lock user ID of this sync d l object.
+	* Returns the lock user ID of this sync dl object.
 	*
-	* @return the lock user ID of this sync d l object
+	* @return the lock user ID of this sync dl object
 	*/
 	@Override
 	public long getLockUserId() {
@@ -536,9 +553,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the modified time of this sync d l object.
+	* Returns the modified time of this sync dl object.
 	*
-	* @return the modified time of this sync d l object
+	* @return the modified time of this sync dl object
 	*/
 	@Override
 	public long getModifiedTime() {
@@ -546,9 +563,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the parent folder ID of this sync d l object.
+	* Returns the parent folder ID of this sync dl object.
 	*
-	* @return the parent folder ID of this sync d l object
+	* @return the parent folder ID of this sync dl object
 	*/
 	@Override
 	public long getParentFolderId() {
@@ -556,9 +573,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the primary key of this sync d l object.
+	* Returns the primary key of this sync dl object.
 	*
-	* @return the primary key of this sync d l object
+	* @return the primary key of this sync dl object
 	*/
 	@Override
 	public long getPrimaryKey() {
@@ -566,9 +583,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the repository ID of this sync d l object.
+	* Returns the repository ID of this sync dl object.
 	*
-	* @return the repository ID of this sync d l object
+	* @return the repository ID of this sync dl object
 	*/
 	@Override
 	public long getRepositoryId() {
@@ -576,9 +593,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the size of this sync d l object.
+	* Returns the size of this sync dl object.
 	*
-	* @return the size of this sync d l object
+	* @return the size of this sync dl object
 	*/
 	@Override
 	public long getSize() {
@@ -586,9 +603,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the sync d l object ID of this sync d l object.
+	* Returns the sync dl object ID of this sync dl object.
 	*
-	* @return the sync d l object ID of this sync d l object
+	* @return the sync dl object ID of this sync dl object
 	*/
 	@Override
 	public long getSyncDLObjectId() {
@@ -596,9 +613,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the type p k of this sync d l object.
+	* Returns the type pk of this sync dl object.
 	*
-	* @return the type p k of this sync d l object
+	* @return the type pk of this sync dl object
 	*/
 	@Override
 	public long getTypePK() {
@@ -606,9 +623,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the user ID of this sync d l object.
+	* Returns the user ID of this sync dl object.
 	*
-	* @return the user ID of this sync d l object
+	* @return the user ID of this sync dl object
 	*/
 	@Override
 	public long getUserId() {
@@ -616,9 +633,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Returns the version ID of this sync d l object.
+	* Returns the version ID of this sync dl object.
 	*
-	* @return the version ID of this sync d l object
+	* @return the version ID of this sync dl object
 	*/
 	@Override
 	public long getVersionId() {
@@ -636,9 +653,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the change log of this sync d l object.
+	* Sets the change log of this sync dl object.
 	*
-	* @param changeLog the change log of this sync d l object
+	* @param changeLog the change log of this sync dl object
 	*/
 	@Override
 	public void setChangeLog(java.lang.String changeLog) {
@@ -646,9 +663,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the checksum of this sync d l object.
+	* Sets the checksum of this sync dl object.
 	*
-	* @param checksum the checksum of this sync d l object
+	* @param checksum the checksum of this sync dl object
 	*/
 	@Override
 	public void setChecksum(java.lang.String checksum) {
@@ -656,9 +673,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the company ID of this sync d l object.
+	* Sets the company ID of this sync dl object.
 	*
-	* @param companyId the company ID of this sync d l object
+	* @param companyId the company ID of this sync dl object
 	*/
 	@Override
 	public void setCompanyId(long companyId) {
@@ -671,9 +688,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the create time of this sync d l object.
+	* Sets the create time of this sync dl object.
 	*
-	* @param createTime the create time of this sync d l object
+	* @param createTime the create time of this sync dl object
 	*/
 	@Override
 	public void setCreateTime(long createTime) {
@@ -681,9 +698,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the description of this sync d l object.
+	* Sets the description of this sync dl object.
 	*
-	* @param description the description of this sync d l object
+	* @param description the description of this sync dl object
 	*/
 	@Override
 	public void setDescription(java.lang.String description) {
@@ -691,9 +708,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the event of this sync d l object.
+	* Sets the event of this sync dl object.
 	*
-	* @param event the event of this sync d l object
+	* @param event the event of this sync dl object
 	*/
 	@Override
 	public void setEvent(java.lang.String event) {
@@ -717,9 +734,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the extension of this sync d l object.
+	* Sets the extension of this sync dl object.
 	*
-	* @param extension the extension of this sync d l object
+	* @param extension the extension of this sync dl object
 	*/
 	@Override
 	public void setExtension(java.lang.String extension) {
@@ -727,9 +744,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the extra settings of this sync d l object.
+	* Sets the extra settings of this sync dl object.
 	*
-	* @param extraSettings the extra settings of this sync d l object
+	* @param extraSettings the extra settings of this sync dl object
 	*/
 	@Override
 	public void setExtraSettings(java.lang.String extraSettings) {
@@ -737,9 +754,19 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the last permission change date of this sync d l object.
+	* Sets the lan token key of this sync dl object.
 	*
-	* @param lastPermissionChangeDate the last permission change date of this sync d l object
+	* @param lanTokenKey the lan token key of this sync dl object
+	*/
+	@Override
+	public void setLanTokenKey(java.lang.String lanTokenKey) {
+		_syncDLObject.setLanTokenKey(lanTokenKey);
+	}
+
+	/**
+	* Sets the last permission change date of this sync dl object.
+	*
+	* @param lastPermissionChangeDate the last permission change date of this sync dl object
 	*/
 	@Override
 	public void setLastPermissionChangeDate(Date lastPermissionChangeDate) {
@@ -747,9 +774,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the lock expiration date of this sync d l object.
+	* Sets the lock expiration date of this sync dl object.
 	*
-	* @param lockExpirationDate the lock expiration date of this sync d l object
+	* @param lockExpirationDate the lock expiration date of this sync dl object
 	*/
 	@Override
 	public void setLockExpirationDate(Date lockExpirationDate) {
@@ -757,9 +784,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the lock user ID of this sync d l object.
+	* Sets the lock user ID of this sync dl object.
 	*
-	* @param lockUserId the lock user ID of this sync d l object
+	* @param lockUserId the lock user ID of this sync dl object
 	*/
 	@Override
 	public void setLockUserId(long lockUserId) {
@@ -767,9 +794,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the lock user name of this sync d l object.
+	* Sets the lock user name of this sync dl object.
 	*
-	* @param lockUserName the lock user name of this sync d l object
+	* @param lockUserName the lock user name of this sync dl object
 	*/
 	@Override
 	public void setLockUserName(java.lang.String lockUserName) {
@@ -777,9 +804,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the lock user uuid of this sync d l object.
+	* Sets the lock user uuid of this sync dl object.
 	*
-	* @param lockUserUuid the lock user uuid of this sync d l object
+	* @param lockUserUuid the lock user uuid of this sync dl object
 	*/
 	@Override
 	public void setLockUserUuid(java.lang.String lockUserUuid) {
@@ -787,9 +814,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the mime type of this sync d l object.
+	* Sets the mime type of this sync dl object.
 	*
-	* @param mimeType the mime type of this sync d l object
+	* @param mimeType the mime type of this sync dl object
 	*/
 	@Override
 	public void setMimeType(java.lang.String mimeType) {
@@ -802,9 +829,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the modified time of this sync d l object.
+	* Sets the modified time of this sync dl object.
 	*
-	* @param modifiedTime the modified time of this sync d l object
+	* @param modifiedTime the modified time of this sync dl object
 	*/
 	@Override
 	public void setModifiedTime(long modifiedTime) {
@@ -812,9 +839,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the name of this sync d l object.
+	* Sets the name of this sync dl object.
 	*
-	* @param name the name of this sync d l object
+	* @param name the name of this sync dl object
 	*/
 	@Override
 	public void setName(java.lang.String name) {
@@ -827,9 +854,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the parent folder ID of this sync d l object.
+	* Sets the parent folder ID of this sync dl object.
 	*
-	* @param parentFolderId the parent folder ID of this sync d l object
+	* @param parentFolderId the parent folder ID of this sync dl object
 	*/
 	@Override
 	public void setParentFolderId(long parentFolderId) {
@@ -837,9 +864,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the primary key of this sync d l object.
+	* Sets the primary key of this sync dl object.
 	*
-	* @param primaryKey the primary key of this sync d l object
+	* @param primaryKey the primary key of this sync dl object
 	*/
 	@Override
 	public void setPrimaryKey(long primaryKey) {
@@ -852,9 +879,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the repository ID of this sync d l object.
+	* Sets the repository ID of this sync dl object.
 	*
-	* @param repositoryId the repository ID of this sync d l object
+	* @param repositoryId the repository ID of this sync dl object
 	*/
 	@Override
 	public void setRepositoryId(long repositoryId) {
@@ -862,9 +889,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the size of this sync d l object.
+	* Sets the size of this sync dl object.
 	*
-	* @param size the size of this sync d l object
+	* @param size the size of this sync dl object
 	*/
 	@Override
 	public void setSize(long size) {
@@ -872,9 +899,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the sync d l object ID of this sync d l object.
+	* Sets the sync dl object ID of this sync dl object.
 	*
-	* @param syncDLObjectId the sync d l object ID of this sync d l object
+	* @param syncDLObjectId the sync dl object ID of this sync dl object
 	*/
 	@Override
 	public void setSyncDLObjectId(long syncDLObjectId) {
@@ -882,9 +909,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the tree path of this sync d l object.
+	* Sets the tree path of this sync dl object.
 	*
-	* @param treePath the tree path of this sync d l object
+	* @param treePath the tree path of this sync dl object
 	*/
 	@Override
 	public void setTreePath(java.lang.String treePath) {
@@ -892,9 +919,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the type of this sync d l object.
+	* Sets the type of this sync dl object.
 	*
-	* @param type the type of this sync d l object
+	* @param type the type of this sync dl object
 	*/
 	@Override
 	public void setType(java.lang.String type) {
@@ -902,9 +929,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the type p k of this sync d l object.
+	* Sets the type pk of this sync dl object.
 	*
-	* @param typePK the type p k of this sync d l object
+	* @param typePK the type pk of this sync dl object
 	*/
 	@Override
 	public void setTypePK(long typePK) {
@@ -912,9 +939,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the type uuid of this sync d l object.
+	* Sets the type uuid of this sync dl object.
 	*
-	* @param typeUuid the type uuid of this sync d l object
+	* @param typeUuid the type uuid of this sync dl object
 	*/
 	@Override
 	public void setTypeUuid(java.lang.String typeUuid) {
@@ -922,9 +949,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the user ID of this sync d l object.
+	* Sets the user ID of this sync dl object.
 	*
-	* @param userId the user ID of this sync d l object
+	* @param userId the user ID of this sync dl object
 	*/
 	@Override
 	public void setUserId(long userId) {
@@ -932,9 +959,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the user name of this sync d l object.
+	* Sets the user name of this sync dl object.
 	*
-	* @param userName the user name of this sync d l object
+	* @param userName the user name of this sync dl object
 	*/
 	@Override
 	public void setUserName(java.lang.String userName) {
@@ -942,9 +969,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the user uuid of this sync d l object.
+	* Sets the user uuid of this sync dl object.
 	*
-	* @param userUuid the user uuid of this sync d l object
+	* @param userUuid the user uuid of this sync dl object
 	*/
 	@Override
 	public void setUserUuid(java.lang.String userUuid) {
@@ -952,9 +979,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the version of this sync d l object.
+	* Sets the version of this sync dl object.
 	*
-	* @param version the version of this sync d l object
+	* @param version the version of this sync dl object
 	*/
 	@Override
 	public void setVersion(java.lang.String version) {
@@ -962,9 +989,9 @@ public class SyncDLObjectWrapper implements SyncDLObject,
 	}
 
 	/**
-	* Sets the version ID of this sync d l object.
+	* Sets the version ID of this sync dl object.
 	*
-	* @param versionId the version ID of this sync d l object
+	* @param versionId the version ID of this sync dl object
 	*/
 	@Override
 	public void setVersionId(long versionId) {

@@ -21,6 +21,7 @@
 <%@ taglib uri="http://liferay.com/tld/asset" prefix="liferay-asset" %><%@
 taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
 taglib uri="http://liferay.com/tld/ddm" prefix="liferay-ddm" %><%@
+taglib uri="http://liferay.com/tld/expando" prefix="liferay-expando" %><%@
 taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
 taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %><%@
 taglib uri="http://liferay.com/tld/security" prefix="liferay-security" %><%@
@@ -34,7 +35,6 @@ page import="com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil" %><%@
 page import="com.liferay.asset.kernel.service.AssetEntryServiceUtil" %><%@
 page import="com.liferay.asset.kernel.service.AssetTagLocalServiceUtil" %><%@
 page import="com.liferay.document.library.display.context.DLMimeTypeDisplayContext" %><%@
-page import="com.liferay.document.library.kernel.model.DLFileEntry" %><%@
 page import="com.liferay.document.library.kernel.util.DLUtil" %><%@
 page import="com.liferay.portal.kernel.bean.BeanParamUtil" %><%@
 page import="com.liferay.portal.kernel.dao.search.RowChecker" %><%@
@@ -98,8 +98,6 @@ page import="com.liferay.social.kernel.model.SocialActivity" %><%@
 page import="com.liferay.social.kernel.model.SocialActivityConstants" %><%@
 page import="com.liferay.social.kernel.service.SocialActivityLocalServiceUtil" %><%@
 page import="com.liferay.taglib.search.ResultRow" %><%@
-page import="com.liferay.trash.kernel.model.TrashEntry" %><%@
-page import="com.liferay.trash.kernel.service.TrashEntryLocalServiceUtil" %><%@
 page import="com.liferay.trash.kernel.util.TrashUtil" %><%@
 page import="com.liferay.wiki.web.internal.search.NodesChecker" %><%@
 page import="com.liferay.wiki.web.internal.search.PagesChecker" %><%@
@@ -114,6 +112,7 @@ page import="java.util.Collection" %><%@
 page import="java.util.Date" %><%@
 page import="java.util.HashMap" %><%@
 page import="java.util.HashSet" %><%@
+page import="java.util.Iterator" %><%@
 page import="java.util.List" %><%@
 page import="java.util.Map" %><%@
 page import="java.util.Set" %>

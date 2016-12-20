@@ -128,8 +128,11 @@
 			<condition function="IsElementPresent" locator1="PortalInstances#INSTANCE_TABLE_ACTIONS_GENERIC_2" />
 			<then>
 				<execute function="Click#waitForMenuToggleJSClick" locator1="PortalInstances#INSTANCE_TABLE_ACTIONS_GENERIC_2" />
+
 				<execute function="AssertClickNoError" locator1="MenuItem#DELETE" value1="Delete" />
+
 				<execute function="Confirm" value1="Are you sure you want to delete this? It will be deleted immediately." />
+
 				<execute macro="Alert#viewSuccessMessage" />
 			</then>
 		</while>
@@ -179,18 +182,6 @@
 
 		<execute macro="SignIn#signIn" />
 
-		<var method="TestPropsUtil#get('browser.type')" name="browserType" />
-
-		<if>
-			<or>
-				<equals arg1="${browserType}" arg2="edge" />
-				<equals arg1="${browserType}" arg2="internetexplorer" />
-			</or>
-			<then>
-				<execute function="Open" locator1="/web/guest/home" />
-			</then>
-		</if>
-
 		<if>
 			<condition function="IsElementPresent" locator1="Button#I_AGREE" />
 			<then>
@@ -204,21 +195,6 @@
 				<execute macro="SignIn#setPasswordReminder" />
 			</then>
 		</if>
-	</command>
-
-	<command name="signInViaGoogle">
-		<execute macro="Navigator#openURL" />
-
-		<execute function="AssertClick" locator1="Link#GOOGLE_LOGIN" value1="Google" />
-
-		<execute function="SelectWindow" locator1="GoogleLogin#PAGE_TITLE" />
-
-		<execute macro="GoogleLogin#accountSignIn">
-			<var name="userEmailAddress" value="${userEmailAddress}" />
-			<var name="userPassword" value="${userPassword}" />
-		</execute>
-
-		<execute macro="GoogleLogin#acceptConditions" />
 	</command>
 
 	<command name="viewSignInError">

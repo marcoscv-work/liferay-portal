@@ -14,7 +14,7 @@
 
 package com.liferay.dynamic.data.mapping.form.evaluator.impl.internal;
 
-import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderConsumerTracker;
+import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderTracker;
 import com.liferay.dynamic.data.mapping.expression.DDMExpression;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionException;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionFactory;
@@ -43,6 +43,7 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -60,14 +61,14 @@ import java.util.Objects;
 public class DDMFormEvaluatorHelper {
 
 	public DDMFormEvaluatorHelper(
-		DDMDataProviderConsumerTracker ddmDataProviderConsumerTracker,
+		DDMDataProviderTracker ddmDataProviderTracker,
 		DDMDataProviderInstanceService ddmDataProviderInstanceService,
 		DDMExpressionFactory ddmExpressionFactory, DDMForm ddmForm,
 		DDMFormValues ddmFormValues,
 		DDMFormValuesJSONDeserializer ddmFormValuesJSONDeserializer,
 		JSONFactory jsonFactory, Locale locale) {
 
-		_ddmDataProviderConsumerTracker = ddmDataProviderConsumerTracker;
+		_ddmDataProviderTracker = ddmDataProviderTracker;
 		_ddmDataProviderInstanceService = ddmDataProviderInstanceService;
 		_ddmExpressionFactory = ddmExpressionFactory;
 		_ddmForm = ddmForm;
@@ -91,8 +92,14 @@ public class DDMFormEvaluatorHelper {
 		DDMFormEvaluationResult ddmFormEvaluationResult =
 			new DDMFormEvaluationResult();
 
+		List<DDMFormFieldEvaluationResult> ddmFormFieldEvaluationResults =
+			getDDMFormFieldEvaluationResults();
+
+		setDDMFormFieldEvaluationResultsValidation(
+			ddmFormFieldEvaluationResults);
+
 		ddmFormEvaluationResult.setDDMFormFieldEvaluationResults(
-			getDDMFormFieldEvaluationResults());
+			ddmFormFieldEvaluationResults);
 
 		return ddmFormEvaluationResult;
 	}
@@ -194,6 +201,25 @@ public class DDMFormEvaluatorHelper {
 		return ddmFormFieldEvaluationResults;
 	}
 
+	protected DDMFormFieldValue getDDMFormFieldValue(
+		String ddmFormFieldName, String instanceId) {
+
+		List<DDMFormFieldValue> ddmFormFieldValues = _ddmFormFieldValuesMap.get(
+			ddmFormFieldName);
+
+		if (ListUtil.isEmpty(ddmFormFieldValues)) {
+			return null;
+		}
+
+		for (DDMFormFieldValue ddmFormFieldValue : ddmFormFieldValues) {
+			if (instanceId.equals(ddmFormFieldValue.getInstanceId())) {
+				return ddmFormFieldValue;
+			}
+		}
+
+		return null;
+	}
+
 	protected boolean getDefaultBooleanPropertyState(
 		String functionName, String ddmFormFieldName, boolean defaultValue) {
 
@@ -218,6 +244,13 @@ public class DDMFormEvaluatorHelper {
 			return jsonArray.getString(0);
 		}
 		catch (JSONException jsone) {
+
+			// LPS-52675
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(jsone, jsone);
+			}
+
 			return valueString;
 		}
 	}
@@ -247,7 +280,7 @@ public class DDMFormEvaluatorHelper {
 
 		String valueString = value.getString(_locale);
 
-		if (Validator.isNull(valueString)) {
+		if (Validator.isNull(StringUtil.trim(valueString))) {
 			return true;
 		}
 
@@ -290,8 +323,7 @@ public class DDMFormEvaluatorHelper {
 		ddmFormRuleEvaluator.setDDMExpressionFunction(
 			"call",
 			new CallFunction(
-				_ddmDataProviderConsumerTracker,
-				_ddmDataProviderInstanceService,
+				_ddmDataProviderTracker, _ddmDataProviderInstanceService,
 				_ddmFormFieldEvaluationResultsMap,
 				_ddmFormValuesJSONDeserializer, _jsonFactory));
 		ddmFormRuleEvaluator.setDDMExpressionFunction(
@@ -378,6 +410,23 @@ public class DDMFormEvaluatorHelper {
 			"setRequired", ddmFormField.getName(), ddmFormField.isRequired());
 
 		ddmFormFieldEvaluationResult.setRequired(required);
+	}
+
+	protected void setDDMFormFieldEvaluationResultsValidation(
+		List<DDMFormFieldEvaluationResult> ddmFormFieldEvaluationResults) {
+
+		for (DDMFormFieldEvaluationResult ddmFormFieldEvaluationResult :
+				ddmFormFieldEvaluationResults) {
+
+			String ddmFormFieldName = ddmFormFieldEvaluationResult.getName();
+
+			DDMFormFieldValue ddmFormFieldValue = getDDMFormFieldValue(
+				ddmFormFieldName, ddmFormFieldEvaluationResult.getInstanceId());
+
+			setDDMFormFieldEvaluationResultValidation(
+				ddmFormFieldEvaluationResult,
+				_ddmFormFieldsMap.get(ddmFormFieldName), ddmFormFieldValue);
+		}
 	}
 
 	protected void setDDMFormFieldEvaluationResultValidation(
@@ -484,10 +533,9 @@ public class DDMFormEvaluatorHelper {
 	private static final Log _log = LogFactoryUtil.getLog(
 		DDMFormEvaluatorHelper.class);
 
-	private final DDMDataProviderConsumerTracker
-		_ddmDataProviderConsumerTracker;
 	private final DDMDataProviderInstanceService
 		_ddmDataProviderInstanceService;
+	private final DDMDataProviderTracker _ddmDataProviderTracker;
 	private final DDMExpressionFactory _ddmExpressionFactory;
 	private final DDMForm _ddmForm;
 	private final Map<String, List<DDMFormFieldEvaluationResult>>

@@ -16,12 +16,16 @@ package com.liferay.portal.upgrade.v7_0_3;
 
 import com.liferay.message.boards.kernel.model.MBCategoryConstants;
 import com.liferay.message.boards.kernel.model.MBDiscussion;
+import com.liferay.portal.kernel.dao.db.DBType;
+import com.liferay.portal.kernel.dao.db.DBTypeToSQLMap;
 import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
+import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,46 +36,34 @@ import java.sql.ResultSet;
 public class UpgradeMessageBoards extends UpgradeProcess {
 
 	protected void deleteEmptyMBDiscussion() throws Exception {
+		String tempTableName = "TEMP_TABLE_" + StringUtil.randomString(4);
+
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			long classNameId = PortalUtil.getClassNameId(
-				MBDiscussion.class.getName());
+			runSQL("create table " + tempTableName + " (threadId LONG)");
 
-			StringBundler sb = new StringBundler(6);
+			StringBundler sb = new StringBundler(8);
 
-			sb.append("delete from AssetEntry where classPK in (");
-			sb.append("select messageId from MBMessage where threadId in (");
-			sb.append("select threadId from MBThread where categoryId = ");
+			sb.append("insert into ");
+			sb.append(tempTableName);
+			sb.append(" select MBMessage.threadId from MBThread, MBMessage ");
+			sb.append("where MBThread.threadId = MBMessage.threadId and ");
+			sb.append("MBThread.categoryId = ");
 			sb.append(MBCategoryConstants.DISCUSSION_CATEGORY_ID);
-			sb.append(" and messageCount = 1)) and classNameId = ");
-			sb.append(classNameId);
+			sb.append(" group by MBMessage.threadId having ");
+			sb.append("count(MBMessage.messageId) = 1");
 
 			runSQL(sb.toString());
 
-			sb = new StringBundler(4);
-
-			sb.append("delete from MBDiscussion where threadId in (select ");
-			sb.append("threadId from MBThread where categoryId = ");
-			sb.append(MBCategoryConstants.DISCUSSION_CATEGORY_ID);
-			sb.append(" and messageCount = 1)");
-
-			runSQL(sb.toString());
-
-			sb = new StringBundler(4);
-
-			sb.append("delete from MBMessage where threadId in (select ");
-			sb.append("threadId from MBThread where categoryId = ");
-			sb.append(MBCategoryConstants.DISCUSSION_CATEGORY_ID);
-			sb.append(" and messageCount = 1)");
-
-			runSQL(sb.toString());
-
-			runSQL(
-				"delete from MBThread where categoryId = " +
-					MBCategoryConstants.DISCUSSION_CATEGORY_ID +
-						" and messageCount = 1");
+			_deleteAssetEntry(tempTableName);
+			_deleteTable("MBDiscussion", tempTableName);
+			_deleteTable("MBMessage", tempTableName);
+			_deleteTable("MBThread", tempTableName);
 		}
 		catch (Exception e) {
 			throw new UpgradeException(e);
+		}
+		finally {
+			runSQL("drop table " + tempTableName);
 		}
 	}
 
@@ -110,6 +102,70 @@ public class UpgradeMessageBoards extends UpgradeProcess {
 				ps1.executeBatch();
 			}
 		}
+	}
+
+	private void _deleteAssetEntry(String tempTableName) throws Exception {
+		long classNameId = PortalUtil.getClassNameId(
+			MBDiscussion.class.getName());
+
+		StringBundler sb = new StringBundler(7);
+
+		sb.append("delete from AssetEntry where classPK in (");
+		sb.append("select MBMessage.messageId from MBMessage inner join ");
+		sb.append(tempTableName);
+		sb.append(" on MBMessage.threadId = ");
+		sb.append(tempTableName);
+		sb.append(".threadId) and classNameId = ");
+		sb.append(classNameId);
+
+		DBTypeToSQLMap dbTypeToSQLMap = new DBTypeToSQLMap(sb.toString());
+
+		sb = new StringBundler(8);
+
+		sb.append("delete AssetEntry from AssetEntry inner join MBMessage ");
+		sb.append("inner join ");
+		sb.append(tempTableName);
+		sb.append(" where MBMessage.threadId = ");
+		sb.append(tempTableName);
+		sb.append(".threadId and AssetEntry.classPK = MBMessage.messageId ");
+		sb.append("and AssetEntry.classNameId = ");
+		sb.append(classNameId);
+
+		dbTypeToSQLMap.add(DBType.MYSQL, sb.toString());
+
+		runSQL(dbTypeToSQLMap);
+	}
+
+	private void _deleteTable(String tableName, String tempTableName)
+		throws Exception {
+
+		StringBundler sb = new StringBundler(5);
+
+		sb.append("delete from ");
+		sb.append(tableName);
+		sb.append(" where threadId in (select threadId from ");
+		sb.append(tempTableName);
+		sb.append(StringPool.CLOSE_PARENTHESIS);
+
+		DBTypeToSQLMap dbTypeToSQLMap = new DBTypeToSQLMap(sb.toString());
+
+		sb = new StringBundler(11);
+
+		sb.append("delete ");
+		sb.append(tableName);
+		sb.append(" from ");
+		sb.append(tableName);
+		sb.append(" inner join ");
+		sb.append(tempTableName);
+		sb.append(" where ");
+		sb.append(tableName);
+		sb.append(".threadId = ");
+		sb.append(tempTableName);
+		sb.append(".threadId");
+
+		dbTypeToSQLMap.add(DBType.MYSQL, sb.toString());
+
+		runSQL(dbTypeToSQLMap);
 	}
 
 }

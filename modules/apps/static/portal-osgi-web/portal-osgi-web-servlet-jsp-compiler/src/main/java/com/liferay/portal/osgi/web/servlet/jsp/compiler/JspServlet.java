@@ -55,7 +55,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
@@ -297,6 +299,12 @@ public class JspServlet extends HttpServlet {
 		defaults.put(
 			TagHandlerPool.OPTION_TAGPOOL, JspTagHandlerPool.class.getName());
 
+		for (Entry<Object, Object> entry : _initParams.entrySet()) {
+			defaults.put(
+				String.valueOf(entry.getKey()),
+				String.valueOf(entry.getValue()));
+		}
+
 		Enumeration<String> names = servletConfig.getInitParameterNames();
 
 		Set<String> nameSet = new HashSet<>(Collections.list(names));
@@ -529,7 +537,7 @@ public class JspServlet extends HttpServlet {
 
 		Path dirPath = fileSystem.getPath(dir);
 
-		if (Files.exists(dirPath) && (paths.size() > 0)) {
+		if (Files.exists(dirPath) && !paths.isEmpty()) {
 			try {
 				Files.walkFileTree(dirPath, new DeleteFileVisitor(paths));
 			}
@@ -557,6 +565,8 @@ public class JspServlet extends HttpServlet {
 			File.separator;
 
 	private static final Map<Method, Method> _contextAdapterMethods;
+	private static final Properties _initParams = PropsUtil.getProperties(
+		"jsp.servlet.init.param.", true);
 	private static final Bundle _jspBundle = FrameworkUtil.getBundle(
 		JspServlet.class);
 	private static final Pattern _originalJspPattern = Pattern.compile(

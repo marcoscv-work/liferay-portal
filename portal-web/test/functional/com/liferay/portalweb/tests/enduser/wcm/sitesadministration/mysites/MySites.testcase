@@ -1,5 +1,6 @@
 <definition component-name="portal-wcm">
 	<property name="portal.release" value="true" />
+	<property name="portal.upstream" value="true" />
 	<property name="testray.main.component.name" value="Site Administration" />
 
 	<set-up>
@@ -218,6 +219,16 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
+		<execute macro="UserBar#gotoDashboard" />
+
+		<execute macro="Navigator#gotoNavItem">
+			<var name="navItem" value="Available Sites" />
+		</execute>
+
+		<execute macro="MySites#viewMembershipRequested">
+			<var name="siteName" value="Site Name" />
+		</execute>
+
 		<execute macro="User#logoutPG" />
 
 		<execute macro="User#loginPG">
@@ -398,7 +409,7 @@
 		</execute>
 
 		<execute macro="User#assignRegularRoleCP">
-			<var name="roleName" value="Power User" />
+			<var name="roleTitle" value="Power User" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
@@ -534,7 +545,7 @@
 		</execute>
 
 		<execute macro="User#assignRegularRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 

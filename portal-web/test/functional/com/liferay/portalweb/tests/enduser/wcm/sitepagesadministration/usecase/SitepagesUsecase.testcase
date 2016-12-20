@@ -1,5 +1,6 @@
 <definition component-name="portal-wcm">
 	<property name="portal.release" value="true" />
+	<property name="portal.upstream" value="true" />
 	<property name="testray.main.component.name" value="Site Pages Administration" />
 
 	<set-up>
@@ -193,10 +194,8 @@
 
 	<command name="LoadMoreResultsLinkAreMissingAtAllLevelsInTreeView" priority="3">
 		<property name="custom.properties" value="layout.manage.pages.initial.children=3" />
-		<var name="childPageNameList" value="Child Page1 Name,Child Page2 Name,Child Page3 Name,Child Page4 Name, Child Page5 Name" />
-		<var name="pageNameList" value="Page1 Name,Page2 Name,Page3 Name,Page4 Name" />
 
-		<for list="${pageNameList}" param="pageName">
+		<for list="Page1 Name,Page2 Name,Page3 Name,Page4 Name" param="pageName">
 			<execute macro="Page#add">
 				<var name="pageName" value="${pageName}" />
 			</execute>
@@ -210,7 +209,7 @@
 			<var name="siteChildPages" value="false" />
 		</execute>
 
-		<for list="${childPageNameList}" param="siteChildPageName">
+		<for list="Child Page1 Name,Child Page2 Name,Child Page3 Name,Child Page4 Name, Child Page5 Name" param="siteChildPageName">
 			<execute macro="Page#addChild">
 				<var name="page" value="Public Pages" />
 				<var name="pageName" value="Welcome" />
@@ -254,7 +253,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Power User" />
+			<var name="roleTitle" value="Power User" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
@@ -308,7 +307,7 @@
 		</execute>
 
 		<execute macro="Role#addCP">
-			<var name="roleName" value="Roles Regrole Name" />
+			<var name="roleTitle" value="Roles Regrole Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -345,7 +344,7 @@
 		</execute>
 
 		<execute macro="User#assignRegularRoleCP">
-			<var name="roleName" value="Roles Regrole Name" />
+			<var name="roleTitle" value="Roles Regrole Name" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
@@ -363,12 +362,12 @@
 
 		<execute macro="Role#removePermissionPG">
 			<var name="permissionDefinitionKey" value="CONTENT_PERMISSIONS_VIEW_CHECKBOX" />
-			<var name="roleName" value="Site Member" />
+			<var name="roleTitle" value="Site Member" />
 		</execute>
 
 		<execute macro="Role#definePermissionPG">
 			<var name="permissionDefinitionKey" value="CONTENT_PERMISSIONS_VIEW_CHECKBOX" />
-			<var name="roleName" value="Roles Regrole Name" />
+			<var name="roleTitle" value="Roles Regrole Name" />
 		</execute>
 
 		<execute macro="User#firstLoginPG">
@@ -381,7 +380,7 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute function="AssertTextNotPresent" locator1="Home#ERROR_MESSAGE_ALERT_ERROR" value1="Not Found" />
+		<execute function="AssertTextNotPresent" locator1="Home#ERROR_MESSAGE_ALERT_ERROR" value1="Forbidden" />
 
 		<execute macro="User#firstLoginPG">
 			<var name="password" value="test" />
@@ -403,7 +402,7 @@
 
 		<execute macro="Role#removePermissionPG">
 			<var name="permissionDefinitionKey" value="CONTENT_PERMISSIONS_VIEW_CHECKBOX" />
-			<var name="roleName" value="Roles Regrole Name" />
+			<var name="roleTitle" value="Roles Regrole Name" />
 		</execute>
 
 		<execute macro="User#firstLoginPG">
@@ -416,7 +415,7 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute function="AssertTextEquals" locator1="Home#ERROR_MESSAGE_ALERT_ERROR" value1="Not Found" />
+		<execute function="AssertTextEquals" locator1="Home#ERROR_MESSAGE_ALERT_ERROR" value1="Forbidden" />
 
 		<execute function="AssertTextNotPresent" locator1="Home#BREADCRUMB_2" value1="Site Page" />
 
@@ -465,7 +464,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="usersn1" />
 		</execute>
 
@@ -681,7 +680,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="usersn1" />
 		</execute>
 
@@ -932,7 +931,7 @@
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="usersn1" />
 		</execute>
 

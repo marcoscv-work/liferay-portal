@@ -22,6 +22,8 @@ SearchContainer searchContainer = (SearchContainer)request.getAttribute("view_en
 BlogsEntry entry = (BlogsEntry)request.getAttribute("view_entry_content.jsp-entry");
 
 AssetEntry assetEntry = (AssetEntry)request.getAttribute("view_entry_content.jsp-assetEntry");
+
+String socialBookmarksDisplayPosition = blogsPortletInstanceConfiguration.socialBookmarksDisplayPosition();
 %>
 
 <c:choose>
@@ -76,9 +78,22 @@ AssetEntry assetEntry = (AssetEntry)request.getAttribute("view_entry_content.jsp
 						<span> - </span>
 						<span class="hide-accessible"><liferay-ui:message key="published-date" /></span>
 						<%= dateFormatDate.format(entry.getDisplayDate()) %>
-						<span> - </span>
-						<span><%= LanguageUtil.format(resourceBundle, "x-minutes-read", new String[] {String.valueOf(com.liferay.blogs.web.internal.util.BlogsUtil.getReadingTimeMinutes(entry.getContent()))}, false) %></span>
+
+						<%
+						int readingTimeInMinutes = com.liferay.blogs.web.internal.util.BlogsUtil.getReadingTimeMinutes(entry.getContent());
+						%>
+
+						<c:if test="<%= readingTimeInMinutes > 0 %>">
+							<span> - </span>
+							<span>
+								<liferay-ui:message arguments="<%= readingTimeInMinutes %>" key="x-minutes-read" translateArguments="<%= false %>" />
+							</span>
+						</c:if>
 					</small>
+
+					<c:if test='<%= viewSingleEntry && blogsPortletInstanceConfiguration.enableSocialBookmarks() && socialBookmarksDisplayPosition.equals("top") %>'>
+						<liferay-util:include page="/blogs/social_bookmarks.jsp" servletContext="<%= application %>" />
+					</c:if>
 				</div>
 
 				<portlet:renderURL var="viewEntryURL">
@@ -100,7 +115,7 @@ AssetEntry assetEntry = (AssetEntry)request.getAttribute("view_entry_content.jsp
 						<c:choose>
 							<c:when test="<%= !viewSingleEntry %>">
 								<h2>
-									<aui:a href="<%= viewEntryURL %>"><%= BlogsEntryUtil.getDisplayTitle(resourceBundle, entry) %></aui:a>
+									<aui:a href="<%= viewEntryURL %>"><%= HtmlUtil.escape(BlogsEntryUtil.getDisplayTitle(resourceBundle, entry)) %></aui:a>
 								</h2>
 
 								<c:if test="<%= !entry.isApproved() %>">
@@ -112,9 +127,13 @@ AssetEntry assetEntry = (AssetEntry)request.getAttribute("view_entry_content.jsp
 								<c:if test="<%= BlogsEntryPermission.contains(permissionChecker, entry, ActionKeys.DELETE) || BlogsEntryPermission.contains(permissionChecker, entry, ActionKeys.PERMISSIONS) || BlogsEntryPermission.contains(permissionChecker, entry, ActionKeys.UPDATE) %>">
 									<liferay-util:include page="/blogs/entry_action.jsp" servletContext="<%= application %>" />
 								</c:if>
+
+								<c:if test='<%= blogsPortletInstanceConfiguration.enableSocialBookmarks() && socialBookmarksDisplayPosition.equals("top") %>'>
+									<liferay-util:include page="/blogs/social_bookmarks.jsp" servletContext="<%= application %>" />
+								</c:if>
 							</c:when>
 							<c:otherwise>
-								<h1><%= BlogsEntryUtil.getDisplayTitle(resourceBundle, entry) %></h1>
+								<h1><%= HtmlUtil.escape(BlogsEntryUtil.getDisplayTitle(resourceBundle, entry)) %></h1>
 							</c:otherwise>
 						</c:choose>
 					</div>
@@ -157,14 +176,14 @@ AssetEntry assetEntry = (AssetEntry)request.getAttribute("view_entry_content.jsp
 							<%= entry.getContent() %>
 						</div>
 
-						<liferay-ui:custom-attributes-available className="<%= BlogsEntry.class.getName() %>">
-							<liferay-ui:custom-attribute-list
+						<liferay-expando:custom-attributes-available className="<%= BlogsEntry.class.getName() %>">
+							<liferay-expando:custom-attribute-list
 								className="<%= BlogsEntry.class.getName() %>"
 								classPK="<%= entry.getEntryId() %>"
 								editable="<%= false %>"
 								label="<%= true %>"
 							/>
-						</liferay-ui:custom-attributes-available>
+						</liferay-expando:custom-attributes-available>
 					</c:when>
 				</c:choose>
 			</div>
@@ -272,30 +291,8 @@ AssetEntry assetEntry = (AssetEntry)request.getAttribute("view_entry_content.jsp
 						</div>
 					</c:if>
 
-					<c:if test="<%= blogsPortletInstanceConfiguration.enableSocialBookmarks() %>">
-						<portlet:renderURL var="bookmarkURL" windowState="<%= WindowState.NORMAL.toString() %>">
-							<portlet:param name="mvcRenderCommandName" value="/blogs/view_entry" />
-
-							<c:choose>
-								<c:when test="<%= Validator.isNotNull(entry.getUrlTitle()) %>">
-									<portlet:param name="urlTitle" value="<%= entry.getUrlTitle() %>" />
-								</c:when>
-								<c:otherwise>
-									<portlet:param name="entryId" value="<%= String.valueOf(entry.getEntryId()) %>" />
-								</c:otherwise>
-							</c:choose>
-						</portlet:renderURL>
-
-						<div class="social-bookmarks">
-							<liferay-ui:social-bookmarks
-								contentId="<%= String.valueOf(entry.getEntryId()) %>"
-								displayStyle="<%= blogsPortletInstanceConfiguration.socialBookmarksDisplayStyle() %>"
-								target="_blank"
-								title="<%= BlogsEntryUtil.getDisplayTitle(resourceBundle, entry) %>"
-								types="<%= blogsPortletInstanceConfiguration.socialBookmarksTypes() %>"
-								url="<%= PortalUtil.getCanonicalURL(bookmarkURL.toString(), themeDisplay, layout) %>"
-							/>
-						</div>
+					<c:if test='<%= blogsPortletInstanceConfiguration.enableSocialBookmarks() && socialBookmarksDisplayPosition.equals("bottom") %>'>
+						<liferay-util:include page="/blogs/social_bookmarks.jsp" servletContext="<%= application %>" />
 					</c:if>
 
 					<c:if test="<%= viewSingleEntry && blogsPortletInstanceConfiguration.enableFlags() %>">

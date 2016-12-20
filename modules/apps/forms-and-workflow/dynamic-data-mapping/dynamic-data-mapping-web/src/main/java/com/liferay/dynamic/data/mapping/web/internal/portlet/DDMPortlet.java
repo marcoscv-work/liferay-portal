@@ -125,9 +125,9 @@ public class DDMPortlet extends MVCPortlet {
 		}
 		catch (Exception e) {
 			if (e instanceof NoSuchStructureException ||
+				e instanceof NoSuchTemplateException ||
 				e instanceof PortletPreferencesException ||
-				e instanceof PrincipalException ||
-				e instanceof NoSuchTemplateException) {
+				e instanceof PrincipalException) {
 
 				SessionErrors.add(actionRequest, e.getClass());
 
@@ -140,11 +140,11 @@ public class DDMPortlet extends MVCPortlet {
 					 e instanceof MustSetOptionsForField ||
 					 e instanceof MustSetValidCharactersForFieldName ||
 					 e instanceof RequiredStructureException ||
+					 e instanceof RequiredTemplateException ||
 					 e instanceof StructureDefinitionException ||
 					 e instanceof StructureDuplicateElementException ||
 					 e instanceof StructureNameException ||
 					 e instanceof TemplateNameException ||
-					 e instanceof RequiredTemplateException ||
 					 e instanceof TemplateNameException ||
 					 e instanceof TemplateScriptException ||
 					 e instanceof TemplateSmallImageNameException ||
@@ -209,7 +209,7 @@ public class DDMPortlet extends MVCPortlet {
 	@Activate
 	@Modified
 	protected void activate(Map<String, Object> properties) {
-		this.ddmWebConfiguration = ConfigurableUtil.createConfigurable(
+		ddmWebConfiguration = ConfigurableUtil.createConfigurable(
 			DDMWebConfiguration.class, properties);
 	}
 

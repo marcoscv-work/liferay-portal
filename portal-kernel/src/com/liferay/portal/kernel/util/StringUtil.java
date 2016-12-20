@@ -1764,7 +1764,23 @@ public class StringUtil {
 			return null;
 		}
 
-		return merge(col.toArray(new Object[col.size()]), delimiter);
+		if (col.isEmpty()) {
+			return StringPool.BLANK;
+		}
+
+		StringBundler sb = new StringBundler(2 * col.size());
+
+		for (Object object : col) {
+			String objectString = String.valueOf(object);
+
+			sb.append(objectString.trim());
+
+			sb.append(delimiter);
+		}
+
+		sb.setIndex(sb.index() - 1);
+
+		return sb.toString();
 	}
 
 	/**
@@ -3415,7 +3431,7 @@ public class StringUtil {
 
 		int curLength = length;
 
-		for (int j = (curLength - suffix.length() + 1), offset; j > 0; j--) {
+		for (int j = curLength - suffix.length() + 1, offset; j > 0; j--) {
 			offset = s.offsetByCodePoints(0, j);
 
 			if (Character.isWhitespace(s.codePointBefore(offset))) {
@@ -3542,29 +3558,9 @@ public class StringUtil {
 			return _emptyStringArray;
 		}
 
-		if ((delimiter == CharPool.RETURN) ||
-			(delimiter == CharPool.NEW_LINE)) {
-
-			return splitLines(s);
-		}
-
 		List<String> nodeValues = new ArrayList<>();
 
-		int offset = 0;
-
-		int pos = s.indexOf(delimiter, offset);
-
-		while (pos != -1) {
-			nodeValues.add(s.substring(offset, pos));
-
-			offset = pos + 1;
-
-			pos = s.indexOf(delimiter, offset);
-		}
-
-		if (offset < s.length()) {
-			nodeValues.add(s.substring(offset));
-		}
+		_split(nodeValues, s, 0, delimiter);
 
 		return nodeValues.toArray(new String[nodeValues.size()]);
 	}
@@ -3931,23 +3927,22 @@ public class StringUtil {
 
 		while (true) {
 			int returnIndex = s.indexOf(CharPool.RETURN, lastIndex);
-			int newLineIndex = s.indexOf(CharPool.NEW_LINE, lastIndex);
-
-			if ((returnIndex == -1) && (newLineIndex == -1)) {
-				break;
-			}
 
 			if (returnIndex == -1) {
-				lines.add(s.substring(lastIndex, newLineIndex));
+				_split(lines, s, lastIndex, CharPool.NEW_LINE);
 
-				lastIndex = newLineIndex + 1;
+				return lines.toArray(new String[lines.size()]);
 			}
-			else if (newLineIndex == -1) {
-				lines.add(s.substring(lastIndex, returnIndex));
 
-				lastIndex = returnIndex + 1;
+			int newLineIndex = s.indexOf(CharPool.NEW_LINE, lastIndex);
+
+			if (newLineIndex == -1) {
+				_split(lines, s, lastIndex, CharPool.RETURN);
+
+				return lines.toArray(new String[lines.size()]);
 			}
-			else if (newLineIndex < returnIndex) {
+
+			if (newLineIndex < returnIndex) {
 				lines.add(s.substring(lastIndex, newLineIndex));
 
 				lastIndex = newLineIndex + 1;
@@ -3962,12 +3957,6 @@ public class StringUtil {
 				}
 			}
 		}
-
-		if (lastIndex < s.length()) {
-			lines.add(s.substring(lastIndex));
-		}
-
-		return lines.toArray(new String[lines.size()]);
 	}
 
 	/**
@@ -5146,6 +5135,24 @@ public class StringUtil {
 		}
 
 		return Character.isWhitespace(c);
+	}
+
+	private static void _split(
+		List<String> values, String s, int offset, char delimiter) {
+
+		int pos = s.indexOf(delimiter, offset);
+
+		while (pos != -1) {
+			values.add(s.substring(offset, pos));
+
+			offset = pos + 1;
+
+			pos = s.indexOf(delimiter, offset);
+		}
+
+		if (offset < s.length()) {
+			values.add(s.substring(offset));
+		}
 	}
 
 	private static String _wrap(String text, int width, String lineSeparator)

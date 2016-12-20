@@ -20,6 +20,7 @@ import com.liferay.gradle.plugins.node.tasks.DownloadNodeTask;
 import com.liferay.gradle.plugins.node.tasks.ExecuteNodeTask;
 import com.liferay.gradle.plugins.node.tasks.ExecuteNpmTask;
 import com.liferay.gradle.plugins.node.tasks.NpmInstallTask;
+import com.liferay.gradle.plugins.node.tasks.NpmShrinkwrapTask;
 import com.liferay.gradle.plugins.node.tasks.PublishNodeModuleTask;
 
 import groovy.json.JsonSlurper;
@@ -37,6 +38,7 @@ import org.gradle.api.Task;
 import org.gradle.api.internal.plugins.osgi.OsgiHelper;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.tasks.TaskOutputs;
 
 /**
  * @author Andrea Di Giorgi
@@ -49,6 +51,8 @@ public class NodePlugin implements Plugin<Project> {
 
 	public static final String NPM_INSTALL_TASK_NAME = "npmInstall";
 
+	public static final String NPM_SHRINKWRAP_TASK_NAME = "npmShrinkwrap";
+
 	@Override
 	public void apply(Project project) {
 		final NodeExtension nodeExtension = GradleUtil.addExtension(
@@ -59,9 +63,13 @@ public class NodePlugin implements Plugin<Project> {
 
 		NpmInstallTask npmInstallTask = _addTaskNpmInstall(project);
 
+		_addTaskNpmShrinkwrap(project, npmInstallTask);
+
 		_configureTasksDownloadNodeModule(project, npmInstallTask);
 
-		_configureTasksExecuteNode(project, nodeExtension);
+		_configureTasksExecuteNode(
+			project, nodeExtension, GradleUtil.isRunningInsideDaemon());
+
 		_configureTasksPublishNodeModule(project);
 
 		project.afterEvaluate(
@@ -141,9 +149,35 @@ public class NodePlugin implements Plugin<Project> {
 			project, NPM_INSTALL_TASK_NAME, NpmInstallTask.class);
 
 		npmInstallTask.setDescription(
-			"Install Node packages from package.json.");
+			"Installs Node packages from package.json.");
+
+		TaskOutputs taskOutputs = npmInstallTask.getOutputs();
+
+		taskOutputs.upToDateWhen(
+			new Spec<Task>() {
+
+				@Override
+				public boolean isSatisfiedBy(Task task) {
+					return false;
+				}
+
+			});
 
 		return npmInstallTask;
+	}
+
+	private NpmShrinkwrapTask _addTaskNpmShrinkwrap(
+		Project project, NpmInstallTask npmInstallTask) {
+
+		NpmShrinkwrapTask npmShrinkwrapTask = GradleUtil.addTask(
+			project, NPM_SHRINKWRAP_TASK_NAME, NpmShrinkwrapTask.class);
+
+		npmShrinkwrapTask.dependsOn(npmInstallTask);
+		npmShrinkwrapTask.setDescription(
+			"Locks down the versions of a package's dependencies in order to " +
+				"control which versions of each dependency will be used.");
+
+		return npmShrinkwrapTask;
 	}
 
 	private void _configureTaskDownloadNodeGlobal(
@@ -254,7 +288,8 @@ public class NodePlugin implements Plugin<Project> {
 	}
 
 	private void _configureTaskExecuteNode(
-		ExecuteNodeTask executeNodeTask, final NodeExtension nodeExtension) {
+		ExecuteNodeTask executeNodeTask, final NodeExtension nodeExtension,
+		boolean useGradleExec) {
 
 		executeNodeTask.setNodeDir(
 			new Callable<File>() {
@@ -269,6 +304,8 @@ public class NodePlugin implements Plugin<Project> {
 				}
 
 			});
+
+		executeNodeTask.setUseGradleExec(useGradleExec);
 	}
 
 	private void _configureTaskExecuteNpm(
@@ -345,7 +382,8 @@ public class NodePlugin implements Plugin<Project> {
 	}
 
 	private void _configureTasksExecuteNode(
-		Project project, final NodeExtension nodeExtension) {
+		Project project, final NodeExtension nodeExtension,
+		final boolean useGradleExec) {
 
 		TaskContainer taskContainer = project.getTasks();
 
@@ -355,7 +393,8 @@ public class NodePlugin implements Plugin<Project> {
 
 				@Override
 				public void execute(ExecuteNodeTask executeNodeTask) {
-					_configureTaskExecuteNode(executeNodeTask, nodeExtension);
+					_configureTaskExecuteNode(
+						executeNodeTask, nodeExtension, useGradleExec);
 				}
 
 			});

@@ -339,13 +339,10 @@
 					<var name="panelHeading" value="Categorization" />
 				</execute>
 
-				<execute function="AssertClick" locator1="Button#SELECT" value1="Select" />
-
-				<execute function="AssertClick" locator1="AssetCategorization#CATEGORIES_CATEGORY" value1="${categoryName}" />
-
-				<execute function="Click" locator1="Icon#CLOSE" />
-
-				<execute function="AssertTextEquals" locator1="AssetCategorization#CATEGORY" value1="${categoryName}" />
+				<execute macro="AssetCategorization#addCategory">
+					<var name="categoryName" value="${categoryName}" />
+					<var name="vocabularyName" value="${vocabularyName}" />
+				</execute>
 			</then>
 		</if>
 
@@ -362,14 +359,14 @@
 		<if>
 			<isset var="tagNameList" />
 			<then>
+				<execute macro="Panel#expandPanel">
+					<var name="panelHeading" value="Categorization" />
+				</execute>
+
 				<for list="${tagNameList}" param="tagName">
-					<execute macro="Panel#expandPanel">
-						<var name="panelHeading" value="Categorization" />
+					<execute macro="AssetCategorization#addTag">
+						<var name="tagName" value="${tagName}" />
 					</execute>
-
-					<execute function="Type" locator1="AssetCategorization#TAGS_FIELD" value1="${tagName}" />
-
-					<execute function="AssertClick" locator1="AssetCategorization#TAGS_ADD_BUTTON" value1="Add" />
 				</for>
 			</then>
 		</if>
@@ -571,6 +568,26 @@
 		<var name="key_dmDocumentTitle" value="${dmDocumentTitle}" />
 
 		<execute function="AssertTextEquals" locator1="DocumentsAndMedia#ICON_DOCUMENT_TITLE" value1="${dmDocumentTitle}" />
+	</command>
+
+	<command name="cancelCheckoutCP">
+		<var name="key_dmDocumentTitle" value="${dmDocumentTitle}" />
+
+		<if>
+			<equals arg1="${dmRepositoryName}" arg2="true" />
+			<then>
+				<execute function="AssertTextEquals#assertPartialText" locator1="Message#CHECKOUT_SUCCESS" value1="You now have an indefinite lock on this document. No one else can edit this document until you unlock it. This lock will never expire." />
+			</then>
+			<else>
+				<execute function="AssertTextEquals#assertPartialText" locator1="Message#CHECKOUT_SUCCESS" value1="You now have a lock on this document. No one else can edit this document until you unlock it. This lock will automatically expire in 1 day." />
+			</else>
+		</if>
+
+		<execute function="Click" locator1="Icon#HEADER_VERTICAL_ELLIPSIS" />
+
+		<execute function="AssertClick" locator1="MenuItem#CANCEL_CHECKOUT" value1="Cancel Checkout" />
+
+		<execute macro="Alert#viewSuccessMessage" />
 	</command>
 
 	<command name="cancelCheckoutPG">
@@ -1023,7 +1040,15 @@
 			<var name="dmDocumentTitleEdit" value="${dmDocumentTitleEdit}" />
 		</execute>
 
-		<execute function="Click" locator1="Button#PUBLISH" />
+		<if>
+			<isset var="checkedOut" />
+			<then>
+				<execute function="Click" locator1="Button#SAVE" />
+			</then>
+			<else>
+				<execute function="Click" locator1="Button#PUBLISH" />
+			</else>
+		</if>
 
 		<execute macro="Alert#viewSuccessMessage" />
 	</command>
@@ -1337,9 +1362,11 @@
 
 		<execute function="AssertClick" locator1="DocumentsAndMediaSelectFolder#FOLDER_GENERIC" value1="${dmFolderName}" />
 
-		<execute function="AssertTextEquals" locator1="DocumentsAndMediaSelectFolder#FOLDER_GENERIC" value1="${dmSubFolderName}" />
+		<var name="key_dmFolderName" value="${dmSubFolderName}" />
 
-		<execute function="AssertClick" locator1="DocumentsAndMediaSelectFolder#CHOOSE_BUTTON_GENERIC" value1="Choose" />
+		<execute function="AssertTextEquals" locator1="DocumentsAndMediaSelectFolder#FOLDER" value1="${dmSubFolderName}" />
+
+		<execute function="AssertClick" locator1="DocumentsAndMediaSelectFolder#CHOOSE_BUTTON" value1="Choose" />
 
 		<execute function="SelectFrame" locator1="relative=top" />
 
@@ -1353,7 +1380,7 @@
 	<command name="navigateHomeViaDocumentViewPG">
 		<var name="key_breadcrumbName" value="Home" />
 
-		<execute function="AssertClick" locator1="Breadcrumb#BREADCRUMB_PAGE" value1="HOME" />
+		<execute function="AssertClick" locator1="BreadcrumbPortlet#BREADCRUMB_PAGE" value1="HOME" />
 	</command>
 
 	<command name="populateField">
@@ -1534,7 +1561,7 @@
 
 	<command name="removeDocumentViewPermissionsPG">
 		<var name="key_dmDocumentTitle" value="${dmDocumentTitle}" />
-		<var method="StringUtil#lowerCase('${key_roleName}')" name="key_roleName" />
+		<var method="StringUtil#lowerCase('${key_roleTitle}')" name="key_roleTitle" />
 
 		<execute function="Check" locator1="DocumentsAndMedia#ICON_DOCUMENT_CHECKBOX" />
 
@@ -2082,7 +2109,7 @@
 
 	<command name="viewDocumentViewPermissionsPG">
 		<var name="key_dmDocumentTitle" value="${dmDocumentTitle}" />
-		<var method="StringUtil#lowerCase('${key_roleName}')" name="key_roleName" />
+		<var method="StringUtil#lowerCase('${key_roleTitle}')" name="key_roleTitle" />
 
 		<execute function="Check" locator1="DocumentsAndMedia#ICON_DOCUMENT_CHECKBOX" />
 
@@ -2095,16 +2122,16 @@
 		<if>
 			<equals arg1="${viewPermissionValue}" arg2="checked" />
 			<then>
-				<execute function="AssertChecked" locator1="Permissions#CONTENT_PERMISSIONS_VIEW_CHECKBOX" value1="${roleName}" />
+				<execute function="AssertChecked" locator1="Permissions#CONTENT_PERMISSIONS_VIEW_CHECKBOX" value1="${roleTitle}" />
 			</then>
 			<elseif>
 				<equals arg1="${viewPermissionValue}" arg2="unchecked" />
 				<then>
-					<execute function="AssertNotChecked" locator1="Permissions#CONTENT_PERMISSIONS_VIEW_CHECKBOX" value1="${roleName}" />
+					<execute function="AssertNotChecked" locator1="Permissions#CONTENT_PERMISSIONS_VIEW_CHECKBOX" value1="${roleTitle}" />
 				</then>
 			</elseif>
 			<else>
-				<execute function="AssertChecked" locator1="Permissions#CONTENT_PERMISSIONS_VIEW_CHECKBOX" value1="${roleName}" />
+				<execute function="AssertChecked" locator1="Permissions#CONTENT_PERMISSIONS_VIEW_CHECKBOX" value1="${roleTitle}" />
 			</else>
 		</if>
 
@@ -2168,7 +2195,7 @@
 
 	<command name="viewFolderViewPermissionsPG">
 		<var name="key_dmDocumentTitle" value="${dmDocumentTitle}" />
-		<var method="StringUtil#lowerCase('${key_roleName}')" name="key_roleName" />
+		<var method="StringUtil#lowerCase('${key_roleTitle}')" name="key_roleTitle" />
 
 		<execute function="Check" locator1="DocumentsAndMedia#ICON_DOCUMENT_CHECKBOX" />
 
@@ -2181,16 +2208,16 @@
 		<if>
 			<equals arg1="${viewPermissionValue}" arg2="checked" />
 			<then>
-				<execute function="AssertChecked" locator1="Permissions#CONTENT_PERMISSIONS_VIEW_CHECKBOX" value1="${roleName}" />
+				<execute function="AssertChecked" locator1="Permissions#CONTENT_PERMISSIONS_VIEW_CHECKBOX" value1="${roleTitle}" />
 			</then>
 			<elseif>
 				<equals arg1="${viewPermissionValue}" arg2="unchecked" />
 				<then>
-					<execute function="AssertNotChecked" locator1="Permissions#CONTENT_PERMISSIONS_VIEW_CHECKBOX" value1="${roleName}" />
+					<execute function="AssertNotChecked" locator1="Permissions#CONTENT_PERMISSIONS_VIEW_CHECKBOX" value1="${roleTitle}" />
 				</then>
 			</elseif>
 			<else>
-				<execute function="AssertChecked" locator1="Permissions#CONTENT_PERMISSIONS_VIEW_CHECKBOX" value1="${roleName}" />
+				<execute function="AssertChecked" locator1="Permissions#CONTENT_PERMISSIONS_VIEW_CHECKBOX" value1="${roleTitle}" />
 			</else>
 		</if>
 
@@ -2207,18 +2234,22 @@
 		<var name="key_dmDocumentTitle" value="${dmDocumentTitle}" />
 		<var name="key_dmFolderName" value="${dmFolderName}" />
 
-		<execute function="AssertElementPresent" locator1="DocumentsAndMedia#ICON_FOLDER_THUMBNAIL" />
-		<execute function="AssertTextEquals" locator1="DocumentsAndMedia#ICON_FOLDER_THUMBNAIL" value1="${dmFolderName}" />
+		<execute macro="Portlet#changeDisplayStyle">
+			<var name="displayStyle" value="Descriptive" />
+		</execute>
 
-		<execute function="MakeVisible" locator1="DocumentsAndMedia#ICON_FOLDER_THUMBNAIL_GENERIC" />
+		<execute function="AssertElementPresent" locator1="DocumentsAndMedia#DESCRIPTIVE_LIST_FOLDER_ICON" />
+		<execute function="AssertTextEquals" locator1="DocumentsAndMedia#DESCRIPTIVE_LIST_FOLDER_TITLE" value1="${dmFolderName}" />
 
-		<execute function="AssertClick" locator1="DocumentsAndMedia#ICON_FOLDER_TITLE" value1="${dmFolderName}" />
+		<execute function="MakeVisible" locator1="DocumentsAndMedia#DESCRIPTIVE_LIST_FOLDER_ICON" />
+
+		<execute function="AssertClick" locator1="DocumentsAndMedia#DESCRIPTIVE_LIST_FOLDER_TITLE" value1="${dmFolderName}" />
 
 		<var method="StringUtil#upperCase('${key_dmFolderName}')" name="dmFolderName" />
 
 		<execute function="AssertTextEquals" locator1="DocumentsAndMedia#BREADCRUMB_LAST" value1="${dmFolderName}" />
-		<execute function="AssertElementPresent" locator1="DocumentsAndMedia#ICON_DOCUMENT" />
-		<execute function="AssertTextEquals" locator1="DocumentsAndMedia#ICON_DOCUMENT_TITLE" value1="${dmDocumentTitle}" />
+		<execute function="AssertElementPresent" locator1="DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_ICON" />
+		<execute function="AssertTextEquals" locator1="DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_TITLE" value1="${dmDocumentTitle}" />
 	</command>
 
 	<command name="viewOlderVersionPG">
@@ -2432,6 +2463,7 @@
 			<equals arg1="${documentAdded}" arg2="true" />
 			<then>
 				<execute function="AssertTextEquals" locator1="DocumentsAndMedia#ICON_DOCUMENT_TITLE" value1="${dmDocumentTitle}" />
+
 				<execute function="AssertClick" locator1="Staging#LIVE_BUTTON" value1="Live" />
 
 				<execute function="AssertTextNotPresent" locator1="DocumentsAndMedia#ICON_DOCUMENT_TITLE" value1="${dmDocumentTitle}" />
@@ -2443,6 +2475,7 @@
 					<execute function="AssertTextEquals" locator1="Message#EMPTY_INFO" value1="There are no documents or media files in this folder." />
 
 					<execute function="AssertClick" locator1="Staging#LIVE_BUTTON" value1="Live" />
+
 					<execute function="AssertTextEquals" locator1="Message#EMPTY_INFO" value1="There are no documents or media files in this folder." />
 				</then>
 			</elseif>

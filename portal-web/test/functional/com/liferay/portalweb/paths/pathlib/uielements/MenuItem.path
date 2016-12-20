@@ -24,6 +24,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ADD_CHILD_PAGE</td>
+	<td>//a[@role='menuitem' and contains(.,'Add Child Page')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ADD_SHORTCUT</td>
 	<td>//div[contains(@class,'open')]//a[@role='menuitem' and contains(.,'Add Shortcut')]</td>
 	<td></td>
@@ -175,7 +180,7 @@
 </tr>
 <tr>
 	<td>ASSIGN_USERS</td>
-	<td>//a[@role='menuitem' and contains(.,'Assign Users')]</td>
+	<td>//a[@role='menuitem' and contains(.,'Assign Users')] | //div[contains(@class,'open')]/ul[contains(@class,'dropdown')]//a[contains(.,'Assign Users')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -624,11 +629,6 @@
 	<td></td>
 </tr>
 <tr>
-	<td>ORGANIZATION_ROLE</td>
-	<td>//li/a[contains(@id,'menuItem') and contains(.,'Organization Role')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>ORGANIZATION_ROLES</td>
 	<td>//a[@role='menuitem' and contains(.,'Organization Roles')]</td>
 	<td></td>
@@ -681,11 +681,6 @@
 <tr>
 	<td>QUICK_REPLY</td>
 	<td>//a[@role='menuitem' and contains(.,'Quick Reply')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>REGULAR_ROLE</td>
-	<td>//li/a[contains(@id,'menuItem') and contains(.,'Regular Role')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -801,11 +796,6 @@
 <tr>
 	<td>SITE_PERMISSIONS</td>
 	<td>//a[@role='menuitem' and contains(.,'Site Permissions')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>SITE_ROLE</td>
-	<td>//li/a[contains(@id,'menuItem') and contains(.,'Site Role')]</td>
 	<td></td>
 </tr>
 <tr>

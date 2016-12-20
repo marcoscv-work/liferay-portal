@@ -811,7 +811,7 @@ public class PoshiRunnerValidation {
 			}
 		}
 
-		if (attributeNames.size() < 1) {
+		if (attributeNames.isEmpty()) {
 			_exceptions.add(
 				new Exception(
 					"Invalid or missing attribute\n" + filePath + ":" +
@@ -1061,25 +1061,6 @@ public class PoshiRunnerValidation {
 							element.attributeValue("line-number")));
 
 			return;
-		}
-
-		List<Element> argElements = new ArrayList<>(element.elements("arg"));
-
-		Class<?>[] parameterTypes = new Class<?>[argElements.size()];
-
-		for (int i = 0; i < argElements.size(); i++) {
-			parameterTypes[i] = String.class;
-		}
-
-		try {
-			clazz.getMethod(methodName, parameterTypes);
-		}
-		catch (Exception e) {
-			_exceptions.add(
-				new Exception(
-					"Mismatched argument in method " + className + "#" +
-						methodName + "\n" + filePath + ":" +
-							element.attributeValue("line-number")));
 		}
 	}
 
@@ -1474,7 +1455,7 @@ public class PoshiRunnerValidation {
 
 			if (childElementName.equals("command")) {
 				List<String> possibleAttributeNames = Arrays.asList(
-					"description", "disabled", "known-issues", "line-number",
+					"description", "ignore", "known-issues", "line-number",
 					"name", "priority");
 
 				validateHasChildElements(childElement, filePath);

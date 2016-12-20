@@ -151,6 +151,10 @@
 		margin-bottom: 15px;
 		text-align: right;
 
+		& > a {
+			display: inline-block;
+		}
+
 		& > span {
 			margin-left: 5px;
 		}
@@ -185,8 +189,6 @@
 	}
 
 	.kb-entity-body {
-		padding: 0 7px;
-
 		img {
 			max-width: 100%;
 		}
@@ -306,6 +308,15 @@
 	.kb-select-article-breadcrumbs {
 		margin: 0 0 5px;
 	}
+
+	.lfr-dynamic-uploader {
+		position: relative;
+		top: 0;
+	}
+
+	.list-group-item h3 {
+		margin-top: 5px;
+	}
 }
 
 #wrapper .knowledge-base-portlet .card-horizontal.main-content-card {
@@ -322,7 +333,7 @@
 	}
 }
 
-/* Skin */
+/* ---------- Skin ---------- */
 
 .knowledge-base-portlet {
 	a.text-default, a.text-default:hover {
