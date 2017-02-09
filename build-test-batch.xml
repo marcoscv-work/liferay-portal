@@ -474,7 +474,7 @@ app.server.type=@{app.server.type}]]></echo>
 						<![CDATA[
 							git add -A
 
-							git diff --cached --name-only | grep -v -E '^bundles/|^modules/\.gitignore' | xargs -n 1000 zip -v liferay-portal-source.zip
+							git diff --cached --name-only | grep -v -E '^\.gitignore|bundles/|^modules/\.gitignore' | xargs -n 1000 zip -v liferay-portal-source.zip
 						]]>
 					</execute>
 				</then>
@@ -2525,6 +2525,8 @@ information. Make sure to commit in all build services results.
 				<fail message="${failure.property}" />
 			</catch>
 			<finally>
+				<merge-test-results />
+
 				<move file="${module.base.dir}/settings.gradle.temp" tofile="${module.base.dir}/settings.gradle" />
 			</finally>
 		</trycatch>

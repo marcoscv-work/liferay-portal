@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Portal Tools Bundle Support
 Bundle-SymbolicName: com.liferay.portal.tools.bundle.support
-Bundle-Version: 2.0.0
+Bundle-Version: 2.0.2
 Export-Package:\
 	com.liferay.portal.tools.bundle.support,\
 	com.liferay.portal.tools.bundle.support.ant,\
@@ -13,10 +13,3 @@ Import-Package:\
 	*
 JPM-Command: liferay-bundle-support
 Main-Class: com.liferay.portal.tools.bundle.support.BundleSupport
--includeresource:\
-	@commons-codec-[0-9]*.jar,\
-	@commons-compress-[0-9]*.jar,\
-	@commons-logging-[0-9]*.jar,\
-	@httpclient-[0-9]*.jar,\
-	@httpcore-[0-9]*.jar,\
-	@jcommander-[0-9]*.jar

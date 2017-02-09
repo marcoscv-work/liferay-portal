@@ -93,6 +93,8 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.plugins.ApplicationPlugin;
+import org.gradle.api.plugins.ApplicationPluginConvention;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.BasePluginConvention;
 import org.gradle.api.plugins.JavaPlugin;
@@ -131,8 +133,11 @@ public class LiferayOSGiPlugin implements Plugin<Project> {
 	public static final String PLUGIN_NAME = "liferayOSGi";
 
 	@Override
-	public void apply(Project project) {
+	public void apply(final Project project) {
 		GradleUtil.applyPlugin(project, LiferayBasePlugin.class);
+
+		LiferayExtension liferayExtension = GradleUtil.getExtension(
+			project, LiferayExtension.class);
 
 		final LiferayOSGiExtension liferayOSGiExtension =
 			GradleUtil.addExtension(
@@ -150,6 +155,7 @@ public class LiferayOSGiPlugin implements Plugin<Project> {
 
 		_configureArchivesBaseName(project);
 		_configureDescription(project);
+		_configureLiferay(project, liferayExtension);
 		_configureSourceSetMain(project);
 		_configureTaskClean(project);
 		_configureTaskJar(project);
@@ -162,6 +168,17 @@ public class LiferayOSGiPlugin implements Plugin<Project> {
 		}
 
 		_configureVersion(project);
+
+		GradleUtil.withPlugin(
+			project, ApplicationPlugin.class,
+			new Action<ApplicationPlugin>() {
+
+				@Override
+				public void execute(ApplicationPlugin applicationPlugin) {
+					_configureApplication(project);
+				}
+
+			});
 
 		project.afterEvaluate(
 			new Action<Project>() {
@@ -651,6 +668,18 @@ public class LiferayOSGiPlugin implements Plugin<Project> {
 		XMLFormatterDefaultsPlugin.INSTANCE.apply(project);
 	}
 
+	private void _configureApplication(Project project) {
+		ApplicationPluginConvention applicationPluginConvention =
+			GradleUtil.getConvention(
+				project, ApplicationPluginConvention.class);
+
+		String mainClassName = _getBundleInstruction(project, "Main-Class");
+
+		if (Validator.isNotNull(mainClassName)) {
+			applicationPluginConvention.setMainClassName(mainClassName);
+		}
+	}
+
 	private void _configureArchivesBaseName(Project project) {
 		BasePluginConvention basePluginConvention = GradleUtil.getConvention(
 			project, BasePluginConvention.class);
@@ -769,6 +798,25 @@ public class LiferayOSGiPlugin implements Plugin<Project> {
 		if (Validator.isNotNull(description)) {
 			project.setDescription(description);
 		}
+	}
+
+	private void _configureLiferay(
+		final Project project, final LiferayExtension liferayExtension) {
+
+		liferayExtension.setDeployDir(
+			new Callable<File>() {
+
+				@Override
+				public File call() throws Exception {
+					File dir = new File(
+						liferayExtension.getAppServerParentDir(),
+						"osgi/modules");
+
+					return GradleUtil.getProperty(
+						project, "auto.deploy.dir", dir);
+				}
+
+			});
 	}
 
 	private void _configureSourceSetMain(Project project) {

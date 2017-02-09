@@ -53,24 +53,6 @@ public class PropertiesSourceProcessor extends BaseSourceProcessor {
 	public static final String AUTOMATIC_TRANSLATION =
 		com.liferay.portal.tools.LangBuilder.AUTOMATIC_TRANSLATION;
 
-	@Override
-	public String[] getIncludes() {
-		if (portalSource) {
-			return new String[] {
-				"**/Language.properties",
-				"**/liferay-plugin-package.properties", "**/portal.properties",
-				"**/portal-ext.properties", "**/portal-legacy-*.properties",
-				"**/portlet.properties", "**/source-formatter.properties"
-			};
-		}
-
-		return new String[] {
-			"**/liferay-plugin-package.properties", "**/portal.properties",
-			"**/portal-ext.properties", "**/portlet.properties",
-			"**/source-formatter.properties"
-		};
-	}
-
 	protected void addDuplicateLanguageKey(
 		String fileName, String key, String value) {
 
@@ -231,7 +213,8 @@ public class PropertiesSourceProcessor extends BaseSourceProcessor {
 		String newContent = content;
 
 		if (portalSource && !fileName.contains("/samples/") &&
-			fileName.endsWith("Language.properties")) {
+			fileName.endsWith("Language.properties") &&
+			!isExcludedPath(LANGUAGE_KEYS_CHECK_EXCLUDES, absolutePath)) {
 
 			checkLanguageProperties(fileName);
 		}
@@ -257,6 +240,24 @@ public class PropertiesSourceProcessor extends BaseSourceProcessor {
 	@Override
 	protected List<String> doGetFileNames() throws Exception {
 		return getFileNames(new String[0], getIncludes());
+	}
+
+	@Override
+	protected String[] doGetIncludes() {
+		if (portalSource) {
+			return new String[] {
+				"**/Language.properties",
+				"**/liferay-plugin-package.properties", "**/portal.properties",
+				"**/portal-ext.properties", "**/portal-legacy-*.properties",
+				"**/portlet.properties", "**/source-formatter.properties"
+			};
+		}
+
+		return new String[] {
+			"**/liferay-plugin-package.properties", "**/portal.properties",
+			"**/portal-ext.properties", "**/portlet.properties",
+			"**/source-formatter.properties"
+		};
 	}
 
 	protected String fixIncorrectLicenses(String absolutePath, String content) {
@@ -666,10 +667,14 @@ public class PropertiesSourceProcessor extends BaseSourceProcessor {
 			true);
 
 		for (String fileName : modulesLanguagePropertiesNames) {
-			Properties properties = new Properties();
-
 			fileName = StringUtil.replace(
 				fileName, CharPool.BACK_SLASH, CharPool.SLASH);
+
+			if (isExcludedPath(LANGUAGE_KEYS_CHECK_EXCLUDES, fileName)) {
+				continue;
+			}
+
+			Properties properties = new Properties();
 
 			InputStream inputStream = new FileInputStream(fileName);
 

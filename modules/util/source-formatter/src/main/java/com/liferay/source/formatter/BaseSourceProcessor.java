@@ -93,9 +93,13 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 	@Override
 	public final void format() throws Exception {
-		preFormat();
-
 		List<String> fileNames = getFileNames();
+
+		if (fileNames.isEmpty()) {
+			return;
+		}
+
+		preFormat();
 
 		ExecutorService executorService = Executors.newFixedThreadPool(
 			sourceFormatterArgs.getProcessorThreadCount());
@@ -148,6 +152,11 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	@Override
 	public SourceMismatchException getFirstSourceMismatchException() {
 		return _firstSourceMismatchException;
+	}
+
+	@Override
+	public String[] getIncludes() {
+		return filterIncludes(doGetIncludes());
 	}
 
 	@Override
@@ -516,7 +525,9 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 		String fileExtension = FilenameUtils.getExtension(fileName);
 
-		if (!portalSource || fileExtension.equals("vm")) {
+		if (!portalSource || fileExtension.equals("vm") ||
+			isExcludedPath(LANGUAGE_KEYS_CHECK_EXCLUDES, absolutePath)) {
+
 			return;
 		}
 
@@ -544,11 +555,13 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 			for (String languageKey : languageKeys) {
 				if (Validator.isNumber(languageKey) ||
+					languageKey.endsWith(StringPool.CLOSE_CURLY_BRACE) ||
 					languageKey.endsWith(StringPool.DASH) ||
 					languageKey.endsWith(StringPool.OPEN_BRACKET) ||
 					languageKey.endsWith(StringPool.PERIOD) ||
 					languageKey.endsWith(StringPool.UNDERLINE) ||
 					languageKey.startsWith(StringPool.DASH) ||
+					languageKey.startsWith(StringPool.DOLLAR) ||
 					languageKey.startsWith(StringPool.OPEN_BRACKET) ||
 					languageKey.startsWith(StringPool.OPEN_CURLY_BRACE) ||
 					languageKey.startsWith(StringPool.PERIOD) ||
@@ -785,6 +798,29 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		throws Exception;
 
 	protected abstract List<String> doGetFileNames() throws Exception;
+
+	protected abstract String[] doGetIncludes();
+
+	protected String[] filterIncludes(String[] includes) {
+		List<String> fileExtensions = sourceFormatterArgs.getFileExtensions();
+
+		if (fileExtensions.isEmpty()) {
+			return includes;
+		}
+
+		String[] filteredIncludes = new String[0];
+
+		for (String include : includes) {
+			for (String fileExtension : fileExtensions) {
+				if (include.endsWith(fileExtension)) {
+					filteredIncludes = ArrayUtil.append(
+						filteredIncludes, include);
+				}
+			}
+		}
+
+		return filteredIncludes;
+	}
 
 	protected String fixCompatClassImports(String absolutePath, String content)
 		throws Exception {
@@ -1737,8 +1773,8 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 		_annotationsExclusions = SetUtil.fromArray(
 			new String[] {
-				"ArquillianResource", "BeanReference", "Captor", "Inject",
-				"Mock", "Parameter", "Reference", "ServiceReference",
+				"ArquillianResource", "Autowired", "BeanReference", "Captor",
+				"Inject", "Mock", "Parameter", "Reference", "ServiceReference",
 				"SuppressWarnings"
 			});
 
@@ -2751,7 +2787,9 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 			String definition = matcher.group();
 
-			if (Validator.isNotNull(matcher.group(1))) {
+			if (Validator.isNotNull(matcher.group(1)) &&
+				definition.endsWith("\n")) {
+
 				definition = definition.substring(0, definition.length() - 1);
 			}
 
@@ -2988,6 +3026,9 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		return line;
 	}
 
+	protected static final String LANGUAGE_KEYS_CHECK_EXCLUDES =
+		"language.keys.check.excludes";
+
 	protected static final String METHOD_CALL_SORT_EXCLUDES =
 		"method.call.sort.excludes";
 
@@ -3139,7 +3180,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	private Map<String, String> _compatClassNamesMap;
 	private String _copyright;
 	private final Pattern _definitionPattern = Pattern.compile(
-		"^([A-Za-z-]+?)[:=][\\s\\S]*?([^\\\\]\n|\\Z)", Pattern.MULTILINE);
+		"^([A-Za-z-]+?)[:=](\n|[\\s\\S]*?([^\\\\]\n|\\Z))", Pattern.MULTILINE);
 	private final Pattern _emptyLineBetweenTagsPattern = Pattern.compile(
 		"\n(\t*)</([-\\w:]+)>(\n*)(\t*)<([-\\w:]+)[> ]");
 	private final Pattern _emptyLineInNestedTagsPattern1 = Pattern.compile(

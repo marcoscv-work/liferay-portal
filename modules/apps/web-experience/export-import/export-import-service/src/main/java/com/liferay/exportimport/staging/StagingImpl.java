@@ -945,13 +945,17 @@ public class StagingImpl implements Staging {
 
 	@Override
 	public Group getLiveGroup(long groupId) {
+		if (groupId <= 0) {
+			return null;
+		}
+
 		Group group = _groupLocalService.fetchGroup(groupId);
 
 		if (group == null) {
 			return null;
 		}
 
-		if (!group.isStagedRemotely() && group.isStagingGroup()) {
+		if (group.isStagingGroup() && !group.isStagedRemotely()) {
 			return group.getLiveGroup();
 		}
 
