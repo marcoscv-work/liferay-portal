@@ -1,0 +1,44 @@
+<html>
+<head>
+<title>AdaptiveMediaTable</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">AdaptiveMediaTable</td></tr>
+</thead>
+<tbody>
+<tr>
+	<td>IMAGE_RESOLUTION_OPTIONS</td>
+	<td>//a[contains(.,'${key_imageName}')]/../..//td//span/*[name()='svg'][contains(@class,'icon-ellipsis-v')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>NAME</td>
+	<td>//td[contains(@class,'name-column')]/a[contains(.,'${key_imageName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MAX_WIDTH</td>
+	<td>//a[contains(.,'${key_imageName}')]/../..//td[contains(@class,'max-width')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MAX_HEIGHT</td>
+	<td>//a[contains(.,'${key_imageName}')]/../..//td[contains(@class,'max-height')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PROGRESS</td>
+	<td>//td[contains(.,'${key_imageName}')]/../..//div[contains(@class,'progress')]/div[@aria-valuenow='${key_percentOptimized}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>STATE</td>
+	<td>//a[contains(.,'${key_imageName}')]/../..//td[contains(@class,'lfr-state-column') and contains(.,'${key_imageState}')]</td>
+	<td></td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

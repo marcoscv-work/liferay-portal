@@ -161,14 +161,13 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.icon=/icons/calendar.png",
 		"com.liferay.portlet.instanceable=true",
 		"com.liferay.portlet.preferences-owned-by-group=true",
-		"com.liferay.portlet.preferences-unique-per-layout=true",
 		"javax.portlet.display-name=Calendar",
 		"javax.portlet.expiration-cache=0",
 		"javax.portlet.init-param.copy-request-parameters=true",
 		"javax.portlet.init-param.view-template=/view.jsp",
 		"javax.portlet.name=" + CalendarPortletKeys.CALENDAR,
 		"javax.portlet.resource-bundle=content.Language",
-		"javax.portlet.security-role-ref=administrator,guest,power-user,user",
+		"javax.portlet.security-role-ref=administrator,power-user,user",
 		"javax.portlet.supports.mime-type=text/html"
 	},
 	service = Portlet.class
@@ -1452,10 +1451,10 @@ public class CalendarPortlet extends MVCPortlet {
 			themeDisplay.getCompanyId(), null, new long[] {calendarResourceId},
 			null, true, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 
-		JSONArray jsonObject = CalendarUtil.toCalendarsJSONArray(
+		JSONArray jsonArray = CalendarUtil.toCalendarsJSONArray(
 			themeDisplay, calendars);
 
-		writeJSON(resourceRequest, resourceResponse, jsonObject);
+		writeJSON(resourceRequest, resourceResponse, jsonArray);
 	}
 
 	protected void serveUnknownResource(

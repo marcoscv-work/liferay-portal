@@ -308,9 +308,7 @@
 		</execute>
 	</command>
 
-	<command name="DeleteBlogsEntry" priority="5">
-		<property name="portal.acceptance" value="true" />
-
+	<command name="DeleteBlogsEntry" priority="4">
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -1264,6 +1262,8 @@
 		<var name="key_siteName" value="www.able.com" />
 
 		<execute function="AssertTextEquals" locator1="SitePages#SITE_NAME" value1="www.able.com" />
+
+		<execute macro="ProductMenu#gotoPrivatePages" />
 
 		<execute macro="BlogsNavigator#gotoEntryPG">
 			<var name="entryContent" value="Blogs Entry2 Content" />

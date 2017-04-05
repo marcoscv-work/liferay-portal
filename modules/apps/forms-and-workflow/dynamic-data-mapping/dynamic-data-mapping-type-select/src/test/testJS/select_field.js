@@ -123,6 +123,24 @@ describe(
 				);
 
 				it(
+					'should return a value if set a valid value',
+					function(done) {
+						selectField = createSelectField();
+
+						var container = selectField.get('container');
+
+						selectField.set('options', [{label: 'a', value: 'a'}]);
+						selectField.setValue('a');
+
+						assert.equal(selectField.get('value'), 'a');
+						assert.equal(selectField.getValue(), 'a');
+						assert.equal(container.one('.select-field-trigger').one('.option-selected').html(), 'a');
+
+						done();
+					}
+				);
+
+				it(
 					'should return value if select has a value in context',
 					function(done) {
 						selectField = createSelectField(
@@ -131,8 +149,6 @@ describe(
 								value: 'a'
 							}
 						);
-
-						selectField.setValue('');
 
 						assert.equal(
 							selectField.getValue(),
@@ -208,6 +224,28 @@ describe(
 		);
 
 		describe(
+			'.getValueSelected()',
+			function() {
+				it(
+					'should return correct label if the value is related',
+					function(done) {
+						selectField = createSelectField(
+							{
+								options: [{label: 'a', value: '119'}, {label: 'b', value: '19'}]
+							}
+						);
+
+						selectField.set('value', '19');
+
+						assert.equal(selectField.getValueSelected()[0].label, 'b');
+
+						done();
+					}
+				);
+			}
+		);
+
+		describe(
 			'.clickSelectTrigger()',
 			function() {
 				it(
@@ -217,13 +255,13 @@ describe(
 
 						var container = selectField.get('container');
 
-						var divSelect = container.one('.form-builder-select-field');
+						var trigger = container.one('.select-field-trigger');
 
-						assert.isFalse(divSelect.hasClass('active'));
+						assert.isFalse(trigger.hasClass('active'));
 
-						divSelect.simulate('mousedown');
+						trigger.simulate('click');
 
-						assert.isTrue(divSelect.hasClass('active'));
+						assert.isTrue(trigger.hasClass('active'));
 
 						done();
 					}
@@ -241,9 +279,9 @@ describe(
 
 						var container = selectField.get('container');
 
-						var divSelect = container.one('.form-builder-select-field');
+						var trigger = container.one('.select-field-trigger');
 
-						divSelect.simulate('mousedown');
+						trigger.simulate('click');
 
 						assert.isNull(container.one('.drop-chosen.hide'));
 
@@ -262,15 +300,15 @@ describe(
 
 						var container = selectField.get('container');
 
-						var divSelect = container.one('.form-builder-select-field');
+						var trigger = container.one('.select-field-trigger');
 
-						divSelect.simulate('mousedown');
+						trigger.simulate('click');
 
-						assert.isTrue(divSelect.hasClass('active'));
+						assert.isTrue(trigger.hasClass('active'));
 
 						A.one(document).simulate('click');
 
-						assert.isFalse(divSelect.hasClass('active'));
+						assert.isFalse(trigger.hasClass('active'));
 
 						done();
 					}
@@ -314,13 +352,93 @@ describe(
 
 						var container = selectField.get('container');
 
-						container.one('.form-builder-select-field').simulate('mousedown');
+						container.one('.form-builder-select-field').simulate('click');
 
 						var item = container.one('.form-builder-select-field').one('.drop-chosen ul li');
 
-						item.simulate('mousedown');
+						item.simulate('click');
 
 						assert.equal(selectField.getValue(), 'foo');
+					}
+				);
+
+				it(
+					'should remove badge item if click in an item already selected',
+					function(done) {
+						selectField = createSelectField(
+							{
+								multiple: true,
+								options: [{label: 'foo', value: 'foo'}, {label: 'bar', value: 'bar'}]
+							}
+						);
+
+						var container = selectField.get('container');
+
+						container.one('.form-builder-select-field').simulate('click');
+
+						var item = container.one('.form-builder-select-field').one('.drop-chosen ul li');
+
+						assert.isNull(container.one('.trigger-badge-item-close'));
+
+						item.simulate('click');
+
+						window.setTimeout(
+							function() {
+								assert.isNotNull(container.one('.trigger-badge-item-close'));
+
+								item = container.one('.form-builder-select-field').one('.drop-chosen ul li');
+
+								item.simulate('click');
+
+								window.setTimeout(
+									function() {
+										assert.isNull(container.one('.trigger-badge-item-close'));
+
+										done();
+									},
+									600
+								);
+							},
+							600
+						);
+					}
+				);
+			}
+		);
+
+		describe(
+			'.clickBadgeItem()',
+			function() {
+				it(
+					'should be an empty array in the value attribute when the last badge is removed',
+					function(done) {
+						selectField = createSelectField(
+							{
+								multiple: true,
+								options: [{label: 'foo', value: 'foo'}, {label: 'bar', value: 'bar'}]
+							}
+						);
+
+						var container = selectField.get('container');
+
+						container.one('.form-builder-select-field').simulate('click');
+
+						var item = container.one('.form-builder-select-field').one('.drop-chosen ul li');
+
+						item.simulate('click');
+
+						window.setTimeout(
+							function() {
+								assert.equal(selectField.get('value').length, 1);
+
+								container.one('.trigger-badge-item-close').simulate('click');
+
+								assert.equal(selectField.get('value').length, 0);
+
+								done();
+							},
+							600
+						);
 					}
 				);
 			}

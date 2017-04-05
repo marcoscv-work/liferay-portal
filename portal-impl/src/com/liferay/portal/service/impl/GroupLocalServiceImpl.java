@@ -1020,6 +1020,11 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	}
 
 	@Override
+	public Group fetchStagingGroup(long liveGroupId) {
+		return groupPersistence.fetchByLiveGroupId(liveGroupId);
+	}
+
+	@Override
 	public Group fetchUserGroup(long companyId, long userId) {
 		long classNameId = classNameLocalService.getClassNameId(User.class);
 
@@ -1906,6 +1911,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	}
 
 	@Override
+	@Skip
 	public boolean isLiveGroupActive(Group group) {
 		if (group == null) {
 			return false;

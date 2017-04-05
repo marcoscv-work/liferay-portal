@@ -4,8 +4,10 @@ AUI.add(
 		var SoyTemplateUtil = Liferay.DDM.SoyTemplateUtil;
 
 		var MAP_ACTION_DESCRIPTIONS = {
+			'auto-fill': 'auto-fill',
+			calculate: 'calculate-field',
 			enable: 'enable-field',
-			'jump-to-page': 'jump-from-page-to-page',
+			'jump-to-page': 'jump-to-page',
 			require: 'require-field',
 			show: 'show-field'
 		};
@@ -17,21 +19,41 @@ AUI.add(
 						value: null
 					},
 
+					functionsMetadata: {
+						value: []
+					},
+
+					getDataProviderInstancesURL: {
+						value: ''
+					},
+
+					getDataProviderParametersSettingsURL: {
+						value: ''
+					},
+
+					portletNamespace: {
+						value: ''
+					},
+
 					rules: {
 						value: []
 					},
 
 					strings: {
 						value: {
+							'auto-fill': Liferay.Language.get('autofill-x-from-data-provider-x'),
+							'calculate-field': Liferay.Language.get('calculate-field-x-as-x'),
 							contains: Liferay.Language.get('contains'),
 							delete: Liferay.Language.get('delete'),
 							edit: Liferay.Language.get('edit'),
-							emptyListText: Liferay.Language.get('there-are-no-rules-yet-click-on-plus-icon-bellow-to-add-the-first'),
+							emptyListText: Liferay.Language.get('there-are-no-rules-yet-click-on-plus-icon-below-to-add-the-first'),
 							'enable-field': Liferay.Language.get('enable-x'),
 							'equals-to': Liferay.Language.get('is-equal-to'),
-							'jump-from-page-to-page': Liferay.Language.get('jump-from-x-to-x'),
+							'is-empty': Liferay.Language.get('is-empty'),
+							'jump-to-page': Liferay.Language.get('jump-to-page-x'),
 							'not-contains': Liferay.Language.get('does-not-contain'),
 							'not-equals-to': Liferay.Language.get('is-not-equal-to'),
+							'not-is-empty': Liferay.Language.get('is-not-empty'),
 							'require-field': Liferay.Language.get('require-x'),
 							ruleBuilder: Liferay.Language.get('rule-builder'),
 							'show-field': Liferay.Language.get('show-x')
@@ -112,8 +134,10 @@ AUI.add(
 							function(field) {
 								fields.push(
 									{
+										dataType: field.get('dataType'),
 										label: field.get('label') || field.get('fieldName'),
 										options: field.get('options'),
+										pageIndex: instance.getPageIndex(field),
 										type: field.get('type'),
 										value: field.get('fieldName')
 									}
@@ -124,6 +148,36 @@ AUI.add(
 						return fields;
 					},
 
+					getPageIndex: function(field) {
+						var instance = this;
+
+						var formBuilder = instance.get('formBuilder');
+
+						var layouts = formBuilder.get('layouts');
+
+						for (var h = 0; h < layouts.length; h++) {
+							var rows = layouts[h].get('rows');
+
+							for (var i = 0; i < rows.length; i++) {
+								var cols = rows[i].get('cols');
+
+								for (var j = 0; j < cols.length; j++) {
+									var fieldList = cols[j].get('value');
+
+									if (fieldList) {
+										var fields = fieldList.get('fields');
+
+										for (var k = 0; k < fields.length; k++) {
+											if (fields[k].get('label') === field.get('label')) {
+												return h;
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+
 					getPages: function() {
 						var instance = this;
 
@@ -131,26 +185,20 @@ AUI.add(
 
 						var formBuilder = instance.get('formBuilder');
 
+						var pagesTitles = formBuilder.getPagesTitle();
+
 						var pagesQuantity = formBuilder.get('layouts').length;
 
 						pages = new Array(pagesQuantity);
 
 						for (var i = 0; i < pagesQuantity; i++) {
 							pages[i] = {
-								label: (i + 1).toString(),
+								label: pagesTitles[i] ? (i + 1).toString() + ' ' + pagesTitles[i] : (i + 1).toString(),
 								value: i.toString()
 							};
 						}
 
 						return pages;
-					},
-
-					hide: function() {
-						var instance = this;
-
-						FormBuilderRuleBuilder.superclass.hide.apply(instance, arguments);
-
-						instance.syncUI();
 					},
 
 					renderRule: function(rule) {
@@ -163,7 +211,11 @@ AUI.add(
 									bubbleTargets: [instance],
 									contentBox: instance.get('contentBox'),
 									fields: instance.getFields(),
-									pages: instance.getPages()
+									functionsMetadata: instance.get('functionsMetadata'),
+									getDataProviderParametersSettingsURL: instance.get('getDataProviderParametersSettingsURL'),
+									getDataProviders: instance._dataProviders,
+									pages: instance.getPages(),
+									portletNamespace: instance.get('portletNamespace')
 								}
 							);
 						}
@@ -172,6 +224,39 @@ AUI.add(
 						instance._ruleClasses.set('pages', instance.getPages());
 
 						instance._ruleClasses.render(rule);
+					},
+
+					show: function() {
+						var instance = this;
+
+						FormBuilderRuleBuilder.superclass.show.apply(instance, arguments);
+
+						if (!instance._dataProviders) {
+							instance._fillDataProviders();
+						}
+						else {
+							instance.syncUI();
+						}
+					},
+
+					_fillDataProviders: function() {
+						var instance = this;
+
+						A.io.request(
+							instance.get('getDataProviderInstancesURL'),
+							{
+								method: 'GET',
+								on: {
+									success: function(event, id, xhr) {
+										var result = JSON.parse(xhr.responseText);
+
+										instance._dataProviders = result;
+
+										instance.syncUI();
+									}
+								}
+							}
+						);
 					},
 
 					_getActionDescription: function(type, action) {
@@ -185,6 +270,8 @@ AUI.add(
 
 						var actionKey = MAP_ACTION_DESCRIPTIONS[type];
 
+						var pages = instance.getPages();
+
 						if (actionKey) {
 							var data;
 
@@ -192,12 +279,46 @@ AUI.add(
 								data = [
 									badgeTemplate(
 										{
-											content: Number(action.source) + 1
+											content: pages[action.target].label
+										}
+									)
+								];
+							}
+							else if (type === 'auto-fill') {
+								data = [];
+
+								var fieldListDescription = [];
+
+								for (var output in action.outputs) {
+									fieldListDescription.push(
+										badgeTemplate(
+											{
+												content: action.outputs[output]
+											}
+										)
+									);
+								}
+
+								data.push(fieldListDescription.join(', '));
+
+								data.push(
+									badgeTemplate(
+										{
+											content: instance._getDataProviderLabel(action.ddmDataProviderInstanceUUID)
+										}
+									)
+								);
+							}
+							else if (type === 'calculate') {
+								data = [
+									badgeTemplate(
+										{
+											content: instance._getFieldLabel(action.target)
 										}
 									),
 									badgeTemplate(
 										{
-											content: Number(action.target) + 1
+											content: action.expression
 										}
 									)
 								];
@@ -206,7 +327,7 @@ AUI.add(
 								data = [
 									badgeTemplate(
 										{
-											content: action.target
+											content: action.label
 										}
 									)
 								];
@@ -234,6 +355,18 @@ AUI.add(
 						return actionsDescription;
 					},
 
+					_getDataProviderLabel: function(dataProviderUUID) {
+						var instance = this;
+
+						if (instance._dataProviders) {
+							for (var i = 0; i < instance._dataProviders.length; i++) {
+								if (dataProviderUUID === instance._dataProviders[i].uuid) {
+									return instance._dataProviders[i].name;
+								}
+							}
+						}
+					},
+
 					_getFieldLabel: function(fieldValue) {
 						var instance = this;
 
@@ -255,14 +388,13 @@ AUI.add(
 
 						var rulesDescription = [];
 
-						var ruleDescription = {};
-
 						for (var i = 0; i < rules.length; i++) {
-							ruleDescription.conditions = rules[i].conditions;
-
-							ruleDescription.actions = instance._getActionsDescription(rules[i].actions);
-
-							rulesDescription.push(ruleDescription);
+							rulesDescription.push(
+								{
+									actions: instance._getActionsDescription(rules[i].actions),
+									conditions: rules[i].conditions
+								}
+							);
 						}
 
 						return rulesDescription;

@@ -31,6 +31,7 @@ import com.liferay.journal.internal.upgrade.v0_0_5.UpgradeJournalArticles;
 import com.liferay.journal.internal.upgrade.v0_0_5.UpgradeJournalDisplayPreferences;
 import com.liferay.journal.internal.upgrade.v0_0_5.UpgradeLastPublishDate;
 import com.liferay.journal.internal.upgrade.v0_0_5.UpgradePortletSettings;
+import com.liferay.journal.internal.upgrade.v1_0_0.UpgradeImageTypeContentAttributes;
 import com.liferay.journal.internal.upgrade.v1_0_0.UpgradeJournalArticleImage;
 import com.liferay.journal.internal.upgrade.v1_1_0.UpgradeDocumentLibraryTypeContent;
 import com.liferay.journal.internal.upgrade.v1_1_0.UpgradeImageTypeContent;
@@ -118,6 +119,7 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 
 		registry.register(
 			"com.liferay.journal.service", "0.0.5", "1.0.0",
+			new UpgradeImageTypeContentAttributes(),
 			new UpgradeJournalArticleImage());
 
 		registry.register(
