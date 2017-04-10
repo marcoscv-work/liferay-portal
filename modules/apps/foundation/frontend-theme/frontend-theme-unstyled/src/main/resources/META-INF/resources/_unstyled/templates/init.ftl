@@ -61,7 +61,7 @@
 		is_default_user = user.isDefaultUser()
 		is_female = user.isFemale()
 		is_male = user.isMale()
-		is_setup_complete = user.isSetupComplete()
+		is_setup_complete = propsUtil.get(setup.wizard.enabled)
 		language = locale.getLanguage()
 		language_id = user.getLanguageId()
 		user_birthday = user.getBirthday()
