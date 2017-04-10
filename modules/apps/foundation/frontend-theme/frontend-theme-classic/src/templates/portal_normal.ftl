@@ -34,7 +34,7 @@
 					</span>
 				</#if>
 
-				<#if is_setup_complete>
+				<#if propsUtil.get('setup.wizard.enabled')>
 					<button aria-controls="navigation" aria-expanded="false" class="collapsed navbar-toggle" data-target="#navigationCollapse" data-toggle="collapse" type="button">
 						<span class="icon-bar"></span>
 
