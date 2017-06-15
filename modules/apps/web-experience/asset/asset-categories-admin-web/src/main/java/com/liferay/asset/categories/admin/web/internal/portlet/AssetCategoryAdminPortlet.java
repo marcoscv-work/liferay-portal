@@ -14,7 +14,11 @@
 
 package com.liferay.asset.categories.admin.web.internal.portlet;
 
+import com.liferay.asset.categories.admin.web.configuration.AssetCategoriesAdminWebConfiguration;
 import com.liferay.asset.categories.admin.web.internal.constants.AssetCategoriesAdminPortletKeys;
+import com.liferay.asset.categories.admin.web.internal.constants.AssetCategoriesAdminWebKeys;
+import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
+import com.liferay.asset.kernel.NoSuchClassTypeException;
 import com.liferay.asset.kernel.exception.AssetCategoryNameException;
 import com.liferay.asset.kernel.exception.CategoryPropertyKeyException;
 import com.liferay.asset.kernel.exception.CategoryPropertyValueException;
@@ -26,9 +30,14 @@ import com.liferay.asset.kernel.exception.NoSuchVocabularyException;
 import com.liferay.asset.kernel.exception.VocabularyNameException;
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetCategoryConstants;
+import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.model.AssetVocabulary;
+import com.liferay.asset.kernel.model.ClassTypeReader;
 import com.liferay.asset.kernel.service.AssetCategoryService;
 import com.liferay.asset.kernel.service.AssetVocabularyService;
+import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.PortalPreferences;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
@@ -36,11 +45,13 @@ import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.servlet.SessionErrors;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portlet.asset.util.AssetVocabularySettingsHelper;
 
 import java.io.IOException;
@@ -55,13 +66,16 @@ import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Eudaldo Alonso
  */
 @Component(
+	configurationPid = "com.liferay.asset.categories.admin.web.configuration.AssetCategoriesAdminWebConfiguration",
 	immediate = true,
 	property = {
 		"com.liferay.portlet.css-class-wrapper=portlet-asset-category-admin",
@@ -237,6 +251,14 @@ public class AssetCategoryAdminPortlet extends MVCPortlet {
 			categoryId, parentCategoryId, vocabularyId, serviceContext);
 	}
 
+	@Activate
+	@Modified
+	protected void activate(Map<String, Object> properties) {
+		_assetCategoriesAdminWebConfiguration =
+			ConfigurableUtil.createConfigurable(
+				AssetCategoriesAdminWebConfiguration.class, properties);
+	}
+
 	@Override
 	protected void doDispatch(
 			RenderRequest renderRequest, RenderResponse renderResponse)
@@ -250,10 +272,15 @@ public class AssetCategoryAdminPortlet extends MVCPortlet {
 				renderRequest, PrincipalException.getNestedClasses())) {
 
 			include("/error.jsp", renderRequest, renderResponse);
+
+			return;
 		}
-		else {
-			super.doDispatch(renderRequest, renderResponse);
-		}
+
+		renderRequest.setAttribute(
+			AssetCategoriesAdminWebKeys.ASSET_CATEGORIES_ADMIN_CONFIGURATION,
+			_assetCategoriesAdminWebConfiguration);
+
+		super.doDispatch(renderRequest, renderResponse);
 	}
 
 	protected String[] getCategoryProperties(ActionRequest actionRequest) {
@@ -284,7 +311,12 @@ public class AssetCategoryAdminPortlet extends MVCPortlet {
 		return categoryProperties;
 	}
 
-	protected String getSettings(ActionRequest actionRequest) {
+	protected String getSettings(ActionRequest actionRequest)
+		throws PortalException {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
 		AssetVocabularySettingsHelper vocabularySettingsHelper =
 			new AssetVocabularySettingsHelper();
 
@@ -305,6 +337,23 @@ public class AssetCategoryAdminPortlet extends MVCPortlet {
 				actionRequest,
 				"subtype" + classNameIds[i] + "-classNameId" + index,
 				AssetCategoryConstants.ALL_CLASS_TYPE_PK);
+
+			if (classTypePKs[i] != -1) {
+				AssetRendererFactory<?> assetRendererFactory =
+					AssetRendererFactoryRegistryUtil.
+						getAssetRendererFactoryByClassNameId(classNameIds[i]);
+
+				ClassTypeReader classTypeReader =
+					assetRendererFactory.getClassTypeReader();
+
+				try {
+					classTypeReader.getClassType(
+						classTypePKs[i], themeDisplay.getLocale());
+				}
+				catch (NoSuchModelException nsme) {
+					throw new NoSuchClassTypeException(nsme);
+				}
+			}
 
 			requireds[i] = ParamUtil.getBoolean(
 				actionRequest, "required" + index);
@@ -330,6 +379,7 @@ public class AssetCategoryAdminPortlet extends MVCPortlet {
 			cause instanceof DuplicateCategoryPropertyException ||
 			cause instanceof DuplicateVocabularyException ||
 			cause instanceof NoSuchCategoryException ||
+			cause instanceof NoSuchClassTypeException ||
 			cause instanceof NoSuchVocabularyException ||
 			cause instanceof PrincipalException ||
 			cause instanceof VocabularyNameException) {
@@ -354,6 +404,8 @@ public class AssetCategoryAdminPortlet extends MVCPortlet {
 		_assetVocabularyService = assetVocabularyService;
 	}
 
+	private AssetCategoriesAdminWebConfiguration
+		_assetCategoriesAdminWebConfiguration;
 	private AssetCategoryService _assetCategoryService;
 	private AssetVocabularyService _assetVocabularyService;
 

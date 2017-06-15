@@ -45,8 +45,18 @@ public class IndexableAdvice
 			return;
 		}
 
-		if (IndexWriterHelperUtil.isIndexReadOnly() ||
-			CompanyThreadLocal.isDeleteInProcess()) {
+		if (CompanyThreadLocal.isDeleteInProcess() ||
+			IndexWriterHelperUtil.isIndexReadOnly()) {
+
+			if (_log.isDebugEnabled()) {
+				if (CompanyThreadLocal.isDeleteInProcess()) {
+					_log.debug(
+						"Skip indexing because company delete is in process");
+				}
+				else if (IndexWriterHelperUtil.isIndexReadOnly()) {
+					_log.debug("Skip indexing because the index is read only");
+				}
+			}
 
 			return;
 		}
@@ -76,6 +86,16 @@ public class IndexableAdvice
 		if (indexer == null) {
 			serviceBeanAopCacheManager.removeMethodInterceptor(
 				methodInvocation, this);
+
+			return;
+		}
+
+		if (IndexWriterHelperUtil.isIndexReadOnly(indexer.getClassName())) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"Skipping indexing read only index for " +
+						indexer.getClassName());
+			}
 
 			return;
 		}

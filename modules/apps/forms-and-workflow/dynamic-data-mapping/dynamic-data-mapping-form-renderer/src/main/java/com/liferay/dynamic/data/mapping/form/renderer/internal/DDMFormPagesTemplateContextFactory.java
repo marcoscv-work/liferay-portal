@@ -17,6 +17,7 @@ package com.liferay.dynamic.data.mapping.form.renderer.internal;
 import com.liferay.dynamic.data.mapping.form.evaluator.DDMFormEvaluationException;
 import com.liferay.dynamic.data.mapping.form.evaluator.DDMFormEvaluationResult;
 import com.liferay.dynamic.data.mapping.form.evaluator.DDMFormEvaluator;
+import com.liferay.dynamic.data.mapping.form.evaluator.DDMFormEvaluatorContext;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
@@ -30,6 +31,8 @@ import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,7 +58,9 @@ public class DDMFormPagesTemplateContextFactory {
 		DDMFormValues ddmFormValues =
 			ddmFormRenderingContext.getDDMFormValues();
 
-		if (ddmFormValues == null) {
+		if ((ddmFormValues == null) ||
+			ListUtil.isEmpty(ddmFormValues.getDDMFormFieldValues())) {
+
 			DefaultDDMFormValuesFactory defaultDDMFormValuesFactory =
 				new DefaultDDMFormValuesFactory(
 					ddmForm, ddmFormRenderingContext.getLocale());
@@ -182,6 +187,12 @@ public class DDMFormPagesTemplateContextFactory {
 		pageTemplateContext.put("description", description.getString(_locale));
 
 		pageTemplateContext.put("enabled", isPageEnabled(pageIndex));
+		pageTemplateContext.put(
+			"localizedDescription", getLocalizedValueMap(description));
+
+		LocalizedValue title = ddmFormLayoutPage.getTitle();
+
+		pageTemplateContext.put("localizedTitle", getLocalizedValueMap(title));
 
 		pageTemplateContext.put(
 			"rows",
@@ -193,8 +204,6 @@ public class DDMFormPagesTemplateContextFactory {
 
 		pageTemplateContext.put(
 			"showRequiredFieldsWarning", showRequiredFieldsWarning);
-
-		LocalizedValue title = ddmFormLayoutPage.getTitle();
 
 		pageTemplateContext.put("title", title.getString(_locale));
 
@@ -224,6 +233,22 @@ public class DDMFormPagesTemplateContextFactory {
 				ddFormLayoutRow.getDDMFormLayoutColumns()));
 
 		return rowTemplateContext;
+	}
+
+	protected Map<String, String> getLocalizedValueMap(
+		LocalizedValue localizedValue) {
+
+		Map<String, String> map = new HashMap<>();
+
+		Map<Locale, String> values = localizedValue.getValues();
+
+		for (Map.Entry<Locale, String> entry : values.entrySet()) {
+			String languageId = LocaleUtil.toLanguageId(entry.getKey());
+
+			map.put(languageId, entry.getValue());
+		}
+
+		return map;
 	}
 
 	protected boolean isPageEnabled(int pageIndex) {
@@ -280,8 +305,15 @@ public class DDMFormPagesTemplateContextFactory {
 
 	private DDMFormEvaluationResult _createDDMFormEvaluationResult() {
 		try {
-			return _ddmFormEvaluator.evaluate(
-				_ddmForm, _ddmFormValues, _locale);
+			DDMFormEvaluatorContext ddmFormEvaluatorContext =
+				new DDMFormEvaluatorContext(_ddmForm, _ddmFormValues, _locale);
+
+			ddmFormEvaluatorContext.addProperty(
+				"groupId", _ddmFormRenderingContext.getGroupId());
+			ddmFormEvaluatorContext.addProperty(
+				"request", _ddmFormRenderingContext.getHttpServletRequest());
+
+			return _ddmFormEvaluator.evaluate(ddmFormEvaluatorContext);
 		}
 		catch (DDMFormEvaluationException ddmfee) {
 			_log.error("Unable to evaluate the form", ddmfee);

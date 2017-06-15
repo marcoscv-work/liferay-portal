@@ -1,4 +1,14 @@
 <definition>
+	<command name="addAsset">
+		<execute function="Click#makeVisibleClickAt" locator1="AP#ADD_ASSET_PLUS_ICON" />
+
+		<execute function="AssertClick" locator1="MenuItem#ANY_MENU_ITEM" value1="${assetType}">
+			<var name="key_menuItem" value="${assetType}" />
+		</execute>
+
+		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
+	</command>
+
 	<command name="assertSiteScopeSearch">
 		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
 
@@ -14,15 +24,9 @@
 
 		<execute function="SelectFrame" locator1="IFrame#SELECT_SITES" />
 
-		<var name="key_siteName" value="${siteName}" />
-
-		<execute function="Type" locator1="NavBar#BASIC_SEARCH_FIELD" value1="${siteName}" />
-
-		<execute function="Click" locator1="Icon#BASIC_SEARCH" />
-
-		<execute function="AssertTextEquals" locator1="APConfigurationSites#SITES_TABLE_NAME" value1="${siteName}" />
-
-		<execute function="SelectFrame" value1="relative=top" />
+		<execute macro="SiteSelector#viewSite">
+			<var name="site" value="${siteName}" />
+		</execute>
 	</command>
 
 	<command name="configureAddSiteScopes">
@@ -52,9 +56,9 @@
 
 				<execute function="SelectFrame" locator1="IFrame#SELECT_SITES" />
 
-				<var name="key_siteName" value="${otherSite}" />
-
-				<execute function="Click" locator1="SitesSelectSite#SITES_TABLE_CHOOSE_SITE_LINK" />
+				<execute macro="SiteSelector#selectSite">
+					<var name="site" value="${otherSite}" />
+				</execute>
 			</then>
 		</if>
 
@@ -75,12 +79,9 @@
 	</command>
 
 	<command name="configureAPSelectMoreThanOnePG">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Asset Publisher" />
-			<var name="portletOption" value="Configuration" />
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
 		</execute>
-
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Source" />
@@ -110,13 +111,17 @@
 	<command name="configureAssetDisplayOrderPG">
 		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
 
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Asset Selection" />
+		</execute>
+
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Ordering and Grouping" />
 		</execute>
 
 		<execute function="Select" locator1="APConfiguration#ORDERING_AND_GROUPING_ORDER_BY_SELECT" value1="${fieldNameOrder}" />
 
-		<execute function="Select" locator1="APConfiguration#ORDERING_AND_GROUPING_ORDER_DIRECTION_SELECT" value1="${sortOrder}" />
+		<execute function="Click" locator1="APConfiguration#ORDERING_AND_GROUPING_ORDER_ASCENDING" />
 
 		<execute macro="PortletEntry#save" />
 	</command>
@@ -124,7 +129,18 @@
 	<command name="configureAssetLinkBehaviorPG">
 		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
 
-		<execute function="AssertClick" locator1="NavTab#DISPLAY_SETTINGS" value1="Display Settings" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Display Settings" />
+		</execute>
+
+		<if>
+			<isset var="disableConfiguration" />
+			<then>
+				<execute function="Uncheck#uncheckToggleSwitch" locator1="ToggleSwitch#ANY_TOGGLE_SWITCH">
+					<var name="key_toggleSwitchLabel" value="${disableConfiguration}" />
+				</execute>
+			</then>
+		</if>
 
 		<execute function="Select" locator1="APConfigurationDisplaysettings#ASSET_LINK_BEHAVIOR_SELECT" value1="${assetLinkBehavior}" />
 
@@ -167,7 +183,13 @@
 	<command name="configureDisplayConversionsPG">
 		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
 
-		<execute function="AssertClick" locator1="NavTab#DISPLAY_SETTINGS" value1="Display Settings" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Display Settings" />
+		</execute>
+
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Set and Enable" />
+		</execute>
 
 		<for list="${documentTypes}" param="documentType">
 			<var method="StringUtil#upperCase('${documentType}')" name="documentTypeUppercase" />
@@ -189,16 +211,75 @@
 		<execute macro="PortletEntry#save" />
 	</command>
 
+	<command name="configureDisplaySettings">
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
+		</execute>
+
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Display Settings" />
+		</execute>
+
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Set and Enable" />
+		</execute>
+
+		<for list="${displaySettings}" param="displaySetting">
+			<if>
+				<contains string="${displaySetting}" substring="Social Bookmarks" />
+				<then>
+					<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_SOCIAL_BOOKMARKS" />
+				</then>
+				<else>
+					<execute function="Check" locator1="Checkbox#ANY_CHECKBOX">
+						<var name="checkboxName" value="${displaySetting}" />
+					</execute>
+				</else>
+			</if>
+		</for>
+
+		<execute macro="PortletEntry#save" />
+
+		<execute function="SelectFrame" value1="relative=top" />
+	</command>
+
 	<command name="configureDisplayTemplatePG">
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
-		<execute function="AssertClick" locator1="NavTab#DISPLAY_SETTINGS" value1="Display Settings" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Display Settings" />
+		</execute>
 
 		<execute function="Select" locator1="APConfigurationDisplaysettings#DISPLAY_TEMPLATE_SELECT" value1="${displayTemplate}" />
 
 		<execute macro="PortletEntry#save" />
 
 		<execute function="SelectFrame" value1="relative=top" />
+	</command>
+
+	<command name="configureFilterByCategories">
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
+		</execute>
+
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Asset Selection" />
+		</execute>
+
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Filter" />
+		</execute>
+
+		<execute function="Select" locator1="APConfiguration#FILTER_CATEGORIZATION_SELECT" value1="Categories" />
+
+		<execute macro="AssetCategorization#addCategory">
+			<var name="categoryName" value="${categoryName}" />
+			<var name="vocabularyName" value="${vocabularyName}" />
+		</execute>
+
+		<execute macro="PortletEntry#save" />
+
+		<execute function="SelectFrameTop" />
 	</command>
 
 	<command name="configureFilterByFieldPG">
@@ -259,63 +340,10 @@
 		<execute function="AssertSelectedLabel" locator1="APConfiguration#SOURCE_SCOPE_ASSET_SUBTYPE_SELECT" value1="${assetSubtype}" />
 	</command>
 
-	<command name="configureFlagAllDisplaySettingsCheckboxes">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Asset Publisher" />
-			<var name="portletOption" value="Configuration" />
-		</execute>
-
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
-
-		<if>
-			<condition function="IsElementPresent" locator1="Configuration#SETUP_DISPLAY_SETTINGS" />
-			<then>
-				<execute function="AssertClick" locator1="Configuration#SETUP_DISPLAY_SETTINGS" value1="Display Settings" />
-			</then>
-		</if>
-
-		<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_PRINT" />
-		<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_FLAGS" />
-		<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_RELATED_ASSETS" />
-		<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_RATINGS" />
-		<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_COMMENTS" />
-		<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_COMMENT_RATINGS" />
-		<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_SOCIAL_BOOKMARKS" />
-
-		<execute macro="PortletEntry#save" />
-
-		<execute function="SelectFrameTop" value1="relative=top" />
-	</command>
-
-	<command name="configureFlaggableDisplaySettingsPG">
-		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
-
-		<execute function="AssertClick" locator1="NavTab#DISPLAY_SETTINGS" value1="Display Settings" />
-
-		<if>
-			<equals arg1="${enableRatings}" arg2="true" />
-			<then>
-				<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_RATINGS" value1="Enable Ratings" />
-			</then>
-		</if>
-
-		<if>
-			<equals arg1="${setAsDefaultPage}" arg2="true" />
-			<then>
-				<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#SET_AS_THE_DEFAULT_ASSET_PUBLISHER_FOR_THIS_PAGE" value1="Set as the Default Asset Publisher for This Page" />
-			</then>
-		</if>
-
-		<execute macro="PortletEntry#save" />
-	</command>
-
 	<command name="configureManualAssetSelectionPG">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Asset Publisher" />
-			<var name="portletOption" value="Configuration" />
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
 		</execute>
-
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
 		<execute function="Click" locator1="APConfiguration#ASSET_SELECTION_MANUAL" />
 
@@ -354,7 +382,9 @@
 	<command name="configurePaginationPG">
 		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
 
-		<execute function="AssertClick" locator1="NavTab#DISPLAY_SETTINGS" value1="Display Settings" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Display Settings" />
+		</execute>
 
 		<execute function="Type" locator1="APConfigurationDisplaysettings#NUMBER_OF_ITEMS_TO_DISPLAY_FIELD" value1="${paginationNumber}" />
 
@@ -376,12 +406,9 @@
 	</command>
 
 	<command name="configureShowMetadataFieldsPG">
-		<execute macro="Portlet#gotoPortletOptions">
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
 			<var name="portletName" value="${portletName}" />
-			<var name="portletOption" value="Configuration" />
 		</execute>
-
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
 		<execute macro="Navigator#gotoNavTab">
 			<var name="navTab" value="Display Settings" />
@@ -475,12 +502,9 @@
 	<command name="configureSiteScopeRemoveSitePG">
 		<var name="key_siteName" value="${siteName}" />
 
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Asset Publisher" />
-			<var name="portletOption" value="Configuration" />
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
 		</execute>
-
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Scope" />
@@ -540,7 +564,9 @@
 	<command name="enableRSSSubscription">
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
-		<execute function="AssertClick" locator1="NavTab#SUBSCRIPTIONS" value1="Subscriptions" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Subscriptions" />
+		</execute>
 
 		<execute function="AssertTextEquals" locator1="APConfiguration#SUBSCRIPTIONS_ENABLE_RSS_SUBSCRIPTION_LABEL" value1="Enable RSS Subscription" />
 
@@ -548,8 +574,15 @@
 	</command>
 
 	<command name="gotoConfigurationPG">
+		<if>
+			<contains string="${portletName}" substring="{portletName}" />
+			<then>
+				<var name="portletName" value="Asset Publisher" />
+			</then>
+		</if>
+
 		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Asset Publisher" />
+			<var name="portletName" value="${portletName}" />
 			<var name="portletOption" value="Configuration" />
 		</execute>
 
@@ -560,8 +593,10 @@
 		<execute function="AssertClick" locator1="Link#VIEW_IN_CONTEXT" value1="View in Context »" />
 	</command>
 
-	<command name="rate4StarsPG">
-		<execute function="Click#clickNoMouseOver" locator1="Ratings#YOUR_RATING_STAR_EMPTY_4" />
+	<command name="rateAssetPG">
+		<execute function="Click#clickNoMouseOver" locator1="Ratings#YOUR_RATING_STAR_EMPTY">
+			<var name="key_emptyStarPosition" value="${rating}" />
+		</execute>
 	</command>
 
 	<command name="removeSiteScope">
@@ -611,7 +646,9 @@
 
 		<execute function="AssertClick" locator1="Configuration#SAVE_CONFIGURATION_TEMPLATE" value1="Save Current Configuration as Template" />
 
-		<execute function="Type" locator1="TextInput#NAME" value1="${configurationName}" />
+		<execute macro="PortletEntry#inputName">
+			<var name="name" value="${configurationName}" />
+		</execute>
 
 		<execute macro="Button#clickSave" />
 
@@ -657,6 +694,68 @@
 		<execute function="AssertTextEquals#assertPartialText" locator1="AP#ASSET_ABSTRACT_DESCRIPTION" value1="${assetContent}" />
 	</command>
 
+	<command name="viewAssetRatingPG">
+		<if>
+			<equals arg1="${rating}" arg2="0" />
+			<then>
+				<execute function="AssertElementNotPresent" locator1="Ratings#YOUR_RATING_STAR">
+					<var name="key_ratingStarPosition" value="1" />
+				</execute>
+			</then>
+			<else>
+				<var name="ratingPosition" value="1" />
+
+				<while>
+					<not>
+						<equals arg1="${ratingPosition}" arg2="${rating}" />
+					</not>
+					<then>
+						<execute function="AssertElementPresent" locator1="Ratings#YOUR_RATING_STAR">
+							<var name="key_ratingStarPosition" value="${ratingPosition}" />
+						</execute>
+
+						<var method="MathUtil#sum('${ratingPosition}', '1')" name="ratingPosition" />
+					</then>
+				</while>
+
+				<execute function="AssertElementNotPresent" locator1="Ratings#YOUR_RATING_STAR">
+					<var name="key_ratingStarPosition" value="${ratingPosition}" />
+					<var method="MathUtil#sum('${ratingPosition}', '1')" name="key_ratingStarPosition" />
+				</execute>
+			</else>
+		</if>
+
+		<if>
+			<equals arg1="${rating}" arg2="5" />
+			<then>
+				<execute function="AssertElementNotPresent" locator1="Ratings#YOUR_RATING_STAR_EMPTY">
+					<var name="key_emptyStarPosition" value="1" />
+				</execute>
+			</then>
+			<else>
+				<var method="MathUtil#difference('5', '${rating}')" name="emptyRating" />
+				<var name="emptyStarPosition" value="1" />
+
+				<while>
+					<not>
+						<equals arg1="${emptyStarPosition}" arg2="${emptyRating}" />
+					</not>
+					<then>
+						<execute function="AssertElementPresent" locator1="Ratings#YOUR_RATING_STAR_EMPTY">
+							<var name="key_emptyStarPosition" value="${emptyStarPosition}" />
+						</execute>
+
+						<var method="MathUtil#sum('${emptyStarPosition}', '1')" name="emptyStarPosition" />
+					</then>
+				</while>
+
+				<execute function="AssertElementNotPresent" locator1="Ratings#YOUR_RATING_STAR_EMPTY">
+					<var method="MathUtil#sum('${emptyStarPosition}', '1')" name="key_emptyStarPosition" />
+				</execute>
+			</else>
+		</if>
+	</command>
+
 	<command name="viewAssetTypeNotAvailable">
 		<execute function="SelectFrame" locator1="IFrame#CONFIGURATION" />
 
@@ -674,6 +773,69 @@
 			<var name="key_assetTitle" value="${assetTitle}" />
 			<var name="key_viewCount" value="${viewCount}" />
 		</execute>
+	</command>
+
+	<command name="viewAverageRatingPG">
+		<if>
+			<equals arg1="${averageRating}" arg2="0" />
+			<then>
+				<execute function="AssertElementNotPresent" locator1="Ratings#AVERAGE_STAR">
+					<var name="key_averageRatingStar" value="1" />
+				</execute>
+			</then>
+			<else>
+				<var name="ratingPosition" value="1" />
+
+				<while>
+					<not>
+						<equals arg1="${ratingPosition}" arg2="${averageRating}" />
+					</not>
+					<then>
+						<execute function="AssertElementPresent" locator1="Ratings#AVERAGE_STAR">
+							<var name="key_averageRatingStar" value="${ratingPosition}" />
+						</execute>
+
+						<var method="MathUtil#sum('${ratingPosition}', '1')" name="ratingPosition" />
+					</then>
+				</while>
+
+				<execute function="AssertElementNotPresent" locator1="Ratings#AVERAGE_STAR">
+					<var method="MathUtil#sum('${ratingPosition}', '1')" name="key_averageRatingStar" />
+				</execute>
+			</else>
+		</if>
+
+		<if>
+			<equals arg1="${averageRating}" arg2="5" />
+			<then>
+				<execute function="AssertElementNotPresent" locator1="Ratings#AVERAGE_STAR_EMPTY">
+					<var name="key_averageEmptyStar" value="1" />
+				</execute>
+			</then>
+			<else>
+				<var method="MathUtil#difference('5', '${averageRating}')" name="emptyRating" />
+				<var name="emptyStarPosition" value="1" />
+
+				<while>
+					<not>
+						<equals arg1="${emptyStarPosition}" arg2="${emptyRating}" />
+					</not>
+					<then>
+						<execute function="AssertElementPresent" locator1="Ratings#AVERAGE_STAR_EMPTY">
+							<var name="key_averageEmptyStar" value="${emptyStarPosition}" />
+						</execute>
+
+						<var method="MathUtil#sum('${emptyStarPosition}', '1')" name="emptyStarPosition" />
+					</then>
+				</while>
+
+				<execute function="AssertElementNotPresent" locator1="Ratings#AVERAGE_STAR_EMPTY">
+					<var method="MathUtil#sum('${emptyStarPosition}', '1')" name="key_averageEmptyStar" />
+				</execute>
+			</else>
+		</if>
+
+		<execute function="AssertTextEquals" locator1="Ratings#AVERAGE_LABEL" value1="Average (1 Vote)" />
 	</command>
 
 	<command name="viewConfigureAPDisplayTemplateFullContentBookmarksPG">
@@ -715,32 +877,6 @@
 		<execute function="AssertTextEquals" locator1="AP#ASSET_ABSTRACT_TITLE" value1="${assetTitle}" />
 	</command>
 
-	<command name="viewConfigureFlaggableDisplaySettingsPG">
-		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
-
-		<execute macro="Navigator#gotoNavTab">
-			<var name="navTab" value="Display Settings" />
-		</execute>
-
-		<if>
-			<equals arg1="${enableRatings}" arg2="true" />
-			<then>
-				<execute function="AssertChecked#assertCheckedHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_RATINGS" value1="Enable Ratings" />
-			</then>
-		</if>
-
-		<if>
-			<equals arg1="${setAsDefaultPage}" arg2="true" />
-			<then>
-				<execute function="AssertChecked#assertCheckedHiddenToggleSwitch" locator1="ToggleSwitch#SET_AS_THE_DEFAULT_ASSET_PUBLISHER_FOR_THIS_PAGE" value1="Set as the Default Asset Publisher for This Page" />
-			</then>
-		</if>
-
-		<execute macro="PortletEntry#save" />
-
-		<execute function="SelectFrameTop" />
-	</command>
-
 	<command name="viewConfigureSiteScopeContentSharingPG">
 		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
 
@@ -762,6 +898,10 @@
 				<execute function="SelectFrame" locator1="IFrame#SELECT_SITES" />
 
 				<var name="key_siteName" value="${liferaySiteName}" />
+
+				<execute macro="Portlet#changeDisplayStyle">
+					<var name="displayStyle" value="list" />
+				</execute>
 
 				<if>
 					<isset var="currentSite" />
@@ -856,13 +996,42 @@
 		</execute>
 	</command>
 
-	<command name="viewDynamicAssetSelectionConfigurationPG">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Asset Publisher" />
-			<var name="portletOption" value="Configuration" />
+	<command name="viewDisplaySettings">
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
 		</execute>
 
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Display Settings" />
+		</execute>
+
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Set and Enable" />
+		</execute>
+
+		<for list="${displaySettings}" param="displaySetting">
+			<if>
+				<contains string="${displaySetting}" substring="Social Bookmarks" />
+				<then>
+					<execute function="AssertChecked#assertCheckedHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_SOCIAL_BOOKMARKS" />
+				</then>
+				<else>
+					<execute function="AssertChecked" locator1="Checkbox#ANY_CHECKBOX">
+						<var name="checkboxName" value="${displaySetting}" />
+					</execute>
+				</else>
+			</if>
+		</for>
+
+		<execute macro="PortletEntry#save" />
+
+		<execute function="SelectFrame" value1="relative=top" />
+	</command>
+
+	<command name="viewDynamicAssetSelectionConfigurationPG">
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
+		</execute>
 
 		<execute function="Click" locator1="APConfiguration#ASSET_SELECTION_DYNAMIC" />
 
@@ -884,7 +1053,9 @@
 	</command>
 
 	<command name="viewFilterAndFieldsPG">
-		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
+		</execute>
 
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Source" />
@@ -921,12 +1092,9 @@
 	</command>
 
 	<command name="viewManualAssetSelectionConfigurationPG">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Asset Publisher" />
-			<var name="portletOption" value="Configuration" />
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
 		</execute>
-
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Asset Entries" />
@@ -956,9 +1124,9 @@
 		<execute function="Click" locator1="APConfigurationManual#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_SELECT" />
 
 		<for list="${assetEntryTypes}" param="assetEntryType">
-			<var name="key_assetEntryType" value="${assetEntryType}" />
-
-			<execute function="AssertTextEquals#assertPartialText" locator1="APConfigurationManual#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_MENULIST_ITEM" value1="${assetEntryType}" />
+			<execute function="AssertTextEquals#assertPartialText" locator1="MenuItem#ANY_MENU_ITEM" value1="${assetEntryType}">
+				<var name="key_menuItem" value="${assetEntryType}" />
+			</execute>
 		</for>
 
 		<execute macro="IFrame#selectTopFrame" />
@@ -1067,22 +1235,8 @@
 		</if>
 	</command>
 
-	<command name="viewRate4StarsPG">
-		<execute function="AssertTextEquals" locator1="Ratings#AVERAGE_LABEL" value1="Average (1 Vote)" />
-
-		<var name="key_assetTitle" value="${assetTitle}" />
-
-		<execute function="AssertElementPresent" locator1="Ratings#YOUR_RATING_STAR_1" />
-		<execute function="AssertElementPresent" locator1="Ratings#YOUR_RATING_STAR_2" />
-		<execute function="AssertElementPresent" locator1="Ratings#YOUR_RATING_STAR_3" />
-		<execute function="AssertElementPresent" locator1="Ratings#YOUR_RATING_STAR_4" />
-		<execute function="AssertElementPresent" locator1="Ratings#YOUR_RATING_STAR_EMPTY_1" />
-
-		<execute function="AssertElementPresent" locator1="Ratings#AVERAGE_STAR_1" />
-		<execute function="AssertElementPresent" locator1="Ratings#AVERAGE_STAR_2" />
-		<execute function="AssertElementPresent" locator1="Ratings#AVERAGE_STAR_3" />
-		<execute function="AssertElementPresent" locator1="Ratings#AVERAGE_STAR_4" />
-		<execute function="AssertElementPresent" locator1="Ratings#AVERAGE_STAR_EMPTY_1" />
+	<command name="viewPlusIconNotPresentPG">
+		<execute function="AssertElementNotPresent" locator1="AP#ADD_ASSET_PLUS_ICON" />
 	</command>
 
 	<command name="viewReadMoreLinkNotPresentPG">
@@ -1090,12 +1244,9 @@
 	</command>
 
 	<command name="viewRestoredSetupPG">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Asset Publisher" />
-			<var name="portletOption" value="Configuration" />
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
 		</execute>
-
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Asset Entries" />

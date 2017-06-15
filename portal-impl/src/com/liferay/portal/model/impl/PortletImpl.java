@@ -41,6 +41,7 @@ import com.liferay.portal.kernel.portlet.FriendlyURLMapper;
 import com.liferay.portal.kernel.portlet.FriendlyURLMapperTracker;
 import com.liferay.portal.kernel.portlet.PortletBag;
 import com.liferay.portal.kernel.portlet.PortletBagPool;
+import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portlet.PortletLayoutListener;
 import com.liferay.portal.kernel.portlet.PortletQNameUtil;
 import com.liferay.portal.kernel.scheduler.SchedulerEntry;
@@ -466,7 +467,7 @@ public class PortletImpl extends PortletBaseImpl {
 	 */
 	@Override
 	public Object clone() {
-		Portlet portlet = new PortletImpl(
+		PortletImpl portletImpl = new PortletImpl(
 			getPortletId(), getRootPortlet(), getPluginPackage(),
 			getDefaultPluginSetting(), getCompanyId(), getIcon(),
 			getVirtualPath(), getStrutsPath(), getParentStrutsPath(),
@@ -511,11 +512,13 @@ public class PortletImpl extends PortletBaseImpl {
 			getPublishingEvents(), getPublicRenderParameters(),
 			getPortletApp());
 
-		portlet.setApplicationTypes(getApplicationTypes());
-		portlet.setId(getId());
-		portlet.setUndeployedPortlet(isUndeployedPortlet());
+		portletImpl.setApplicationTypes(getApplicationTypes());
+		portletImpl.setId(getId());
+		portletImpl.setUndeployedPortlet(isUndeployedPortlet());
 
-		return portlet;
+		portletImpl._rootPortletId = _rootPortletId;
+
+		return portletImpl;
 	}
 
 	/**
@@ -1170,7 +1173,7 @@ public class PortletImpl extends PortletBaseImpl {
 	 */
 	@Override
 	public String getInstanceId() {
-		return PortletConstants.getInstanceId(getPortletId());
+		return PortletIdCodec.decodeInstanceId(getPortletId());
 	}
 
 	/**
@@ -1754,7 +1757,7 @@ public class PortletImpl extends PortletBaseImpl {
 	 */
 	@Override
 	public String getRootPortletId() {
-		return PortletConstants.getRootPortletId(getPortletId());
+		return _rootPortletId;
 	}
 
 	/**
@@ -2137,7 +2140,7 @@ public class PortletImpl extends PortletBaseImpl {
 	 */
 	@Override
 	public long getUserId() {
-		return PortletConstants.getUserId(getPortletId());
+		return PortletIdCodec.decodeUserId(getPortletId());
 	}
 
 	/**
@@ -3426,6 +3429,13 @@ public class PortletImpl extends PortletBaseImpl {
 		_portletFilters = portletFilters;
 	}
 
+	@Override
+	public void setPortletId(String portletId) {
+		super.setPortletId(portletId);
+
+		_rootPortletId = PortletIdCodec.decodePortletName(getPortletId());
+	}
+
 	/**
 	 * Sets the portlet info of the portlet.
 	 *
@@ -4526,6 +4536,8 @@ public class PortletImpl extends PortletBaseImpl {
 	 * The root portlet of this portlet instance.
 	 */
 	private final Portlet _rootPortlet;
+
+	private String _rootPortletId;
 
 	/**
 	 * The scheduler entries of the portlet.

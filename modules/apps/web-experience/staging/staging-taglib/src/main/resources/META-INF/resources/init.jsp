@@ -50,6 +50,7 @@ page import="com.liferay.portal.kernel.model.LayoutConstants" %><%@
 page import="com.liferay.portal.kernel.model.LayoutRevision" %><%@
 page import="com.liferay.portal.kernel.model.LayoutRevisionConstants" %><%@
 page import="com.liferay.portal.kernel.model.LayoutSetBranch" %><%@
+page import="com.liferay.portal.kernel.model.LayoutSetBranchConstants" %><%@
 page import="com.liferay.portal.kernel.model.Portlet" %><%@
 page import="com.liferay.portal.kernel.model.StagedGroupedModel" %><%@
 page import="com.liferay.portal.kernel.model.StagedModel" %><%@
@@ -94,9 +95,11 @@ page import="java.util.Map" %><%@
 page import="java.util.ResourceBundle" %><%@
 page import="java.util.Set" %>
 
-<%@ page import="javax.portlet.PortletMode" %><%@
+<%@ page import="javax.portlet.ActionRequest" %><%@
+page import="javax.portlet.PortletMode" %><%@
 page import="javax.portlet.PortletRequest" %><%@
-page import="javax.portlet.PortletResponse" %>
+page import="javax.portlet.PortletResponse" %><%@
+page import="javax.portlet.PortletURL" %>
 
 <liferay-frontend:defineObjects />
 

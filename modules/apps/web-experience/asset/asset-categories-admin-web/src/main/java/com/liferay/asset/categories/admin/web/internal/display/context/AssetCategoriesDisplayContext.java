@@ -14,7 +14,9 @@
 
 package com.liferay.asset.categories.admin.web.internal.display.context;
 
+import com.liferay.asset.categories.admin.web.configuration.AssetCategoriesAdminWebConfiguration;
 import com.liferay.asset.categories.admin.web.internal.constants.AssetCategoriesAdminPortletKeys;
+import com.liferay.asset.categories.admin.web.internal.constants.AssetCategoriesAdminWebKeys;
 import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetCategoryConstants;
@@ -28,10 +30,15 @@ import com.liferay.asset.kernel.service.AssetCategoryLocalServiceUtil;
 import com.liferay.asset.kernel.service.AssetCategoryServiceUtil;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalServiceUtil;
 import com.liferay.asset.kernel.service.AssetVocabularyServiceUtil;
+import com.liferay.exportimport.kernel.staging.permission.StagingPermissionUtil;
+import com.liferay.portal.kernel.bean.BeanParamUtil;
 import com.liferay.portal.kernel.dao.search.EmptyOnClickRowChecker;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortalPreferences;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
@@ -40,6 +47,7 @@ import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.portlet.PortletURLUtil;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -50,8 +58,11 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portlet.asset.service.permission.AssetPermission;
+import com.liferay.portlet.asset.service.permission.AssetCategoriesPermission;
+import com.liferay.portlet.asset.service.permission.AssetCategoryPermission;
+import com.liferay.portlet.asset.service.permission.AssetVocabularyPermission;
 import com.liferay.portlet.asset.util.comparator.AssetCategoryCreateDateComparator;
+import com.liferay.portlet.asset.util.comparator.AssetCategoryLeftCategoryIdComparator;
 import com.liferay.portlet.asset.util.comparator.AssetVocabularyCreateDateComparator;
 
 import java.util.List;
@@ -75,6 +86,11 @@ public class AssetCategoriesDisplayContext {
 		_renderRequest = renderRequest;
 		_renderResponse = renderResponse;
 		_request = request;
+
+		_assetCategoriesAdminWebConfiguration =
+			(AssetCategoriesAdminWebConfiguration)_request.getAttribute(
+				AssetCategoriesAdminWebKeys.
+					ASSET_CATEGORIES_ADMIN_CONFIGURATION);
 	}
 
 	public String getAssetType(AssetVocabulary vocabulary)
@@ -103,10 +119,22 @@ public class AssetCategoriesDisplayContext {
 					ClassTypeReader classTypeReader =
 						assetRendererFactory.getClassTypeReader();
 
-					ClassType classType = classTypeReader.getClassType(
-						classTypePK, themeDisplay.getLocale());
+					try {
+						ClassType classType = classTypeReader.getClassType(
+							classTypePK, themeDisplay.getLocale());
 
-					name = classType.getName();
+						name = classType.getName();
+					}
+					catch (NoSuchModelException nsme) {
+						if (_log.isDebugEnabled()) {
+							_log.debug(
+								"Unable to get asset type for class type " +
+									"primary key " + classTypePK,
+								nsme);
+						}
+
+						continue;
+					}
 				}
 				else {
 					name = ResourceActionsUtil.getModelResource(
@@ -122,7 +150,11 @@ public class AssetCategoriesDisplayContext {
 				sb.append(StringPool.STAR);
 			}
 
-			sb.append(StringPool.COMMA);
+			sb.append(StringPool.COMMA_AND_SPACE);
+		}
+
+		if (sb.index() == 0) {
+			return StringPool.BLANK;
 		}
 
 		sb.setIndex(sb.index() - 1);
@@ -224,19 +256,46 @@ public class AssetCategoriesDisplayContext {
 		long scopeGroupId = themeDisplay.getScopeGroupId();
 
 		if (Validator.isNotNull(getKeywords())) {
-			Sort sort = new Sort("createDate", Sort.LONG_TYPE, orderByAsc);
+			AssetCategoryDisplay assetCategoryDisplay = null;
 
-			AssetCategoryDisplay assetCategoryDisplay =
-				AssetCategoryServiceUtil.searchCategoriesDisplay(
-					scopeGroupId, getKeywords(), getVocabularyId(),
-					getCategoryId(), categoriesSearchContainer.getStart(),
-					categoriesSearchContainer.getEnd(), sort);
+			if (isFlattenedNavigationAllowed()) {
+				Sort sort = new Sort(
+					"leftCategoryId", Sort.INT_TYPE, orderByAsc);
+
+				assetCategoryDisplay =
+					AssetCategoryServiceUtil.searchCategoriesDisplay(
+						new long[] {scopeGroupId}, getKeywords(),
+						new long[] {getVocabularyId()}, new long[0],
+						categoriesSearchContainer.getStart(),
+						categoriesSearchContainer.getEnd(), sort);
+			}
+			else {
+				Sort sort = new Sort("createDate", Sort.LONG_TYPE, orderByAsc);
+
+				assetCategoryDisplay =
+					AssetCategoryServiceUtil.searchCategoriesDisplay(
+						scopeGroupId, getKeywords(), getVocabularyId(),
+						getCategoryId(), categoriesSearchContainer.getStart(),
+						categoriesSearchContainer.getEnd(), sort);
+			}
 
 			categoriesCount = assetCategoryDisplay.getTotal();
 
 			categoriesSearchContainer.setTotal(categoriesCount);
 
 			categories = assetCategoryDisplay.getCategories();
+		}
+		else if (isFlattenedNavigationAllowed()) {
+			categoriesCount =
+				AssetCategoryServiceUtil.getVocabularyCategoriesCount(
+					themeDisplay.getScopeGroupId(), getVocabularyId());
+
+			categories = AssetCategoryServiceUtil.getVocabularyCategories(
+				getVocabularyId(), categoriesSearchContainer.getStart(),
+				categoriesSearchContainer.getEnd(),
+				new AssetCategoryLeftCategoryIdComparator(orderByAsc));
+
+			categoriesSearchContainer.setTotal(categoriesCount);
 		}
 		else {
 			categoriesCount =
@@ -301,6 +360,10 @@ public class AssetCategoriesDisplayContext {
 	}
 
 	public String getDisplayStyle() {
+		if (isFlattenedNavigationAllowed()) {
+			_displayStyle = "list";
+		}
+
 		if (Validator.isNotNull(_displayStyle)) {
 			return _displayStyle;
 		}
@@ -313,6 +376,35 @@ public class AssetCategoriesDisplayContext {
 			"display-style", "list");
 
 		return _displayStyle;
+	}
+
+	public String[] getDisplayViews() {
+		if (isFlattenedNavigationAllowed()) {
+			return new String[] {"list"};
+		}
+
+		return new String[] {"icon", "descriptive", "list"};
+	}
+
+	public String getEditCategoryRedirect() throws PortalException {
+		PortletURL backURL = _renderResponse.createRenderURL();
+
+		long parentCategoryId = BeanParamUtil.getLong(
+			getCategory(), _request, "parentCategoryId");
+
+		backURL.setParameter("mvcPath", "/view_categories.jsp");
+
+		if (parentCategoryId > 0) {
+			backURL.setParameter(
+				"categoryId", String.valueOf(parentCategoryId));
+		}
+
+		if (getVocabularyId() > 0) {
+			backURL.setParameter(
+				"vocabularyId", String.valueOf(getVocabularyId()));
+		}
+
+		return backURL.toString();
 	}
 
 	public PortletURL getIteratorURL() {
@@ -348,7 +440,8 @@ public class AssetCategoriesDisplayContext {
 		}
 
 		_orderByCol = ParamUtil.getString(
-			_request, "orderByCol", "create-date");
+			_request, "orderByCol",
+			isFlattenedNavigationAllowed() ? "path" : "create-date");
 
 		return _orderByCol;
 	}
@@ -361,6 +454,14 @@ public class AssetCategoriesDisplayContext {
 		_orderByType = ParamUtil.getString(_request, "orderByType", "asc");
 
 		return _orderByType;
+	}
+
+	public String[] getOrderColumns() {
+		if (isFlattenedNavigationAllowed()) {
+			return new String[] {"path"};
+		}
+
+		return new String[] {"create-date"};
 	}
 
 	public String getSelectCategoryURL() throws Exception {
@@ -529,6 +630,50 @@ public class AssetCategoriesDisplayContext {
 		return _vocabularyId;
 	}
 
+	public boolean hasPermission(AssetCategory category, String actionId)
+		throws PortalException {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		PermissionChecker permissionChecker =
+			themeDisplay.getPermissionChecker();
+
+		Boolean hasPermission = StagingPermissionUtil.hasPermission(
+			permissionChecker, themeDisplay.getScopeGroupId(),
+			AssetCategory.class.getName(), category.getCategoryId(),
+			AssetCategoriesAdminPortletKeys.ASSET_CATEGORIES_ADMIN, actionId);
+
+		if (hasPermission != null) {
+			return hasPermission.booleanValue();
+		}
+
+		return AssetCategoryPermission.contains(
+			permissionChecker, category, actionId);
+	}
+
+	public boolean hasPermission(AssetVocabulary vocabulary, String actionId)
+		throws PortalException {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		PermissionChecker permissionChecker =
+			themeDisplay.getPermissionChecker();
+
+		Boolean hasPermission = StagingPermissionUtil.hasPermission(
+			permissionChecker, themeDisplay.getScopeGroupId(),
+			AssetVocabulary.class.getName(), vocabulary.getVocabularyId(),
+			AssetCategoriesAdminPortletKeys.ASSET_CATEGORIES_ADMIN, actionId);
+
+		if (hasPermission != null) {
+			return hasPermission.booleanValue();
+		}
+
+		return AssetVocabularyPermission.contains(
+			permissionChecker, vocabulary, actionId);
+	}
+
 	public boolean isDisabledCategoriesManagementBar() throws PortalException {
 		SearchContainer categoriesSearchContainer =
 			getCategoriesSearchContainer();
@@ -553,12 +698,19 @@ public class AssetCategoriesDisplayContext {
 		return false;
 	}
 
+	public boolean isFlattenedNavigationAllowed() {
+		return _assetCategoriesAdminWebConfiguration.
+			flattenedNavigationAllowed();
+	}
+
 	public boolean isShowCategoriesAddButton() {
 		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		if (AssetPermission.contains(
+		if (AssetCategoriesPermission.contains(
 				themeDisplay.getPermissionChecker(),
+				AssetCategoriesPermission.RESOURCE_NAME,
+				AssetCategoriesAdminPortletKeys.ASSET_CATEGORIES_ADMIN,
 				themeDisplay.getSiteGroupId(), ActionKeys.ADD_CATEGORY)) {
 
 			return true;
@@ -586,8 +738,10 @@ public class AssetCategoriesDisplayContext {
 		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		if (AssetPermission.contains(
+		if (AssetCategoriesPermission.contains(
 				themeDisplay.getPermissionChecker(),
+				AssetCategoriesPermission.RESOURCE_NAME,
+				AssetCategoriesAdminPortletKeys.ASSET_CATEGORIES_ADMIN,
 				themeDisplay.getSiteGroupId(), ActionKeys.ADD_VOCABULARY)) {
 
 			return true;
@@ -611,6 +765,11 @@ public class AssetCategoriesDisplayContext {
 		return false;
 	}
 
+	private static final Log _log = LogFactoryUtil.getLog(
+		AssetCategoriesDisplayContext.class);
+
+	private final AssetCategoriesAdminWebConfiguration
+		_assetCategoriesAdminWebConfiguration;
 	private SearchContainer _categoriesSearchContainer;
 	private AssetCategory _category;
 	private Long _categoryId;

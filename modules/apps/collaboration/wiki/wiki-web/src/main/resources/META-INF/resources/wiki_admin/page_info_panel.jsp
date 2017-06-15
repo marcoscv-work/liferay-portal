@@ -165,6 +165,7 @@ if (wikiPageInfoPanelDisplayContext.isSinglePageSelection()) {
 						<liferay-ui:ratings
 							className="<%= WikiPage.class.getName() %>"
 							classPK="<%= wikiPage.getResourcePrimKey() %>"
+							inTrash="<%= wikiPage.isInTrash() %>"
 						/>
 					</c:if>
 
@@ -229,7 +230,7 @@ if (wikiPageInfoPanelDisplayContext.isSinglePageSelection()) {
 								</div>
 
 								<div class="h6 sidebar-caption">
-									<liferay-ui:message arguments="<%= new Object[] {curPage.getUserName(), dateFormatDateTime.format(curPage.getCreateDate())} %>" key="by-x-on-x" />
+									<liferay-ui:message arguments='<%= new Object[] {HtmlUtil.escape(Validator.isNotNull(curPage.getUserName()) ? curPage.getUserName() : "Liferay"), dateFormatDateTime.format(curPage.getCreateDate())} %>' key="by-x-on-x" />
 								</div>
 							</div>
 

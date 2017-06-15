@@ -86,6 +86,7 @@ page import="com.liferay.portal.kernel.model.User" %><%@
 page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %><%@
 page import="com.liferay.portal.kernel.security.permission.ActionKeys" %><%@
 page import="com.liferay.portal.kernel.security.permission.ResourceActionsUtil" %><%@
+page import="com.liferay.portal.kernel.service.ClassNameLocalServiceUtil" %><%@
 page import="com.liferay.portal.kernel.service.GroupServiceUtil" %><%@
 page import="com.liferay.portal.kernel.service.UserLocalServiceUtil" %><%@
 page import="com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalServiceUtil" %><%@
@@ -214,21 +215,9 @@ Calendar defaultCalendar = null;
 CalendarDisplayContext calendarDisplayContext = (CalendarDisplayContext)renderRequest.getAttribute(CalendarWebKeys.CALENDAR_DISPLAY_CONTEXT);
 
 if (calendarDisplayContext != null) {
-	otherCalendars = calendarDisplayContext.getOtherCalendars(calendarIds);
-}
+	otherCalendars = calendarDisplayContext.getOtherCalendars(user, calendarIds);
 
-for (Calendar groupCalendar : groupCalendars) {
-	if (groupCalendar.isDefaultCalendar() && CalendarPermission.contains(themeDisplay.getPermissionChecker(), groupCalendar, CalendarActionKeys.MANAGE_BOOKINGS)) {
-		defaultCalendar = groupCalendar;
-	}
-}
-
-if (defaultCalendar == null) {
-	for (Calendar userCalendar : userCalendars) {
-		if (userCalendar.isDefaultCalendar()) {
-			defaultCalendar = userCalendar;
-		}
-	}
+	defaultCalendar = calendarDisplayContext.getDefaultCalendar(groupCalendars, userCalendars);
 }
 
 TimeZone userTimeZone = CalendarUtil.getCalendarBookingDisplayTimeZone(calendarBooking, TimeZone.getTimeZone(timeZoneId));

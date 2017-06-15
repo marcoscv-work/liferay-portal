@@ -30,8 +30,16 @@ public class SourceFormatterMessage
 	public SourceFormatterMessage(
 		String fileName, String message, int lineCount) {
 
+		this(fileName, message, null, lineCount);
+	}
+
+	public SourceFormatterMessage(
+		String fileName, String message, String markdownFileName,
+		int lineCount) {
+
 		_fileName = fileName;
 		_message = message;
+		_markdownFileName = markdownFileName;
 		_lineCount = lineCount;
 	}
 
@@ -41,9 +49,7 @@ public class SourceFormatterMessage
 			return _fileName.compareTo(sourceFormatterMessage.getFileName());
 		}
 
-		if ((_lineCount != -1) ||
-			(sourceFormatterMessage.getLineCount() != -1)) {
-
+		if (_lineCount != sourceFormatterMessage.getLineCount()) {
 			return _lineCount - sourceFormatterMessage.getLineCount();
 		}
 
@@ -58,15 +64,30 @@ public class SourceFormatterMessage
 		return _lineCount;
 	}
 
+	public String getMarkdownFilePath() {
+		if (_markdownFileName == null) {
+			return null;
+		}
+
+		return _DOCUMENTATION_URL + _markdownFileName;
+	}
+
 	public String getMessage() {
 		return _message;
 	}
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(5);
+		StringBundler sb = new StringBundler(8);
 
 		sb.append(_message);
+
+		if (_markdownFileName != null) {
+			sb.append(", see ");
+			sb.append(_DOCUMENTATION_URL);
+			sb.append(_markdownFileName);
+		}
+
 		sb.append(": ");
 		sb.append(_fileName);
 
@@ -78,8 +99,13 @@ public class SourceFormatterMessage
 		return sb.toString();
 	}
 
+	private static final String _DOCUMENTATION_URL =
+		"https://github.com/liferay/liferay-portal/blob/master/modules/util" +
+			"/source-formatter/documentation/";
+
 	private final String _fileName;
 	private final int _lineCount;
+	private final String _markdownFileName;
 	private final String _message;
 
 }

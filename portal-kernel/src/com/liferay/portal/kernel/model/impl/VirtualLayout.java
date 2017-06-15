@@ -105,11 +105,16 @@ public class VirtualLayout extends LayoutWrapper {
 
 	@Override
 	public LayoutSet getLayoutSet() {
-		if (isPrivateLayout()) {
-			return _targetGroup.getPrivateLayoutSet();
+		if (_layoutSet == null) {
+			if (isPrivateLayout()) {
+				_layoutSet = _targetGroup.getPrivateLayoutSet();
+			}
+			else {
+				_layoutSet = _targetGroup.getPublicLayoutSet();
+			}
 		}
 
-		return _targetGroup.getPublicLayoutSet();
+		return _layoutSet;
 	}
 
 	@Override
@@ -169,6 +174,20 @@ public class VirtualLayout extends LayoutWrapper {
 		return _targetGroup.getGroupId();
 	}
 
+	@Override
+	public void setLayoutSet(LayoutSet layoutSet) {
+		super.setLayoutSet(layoutSet);
+
+		_layoutSet = null;
+	}
+
+	@Override
+	public void setPrivateLayout(boolean privateLayout) {
+		super.setPrivateLayout(privateLayout);
+
+		_layoutSet = null;
+	}
+
 	protected String injectVirtualGroupURL(String layoutURL, Locale locale) {
 		if (_sourceLayout.isTypeURL()) {
 			return layoutURL;
@@ -205,16 +224,17 @@ public class VirtualLayout extends LayoutWrapper {
 		}
 	}
 
-	private static final String _LAYOUT_FRIENDLY_URL_PRIVATE_GROUP_SERVLET_MAPPING =
-		PropsUtil.get(
+	private static final String
+		_LAYOUT_FRIENDLY_URL_PRIVATE_GROUP_SERVLET_MAPPING = PropsUtil.get(
 			PropsKeys.LAYOUT_FRIENDLY_URL_PRIVATE_GROUP_SERVLET_MAPPING);
 
-	private static final String _LAYOUT_FRIENDLY_URL_PRIVATE_USER_SERVLET_MAPPING =
-		PropsUtil.get(
+	private static final String
+		_LAYOUT_FRIENDLY_URL_PRIVATE_USER_SERVLET_MAPPING = PropsUtil.get(
 			PropsKeys.LAYOUT_FRIENDLY_URL_PRIVATE_USER_SERVLET_MAPPING);
 
 	private static final Log _log = LogFactoryUtil.getLog(VirtualLayout.class);
 
+	private LayoutSet _layoutSet;
 	private LayoutType _layoutType;
 	private final Layout _sourceLayout;
 	private final Group _targetGroup;

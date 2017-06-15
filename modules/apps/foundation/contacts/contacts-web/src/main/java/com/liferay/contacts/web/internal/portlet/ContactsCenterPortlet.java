@@ -24,6 +24,7 @@ import com.liferay.contacts.model.Entry;
 import com.liferay.contacts.service.EntryLocalService;
 import com.liferay.contacts.util.ContactsUtil;
 import com.liferay.contacts.web.internal.constants.ContactsPortletKeys;
+import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.bean.BeanParamUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.AddressCityException;
@@ -58,7 +59,6 @@ import com.liferay.portal.kernel.model.EmailAddress;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.Phone;
-import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
@@ -67,6 +67,7 @@ import com.liferay.portal.kernel.model.Website;
 import com.liferay.portal.kernel.notifications.UserNotificationManagerUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
+import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.service.RoleLocalService;
@@ -93,13 +94,17 @@ import com.liferay.social.kernel.model.SocialRequest;
 import com.liferay.social.kernel.model.SocialRequestConstants;
 import com.liferay.social.kernel.service.SocialRelationLocalService;
 import com.liferay.social.kernel.service.SocialRequestLocalService;
+import com.liferay.users.admin.configuration.UserFileUploadsConfiguration;
 import com.liferay.users.admin.kernel.util.UsersAdminUtil;
+
+import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.portlet.ActionRequest;
@@ -109,10 +114,14 @@ import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.PortletURL;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -121,6 +130,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
+	configurationPid = "com.liferay.users.admin.configuration.UserFileUploadsConfiguration",
 	immediate = true,
 	property = {
 		"com.liferay.portlet.add-default-resource=true",
@@ -139,7 +149,7 @@ import org.osgi.service.component.annotations.Reference;
 		"javax.portlet.init-param.view-template=/view.jsp",
 		"javax.portlet.name=" + ContactsPortletKeys.CONTACTS_CENTER,
 		"javax.portlet.resource-bundle=content.Language",
-		"javax.portlet.security-role-ref=administrator,guest,power-user,user",
+		"javax.portlet.security-role-ref=administrator,power-user,user",
 		"javax.portlet.supports.mime-type=text/html"
 	},
 	service = Portlet.class
@@ -421,7 +431,7 @@ public class ContactsCenterPortlet extends MVCPortlet {
 			String portletId = portal.getPortletId(actionRequest);
 
 			extraDataJSONObject.put(
-				"portletId", PortletConstants.getRootPortletId(portletId));
+				"portletId", PortletIdCodec.decodePortletName(portletId));
 
 			SocialRequest socialRequest = socialRequestLocalService.addRequest(
 				themeDisplay.getUserId(), 0, User.class.getName(),
@@ -691,6 +701,13 @@ public class ContactsCenterPortlet extends MVCPortlet {
 		writeJSON(actionRequest, actionResponse, jsonObject);
 	}
 
+	@Activate
+	@Modified
+	protected void activate(Map<String, Object> properties) {
+		_userFileUploadsConfiguration = ConfigurableUtil.createConfigurable(
+			UserFileUploadsConfiguration.class, properties);
+	}
+
 	protected void deleteEntry(
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
@@ -707,6 +724,18 @@ public class ContactsCenterPortlet extends MVCPortlet {
 				entryLocalService.deleteEntry(entryId);
 			}
 		}
+	}
+
+	@Override
+	protected void doDispatch(
+			RenderRequest renderRequest, RenderResponse renderResponse)
+		throws IOException, PortletException {
+
+		renderRequest.setAttribute(
+			UserFileUploadsConfiguration.class.getName(),
+			_userFileUploadsConfiguration);
+
+		super.doDispatch(renderRequest, renderResponse);
 	}
 
 	protected JSONObject getContactsDisplayJSONObject(
@@ -955,7 +984,7 @@ public class ContactsCenterPortlet extends MVCPortlet {
 		jsonObject.put("redirect", redirect);
 
 		LiferayPortletResponse liferayPortletResponse =
-			(LiferayPortletResponse)portletResponse;
+			portal.getLiferayPortletResponse(portletResponse);
 
 		PortletURL viewSummaryURL = liferayPortletResponse.createRenderURL();
 
@@ -1051,7 +1080,7 @@ public class ContactsCenterPortlet extends MVCPortlet {
 		jsonObject.put("portraitURL", user.getPortraitURL(themeDisplay));
 
 		LiferayPortletResponse liferayPortletResponse =
-			(LiferayPortletResponse)portletResponse;
+			portal.getLiferayPortletResponse(portletResponse);
 
 		PortletURL viewSummaryURL = liferayPortletResponse.createRenderURL();
 
@@ -1260,5 +1289,7 @@ public class ContactsCenterPortlet extends MVCPortlet {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		ContactsCenterPortlet.class);
+
+	private volatile UserFileUploadsConfiguration _userFileUploadsConfiguration;
 
 }

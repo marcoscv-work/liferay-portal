@@ -1,12 +1,23 @@
 AUI.add(
 	'liferay-ddl-form-builder-action-factory',
 	function(A) {
+		var Settings = Liferay.DDL.Settings;
+
 		var FormBuilderActionFactory = A.Component.create(
 			{
 				ATTRS: {
+					dataProviders: {
+						value: []
+					},
+
 					fields: {
 						value: []
 					},
+
+					getDataProviders: {
+						value: []
+					},
+
 					pages: {
 						value: []
 					}
@@ -27,6 +38,7 @@ AUI.add(
 								{
 									action: act,
 									boundingBox: container,
+									bubbleTargets: [instance],
 									index: index,
 									options: instance.get('fields'),
 									type: type
@@ -38,8 +50,33 @@ AUI.add(
 								{
 									action: act,
 									boundingBox: container,
+									bubbleTargets: [instance],
 									index: index,
 									options: instance.get('pages')
+								}
+							);
+						}
+						else if (type === 'auto-fill') {
+							action = new Liferay.DDL.FormBuilderActionAutofill(
+								{
+									action: act,
+									boundingBox: container,
+									bubbleTargets: [instance],
+									fields: instance.get('fields'),
+									getDataProviders: instance.get('getDataProviders'),
+									index: index,
+									options: instance.get('dataProviders')
+								}
+							);
+						}
+						else if (type === 'calculate') {
+							action = new Liferay.DDL.FormBuilderActionCalculate(
+								{
+									action: act,
+									boundingBox: container,
+									bubbleTargets: [instance],
+									index: index,
+									options: instance.get('fields')
 								}
 							);
 						}

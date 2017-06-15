@@ -219,7 +219,7 @@ public class SyncJSONFilter implements Filter {
 
 		OutputStream outputStream = servletResponse.getOutputStream();
 
-		String json = SyncUtil.buildExceptionMessage(throwable);
+		String json = _syncUtil.buildExceptionMessage(throwable);
 
 		json = "{\"exception\": \"" + json + "\"}";
 
@@ -240,17 +240,17 @@ public class SyncJSONFilter implements Filter {
 				cmd = StringUtil.read(servletRequest.getInputStream());
 			}
 
-			Object jsonObject = JSONFactoryUtil.looseDeserialize(cmd);
+			Object cmdObject = JSONFactoryUtil.looseDeserialize(cmd);
 
 			List<Object> jsonItems = null;
 
-			if (jsonObject instanceof List) {
-				jsonItems = (List<Object>)jsonObject;
+			if (cmdObject instanceof List) {
+				jsonItems = (List<Object>)cmdObject;
 			}
-			else if (jsonObject instanceof Map) {
+			else if (cmdObject instanceof Map) {
 				jsonItems = new ArrayList<>(1);
 
-				jsonItems.add(jsonObject);
+				jsonItems.add(cmdObject);
 			}
 
 			for (Object jsonItem : jsonItems) {
@@ -286,5 +286,8 @@ public class SyncJSONFilter implements Filter {
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private SyncUtil _syncUtil;
 
 }

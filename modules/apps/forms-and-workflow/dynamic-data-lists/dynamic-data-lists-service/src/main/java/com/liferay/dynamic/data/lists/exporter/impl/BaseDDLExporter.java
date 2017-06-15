@@ -31,9 +31,11 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * @author Marcellus Tavares
- * @author Manuel de la Peña
+ * @author     Marcellus Tavares
+ * @author     Manuel de la Peña
+ * @deprecated As of 1.1.0, with no direct replacement
  */
+@Deprecated
 @ProviderType
 public abstract class BaseDDLExporter implements DDLExporter {
 

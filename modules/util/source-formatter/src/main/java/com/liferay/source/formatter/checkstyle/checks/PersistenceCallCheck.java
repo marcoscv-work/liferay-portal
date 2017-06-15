@@ -31,9 +31,9 @@ import com.thoughtworks.qdox.model.DefaultDocletTagFactory;
 import com.thoughtworks.qdox.model.JavaClass;
 import com.thoughtworks.qdox.model.JavaField;
 import com.thoughtworks.qdox.model.Type;
+import com.thoughtworks.qdox.parser.ParseException;
 
 import java.io.File;
-import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,9 +44,6 @@ import java.util.Map;
  * @author Hugo Huijser
  */
 public class PersistenceCallCheck extends AbstractCheck {
-
-	public static final String MSG_ILLEGAL_PERSISTENCE_CALL =
-		"persistence.call.illegal";
 
 	@Override
 	public int[] getDefaultTokens() {
@@ -77,7 +74,12 @@ public class PersistenceCallCheck extends AbstractCheck {
 		JavaDocBuilder javaDocBuilder = new JavaDocBuilder(
 			new DefaultDocletTagFactory(), new ThreadSafeClassLibrary());
 
-		javaDocBuilder.addSource(new UnsyncStringReader(content));
+		try {
+			javaDocBuilder.addSource(new UnsyncStringReader(content));
+		}
+		catch (ParseException pe) {
+			return;
+		}
 
 		JavaClass javaClass = _getJavaClass(javaDocBuilder, fileName);
 
@@ -117,7 +119,7 @@ public class PersistenceCallCheck extends AbstractCheck {
 		try {
 			javaDocBuilder.addSource(new File(extendedClassFileName));
 		}
-		catch (IOException ioe) {
+		catch (Exception e) {
 		}
 
 		return javaDocBuilder;
@@ -139,7 +141,7 @@ public class PersistenceCallCheck extends AbstractCheck {
 			}
 
 			if (!packageName.startsWith(importName.substring(0, pos))) {
-				log(lineNo, MSG_ILLEGAL_PERSISTENCE_CALL, importName);
+				log(lineNo, _MSG_ILLEGAL_PERSISTENCE_CALL, importName);
 			}
 		}
 	}
@@ -165,7 +167,9 @@ public class PersistenceCallCheck extends AbstractCheck {
 		if (siblingAST.getType() == TokenTypes.IDENT) {
 			String methodName = siblingAST.getText();
 
-			if (methodName.startsWith("create")) {
+			if (methodName.equals("clearCache") ||
+				methodName.startsWith("create")) {
+
 				return;
 			}
 		}
@@ -200,7 +204,7 @@ public class PersistenceCallCheck extends AbstractCheck {
 		}
 
 		if (!packageName.startsWith(fullyQualifiedTypeName.substring(0, pos))) {
-			log(lineNo, MSG_ILLEGAL_PERSISTENCE_CALL, fullyQualifiedTypeName);
+			log(lineNo, _MSG_ILLEGAL_PERSISTENCE_CALL, fullyQualifiedTypeName);
 		}
 	}
 
@@ -261,5 +265,8 @@ public class PersistenceCallCheck extends AbstractCheck {
 
 		return variablesMap;
 	}
+
+	private static final String _MSG_ILLEGAL_PERSISTENCE_CALL =
+		"persistence.call.illegal";
 
 }

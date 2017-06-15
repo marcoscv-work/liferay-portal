@@ -24,17 +24,21 @@ import com.liferay.asset.kernel.model.ClassTypeReader;
 import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
 import com.liferay.asset.kernel.service.AssetEntryServiceUtil;
 import com.liferay.asset.kernel.service.persistence.AssetEntryQuery;
+import com.liferay.asset.publisher.web.configuration.AssetPublisherPortletInstanceConfiguration;
+import com.liferay.asset.publisher.web.configuration.AssetPublisherWebConfiguration;
 import com.liferay.asset.publisher.web.constants.AssetPublisherPortletKeys;
-import com.liferay.asset.publisher.web.internal.configuration.AssetPublisherWebConfigurationValues;
+import com.liferay.asset.publisher.web.constants.AssetPublisherWebKeys;
 import com.liferay.asset.publisher.web.util.AssetPublisherCustomizer;
 import com.liferay.asset.publisher.web.util.AssetPublisherUtil;
+import com.liferay.document.library.kernel.document.conversion.DocumentConversionUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.model.PortletConstants;
+import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
+import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portlet.PortletURLUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
@@ -47,7 +51,6 @@ import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PredicateFilter;
-import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.RSSUtil;
@@ -94,15 +97,24 @@ public class AssetPublisherDisplayContext {
 	};
 
 	public AssetPublisherDisplayContext(
-		AssetPublisherCustomizer assetPublisherCustomizer,
-		PortletRequest portletRequest, PortletResponse portletResponse,
-		PortletPreferences portletPreferences) {
+			AssetPublisherCustomizer assetPublisherCustomizer,
+			PortletRequest portletRequest, PortletResponse portletResponse,
+			PortletPreferences portletPreferences)
+		throws ConfigurationException {
 
 		_assetPublisherCustomizer = assetPublisherCustomizer;
 		_portletRequest = portletRequest;
 		_portletResponse = portletResponse;
 		_portletPreferences = portletPreferences;
 
+		_assetPublisherPortletInstanceConfiguration =
+			(AssetPublisherPortletInstanceConfiguration)
+				portletRequest.getAttribute(
+					AssetPublisherWebKeys.
+						ASSET_PUBLISHER_PORTLET_INSTANCE_CONFIGURATION);
+		_assetPublisherWebConfiguration =
+			(AssetPublisherWebConfiguration)portletRequest.getAttribute(
+				AssetPublisherWebKeys.ASSET_PUBLISHER_WEB_CONFIGURATION);
 		_request = PortalUtil.getHttpServletRequest(portletRequest);
 	}
 
@@ -238,6 +250,12 @@ public class AssetPublisherDisplayContext {
 		return _assetLinkBehavior;
 	}
 
+	public AssetPublisherPortletInstanceConfiguration
+		getAssetPublisherPortletInstanceConfiguration() {
+
+		return _assetPublisherPortletInstanceConfiguration;
+	}
+
 	public Map<String, Serializable> getAttributes() {
 		if (_attributes != null) {
 			return _attributes;
@@ -363,8 +381,8 @@ public class AssetPublisherDisplayContext {
 			_displayStyle = GetterUtil.getString(
 				_portletPreferences.getValue(
 					"displayStyle",
-					AssetPublisherWebConfigurationValues.
-						DISPLAY_STYLE_DEFAULT));
+					_assetPublisherPortletInstanceConfiguration.
+						defaultDisplayStyle()));
 		}
 
 		return _displayStyle;
@@ -546,7 +564,7 @@ public class AssetPublisherDisplayContext {
 
 	public String getRootPortletId() {
 		if (_rootPortletId == null) {
-			_rootPortletId = PortletConstants.getRootPortletId(
+			_rootPortletId = PortletIdCodec.decodePortletName(
 				getPortletResource());
 		}
 
@@ -609,7 +627,7 @@ public class AssetPublisherDisplayContext {
 		Map<Long, Map<String, PortletURL>> scopeAddPortletURLs = new HashMap();
 
 		LiferayPortletResponse liferayPortletResponse =
-			(LiferayPortletResponse)_portletResponse;
+			PortalUtil.getLiferayPortletResponse(_portletResponse);
 
 		PortletURL redirectURL = liferayPortletResponse.createRenderURL();
 
@@ -618,7 +636,7 @@ public class AssetPublisherDisplayContext {
 		redirectURL.setParameter("mvcPath", "/add_asset_redirect.jsp");
 
 		LiferayPortletRequest liferayPortletRequest =
-			(LiferayPortletRequest)_portletRequest;
+			PortalUtil.getLiferayPortletRequest(_portletRequest);
 
 		PortletURL currentURLObj = PortletURLUtil.getCurrent(
 			liferayPortletRequest, liferayPortletResponse);
@@ -810,7 +828,7 @@ public class AssetPublisherDisplayContext {
 		if (_enableConversions == null) {
 			_enableConversions =
 				isOpenOfficeServerEnabled() &&
-					ArrayUtil.isNotEmpty(getExtensions());
+				ArrayUtil.isNotEmpty(getExtensions());
 		}
 
 		return _enableConversions;
@@ -926,13 +944,7 @@ public class AssetPublisherDisplayContext {
 	}
 
 	public boolean isOpenOfficeServerEnabled() {
-		if (_openOfficeServerEnabled == null) {
-			_openOfficeServerEnabled = PrefsPropsUtil.getBoolean(
-				PropsKeys.OPENOFFICE_SERVER_ENABLED,
-				PropsValues.OPENOFFICE_SERVER_ENABLED);
-		}
-
-		return _openOfficeServerEnabled;
+		return DocumentConversionUtil.isEnabled();
 	}
 
 	public boolean isOrderingAndGroupingEnabled() {
@@ -1029,12 +1041,11 @@ public class AssetPublisherDisplayContext {
 	}
 
 	public Boolean isShowEnablePermissions() {
-		if (AssetPublisherWebConfigurationValues.SEARCH_WITH_INDEX) {
+		if (_assetPublisherWebConfiguration.searchWithIndex()) {
 			return false;
 		}
 
-		return AssetPublisherWebConfigurationValues.
-			PERMISSION_CHECKING_CONFIGURABLE;
+		return _assetPublisherWebConfiguration.permissionCheckingConfigurable();
 	}
 
 	public boolean isShowEnableRelatedAssets() {
@@ -1220,6 +1231,10 @@ public class AssetPublisherDisplayContext {
 	private AssetEntryQuery _assetEntryQuery;
 	private String _assetLinkBehavior;
 	private final AssetPublisherCustomizer _assetPublisherCustomizer;
+	private final AssetPublisherPortletInstanceConfiguration
+		_assetPublisherPortletInstanceConfiguration;
+	private final AssetPublisherWebConfiguration
+		_assetPublisherWebConfiguration;
 	private Map<String, Serializable> _attributes;
 	private long[] _availableClassNameIds;
 	private long[] _classNameIds;
@@ -1251,7 +1266,6 @@ public class AssetPublisherDisplayContext {
 	private Locale _locale;
 	private Boolean _mergeURLTags;
 	private String[] _metadataFields;
-	private Boolean _openOfficeServerEnabled;
 	private String _orderByColumn1;
 	private String _orderByColumn2;
 	private String _orderByType1;

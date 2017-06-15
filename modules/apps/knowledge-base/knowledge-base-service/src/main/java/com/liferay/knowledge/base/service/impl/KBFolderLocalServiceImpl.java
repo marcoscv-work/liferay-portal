@@ -14,8 +14,6 @@
 
 package com.liferay.knowledge.base.service.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.knowledge.base.constants.KBFolderConstants;
 import com.liferay.knowledge.base.exception.DuplicateKBFolderNameException;
 import com.liferay.knowledge.base.exception.InvalidKBFolderNameException;
@@ -25,6 +23,7 @@ import com.liferay.knowledge.base.model.KBFolder;
 import com.liferay.knowledge.base.service.base.KBFolderLocalServiceBaseImpl;
 import com.liferay.knowledge.base.util.KnowledgeBaseUtil;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -38,7 +37,6 @@ import java.util.List;
 /**
  * @author Brian Wing Shun Chan
  */
-@ProviderType
 public class KBFolderLocalServiceImpl extends KBFolderLocalServiceBaseImpl {
 
 	@Override
@@ -114,6 +112,17 @@ public class KBFolderLocalServiceImpl extends KBFolderLocalServiceBaseImpl {
 		expandoRowLocalService.deleteRows(kbFolder.getKbFolderId());
 
 		return kbFolderPersistence.remove(kbFolder);
+	}
+
+	@Override
+	public void deleteKBFolders(long groupId) throws PortalException {
+		List<KBFolder> kbFolders = getKBFolders(
+			groupId, KBFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+
+		for (KBFolder kbFolder : kbFolders) {
+			deleteKBFolder(kbFolder.getKbFolderId());
+		}
 	}
 
 	@Override

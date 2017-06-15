@@ -384,14 +384,6 @@ public class WorkflowTaskDisplayContext {
 		return _orderByType;
 	}
 
-	public long[] getPooledActorsIds(WorkflowTask workflowTask)
-		throws PortalException {
-
-		return WorkflowTaskManagerUtil.getPooledActorsIds(
-			_workflowTaskRequestHelper.getCompanyId(),
-			workflowTask.getWorkflowTaskId());
-	}
-
 	public PortletURL getPortletURL() {
 		PortletURL portletURL = _liferayPortletResponse.createRenderURL();
 
@@ -448,8 +440,9 @@ public class WorkflowTaskDisplayContext {
 		String className = getWorkflowContextEntryClassName(workflowTask);
 		long classPK = getWorkflowContextEntryClassPK(workflowTask);
 
-		String state = WorkflowInstanceLinkLocalServiceUtil.getState(
-			companyId, groupId, className, classPK);
+		String state = HtmlUtil.escape(
+			WorkflowInstanceLinkLocalServiceUtil.getState(
+				companyId, groupId, className, classPK));
 
 		return LanguageUtil.get(_workflowTaskRequestHelper.getRequest(), state);
 	}
@@ -797,23 +790,13 @@ public class WorkflowTaskDisplayContext {
 	public boolean hasOtherAssignees(WorkflowTask workflowTask)
 		throws PortalException {
 
-		long[] pooledActorsIds = getPooledActorsIds(workflowTask);
-
-		if (pooledActorsIds.length == 0) {
-			return false;
-		}
-
 		if (workflowTask.isCompleted()) {
 			return false;
 		}
 
-		if ((pooledActorsIds.length == 1) &&
-			(pooledActorsIds[0] == _workflowTaskRequestHelper.getUserId())) {
-
-			return false;
-		}
-
-		return true;
+		return WorkflowTaskManagerUtil.hasOtherAssignees(
+			workflowTask.getWorkflowTaskId(),
+			_workflowTaskRequestHelper.getUserId());
 	}
 
 	public boolean hasViewDiffsPortletURL(WorkflowTask workflowTask)
@@ -936,7 +919,7 @@ public class WorkflowTaskDisplayContext {
 		return StringPool.BLANK;
 	}
 
-	protected String getAssetType(String keywords) {
+	protected String[] getAssetType(String keywords) {
 		for (WorkflowHandler<?> workflowHandler :
 				getSearchableAssetsWorkflowHandlers()) {
 
@@ -944,11 +927,11 @@ public class WorkflowTaskDisplayContext {
 				_workflowTaskRequestHelper.getLocale());
 
 			if (StringUtil.equalsIgnoreCase(keywords, assetType)) {
-				return workflowHandler.getClassName();
+				return new String[] {workflowHandler.getClassName()};
 			}
 		}
 
-		return StringPool.BLANK;
+		return null;
 	}
 
 	protected Boolean getCompleted() {
@@ -989,6 +972,14 @@ public class WorkflowTaskDisplayContext {
 		}
 
 		return curParam;
+	}
+
+	protected long[] getPooledActorsIds(WorkflowTask workflowTask)
+		throws PortalException {
+
+		return WorkflowTaskManagerUtil.getPooledActorsIds(
+			_workflowTaskRequestHelper.getCompanyId(),
+			workflowTask.getWorkflowTaskId());
 	}
 
 	protected Role getRole(long roleId) throws PortalException {
@@ -1034,18 +1025,17 @@ public class WorkflowTaskDisplayContext {
 		int total = WorkflowTaskManagerUtil.searchCount(
 			_workflowTaskRequestHelper.getCompanyId(),
 			_workflowTaskRequestHelper.getUserId(), searchTerms.getKeywords(),
-			getAssetType(searchTerms.getKeywords()), null, null, null,
-			getCompleted(), searchByUserRoles, false);
+			getAssetType(searchTerms.getKeywords()), getCompleted(),
+			searchByUserRoles);
 
 		searchContainer.setTotal(total);
 
 		List<WorkflowTask> results = WorkflowTaskManagerUtil.search(
 			_workflowTaskRequestHelper.getCompanyId(),
 			_workflowTaskRequestHelper.getUserId(), searchTerms.getKeywords(),
-			getAssetType(searchTerms.getKeywords()), null, null, null,
-			getCompleted(), searchByUserRoles, false,
-			searchContainer.getStart(), searchContainer.getEnd(),
-			searchContainer.getOrderByComparator());
+			getAssetType(searchTerms.getKeywords()), getCompleted(),
+			searchByUserRoles, searchContainer.getStart(),
+			searchContainer.getEnd(), searchContainer.getOrderByComparator());
 
 		searchContainer.setResults(results);
 

@@ -15,6 +15,7 @@
 package com.liferay.journal.util.impl;
 
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
+import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalArticleDisplay;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.journal.service.permission.JournalArticlePermission;
@@ -26,6 +27,7 @@ import com.liferay.portal.kernel.cache.index.PortalCacheIndexer;
 import com.liferay.portal.kernel.cluster.ClusterInvokeAcceptor;
 import com.liferay.portal.kernel.cluster.ClusterInvokeThreadLocal;
 import com.liferay.portal.kernel.cluster.ClusterableInvokerUtil;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.LayoutSet;
@@ -33,6 +35,8 @@ import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiServic
 import com.liferay.portal.kernel.portlet.PortletRequestModel;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashUtil;
@@ -40,11 +44,13 @@ import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Method;
 
+import java.util.Date;
 import java.util.Objects;
 
 import javax.portlet.RenderRequest;
@@ -95,12 +101,21 @@ public class JournalContentImpl
 
 	@Override
 	public String getContent(
+		long groupId, String articleId, String viewMode, String languageId) {
+
+		return getContent(
+			groupId, articleId, null, viewMode, languageId, null,
+			_getDefaultThemeDisplay());
+	}
+
+	@Override
+	public String getContent(
 		long groupId, String articleId, String viewMode, String languageId,
 		PortletRequestModel portletRequestModel) {
 
 		return getContent(
 			groupId, articleId, null, viewMode, languageId, portletRequestModel,
-			null);
+			_getDefaultThemeDisplay());
 	}
 
 	@Override
@@ -110,7 +125,7 @@ public class JournalContentImpl
 
 		return getContent(
 			groupId, articleId, ddmTemplateKey, viewMode, languageId,
-			portletRequestModel, null);
+			portletRequestModel, _getDefaultThemeDisplay());
 	}
 
 	@Override
@@ -152,13 +167,17 @@ public class JournalContentImpl
 
 	@Override
 	public JournalArticleDisplay getDisplay(
-		long groupId, String articleId, double version, String ddmTemplateKey,
-		String viewMode, String languageId, int page,
-		PortletRequestModel portletRequestModel, ThemeDisplay themeDisplay) {
+		JournalArticle article, String ddmTemplateKey, String viewMode,
+		String languageId, int page, PortletRequestModel portletRequestModel,
+		ThemeDisplay themeDisplay) {
 
 		StopWatch stopWatch = new StopWatch();
 
 		stopWatch.start();
+
+		long groupId = article.getGroupId();
+		String articleId = article.getArticleId();
+		double version = article.getVersion();
 
 		articleId = StringUtil.toUpperCase(GetterUtil.getString(articleId));
 		ddmTemplateKey = StringUtil.toUpperCase(
@@ -170,7 +189,7 @@ public class JournalContentImpl
 		if (themeDisplay != null) {
 			try {
 				if (!JournalArticlePermission.contains(
-						themeDisplay.getPermissionChecker(), groupId, articleId,
+						themeDisplay.getPermissionChecker(), article,
 						ActionKeys.VIEW)) {
 
 					return null;
@@ -202,7 +221,7 @@ public class JournalContentImpl
 
 		if ((articleDisplay == null) || !lifecycleRender) {
 			articleDisplay = getArticleDisplay(
-				groupId, articleId, ddmTemplateKey, viewMode, languageId, page,
+				article, ddmTemplateKey, viewMode, languageId, page,
 				portletRequestModel, themeDisplay);
 
 			if ((articleDisplay != null) && articleDisplay.isCacheable() &&
@@ -224,6 +243,32 @@ public class JournalContentImpl
 
 	@Override
 	public JournalArticleDisplay getDisplay(
+		long groupId, String articleId, double version, String ddmTemplateKey,
+		String viewMode, String languageId, int page,
+		PortletRequestModel portletRequestModel, ThemeDisplay themeDisplay) {
+
+		try {
+			JournalArticle article = _journalArticleLocalService.getArticle(
+				groupId, articleId, version);
+
+			return getDisplay(
+				article, ddmTemplateKey, viewMode, languageId, page,
+				portletRequestModel, themeDisplay);
+		}
+		catch (PortalException pe) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to get display for " + groupId + " " + articleId +
+						" " + languageId,
+					pe);
+			}
+
+			return null;
+		}
+	}
+
+	@Override
+	public JournalArticleDisplay getDisplay(
 		long groupId, String articleId, String viewMode, String languageId,
 		int page, ThemeDisplay themeDisplay) {
 
@@ -239,7 +284,7 @@ public class JournalContentImpl
 
 		return getDisplay(
 			groupId, articleId, null, viewMode, languageId, 1,
-			portletRequestModel, null);
+			portletRequestModel, _getDefaultThemeDisplay());
 	}
 
 	@Override
@@ -248,8 +293,11 @@ public class JournalContentImpl
 		String languageId, int page, PortletRequestModel portletRequestModel,
 		ThemeDisplay themeDisplay) {
 
+		JournalArticle article = _journalArticleLocalService.fetchLatestArticle(
+			groupId, articleId, WorkflowConstants.STATUS_APPROVED);
+
 		return getDisplay(
-			groupId, articleId, 0, ddmTemplateKey, viewMode, languageId, 1,
+			article, ddmTemplateKey, viewMode, languageId, 1,
 			portletRequestModel, themeDisplay);
 	}
 
@@ -260,7 +308,7 @@ public class JournalContentImpl
 
 		return getDisplay(
 			groupId, articleId, ddmTemplateKey, viewMode, languageId, 1,
-			portletRequestModel, null);
+			portletRequestModel, _getDefaultThemeDisplay());
 	}
 
 	@Override
@@ -285,6 +333,42 @@ public class JournalContentImpl
 	@Override
 	public String getOSGiServiceIdentifier() {
 		return JournalContent.class.getName();
+	}
+
+	protected JournalArticleDisplay getArticleDisplay(
+		JournalArticle article, String ddmTemplateKey, String viewMode,
+		String languageId, int page, PortletRequestModel portletRequestModel,
+		ThemeDisplay themeDisplay) {
+
+		if (article.getStatus() != WorkflowConstants.STATUS_APPROVED) {
+			return null;
+		}
+
+		Date now = new Date();
+
+		Date displayDate = article.getDisplayDate();
+		Date expirationDate = article.getExpirationDate();
+
+		if (((displayDate != null) && displayDate.after(now)) ||
+			((expirationDate != null) && expirationDate.before(now))) {
+
+			return null;
+		}
+
+		try {
+			return _journalArticleLocalService.getArticleDisplay(
+				article, ddmTemplateKey, viewMode, languageId, page,
+				portletRequestModel, themeDisplay);
+		}
+		catch (Exception e) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to get display for " + article + " " + languageId,
+					e);
+			}
+
+			return null;
+		}
 	}
 
 	protected JournalArticleDisplay getArticleDisplay(
@@ -332,6 +416,17 @@ public class JournalContentImpl
 	}
 
 	protected static final String CACHE_NAME = JournalContent.class.getName();
+
+	private ThemeDisplay _getDefaultThemeDisplay() {
+		ServiceContext serviceContext =
+			ServiceContextThreadLocal.getServiceContext();
+
+		if (serviceContext == null) {
+			return null;
+		}
+
+		return serviceContext.getThemeDisplay();
+	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		JournalContentImpl.class);

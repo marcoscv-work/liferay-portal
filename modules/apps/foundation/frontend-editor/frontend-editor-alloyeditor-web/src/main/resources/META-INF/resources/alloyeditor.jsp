@@ -38,6 +38,7 @@ String onChangeMethod = (String)request.getAttribute("liferay-ui:input-editor:on
 String onFocusMethod = (String)request.getAttribute("liferay-ui:input-editor:onFocusMethod");
 String onInitMethod = (String)request.getAttribute("liferay-ui:input-editor:onInitMethod");
 String placeholder = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-editor:placeholder"));
+String required = (String)request.getAttribute("liferay-ui:input-editor:required");
 boolean showSource = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-editor:showSource"));
 boolean skipEditorLoading = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-editor:skipEditorLoading"));
 
@@ -69,16 +70,16 @@ if (editorOptions != null) {
 		%>
 
 		<script type="text/javascript">
-			window.ALLOYEDITOR_BASEPATH = '<%= application.getContextPath() %>/alloyeditor/';
+			window.ALLOYEDITOR_BASEPATH = '<%= PortalUtil.getPathProxy() + application.getContextPath() %>/alloyeditor/';
 		</script>
 
-		<script data-senna-track="permanent" id="<%= namespace %>ckEditorScript" src="<%= HtmlUtil.escapeAttribute(PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNHost() + PortalWebResourcesUtil.getContextPath(PortalWebResourceConstants.RESOURCE_TYPE_EDITOR_CKEDITOR) + "/ckeditor/ckeditor.js", javaScriptLastModified)) %>" type="text/javascript"></script>
+		<script data-senna-track="temporary" id="<%= namespace %>ckEditorScript" src="<%= HtmlUtil.escapeAttribute(PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNHost() + PortalWebResourcesUtil.getContextPath(PortalWebResourceConstants.RESOURCE_TYPE_EDITOR_CKEDITOR) + "/ckeditor/ckeditor.js", javaScriptLastModified)) %>" type="text/javascript"></script>
 
-		<script data-senna-track="permanent" id="<%= namespace %>alloyEditorScript" src="<%= HtmlUtil.escapeAttribute(PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNHost() + PortalWebResourcesUtil.getContextPath(PortalWebResourceConstants.RESOURCE_TYPE_EDITOR_ALLOYEDITOR) + "/alloyeditor/liferay-alloy-editor-no-ckeditor-min.js", javaScriptLastModified)) %>" type="text/javascript"></script>
+		<script data-senna-track="temporary" id="<%= namespace %>alloyEditorScript" src="<%= HtmlUtil.escapeAttribute(PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNHost() + PortalWebResourcesUtil.getContextPath(PortalWebResourceConstants.RESOURCE_TYPE_EDITOR_ALLOYEDITOR) + "/alloyeditor/liferay-alloy-editor-no-ckeditor-min.js", javaScriptLastModified)) %>" type="text/javascript"></script>
 
 		<liferay-util:dynamic-include key='<%= "com.liferay.frontend.editor.alloyeditor.web#" + editorName + "#additionalResources" %>' />
 
-		<script type="text/javascript">
+		<script data-senna-track="temporary" type="text/javascript">
 			AlloyEditor.regexBasePath = /(^|.*[\\\/])(?:liferay-alloy-editor[^/]+|liferay-alloy-editor)\.js(?:\?.*|;.*)?$/i;
 
 			Liferay.namespace('EDITORS')['<%= editorName %>'] = true;
@@ -106,18 +107,27 @@ if (editorOptions != null) {
 			CKEDITOR.getNextZIndex = function() {
 				return CKEDITOR.dialog._.currentZIndex ? CKEDITOR.dialog._.currentZIndex + 10 : Liferay.zIndex.WINDOW + 10;
 			};
+
+			var destroyGlobalEditors = function() {
+				window.AlloyEditor = undefined;
+				window.CKEDITOR = undefined;
+
+				Liferay.detach('beforeScreenFlip', destroyGlobalEditors);
+			};
+
+			Liferay.on('beforeScreenFlip', destroyGlobalEditors);
 		</script>
 	</liferay-util:html-top>
 </c:if>
 
-<script type="text/javascript">
+<script data-senna-track="temporary" type="text/javascript">
 	CKEDITOR.disableAutoInline = true;
 
 	CKEDITOR.env.isCompatible = true;
 </script>
 
 <liferay-util:buffer var="alloyEditor">
-	<div class="alloy-editor alloy-editor-placeholder <%= HtmlUtil.escapeAttribute(cssClass) %>" contenteditable="false" data-placeholder="<%= LanguageUtil.get(request, placeholder) %>" id="<%= HtmlUtil.escapeAttribute(name) %>" name="<%= HtmlUtil.escapeAttribute(name) %>"></div>
+	<div class="alloy-editor alloy-editor-placeholder <%= HtmlUtil.escapeAttribute(cssClass) %>" contenteditable="false" data-placeholder="<%= LanguageUtil.get(request, placeholder) %>" data-required="<%= required %>" id="<%= HtmlUtil.escapeAttribute(name) %>" name="<%= HtmlUtil.escapeAttribute(name) %>"></div>
 
 	<aui:icon cssClass="alloy-editor-icon" image="text-editor" markupView="lexicon" />
 </liferay-util:buffer>
@@ -233,6 +243,7 @@ name = HtmlUtil.escapeJS(name);
 			plugins.push(
 				{
 					cfg: {
+						uploadItemReturnType: '<%= editorOptions.getUploadItemReturnType() %>',
 						uploadUrl: '<%= uploadURL %>'
 					},
 					fn: A.Plugin.LiferayEditorImageUploader

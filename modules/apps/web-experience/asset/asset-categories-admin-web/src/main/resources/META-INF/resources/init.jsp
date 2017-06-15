@@ -18,7 +18,8 @@
 
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 
-<%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
+<%@ taglib uri="http://liferay.com/tld/asset" prefix="liferay-asset" %><%@
+taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
 taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
 taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %><%@
 taglib uri="http://liferay.com/tld/security" prefix="liferay-security" %><%@
@@ -28,11 +29,7 @@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 <%@ page import="com.liferay.asset.categories.admin.web.internal.display.context.AssetCategoriesDisplayContext" %><%@
 page import="com.liferay.asset.categories.admin.web.internal.util.AssetCategoryUtil" %><%@
 page import="com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil" %><%@
-page import="com.liferay.asset.kernel.exception.AssetCategoryNameException" %><%@
-page import="com.liferay.asset.kernel.exception.CategoryPropertyKeyException" %><%@
-page import="com.liferay.asset.kernel.exception.CategoryPropertyValueException" %><%@
-page import="com.liferay.asset.kernel.exception.DuplicateCategoryException" %><%@
-page import="com.liferay.asset.kernel.exception.DuplicateCategoryPropertyException" %><%@
+page import="com.liferay.asset.kernel.NoSuchClassTypeException" %><%@
 page import="com.liferay.asset.kernel.exception.DuplicateVocabularyException" %><%@
 page import="com.liferay.asset.kernel.exception.NoSuchCategoryException" %><%@
 page import="com.liferay.asset.kernel.exception.NoSuchVocabularyException" %><%@
@@ -64,9 +61,6 @@ page import="com.liferay.portal.kernel.util.StringUtil" %><%@
 page import="com.liferay.portal.kernel.util.Validator" %><%@
 page import="com.liferay.portal.kernel.util.WebKeys" %><%@
 page import="com.liferay.portlet.asset.model.impl.AssetCategoryPropertyImpl" %><%@
-page import="com.liferay.portlet.asset.service.permission.AssetCategoryPermission" %><%@
-page import="com.liferay.portlet.asset.service.permission.AssetPermission" %><%@
-page import="com.liferay.portlet.asset.service.permission.AssetVocabularyPermission" %><%@
 page import="com.liferay.portlet.asset.util.AssetVocabularySettingsHelper" %>
 
 <%@ page import="java.util.ArrayList" %><%@

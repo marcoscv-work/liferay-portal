@@ -23,13 +23,11 @@ import com.liferay.journal.test.util.JournalArticleContent;
 import com.liferay.journal.test.util.JournalArticleTitle;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.search.Document;
-import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
-import com.liferay.portal.kernel.test.IdempotentRetryAssert;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
@@ -50,10 +48,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -157,30 +152,9 @@ public class JournalArticleIndexerLocalizedContentTest {
 
 		localizedTitleStrings.put("localized_title", originalTitle);
 
-		Map<String, String> ddmContentStrings = _withSortableValues(
-			new HashMap<String, String>() {
-				{
-					put("ddm__text__NNNNN__content_en_US", originalContent);
-					put("ddm__text__NNNNN__content_hu_HU", translatedContent);
-
-					put("ddm__text__NNNNN__content_ca_ES", originalContent);
-					put("ddm__text__NNNNN__content_de_DE", originalContent);
-					put("ddm__text__NNNNN__content_es_ES", originalContent);
-					put("ddm__text__NNNNN__content_fi_FI", originalContent);
-					put("ddm__text__NNNNN__content_fr_FR", originalContent);
-					put("ddm__text__NNNNN__content_iw_IL", originalContent);
-					put("ddm__text__NNNNN__content_ja_JP", originalContent);
-					put("ddm__text__NNNNN__content_nl_NL", originalContent);
-					put("ddm__text__NNNNN__content_pt_BR", originalContent);
-					put("ddm__text__NNNNN__content_zh_CN", originalContent);
-				}
-			});
-
 		String searchTerm = "nev";
 
-		Document document = retryAssert(() -> {
-			return _search(searchTerm, LocaleUtil.HUNGARY);
-		});
+		Document document = _search(searchTerm, LocaleUtil.HUNGARY);
 
 		FieldValuesAssert.assertFieldValues(
 			titleStrings, "title", document, searchTerm);
@@ -190,12 +164,6 @@ public class JournalArticleIndexerLocalizedContentTest {
 
 		FieldValuesAssert.assertFieldValues(
 			localizedTitleStrings, "localized_title", document, searchTerm);
-
-		String ddmNumber = _getDDMNumber(document);
-
-		FieldValuesAssert.assertFieldValues(
-			_replaceKeys("NNNNN", ddmNumber, ddmContentStrings), "ddm__text",
-			document, searchTerm);
 	}
 
 	@Test
@@ -246,9 +214,7 @@ public class JournalArticleIndexerLocalizedContentTest {
 
 		String searchTerm = articleId;
 
-		Document document = retryAssert(() -> {
-			return _search(searchTerm, LocaleUtil.BRAZIL);
-		});
+		Document document = _search(searchTerm, LocaleUtil.BRAZIL);
 
 		FieldValuesAssert.assertFieldValues(
 			titleStrings, "title", document, searchTerm);
@@ -322,25 +288,6 @@ public class JournalArticleIndexerLocalizedContentTest {
 
 		localizedTitleStrings.put("localized_title", title);
 
-		Map<String, String> ddmContentStrings = _withSortableValues(
-			new HashMap<String, String>() {
-				{
-					put("ddm__text__NNNNN__content_ja_JP", content);
-
-					put("ddm__text__NNNNN__content_ca_ES", content);
-					put("ddm__text__NNNNN__content_de_DE", content);
-					put("ddm__text__NNNNN__content_en_US", content);
-					put("ddm__text__NNNNN__content_es_ES", content);
-					put("ddm__text__NNNNN__content_fi_FI", content);
-					put("ddm__text__NNNNN__content_fr_FR", content);
-					put("ddm__text__NNNNN__content_hu_HU", content);
-					put("ddm__text__NNNNN__content_iw_IL", content);
-					put("ddm__text__NNNNN__content_nl_NL", content);
-					put("ddm__text__NNNNN__content_pt_BR", content);
-					put("ddm__text__NNNNN__content_zh_CN", content);
-				}
-			});
-
 		String word1 = "新規";
 		String word2 = "作成";
 		String prefix1 = "新";
@@ -348,26 +295,20 @@ public class JournalArticleIndexerLocalizedContentTest {
 
 		Stream<String> searchTerms = Stream.of(word1, word2, prefix1, prefix2);
 
-		searchTerms.forEach(searchTerm -> {
-			Document document = retryAssert(() -> {
-				return _search(searchTerm, LocaleUtil.JAPAN);
+		searchTerms.forEach(
+			searchTerm -> {
+				Document document = _search(searchTerm, LocaleUtil.JAPAN);
+
+				FieldValuesAssert.assertFieldValues(
+					titleStrings, "title", document, searchTerm);
+
+				FieldValuesAssert.assertFieldValues(
+					contentStrings, "content", document, searchTerm);
+
+				FieldValuesAssert.assertFieldValues(
+					localizedTitleStrings, "localized_title", document,
+					searchTerm);
 			});
-
-			FieldValuesAssert.assertFieldValues(
-				titleStrings, "title", document, searchTerm);
-
-			FieldValuesAssert.assertFieldValues(
-				contentStrings, "content", document, searchTerm);
-
-			FieldValuesAssert.assertFieldValues(
-				localizedTitleStrings, "localized_title", document, searchTerm);
-
-			String ddmNumber = _getDDMNumber(document);
-
-			FieldValuesAssert.assertFieldValues(
-				_replaceKeys("NNNNN", ddmNumber, ddmContentStrings),
-				"ddm__text", document, searchTerm);
-		});
 	}
 
 	@Test
@@ -378,26 +319,29 @@ public class JournalArticleIndexerLocalizedContentTest {
 
 		Stream<String> titles = Stream.of(full, partial1, partial2);
 
-		titles.forEach(title -> {
-			setTitle(
-				new JournalArticleTitle() {
-					{
-						put(LocaleUtil.JAPAN, title);
-					}
-				});
+		titles.forEach(
+			title -> {
+				setTitle(
+					new JournalArticleTitle() {
+						{
+							put(LocaleUtil.JAPAN, title);
+						}
+					});
 
-			setContent(
-				new JournalArticleContent() {
-					{
-						name = "content";
-						defaultLocale = LocaleUtil.JAPAN;
+				setContent(
+					new JournalArticleContent() {
+						{
+							name = "content";
+							defaultLocale = LocaleUtil.JAPAN;
 
-						put(LocaleUtil.JAPAN, RandomTestUtil.randomString());
-					}
-				});
+							put(
+								LocaleUtil.JAPAN,
+								RandomTestUtil.randomString());
+						}
+					});
 
-			addArticle();
-		});
+				addArticle();
+			});
 
 		Map<String, String> titleStrings = new HashMap<String, String>() {
 			{
@@ -410,27 +354,13 @@ public class JournalArticleIndexerLocalizedContentTest {
 
 		Stream<String> searchTerms = Stream.of(word1, word2);
 
-		searchTerms.forEach(searchTerm -> {
-			Document document = retryAssert(() -> {
-				return _search(searchTerm, LocaleUtil.JAPAN);
+		searchTerms.forEach(
+			searchTerm -> {
+				Document document = _search(searchTerm, LocaleUtil.JAPAN);
+
+				FieldValuesAssert.assertFieldValues(
+					titleStrings, "title", document, searchTerm);
 			});
-
-			FieldValuesAssert.assertFieldValues(
-				titleStrings, "title", document, searchTerm);
-		});
-	}
-
-	protected static <T> T retryAssert(Callable<T> callable) {
-		try {
-			return IdempotentRetryAssert.retryAssert(
-				10, TimeUnit.SECONDS, callable);
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	protected JournalArticle addArticle() {
@@ -453,19 +383,6 @@ public class JournalArticleIndexerLocalizedContentTest {
 		_journalArticleBuilder.setTitle(journalArticleTitle);
 	}
 
-	private static Map<String, String> _replaceKeys(
-		String oldSub, String newSub, Map<String, String> map) {
-
-		Set<Entry<String, String>> entrySet = map.entrySet();
-
-		Stream<Entry<String, String>> entries = entrySet.stream();
-
-		return entries.collect(
-			Collectors.toMap(
-				entry -> StringUtil.replace(entry.getKey(), oldSub, newSub),
-				Map.Entry::getValue));
-	}
-
 	private static Map<String, String> _withSortableValues(
 		Map<String, String> map) {
 
@@ -481,25 +398,6 @@ public class JournalArticleIndexerLocalizedContentTest {
 		map2.putAll(map);
 
 		return map2;
-	}
-
-	private String _getDDMNumber(Document document) {
-		Map<String, Field> map = document.getFields();
-
-		Set<String> keys = map.keySet();
-
-		Stream<String> names = keys.stream();
-
-		String prefix = "ddm__text__";
-
-		Stream<String> ddmNames = names.filter(name -> name.startsWith(prefix));
-
-		Stream<String> ddmNumbers = ddmNames.map(
-			name -> name.substring(prefix.length(), prefix.length() + 5));
-
-		Optional<String> ddmNumberOptional = ddmNumbers.findAny();
-
-		return ddmNumberOptional.orElseThrow(IllegalStateException::new);
 	}
 
 	private SearchContext _getSearchContext(String searchTerm, Locale locale)
@@ -529,14 +427,20 @@ public class JournalArticleIndexerLocalizedContentTest {
 		throw new AssertionError(searchTerm + "->" + documents);
 	}
 
-	private Document _search(String searchTerm, Locale locale)
-		throws Exception {
+	private Document _search(String searchTerm, Locale locale) {
+		try {
+			SearchContext searchContext = _getSearchContext(searchTerm, locale);
 
-		SearchContext searchContext = _getSearchContext(searchTerm, locale);
+			Hits hits = _indexer.search(searchContext);
 
-		Hits hits = _indexer.search(searchContext);
-
-		return _getSingleDocument(searchTerm, hits);
+			return _getSingleDocument(searchTerm, hits);
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@DeleteAfterTestRun

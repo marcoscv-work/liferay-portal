@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.CookieKeys;
+import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
@@ -56,10 +57,12 @@ import com.liferay.portal.util.PropsValues;
 
 import java.io.Serializable;
 
+import java.text.Format;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -264,8 +267,6 @@ public class LanguageImpl implements Language, Serializable {
 			pattern = get(request, pattern);
 
 			if (ArrayUtil.isNotEmpty(arguments)) {
-				pattern = _escapePattern(pattern);
-
 				Object[] formattedArguments = new Object[arguments.length];
 
 				for (int i = 0; i < arguments.length; i++) {
@@ -282,10 +283,8 @@ public class LanguageImpl implements Language, Serializable {
 					}
 				}
 
-				MessageFormat messageFormat = decorateMessageFormat(
+				value = _decorateMessageFormat(
 					request, pattern, formattedArguments);
-
-				value = messageFormat.format(formattedArguments);
 			}
 			else {
 				value = pattern;
@@ -439,24 +438,13 @@ public class LanguageImpl implements Language, Serializable {
 			pattern = get(request, pattern);
 
 			if (ArrayUtil.isNotEmpty(arguments)) {
-				pattern = _escapePattern(pattern);
-
-				Object[] formattedArguments = new Object[arguments.length];
-
 				for (int i = 0; i < arguments.length; i++) {
 					if (translateArguments) {
-						formattedArguments[i] = get(
-							request, arguments[i].toString());
-					}
-					else {
-						formattedArguments[i] = arguments[i];
+						arguments[i] = get(request, arguments[i].toString());
 					}
 				}
 
-				MessageFormat messageFormat = decorateMessageFormat(
-					request, pattern, formattedArguments);
-
-				value = messageFormat.format(formattedArguments);
+				value = _decorateMessageFormat(request, pattern, arguments);
 			}
 			else {
 				value = pattern;
@@ -629,24 +617,13 @@ public class LanguageImpl implements Language, Serializable {
 			pattern = get(locale, pattern);
 
 			if (ArrayUtil.isNotEmpty(arguments)) {
-				pattern = _escapePattern(pattern);
-
-				Object[] formattedArguments = new Object[arguments.length];
-
 				for (int i = 0; i < arguments.length; i++) {
 					if (translateArguments) {
-						formattedArguments[i] = get(
-							locale, arguments[i].toString());
-					}
-					else {
-						formattedArguments[i] = arguments[i];
+						arguments[i] = get(locale, arguments[i].toString());
 					}
 				}
 
-				MessageFormat messageFormat = decorateMessageFormat(
-					locale, pattern, formattedArguments);
-
-				value = messageFormat.format(formattedArguments);
+				value = _decorateMessageFormat(locale, pattern, arguments);
 			}
 			else {
 				value = pattern;
@@ -778,24 +755,15 @@ public class LanguageImpl implements Language, Serializable {
 			pattern = get(resourceBundle, pattern);
 
 			if (ArrayUtil.isNotEmpty(arguments)) {
-				pattern = _escapePattern(pattern);
-
-				Object[] formattedArguments = new Object[arguments.length];
-
 				for (int i = 0; i < arguments.length; i++) {
 					if (translateArguments) {
-						formattedArguments[i] = get(
+						arguments[i] = get(
 							resourceBundle, arguments[i].toString());
-					}
-					else {
-						formattedArguments[i] = arguments[i];
 					}
 				}
 
-				MessageFormat messageFormat = decorateMessageFormat(
-					resourceBundle.getLocale(), pattern, formattedArguments);
-
-				value = messageFormat.format(formattedArguments);
+				value = _decorateMessageFormat(
+					resourceBundle.getLocale(), pattern, arguments);
 			}
 			else {
 				value = pattern;
@@ -1609,35 +1577,6 @@ public class LanguageImpl implements Language, Serializable {
 		CookieKeys.addCookie(request, response, languageIdCookie);
 	}
 
-	protected MessageFormat decorateMessageFormat(
-		HttpServletRequest request, String pattern,
-		Object[] formattedArguments) {
-
-		Locale locale = _getLocale(request);
-
-		return decorateMessageFormat(locale, pattern, formattedArguments);
-	}
-
-	protected MessageFormat decorateMessageFormat(
-		Locale locale, String pattern, Object[] formattedArguments) {
-
-		if (locale == null) {
-			locale = LocaleUtil.getDefault();
-		}
-
-		MessageFormat messageFormat = new MessageFormat(pattern, locale);
-
-		for (int i = 0; i < formattedArguments.length; i++) {
-			Object formattedArgument = formattedArguments[i];
-
-			if (formattedArgument instanceof Number) {
-				messageFormat.setFormat(i, NumberFormat.getInstance(locale));
-			}
-		}
-
-		return messageFormat;
-	}
-
 	private static CompanyLocalesBag _getCompanyLocalesBag() {
 		Long companyId = CompanyThreadLocal.getCompanyId();
 
@@ -1699,6 +1638,44 @@ public class LanguageImpl implements Language, Serializable {
 			groupLanguageCodeLocalesMap, groupLanguageIdLocalesMap);
 	}
 
+	private String _decorateMessageFormat(
+		HttpServletRequest request, String pattern,
+		Object[] formattedArguments) {
+
+		Locale locale = _getLocale(request);
+
+		return _decorateMessageFormat(locale, pattern, formattedArguments);
+	}
+
+	private String _decorateMessageFormat(
+		Locale locale, String pattern, Object[] formattedArguments) {
+
+		if (locale == null) {
+			locale = LocaleUtil.getDefault();
+		}
+
+		String value = _getFastFormattedMessage(
+			locale, pattern, formattedArguments);
+
+		if (value != null) {
+			return value;
+		}
+
+		pattern = _escapePattern(pattern);
+
+		MessageFormat messageFormat = new MessageFormat(pattern, locale);
+
+		for (int i = 0; i < formattedArguments.length; i++) {
+			Object formattedArgument = formattedArguments[i];
+
+			if (formattedArgument instanceof Number) {
+				messageFormat.setFormat(i, NumberFormat.getInstance(locale));
+			}
+		}
+
+		return messageFormat.format(formattedArguments);
+	}
+
 	private String _escapePattern(String pattern) {
 		return StringUtil.replace(
 			pattern, CharPool.APOSTROPHE, StringPool.DOUBLE_APOSTROPHE);
@@ -1732,6 +1709,66 @@ public class LanguageImpl implements Language, Serializable {
 		}
 
 		return null;
+	}
+
+	private String _getFastFormattedMessage(
+		Locale locale, String pattern, Object[] arguments) {
+
+		Format dateFormat = null;
+		Format numberFormat = null;
+		int pos = 0;
+		StringBuilder sb = new StringBuilder(
+			16 * arguments.length + pattern.length());
+
+		int start = pattern.indexOf(CharPool.OPEN_CURLY_BRACE);
+
+		while (start != -1) {
+			int endIndex = start + 2;
+
+			if ((endIndex > pattern.length()) ||
+				(pattern.charAt(endIndex) != CharPool.CLOSE_CURLY_BRACE)) {
+
+				return null;
+			}
+
+			int argumentIndex = pattern.charAt(start + 1) - CharPool.NUMBER_0;
+
+			if ((argumentIndex < 0) || (arguments.length <= argumentIndex)) {
+				return null;
+			}
+
+			sb.append(pattern, pos, start);
+
+			Object argument = arguments[argumentIndex];
+
+			if (argument instanceof Number) {
+				if (numberFormat == null) {
+					numberFormat = NumberFormat.getNumberInstance(locale);
+				}
+
+				sb.append(numberFormat.format(argument));
+			}
+			else if (argument instanceof Date) {
+				if (dateFormat == null) {
+					dateFormat = FastDateFormatFactoryUtil.getDateTime(locale);
+				}
+
+				sb.append(dateFormat.format(argument));
+			}
+			else {
+				sb.append(argument);
+			}
+
+			pos = endIndex + 1;
+
+			start = pattern.indexOf(CharPool.OPEN_CURLY_BRACE, pos);
+		}
+
+		if (pos < pattern.length()) {
+			sb.append(pattern, pos, pattern.length());
+		}
+
+		return sb.toString();
 	}
 
 	private Map<String, Locale> _getGroupLanguageCodeLocalesMap(long groupId) {

@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
 import com.liferay.users.admin.demo.data.creator.SiteAdminUserDemoDataCreator;
 
 import org.osgi.service.component.annotations.Component;
@@ -34,34 +35,36 @@ public class SiteAdminUserDemoDataCreatorImpl
 	extends BaseUserDemoDataCreator implements SiteAdminUserDemoDataCreator {
 
 	@Override
+	public User create(long groupId) throws PortalException {
+		return create(groupId, null);
+	}
+
+	@Override
 	public User create(long groupId, String emailAddress)
 		throws PortalException {
 
 		Group group = _groupLocalService.getGroup(groupId);
 
-		User user = createBaseUser(group.getCompanyId(), emailAddress);
+		User user = createUser(group.getCompanyId(), emailAddress);
 
-		userLocalService.setGroupUsers(groupId, new long[] {user.getUserId()});
+		userLocalService.addGroupUser(groupId, user.getUserId());
 
 		Role role = _roleLocalService.getRole(
 			group.getCompanyId(), RoleConstants.SITE_ADMINISTRATOR);
 
-		userLocalService.addRoleUser(role.getRoleId(), user);
+		_userGroupRoleLocalService.addUserGroupRoles(
+			user.getUserId(), groupId, new long[] {role.getRoleId()});
 
 		return userLocalService.getUser(user.getUserId());
 	}
 
-	@Reference(unbind = "-")
-	protected void setGroupLocalService(GroupLocalService groupLocalService) {
-		_groupLocalService = groupLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setRoleLocalService(RoleLocalService roleLocalService) {
-		_roleLocalService = roleLocalService;
-	}
-
+	@Reference
 	private GroupLocalService _groupLocalService;
+
+	@Reference
 	private RoleLocalService _roleLocalService;
+
+	@Reference
+	private UserGroupRoleLocalService _userGroupRoleLocalService;
 
 }

@@ -68,7 +68,7 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 			boolean commitImmediately)
 		throws SearchException {
 
-		if (isIndexReadOnly() || (document == null)) {
+		if (_indexStatusManager.isIndexReadOnly() || (document == null)) {
 			return;
 		}
 
@@ -99,7 +99,9 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 			Collection<Document> documents, boolean commitImmediately)
 		throws SearchException {
 
-		if (isIndexReadOnly() || (documents == null) || documents.isEmpty()) {
+		if (_indexStatusManager.isIndexReadOnly() || (documents == null) ||
+			documents.isEmpty()) {
+
 			return;
 		}
 
@@ -156,7 +158,7 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 			boolean commitImmediately)
 		throws SearchException {
 
-		if (isIndexReadOnly()) {
+		if (_indexStatusManager.isIndexReadOnly()) {
 			return;
 		}
 
@@ -181,7 +183,9 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 			boolean commitImmediately)
 		throws SearchException {
 
-		if (isIndexReadOnly() || (uids == null) || uids.isEmpty()) {
+		if (_indexStatusManager.isIndexReadOnly() || (uids == null) ||
+			uids.isEmpty()) {
+
 			return;
 		}
 
@@ -206,7 +210,7 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 			boolean commitImmediately)
 		throws SearchException {
 
-		if (isIndexReadOnly()) {
+		if (_indexStatusManager.isIndexReadOnly()) {
 			return;
 		}
 
@@ -390,12 +394,22 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	/**
 	 * @deprecated As of 3.3.0, replaced by {@link IndexStatusManager#
-	 *             isIndexReadOnly}
+	 *             isIndexReadWrite}
 	 */
 	@Deprecated
 	@Override
 	public boolean isIndexReadOnly() {
 		return _indexStatusManager.isIndexReadOnly();
+	}
+
+	/**
+	 * @deprecated As of 3.3.0, replaced by {@link IndexStatusManager#
+	 *             isIndexReadWrite(String)}
+	 */
+	@Deprecated
+	@Override
+	public boolean isIndexReadOnly(String className) {
+		return _indexStatusManager.isIndexReadOnly(className);
 	}
 
 	@Override
@@ -404,7 +418,7 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 			boolean commitImmediately)
 		throws SearchException {
 
-		if (isIndexReadOnly() || (document == null)) {
+		if (_indexStatusManager.isIndexReadOnly() || (document == null)) {
 			return;
 		}
 
@@ -435,7 +449,9 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 			Collection<Document> documents, boolean commitImmediately)
 		throws SearchException {
 
-		if (isIndexReadOnly() || (documents == null) || documents.isEmpty()) {
+		if (_indexStatusManager.isIndexReadOnly() || (documents == null) ||
+			documents.isEmpty()) {
+
 			return;
 		}
 
@@ -530,13 +546,23 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 		_indexStatusManager.setIndexReadOnly(indexReadOnly);
 	}
 
+	/**
+	 * @deprecated As of 3.3.0, replaced by {@link IndexStatusManager.
+	 *             setIndexReadOnly(String, boolean)}
+	 */
+	@Deprecated
+	@Override
+	public void setIndexReadOnly(String className, boolean indexReadOnly) {
+		_indexStatusManager.setIndexReadOnly(className, indexReadOnly);
+	}
+
 	@Override
 	public void updateDocument(
 			String searchEngineId, long companyId, Document document,
 			boolean commitImmediately)
 		throws SearchException {
 
-		if (isIndexReadOnly() || (document == null)) {
+		if (_indexStatusManager.isIndexReadOnly() || (document == null)) {
 			return;
 		}
 
@@ -569,7 +595,9 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 			Collection<Document> documents, boolean commitImmediately)
 		throws SearchException {
 
-		if (isIndexReadOnly() || (documents == null) || documents.isEmpty()) {
+		if (_indexStatusManager.isIndexReadOnly() || (documents == null) ||
+			documents.isEmpty()) {
+
 			return;
 		}
 
@@ -598,7 +626,7 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void updatePermissionFields(String name, String primKey) {
-		if (isIndexReadOnly()) {
+		if (_indexStatusManager.isIndexReadOnly()) {
 			return;
 		}
 

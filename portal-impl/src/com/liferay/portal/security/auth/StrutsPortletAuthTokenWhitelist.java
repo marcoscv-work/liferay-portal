@@ -19,14 +19,13 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.Portlet;
-import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.portlet.LiferayPortletURL;
+import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.security.auth.BaseAuthTokenWhitelist;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
 import com.liferay.portal.kernel.util.CharPool;
-import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.Validator;
@@ -81,10 +80,10 @@ public class StrutsPortletAuthTokenWhitelist extends BaseAuthTokenWhitelist {
 
 		String namespace = PortalUtil.getPortletNamespace(portletId);
 
-		String strutsAction = ParamUtil.getString(
-			request, namespace + "struts_action");
+		String strutsAction = request.getParameter(
+			namespace.concat("struts_action"));
 
-		String rootPortletId = PortletConstants.getRootPortletId(portletId);
+		String rootPortletId = PortletIdCodec.decodePortletName(portletId);
 
 		if (Validator.isNotNull(strutsAction)) {
 			if (_portletCSRFWhitelist.contains(strutsAction) &&
@@ -106,11 +105,11 @@ public class StrutsPortletAuthTokenWhitelist extends BaseAuthTokenWhitelist {
 
 		String namespace = PortalUtil.getPortletNamespace(portletId);
 
-		String strutsAction = ParamUtil.getString(
-			request, namespace + "struts_action");
+		String strutsAction = request.getParameter(
+			namespace.concat("struts_action"));
 
 		if (Validator.isNull(strutsAction)) {
-			strutsAction = ParamUtil.getString(request, "struts_action");
+			strutsAction = request.getParameter("struts_action");
 		}
 
 		if (Validator.isNotNull(strutsAction)) {
@@ -152,7 +151,7 @@ public class StrutsPortletAuthTokenWhitelist extends BaseAuthTokenWhitelist {
 
 			String portletId = liferayPortletURL.getPortletId();
 
-			String rootPortletId = PortletConstants.getRootPortletId(portletId);
+			String rootPortletId = PortletIdCodec.decodePortletName(portletId);
 
 			if (isValidStrutsAction(companyId, rootPortletId, strutsAction)) {
 				return true;

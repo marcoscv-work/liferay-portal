@@ -44,7 +44,7 @@ public class TikaSafeRandomizerBumperTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			CodeCoverageAssertor.INSTANCE, AspectJNewEnvTestRule.INSTANCE);
+			AspectJNewEnvTestRule.INSTANCE, CodeCoverageAssertor.INSTANCE);
 
 	@Test
 	public void testAcceptAny() {
@@ -139,7 +139,8 @@ public class TikaSafeRandomizerBumperTest {
 				List<LogRecord> logRecords = captureHandler.getLogRecords();
 
 				if (level == Level.INFO) {
-					Assert.assertEquals(1, logRecords.size());
+					Assert.assertEquals(
+						logRecords.toString(), 1, logRecords.size());
 
 					LogRecord logRecord = logRecords.get(0);
 

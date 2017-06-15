@@ -14,8 +14,6 @@
 
 package com.liferay.source.formatter;
 
-import java.io.File;
-
 import java.util.List;
 
 /**
@@ -24,23 +22,17 @@ import java.util.List;
 public class MarkdownSourceProcessor extends BaseSourceProcessor {
 
 	@Override
-	public String[] getIncludes() {
+	protected List<String> doGetFileNames() throws Exception {
+		return getFileNames(
+			new String[] {"**/build_gradle/node/**"}, getIncludes());
+	}
+
+	@Override
+	protected String[] doGetIncludes() {
 		return _INCLUDES;
 	}
 
-	@Override
-	protected String doFormat(
-			File file, String fileName, String absolutePath, String content)
-		throws Exception {
-
-		return trimContent(content, true);
-	}
-
-	@Override
-	protected List<String> doGetFileNames() throws Exception {
-		return getFileNames(new String[0], getIncludes());
-	}
-
-	private static final String[] _INCLUDES = new String[] {"**/*.markdown"};
+	private static final String[] _INCLUDES =
+		new String[] {"**/*.markdown", "**/*.md"};
 
 }

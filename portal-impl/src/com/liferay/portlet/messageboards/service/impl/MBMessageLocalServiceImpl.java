@@ -40,6 +40,7 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
@@ -1333,6 +1334,24 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 		long userId, long threadId, int status, int start, int end,
 		Comparator<MBMessage> comparator) {
 
+		if (status == WorkflowConstants.STATUS_ANY) {
+			OrderByComparator<MBMessage> orderByComparator = null;
+
+			if (comparator instanceof OrderByComparator) {
+				orderByComparator = (OrderByComparator<MBMessage>)comparator;
+			}
+
+			List<MBMessage> messages = mbMessagePersistence.findByT_notS(
+				threadId, WorkflowConstants.STATUS_IN_TRASH, start, end,
+				orderByComparator);
+
+			if (!(comparator instanceof OrderByComparator)) {
+				messages = ListUtil.sort(messages, comparator);
+			}
+
+			return messages;
+		}
+
 		QueryDefinition<MBMessage> queryDefinition = new QueryDefinition<>(
 			status, userId, true, start, end, null);
 
@@ -2008,11 +2027,13 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 				"message_boards/view_message/" + message.getMessageId();
 		}
 		else {
+			Group group = groupLocalService.fetchGroup(message.getGroupId());
+
 			portletId = PortletProviderUtil.getPortletId(
 				MBMessage.class.getName(), PortletProvider.Action.MANAGE);
 
 			PortletURL portletURL = PortalUtil.getControlPanelPortletURL(
-				request, portletId, PortletRequest.RENDER_PHASE);
+				request, group, portletId, 0, 0, PortletRequest.RENDER_PHASE);
 
 			portletURL.setParameter(
 				"mvcRenderCommandName", "/message_boards/view_message");

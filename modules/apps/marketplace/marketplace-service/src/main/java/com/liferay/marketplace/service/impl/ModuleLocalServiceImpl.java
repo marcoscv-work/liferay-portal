@@ -14,9 +14,8 @@
 
 package com.liferay.marketplace.service.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.marketplace.exception.ModuleNamespaceException;
+import com.liferay.marketplace.model.App;
 import com.liferay.marketplace.model.Module;
 import com.liferay.marketplace.service.base.ModuleLocalServiceBaseImpl;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -28,13 +27,26 @@ import java.util.List;
  * @author Ryan Park
  * @author Joan Kim
  */
-@ProviderType
 public class ModuleLocalServiceImpl extends ModuleLocalServiceBaseImpl {
 
+	/**
+	 * @deprecated As of 1.1.0, replaced by {@link #addModule(long, String,
+	 *             String, String)}
+	 */
+	@Deprecated
 	@Override
 	public Module addModule(
 			long userId, long appId, String bundleSymbolicName,
 			String bundleVersion, String contextName)
+		throws PortalException {
+
+		return addModule(appId, bundleSymbolicName, bundleVersion, contextName);
+	}
+
+	@Override
+	public Module addModule(
+			long appId, String bundleSymbolicName, String bundleVersion,
+			String contextName)
 		throws PortalException {
 
 		Module module = fetchModule(
@@ -44,6 +56,8 @@ public class ModuleLocalServiceImpl extends ModuleLocalServiceBaseImpl {
 			return module;
 		}
 
+		App app = appLocalService.getApp(appId);
+
 		validate(bundleSymbolicName, contextName);
 
 		long moduleId = counterLocalService.increment();
@@ -52,6 +66,7 @@ public class ModuleLocalServiceImpl extends ModuleLocalServiceBaseImpl {
 
 		module.setModuleId(moduleId);
 
+		module.setCompanyId(app.getCompanyId());
 		module.setAppId(appId);
 		module.setBundleSymbolicName(bundleSymbolicName);
 		module.setBundleVersion(bundleVersion);

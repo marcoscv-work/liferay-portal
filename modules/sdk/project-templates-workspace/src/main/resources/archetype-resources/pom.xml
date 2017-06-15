@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 
 <project
 	xmlns="http://maven.apache.org/POM/4.0.0"
@@ -19,10 +19,10 @@
 			<plugin>
 				<groupId>com.liferay</groupId>
 				<artifactId>com.liferay.portal.tools.bundle.support</artifactId>
-				<version>1.0.0</version>
+				<version>@com.liferay.portal.tools.bundle.support.version@</version>
 				<executions>
 					<execution>
-						<id>default-clean</id>
+						<id>clean</id>
 						<goals>
 							<goal>clean</goal>
 						</goals>
@@ -31,28 +31,32 @@
 
 					<!--
 					<execution>
-						<id>default-init-bundle</id>
+						<id>init</id>
 						<goals>
-							<goal>init-bundle</goal>
+							<goal>init</goal>
 						</goals>
 						<phase>initialize</phase>
 					</execution>
 					-->
 
 					<execution>
-						<id>default-deploy</id>
+						<id>deploy</id>
 						<goals>
 							<goal>deploy</goal>
 						</goals>
 						<phase>pre-integration-test</phase>
 					</execution>
+
+					<!--
 					<execution>
-						<id>default-dist-bundle</id>
+						<id>dist</id>
 						<goals>
-							<goal>dist-bundle</goal>
+							<goal>dist</goal>
 						</goals>
 						<phase>post-integration-test</phase>
 					</execution>
+					-->
+
 				</executions>
 			</plugin>
 		</plugins>

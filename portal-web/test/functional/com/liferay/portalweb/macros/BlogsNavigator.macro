@@ -32,30 +32,15 @@
 	</command>
 
 	<command name="gotoConfigurationSetupPG">
-		<if>
-			<equals arg1="${soPage}" arg2="true" />
-			<then>
-				<execute macro="SOPortlet#gotoPortletOptions">
-					<var name="portletName" value="Blogs" />
-					<var name="portletOption" value="Configuration" />
-				</execute>
-			</then>
-			<else>
-				<execute macro="Portlet#gotoPortletOptions">
-					<var name="portletOption" value="Configuration" />
-				</execute>
-			</else>
-		</if>
+		<execute macro="Portlet#gotoPortletOptions">
+			<var name="portletOption" value="Configuration" />
+		</execute>
 
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 	</command>
 
 	<command name="gotoConfigurationSetupRSSPG">
 		<execute function="AssertClick" locator1="Configuration#NAVIGATION_RSS" value1="RSS" />
-	</command>
-
-	<command name="gotoContentTab">
-		<execute function="AssertClick" locator1="BlogsEditEntry#CONTENT_TAB" value1="Content" />
 	</command>
 
 	<command name="gotoDraftCP">
@@ -100,7 +85,15 @@
 
 		<execute function="AssertTextEquals" locator1="BlogsEntry#TITLE" value1="${entryTitle}" />
 
-		<execute macro="PortletEntry#clickEditFromEllipsis" />
+		<if>
+			<condition function="IsElementPresent" locator1="Button#EDIT_PENCIL" />
+			<then>
+				<execute function="Click" locator1="Button#EDIT_PENCIL" />
+			</then>
+			<else>
+				<execute macro="PortletEntry#clickEditFromEllipsis" />
+			</else>
+		</if>
 
 		<execute function="AssertVisible" locator1="BlogsEntry#ENTRY_COVER_IMAGE_SELECT_FILE" />
 	</command>

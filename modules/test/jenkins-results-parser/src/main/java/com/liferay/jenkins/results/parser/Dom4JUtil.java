@@ -16,15 +16,20 @@ package com.liferay.jenkins.results.parser;
 
 import java.io.CharArrayWriter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.Writer;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.dom4j.Attribute;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.Text;
 import org.dom4j.io.OutputFormat;
+import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.dom4j.tree.DefaultElement;
 
@@ -67,8 +72,18 @@ public class Dom4JUtil {
 
 		Writer writer = new CharArrayWriter();
 
-		XMLWriter xmlWriter = pretty ? new XMLWriter(
-			writer, OutputFormat.createPrettyPrint()) : new XMLWriter(writer);
+		OutputFormat outputFormat = OutputFormat.createPrettyPrint();
+
+		outputFormat.setTrimText(false);
+
+		XMLWriter xmlWriter = null;
+
+		if (pretty) {
+			xmlWriter = new XMLWriter(writer, outputFormat);
+		}
+		else {
+			xmlWriter = new XMLWriter(writer);
+		}
 
 		xmlWriter.write(element);
 
@@ -78,14 +93,13 @@ public class Dom4JUtil {
 	public static Element getNewAnchorElement(
 		String href, Element parentElement, Object... items) {
 
+		if ((items == null) || (items.length == 0)) {
+			return null;
+		}
+
 		Element anchorElement = null;
 
-		if (parentElement == null) {
-			anchorElement = new DefaultElement("a");
-		}
-		else {
-			anchorElement = getNewElement("a", parentElement);
-		}
+		anchorElement = getNewElement("a", parentElement);
 
 		anchorElement.addAttribute("href", href);
 
@@ -98,18 +112,67 @@ public class Dom4JUtil {
 		return getNewAnchorElement(href, null, items);
 	}
 
+	public static Element getNewElement(String childElementTag) {
+		return getNewElement(childElementTag, null);
+	}
+
 	public static Element getNewElement(
 		String childElementTag, Element parentElement, Object... items) {
 
 		Element childElement = new DefaultElement(childElementTag);
 
-		parentElement.add(childElement);
+		if (parentElement != null) {
+			parentElement.add(childElement);
+		}
 
 		if ((items != null) && (items.length > 0)) {
 			addToElement(childElement, items);
 		}
 
 		return childElement;
+	}
+
+	public static Element getOrderedListElement(
+		List<Element> itemElements, Element parentElement, int maxItems) {
+
+		Element orderedListElement = getNewElement("ol", parentElement);
+
+		int i = 0;
+
+		for (Element itemElement : itemElements) {
+			if (i < maxItems) {
+				String itemElementName = itemElement.getName();
+
+				if (itemElementName.equals("li")) {
+					orderedListElement.add(itemElement);
+				}
+				else {
+					getNewElement("li", orderedListElement, itemElement);
+				}
+
+				i++;
+
+				continue;
+			}
+
+			getNewElement("li", orderedListElement, "...");
+
+			break;
+		}
+
+		return orderedListElement;
+	}
+
+	public static Element getOrderedListElement(
+		List<Element> itemElements, int maxItems) {
+
+		return getOrderedListElement(itemElements, null, maxItems);
+	}
+
+	public static Document parse(String xml) throws DocumentException {
+		SAXReader saxReader = new SAXReader();
+
+		return saxReader.read(new StringReader(xml));
 	}
 
 	public static void replace(
@@ -154,30 +217,10 @@ public class Dom4JUtil {
 	}
 
 	public static Element toCodeSnippetElement(String content) {
-		return wrapWithNewElement(
-			wrapWithNewElement(
-				JenkinsResultsParserUtil.redact(content), "code"),
-			"pre");
-	}
-
-	public static Element wrapWithNewElement(
-		Element element, String wrapperTag) {
-
-		Element wrapperElement = new DefaultElement(wrapperTag);
-
-		wrapperElement.add(element);
-
-		return wrapperElement;
-	}
-
-	public static Element wrapWithNewElement(
-		String content, String wrapperTag) {
-
-		Element wrapperElement = new DefaultElement(wrapperTag);
-
-		wrapperElement.addText(content);
-
-		return wrapperElement;
+		return getNewElement(
+			"pre", null,
+			getNewElement(
+				"code", null, JenkinsResultsParserUtil.redact(content)));
 	}
 
 }

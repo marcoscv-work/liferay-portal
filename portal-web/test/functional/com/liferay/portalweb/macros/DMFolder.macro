@@ -28,7 +28,9 @@
 	</command>
 
 	<command name="addPG">
-		<execute function="Click#makeVisibleClickAt" locator1="Portlet#ICON_PLUS_SIGN" />
+		<execute macro="Portlet#clickPortletPlusIconPG">
+			<var name="portletName" value="Documents and Media" />
+		</execute>
 
 		<execute function="AssertClick#assertTextClickAt" locator1="MenuItem#FOLDER" value1="Folder" />
 
@@ -72,15 +74,21 @@
 	</command>
 
 	<command name="addPGViaMG">
-		<execute function="Click#makeVisibleClickAt" locator1="Portlet#ICON_PLUS_SIGN" />
+		<execute macro="Portlet#clickPortletPlusIconPG">
+			<var name="portletName" value="Media Gallery" />
+		</execute>
 
 		<execute function="AssertClick#assertTextClickAt" locator1="MenuItem#ADD_FOLDER" value1="Folder" />
 
 		<execute function="Pause" locator1="1000" />
 
-		<execute function="Type" locator1="TextInput#NAME" value1="${mgFolderName}" />
+		<execute macro="PortletEntry#inputName">
+			<var name="name" value="${mgFolderName}" />
+		</execute>
 
-		<execute function="Type" locator1="TextArea#DESCRIPTION" value1="${mgFolderDescription}" />
+		<execute macro="PortletEntry#inputDescription">
+			<var name="description" value="${mgFolderDescription}" />
+		</execute>
 
 		<execute macro="PortletEntry#save" />
 
@@ -129,7 +137,9 @@
 	</command>
 
 	<command name="addSubfolderPG">
-		<execute function="Click#makeVisibleClickAt" locator1="Portlet#ICON_PLUS_SIGN" />
+		<execute macro="Portlet#clickPortletPlusIconPG">
+			<var name="portletName" value="Documents and Media" />
+		</execute>
 
 		<execute function="AssertClick#assertTextClickAt" locator1="MenuItem#SUBFOLDER" value1="Subfolder" />
 
@@ -168,15 +178,21 @@
 	</command>
 
 	<command name="addSubfolderPGViaMG">
-		<execute function="Click#makeVisibleClickAt" locator1="Portlet#ICON_PLUS_SIGN" />
+		<execute macro="Portlet#clickPortletPlusIconPG">
+			<var name="portletName" value="Media Gallery" />
+		</execute>
 
 		<execute function="AssertClick#assertTextClickAt" locator1="MenuItem#ADD_SUBFOLDER" value1="Subfolder" />
 
 		<execute function="Pause" locator1="1000" />
 
-		<execute function="Type" locator1="TextInput#NAME" value1="${mgSubfolderName}" />
+		<execute macro="PortletEntry#inputName">
+			<var name="name" value="${mgSubfolderName}" />
+		</execute>
 
-		<execute function="Type" locator1="TextArea#DESCRIPTION" value1="${mgSubfolderDescription}" />
+		<execute macro="PortletEntry#inputDescription">
+			<var name="description" value="${mgSubfolderDescription}" />
+		</execute>
 
 		<execute macro="PortletEntry#save" />
 	</command>
@@ -314,8 +330,13 @@
 
 		<execute function="AssertClick" locator1="MenuItem#EDIT" value1="Edit" />
 
-		<execute function="Type" locator1="TextInput#NAME" value1="${dmFolderNameEdit}" />
-		<execute function="Type" locator1="TextArea#DESCRIPTION" value1="${dmFolderDescriptionEdit}" />
+		<execute macro="PortletEntry#inputName">
+			<var name="name" value="${dmFolderNameEdit}" />
+		</execute>
+
+		<execute macro="PortletEntry#inputDescription">
+			<var name="description" value="${dmFolderDescriptionEdit}" />
+		</execute>
 
 		<execute macro="Button#clickSave" />
 
@@ -329,9 +350,13 @@
 	<command name="editPGViaMG">
 		<execute macro="PortletEntry#clickEditFromEllipsis" />
 
-		<execute function="Type" locator1="TextInput#NAME" value1="${mgFolderNameEdit}" />
+		<execute macro="PortletEntry#inputName">
+			<var name="name" value="${mgFolderNameEdit}" />
+		</execute>
 
-		<execute function="Type" locator1="TextArea#DESCRIPTION" value1="${mgFolderDescriptionEdit}" />
+		<execute macro="PortletEntry#inputDescription">
+			<var name="description" value="${mgFolderDescriptionEdit}" />
+		</execute>
 
 		<execute macro="PortletEntry#save" />
 

@@ -29,6 +29,7 @@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
 taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 
 <%@ page import="com.liferay.document.library.kernel.exception.FileSizeException" %><%@
+page import="com.liferay.document.library.kernel.util.DLValidatorUtil" %><%@
 page import="com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys" %><%@
 page import="com.liferay.exportimport.kernel.staging.LayoutStagingUtil" %><%@
 page import="com.liferay.exportimport.kernel.staging.StagingUtil" %><%@
@@ -36,11 +37,11 @@ page import="com.liferay.layout.admin.web.internal.constants.LayoutAdminPortletK
 page import="com.liferay.layout.admin.web.internal.display.context.LayoutsAdminDisplayContext" %><%@
 page import="com.liferay.layout.admin.web.internal.display.context.LayoutsPrototypeTreeDisplayContext" %><%@
 page import="com.liferay.layout.admin.web.internal.display.context.LayoutsTreeDisplayContext" %><%@
+page import="com.liferay.layout.admin.web.internal.display.context.OrphanPortletsDisplayContext" %><%@
 page import="com.liferay.layout.admin.web.internal.util.comparator.ThemeNameComparator" %><%@
 page import="com.liferay.portal.kernel.bean.BeanParamUtil" %><%@
 page import="com.liferay.portal.kernel.dao.search.EmptyOnClickRowChecker" %><%@
 page import="com.liferay.portal.kernel.dao.search.ResultRow" %><%@
-page import="com.liferay.portal.kernel.dao.search.RowChecker" %><%@
 page import="com.liferay.portal.kernel.exception.ImageTypeException" %><%@
 page import="com.liferay.portal.kernel.exception.LayoutFriendlyURLException" %><%@
 page import="com.liferay.portal.kernel.exception.LayoutFriendlyURLsException" %><%@
@@ -114,7 +115,6 @@ page import="com.liferay.portal.kernel.util.TextFormatter" %><%@
 page import="com.liferay.portal.kernel.util.UnicodeProperties" %><%@
 page import="com.liferay.portal.kernel.util.Validator" %><%@
 page import="com.liferay.portal.kernel.util.WebKeys" %><%@
-page import="com.liferay.portal.kernel.util.comparator.PortletTitleComparator" %><%@
 page import="com.liferay.portal.kernel.webserver.WebServerServletTokenUtil" %><%@
 page import="com.liferay.portal.util.LayoutDescription" %><%@
 page import="com.liferay.portal.util.LayoutTypeControllerTracker" %><%@
@@ -122,8 +122,7 @@ page import="com.liferay.portal.util.PropsValues" %><%@
 page import="com.liferay.portal.util.RobotsUtil" %><%@
 page import="com.liferay.sites.kernel.util.SitesUtil" %>
 
-<%@ page import="java.util.Collections" %><%@
-page import="java.util.HashMap" %><%@
+<%@ page import="java.util.HashMap" %><%@
 page import="java.util.HashSet" %><%@
 page import="java.util.List" %><%@
 page import="java.util.Locale" %><%@

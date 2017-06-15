@@ -50,6 +50,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>LAYOUT_CARD_SELECTED</td>
+	<td>//div[label[contains(.,'${key_columnName}')]]//img[contains(@class,'layout-selected')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PAGE_TEMPLATE_INHERIT_CHANGES_TOGGLE</td>
 	<td>//div[@class='layout-type']//label[contains(.,'Inherit Changes')]/input[contains(@class,'toggle-switch')]</td>
 	<td></td>
@@ -200,6 +205,21 @@
 <tr>
 	<td>LOOK_AND_FEEL_PANEL_TOGGLE</td>
 	<td>//li/a[contains(@id,'lookAndFeel')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CHANGE_CURRENT_THEME_BUTTON</td>
+	<td>//button[contains(.,'Change Current Theme')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>THEME</td>
+	<td>//div[contains(@data-themeid,'${key_cardText}')]/div/div[2]/div/span/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>VIEW_THEME</td>
+	<td>//div[contains(@class, 'main-content-card')]//h4[contains(.,'Name')]/following-sibling::p[1]</td>
 	<td></td>
 </tr>
 <tr>

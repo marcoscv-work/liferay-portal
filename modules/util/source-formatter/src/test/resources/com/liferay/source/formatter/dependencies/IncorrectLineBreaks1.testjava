@@ -14,6 +14,8 @@
 
 package com.liferay.source.formatter.dependencies;
 
+import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.util.Arrays;
@@ -45,6 +47,12 @@ public class IncorrectLineBreaks1 {
 		boolean b1 = StringUtil.contains(
 			"Hello World Hello World Hello World " +
 				"Hello World Hello World Hello World", "Hello");
+
+		String anotherStringWithAVeryLongName = "Hello World";
+
+		boolean b2 = StringUtil.contains(
+			anotherStringWithAVeryLongName, StringUtil.trim(
+				anotherStringWithAVeryLongName));
 
 		String test2 = thisIsAStringWithAVeryVeryVeryLongName +
 			thisIsAStringWithAVeryVeryVeryLongName2;
@@ -116,6 +124,17 @@ public class IncorrectLineBreaks1 {
 		String testStringName4) throws Exception {
 
 		return;
+	}
+
+	public void method7(ThemeDisplay themeDisplay) {
+		PortletLocalServiceUtil.visitPortlets(
+			themeDisplay.getCompanyId(), portlet -> {
+				if (portlet.isSinglePageApplication() && portlet.isActive() &&
+					portlet.isReady()) {
+
+					return;
+				}
+			});
 	}
 
 	public void methodWithASlightlyLongerName(

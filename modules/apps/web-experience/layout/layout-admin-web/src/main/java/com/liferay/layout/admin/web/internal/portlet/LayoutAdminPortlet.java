@@ -18,7 +18,7 @@ import com.liferay.application.list.GroupProvider;
 import com.liferay.application.list.constants.ApplicationListWebKeys;
 import com.liferay.asset.kernel.exception.AssetCategoryException;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
-import com.liferay.exportimport.kernel.staging.StagingUtil;
+import com.liferay.exportimport.kernel.staging.Staging;
 import com.liferay.layout.admin.web.internal.constants.LayoutAdminPortletKeys;
 import com.liferay.mobile.device.rules.model.MDRAction;
 import com.liferay.mobile.device.rules.model.MDRRuleGroupInstance;
@@ -201,6 +201,17 @@ public class LayoutAdminPortlet extends MVCPortlet {
 			PropertiesParamUtil.getProperties(
 				actionRequest, "TypeSettingsProperties--");
 
+		String linkToLayoutUuid = ParamUtil.getString(
+			actionRequest, "linkToLayoutUuid");
+
+		if (Validator.isNotNull(linkToLayoutUuid)) {
+			Layout linkToLayout = layoutLocalService.getLayoutByUuidAndGroupId(
+				linkToLayoutUuid, groupId, privateLayout);
+
+			typeSettingsProperties.put(
+				"linkToLayoutId", String.valueOf(linkToLayout.getLayoutId()));
+		}
+
 		if (inheritFromParentLayoutId && (parentLayoutId > 0)) {
 			Layout parentLayout = layoutLocalService.getLayout(
 				groupId, privateLayout, parentLayoutId);
@@ -354,32 +365,6 @@ public class LayoutAdminPortlet extends MVCPortlet {
 			sourceLayoutTypeSettingsProperties.toString());
 	}
 
-	public void deleteEmbeddedPortlets(
-			ActionRequest actionRequest, ActionResponse actionResponse)
-		throws Exception {
-
-		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		long selPlid = ParamUtil.getLong(actionRequest, "selPlid");
-
-		String[] portletIds = null;
-
-		String portletId = ParamUtil.getString(actionRequest, "portletId");
-
-		if (Validator.isNotNull(portletId)) {
-			portletIds = new String[] {portletId};
-		}
-		else {
-			portletIds = ParamUtil.getStringValues(actionRequest, "rowIds");
-		}
-
-		if (portletIds.length > 0) {
-			portletLocalService.deletePortlets(
-				themeDisplay.getCompanyId(), portletIds, selPlid);
-		}
-	}
-
 	public void deleteLayout(
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
@@ -407,6 +392,32 @@ public class LayoutAdminPortlet extends MVCPortlet {
 		MultiSessionMessages.add(actionRequest, "layoutDeleted", selPlid);
 
 		actionRequest.setAttribute(WebKeys.REDIRECT, redirect);
+	}
+
+	public void deleteOrphanPortlets(
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		long selPlid = ParamUtil.getLong(actionRequest, "selPlid");
+
+		String[] portletIds = null;
+
+		String portletId = ParamUtil.getString(actionRequest, "portletId");
+
+		if (Validator.isNotNull(portletId)) {
+			portletIds = new String[] {portletId};
+		}
+		else {
+			portletIds = ParamUtil.getStringValues(actionRequest, "rowIds");
+		}
+
+		if (portletIds.length > 0) {
+			portletLocalService.deletePortlets(
+				themeDisplay.getCompanyId(), portletIds, selPlid);
+		}
 	}
 
 	public void editLayout(
@@ -466,12 +477,25 @@ public class LayoutAdminPortlet extends MVCPortlet {
 			nameMap, titleMap, descriptionMap, keywordsMap, robotsMap, type,
 			hidden, friendlyURLMap, !deleteLogo, iconBytes, serviceContext);
 
+		themeDisplay.clearLayoutFriendlyURL(layout);
+
 		UnicodeProperties layoutTypeSettingsProperties =
 			layout.getTypeSettingsProperties();
 
 		UnicodeProperties formTypeSettingsProperties =
 			PropertiesParamUtil.getProperties(
 				actionRequest, "TypeSettingsProperties--");
+
+		String linkToLayoutUuid = ParamUtil.getString(
+			actionRequest, "linkToLayoutUuid");
+
+		if (Validator.isNotNull(linkToLayoutUuid)) {
+			Layout linkToLayout = layoutLocalService.getLayoutByUuidAndGroupId(
+				linkToLayoutUuid, groupId, privateLayout);
+
+			formTypeSettingsProperties.put(
+				"linkToLayoutId", String.valueOf(linkToLayout.getLayoutId()));
+		}
 
 		LayoutTypePortlet layoutTypePortlet =
 			(LayoutTypePortlet)layout.getLayoutType();
@@ -715,7 +739,7 @@ public class LayoutAdminPortlet extends MVCPortlet {
 		LayoutSetBranch layoutSetBranch =
 			layoutSetBranchLocalService.getLayoutSetBranch(layoutSetBranchId);
 
-		StagingUtil.setRecentLayoutSetBranchId(
+		staging.setRecentLayoutSetBranchId(
 			request, layoutSet.getLayoutSetId(),
 			layoutSetBranch.getLayoutSetBranchId());
 
@@ -1398,6 +1422,10 @@ public class LayoutAdminPortlet extends MVCPortlet {
 
 	protected PortletLocalService portletLocalService;
 	protected PortletPreferencesLocalService portletPreferencesLocalService;
+
+	@Reference
+	protected Staging staging;
+
 	protected ThemeLocalService themeLocalService;
 
 	private static final Log _log = LogFactoryUtil.getLog(

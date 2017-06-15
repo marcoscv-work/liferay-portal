@@ -54,10 +54,11 @@ import org.apache.chemistry.opencmis.commons.exceptions.CmisObjectNotFoundExcept
 public class CMISFileVersion extends CMISModel implements FileVersion {
 
 	public CMISFileVersion(
-		CMISRepository cmisRepository, String uuid, long fileVersionId,
-		Document document) {
+		CMISRepository cmisRepository, FileEntry fileEntry, String uuid,
+		long fileVersionId, Document document) {
 
 		_cmisRepository = cmisRepository;
+		_fileEntry = fileEntry;
 		_uuid = uuid;
 		_fileVersionId = fileVersionId;
 		_document = document;
@@ -66,7 +67,7 @@ public class CMISFileVersion extends CMISModel implements FileVersion {
 	@Override
 	public Object clone() {
 		CMISFileVersion cmisFileVersion = new CMISFileVersion(
-			_cmisRepository, _uuid, _fileVersionId, _document);
+			_cmisRepository, _fileEntry, _uuid, _fileVersionId, _document);
 
 		cmisFileVersion.setCompanyId(getCompanyId());
 		cmisFileVersion.setFileVersionId(getFileVersionId());
@@ -115,7 +116,7 @@ public class CMISFileVersion extends CMISModel implements FileVersion {
 				incrementCounter);
 		}
 		catch (Exception e) {
-			_log.error(e);
+			_log.error("Unable to get content stream", e);
 		}
 
 		return contentStream.getStream();
@@ -145,6 +146,10 @@ public class CMISFileVersion extends CMISModel implements FileVersion {
 
 	@Override
 	public FileEntry getFileEntry() throws PortalException {
+		if (_fileEntry != null) {
+			return _fileEntry;
+		}
+
 		Document document = null;
 
 		try {
@@ -161,7 +166,9 @@ public class CMISFileVersion extends CMISModel implements FileVersion {
 			throw new NoSuchFileEntryException(confe);
 		}
 
-		return _cmisRepository.toFileEntry(document);
+		_fileEntry = _cmisRepository.toFileEntry(document);
+
+		return _fileEntry;
 	}
 
 	@Override
@@ -432,6 +439,7 @@ public class CMISFileVersion extends CMISModel implements FileVersion {
 
 	private final CMISRepository _cmisRepository;
 	private final Document _document;
+	private FileEntry _fileEntry;
 	private long _fileVersionId;
 	private final String _uuid;
 

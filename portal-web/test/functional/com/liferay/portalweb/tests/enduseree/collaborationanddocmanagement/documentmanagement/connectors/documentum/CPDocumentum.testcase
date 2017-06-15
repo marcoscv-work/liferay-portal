@@ -1,8 +1,9 @@
 <definition component-name="portal-document-management-ee">
-	<property name="portal.release" value="true" />
-	<property name="portal.upstream" value="true" />
 	<property name="cmis.repository.type" value="documentum6" />
 	<property name="custom.properties" value="session.store.password=true${line.separator}company.security.auth.type=screenName" />
+	<property name="osgi.app.includes" value="documentum" />
+	<property name="portal.release" value="true" />
+	<property name="portal.upstream" value="true" />
 	<property name="test.run.environment" value="EE" />
 	<property name="testray.main.component.name" value="Documents Management" />
 
@@ -139,6 +140,8 @@
 	</tear-down>
 
 	<command name="AddAllDocumentTypes" priority="5">
+		<property name="test.name.skip.portal.instance" value="CPDocumentum#AddAllDocumentTypes" />
+
 		<for list="Document_1.doc,Document_1.docx,Document_1.jpeg,Document_1.jpg,Document_1.mp4,Document_1.pdf,Document_1.png,Document_1.ppt,Document_1.pptx,Document_1.txt,Document_1.xls,Document_1.xlsx" param="dmDocumentTitle">
 			<execute macro="DMRepository#gotoCP">
 				<var name="dmRepositoryName" value="Documentum Repository Name" />
@@ -244,6 +247,8 @@
 	</command>
 
 	<command name="CheckinDocument" priority="5">
+		<property name="test.name.skip.portal.instance" value="CPDocumentum#CheckinDocument" />
+
 		<execute macro="DMRepository#gotoCP">
 			<var name="dmRepositoryName" value="Documentum Repository Name" />
 		</execute>
@@ -316,6 +321,8 @@
 	</command>
 
 	<command name="CheckoutDocument" priority="5">
+		<property name="test.name.skip.portal.instance" value="CPDocumentum#DeleteCheckedoutDocument" />
+
 		<execute macro="DMRepository#gotoCP">
 			<var name="dmRepositoryName" value="Documentum Repository Name" />
 		</execute>
@@ -390,6 +397,8 @@
 	</command>
 
 	<command name="DeleteDocumentInSubfolder" priority="5">
+		<property name="test.name.skip.portal.instance" value="CPDocumentum#DeleteDocumentInSubfolder" />
+
 		<execute macro="DMRepository#gotoCP">
 			<var name="dmRepositoryName" value="Documentum Repository Name" />
 		</execute>
@@ -444,6 +453,8 @@
 	</command>
 
 	<command name="DeleteSubfolder" priority="5">
+		<property name="test.name.skip.portal.instance" value="CPDocumentum#DeleteSubfolder" />
+
 		<execute macro="DMRepository#gotoCP">
 			<var name="dmRepositoryName" value="Documentum Repository Name" />
 		</execute>
@@ -469,6 +480,8 @@
 	</command>
 
 	<command name="EditDocumentFile" priority="5">
+		<property name="test.name.skip.portal.instance" value="CPDocumentum#EditDocumentFile" />
+
 		<execute macro="DMRepository#gotoCP">
 			<var name="dmRepositoryName" value="Documentum Repository Name" />
 		</execute>
@@ -524,6 +537,8 @@
 	</command>
 
 	<command name="EditDocumentTitleFileExtension" priority="5">
+		<property name="test.name.skip.portal.instance" value="CPDocumentum#EditDocumentTitleFileNameAndFileExtension" />
+
 		<execute macro="DMRepository#gotoCP">
 			<var name="dmRepositoryName" value="Documentum Repository Name" />
 		</execute>
@@ -596,6 +611,8 @@
 	</command>
 
 	<command name="EditDocumentTitleRemoveFileExtension" priority="5">
+		<property name="test.name.skip.portal.instance" value="CPDocumentum#EditDocumentTitleRemoveFileExtension" />
+
 		<execute macro="DMRepository#gotoCP">
 			<var name="dmRepositoryName" value="Documentum Repository Name" />
 		</execute>
@@ -631,7 +648,9 @@
 		</execute>
 	</command>
 
-	<command name="MoveCheckedoutDocumentToFolder" priority="5">
+	<command ignore="true" name="MoveCheckedoutDocumentToFolder" priority="5">
+		<property name="test.name.skip.portal.instance" value="CPDocumentum#MoveCheckedoutDocumentToFolder" />
+
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -731,6 +750,8 @@
 	</command>
 
 	<command name="MoveDocumentToHome" priority="5">
+		<property name="test.name.skip.portal.instance" value="CPDocumentum#MoveDocumentToHome" />
+
 		<execute macro="DMRepository#gotoCP">
 			<var name="dmRepositoryName" value="Documentum Repository Name" />
 		</execute>
@@ -794,6 +815,8 @@
 	</command>
 
 	<command name="SearchDocumentViaHome" priority="5">
+		<property name="test.name.skip.portal.instance" value="CPDocumentum#SearchDocumentViaHome" />
+
 		<execute macro="DMRepository#gotoCP">
 			<var name="dmRepositoryName" value="Documentum Repository Name" />
 		</execute>
@@ -815,7 +838,9 @@
 		</execute>
 	</command>
 
-	<command name="ViewEditedCheckedoutDocument" priority="5">
+	<command ignore="true" name="ViewEditedCheckedoutDocument" priority="5">
+		<property name="test.name.skip.portal.instance" value="CPDocumentum#ViewEditedCheckedoutDocument" />
+
 		<execute macro="DMRepository#gotoCP">
 			<var name="dmRepositoryName" value="Documentum Repository Name" />
 		</execute>
@@ -874,6 +899,8 @@
 	</command>
 
 	<command name="ViewRepository" priority="5">
+		<property name="test.name.skip.portal.instance" value="CPDocumentum#ViewRepository" />
+
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">

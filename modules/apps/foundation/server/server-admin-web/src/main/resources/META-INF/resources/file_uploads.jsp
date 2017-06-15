@@ -19,12 +19,6 @@
 <div class="server-admin-tabs">
 	<aui:fieldset>
 		<liferay-ui:panel-container extended="<%= true %>" id="uploadPanelContainer" persistState="<%= true %>">
-			<liferay-ui:panel collapsible="<%= true %>" extended="<%= true %>" id="adminGeneralUploadPanel" markupView="lexicon" persistState="<%= true %>" title="general">
-				<aui:input cssClass="lfr-input-text-container" label="overall-maximum-upload-request-size" name="uploadServletRequestImplMaxSize" type="text" value="<%= PrefsPropsUtil.getLong(PropsKeys.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE) %>" />
-
-				<aui:input cssClass="lfr-input-text-container" label="temporary-storage-directory" name="uploadServletRequestImplTempDir" type="text" value="<%= PrefsPropsUtil.getString(PropsKeys.UPLOAD_SERVLET_REQUEST_IMPL_TEMP_DIR, StringPool.BLANK) %>" />
-			</liferay-ui:panel>
-
 			<liferay-ui:panel collapsible="<%= true %>" extended="<%= true %>" id="adminDocumentLibraryPanel" markupView="lexicon" persistState="<%= true %>" title="documents-and-media">
 				<aui:input cssClass="lfr-input-text-container" label="maximum-file-size" name="dlFileMaxSize" type="text" value="<%= PrefsPropsUtil.getLong(PropsKeys.DL_FILE_MAX_SIZE) %>" />
 
@@ -35,16 +29,6 @@
 				<aui:input cssClass="lfr-input-text-container" label="maximum-thumbnail-width" name="dlFileEntryThumbnailMaxWidth" type="text" value="<%= PrefsPropsUtil.getLong(PropsKeys.DL_FILE_ENTRY_THUMBNAIL_MAX_WIDTH) %>" />
 
 				<aui:input cssClass="lfr-input-text-container" label="allowed-file-extensions" name="dlFileExtensions" type="text" value="<%= PrefsPropsUtil.getString(PropsKeys.DL_FILE_EXTENSIONS) %>" />
-			</liferay-ui:panel>
-
-			<liferay-ui:panel collapsible="<%= true %>" extended="<%= true %>" id="adminWebContentImagesPanel" markupView="lexicon" persistState="<%= true %>" title="web-content-images">
-				<aui:input cssClass="lfr-input-text-container" label="maximum-file-size" name="journalImageSmallMaxSize" type="text" value="<%= PrefsPropsUtil.getLong(PropsKeys.JOURNAL_IMAGE_SMALL_MAX_SIZE) %>" />
-
-				<aui:input cssClass="lfr-input-text-container" label="allowed-file-extensions" name="journalImageExtensions" type="text" value="<%= PrefsPropsUtil.getString(PropsKeys.JOURNAL_IMAGE_EXTENSIONS) %>" />
-			</liferay-ui:panel>
-
-			<liferay-ui:panel collapsible="<%= true %>" extended="<%= true %>" id="adminUserImagesPanel" markupView="lexicon" persistState="<%= true %>" title="user-images">
-				<aui:input cssClass="lfr-input-text-container" label="maximum-file-size" name="usersImageMaxSize" type="text" value="<%= PrefsPropsUtil.getLong(PropsKeys.USERS_IMAGE_MAX_SIZE) %>" />
 			</liferay-ui:panel>
 		</liferay-ui:panel-container>
 	</aui:fieldset>

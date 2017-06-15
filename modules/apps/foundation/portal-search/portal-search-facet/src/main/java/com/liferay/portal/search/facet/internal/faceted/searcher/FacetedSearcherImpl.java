@@ -113,7 +113,7 @@ public class FacetedSearcherImpl
 			addSearchLocalizedTerm(
 				searchQuery, searchContext, Field.ASSET_CATEGORY_TITLES, false);
 
-			searchQuery.addExactTerm(Field.ASSET_TAG_NAMES, keywords);
+			searchQuery.addTerm(Field.ASSET_TAG_NAMES, keywords);
 
 			int groupId = GetterUtil.getInteger(
 				searchContext.getAttribute(Field.GROUP_ID));
@@ -188,12 +188,11 @@ public class FacetedSearcherImpl
 
 		addFacetClause(searchContext, facetBooleanFilter, facets.values());
 
-		if (facetBooleanFilter.hasClauses()) {
-			fullQueryBooleanFilter.add(
-				facetBooleanFilter, BooleanClauseOccur.MUST);
-		}
-
 		BooleanQuery fullQuery = new BooleanQueryImpl();
+
+		if (facetBooleanFilter.hasClauses()) {
+			fullQuery.setPostFilter(facetBooleanFilter);
+		}
 
 		if (fullQueryBooleanFilter.hasClauses()) {
 			fullQuery.setPreBooleanFilter(fullQueryBooleanFilter);

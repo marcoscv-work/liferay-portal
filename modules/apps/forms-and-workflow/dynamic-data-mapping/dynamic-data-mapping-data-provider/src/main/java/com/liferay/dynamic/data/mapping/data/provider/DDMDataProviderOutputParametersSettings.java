@@ -23,15 +23,15 @@ import com.liferay.dynamic.data.mapping.annotations.DDMFormField;
 @DDMForm
 public interface DDMDataProviderOutputParametersSettings {
 
-	@DDMFormField(label = "%name", properties = {"placeholder=%enter-a-name"})
+	@DDMFormField(label = "%label", properties = {"placeholder=%enter-a-label"})
 	public String outputParameterName();
 
 	@DDMFormField(label = "%path", properties = {"placeholder=%enter-the-path"})
 	public String outputParameterPath();
 
 	@DDMFormField(
-		label = "%type", optionLabels = {"%text", "%number"},
-		optionValues = {"text", "number"}, type = "select"
+		label = "%type", optionLabels = {"%text", "%number", "%list"},
+		optionValues = {"text", "number", "list"}, type = "select"
 	)
 	public String outputParameterType();
 

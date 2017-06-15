@@ -140,18 +140,18 @@ public class SolrQuerySuggester extends BaseQuerySuggester {
 			return querySuggestions;
 		}
 		catch (Exception e) {
-			if (_log.isDebugEnabled()) {
-				_log.debug("Unable to execute Solr query", e);
+			if (_log.isWarnEnabled()) {
+				_log.warn("Unable to execute Solr query", e);
 			}
 
-			throw new SearchException(e.getMessage());
+			return new String[0];
 		}
 	}
 
 	@Activate
 	protected void activate(Map<String, Object> properties) {
 		_distanceThreshold = MapUtil.getDouble(
-			properties, "distance.threshold", 0.6d);
+			properties, "distance.threshold", 0.6D);
 	}
 
 	protected String[] getFilterQueries(
@@ -366,7 +366,7 @@ public class SolrQuerySuggester extends BaseQuerySuggester {
 
 	private static final long _GLOBAL_GROUP_ID = 0;
 
-	private static final float _INFINITE_WEIGHT = 100f;
+	private static final float _INFINITE_WEIGHT = 100F;
 
 	private static final int _MAX_QUERY_RESULTS = 500;
 

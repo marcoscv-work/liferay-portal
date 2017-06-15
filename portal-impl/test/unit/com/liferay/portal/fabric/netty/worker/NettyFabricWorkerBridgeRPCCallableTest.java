@@ -52,7 +52,7 @@ public class NettyFabricWorkerBridgeRPCCallableTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			CodeCoverageAssertor.INSTANCE, AspectJNewEnvTestRule.INSTANCE);
+			AspectJNewEnvTestRule.INSTANCE, CodeCoverageAssertor.INSTANCE);
 
 	@Before
 	public void setUp() {
@@ -67,10 +67,9 @@ public class NettyFabricWorkerBridgeRPCCallableTest {
 	@AdviseWith(adviceClasses = NettyUtilAdvice.class)
 	@Test
 	public void testCall() throws Exception {
-		FabricWorker<Serializable> fabricWorker =
-			new LocalFabricWorker<Serializable>(
-				new EmbeddedProcessChannel<Serializable>(
-					new DefaultNoticeableFuture<Serializable>()));
+		FabricWorker<Serializable> fabricWorker = new LocalFabricWorker<>(
+			new EmbeddedProcessChannel<Serializable>(
+				new DefaultNoticeableFuture<Serializable>()));
 
 		NettyChannelAttributes.putFabricWorker(
 			_embeddedChannel, 0, fabricWorker);

@@ -14,10 +14,13 @@
 
 package com.liferay.document.library.repository.cmis.internal;
 
-import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.DocumentRepository;
+import com.liferay.portal.kernel.repository.capabilities.CommentCapability;
 import com.liferay.portal.kernel.repository.capabilities.PortalCapabilityLocator;
 import com.liferay.portal.kernel.repository.capabilities.ProcessorCapability;
+import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.repository.registry.BaseRepositoryDefiner;
 import com.liferay.portal.kernel.repository.registry.CapabilityRegistry;
 import com.liferay.portal.kernel.util.CacheResourceBundleLoader;
@@ -28,7 +31,7 @@ import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import org.osgi.service.component.annotations.Reference;
+import org.apache.chemistry.opencmis.client.api.Document;
 
 /**
  * @author Adolfo Pérez
@@ -38,8 +41,7 @@ public abstract class BaseCMISRepositoryDefiner extends BaseRepositoryDefiner {
 	@Override
 	public String getRepositoryTypeLabel(Locale locale) {
 		ResourceBundle resourceBundle =
-			_resourceBundleLoader.loadResourceBundle(
-				LanguageUtil.getLanguageId(locale));
+			_resourceBundleLoader.loadResourceBundle(locale);
 
 		return ResourceBundleUtil.getString(
 			resourceBundle, _MODEL_RESOURCE_NAME_PREFIX + getClassName());
@@ -54,32 +56,86 @@ public abstract class BaseCMISRepositoryDefiner extends BaseRepositoryDefiner {
 		PortalCapabilityLocator portalCapabilityLocator =
 			getPortalCapabilityLocator();
 
+		capabilityRegistry.addExportedCapability(
+			CommentCapability.class,
+			portalCapabilityLocator.getCommentCapability(documentRepository));
 		capabilityRegistry.addSupportedCapability(
 			ProcessorCapability.class,
-			portalCapabilityLocator.getProcessorCapability(documentRepository));
+			new RefreshingProcessorCapability(
+				portalCapabilityLocator.getProcessorCapability(
+					documentRepository,
+					ProcessorCapability.ResourceGenerationStrategy.REUSE)));
 	}
 
-	protected PortalCapabilityLocator getPortalCapabilityLocator() {
-		return _portalCapabilityLocator;
-	}
+	protected abstract PortalCapabilityLocator getPortalCapabilityLocator();
 
 	protected ResourceBundleLoader getResourceBundleLoader() {
 		return _resourceBundleLoader;
 	}
 
-	@Reference(unbind = "-")
-	protected void setPortalCapabilityLocator(
-		PortalCapabilityLocator portalCapabilityLocator) {
-
-		_portalCapabilityLocator = portalCapabilityLocator;
-	}
-
 	private static final String _MODEL_RESOURCE_NAME_PREFIX = "model.resource.";
 
-	private PortalCapabilityLocator _portalCapabilityLocator;
 	private final ResourceBundleLoader _resourceBundleLoader =
 		new CacheResourceBundleLoader(
 			new ClassResourceBundleLoader(
 				"content.Language", BaseCMISRepositoryDefiner.class));
+
+	private static class RefreshingProcessorCapability
+		implements ProcessorCapability {
+
+		public RefreshingProcessorCapability(
+			ProcessorCapability processorCapability) {
+
+			_processorCapability = processorCapability;
+		}
+
+		@Override
+		public void cleanUp(FileEntry fileEntry) throws PortalException {
+			_refresh(fileEntry);
+
+			_processorCapability.cleanUp(fileEntry);
+		}
+
+		@Override
+		public void cleanUp(FileVersion fileVersion) throws PortalException {
+			_refresh(fileVersion);
+
+			_processorCapability.cleanUp(fileVersion);
+		}
+
+		@Override
+		public void copy(FileEntry fileEntry, FileVersion fileVersion)
+			throws PortalException {
+
+			_refresh(fileEntry);
+			_refresh(fileVersion);
+
+			_processorCapability.copy(fileEntry, fileVersion);
+		}
+
+		@Override
+		public void generateNew(FileEntry fileEntry) throws PortalException {
+			_refresh(fileEntry);
+
+			_processorCapability.generateNew(fileEntry);
+		}
+
+		private void _refresh(FileEntry fileEntry) {
+			Document document = (Document)fileEntry.getModel();
+
+			document.refresh();
+		}
+
+		private void _refresh(FileVersion fileVersion) throws PortalException {
+			Document document = (Document)fileVersion.getModel();
+
+			document.refresh();
+
+			_refresh(fileVersion.getFileEntry());
+		}
+
+		private final ProcessorCapability _processorCapability;
+
+	}
 
 }

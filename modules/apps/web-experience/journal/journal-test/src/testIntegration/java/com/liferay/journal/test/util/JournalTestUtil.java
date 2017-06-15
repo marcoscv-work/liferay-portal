@@ -270,6 +270,15 @@ public class JournalTestUtil {
 		serviceContext.setLayoutFullURL("http://localhost");
 
 		return addArticle(
+			groupId, folderId, articleId, autoArticleId, serviceContext);
+	}
+
+	public static JournalArticle addArticle(
+			long groupId, long folderId, String articleId,
+			boolean autoArticleId, ServiceContext serviceContext)
+		throws Exception {
+
+		return addArticle(
 			groupId, folderId, JournalArticleConstants.CLASSNAME_ID_DEFAULT,
 			articleId, autoArticleId,
 			_getLocalizedMap(RandomTestUtil.randomString()),
@@ -702,7 +711,7 @@ public class JournalTestUtil {
 		return "$name.getData()";
 	}
 
-	public static int getSearchArticlesCount(long companyId, long groupId)
+	public static Hits getSearchArticles(long companyId, long groupId)
 		throws Exception {
 
 		Indexer<JournalArticle> indexer = IndexerRegistryUtil.getIndexer(
@@ -718,7 +727,13 @@ public class JournalTestUtil {
 
 		searchContext.setQueryConfig(queryConfig);
 
-		Hits results = indexer.search(searchContext);
+		return indexer.search(searchContext);
+	}
+
+	public static int getSearchArticlesCount(long companyId, long groupId)
+		throws Exception {
+
+		Hits results = getSearchArticles(companyId, groupId);
 
 		return results.getLength();
 	}

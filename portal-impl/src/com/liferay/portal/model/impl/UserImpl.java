@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.model.Website;
 import com.liferay.portal.kernel.security.auth.EmailAddressGenerator;
 import com.liferay.portal.kernel.security.auth.FullNameGenerator;
 import com.liferay.portal.kernel.security.auth.FullNameGeneratorFactory;
+import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.service.AddressLocalServiceUtil;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.service.ContactLocalServiceUtil;
@@ -100,7 +101,23 @@ public class UserImpl extends UserBaseImpl {
 
 	@Override
 	public Contact fetchContact() {
-		return ContactLocalServiceUtil.fetchContact(getContactId());
+		if (_contact == _NULL_CONTACT) {
+			return null;
+		}
+
+		if (_contact == null) {
+			Contact contact = ContactLocalServiceUtil.fetchContact(
+				getContactId());
+
+			if (contact == null) {
+				_contact = _NULL_CONTACT;
+			}
+			else {
+				_contact = contact;
+			}
+		}
+
+		return _contact;
 	}
 
 	/**
@@ -145,7 +162,11 @@ public class UserImpl extends UserBaseImpl {
 	 */
 	@Override
 	public Contact getContact() throws PortalException {
-		return ContactLocalServiceUtil.getContact(getContactId());
+		if ((_contact == null) || (_contact == _NULL_CONTACT)) {
+			_contact = ContactLocalServiceUtil.getContact(getContactId());
+		}
+
+		return _contact;
 	}
 
 	/**
@@ -493,15 +514,10 @@ public class UserImpl extends UserBaseImpl {
 
 	@Override
 	public String getInitials() {
-		StringBundler sb = new StringBundler(2);
+		String firstInitial = StringUtil.shorten(getFirstName(), 1);
+		String lastInitial = StringUtil.shorten(getLastName(), 1);
 
-		String[] names = new String[] {getFirstName(), getLastName()};
-
-		for (String name : names) {
-			sb.append(StringUtil.toUpperCase(StringUtil.shorten(name, 1)));
-		}
-
-		return sb.toString();
+		return StringUtil.toUpperCase(firstInitial.concat(lastInitial));
 	}
 
 	@Override
@@ -598,8 +614,7 @@ public class UserImpl extends UserBaseImpl {
 	public PasswordPolicy getPasswordPolicy() throws PortalException {
 		if (_passwordPolicy == null) {
 			_passwordPolicy =
-				PasswordPolicyLocalServiceUtil.getPasswordPolicyByUserId(
-					getUserId());
+				PasswordPolicyLocalServiceUtil.getPasswordPolicyByUser(this);
 		}
 
 		return _passwordPolicy;
@@ -776,6 +791,13 @@ public class UserImpl extends UserBaseImpl {
 	public boolean hasMySites() throws PortalException {
 		if (isDefaultUser()) {
 			return false;
+		}
+
+		if ((PropsValues.LAYOUT_USER_PRIVATE_LAYOUTS_ENABLED ||
+			 PropsValues.LAYOUT_USER_PUBLIC_LAYOUTS_ENABLED) &&
+			(getUserId() == PrincipalThreadLocal.getUserId())) {
+
+			return true;
 		}
 
 		List<Group> groups = getMySiteGroups(1);
@@ -967,11 +989,14 @@ public class UserImpl extends UserBaseImpl {
 			});
 	}
 
+	private static final Contact _NULL_CONTACT = new ContactImpl();
+
 	private static final Log _log = LogFactoryUtil.getLog(UserImpl.class);
 
 	private static final boolean _hasUsersProfileFriendlyURL = Validator.isNull(
 		PropsValues.USERS_PROFILE_FRIENDLY_URL);
 
+	private Contact _contact;
 	private Locale _locale;
 	private boolean _passwordModified;
 	private PasswordPolicy _passwordPolicy;

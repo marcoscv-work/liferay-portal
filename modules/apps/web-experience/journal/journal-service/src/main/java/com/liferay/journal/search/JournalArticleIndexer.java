@@ -67,14 +67,14 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.search.index.IndexStatusManager;
-import com.liferay.trash.kernel.util.TrashUtil;
+import com.liferay.trash.TrashHelper;
 
 import java.io.Serializable;
 
@@ -324,8 +324,7 @@ public class JournalArticleIndexer
 		throws Exception {
 
 		DDMStructure ddmStructure = _ddmStructureLocalService.fetchStructure(
-			article.getGroupId(),
-			PortalUtil.getClassNameId(JournalArticle.class),
+			article.getGroupId(), _portal.getClassNameId(JournalArticle.class),
 			article.getDDMStructureKey(), true);
 
 		if (ddmStructure == null) {
@@ -496,10 +495,10 @@ public class JournalArticleIndexer
 		String articleId = journalArticle.getArticleId();
 
 		if (journalArticle.isInTrash()) {
-			articleId = TrashUtil.getOriginalTitle(articleId);
+			articleId = _trashHelper.getOriginalTitle(articleId);
 		}
 
-		document.addKeyword(Field.ARTICLE_ID, articleId);
+		document.addKeywordSortable(Field.ARTICLE_ID, articleId);
 
 		document.addKeyword(Field.LAYOUT_UUID, journalArticle.getLayoutUuid());
 		document.addKeyword(
@@ -602,7 +601,7 @@ public class JournalArticleIndexer
 
 	@Override
 	protected void doReindex(JournalArticle article) throws Exception {
-		if (PortalUtil.getClassNameId(DDMStructure.class) ==
+		if (_portal.getClassNameId(DDMStructure.class) ==
 				article.getClassNameId()) {
 
 			Document document = getDocument(article);
@@ -643,8 +642,7 @@ public class JournalArticleIndexer
 		throws Exception {
 
 		DDMStructure ddmStructure = _ddmStructureLocalService.fetchStructure(
-			article.getGroupId(),
-			PortalUtil.getClassNameId(JournalArticle.class),
+			article.getGroupId(), _portal.getClassNameId(JournalArticle.class),
 			article.getDDMStructureKey(), true);
 
 		if (ddmStructure == null) {
@@ -943,5 +941,11 @@ public class JournalArticleIndexer
 		_journalArticleResourceLocalService;
 	private JournalContent _journalContent;
 	private JournalConverter _journalConverter;
+
+	@Reference
+	private Portal _portal;
+
+	@Reference
+	private TrashHelper _trashHelper;
 
 }

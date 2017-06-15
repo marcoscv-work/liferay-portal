@@ -297,12 +297,26 @@
 	</command>
 
 	<command name="confirmAndViewSucessMessageViaActions">
+		<if>
+			<condition function="IsElementPresent" locator1="IFrame#DIALOG" />
+			<then>
+				<execute function="SelectFrame" locator1="IFrame#DIALOG" />
+			</then>
+		</if>
+
 		<execute function="AssertClick#pauseAssertTextClickAt" locator1="Button#DONE" value1="Done" />
 
 		<execute macro="Alert#viewSuccessMessage" />
 	</command>
 
 	<command name="confirmAndViewSucessMessageViaDetails">
+		<if>
+			<condition function="IsElementPresent" locator1="IFrame#DIALOG" />
+			<then>
+				<execute function="SelectFrame" locator1="IFrame#DIALOG" />
+			</then>
+		</if>
+
 		<execute function="AssertClick" locator1="Button#DONE" value1="Done" />
 
 		<execute macro="Alert#viewSuccessMessage" />
@@ -754,7 +768,9 @@
 	<command name="uploadDefinition">
 		<execute function="Click" locator1="Button#PLUS" />
 
-		<execute function="Type" locator1="TextInput#TITLE" value1="${workflowDefinitionTitle}" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="${workflowDefinitionTitle}" />
+		</execute>
 
 		<execute function="UploadCommonFile#uploadCommonFileHidden" locator1="WorkflowUpload#FILE_UPLOAD" value1="${workflowDefinitionFile}" />
 

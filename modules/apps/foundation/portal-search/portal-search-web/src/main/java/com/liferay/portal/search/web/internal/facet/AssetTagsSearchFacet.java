@@ -16,10 +16,11 @@ package com.liferay.portal.search.web.internal.facet;
 
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.search.Field;
-import com.liferay.portal.kernel.search.facet.MultiValueFacet;
+import com.liferay.portal.kernel.search.facet.Facet;
 import com.liferay.portal.kernel.search.facet.config.FacetConfiguration;
+import com.liferay.portal.kernel.search.facet.util.FacetFactory;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.search.facet.tag.AssetTagNamesFacetFactory;
 import com.liferay.portal.search.web.facet.BaseJSPSearchFacet;
 import com.liferay.portal.search.web.facet.SearchFacet;
 
@@ -72,12 +73,14 @@ public class AssetTagsSearchFacet extends BaseJSPSearchFacet {
 
 	@Override
 	public String getFacetClassName() {
-		return MultiValueFacet.class.getName();
+		return assetTagNamesFacetFactory.getFacetClassName();
 	}
 
 	@Override
 	public String getFieldName() {
-		return Field.ASSET_TAG_NAMES;
+		Facet facet = assetTagNamesFacetFactory.newInstance(null);
+
+		return facet.getFieldName();
 	}
 
 	@Override
@@ -119,5 +122,13 @@ public class AssetTagsSearchFacet extends BaseJSPSearchFacet {
 	public void setServletContext(ServletContext servletContext) {
 		super.setServletContext(servletContext);
 	}
+
+	@Override
+	protected FacetFactory getFacetFactory() {
+		return assetTagNamesFacetFactory;
+	}
+
+	@Reference
+	protected AssetTagNamesFacetFactory assetTagNamesFacetFactory;
 
 }

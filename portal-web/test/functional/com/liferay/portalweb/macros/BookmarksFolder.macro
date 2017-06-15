@@ -6,8 +6,13 @@
 
 		<execute function="AssertClick" locator1="MenuItem#FOLDER" value1="Folder" />
 
-		<execute function="Type" locator1="TextInput#NAME" value1="${folderName}" />
-		<execute function="Type" locator1="TextArea#DESCRIPTION" value1="${folderDescription}" />
+		<execute macro="PortletEntry#inputName">
+			<var name="name" value="${folderName}" />
+		</execute>
+
+		<execute macro="PortletEntry#inputDescription">
+			<var name="description" value="${folderDescription}" />
+		</execute>
 
 		<execute macro="PortletEntry#save" />
 
@@ -49,12 +54,19 @@
 	</command>
 
 	<command name="addPG">
-		<execute function="Click#makeVisibleClickAt" locator1="Portlet#ICON_PLUS_SIGN" />
+		<execute macro="Portlet#clickPortletPlusIconPG">
+			<var name="portletName" value="Bookmarks" />
+		</execute>
 
 		<execute function="AssertClick" locator1="MenuItem#FOLDER" value1="Folder" />
 
-		<execute function="Type" locator1="TextInput#NAME" value1="${folderName}" />
-		<execute function="Type" locator1="TextArea#DESCRIPTION" value1="${folderDescription}" />
+		<execute macro="PortletEntry#inputName">
+			<var name="name" value="${folderName}" />
+		</execute>
+
+		<execute macro="PortletEntry#inputDescription">
+			<var name="description" value="${folderDescription}" />
+		</execute>
 
 		<execute macro="PortletEntry#save" />
 
@@ -77,8 +89,13 @@
 
 		<var name="key_folderName" value="${subfolderName}" />
 
-		<execute function="Type" locator1="TextInput#NAME" value1="${subfolderName}" />
-		<execute function="Type" locator1="TextArea#DESCRIPTION" value1="${subfolderDescription}" />
+		<execute macro="PortletEntry#inputName">
+			<var name="name" value="${subfolderName}" />
+		</execute>
+
+		<execute macro="PortletEntry#inputDescription">
+			<var name="description" value="${subfolderDescription}" />
+		</execute>
 
 		<execute macro="PortletEntry#save" />
 
@@ -91,12 +108,19 @@
 	</command>
 
 	<command name="addSubfolderPG">
-		<execute function="Click#makeVisibleClickAt" locator1="Portlet#ICON_PLUS_SIGN" />
+		<execute macro="Portlet#clickPortletPlusIconPG">
+			<var name="portletName" value="Bookmarks" />
+		</execute>
 
 		<execute function="AssertClick" locator1="MenuItem#SUBFOLDER" value1="Subfolder" />
 
-		<execute function="Type" locator1="TextInput#NAME" value1="${folderName}" />
-		<execute function="Type" locator1="TextArea#DESCRIPTION" value1="${folderDescription}" />
+		<execute macro="PortletEntry#inputName">
+			<var name="name" value="${folderName}" />
+		</execute>
+
+		<execute macro="PortletEntry#inputDescription">
+			<var name="description" value="${folderDescription}" />
+		</execute>
 
 		<execute macro="PortletEntry#save" />
 
@@ -134,8 +158,13 @@
 
 		<execute function="AssertClick" locator1="MenuItem#EDIT" value1="Edit" />
 
-		<execute function="Type" locator1="TextInput#NAME" value1="${folderNameEdit}" />
-		<execute function="Type" locator1="TextArea#DESCRIPTION" value1="${folderDescriptionEdit}" />
+		<execute macro="PortletEntry#inputName">
+			<var name="name" value="${folderNameEdit}" />
+		</execute>
+
+		<execute macro="PortletEntry#inputDescription">
+			<var name="description" value="${folderDescriptionEdit}" />
+		</execute>
 
 		<execute macro="PortletEntry#save" />
 
@@ -152,8 +181,13 @@
 
 		<execute function="AssertClick" locator1="MenuItem#EDIT" value1="Edit" />
 
-		<execute function="Type" locator1="TextInput#NAME" value1="${folderNameEdit}" />
-		<execute function="Type" locator1="TextArea#DESCRIPTION" value1="${folderDescriptionEdit}" />
+		<execute macro="PortletEntry#inputName">
+			<var name="name" value="${folderNameEdit}" />
+		</execute>
+
+		<execute macro="PortletEntry#inputDescription">
+			<var name="description" value="${folderDescriptionEdit}" />
+		</execute>
 
 		<execute macro="PortletEntry#save" />
 
@@ -179,8 +213,13 @@
 
 		<var name="key_folderName" value="${editSubfolderName}" />
 
-		<execute function="Type" locator1="TextInput#NAME" value1="${editSubfolderName}" />
-		<execute function="Type" locator1="TextArea#DESCRIPTION" value1="${editSubfolderDescription}" />
+		<execute macro="PortletEntry#inputName">
+			<var name="name" value="${editSubfolderName}" />
+		</execute>
+
+		<execute macro="PortletEntry#inputDescription">
+			<var name="description" value="${editSubfolderDescription}" />
+		</execute>
 
 		<execute macro="PortletEntry#save" />
 

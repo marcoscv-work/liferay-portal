@@ -17,6 +17,8 @@
 <%@ include file="/asset_categories_selector/init.jsp" %>
 
 <%
+String randomNamespace = PortalUtil.generateRandomKey(request, "taglib_ui_asset_categories_selector_page") + StringPool.UNDERLINE;
+
 List<String[]> categoryIdsTitles = (List<String[]>)request.getAttribute("liferay-asset:asset-categories-selector:categoryIdsTitles");
 String className = (String)request.getAttribute("liferay-asset:asset-categories-selector:className");
 long classTypePK = GetterUtil.getLong((String)request.getAttribute("liferay-asset:asset-categories-selector:classTypePK"));
@@ -24,6 +26,7 @@ String eventName = (String)request.getAttribute("liferay-asset:asset-categories-
 String hiddenInput = (String)request.getAttribute("liferay-asset:asset-categories-selector:hiddenInput");
 PortletURL portletURL = (PortletURL)request.getAttribute("liferay-asset:asset-categories-selector:portletURL");
 boolean showRequiredLabel = GetterUtil.getBoolean((String)request.getAttribute("liferay-asset:asset-categories-selector:showRequiredLabel"), true);
+boolean singleSelect = GetterUtil.getBoolean((String)request.getAttribute("liferay-asset:asset-categories-selector:singleSelect"));
 List<AssetVocabulary> vocabularies = (List<AssetVocabulary>)request.getAttribute("liferay-asset:asset-categories-selector:vocabularies");
 
 int maxEntries = GetterUtil.getInteger(PropsUtil.get(PropsKeys.ASSET_CATEGORIES_SELECTOR_MAX_ENTRIES));
@@ -103,7 +106,7 @@ int maxEntries = GetterUtil.getInteger(PropsUtil.get(PropsKeys.ASSET_CATEGORIES_
 		String[] categoryIdsTitle = categoryIdsTitles.get(0);
 		%>
 
-		<div class="lfr-tags-selector-content" id="<portlet:namespace />assetCategoriesSelector">
+		<div class="lfr-tags-selector-content" id="<%= randomNamespace %>assetCategoriesSelector">
 			<aui:input name="<%= hiddenInput %>" type="hidden" />
 		</div>
 
@@ -112,7 +115,7 @@ int maxEntries = GetterUtil.getInteger(PropsUtil.get(PropsKeys.ASSET_CATEGORIES_
 				{
 					categoryIds: '<%= categoryIdsTitle[0] %>',
 					categoryTitles: '<%= HtmlUtil.escapeJS(categoryIdsTitle[1]) %>',
-					contentBox: '#<portlet:namespace />assetCategoriesSelector',
+					contentBox: '#<%= randomNamespace %>assetCategoriesSelector',
 					eventName: '<%= eventName %>',
 					hiddenInput: '#<portlet:namespace /><%= hiddenInput %>',
 					instanceVar: '<portlet:namespace />',
@@ -123,6 +126,7 @@ int maxEntries = GetterUtil.getInteger(PropsUtil.get(PropsKeys.ASSET_CATEGORIES_
 						portletURL: '<%= portletURL.toString() %>',
 					</c:if>
 
+					singleSelect: <%= singleSelect %>,
 					vocabularyIds: '<%= ListUtil.toString(vocabularies, "vocabularyId") %>'
 				}
 			).render();

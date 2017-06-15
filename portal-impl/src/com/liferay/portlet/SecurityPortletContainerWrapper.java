@@ -18,7 +18,6 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.model.LayoutType;
 import com.liferay.portal.kernel.model.LayoutTypeAccessPolicy;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.Portlet;
@@ -39,6 +38,7 @@ import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.util.LayoutTypeAccessPolicyTracker;
 import com.liferay.portal.util.PropsValues;
 
 import java.util.List;
@@ -115,6 +115,13 @@ public class SecurityPortletContainerWrapper implements PortletContainer {
 	}
 
 	@Override
+	public void processPublicRenderParameters(
+		HttpServletRequest request, Layout layout) {
+
+		_portletContainer.processPublicRenderParameters(request, layout);
+	}
+
+	@Override
 	public void render(
 			HttpServletRequest request, HttpServletResponse response,
 			Portlet portlet)
@@ -175,25 +182,14 @@ public class SecurityPortletContainerWrapper implements PortletContainer {
 			return;
 		}
 
-		if (!isValidPortletId(portlet.getPortletId())) {
-			if (_log.isWarnEnabled()) {
-				_log.warn("Invalid portlet ID " + portlet.getPortletId());
-			}
-
-			throw new PrincipalException(
-				"Invalid portlet ID " + portlet.getPortletId());
-		}
-
 		if (portlet.isUndeployedPortlet()) {
 			return;
 		}
 
 		Layout layout = (Layout)request.getAttribute(WebKeys.LAYOUT);
 
-		LayoutType layoutType = layout.getLayoutType();
-
 		LayoutTypeAccessPolicy layoutTypeAccessPolicy =
-			layoutType.getLayoutTypeAccessPolicy();
+			LayoutTypeAccessPolicyTracker.getLayoutTypeAccessPolicy(layout);
 
 		layoutTypeAccessPolicy.checkAccessAllowedToPortlet(
 			request, layout, portlet);
@@ -308,6 +304,10 @@ public class SecurityPortletContainerWrapper implements PortletContainer {
 		return tempAttributesServletRequest;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	protected boolean isValidPortletId(String portletId) {
 		for (int i = 0; i < portletId.length(); i++) {
 			char c = portletId.charAt(i);

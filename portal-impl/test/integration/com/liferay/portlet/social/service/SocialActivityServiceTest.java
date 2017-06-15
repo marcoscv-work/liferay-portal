@@ -33,6 +33,8 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.rule.Sync;
+import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.RoleTestUtil;
@@ -63,12 +65,15 @@ import org.junit.Test;
 /**
  * @author Zsolt Berentey
  */
+@Sync
 public class SocialActivityServiceTest {
 
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new LiferayIntegrationTestRule();
+		new AggregateTestRule(
+			new LiferayIntegrationTestRule(),
+			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
 	public void setUp() throws Exception {
@@ -103,14 +108,14 @@ public class SocialActivityServiceTest {
 			SocialActivityLocalServiceUtil.getGroupActivities(
 				_group.getGroupId(), QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 
-		Assert.assertEquals(1, activities.size());
+		Assert.assertEquals(activities.toString(), 1, activities.size());
 
 		ServiceTestUtil.setUser(_user);
 
 		activities = SocialActivityServiceUtil.getGroupActivities(
 			_group.getGroupId(), QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 
-		Assert.assertEquals(0, activities.size());
+		Assert.assertEquals(activities.toString(), 0, activities.size());
 
 		ServiceTestUtil.setUser(TestPropsValues.getUser());
 	}
@@ -142,7 +147,7 @@ public class SocialActivityServiceTest {
 				SocialActivityServiceUtil.getGroupActivities(
 					_group.getGroupId(), 0, 2);
 
-			Assert.assertEquals(2, activities.size());
+			Assert.assertEquals(activities.toString(), 2, activities.size());
 
 			int index = 3;
 
@@ -157,7 +162,7 @@ public class SocialActivityServiceTest {
 			activities = SocialActivityServiceUtil.getGroupActivities(
 				_group.getGroupId(), 2, 4);
 
-			Assert.assertEquals(2, activities.size());
+			Assert.assertEquals(activities.toString(), 2, activities.size());
 
 			for (SocialActivity activity : activities) {
 				String title = String.valueOf(index);

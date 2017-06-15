@@ -26,6 +26,8 @@ import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.document.library.kernel.service.DLFileVersionLocalService;
 import com.liferay.document.library.kernel.service.DLFolderLocalService;
 import com.liferay.document.library.kernel.store.DLStoreUtil;
+import com.liferay.dynamic.data.mapping.internal.util.DDMFieldsCounter;
+import com.liferay.dynamic.data.mapping.internal.util.DDMImpl;
 import com.liferay.dynamic.data.mapping.io.DDMFormJSONDeserializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormJSONSerializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutJSONSerializer;
@@ -49,8 +51,7 @@ import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.util.DDM;
 import com.liferay.dynamic.data.mapping.util.DDMFormFieldValueTransformer;
 import com.liferay.dynamic.data.mapping.util.DDMFormValuesTransformer;
-import com.liferay.dynamic.data.mapping.util.impl.DDMFieldsCounter;
-import com.liferay.dynamic.data.mapping.util.impl.DDMImpl;
+import com.liferay.dynamic.data.mapping.validator.DDMFormValidationException.MustNotDuplicateFieldName;
 import com.liferay.expando.kernel.model.ExpandoColumn;
 import com.liferay.expando.kernel.model.ExpandoRow;
 import com.liferay.expando.kernel.model.ExpandoValue;
@@ -304,6 +305,17 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 					else {
 						ddmForm = _ddmFormJSONDeserializer.deserialize(
 							definition);
+					}
+
+					try {
+						validateDDMFormFieldNames(ddmForm);
+					}
+					catch (MustNotDuplicateFieldName mndfn) {
+						throw new UpgradeException(
+							String.format(
+								"The field name '%s' from structure ID %d is " +
+									"defined more than once",
+								mndfn.getFieldName(), structureId));
 					}
 
 					if (parentStructureId > 0) {
@@ -1485,6 +1497,37 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 		}
 	}
 
+	protected void validateDDMFormFieldName(
+			DDMFormField ddmFormField, Set<String> ddmFormFieldNames)
+		throws MustNotDuplicateFieldName {
+
+		if (ddmFormFieldNames.contains(
+				StringUtil.toLowerCase(ddmFormField.getName()))) {
+
+			throw new MustNotDuplicateFieldName(ddmFormField.getName());
+		}
+
+		ddmFormFieldNames.add(StringUtil.toLowerCase(ddmFormField.getName()));
+
+		for (DDMFormField nestedDDMFormField :
+				ddmFormField.getNestedDDMFormFields()) {
+
+			validateDDMFormFieldName(nestedDDMFormField, ddmFormFieldNames);
+		}
+	}
+
+	protected void validateDDMFormFieldNames(DDMForm ddmForm)
+		throws MustNotDuplicateFieldName {
+
+		List<DDMFormField> ddmFormFields = ddmForm.getDDMFormFields();
+
+		Set<String> ddmFormFieldNames = new HashSet<>();
+
+		for (DDMFormField ddmFormField : ddmFormFields) {
+			validateDDMFormFieldName(ddmFormField, ddmFormFieldNames);
+		}
+	}
+
 	private void _initModelResourceNames(ResourceActions resourceActions) {
 		_structureModelResourceNames.put(
 			"com.liferay.document.library.kernel.model.DLFileEntry",
@@ -1799,18 +1842,20 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 				Element fieldsDisplayDynamicContent =
 					fieldsDisplayElement.element("dynamic-content");
 
-				String fieldsDisplayText =
-					fieldsDisplayDynamicContent.getText();
+				if (fieldsDisplayDynamicContent != null) {
+					String fieldsDisplayText =
+						fieldsDisplayDynamicContent.getText();
 
-				for (String fieldDisplayValue :
-						StringUtil.split(fieldsDisplayText)) {
+					for (String fieldDisplayValue :
+							StringUtil.split(fieldsDisplayText)) {
 
-					if (extractFieldName) {
-						fieldDisplayValue = StringUtil.extractFirst(
-							fieldDisplayValue, DDMImpl.INSTANCE_SEPARATOR);
+						if (extractFieldName) {
+							fieldDisplayValue = StringUtil.extractFirst(
+								fieldDisplayValue, DDMImpl.INSTANCE_SEPARATOR);
+						}
+
+						ddmFieldsDisplayValues.add(fieldDisplayValue);
 					}
-
-					ddmFieldsDisplayValues.add(fieldDisplayValue);
 				}
 			}
 

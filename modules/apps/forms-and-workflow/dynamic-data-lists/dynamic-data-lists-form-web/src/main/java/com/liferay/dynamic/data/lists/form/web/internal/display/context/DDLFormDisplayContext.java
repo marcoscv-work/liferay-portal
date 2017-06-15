@@ -14,9 +14,12 @@
 
 package com.liferay.dynamic.data.lists.form.web.internal.display.context;
 
+import com.liferay.dynamic.data.lists.model.DDLRecordConstants;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
 import com.liferay.dynamic.data.lists.model.DDLRecordSetSettings;
+import com.liferay.dynamic.data.lists.model.DDLRecordVersion;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetService;
+import com.liferay.dynamic.data.lists.service.DDLRecordVersionLocalService;
 import com.liferay.dynamic.data.lists.service.permission.DDLRecordSetPermission;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderer;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
@@ -27,14 +30,17 @@ import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutColumn;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutPage;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutRow;
+import com.liferay.dynamic.data.mapping.model.DDMFormSuccessPageSettings;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
+import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -43,8 +49,10 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PrefsParamUtil;
 import com.liferay.portal.kernel.util.SessionParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.List;
 
@@ -61,6 +69,7 @@ public class DDLFormDisplayContext {
 	public DDLFormDisplayContext(
 			RenderRequest renderRequest, RenderResponse renderResponse,
 			DDLRecordSetService ddlRecordSetService,
+			DDLRecordVersionLocalService ddlRecordVersionLocalService,
 			DDMFormRenderer ddmFormRenderer,
 			DDMFormValuesFactory ddmFormValuesFactory,
 			WorkflowDefinitionLinkLocalService
@@ -70,10 +79,12 @@ public class DDLFormDisplayContext {
 		_renderRequest = renderRequest;
 		_renderResponse = renderResponse;
 		_ddlRecordSetService = ddlRecordSetService;
+		_ddlRecordVersionLocalService = ddlRecordVersionLocalService;
 		_ddmFormRenderer = ddmFormRenderer;
 		_ddmFormValuesFactory = ddmFormValuesFactory;
 		_workflowDefinitionLinkLocalService =
 			workflowDefinitionLinkLocalService;
+		_containerId = StringUtil.randomString();
 
 		if (Validator.isNotNull(getPortletResource())) {
 			return;
@@ -85,6 +96,10 @@ public class DDLFormDisplayContext {
 			renderRequest.setAttribute(
 				WebKeys.PORTLET_CONFIGURATOR_VISIBILITY, Boolean.TRUE);
 		}
+	}
+
+	public String getContainerId() {
+		return _containerId;
 	}
 
 	public String getDDMFormHTML() throws PortalException {
@@ -105,6 +120,18 @@ public class DDLFormDisplayContext {
 		DDMFormRenderingContext ddmFormRenderingContext =
 			createDDMFormRenderingContext(ddmForm);
 
+		ddmFormRenderingContext.setGroupId(recordSet.getGroupId());
+
+		DDLRecordVersion ddlRecordVersion =
+			_ddlRecordVersionLocalService.fetchLatestRecordVersion(
+				getUserId(), getRecordSetId(), getRecordSetVersion(),
+				WorkflowConstants.STATUS_DRAFT);
+
+		if (ddlRecordVersion != null) {
+			ddmFormRenderingContext.setDDMFormValues(
+				ddlRecordVersion.getDDMFormValues());
+		}
+
 		boolean showSubmitButton = isShowSubmitButton();
 
 		ddmFormRenderingContext.setShowSubmitButton(showSubmitButton);
@@ -115,6 +142,14 @@ public class DDLFormDisplayContext {
 
 		return _ddmFormRenderer.render(
 			ddmForm, ddmFormLayout, ddmFormRenderingContext);
+	}
+
+	public DDMFormSuccessPageSettings getDDMFormSuccessPageSettings()
+		throws PortalException {
+
+		DDMForm ddmForm = getDDMForm();
+
+		return ddmForm.getDDMFormSuccessPageSettings();
 	}
 
 	public DDLRecordSet getRecordSet() {
@@ -166,6 +201,21 @@ public class DDLFormDisplayContext {
 		return recordSetSettings.redirectURL();
 	}
 
+	public boolean isAutosaveEnabled() {
+		if (_autosaveEnabled != null) {
+			return _autosaveEnabled;
+		}
+
+		if (isDefaultUser()) {
+			_autosaveEnabled = Boolean.FALSE;
+		}
+		else {
+			_autosaveEnabled = Boolean.TRUE;
+		}
+
+		return _autosaveEnabled;
+	}
+
 	public boolean isFormAvailable() throws PortalException {
 		if (isPreview()) {
 			return true;
@@ -206,6 +256,17 @@ public class DDLFormDisplayContext {
 		return _showConfigurationIcon;
 	}
 
+	public boolean isShowSuccessPage() throws PortalException {
+		if (SessionMessages.isEmpty(_renderRequest)) {
+			return false;
+		}
+
+		DDMFormSuccessPageSettings ddmFormSuccessPageSettings =
+			getDDMFormSuccessPageSettings();
+
+		return ddmFormSuccessPageSettings.isEnabled();
+	}
+
 	protected String createCaptchaResourceURL() {
 		ResourceURL resourceURL = _renderResponse.createResourceURL();
 
@@ -220,13 +281,18 @@ public class DDLFormDisplayContext {
 		DDMFormRenderingContext ddmFormRenderingContext =
 			new DDMFormRenderingContext();
 
+		ddmFormRenderingContext.setContainerId(_containerId);
 		ddmFormRenderingContext.setDDMFormValues(
 			_ddmFormValuesFactory.create(_renderRequest, ddmForm));
 		ddmFormRenderingContext.setHttpServletRequest(
 			PortalUtil.getHttpServletRequest(_renderRequest));
 		ddmFormRenderingContext.setHttpServletResponse(
 			PortalUtil.getHttpServletResponse(_renderResponse));
-		ddmFormRenderingContext.setLocale(ddmForm.getDefaultLocale());
+
+		ThemeDisplay themeDisplay = getThemeDisplay();
+
+		ddmFormRenderingContext.setLocale(themeDisplay.getLocale());
+
 		ddmFormRenderingContext.setPortletNamespace(
 			_renderResponse.getNamespace());
 
@@ -244,6 +310,14 @@ public class DDLFormDisplayContext {
 		ddmFormLayoutRow.addDDMFormLayoutColumn(ddmFormLayoutColumn);
 
 		return ddmFormLayoutRow;
+	}
+
+	protected DDMForm getDDMForm() throws PortalException {
+		DDLRecordSet recordSet = getRecordSet();
+
+		DDMStructure ddmStructure = recordSet.getDDMStructure();
+
+		return ddmStructure.getDDMForm();
 	}
 
 	protected DDMForm getDDMForm(
@@ -314,6 +388,16 @@ public class DDLFormDisplayContext {
 		return GetterUtil.getLong(portletSession.getAttribute("recordSetId"));
 	}
 
+	protected String getRecordSetVersion() {
+		DDLRecordSet ddlRecordSet = getRecordSet();
+
+		if (ddlRecordSet == null) {
+			return DDLRecordConstants.VERSION_DEFAULT;
+		}
+
+		return ddlRecordSet.getVersion();
+	}
+
 	protected String getSubmitLabel(DDLRecordSet recordSet) {
 		ThemeDisplay themeDisplay = getThemeDisplay();
 
@@ -333,6 +417,18 @@ public class DDLFormDisplayContext {
 			WebKeys.THEME_DISPLAY);
 
 		return themeDisplay;
+	}
+
+	protected User getUser() {
+		ThemeDisplay themeDisplay = getThemeDisplay();
+
+		return themeDisplay.getUser();
+	}
+
+	protected long getUserId() {
+		ThemeDisplay themeDisplay = getThemeDisplay();
+
+		return themeDisplay.getUserId();
 	}
 
 	protected boolean hasViewPermission() throws PortalException {
@@ -369,6 +465,12 @@ public class DDLFormDisplayContext {
 		DDLRecordSetSettings recordSetSettings = recordSet.getSettingsModel();
 
 		return recordSetSettings.requireCaptcha();
+	}
+
+	protected boolean isDefaultUser() {
+		User user = getUser();
+
+		return user.isDefaultUser();
 	}
 
 	protected boolean isFormPublished() throws PortalException {
@@ -414,7 +516,10 @@ public class DDLFormDisplayContext {
 	private static final Log _log = LogFactoryUtil.getLog(
 		DDLFormDisplayContext.class);
 
+	private Boolean _autosaveEnabled;
+	private final String _containerId;
 	private final DDLRecordSetService _ddlRecordSetService;
+	private final DDLRecordVersionLocalService _ddlRecordVersionLocalService;
 	private final DDMFormRenderer _ddmFormRenderer;
 	private final DDMFormValuesFactory _ddmFormValuesFactory;
 	private Boolean _hasViewPermission;

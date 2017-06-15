@@ -23,10 +23,10 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.PortalPreferences;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.repository.model.RepositoryEntry;
+import com.liferay.portal.kernel.upload.UploadServletRequestConfigurationHelperUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.util.PropsValues;
 import com.liferay.taglib.util.IncludeTag;
 
 import java.util.ArrayList;
@@ -61,6 +61,10 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 
 	public void setEmptyResultsMessage(String emptyResultsMessage) {
 		_emptyResultsMessage = emptyResultsMessage;
+	}
+
+	public void setExtensions(List<String> extensions) {
+		_extensions = extensions;
 	}
 
 	public void setItemSelectedEventName(String itemSelectedEventName) {
@@ -119,8 +123,9 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 		_desiredItemSelectorReturnTypes = null;
 		_emptyResultsMessage = null;
 		_displayStyle = null;
+		_extensions = new ArrayList<>();
 		_itemSelectedEventName = null;
-		_maxFileSize = PropsValues.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE;
+		_maxFileSize = UploadServletRequestConfigurationHelperUtil.getMaxSize();
 		_portletURL = null;
 		_repositoryEntries = new ArrayList<>();
 		_repositoryEntriesCount = 0;
@@ -188,6 +193,9 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 		}
 
 		request.setAttribute(
+			"liferay-item-selector:repository-entry-browser:extensions",
+			_extensions);
+		request.setAttribute(
 			"liferay-item-selector:repository-entry-browser:" +
 				"itemSelectedEventName",
 			_itemSelectedEventName);
@@ -233,10 +241,11 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 	private List<ItemSelectorReturnType> _desiredItemSelectorReturnTypes;
 	private String _displayStyle;
 	private String _emptyResultsMessage;
+	private List<String> _extensions = new ArrayList<>();
 	private String _itemSelectedEventName;
 	private ItemSelectorReturnTypeResolver _itemSelectorReturnTypeResolver;
 	private long _maxFileSize =
-		PropsValues.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE;
+		UploadServletRequestConfigurationHelperUtil.getMaxSize();
 	private PortletURL _portletURL;
 	private List<RepositoryEntry> _repositoryEntries = new ArrayList<>();
 	private int _repositoryEntriesCount;

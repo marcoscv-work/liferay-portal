@@ -30,7 +30,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -509,7 +509,8 @@ public class ProcessUtilTest {
 		argumentsList.add("-cp");
 		argumentsList.add(_CLASS_PATH);
 		argumentsList.add(clazz.getName());
-		argumentsList.addAll(Arrays.asList(arguments));
+
+		Collections.addAll(argumentsList, arguments);
 
 		return argumentsList.toArray(new String[argumentsList.size()]);
 	}
@@ -542,24 +543,6 @@ public class ProcessUtilTest {
 	}
 
 	private static final String _CLASS_PATH;
-
-	static {
-		Class<?> clazz = Echo.class;
-
-		ClassLoader classLoader = clazz.getClassLoader();
-
-		String className = clazz.getName();
-
-		String name = className.replace('.', '/') + ".class";
-
-		URL url = classLoader.getResource(name);
-
-		String path = url.getPath();
-
-		int index = path.lastIndexOf(name);
-
-		_CLASS_PATH = path.substring(0, index);
-	}
 
 	private static class DummyJob implements Callable<Void> {
 
@@ -660,6 +643,24 @@ public class ProcessUtilTest {
 			Thread.sleep(Long.MAX_VALUE);
 		}
 
+	}
+
+	static {
+		Class<?> clazz = Echo.class;
+
+		ClassLoader classLoader = clazz.getClassLoader();
+
+		String className = clazz.getName();
+
+		String name = className.replace('.', '/') + ".class";
+
+		URL url = classLoader.getResource(name);
+
+		String path = url.getPath();
+
+		int index = path.lastIndexOf(name);
+
+		_CLASS_PATH = path.substring(0, index);
 	}
 
 }

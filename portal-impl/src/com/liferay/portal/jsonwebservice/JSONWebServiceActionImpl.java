@@ -143,6 +143,8 @@ public class JSONWebServiceActionImpl implements JSONWebServiceAction {
 						inputObject, outputObject);
 
 					beanCopy.copy();
+
+					return outputObject;
 				}
 				catch (Exception e) {
 					throw new TypeConversionException(e);
@@ -255,7 +257,12 @@ public class JSONWebServiceActionImpl implements JSONWebServiceAction {
 							null, parameterType);
 					}
 					catch (Exception e2) {
-						throw new ClassCastException(e1.getMessage());
+						ClassCastException cce = new ClassCastException(
+							e1.getMessage());
+
+						cce.addSuppressed(e2);
+
+						throw cce;
 					}
 
 					BeanCopy beanCopy = BeanCopy.beans(value, parameterValue);
