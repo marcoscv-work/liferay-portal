@@ -205,7 +205,6 @@ import org.gradle.external.javadoc.StandardJavadocDocletOptions;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.plugins.ide.api.XmlFileContentMerger;
-import org.gradle.plugins.ide.eclipse.EclipsePlugin;
 import org.gradle.plugins.ide.eclipse.model.Classpath;
 import org.gradle.plugins.ide.eclipse.model.ClasspathEntry;
 import org.gradle.plugins.ide.eclipse.model.EclipseClasspath;
@@ -1281,7 +1280,6 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 
 		GradleUtil.applyPlugin(project, BaselinePlugin.class);
 		GradleUtil.applyPlugin(project, DependencyCheckerPlugin.class);
-		GradleUtil.applyPlugin(project, EclipsePlugin.class);
 		GradleUtil.applyPlugin(project, FindBugsPlugin.class);
 		GradleUtil.applyPlugin(project, IdeaPlugin.class);
 		GradleUtil.applyPlugin(project, MavenPlugin.class);
@@ -2786,6 +2784,17 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 
 	private void _configureTaskJavaCompile(JavaCompile javaCompile) {
 		CompileOptions compileOptions = javaCompile.getOptions();
+
+		String lintArguments = GradleUtil.getTaskPrefixedProperty(
+			javaCompile, "lint");
+
+		if (Validator.isNotNull(lintArguments)) {
+			List<String> compilerArgs = compileOptions.getCompilerArgs();
+
+			for (String lintArgument : lintArguments.split(",")) {
+				compilerArgs.add("-Xlint:" + lintArgument);
+			}
+		}
 
 		compileOptions.setEncoding(StandardCharsets.UTF_8.name());
 		compileOptions.setWarnings(false);

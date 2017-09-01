@@ -59,6 +59,10 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 	@Override
 	protected void postFormat() throws Exception {
+		addProgressStatusUpdate(
+			new ProgressStatusUpdate(
+				ProgressStatus.CHECK_STYLE_STARTING, _ungeneratedFiles.size()));
+
 		_processCheckStyle();
 	}
 
@@ -121,16 +125,24 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 		Collection<String> fileNames = new TreeSet<>();
 
-		String[] excludes = new String[] {
+		String[] excludes = {
 			"**/*_IW.java", "**/counter/service/**", "**/jsp/*",
 			"**/model/impl/*Model.java", "**/model/impl/*ModelImpl.java",
 			"**/portal/service/**", "**/portal-client/**",
 			"**/portal-web/test/**/*Test.java", "**/test/*-generated/**"
 		};
 
-		for (String directoryName : getPluginsInsideModulesDirectoryNames()) {
+		if (subrepository) {
 			excludes = ArrayUtil.append(
-				excludes, _getPluginExcludes("**" + directoryName));
+				excludes, _getPluginExcludes(StringPool.BLANK));
+		}
+		else {
+			for (String directoryName :
+					getPluginsInsideModulesDirectoryNames()) {
+
+				excludes = ArrayUtil.append(
+					excludes, _getPluginExcludes("**" + directoryName));
+			}
 		}
 
 		fileNames.addAll(getFileNames(excludes, includes));
@@ -183,7 +195,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			CheckStyleUtil.process(
 				_ungeneratedFiles,
 				getSuppressionsFiles("checkstyle-suppressions.xml"),
-				sourceFormatterArgs.getBaseDirName());
+				sourceFormatterArgs.getBaseDirName(), getProgressStatusQueue());
 
 		for (SourceFormatterMessage sourceFormatterMessage :
 				sourceFormatterMessages) {
@@ -197,7 +209,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		}
 	}
 
-	private static final String[] _INCLUDES = new String[] {"**/*.java"};
+	private static final String[] _INCLUDES = {"**/*.java"};
 
 	private final Set<File> _ungeneratedFiles = new CopyOnWriteArraySet<>();
 

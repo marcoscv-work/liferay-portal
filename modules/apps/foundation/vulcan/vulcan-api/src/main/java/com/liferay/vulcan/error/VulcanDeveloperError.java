@@ -14,6 +14,8 @@
 
 package com.liferay.vulcan.error;
 
+import com.liferay.vulcan.filter.QueryParamFilterType;
+
 /**
  * Represents the errors that can occur while using Vulcan. Each error is a
  * nested error subclass.
@@ -22,6 +24,58 @@ package com.liferay.vulcan.error;
  * @author Jorge Ferrer
  */
 public class VulcanDeveloperError extends Error {
+
+	/**
+	 * Represents the error the developer should throw when a converter is
+	 * missing.
+	 */
+	public static class MustHaveConverter extends VulcanDeveloperError {
+
+		public MustHaveConverter(Class<?> modelClass) {
+			super(
+				"Model class " + modelClass.getName() +
+					" does not have a converter");
+		}
+
+	}
+
+	/**
+	 * Represents the error the developer should throw when an exception
+	 * converter is missing.
+	 */
+	public static class MustHaveExceptionConverter
+		extends VulcanDeveloperError {
+
+		public MustHaveExceptionConverter(Class<?> exceptionClass) {
+			super(
+				"Exception class " + exceptionClass.getName() +
+					" does not have a converter");
+		}
+
+	}
+
+	/**
+	 * Represents the error the developer should throw when a filter provider is
+	 * missing.
+	 */
+	public static class MustHaveFilterProvider extends VulcanDeveloperError {
+
+		public MustHaveFilterProvider(
+			QueryParamFilterType queryParamFilterType) {
+
+			super(
+				"Filter " + queryParamFilterType.toString() +
+					" does not have a provider");
+		}
+
+		public <Q extends QueryParamFilterType> MustHaveFilterProvider(
+			Class<Q> modelClass) {
+
+			super(
+				"Filter " + modelClass.getName() + " does not have a provider");
+		}
+
+	}
 
 	/**
 	 * Represents the error the developer should throw when a message mapper is
@@ -33,6 +87,21 @@ public class VulcanDeveloperError extends Error {
 			super(
 				"Media type " + mediaType + " and model class " +
 					modelClass.getName() + " does not have a message mapper");
+		}
+
+	}
+
+	/**
+	 * Represents the error the developer should throw when a problem JSON error
+	 * message mapper is missing.
+	 */
+	public static class MustHaveProblemJSONErrorMessageMapper
+		extends VulcanDeveloperError {
+
+		public MustHaveProblemJSONErrorMessageMapper() {
+			super(
+				"Media type application/problem+json does not have a message " +
+					"mapper");
 		}
 
 	}
@@ -60,6 +129,22 @@ public class VulcanDeveloperError extends Error {
 		public MustHaveValidGenericType(Class clazz) {
 			super(
 				"Class " + clazz.getName() + " must have a valid generic type");
+		}
+
+	}
+
+	/**
+	 * Represents the error the developer should throw when a provider is
+	 * missing.
+	 */
+	public static class MustUseFilteredCollectionPage
+		extends VulcanDeveloperError {
+
+		public MustUseFilteredCollectionPage() {
+			super(
+				"QueryParamFilterType classes should not be used in " +
+					"RoutesBuilder#collectionPage methods, use " +
+						"RoutesBuilder#filteredCollectionPage instead");
 		}
 
 	}
