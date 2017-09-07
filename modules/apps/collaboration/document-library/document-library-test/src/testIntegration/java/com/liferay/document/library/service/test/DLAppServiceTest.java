@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.messaging.MessageListener;
+import com.liferay.portal.kernel.messaging.proxy.ProxyModeThreadLocal;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
@@ -120,7 +121,7 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 		public void assetTagsShouldBeOrdered() throws Exception {
 			String fileName = RandomTestUtil.randomString();
 
-			String[] assetTagNames = new String[] {"hello", "world"};
+			String[] assetTagNames = {"hello", "world"};
 
 			FileEntry fileEntry = addFileEntry(
 				group.getGroupId(), parentFolder.getFolderId(), fileName,
@@ -432,6 +433,8 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 
 			@Override
 			protected void doRun() throws Exception {
+				ProxyModeThreadLocal.setForceSync(true);
+
 				try {
 					FileEntry fileEntry = addFileEntry(
 						group.getGroupId(), parentFolder.getFolderId(),
@@ -1177,7 +1180,7 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 		public void shouldFindFileEntryByAssetTagName() throws Exception {
 			String fileName = RandomTestUtil.randomString();
 
-			String[] assetTagNames = new String[] {"hello", "world"};
+			String[] assetTagNames = {"hello", "world"};
 
 			FileEntry fileEntry = addFileEntry(
 				group.getGroupId(), parentFolder.getFolderId(), fileName,
@@ -1198,7 +1201,7 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 			String changeLog = StringPool.BLANK;
 			byte[] bytes = CONTENT.getBytes();
 
-			String[] assetTagNames = new String[] {"hello", "world"};
+			String[] assetTagNames = {"hello", "world"};
 
 			FileEntry fileEntry = addFileEntry(
 				group.getGroupId(), parentFolder.getFolderId(), fileName,
@@ -1250,7 +1253,7 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 		public void assetEntryShouldBeAddedWhenDraft() throws Exception {
 			String fileName = RandomTestUtil.randomString();
 			byte[] bytes = CONTENT.getBytes();
-			String[] assetTagNames = new String[] {"hello"};
+			String[] assetTagNames = {"hello"};
 
 			FileEntry fileEntry = addFileEntry(
 				group.getGroupId(), parentFolder.getFolderId(), fileName,
@@ -1298,7 +1301,7 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 			throws Exception {
 
 			String fileName = RandomTestUtil.randomString();
-			String[] assetTagNames = new String[] {"hello"};
+			String[] assetTagNames = {"hello"};
 
 			FileEntry fileEntry = addFileEntry(
 				group.getGroupId(), parentFolder.getFolderId(), fileName,
@@ -1349,7 +1352,7 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 			FileEntry fileEntry = addFileEntry(
 				group.getGroupId(), parentFolder.getFolderId(), fileName);
 
-			String[] assetTagNames = new String[] {"hello", "world", "liferay"};
+			String[] assetTagNames = {"hello", "world", "liferay"};
 
 			ServiceContext serviceContext =
 				ServiceContextTestUtil.getServiceContext(group.getGroupId());
@@ -1884,12 +1887,10 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 		searchContext.setGroupIds(new long[] {fileEntry.getRepositoryId()});
 		searchContext.setKeywords(keywords);
 
-		QueryConfig queryConfig = new QueryConfig();
+		QueryConfig queryConfig = searchContext.getQueryConfig();
 
 		queryConfig.setHighlightEnabled(false);
 		queryConfig.setScoreEnabled(false);
-
-		searchContext.setQueryConfig(queryConfig);
 
 		Indexer<DLFileEntry> indexer = IndexerRegistryUtil.getIndexer(
 			DLFileEntryConstants.getClassName());

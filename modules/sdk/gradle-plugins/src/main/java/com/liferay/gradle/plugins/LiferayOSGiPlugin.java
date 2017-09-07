@@ -116,6 +116,7 @@ import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.internal.Factory;
+import org.gradle.plugins.ide.eclipse.EclipsePlugin;
 import org.gradle.util.GUtil;
 
 /**
@@ -429,7 +430,7 @@ public class LiferayOSGiPlugin implements Plugin<Project> {
 					LiferayExtension liferayExtension = GradleUtil.getExtension(
 						project, LiferayExtension.class);
 
-					String[][] filesets = new String[][] {
+					String[][] filesets = {
 						{
 							project.relativePath(
 								liferayExtension.getAppServerPortalDir()),
@@ -664,6 +665,7 @@ public class LiferayOSGiPlugin implements Plugin<Project> {
 			GradleUtil.applyPlugin(project, JSTranspilerPlugin.class);
 		}
 
+		GradleUtil.applyPlugin(project, EclipsePlugin.class);
 		GradleUtil.applyPlugin(project, JavadocFormatterPlugin.class);
 		GradleUtil.applyPlugin(project, JspCPlugin.class);
 		GradleUtil.applyPlugin(project, LangBuilderPlugin.class);

@@ -16,8 +16,15 @@ package com.liferay.vulcan.endpoint;
 
 import com.liferay.vulcan.pagination.Page;
 import com.liferay.vulcan.pagination.SingleModel;
+import com.liferay.vulcan.resource.Routes;
+import com.liferay.vulcan.result.Try;
+
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
@@ -35,24 +42,66 @@ import javax.ws.rs.PathParam;
 public interface RootEndpoint {
 
 	/**
-	 * Returns the {@link SingleModel} for a given path.
+	 * Returns the {@link SingleModel} for a given path or an exception if an
+	 * error occurred.
 	 *
 	 * @param  path the path from the URL.
-	 * @return the single model at the path.
+	 * @return the single model at the path, or an exception it there was an
+	 *         error.
 	 */
 	@GET
 	@Path("/p/{path}/{id}")
-	public <T> SingleModel<T> getCollectionItemSingleModel(
-		@PathParam("path") String path, @PathParam("id") String id);
+	public default <T> Try<SingleModel<T>> getCollectionItemSingleModel(
+		@PathParam("path") String path, @PathParam("id") String id) {
+
+		Try<Routes<T>> routesTry = getRoutes(path);
+
+		return routesTry.map(
+			Routes::getSingleModelFunctionOptional
+		).map(
+			Optional::get
+		).mapFailMatching(
+			NoSuchElementException.class,
+			() -> new NotFoundException("No endpoint found at path: " + path)
+		).map(
+			singleModelFunction -> singleModelFunction.apply(id)
+		);
+	}
 
 	/**
-	 * Returns the collection {@link Page} for a given path.
+	 * Returns the collection {@link Page} for a given path or an exception if
+	 * an error occurred.
 	 *
 	 * @param  path the path from the URL.
-	 * @return the collection page at the path.
+	 * @return the collection page at the path, or an exception it there was an
+	 *         error.
 	 */
 	@GET
 	@Path("/p/{path}")
-	public <T> Page<T> getCollectionPage(@PathParam("path") String path);
+	public default <T> Try<Page<T>> getCollectionPage(
+		@PathParam("path") String path) {
+
+		Try<Routes<T>> routesTry = getRoutes(path);
+
+		return routesTry.map(
+			Routes::getPageSupplierOptional
+		).map(
+			Optional::get
+		).mapFailMatching(
+			NoSuchElementException.class,
+			() -> new NotFoundException("No endpoint found at path: " + path)
+		).map(
+			Supplier::get
+		);
+	}
+
+	/**
+	 * Returns the {@link Routes} instance for a given path. The result of this
+	 * method may vary depending on implementation.
+	 *
+	 * @param  path the path from the URL.
+	 * @return the {@link Routes} instance for the path.
+	 */
+	public <T> Try<Routes<T>> getRoutes(String path);
 
 }
