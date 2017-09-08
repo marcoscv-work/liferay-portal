@@ -21,8 +21,6 @@ import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.LocaleUtil;
-import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.SetUtil;
@@ -57,22 +55,31 @@ import java.util.Set;
  */
 public class DocumentImpl implements Document {
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by
+	 *             {@link Field#getLocalizedName(Locale, String)}
+	 */
+	@Deprecated
 	public static String getLocalizedName(Locale locale, String name) {
-		if (locale == null) {
-			return name;
-		}
-
-		String languageId = LocaleUtil.toLanguageId(locale);
-
-		return getLocalizedName(languageId, name);
+		return Field.getLocalizedName(locale, name);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by
+	 *             {@link Field#getLocalizedName(String, String)}
+	 */
+	@Deprecated
 	public static String getLocalizedName(String languageId, String name) {
-		return LocalizationUtil.getLocalizedName(name, languageId);
+		return Field.getLocalizedName(languageId, name);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by
+	 *             {@link Field#getSortableFieldName(String)}
+	 */
+	@Deprecated
 	public static String getSortableFieldName(String name) {
-		return name.concat(StringPool.UNDERLINE).concat(_SORTABLE_FIELD_SUFFIX);
+		return Field.getSortableFieldName(name);
 	}
 
 	public static String getSortFieldName(Sort sort, String scoreFieldName) {
@@ -92,7 +99,7 @@ public class DocumentImpl implements Document {
 			return scoreFieldName;
 		}
 
-		return getSortableFieldName(fieldName);
+		return Field.getSortableFieldName(fieldName);
 	}
 
 	public static boolean isSortableFieldName(String name) {
@@ -408,7 +415,7 @@ public class DocumentImpl implements Document {
 
 		createKeywordField(name, valueString, false);
 
-		createSortableTextField(name, valueString);
+		_createSortableTextField(name, true, valueString);
 	}
 
 	@Override
@@ -421,21 +428,21 @@ public class DocumentImpl implements Document {
 
 		createField(name, valuesString);
 
-		createSortableTextField(name, valuesString);
+		_createSortableTextField(name, true, valuesString);
 	}
 
 	@Override
 	public void addKeywordSortable(String name, String value) {
 		createKeywordField(name, value, false);
 
-		createSortableTextField(name, value);
+		_createSortableTextField(name, true, value);
 	}
 
 	@Override
 	public void addKeywordSortable(String name, String[] values) {
 		createField(name, values);
 
-		createSortableTextField(name, values);
+		_createSortableTextField(name, true, values);
 	}
 
 	@Override
@@ -715,7 +722,7 @@ public class DocumentImpl implements Document {
 
 		field.setTokenized(true);
 
-		createSortableTextField(name, value);
+		_createSortableTextField(name, true, value);
 	}
 
 	@Override
@@ -728,7 +735,7 @@ public class DocumentImpl implements Document {
 
 		field.setTokenized(true);
 
-		createSortableTextField(name, values);
+		_createSortableTextField(name, true, values);
 	}
 
 	@Override
@@ -805,7 +812,7 @@ public class DocumentImpl implements Document {
 			return get(name);
 		}
 
-		String localizedName = getLocalizedName(locale, name);
+		String localizedName = Field.getLocalizedName(locale, name);
 
 		Field field = getField(localizedName);
 
@@ -826,12 +833,12 @@ public class DocumentImpl implements Document {
 			return get(name, defaultName);
 		}
 
-		String localizedName = getLocalizedName(locale, name);
+		String localizedName = Field.getLocalizedName(locale, name);
 
 		Field field = getField(localizedName);
 
 		if (field == null) {
-			localizedName = getLocalizedName(locale, defaultName);
+			localizedName = Field.getLocalizedName(locale, defaultName);
 
 			field = getField(localizedName);
 		}
@@ -1047,13 +1054,13 @@ public class DocumentImpl implements Document {
 
 	protected void createSortableKeywordField(String name, String value) {
 		if (isDocumentSortableTextField(name)) {
-			createSortableTextField(name, value);
+			_createSortableTextField(name, false, value);
 		}
 	}
 
 	protected void createSortableKeywordField(String name, String[] values) {
 		if (isDocumentSortableTextField(name)) {
-			createSortableTextField(name, values);
+			_createSortableTextField(name, false, values);
 		}
 	}
 
@@ -1065,7 +1072,7 @@ public class DocumentImpl implements Document {
 			name = name.concat(StringPool.UNDERLINE).concat("Number");
 		}
 
-		Field field = createField(getSortableFieldName(name), value);
+		Field field = createField(Field.getSortableFieldName(name), value);
 
 		field.setNumeric(true);
 		field.setNumericClass(clazz);
@@ -1085,23 +1092,11 @@ public class DocumentImpl implements Document {
 	}
 
 	protected void createSortableTextField(String name, String value) {
-		String truncatedValue = value;
-
-		if (value.length() > _SORTABLE_TEXT_FIELDS_TRUNCATED_LENGTH) {
-			truncatedValue = value.substring(
-				0, _SORTABLE_TEXT_FIELDS_TRUNCATED_LENGTH);
-		}
-
-		createKeywordField(getSortableFieldName(name), truncatedValue, true);
+		_createSortableTextField(name, false, value);
 	}
 
 	protected void createSortableTextField(String name, String[] values) {
-		if (values.length == 0) {
-			return;
-		}
-
-		createSortableTextField(
-			name, Collections.min(Arrays.<String>asList(values)));
+		_createSortableTextField(name, false, values);
 	}
 
 	protected Field doGetField(String name, boolean createIfNew) {
@@ -1148,6 +1143,35 @@ public class DocumentImpl implements Document {
 		}
 
 		sb.append(StringPool.CLOSE_CURLY_BRACE);
+	}
+
+	private void _createSortableTextField(
+		String name, boolean typify, String value) {
+
+		if (typify) {
+			name = name.concat(StringPool.UNDERLINE).concat("String");
+		}
+
+		String truncatedValue = value;
+
+		if (value.length() > _SORTABLE_TEXT_FIELDS_TRUNCATED_LENGTH) {
+			truncatedValue = value.substring(
+				0, _SORTABLE_TEXT_FIELDS_TRUNCATED_LENGTH);
+		}
+
+		createKeywordField(
+			Field.getSortableFieldName(name), truncatedValue, true);
+	}
+
+	private void _createSortableTextField(
+		String name, boolean typify, String[] values) {
+
+		if (values.length == 0) {
+			return;
+		}
+
+		_createSortableTextField(
+			name, typify, Collections.min(Arrays.<String>asList(values)));
 	}
 
 	private static final String _INDEX_DATE_FORMAT_PATTERN = PropsUtil.get(

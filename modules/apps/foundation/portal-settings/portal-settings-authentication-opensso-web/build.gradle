@@ -1,12 +1,14 @@
 apply plugin: "com.liferay.lang.merger"
 
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
+
 dependencies {
 	provided group: "biz.aQute.bnd", name: "biz.aQute.bndlib", version: "3.1.0"
 	provided group: "com.liferay", name: "com.liferay.frontend.taglib", version: "2.0.0"
 	provided group: "com.liferay", name: "com.liferay.portal.security.sso.opensso", version: "3.0.0"
-	provided group: "com.liferay", name: "com.liferay.portal.settings.api", version: "2.0.0"
 	provided group: "com.liferay", name: "com.liferay.portal.settings.lang", version: "1.0.0"
-	provided group: "com.liferay", name: "com.liferay.portal.settings.web", version: "1.0.0"
+	provided group: "com.liferay", name: "com.liferay.portal.settings.web", version: "1.2.0"
 	provided group: "com.liferay.portal", name: "com.liferay.portal.impl", version: "2.0.0"
 	provided group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "2.0.0"
 	provided group: "com.liferay.portal", name: "com.liferay.util.taglib", version: "2.0.0"

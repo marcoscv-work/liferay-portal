@@ -24,6 +24,34 @@ package com.liferay.vulcan.error;
 public class VulcanDeveloperError extends Error {
 
 	/**
+	 * Represents the error the developer should throw when an exception
+	 * converter is missing.
+	 */
+	public static class MustHaveExceptionConverter
+		extends VulcanDeveloperError {
+
+		public MustHaveExceptionConverter(Class<?> exceptionClass) {
+			super(
+				"Exception class " + exceptionClass.getName() +
+					" does not have a converter");
+		}
+
+	}
+
+	/**
+	 * Represents the error the developer should throw when an identifier
+	 * converter is missing.
+	 */
+	public static class MustHaveIdentifierConverter
+		extends VulcanDeveloperError {
+
+		public MustHaveIdentifierConverter(Class<?> identifier) {
+			super("Identifier " + identifier + " does not have a converter");
+		}
+
+	}
+
+	/**
 	 * Represents the error the developer should throw when a message mapper is
 	 * missing.
 	 */
@@ -33,6 +61,21 @@ public class VulcanDeveloperError extends Error {
 			super(
 				"Media type " + mediaType + " and model class " +
 					modelClass.getName() + " does not have a message mapper");
+		}
+
+	}
+
+	/**
+	 * Represents the error the developer should throw when a problem JSON error
+	 * message mapper is missing.
+	 */
+	public static class MustHaveProblemJSONErrorMessageMapper
+		extends VulcanDeveloperError {
+
+		public MustHaveProblemJSONErrorMessageMapper() {
+			super(
+				"Media type application/problem+json does not have a message " +
+					"mapper");
 		}
 
 	}

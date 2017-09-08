@@ -260,7 +260,7 @@ public class UserIndexer extends BaseIndexer<User> {
 		document.addKeyword(Field.SCOPE_GROUP_ID, user.getGroupIds());
 		document.addKeyword(Field.STATUS, user.getStatus());
 		document.addKeyword(Field.USER_ID, user.getUserId());
-		document.addKeyword(Field.USER_NAME, user.getFullName());
+		document.addKeyword(Field.USER_NAME, user.getFullName(), true);
 		document.addKeyword(
 			"ancestorOrganizationIds",
 			getAncestorOrganizationIds(user.getOrganizationIds()));
@@ -282,28 +282,6 @@ public class UserIndexer extends BaseIndexer<User> {
 		populateAddresses(document, user.getAddresses(), 0, 0);
 
 		return document;
-	}
-
-	@Override
-	protected String doGetSortField(String orderByCol) {
-		if (orderByCol.equals("email-address")) {
-			return "emailAddress";
-		}
-		else if (orderByCol.equals("first-name")) {
-			return "firstName";
-		}
-		else if (orderByCol.equals("job-title")) {
-			return "jobTitle";
-		}
-		else if (orderByCol.equals("last-name")) {
-			return "lastName";
-		}
-		else if (orderByCol.equals("screen-name")) {
-			return "screenName";
-		}
-		else {
-			return orderByCol;
-		}
 	}
 
 	@Override

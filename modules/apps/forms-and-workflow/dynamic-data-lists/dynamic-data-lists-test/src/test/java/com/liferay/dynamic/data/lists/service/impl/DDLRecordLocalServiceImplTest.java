@@ -11,6 +11,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
+
 package com.liferay.dynamic.data.lists.service.impl;
 
 import com.liferay.dynamic.data.mapping.storage.Field;
@@ -50,7 +51,7 @@ public class DDLRecordLocalServiceImplTest {
 
 	@Test
 	public void testToFieldWithBooleanArray() throws Exception {
-		boolean[] fieldValues = new boolean[] {
+		boolean[] fieldValues = {
 			RandomTestUtil.randomBoolean(), RandomTestUtil.randomBoolean(),
 			RandomTestUtil.randomBoolean()
 		};
@@ -96,7 +97,7 @@ public class DDLRecordLocalServiceImplTest {
 
 	@Test
 	public void testToFieldWithIntegerArray() throws Exception {
-		int[] fieldValues = new int[] {
+		int[] fieldValues = {
 			RandomTestUtil.randomInt(), RandomTestUtil.randomInt(),
 			RandomTestUtil.randomInt()
 		};

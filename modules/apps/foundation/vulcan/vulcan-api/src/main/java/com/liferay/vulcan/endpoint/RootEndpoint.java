@@ -16,6 +16,9 @@ package com.liferay.vulcan.endpoint;
 
 import com.liferay.vulcan.pagination.Page;
 import com.liferay.vulcan.pagination.SingleModel;
+import com.liferay.vulcan.result.Try;
+
+import java.io.InputStream;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -35,24 +38,62 @@ import javax.ws.rs.PathParam;
 public interface RootEndpoint {
 
 	/**
-	 * Returns the {@link SingleModel} for a given path.
+	 * Returns the {@link InputStream} for a given resource identifier or an
+	 * exception if an error occurred.
 	 *
 	 * @param  path the path from the URL.
-	 * @return the single model at the path.
+	 * @param  id the ID of the resource.
+	 * @param  binaryId the ID to the binary resource.
+	 * @return the input stream of the binary file, or an exception it there was
+	 *         an error.
+	 */
+	@GET
+	@Path("/b/{path}/{id}/{binaryId}")
+	public <T> Try<InputStream> getCollectionItemInputStreamTry(
+		@PathParam("path") String path, @PathParam("id") String id,
+		@PathParam("binaryId") String binaryId);
+
+	/**
+	 * Returns the {@link SingleModel} for a given path or an exception if an
+	 * error occurred.
+	 *
+	 * @param  path the path from the URL.
+	 * @param  id the ID of the resource.
+	 * @return the single model at the path, or an exception it there was an
+	 *         error.
 	 */
 	@GET
 	@Path("/p/{path}/{id}")
-	public <T> SingleModel<T> getCollectionItemSingleModel(
+	public <T> Try<SingleModel<T>> getCollectionItemSingleModelTry(
 		@PathParam("path") String path, @PathParam("id") String id);
 
 	/**
-	 * Returns the collection {@link Page} for a given path.
+	 * Returns the collection {@link Page} for a given path or an exception if
+	 * an error occurred.
 	 *
 	 * @param  path the path from the URL.
-	 * @return the collection page at the path.
+	 * @return the collection page at the path, or an exception if there was an
+	 *         error.
 	 */
 	@GET
 	@Path("/p/{path}")
-	public <T> Page<T> getCollectionPage(@PathParam("path") String path);
+	public <T> Try<Page<T>> getCollectionPageTry(
+		@PathParam("path") String path);
+
+	/**
+	 * Returns a nested collection {@link Page} for a given set of
+	 * path-id-nestedPath or an exception if an error occurred.
+	 *
+	 * @param  path the path from the URL.
+	 * @param  id the ID of the resource.
+	 * @param  nestedPath the path of the nested resource.
+	 * @return the collection page at the path, or an exception if there was an
+	 *         error.
+	 */
+	@GET
+	@Path("/p/{path}/{id}/{nestedPath}")
+	public <T> Try<Page<T>> getNestedCollectionPageTry(
+		@PathParam("path") String path, @PathParam("id") String id,
+		@PathParam("nestedPath") String nestedPath);
 
 }

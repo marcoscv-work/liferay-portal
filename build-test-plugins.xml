@@ -309,10 +309,10 @@ app.server.tomcat.dir=${app.server.parent.dir}/tomcat-7.0.62</echo>
 							<equals arg1="@{plugin}" arg2="cas-web" />
 							<then>
 								<move todir="${app.server.dir}/webapps">
-								  <fileset dir="${app.server.dir}/webapps">
-								    <include name="cas-web-*.war" />
-								  </fileset>
-								  <mapper from="*" to="cas-web.war" type="glob" />
+									<fileset dir="${app.server.dir}/webapps">
+										<include name="cas-web-*.war" />
+									</fileset>
+									<mapper from="*" to="cas-web.war" type="glob" />
 								</move>
 							</then>
 						</if>
@@ -397,13 +397,15 @@ plugins.includes=${test.plugin}</echo>
 
 		<for list="${test.plugins}" param="test.plugin">
 			<sequential>
-				<trycatch>
+				<trycatch property="test.plugin.exception">
 					<try>
 						<antcall target="test-plugin">
 							<param name="test.plugin" value="@{test.plugin}" />
 						</antcall>
 					</try>
 					<catch>
+						<echo>${test.plugin.exception}</echo>
+
 						<echo append="true" file="plugins-compile-failure">@{test.plugin},</echo>
 					</catch>
 				</trycatch>
