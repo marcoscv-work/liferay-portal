@@ -77,11 +77,11 @@
 
 	.navbar ~ .portlet-configuration-setup,
 	.portlet-export-import-container {
-		height: calc(100% - #{$dialog-navbar-height});
+		height: calc(100% - #{$dialog-navbar-height} - #{$navbar-border-bottom-width});
 		position: relative;
 
 		@include sm {
-			height: calc(100% - #{$dialog-desktop-navbar-height});
+			height: calc(100% - #{$dialog-desktop-navbar-height} - #{$navbar-border-bottom-width});
 		}
 	}
 
