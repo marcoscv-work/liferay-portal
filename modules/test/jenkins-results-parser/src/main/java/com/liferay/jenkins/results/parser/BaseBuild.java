@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -555,6 +556,35 @@ public abstract class BaseBuild implements Build {
 	}
 
 	@Override
+	public int getJobVariantsDownstreamBuildCount(List<String> jobVariants) {
+		List<Build> jobVariantsDownstreamBuilds =
+			getJobVariantsDownstreamBuilds(jobVariants);
+
+		return jobVariantsDownstreamBuilds.size();
+	}
+
+	@Override
+	public List<Build> getJobVariantsDownstreamBuilds(
+		List<String> jobVariants) {
+
+		List<Build> jobVariantsDownstreamBuilds = new ArrayList<>();
+
+		for (Build downstreamBuild : downstreamBuilds) {
+			String downstreamBuildJobVariant = downstreamBuild.getJobVariant();
+
+			for (String jobVariant : jobVariants) {
+				if (downstreamBuildJobVariant.contains(jobVariant)) {
+					jobVariantsDownstreamBuilds.add(downstreamBuild);
+
+					break;
+				}
+			}
+		}
+
+		return jobVariantsDownstreamBuilds;
+	}
+
+	@Override
 	public Long getLatestStartTimestamp() {
 		Long latestStartTimestamp = getStartTimestamp();
 
@@ -873,15 +903,20 @@ public abstract class BaseBuild implements Build {
 					topLevelBuild.getBuildURL());
 			}
 
-			String notificationList = reinvokeRule.getNotificationList();
+			String notificationRecipients =
+				reinvokeRule.getNotificationRecipients();
 
-			if ((notificationList != null) && !notificationList.isEmpty()) {
+			if ((notificationRecipients != null) &&
+				!notificationRecipients.isEmpty()) {
+
 				try {
 					JenkinsResultsParserUtil.sendEmail(
 						message, "jenkins", "Build Reinvoked",
-						reinvokeRule.notificationList);
+						reinvokeRule.notificationRecipients);
 				}
-				catch (InterruptedException | IOException e) {
+				catch (
+					InterruptedException | IOException | TimeoutException e) {
+
 					throw new RuntimeException(
 						"Unable to send reinvoke notification", e);
 				}
@@ -969,15 +1004,18 @@ public abstract class BaseBuild implements Build {
 
 		JenkinsResultsParserUtil.takeSlavesOffline(master, message, slave);
 
-		String notificationList = slaveOfflineRule.getNotificationList();
+		String notificationRecipients =
+			slaveOfflineRule.getNotificationRecipients();
 
-		if ((notificationList != null) && !notificationList.isEmpty()) {
+		if ((notificationRecipients != null) &&
+			!notificationRecipients.isEmpty()) {
+
 			try {
 				JenkinsResultsParserUtil.sendEmail(
 					message, "jenkins", "Slave Offline",
-					slaveOfflineRule.notificationList);
+					slaveOfflineRule.notificationRecipients);
 			}
-			catch (InterruptedException | IOException e) {
+			catch (InterruptedException | IOException | TimeoutException e) {
 				throw new RuntimeException(
 					"Unable to send offline slave notification", e);
 			}
