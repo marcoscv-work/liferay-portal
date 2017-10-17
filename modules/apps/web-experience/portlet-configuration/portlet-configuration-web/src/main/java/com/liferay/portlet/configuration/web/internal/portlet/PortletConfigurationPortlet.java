@@ -14,12 +14,12 @@
 
 package com.liferay.portlet.configuration.web.internal.portlet;
 
+import com.liferay.petra.lang.CentralizedThreadLocal;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.PortletPreferencesIds;
 import com.liferay.portal.kernel.model.PublicRenderParameter;
@@ -51,7 +51,6 @@ import com.liferay.portal.kernel.settings.Settings;
 import com.liferay.portal.kernel.settings.SettingsFactoryUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.AggregateResourceBundle;
-import com.liferay.portal.kernel.util.AutoResetThreadLocal;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -837,14 +836,9 @@ public class PortletConfigurationPortlet extends MVCPortlet {
 
 		Layout layout = themeDisplay.getLayout();
 
-		if (!layout.isSupportsEmbeddedPortlets()) {
-			return null;
-		}
+		if (!layout.isSupportsEmbeddedPortlets() ||
+			!themeDisplay.isPortletEmbedded(portletId)) {
 
-		LayoutTypePortlet layoutTypePortlet =
-			(LayoutTypePortlet)layout.getLayoutType();
-
-		if (!layoutTypePortlet.isPortletEmbedded(portletId)) {
 			return null;
 		}
 
@@ -1082,7 +1076,7 @@ public class PortletConfigurationPortlet extends MVCPortlet {
 	private PortletPermission _portletPermission;
 	private PortletPreferencesLocalService _portletPreferencesLocalService;
 	private final ThreadLocal<PortletRequest> _portletRequestThreadLocal =
-		new AutoResetThreadLocal<>("_portletRequestThreadLocal");
+		new CentralizedThreadLocal<>("_portletRequestThreadLocal");
 	private ResourceBlockLocalService _resourceBlockLocalService;
 	private ResourceBlockService _resourceBlockService;
 	private ResourcePermissionService _resourcePermissionService;

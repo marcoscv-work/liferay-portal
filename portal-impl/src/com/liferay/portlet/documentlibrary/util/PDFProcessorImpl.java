@@ -32,7 +32,7 @@ import com.liferay.portal.kernel.process.ClassPathUtil;
 import com.liferay.portal.kernel.process.ProcessCallable;
 import com.liferay.portal.kernel.process.ProcessChannel;
 import com.liferay.portal.kernel.process.ProcessException;
-import com.liferay.portal.kernel.process.ProcessExecutorUtil;
+import com.liferay.portal.kernel.process.ProcessExecutor;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -42,7 +42,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ServerDetector;
-import com.liferay.portal.kernel.util.StreamUtil;
+import com.liferay.portal.kernel.util.ServiceProxyFactory;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.SystemEnv;
 import com.liferay.portal.kernel.util.Validator;
@@ -404,8 +404,6 @@ public class PDFProcessorImpl
 			FileVersion sourceFileVersion, FileVersion destinationFileVersion)
 		throws Exception {
 
-		InputStream inputStream = null;
-
 		try {
 			if (sourceFileVersion != null) {
 				copy(sourceFileVersion, destinationFileVersion);
@@ -435,31 +433,36 @@ public class PDFProcessorImpl
 					}
 				}
 
-				inputStream = destinationFileVersion.getContentStream(false);
+				try (InputStream inputStream =
+						destinationFileVersion.getContentStream(false)) {
 
-				_generateImages(destinationFileVersion, inputStream);
+					_generateImages(destinationFileVersion, inputStream);
+				}
 			}
 			else if (DocumentConversionUtil.isEnabled()) {
-				inputStream = destinationFileVersion.getContentStream(false);
+				try (InputStream inputStream =
+						destinationFileVersion.getContentStream(false)) {
 
-				String tempFileId = DLUtil.getTempFileId(
-					destinationFileVersion.getFileEntryId(),
-					destinationFileVersion.getVersion());
+					String tempFileId = DLUtil.getTempFileId(
+						destinationFileVersion.getFileEntryId(),
+						destinationFileVersion.getVersion());
 
-				if (Objects.equals(
-						"PWC", destinationFileVersion.getVersion()) ||
-					destinationFileVersion.isPending()) {
+					if (Objects.equals(
+							"PWC", destinationFileVersion.getVersion()) ||
+						destinationFileVersion.isPending()) {
 
-					File file = new File(
-						DocumentConversionUtil.getFilePath(tempFileId, "pdf"));
+						File file = new File(
+							DocumentConversionUtil.getFilePath(
+								tempFileId, "pdf"));
 
-					FileUtil.delete(file);
+						FileUtil.delete(file);
+					}
+
+					File file = DocumentConversionUtil.convert(
+						tempFileId, inputStream, extension, "pdf");
+
+					_generateImages(destinationFileVersion, file);
 				}
-
-				File file = DocumentConversionUtil.convert(
-					tempFileId, inputStream, extension, "pdf");
-
-				_generateImages(destinationFileVersion, file);
 			}
 		}
 		catch (NoSuchFileEntryException nsfee) {
@@ -468,8 +471,6 @@ public class PDFProcessorImpl
 			}
 		}
 		finally {
-			StreamUtil.cleanUp(inputStream);
-
 			_fileVersionIds.remove(destinationFileVersion.getFileVersionId());
 		}
 	}
@@ -695,7 +696,7 @@ public class PDFProcessorImpl
 					PropsValues.DL_FILE_ENTRY_PREVIEW_DOCUMENT_MAX_WIDTH,
 					generatePreview, generateThumbnail);
 
-			ProcessChannel<String> processChannel = ProcessExecutorUtil.execute(
+			ProcessChannel<String> processChannel = _processExecutor.execute(
 				ClassPathUtil.getPortalProcessConfig(), processCallable);
 
 			Future<String> future = processChannel.getProcessNoticeableFuture();
@@ -999,6 +1000,11 @@ public class PDFProcessorImpl
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		PDFProcessorImpl.class);
+
+	private static volatile ProcessExecutor _processExecutor =
+		ServiceProxyFactory.newServiceTrackedInstance(
+			ProcessExecutor.class, PDFProcessorImpl.class, "_processExecutor",
+			true);
 
 	private final List<Long> _fileVersionIds = new Vector<>();
 	private boolean _ghostscriptInitialized;

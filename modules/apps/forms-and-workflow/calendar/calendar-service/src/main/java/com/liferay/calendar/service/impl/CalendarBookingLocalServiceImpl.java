@@ -65,6 +65,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.service.SystemEventLocalService;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
@@ -1159,6 +1160,24 @@ public class CalendarBookingLocalServiceImpl
 		CalendarBooking calendarBooking =
 			calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
 
+		boolean calendarModified = false;
+
+		if (calendarId != calendarBooking.getCalendarId()) {
+			calendarModified = true;
+		}
+
+		if (calendarModified &&
+			(calendarLocalService.isStagingCalendar(calendar) ||
+			 isStagingCalendarBooking(calendarBooking))) {
+
+			systemEventLocalService.addSystemEvent(
+				userId, calendarBooking.getGroupId(),
+				CalendarBooking.class.getName(),
+				calendarBooking.getCalendarBookingId(),
+				calendarBooking.getUuid(), null,
+				SystemEventConstants.TYPE_DELETE, StringPool.BLANK);
+		}
+
 		for (Map.Entry<Locale, String> entry : descriptionMap.entrySet()) {
 			String sanitizedDescription = SanitizerUtil.sanitize(
 				calendar.getCompanyId(), calendar.getGroupId(), userId,
@@ -1494,72 +1513,24 @@ public class CalendarBookingLocalServiceImpl
 
 		// Child calendar bookings
 
-		if (status == CalendarBookingWorkflowConstants.STATUS_IN_TRASH) {
-			List<CalendarBooking> childCalendarBookings =
-				calendarBooking.getChildCalendarBookings();
+		List<CalendarBooking> childCalendarBookings =
+			calendarBooking.getChildCalendarBookings();
 
-			for (CalendarBooking childCalendarBooking : childCalendarBookings) {
-				if (childCalendarBooking.equals(calendarBooking)) {
-					continue;
-				}
-
-				updateStatus(
-					userId, childCalendarBooking,
-					CalendarBookingWorkflowConstants.STATUS_IN_TRASH,
-					serviceContext);
+		for (CalendarBooking childCalendarBooking : childCalendarBookings) {
+			if (childCalendarBooking.equals(calendarBooking)) {
+				continue;
 			}
-		}
-		else if (oldStatus ==
-					CalendarBookingWorkflowConstants.STATUS_IN_TRASH) {
 
-			List<CalendarBooking> childCalendarBookings =
-				calendarBooking.getChildCalendarBookings();
+			int newStatus = getNewChildStatus(
+				status, oldStatus, childCalendarBooking.getStatus(),
+				isStagingCalendarBooking(calendarBooking));
 
-			for (CalendarBooking childCalendarBooking : childCalendarBookings) {
-				if (childCalendarBooking.equals(calendarBooking)) {
-					continue;
-				}
-
-				updateStatus(
-					userId, childCalendarBooking,
-					CalendarBookingWorkflowConstants.STATUS_PENDING,
-					serviceContext);
+			if (newStatus == childCalendarBooking.getStatus()) {
+				continue;
 			}
-		}
-		else if (status == CalendarBookingWorkflowConstants.STATUS_APPROVED) {
-			List<CalendarBooking> childCalendarBookings =
-				calendarBooking.getChildCalendarBookings();
 
-			for (CalendarBooking childCalendarBooking : childCalendarBookings) {
-				if (childCalendarBooking.equals(calendarBooking)) {
-					continue;
-				}
-
-				if (childCalendarBooking.getStatus() ==
-						CalendarBookingWorkflowConstants.
-							STATUS_MASTER_PENDING) {
-
-					updateStatus(
-						userId, childCalendarBooking,
-						CalendarBookingWorkflowConstants.STATUS_PENDING,
-						serviceContext);
-				}
-			}
-		}
-		else {
-			List<CalendarBooking> childCalendarBookings =
-				calendarBooking.getChildCalendarBookings();
-
-			for (CalendarBooking childCalendarBooking : childCalendarBookings) {
-				if (childCalendarBooking.equals(calendarBooking)) {
-					continue;
-				}
-
-				updateStatus(
-					userId, childCalendarBooking,
-					CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING,
-					serviceContext);
-			}
+			updateStatus(
+				userId, childCalendarBooking, newStatus, serviceContext);
 		}
 
 		// Asset
@@ -1700,8 +1671,10 @@ public class CalendarBookingLocalServiceImpl
 						calendarId);
 				}
 
-				recurringCalendarBookingId =
-					childMasterRecurringBooking.getCalendarBookingId();
+				if (childMasterRecurringBooking != null) {
+					recurringCalendarBookingId =
+						childMasterRecurringBooking.getCalendarBookingId();
+				}
 			}
 
 			serviceContext.setAttribute("sendNotification", Boolean.FALSE);
@@ -1776,6 +1749,41 @@ public class CalendarBookingLocalServiceImpl
 		jsonObject.put("title", calendarBooking.getTitle());
 
 		return jsonObject.toString();
+	}
+
+	protected int getNewChildStatus(
+		int newParentStatus, int oldParentStatus, int oldChildStatus,
+		boolean parentStaged) {
+
+		if (newParentStatus ==
+				CalendarBookingWorkflowConstants.STATUS_IN_TRASH) {
+
+			return CalendarBookingWorkflowConstants.STATUS_IN_TRASH;
+		}
+
+		if (oldParentStatus ==
+				CalendarBookingWorkflowConstants.STATUS_IN_TRASH) {
+
+			return CalendarBookingWorkflowConstants.STATUS_PENDING;
+		}
+
+		if (newParentStatus !=
+				CalendarBookingWorkflowConstants.STATUS_APPROVED) {
+
+			return CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING;
+		}
+
+		if (oldChildStatus !=
+				CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING) {
+
+			return oldChildStatus;
+		}
+
+		if (parentStaged) {
+			return CalendarBookingWorkflowConstants.STATUS_MASTER_STAGING;
+		}
+
+		return CalendarBookingWorkflowConstants.STATUS_PENDING;
 	}
 
 	protected Calendar getNotLiveCalendar(Calendar calendar)
@@ -2246,6 +2254,9 @@ public class CalendarBookingLocalServiceImpl
 
 	@ServiceReference(type = SubscriptionLocalService.class)
 	protected SubscriptionLocalService subscriptionLocalService;
+
+	@ServiceReference(type = SystemEventLocalService.class)
+	protected SystemEventLocalService systemEventLocalService;
 
 	@ServiceReference(type = TrashEntryLocalService.class)
 	protected TrashEntryLocalService trashEntryLocalService;

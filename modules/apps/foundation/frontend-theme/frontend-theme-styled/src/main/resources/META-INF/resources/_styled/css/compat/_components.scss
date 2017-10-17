@@ -1,5 +1,8 @@
 @import "mixins";
 
+@import "third_party/font_awesome_alloy";
+@import "third_party/font_glyphicons";
+
 @import "components/alerts";
 @import "components/basic_search";
 @import "components/breadcrumbs";
@@ -10,8 +13,10 @@
 @import "components/figures";
 @import "components/form_validation";
 @import "components/forms";
-@import "components/cards"; // Needs to win over forms
+
+@import "components/cards";
 @import "components/grid";
+@import "components/icons";
 @import "components/input_groups";
 @import "components/labels";
 @import "components/liferay";
@@ -19,6 +24,7 @@
 @import "components/management_bar";
 @import "components/modals";
 @import "components/navs";
+
 @import "components/nav_tabs";
 @import "components/navbar";
 @import "components/pager";
@@ -32,5 +38,6 @@
 @import "components/tables";
 @import "components/toggle_card";
 @import "components/toggle_switch";
+@import "components/toolbar";
 @import "components/user_icons";
 @import "components/utilities";

@@ -1059,6 +1059,61 @@ another task with the same name is being executed in a parent project.
 - [LPS-74544]: Update the [Liferay Source Formatter] dependency to version
 1.0.466.
 
+## 2.2.9 - 2017-09-19
+
+### Changed
+- [LPS-74738]: Update the [Liferay Source Formatter] dependency to version
+1.0.467.
+
+## 2.2.10 - 2017-09-20
+
+### Changed
+- [LPS-74657]: Update the [Liferay Source Formatter] dependency to version
+1.0.468.
+
+## 2.2.11 - 2017-09-26
+
+### Changed
+- [LPS-74749]: Update the [Liferay Source Formatter] dependency to version
+1.0.469.
+
+## 2.2.12 - 2017-09-27
+
+### Changed
+- [LPS-74867]: Update the [Liferay Source Formatter] dependency to version
+1.0.470.
+
+## 2.3.0 - 2017-10-04
+
+### Added
+- [LPS-74314]: Add the property `fileExtensions` to `FormatSourceTask`.
+
+### Changed
+- [LPS-74314]: Update the [Liferay Source Formatter] dependency to version
+1.0.471.
+
+### Fixed
+- [LPS-74314]: Fix the process of passing the `baseDir` property from the
+`FormatSourceTask` to the Source Formatter.
+
+## 2.3.1 - 2017-10-05
+
+### Changed
+- [LPS-75047]: Update the [Liferay Source Formatter] dependency to version
+1.0.472.
+
+## 2.3.2 - 2017-10-08
+
+### Changed
+- [LPS-74544]: Update the [Liferay Source Formatter] dependency to version
+1.0.473.
+
+## 2.3.3 - 2017-10-10
+
+### Changed
+- [LPS-75164]: Update the [Liferay Source Formatter] dependency to version
+1.0.474.
+
 [Liferay Source Formatter]: https://github.com/liferay/liferay-portal/tree/master/modules/util/source-formatter
 [LPS-52675]: https://issues.liferay.com/browse/LPS-52675
 [LPS-62970]: https://issues.liferay.com/browse/LPS-62970
@@ -1119,3 +1174,8 @@ another task with the same name is being executed in a parent project.
 [LPS-74614]: https://issues.liferay.com/browse/LPS-74614
 [LPS-74637]: https://issues.liferay.com/browse/LPS-74637
 [LPS-74657]: https://issues.liferay.com/browse/LPS-74657
+[LPS-74738]: https://issues.liferay.com/browse/LPS-74738
+[LPS-74749]: https://issues.liferay.com/browse/LPS-74749
+[LPS-74867]: https://issues.liferay.com/browse/LPS-74867
+[LPS-75047]: https://issues.liferay.com/browse/LPS-75047
+[LPS-75164]: https://issues.liferay.com/browse/LPS-75164

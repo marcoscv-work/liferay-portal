@@ -16,6 +16,8 @@ package com.liferay.vulcan.result;
 
 import com.liferay.vulcan.exception.FalsePredicateException;
 
+import java.io.Closeable;
+
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -40,7 +42,9 @@ import java.util.function.Supplier;
  * to directly create a {@link Success} from a T.
  *
  * @author Alejandro Hernández
+ * @review
  */
+@SuppressWarnings("unused")
 public abstract class Try<T> {
 
 	/**
@@ -49,6 +53,7 @@ public abstract class Try<T> {
 	 *
 	 * @param  exception the exception to include in the {@link Failure}
 	 * @return the {@code Try} instance for the exception.
+	 * @review
 	 */
 	public static <U> Try<U> fail(Exception exception) {
 		return new Failure<>(exception);
@@ -65,6 +70,7 @@ public abstract class Try<T> {
 	 * @return a {@code Try} instance with the value obtained by the supplier:
 	 *         {@link Failure} if the supplier throws an exception; {@link
 	 *         Success} otherwise.
+	 * @review
 	 */
 	public static <U> Try<U> fromFallible(
 		ThrowableSupplier<U> throwableSupplier) {
@@ -80,11 +86,42 @@ public abstract class Try<T> {
 	}
 
 	/**
+	 * Creates a new {@code Try} instance by executing a fallible lambda with
+	 * resources. If executing the lambda throws an exception a {@link Failure}
+	 * instance will be created; otherwise, a {@link Success} instance with the
+	 * lambda result will be created.
+	 *
+	 * @param  closeableSupplier the supplier to be executed in order to obtain
+	 *         the closeable value.
+	 * @param  throwableFunction the function to be executed in order to obtain
+	 *         the value.
+	 * @return a {@code Try} instance with the value obtained by the supplier:
+	 *         {@link Failure} if the supplier throws an exception; {@link
+	 *         Success} otherwise.
+	 * @review
+	 */
+	public static <U, V extends Closeable> Try<U> fromFallibleWithResources(
+		ThrowableSupplier<V> closeableSupplier,
+		ThrowableFunction<V, U> throwableFunction) {
+
+		Objects.requireNonNull(throwableFunction);
+		Objects.requireNonNull(closeableSupplier);
+
+		try (V v = closeableSupplier.get()) {
+			return success(throwableFunction.apply(v));
+		}
+		catch (Exception exception) {
+			return fail(exception);
+		}
+	}
+
+	/**
 	 * Creates a new {@code Try} instance from a valid object. The instance will
 	 * be created as a {@link Success}.
 	 *
 	 * @param  u object to include as value of the {@link Success}.
 	 * @return the {@code Try} instance for the value.
+	 * @review
 	 */
 	public static <U> Try<U> success(U u) {
 		return new Success<>(u);
@@ -93,13 +130,13 @@ public abstract class Try<T> {
 	/**
 	 * If a value is present, and the value matches the given predicate, return
 	 * a {@code Try} with the value, otherwise return a {@code Try} with an
-	 * exception indicating the <code>false</code> predicate.
+	 * exception indicating the {@code false} predicate.
 	 *
 	 * @param  predicate a predicate to apply to the value, if present
 	 * @return a {@code Try} with the value of this {@code Try} if a value is
 	 *         present and the value matches the given predicate, otherwise a
-	 *         {@code Try} with and exception for a <code>false</code>
-	 *         predicate.
+	 *         {@code Try} with and exception for a {@code false} predicate.
+	 * @review
 	 */
 	public abstract Try<T> filter(Predicate<T> predicate);
 
@@ -117,6 +154,7 @@ public abstract class Try<T> {
 	 * @return the result of applying a {@code Try}-bearing mapping function to
 	 *         the value of this {@code Try}, if a success, otherwise propagates
 	 *         the failure.
+	 * @review
 	 */
 	public abstract <U> Try<U> flatMap(
 		ThrowableFunction<? super T, Try<U>> function);
@@ -125,24 +163,35 @@ public abstract class Try<T> {
 	 * Returns the value T on success or throws the cause of the failure.
 	 *
 	 * @return T if success case, throws {@code Exception} otherwise.
+	 * @throws Exception if this is a {@code Failure}.
+	 * @review
 	 */
 	public abstract T get() throws Exception;
 
 	/**
-	 * Returns <code>true</code> if this {@code Try} instance is a failure.
-	 * Returns <code>false</code> otherwise.
+	 * Returns the value T on success or throws a {@link RuntimeException} with
+	 * the cause of the failure.
 	 *
-	 * @return <code>true</code> if instance is a failure; <code>false</code>
-	 *         otherwise.
+	 * @return T if success case, throws {@code RuntimeException} otherwise.
+	 * @review
+	 */
+	public abstract T getUnchecked();
+
+	/**
+	 * Returns {@code true} if this {@code Try} instance is a failure. Returns
+	 * {@code false} otherwise.
+	 *
+	 * @return {@code true} if instance is a failure; {@code false} otherwise.
+	 * @review
 	 */
 	public abstract boolean isFailure();
 
 	/**
-	 * Returns <code>true</code> if this {@code Try} instance is a success.
-	 * Returns <code>false</code> otherwise.
+	 * Returns {@code true} if this {@code Try} instance is a success. Returns
+	 * {@code false} otherwise.
 	 *
-	 * @return <code>true</code> if instance is a success; <code>false</code>
-	 *         otherwise.
+	 * @return {@code true} if instance is a success; {@code false} otherwise.
+	 * @review
 	 */
 	public abstract boolean isSuccess();
 
@@ -156,6 +205,7 @@ public abstract class Try<T> {
 	 * @return a {@code Try} with the result of applying a mapping function to
 	 *         the value inside this {@code Try}, if success case; a {@code
 	 *         Failure} describing the exception otherwise.
+	 * @review
 	 */
 	public abstract <U> Try<U> map(
 		ThrowableFunction<? super T, ? extends U> throwableFunction);
@@ -169,6 +219,7 @@ public abstract class Try<T> {
 	 * @return a {@code Try} with the result of applying a mapping function to
 	 *         the exception inside this {@code Try}, if failure case: the same
 	 *         {@code Success}, otherwise.
+	 * @review
 	 */
 	public abstract <X extends Exception> Try<T> mapFail(
 		Function<Exception, X> function);
@@ -183,6 +234,7 @@ public abstract class Try<T> {
 	 * @return a {@code Try} with the result of the exception supplier, if
 	 *         failure case and exception classes match: the same {@code
 	 *         Success}, otherwise.
+	 * @review
 	 */
 	public abstract <X extends Exception, Y extends Exception> Try<T>
 		mapFailMatching(Class<Y> exceptionClass, Supplier<X> supplier);
@@ -192,6 +244,7 @@ public abstract class Try<T> {
 	 *
 	 * @param  other the value to be returned if failure.
 	 * @return the value, if success, otherwise {@code other}.
+	 * @review
 	 */
 	public abstract T orElse(T other);
 
@@ -202,6 +255,7 @@ public abstract class Try<T> {
 	 * @param  supplier a {@code Supplier} whose result is returned if failure.
 	 * @return the value if success otherwise the result of {@code
 	 *         supplier.get()}.
+	 * @review
 	 */
 	public abstract T orElseGet(Supplier<? extends T> supplier);
 
@@ -212,6 +266,7 @@ public abstract class Try<T> {
 	 * @param  supplier The supplier which will return the exception to be
 	 *         thrown
 	 * @return the present value
+	 * @review
 	 */
 	public abstract <X extends Throwable> T orElseThrow(
 			Supplier<? extends X> supplier)
@@ -229,6 +284,7 @@ public abstract class Try<T> {
 	 * @param  function function to execute on failure result.
 	 * @return the result from the function, if failure; the inner value on
 	 *         success.
+	 * @review
 	 */
 	public abstract T recover(Function<? super Exception, T> function);
 
@@ -245,6 +301,7 @@ public abstract class Try<T> {
 	 * @param  throwableFunction function to execute on failure result.
 	 * @return the new {@code Try} result from the function, if failure; the
 	 *         current success, otherwise.
+	 * @review
 	 */
 	public abstract Try<T> recoverWith(
 		ThrowableFunction<? super Exception, Try<T>> throwableFunction);
@@ -258,7 +315,7 @@ public abstract class Try<T> {
 	 * {@link #fail(Exception)} to directly create a {@link Failure} from an
 	 * {@code Exception}.
 	 *
-	 * @author Alejandro Hernández
+	 * @review
 	 */
 	public static class Failure<T> extends Try<T> {
 
@@ -285,9 +342,19 @@ public abstract class Try<T> {
 		 * Returns the cause of this failure.
 		 *
 		 * @return the cause of this failure.
+		 * @review
 		 */
 		public Exception getException() {
 			return _exception;
+		}
+
+		@Override
+		public T getUnchecked() {
+			if (_exception instanceof RuntimeException) {
+				throw (RuntimeException)_exception;
+			}
+
+			throw new RuntimeException(_exception);
 		}
 
 		@Override
@@ -387,7 +454,7 @@ public abstract class Try<T> {
 	 * know if the operation is going to fail or not. Or
 	 * {@link #success(Object)} to directly create a {@link Success} from a T.
 	 *
-	 * @author Alejandro Hernández
+	 * @review
 	 */
 	public static class Success<T> extends Try<T> {
 
@@ -422,10 +489,16 @@ public abstract class Try<T> {
 			return _value;
 		}
 
+		@Override
+		public T getUnchecked() {
+			return _value;
+		}
+
 		/**
 		 * Returns the inner value of this {@code Success}.
 		 *
 		 * @return the inner value of the {@code Success}.
+		 * @review
 		 */
 		public T getValue() {
 			return _value;
