@@ -1,0 +1,27 @@
+.navbar-top {
+	padding-bottom: 0.5rem;
+	padding-top: 0.5rem;
+}
+
+.navbar-live {
+	border-bottom: 1px solid #E7E7ED;
+
+	.portlet-navigation {
+		margin-left: auto;
+	}
+
+	.logo:hover {
+		text-decoration: none;
+	}
+
+	.nav-item {
+		@include media-query(null, $screen-xs-max) {
+			margin-left: 1rem;
+		}
+	}
+
+	.navbar-link {
+		letter-spacing: 0.03rem;
+		font-size: 0.88rem;
+	}
+}
