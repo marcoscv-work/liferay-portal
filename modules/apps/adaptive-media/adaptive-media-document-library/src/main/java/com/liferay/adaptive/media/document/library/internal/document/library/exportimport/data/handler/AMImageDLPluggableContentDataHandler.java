@@ -223,10 +223,10 @@ public class AMImageDLPluggableContentDataHandler
 					AMAttribute.getContentLengthAMAttribute());
 
 			Optional<Integer> widthOptional = adaptiveMedia.getValueOptional(
-				AMImageAttribute.IMAGE_WIDTH);
+				AMImageAttribute.AM_IMAGE_ATTRIBUTE_WIDTH);
 
 			Optional<Integer> heightOptional = adaptiveMedia.getValueOptional(
-				AMImageAttribute.IMAGE_HEIGHT);
+				AMImageAttribute.AM_IMAGE_ATTRIBUTE_HEIGHT);
 
 			if (!contentLengthOptional.isPresent() ||
 				!widthOptional.isPresent() || !heightOptional.isPresent()) {
@@ -246,12 +246,10 @@ public class AMImageDLPluggableContentDataHandler
 			}
 
 			try (InputStream inputStream = adaptiveMedia.getInputStream()) {
-				Long contentLength = contentLengthOptional.get();
-
 				_amImageEntryLocalService.addAMImageEntry(
-					amImageConfigurationEntry, fileVersion, widthOptional.get(),
-					heightOptional.get(), inputStream,
-					contentLength.intValue());
+					amImageConfigurationEntry, fileVersion,
+					heightOptional.get(), widthOptional.get(), inputStream,
+					contentLengthOptional.get());
 			}
 		}
 	}

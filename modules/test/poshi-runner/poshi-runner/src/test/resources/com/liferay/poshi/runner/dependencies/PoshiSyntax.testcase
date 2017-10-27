@@ -26,10 +26,14 @@
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
+		<echo message="This is a message." />
+
 		<for list="${breadcrumbListVisible}" param="breadcrumbName">
 			<var name="key_breadcrumbName" value="${breadcrumbName}" />
 
 			<var method="StringUtil#upperCase('${breadcrumbName}')" name="breadcrumbNameUppercase" />
+
+			<var method="selenium#getText('Staging#HISTORY_VERSION')" name="historyVersion" />
 
 			<execute function="AssertTextEquals" locator1="Breadcrumb#BREADCRUMB_ENTRY" value1="${breadcrumbNameUppercase}" />
 
@@ -69,7 +73,9 @@
 				</execute>
 
 				<if>
-					<isset var="duplicate" />
+					<not>
+						<isset var="duplicate" />
+					</not>
 					<then>
 						<execute macro="Alert#viewErrorMessage">
 							<var name="errorMessage" value="A configuration with this ID already exists. Please enter a unique ID." />
@@ -111,6 +117,28 @@
 			</then>
 		</if>
 
+		<if>
+			<and>
+				<condition function="IsElementPresent" locator1="Blogs#ADD_BLOGS_ENTRY" />
+				<equals arg1="${check}" arg2="true" />
+				<isset var="duplicate" />
+			</and>
+			<then>
+				<execute macro="Alert#viewSuccessMessage" />
+			</then>
+		</if>
+
+		<if>
+			<or>
+				<condition function="IsElementPresent" locator1="Blogs#ADD_BLOGS_ENTRY" />
+				<equals arg1="${check}" arg2="true" />
+				<isset var="duplicate" />
+			</or>
+			<then>
+				<execute macro="Alert#viewSuccessMessage" />
+			</then>
+		</if>
+
 		<execute macro="TestCase#getSiteName">
 			<return from="siteName" name="siteName" />
 			<var name="siteName" value="${siteName}" />
@@ -134,6 +162,10 @@ document.getElementById('demo').innerHTML = 'FAIL';
 		<execute macro="Smoke#runSmoke" />
 
 		<execute function="AssertElementPresent" locator1="Home#PAGE" value1="Welcome" />
+
+		<execute function="Type" locator1="DDMField#INTEGER" value1="5">
+			<var name="key_fieldName" value="Integer" />
+		</execute>
 
 		<execute function="Click" locator1="Home#PAGE" />
 

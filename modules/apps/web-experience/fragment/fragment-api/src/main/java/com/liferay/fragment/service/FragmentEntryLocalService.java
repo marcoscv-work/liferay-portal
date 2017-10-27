@@ -71,7 +71,7 @@ public interface FragmentEntryLocalService extends BaseLocalService,
 	@Indexable(type = IndexableType.REINDEX)
 	public FragmentEntry addFragmentEntry(FragmentEntry fragmentEntry);
 
-	public FragmentEntry addFragmentEntry(long groupId, long userId,
+	public FragmentEntry addFragmentEntry(long userId, long groupId,
 		long fragmentCollectionId, java.lang.String name, java.lang.String css,
 		java.lang.String html, java.lang.String js,
 		ServiceContext serviceContext) throws PortalException;
@@ -252,6 +252,9 @@ public interface FragmentEntryLocalService extends BaseLocalService,
 	*/
 	@Indexable(type = IndexableType.REINDEX)
 	public FragmentEntry updateFragmentEntry(FragmentEntry fragmentEntry);
+
+	public FragmentEntry updateFragmentEntry(long fragmentEntryId,
+		java.lang.String name) throws PortalException;
 
 	public FragmentEntry updateFragmentEntry(long fragmentEntryId,
 		java.lang.String name, java.lang.String css, java.lang.String html,

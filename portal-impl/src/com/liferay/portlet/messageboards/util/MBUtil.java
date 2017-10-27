@@ -27,6 +27,7 @@ import com.liferay.message.boards.kernel.model.MBThreadConstants;
 import com.liferay.message.boards.kernel.service.MBCategoryLocalServiceUtil;
 import com.liferay.message.boards.kernel.service.MBMessageLocalServiceUtil;
 import com.liferay.message.boards.kernel.service.MBThreadLocalServiceUtil;
+import com.liferay.petra.mail.JavaMailUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -78,7 +79,6 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.messageboards.MBGroupServiceSettings;
 import com.liferay.portlet.messageboards.service.permission.MBMessagePermission;
-import com.liferay.util.mail.JavaMailUtil;
 
 import java.io.InputStream;
 
@@ -527,9 +527,10 @@ public class MBUtil {
 			catch (Exception e) {
 				if (_log.isWarnEnabled()) {
 					_log.warn(
-						"Message boards search index is stale and contains " +
-							"entry {className=" + entryClassName + ", " +
-								"classPK=" + entryClassPK + "}");
+						StringBundler.concat(
+							"Message boards search index is stale and ",
+							"contains entry {className=", entryClassName,
+							", classPK=", String.valueOf(entryClassPK), "}"));
 				}
 
 				continue;
@@ -1127,12 +1128,12 @@ public class MBUtil {
 
 		String parentMessageId = null;
 
-		String subject = StringUtil.reverse(message.getSubject());
+		String subject = message.getSubject();
 
-		int pos = subject.indexOf(CharPool.LESS_THAN);
+		int pos = subject.lastIndexOf(CharPool.LESS_THAN);
 
 		if (pos != -1) {
-			parentMessageId = StringUtil.reverse(subject.substring(0, pos + 1));
+			parentMessageId = subject.substring(pos);
 		}
 
 		return parentMessageId;

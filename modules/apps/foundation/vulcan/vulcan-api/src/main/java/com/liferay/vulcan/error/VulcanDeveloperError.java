@@ -39,19 +39,6 @@ public class VulcanDeveloperError extends Error {
 	}
 
 	/**
-	 * Represents the error the developer should throw when an identifier
-	 * converter is missing.
-	 */
-	public static class MustHaveIdentifierConverter
-		extends VulcanDeveloperError {
-
-		public MustHaveIdentifierConverter(Class<?> identifier) {
-			super("Identifier " + identifier + " does not have a converter");
-		}
-
-	}
-
-	/**
 	 * Represents the error the developer should throw when a message mapper is
 	 * missing.
 	 */
@@ -61,6 +48,19 @@ public class VulcanDeveloperError extends Error {
 			super(
 				"Media type " + mediaType + " and model class " +
 					modelClass.getName() + " does not have a message mapper");
+		}
+
+	}
+
+	/**
+	 * Represents the error the developer should throw when an identifier's path
+	 * mapper is missing.
+	 */
+	public static class MustHavePathIdentifierMapper
+		extends VulcanDeveloperError {
+
+		public MustHavePathIdentifierMapper(Class<?> identifier) {
+			super("Identifier " + identifier + " does not have a path mapper");
 		}
 
 	}
@@ -108,15 +108,30 @@ public class VulcanDeveloperError extends Error {
 	}
 
 	/**
-	 * Represents the error the developer should throw when an URI cannot be
+	 * Represents the error the developer should throw when the identifier used
+	 * for a related collection isn't the same as the one required by the
+	 * collection.
+	 */
+	public static class MustUseSameIdentifier extends VulcanDeveloperError {
+
+		public MustUseSameIdentifier(
+			Class<?> identifierClass, Class<?> collectionIdentifierClass) {
+
+			super(
+				"Identifier " + identifierClass + " must be " +
+					collectionIdentifierClass);
+		}
+
+	}
+
+	/**
+	 * Represents the error the developer should throw when a URI can't be
 	 * resolved.
 	 */
 	public static class UnresolvableURI extends VulcanDeveloperError {
 
-		public UnresolvableURI(Class<?> modelClass) {
-			super(
-				"Unable to resolve URI for model class " +
-					modelClass.getName());
+		public UnresolvableURI(String className) {
+			super("Unable to resolve URI for model class " + className);
 		}
 
 	}

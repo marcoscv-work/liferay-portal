@@ -25,7 +25,7 @@ configurations {
 }
 
 dependencies {
-	compileInclude group: "com.beust", name: "jcommander", version: "1.48"
+	compileInclude group: "com.beust", name: "jcommander", version: "1.72"
 
 	mavenDistribution classifier: "bin", ext: "zip", group: "org.apache.maven", name: "apache-maven", version: mavenDistributionVersion
 
@@ -40,6 +40,14 @@ dependencies {
 	projectTemplates project(":sdk:project-templates-freemarker-portlet")
 	projectTemplates project(":sdk:project-templates-layout-template")
 	projectTemplates project(":sdk:project-templates-mvc-portlet")
+	projectTemplates project(":sdk:project-templates-npm-angular-portlet")
+	projectTemplates project(":sdk:project-templates-npm-billboardjs-portlet")
+	projectTemplates project(":sdk:project-templates-npm-isomorphic-portlet")
+	projectTemplates project(":sdk:project-templates-npm-jquery-portlet")
+	projectTemplates project(":sdk:project-templates-npm-metaljs-portlet")
+	projectTemplates project(":sdk:project-templates-npm-portlet")
+	projectTemplates project(":sdk:project-templates-npm-react-portlet")
+	projectTemplates project(":sdk:project-templates-npm-vuejs-portlet")
 	projectTemplates project(":sdk:project-templates-panel-app")
 	projectTemplates project(":sdk:project-templates-portlet")
 	projectTemplates project(":sdk:project-templates-portlet-configuration-icon")
@@ -55,6 +63,7 @@ dependencies {
 	projectTemplates project(":sdk:project-templates-template-context-contributor")
 	projectTemplates project(":sdk:project-templates-theme")
 	projectTemplates project(":sdk:project-templates-theme-contributor")
+	projectTemplates project(":sdk:project-templates-war-hook")
 	projectTemplates project(":sdk:project-templates-war-mvc-portlet")
 	projectTemplates project(":sdk:project-templates-workspace")
 

@@ -35,6 +35,7 @@ import com.liferay.asset.publisher.web.configuration.AssetPublisherWebConfigurat
 import com.liferay.asset.publisher.web.constants.AssetPublisherPortletKeys;
 import com.liferay.asset.publisher.web.constants.AssetPublisherWebKeys;
 import com.liferay.asset.publisher.web.internal.action.AssetEntryActionRegistry;
+import com.liferay.asset.publisher.web.internal.util.AssetPublisherWebUtil;
 import com.liferay.asset.publisher.web.util.AssetPublisherCustomizer;
 import com.liferay.asset.publisher.web.util.AssetPublisherUtil;
 import com.liferay.asset.util.impl.AssetPublisherAddItemHolder;
@@ -62,7 +63,6 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PredicateFilter;
@@ -126,6 +126,9 @@ public class AssetPublisherDisplayContext {
 		_assetEntryActionRegistry =
 			(AssetEntryActionRegistry)portletRequest.getAttribute(
 				AssetPublisherWebKeys.ASSET_ENTRY_ACTION_REGISTRY);
+		_assetPublisherWebUtil =
+			(AssetPublisherWebUtil)portletRequest.getAttribute(
+				AssetPublisherWebKeys.ASSET_PUBLISHER_WEB_UTIL);
 		_assetPublisherPortletInstanceConfiguration =
 			(AssetPublisherPortletInstanceConfiguration)
 				portletRequest.getAttribute(
@@ -235,26 +238,17 @@ public class AssetPublisherDisplayContext {
 			WebKeys.THEME_DISPLAY);
 
 		_assetEntryQuery = AssetPublisherUtil.getAssetEntryQuery(
-			_portletPreferences, getGroupIds(), getAllAssetCategoryIds(),
+			_portletPreferences, themeDisplay.getScopeGroupId(),
+			themeDisplay.getLayout(), getAllAssetCategoryIds(),
 			getAllAssetTagNames());
 
-		_assetEntryQuery.setClassTypeIds(getClassTypeIds());
 		_assetEntryQuery.setEnablePermissions(isEnablePermissions());
-		_assetEntryQuery.setExcludeZeroViewCount(isExcludeZeroViewCount());
 
 		configureSubtypeFieldFilter(_assetEntryQuery, themeDisplay.getLocale());
 
-		if (isShowOnlyLayoutAssets()) {
-			_assetEntryQuery.setLayout(themeDisplay.getLayout());
-		}
-
 		_assetEntryQuery.setPaginationType(getPaginationType());
-		_assetEntryQuery.setOrderByCol1(getOrderByColumn1());
-		_assetEntryQuery.setOrderByCol2(getOrderByColumn2());
-		_assetEntryQuery.setOrderByType1(getOrderByType1());
-		_assetEntryQuery.setOrderByType2(getOrderByType2());
 
-		AssetPublisherUtil.processAssetEntryQuery(
+		_assetPublisherWebUtil.processAssetEntryQuery(
 			themeDisplay.getUser(), _portletPreferences, _assetEntryQuery);
 
 		_assetPublisherCustomizer.setAssetEntryQueryOptions(
@@ -365,7 +359,7 @@ public class AssetPublisherDisplayContext {
 				queryValues = ParamUtil.getString(
 					_request, "queryTagNames" + queryLogicIndex, queryValues);
 
-				queryValues = AssetPublisherUtil.filterAssetTagNames(
+				queryValues = _assetPublisherWebUtil.filterAssetTagNames(
 					themeDisplay.getScopeGroupId(), queryValues);
 			}
 			else {
@@ -786,13 +780,23 @@ public class AssetPublisherDisplayContext {
 			liferayPortletRequest, liferayPortletResponse);
 
 		for (long groupId : groupIds) {
-			Map<String, PortletURL> addPortletURLs =
-				AssetUtil.getAddPortletURLs(
+			List<AssetPublisherAddItemHolder> assetPublisherAddItemHolders =
+				AssetUtil.getAssetPublisherAddItemHolders(
 					liferayPortletRequest, liferayPortletResponse, groupId,
 					getClassNameIds(), getClassTypeIds(),
 					getAllAssetCategoryIds(), getAllAssetTagNames(), redirect);
 
-			if (MapUtil.isNotEmpty(addPortletURLs)) {
+			if (ListUtil.isNotEmpty(assetPublisherAddItemHolders)) {
+				Map<String, PortletURL> addPortletURLs = new HashMap<>();
+
+				for (AssetPublisherAddItemHolder assetPublisherAddItemHolder :
+						assetPublisherAddItemHolders) {
+
+					addPortletURLs.put(
+						assetPublisherAddItemHolder.getName(),
+						assetPublisherAddItemHolder.getPortletURL());
+				}
+
 				scopeAddPortletURLs.put(groupId, addPortletURLs);
 			}
 
@@ -1013,7 +1017,7 @@ public class AssetPublisherDisplayContext {
 
 		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
 
-		_defaultAssetPublisher = AssetUtil.isDefaultAssetPublisher(
+		_defaultAssetPublisher = _assetPublisherWebUtil.isDefaultAssetPublisher(
 			themeDisplay.getLayout(), portletDisplay.getId(),
 			getPortletResource());
 
@@ -1329,7 +1333,8 @@ public class AssetPublisherDisplayContext {
 			WebKeys.THEME_DISPLAY);
 
 		String defaultAssetPublisherPortletId =
-			AssetUtil.getDefaultAssetPublisherId(themeDisplay.getLayout());
+			_assetPublisherWebUtil.getDefaultAssetPublisherId(
+				themeDisplay.getLayout());
 
 		if (isDefaultAssetPublisher() ||
 			Validator.isNull(defaultAssetPublisherPortletId) ||
@@ -1379,7 +1384,7 @@ public class AssetPublisherDisplayContext {
 
 		assetEntryQuery.setAttribute(
 			"ddmStructureFieldName",
-			AssetPublisherUtil.encodeName(
+			_assetPublisherWebUtil.encodeName(
 				classTypeField.getClassTypeId(), getDDMStructureFieldName(),
 				locale));
 
@@ -1471,6 +1476,7 @@ public class AssetPublisherDisplayContext {
 		_assetPublisherPortletInstanceConfiguration;
 	private final AssetPublisherWebConfiguration
 		_assetPublisherWebConfiguration;
+	private final AssetPublisherWebUtil _assetPublisherWebUtil;
 	private Map<String, Serializable> _attributes;
 	private long[] _availableClassNameIds;
 	private long[] _classNameIds;

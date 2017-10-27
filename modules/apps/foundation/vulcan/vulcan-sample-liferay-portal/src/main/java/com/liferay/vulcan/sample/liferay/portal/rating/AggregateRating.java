@@ -14,7 +14,9 @@
 
 package com.liferay.vulcan.sample.liferay.portal.rating;
 
-import com.liferay.vulcan.liferay.portal.identifier.ClassNameClassPKIdentifier;
+import aQute.bnd.annotation.ProviderType;
+
+import com.liferay.vulcan.sample.liferay.portal.resource.identifier.AggregateRatingIdentifier;
 
 /**
  * An instance of this interface represents an average rating for a Thing based
@@ -26,20 +28,24 @@ import com.liferay.vulcan.liferay.portal.identifier.ClassNameClassPKIdentifier;
  * </p>
  *
  * @author Alejandro Hernández
+ * @review
  */
+@ProviderType
 public interface AggregateRating {
 
 	/**
 	 * Returns the identifier.
 	 *
 	 * @return the identifier.
+	 * @review
 	 */
-	public ClassNameClassPKIdentifier getClassNameClassPKIdentifier();
+	public AggregateRatingIdentifier getAggregateRatingIdentifier();
 
 	/**
 	 * Returns the count of total number of ratings.
 	 *
 	 * @return the total number of ratings.
+	 * @review
 	 */
 	public Integer getRatingCount();
 
@@ -47,6 +53,7 @@ public interface AggregateRating {
 	 * Returns the rating value for the content.
 	 *
 	 * @return rating value.
+	 * @review
 	 */
 	public Double getRatingValue();
 

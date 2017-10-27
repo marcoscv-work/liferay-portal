@@ -28,9 +28,12 @@ definition {
 			portlet = "Users and Organizations"
 		);
 
+		echo("This is a message.");
+
 		for (breadcrumbName : "${breadcrumbListVisible}") {
 			var key_breadcrumbName = "${breadcrumbName}";
 			var breadcrumbNameUppercase = "StringUtil.upperCase('${breadcrumbName}')";
+			var historyVersion = "selenium.getText('Staging#HISTORY_VERSION')";
 
 			AssertTextEquals(locator1 = "Breadcrumb#BREADCRUMB_ENTRY", value1 = "${breadcrumbNameUppercase}");
 
@@ -64,7 +67,7 @@ definition {
 				errorMessage = "A configuration with this ID already exists. Please enter a unique ID."
 			);
 
-			if (isSet(duplicate)) {
+			if (!(isSet(duplicate))) {
 				Alert.viewErrorMessage(
 					errorMessage = "A configuration with this ID already exists. Please enter a unique ID."
 				);
@@ -94,6 +97,14 @@ definition {
 			Alert.viewSuccessMessage();
 		}
 
+		if ((IsElementPresent(locator1 = "Blogs#ADD_BLOGS_ENTRY")) && ("${check}" == "true") && (isSet(duplicate))) {
+			Alert.viewSuccessMessage();
+		}
+
+		if ((IsElementPresent(locator1 = "Blogs#ADD_BLOGS_ENTRY")) || ("${check}" == "true") || (isSet(duplicate))) {
+			Alert.viewSuccessMessage();
+		}
+
 		var siteName = return(
 			TestCase.getSiteName(
 				siteName = "${siteName}"
@@ -115,6 +126,8 @@ document.getElementById('demo').innerHTML = 'FAIL';
 		Smoke.runSmoke();
 
 		AssertElementPresent(locator1 = "Home#PAGE", value1 = "Welcome");
+
+		Type(locator1 = "DDMField#INTEGER", value1 = "5", key_fieldName = "Integer");
 
 		Click(locator1 = "Home#PAGE");
 

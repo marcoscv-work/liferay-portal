@@ -14,31 +14,27 @@
 
 package com.liferay.vulcan.wiring.osgi.internal.pagination;
 
-import com.liferay.vulcan.identifier.Identifier;
 import com.liferay.vulcan.pagination.Page;
+import com.liferay.vulcan.uri.Path;
 
 import java.util.Collection;
 
 /**
  * @author Alejandro Hernández
+ * @review
  */
 public class PageImpl<T> implements Page<T> {
 
 	public PageImpl(
 		Class<T> modelClass, Collection<T> items, int itemsPerPage,
-		int pageNumber, int totalCount, Identifier identifier) {
+		int pageNumber, int totalCount, Path path) {
 
 		_modelClass = modelClass;
 		_items = items;
 		_itemsPerPage = itemsPerPage;
 		_pageNumber = pageNumber;
 		_totalCount = totalCount;
-		_identifier = identifier;
-	}
-
-	@Override
-	public Identifier getIdentifier() {
-		return _identifier;
+		_path = path;
 	}
 
 	@Override
@@ -67,6 +63,11 @@ public class PageImpl<T> implements Page<T> {
 	}
 
 	@Override
+	public Path getPath() {
+		return _path;
+	}
+
+	@Override
 	public int getTotalCount() {
 		return _totalCount;
 	}
@@ -89,11 +90,11 @@ public class PageImpl<T> implements Page<T> {
 		return false;
 	}
 
-	private final Identifier _identifier;
 	private final Collection<T> _items;
 	private final int _itemsPerPage;
 	private final Class<T> _modelClass;
 	private final int _pageNumber;
+	private final Path _path;
 	private final int _totalCount;
 
 }

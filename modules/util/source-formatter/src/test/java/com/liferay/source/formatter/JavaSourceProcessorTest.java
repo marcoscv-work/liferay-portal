@@ -35,7 +35,7 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 
 	@Test
 	public void testCombineLines() throws Exception {
-		// test("CombineLines.testjava");
+		test("CombineLines.testjava");
 	}
 
 	@Test
@@ -85,7 +85,7 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 
 	@Test
 	public void testFormatBooleanStatements() throws Exception {
-		// test("FormatBooleanStatements.testjava");
+		test("FormatBooleanStatements.testjava");
 	}
 
 	@Test
@@ -276,6 +276,21 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
+	public void testJavaTermMetadataIncorrectLineBreaks() throws Exception {
+		test("JavaTermMetadataIncorrectLineBreaks.testjava");
+	}
+
+	@Test
+	public void testJavaVariableFinalableFields1() throws Exception {
+		test("JavaVariableFinalableFields1.testjava");
+	}
+
+	@Test
+	public void testJavaVariableFinalableFields2() throws Exception {
+		test("JavaVariableFinalableFields2.testjava");
+	}
+
+	@Test
 	public void testLogLevels() throws Exception {
 		test(
 			"Levels.testjava",
@@ -380,7 +395,7 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 
 	@Test
 	public void testThrowsSystemException() throws Exception {
-		// test("ThrowsSystemException.testjava");
+		test("ThrowsSystemException.testjava");
 	}
 
 	@Test

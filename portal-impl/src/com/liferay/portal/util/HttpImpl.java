@@ -16,13 +16,13 @@ package com.liferay.portal.util;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.petra.memory.FinalizeAction;
+import com.liferay.petra.memory.FinalizeManager;
 import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.portal.kernel.io.unsync.UnsyncFilterInputStream;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.memory.FinalizeAction;
-import com.liferay.portal.kernel.memory.FinalizeManager;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -315,8 +315,9 @@ public class HttpImpl implements Http {
 
 			if (_log.isDebugEnabled()) {
 				_log.debug(
-					toString() + " is waiting on " + availableConnections +
-						" connections");
+					StringBundler.concat(
+						toString(), " is waiting on ",
+						String.valueOf(availableConnections), " connections"));
 			}
 
 			_poolingHttpClientConnectionManager.closeIdleConnections(
@@ -844,8 +845,9 @@ public class HttpImpl implements Http {
 					catch (IllegalArgumentException iae) {
 						if (_log.isInfoEnabled()) {
 							_log.info(
-								"Skipping parameter with key " + key +
-									" because of invalid value " + kvp[1],
+								StringBundler.concat(
+									"Skipping parameter with key ", key,
+									" because of invalid value ", kvp[1]),
 								iae);
 						}
 

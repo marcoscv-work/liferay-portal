@@ -31,7 +31,9 @@
 	<command name="addImageResolution">
 		<execute function="Click" locator1="Button#PLUS" />
 
-		<execute function="Type" locator1="TextInput#NAME" value1="${imageName}" />
+		<execute macro="PortletEntry#inputName">
+			<var name="name" value="${imageName}" />
+		</execute>
 
 		<execute function="Type" locator1="TextInput#MAX_WIDTH" value1="${maxWidth}" />
 
@@ -62,6 +64,14 @@
 					<var name="errorMessage" value="A configuration with this ID already exists. Please enter a unique ID." />
 				</execute>
 			</then>
+			<elseif>
+				<isset var="zero" />
+				<then>
+					<execute macro="Alert#viewErrorMessage">
+						<var name="errorMessage" value="Please enter a max width or max height value larger than 0." />
+					</execute>
+				</then>
+			</elseif>
 			<else>
 				<execute macro="Alert#viewSuccessMessage" />
 			</else>
@@ -71,7 +81,9 @@
 	<command name="addNonNumericImageResolution">
 		<execute function="Click" locator1="Button#PLUS" />
 
-		<execute function="Type" locator1="TextInput#NAME" value1="${imageName}" />
+		<execute macro="PortletEntry#inputName">
+			<var name="name" value="${imageName}" />
+		</execute>
 
 		<execute function="Type" locator1="TextInput#MAX_WIDTH" value1="${maxWidth}" />
 
@@ -129,7 +141,9 @@
 				<contains string="${imageNameEdit}" substring="{imageNameEdit}" />
 			</not>
 			<then>
-				<execute function="Type" locator1="TextInput#NAME" value1="${imageNameEdit}"  />
+				<execute macro="PortletEntry#inputName">
+					<var name="name" value="${imageNameEdit}" />
+				</execute>
 			</then>
 		</if>
 

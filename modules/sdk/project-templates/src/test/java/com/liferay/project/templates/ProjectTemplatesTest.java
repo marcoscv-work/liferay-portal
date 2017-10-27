@@ -55,6 +55,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
+import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -542,6 +543,183 @@ public class ProjectTemplatesTest {
 		_testBuildTemplatePortletWithPortletSuffix(
 			"mvc-portlet", "MVCPortlet", "META-INF/resources/init.jsp",
 			"META-INF/resources/view.jsp");
+	}
+
+	@Test
+	public void testBuildTemplateNpmAngularPortlet() throws Exception {
+		File projectDir = _buildTemplateWithGradle(
+			"npm-angular-portlet", "foo");
+
+		_testContains(
+			projectDir, "src/main/resources/META-INF/resources/view.jsp",
+			"<aui:script require=\"foo@1.0.0\">",
+			"foo100.default('<portlet:namespace />');");
+	}
+
+	@Test
+	public void testBuildTemplateNpmAngularPortletWithDashes()
+		throws Exception {
+
+		File projectDir = _buildTemplateWithGradle(
+			"npm-angular-portlet", "foo-bar");
+
+		_testContains(
+			projectDir, "src/main/resources/META-INF/resources/view.jsp",
+			"<aui:script require=\"foo-bar@1.0.0\">",
+			"fooBar100.default('<portlet:namespace />');");
+	}
+
+	@Test
+	public void testBuildTemplateNpmBillboardjsPortlet() throws Exception {
+		File projectDir = _buildTemplateWithGradle(
+			"npm-billboardjs-portlet", "foo");
+
+		_testContains(
+			projectDir, "src/main/resources/META-INF/resources/view.jsp",
+			"<aui:script require=\"foo@1.0.0\">",
+			"foo100.default('<portlet:namespace />');");
+	}
+
+	@Test
+	public void testBuildTemplateNpmBillboardjsPortletWithDashes()
+		throws Exception {
+
+		File projectDir = _buildTemplateWithGradle(
+			"npm-billboardjs-portlet", "foo-bar");
+
+		_testContains(
+			projectDir, "src/main/resources/META-INF/resources/view.jsp",
+			"<aui:script require=\"foo-bar@1.0.0\">",
+			"fooBar100.default('<portlet:namespace />');");
+	}
+
+	@Test
+	public void testBuildTemplateNpmIsomorphicPortlet() throws Exception {
+		File projectDir = _buildTemplateWithGradle(
+			"npm-isomorphic-portlet", "foo");
+
+		_testContains(
+			projectDir, "src/main/resources/META-INF/resources/view.jsp",
+			"<aui:script require=\"foo@1.0.0\">", "foo100.default(");
+	}
+
+	@Test
+	public void testBuildTemplateNpmIsomorphicPortletWithDashes()
+		throws Exception {
+
+		File projectDir = _buildTemplateWithGradle(
+			"npm-isomorphic-portlet", "foo-bar");
+
+		_testContains(
+			projectDir, "src/main/resources/META-INF/resources/view.jsp",
+			"<aui:script require=\"foo-bar@1.0.0\">", "fooBar100.default(");
+	}
+
+	@Test
+	public void testBuildTemplateNpmJQueryPortlet() throws Exception {
+		File projectDir = _buildTemplateWithGradle("npm-jquery-portlet", "foo");
+
+		_testContains(
+			projectDir, "src/main/resources/META-INF/resources/view.jsp",
+			"<aui:script require=\"foo@1.0.0\">",
+			"foo100.default('<portlet:namespace />');");
+	}
+
+	@Test
+	public void testBuildTemplateNpmJQueryPortletWithDashes() throws Exception {
+		File projectDir = _buildTemplateWithGradle(
+			"npm-jquery-portlet", "foo-bar");
+
+		_testContains(
+			projectDir, "src/main/resources/META-INF/resources/view.jsp",
+			"<aui:script require=\"foo-bar@1.0.0\">",
+			"fooBar100.default('<portlet:namespace />');");
+	}
+
+	@Test
+	public void testBuildTemplateNpmMetaljsPortlet() throws Exception {
+		File projectDir = _buildTemplateWithGradle(
+			"npm-metaljs-portlet", "foo");
+
+		_testContains(
+			projectDir, "src/main/resources/META-INF/resources/view.jsp",
+			"<aui:script require=\"foo@1.0.0\">",
+			"foo100.default('<portlet:namespace />');");
+	}
+
+	@Test
+	public void testBuildTemplateNpmMetaljsPortletWithDashes()
+		throws Exception {
+
+		File projectDir = _buildTemplateWithGradle(
+			"npm-metaljs-portlet", "foo-bar");
+
+		_testContains(
+			projectDir, "src/main/resources/META-INF/resources/view.jsp",
+			"<aui:script require=\"foo-bar@1.0.0\">",
+			"fooBar100.default('<portlet:namespace />');");
+	}
+
+	@Test
+	public void testBuildTemplateNpmPortlet() throws Exception {
+		File projectDir = _buildTemplateWithGradle("npm-portlet", "foo");
+
+		_testContains(
+			projectDir, "src/main/resources/META-INF/resources/view.jsp",
+			"<aui:script require=\"foo@1.0.0\">",
+			"foo100.default('<portlet:namespace />');");
+	}
+
+	@Test
+	public void testBuildTemplateNpmPortletWithDashes() throws Exception {
+		File projectDir = _buildTemplateWithGradle("npm-portlet", "foo-bar");
+
+		_testContains(
+			projectDir, "src/main/resources/META-INF/resources/view.jsp",
+			"<aui:script require=\"foo-bar@1.0.0\">",
+			"fooBar100.default('<portlet:namespace />');");
+	}
+
+	@Test
+	public void testBuildTemplateNpmReactPortlet() throws Exception {
+		File projectDir = _buildTemplateWithGradle("npm-react-portlet", "foo");
+
+		_testContains(
+			projectDir, "src/main/resources/META-INF/resources/view.jsp",
+			"<aui:script require=\"foo@1.0.0\">",
+			"foo100.default('<portlet:namespace />');");
+	}
+
+	@Test
+	public void testBuildTemplateNpmReactPortletWithDashes() throws Exception {
+		File projectDir = _buildTemplateWithGradle(
+			"npm-react-portlet", "foo-bar");
+
+		_testContains(
+			projectDir, "src/main/resources/META-INF/resources/view.jsp",
+			"<aui:script require=\"foo-bar@1.0.0\">",
+			"fooBar100.default('<portlet:namespace />');");
+	}
+
+	@Test
+	public void testBuildTemplateNpmVuejsPortlet() throws Exception {
+		File projectDir = _buildTemplateWithGradle("npm-vuejs-portlet", "foo");
+
+		_testContains(
+			projectDir, "src/main/resources/META-INF/resources/view.jsp",
+			"<aui:script require=\"foo@1.0.0\">",
+			"foo100.default('<portlet:namespace />');");
+	}
+
+	@Test
+	public void testBuildTemplateNpmVuejsPortletWithDashes() throws Exception {
+		File projectDir = _buildTemplateWithGradle(
+			"npm-vuejs-portlet", "foo-bar");
+
+		_testContains(
+			projectDir, "src/main/resources/META-INF/resources/view.jsp",
+			"<aui:script require=\"foo-bar@1.0.0\">",
+			"fooBar100.default('<portlet:namespace />');");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -1067,14 +1245,37 @@ public class ProjectTemplatesTest {
 			gradleProjectDir,
 			"src/main/java/com/liferay/test/portlet/FooPortlet.java",
 			"public class FooPortlet extends SoyPortlet {");
+		_testContains(
+			gradleProjectDir,
+			"src/main/java/com/liferay/test/portlet/action" +
+				"/FooViewMVCRenderCommand.java",
+			"public class FooViewMVCRenderCommand");
 
 		File mavenProjectDir = _buildTemplateWithMaven(
 			"soy-portlet", "foo", "com.test", "-DclassName=Foo",
 			"-Dpackage=com.liferay.test");
 
+		String gradleBundleFileName = "build/libs/com.liferay.test-1.0.0.jar";
+		String mavenBundleFileName = "target/foo-1.0.0.jar";
+
+		File mavenPackageJsonFile = new File(mavenProjectDir, "package.json");
+
+		Path mavenPackageJsonPath = mavenPackageJsonFile.toPath();
+
+		String mavenPackageJSON = FileUtil.read(mavenPackageJsonPath) + "\n";
+
+		Files.write(
+			mavenPackageJsonPath,
+			mavenPackageJSON.getBytes(StandardCharsets.UTF_8));
+
 		_buildProjects(
-			gradleProjectDir, mavenProjectDir,
-			"build/libs/com.liferay.test-1.0.0.jar", "target/foo-1.0.0.jar");
+			gradleProjectDir, mavenProjectDir, gradleBundleFileName,
+			mavenBundleFileName);
+
+		_testContainsJarEntry(
+			new File(gradleProjectDir, gradleBundleFileName), "package.json");
+		_testContainsJarEntry(
+			new File(mavenProjectDir, mavenBundleFileName), "package.json");
 	}
 
 	@Test
@@ -1369,6 +1570,38 @@ public class ProjectTemplatesTest {
 	}
 
 	@Test
+	public void testBuildTemplateWarHook() throws Exception {
+		File gradleProjectDir = _buildTemplateWithGradle("war-hook", "WarHook");
+
+		_testExists(gradleProjectDir, "src/main/resources/portal.properties");
+		_testExists(
+			gradleProjectDir, "src/main/webapp/WEB-INF/liferay-hook.xml");
+		_testExists(gradleProjectDir, "build.gradle");
+
+		_testContains(
+			gradleProjectDir,
+			"src/main/java/warhook/WarHookLoginPostAction.java",
+			"public class WarHookLoginPostAction extends Action");
+		_testContains(
+			gradleProjectDir, "src/main/java/warhook/WarHookStartupAction.java",
+			"public class WarHookStartupAction extends SimpleAction");
+		_testContains(
+			gradleProjectDir,
+			"src/main/webapp/WEB-INF/liferay-plugin-package.properties",
+			"name=WarHook");
+
+		File mavenProjectDir = _buildTemplateWithMaven(
+			"war-hook", "WarHook", "warhook", "-DclassName=WarHook",
+			"-Dpackage=warhook");
+
+		_testContains(mavenProjectDir, "pom.xml");
+
+		_buildProjects(
+			gradleProjectDir, mavenProjectDir, "build/libs/WarHook.war",
+			"target/WarHook-1.0.0.war");
+	}
+
+	@Test
 	public void testBuildTemplateWarMVCPortlet() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
 			"war-mvc-portlet", "WarMVCPortlet");
@@ -1585,6 +1818,8 @@ public class ProjectTemplatesTest {
 	public void testBuildTemplateWorkspaceLocalProperties() throws Exception {
 		File workspaceProjectDir = _buildTemplateWithGradle(
 			WorkspaceUtil.WORKSPACE, "foo");
+
+		_testExists(workspaceProjectDir, "gradle-local.properties");
 
 		Properties gradleLocalProperties = new Properties();
 
@@ -2073,6 +2308,14 @@ public class ProjectTemplatesTest {
 		throws IOException {
 
 		return _testContains(dir, fileName, false, strings);
+	}
+
+	private static void _testContainsJarEntry(File file, String name)
+		throws IOException {
+
+		try (JarFile jarFile = new JarFile(file)) {
+			Assert.assertNotNull(jarFile.getJarEntry(name));
+		}
 	}
 
 	private static File _testEquals(

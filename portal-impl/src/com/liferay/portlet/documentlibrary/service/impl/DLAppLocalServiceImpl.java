@@ -28,7 +28,6 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.model.UserConstants;
-import com.liferay.portal.kernel.repository.DocumentRepository;
 import com.liferay.portal.kernel.repository.InvalidRepositoryIdException;
 import com.liferay.portal.kernel.repository.LocalRepository;
 import com.liferay.portal.kernel.repository.RepositoryProvider;
@@ -48,7 +47,7 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFolder;
-import com.liferay.portal.repository.registry.RepositoryClassDefinitionCatalogUtil;
+import com.liferay.portal.util.RepositoryUtil;
 import com.liferay.portlet.documentlibrary.service.base.DLAppLocalServiceBaseImpl;
 import com.liferay.portlet.documentlibrary.util.DLAppUtil;
 
@@ -56,7 +55,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -306,14 +304,20 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 	 * @param  fileEntryId the primary key of the file entry
 	 * @param  serviceContext the service context to be applied
 	 * @return the file rank
+	 *
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *            com.liferay.document.library.file.rank.service.DLFileRankLocalService#addFileRank}
 	 */
+	@Deprecated
 	@Override
 	public DLFileRank addFileRank(
 		long repositoryId, long companyId, long userId, long fileEntryId,
 		ServiceContext serviceContext) {
 
-		return dlFileRankLocalService.addFileRank(
-			repositoryId, companyId, userId, fileEntryId, serviceContext);
+		throw new UnsupportedOperationException(
+			"This method is deprecated and replaced by " +
+				"com.liferay.document.library.file.rank.service." +
+					"DLFileRankLocalService#addFileRank");
 	}
 
 	/**
@@ -425,10 +429,17 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 	 * only supported by the Liferay repository.
 	 *
 	 * @param fileEntryId the primary key of the file entry
+	 *
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *            com.liferay.document.library.file.rank.service.DLFileRankLocalService#deleteFileRanksByFileEntryId}
 	 */
+	@Deprecated
 	@Override
 	public void deleteFileRanksByFileEntryId(long fileEntryId) {
-		dlFileRankLocalService.deleteFileRanksByFileEntryId(fileEntryId);
+		throw new UnsupportedOperationException(
+			"This method is deprecated and replaced by " +
+				"com.liferay.document.library.file.rank.service." +
+					"DLFileRankLocalService#deleteFileRanksByFileEntryId");
 	}
 
 	/**
@@ -436,10 +447,17 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 	 * supported by the Liferay repository.
 	 *
 	 * @param userId the primary key of the user
+	 *
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *            com.liferay.document.library.file.rank.service.DLFileRankLocalService#deleteFileRanksByUserId}
 	 */
+	@Deprecated
 	@Override
 	public void deleteFileRanksByUserId(long userId) {
-		dlFileRankLocalService.deleteFileRanksByUserId(userId);
+		throw new UnsupportedOperationException(
+			"This method is deprecated and replaced by " +
+				"com.liferay.document.library.file.rank.service." +
+					"DLFileRankLocalService#deleteFileRanksByUserId");
 	}
 
 	/**
@@ -609,10 +627,17 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 	 * @param  repositoryId the primary key of the repository
 	 * @param  userId the primary key of the user
 	 * @return the file ranks from the user
+	 *
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *            com.liferay.document.library.file.rank.service.DLFileRankLocalService#getFileRanks}
 	 */
+	@Deprecated
 	@Override
 	public List<DLFileRank> getFileRanks(long repositoryId, long userId) {
-		return dlFileRankLocalService.getFileRanks(repositoryId, userId);
+		throw new UnsupportedOperationException(
+			"This method is deprecated and replaced by " +
+				"com.liferay.document.library.file.rank.service." +
+					"DLFileRankLocalService#getFileRanks");
 	}
 
 	/**
@@ -1077,14 +1102,20 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 	 * @param  fileEntryId the primary key of the file rank's file entry
 	 * @param  serviceContext the service context to be applied
 	 * @return the file rank
+	 *
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *            com.liferay.document.library.file.rank.service.DLFileRankLocalService#updateFileRank}
 	 */
+	@Deprecated
 	@Override
 	public DLFileRank updateFileRank(
 		long repositoryId, long companyId, long userId, long fileEntryId,
 		ServiceContext serviceContext) {
 
-		return dlFileRankLocalService.updateFileRank(
-			repositoryId, companyId, userId, fileEntryId, serviceContext);
+		throw new UnsupportedOperationException(
+			"This method is deprecated and replaced by " +
+				"com.liferay.document.library.file.rank.service." +
+					"DLFileRankLocalService#updateFileRank");
 	}
 
 	/**
@@ -1343,7 +1374,9 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 
 		long repositoryId = localRepository.getRepositoryId();
 
-		if (!_isExternalRepository(localRepository)) {
+		if (!RepositoryUtil.isExternalRepository(
+				localRepository.getRepositoryId())) {
+
 			dlAppHelperLocalService.deleteRepositoryFileEntries(repositoryId);
 
 			localRepository.deleteAll();
@@ -1417,23 +1450,6 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 
 	@BeanReference(type = RepositoryProvider.class)
 	protected RepositoryProvider repositoryProvider;
-
-	private boolean _isExternalRepository(DocumentRepository documentRepository)
-		throws PortalException {
-
-		Repository repository = repositoryLocalService.fetchRepository(
-			documentRepository.getRepositoryId());
-
-		if (repository == null) {
-			return false;
-		}
-
-		Collection<String> externalRepositoryClassNames =
-			RepositoryClassDefinitionCatalogUtil.
-				getExternalRepositoryClassNames();
-
-		return externalRepositoryClassNames.contains(repository.getClassName());
-	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DLAppLocalServiceImpl.class);

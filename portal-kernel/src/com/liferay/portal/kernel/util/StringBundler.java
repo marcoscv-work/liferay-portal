@@ -14,6 +14,8 @@
 
 package com.liferay.portal.kernel.util;
 
+import com.liferay.petra.lang.CentralizedThreadLocal;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
@@ -31,6 +33,16 @@ import java.lang.ref.SoftReference;
  * @author Preston Crary
  */
 public class StringBundler implements Serializable {
+
+	public static String concat(String... strings) {
+		for (int i = 0; i < strings.length; i++) {
+			if (strings[i] == null) {
+				strings[i] = StringPool.NULL;
+			}
+		}
+
+		return _toString(strings, strings.length);
+	}
 
 	public StringBundler() {
 		_array = new String[_DEFAULT_ARRAY_CAPACITY];
@@ -228,26 +240,44 @@ public class StringBundler implements Serializable {
 
 	@Override
 	public String toString() {
-		if (_arrayIndex == 0) {
+		return _toString(_array, _arrayIndex);
+	}
+
+	public void writeTo(Writer writer) throws IOException {
+		for (int i = 0; i < _arrayIndex; i++) {
+			writer.write(_array[i]);
+		}
+	}
+
+	protected void expandCapacity(int newCapacity) {
+		String[] newArray = new String[newCapacity];
+
+		System.arraycopy(_array, 0, newArray, 0, _arrayIndex);
+
+		_array = newArray;
+	}
+
+	private static String _toString(String[] array, int arrayIndex) {
+		if (arrayIndex == 0) {
 			return StringPool.BLANK;
 		}
 
-		if (_arrayIndex == 1) {
-			return _array[0];
+		if (arrayIndex == 1) {
+			return array[0];
 		}
 
-		if (_arrayIndex == 2) {
-			return _array[0].concat(_array[1]);
+		if (arrayIndex == 2) {
+			return array[0].concat(array[1]);
 		}
 
-		if (_arrayIndex == 3) {
-			return _array[0].concat(_array[1]).concat(_array[2]);
+		if (arrayIndex == 3) {
+			return array[0].concat(array[1]).concat(array[2]);
 		}
 
 		int length = 0;
 
-		for (int i = 0; i < _arrayIndex; i++) {
-			length += _array[i].length();
+		for (int i = 0; i < arrayIndex; i++) {
+			length += array[i].length();
 		}
 
 		UnsafeStringBuilder usb = null;
@@ -273,25 +303,11 @@ public class StringBundler implements Serializable {
 			usb = new UnsafeStringBuilder(length);
 		}
 
-		for (int i = 0; i < _arrayIndex; i++) {
-			usb.append(_array[i]);
+		for (int i = 0; i < arrayIndex; i++) {
+			usb.append(array[i]);
 		}
 
 		return usb.toString();
-	}
-
-	public void writeTo(Writer writer) throws IOException {
-		for (int i = 0; i < _arrayIndex; i++) {
-			writer.write(_array[i]);
-		}
-	}
-
-	protected void expandCapacity(int newCapacity) {
-		String[] newArray = new String[newCapacity];
-
-		System.arraycopy(_array, 0, newArray, 0, _arrayIndex);
-
-		_array = newArray;
 	}
 
 	private static final int _DEFAULT_ARRAY_CAPACITY = 16;

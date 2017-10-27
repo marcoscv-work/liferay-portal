@@ -42,6 +42,9 @@ public class HtmlContentTransformerImplTest {
 
 	@Before
 	public void setUp() throws PortalException {
+		_htmlContentTransformer.setAMImageHTMLTagFactory(
+			_amImageHTMLTagFactory);
+
 		Mockito.when(
 			_dlAppLocalService.getFileEntry(1989L)
 		).thenReturn(
@@ -49,8 +52,6 @@ public class HtmlContentTransformerImplTest {
 		);
 
 		_htmlContentTransformer.setDLAppLocalService(_dlAppLocalService);
-		_htmlContentTransformer.setAMImageHTMLTagFactory(
-			_amImageHTMLTagFactory);
 	}
 
 	@Test
@@ -88,7 +89,7 @@ public class HtmlContentTransformerImplTest {
 	public void testContentTypeIsHTML() throws Exception {
 		Assert.assertEquals(
 			ContentTransformerContentTypes.HTML,
-			_htmlContentTransformer.getContentType());
+			_htmlContentTransformer.getContentTransformerContentType());
 	}
 
 	@Test
