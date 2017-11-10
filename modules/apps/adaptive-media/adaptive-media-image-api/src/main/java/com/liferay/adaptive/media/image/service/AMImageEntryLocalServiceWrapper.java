@@ -37,12 +37,12 @@ public class AMImageEntryLocalServiceWrapper implements AMImageEntryLocalService
 	* Adds an adaptive media image entry in the database and stores the image
 	* bytes in the file store.
 	*
-	* @param amImageConfigurationEntry the configuration used to create the adaptive
-	media image
+	* @param amImageConfigurationEntry the configuration used to create the
+	adaptive media image
 	* @param fileVersion the file version used to create the adaptive media
 	image
-	* @param width the adaptive media image's width
 	* @param height the adaptive media image's height
+	* @param width the adaptive media image's width
 	* @param inputStream the adaptive media image's input stream to store in
 	the file store
 	* @param size the adaptive media image's size
@@ -54,10 +54,10 @@ public class AMImageEntryLocalServiceWrapper implements AMImageEntryLocalService
 	public com.liferay.adaptive.media.image.model.AMImageEntry addAMImageEntry(
 		com.liferay.adaptive.media.image.configuration.AMImageConfigurationEntry amImageConfigurationEntry,
 		com.liferay.portal.kernel.repository.model.FileVersion fileVersion,
-		int width, int height, java.io.InputStream inputStream, int size)
+		int height, int width, java.io.InputStream inputStream, long size)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _amImageEntryLocalService.addAMImageEntry(amImageConfigurationEntry,
-			fileVersion, width, height, inputStream, size);
+			fileVersion, height, width, inputStream, size);
 	}
 
 	/**
@@ -90,8 +90,8 @@ public class AMImageEntryLocalServiceWrapper implements AMImageEntryLocalService
 	* the database and the bytes from the file store.
 	*
 	* @param companyId the primary key of the company
-	* @param amImageConfigurationEntry the configuration used to create the adaptive
-	media image
+	* @param amImageConfigurationEntry the configuration used to create the
+	adaptive media image
 	*/
 	@Override
 	public void deleteAMImageEntries(long companyId,
@@ -405,8 +405,8 @@ public class AMImageEntryLocalServiceWrapper implements AMImageEntryLocalService
 	* Returns the input stream of the adaptive media image generated for a file
 	* version and configuration.
 	*
-	* @param amImageConfigurationEntry the configuration used to create the adaptive
-	media image
+	* @param amImageConfigurationEntry the configuration used to create the
+	adaptive media image
 	* @param fileVersion the file version used to create the adaptive media
 	image
 	* @return the input stream of the adaptive media image generated for a file

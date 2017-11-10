@@ -1111,7 +1111,7 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 	public String getFirstNumberIncrement(String locator) {
 		String firstNumber = getFirstNumber(locator);
 
-		return StringUtil.valueOf(GetterUtil.getInteger(firstNumber) + 1);
+		return String.valueOf(GetterUtil.getInteger(firstNumber) + 1);
 	}
 
 	public Node getHtmlNode(String locator) {
@@ -1185,7 +1185,7 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 	public String getLocation() throws Exception {
 		List<Exception> exceptions = new ArrayList<>();
 
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < PropsValues.GET_LOCATION_MAX_RETRIES; i++) {
 			FutureTask<String> futureTask = new FutureTask<>(
 				new Callable<String>() {
 
@@ -1212,7 +1212,7 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 
 			try {
 				String location = futureTask.get(
-					PropsValues.TIMEOUT_EXPLICIT_WAIT, TimeUnit.SECONDS);
+					PropsValues.GET_LOCATION_TIMEOUT, TimeUnit.SECONDS);
 
 				return location;
 			}

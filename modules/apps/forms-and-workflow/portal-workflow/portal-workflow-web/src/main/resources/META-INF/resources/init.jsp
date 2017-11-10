@@ -22,16 +22,18 @@
 taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 
 <%@ page import="com.liferay.portal.kernel.util.ParamUtil" %><%@
+page import="com.liferay.portal.workflow.web.constants.WorkflowWebKeys" %><%@
 page import="com.liferay.portal.workflow.web.internal.constants.WorkflowPortletKeys" %><%@
-page import="com.liferay.portal.workflow.web.internal.constants.WorkflowWebKeys" %>
+page import="com.liferay.portal.workflow.web.portlet.tab.WorkflowPortletTab" %><%@
+page import="com.liferay.taglib.servlet.PipingServletResponse" %>
+
+<%@ page import="java.util.List" %>
+
+<%@ page import="javax.portlet.PortletURL" %>
 
 <portlet:defineObjects />
 
 <%
-String defaultTab = (String)renderRequest.getAttribute(WorkflowWebKeys.WORKFLOW_DEFAULT_TAB);
-
-String tab = ParamUtil.get(request, "tab", defaultTab);
-boolean workflowDefinitionTabVisible = (boolean)renderRequest.getAttribute(WorkflowWebKeys.WORKFLOW_VISIBILITY_DEFINITION);
-boolean workflowDefinitionLinkTabVisible = (boolean)renderRequest.getAttribute(WorkflowWebKeys.WORKFLOW_VISIBILITY_DEFINITION_LINK);
-boolean workflowInstanceTabVisible = (boolean)renderRequest.getAttribute(WorkflowWebKeys.WORKFLOW_VISIBILITY_INSTANCE);
+List<WorkflowPortletTab> portletTabs = (List<WorkflowPortletTab>)renderRequest.getAttribute(WorkflowWebKeys.WORKFLOW_PORTLET_TABS);
+WorkflowPortletTab selectedPortletTab = (WorkflowPortletTab)renderRequest.getAttribute(WorkflowWebKeys.WORKFLOW_SELECTED_PORTLET_TAB);
 %>

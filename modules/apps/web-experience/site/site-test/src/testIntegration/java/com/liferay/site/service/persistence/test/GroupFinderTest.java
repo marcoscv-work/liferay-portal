@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
-import com.liferay.portal.kernel.model.ResourceTypePermission;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
@@ -32,7 +31,6 @@ import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.kernel.service.ResourceActionLocalServiceUtil;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
-import com.liferay.portal.kernel.service.ResourceTypePermissionLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserGroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.service.persistence.GroupFinderUtil;
@@ -41,12 +39,10 @@ import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.OrganizationTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ResourcePermissionTestUtil;
-import com.liferay.portal.kernel.test.util.ResourceTypePermissionTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserGroupTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.comparator.GroupNameComparator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.TransactionalTestRule;
@@ -90,21 +86,14 @@ public class GroupFinderTest {
 		_resourcePermission = ResourcePermissionTestUtil.addResourcePermission(
 			_arbitraryResourceAction.getBitwiseValue(),
 			_arbitraryResourceAction.getName(),
-			StringUtil.valueOf(_group.getGroupId()),
-			ResourceConstants.SCOPE_GROUP);
+			String.valueOf(_group.getGroupId()), ResourceConstants.SCOPE_GROUP);
 
 		_modelResourceAction = getModelResourceAction();
 
-		_resourceTypePermission =
-			ResourceTypePermissionTestUtil.addResourceTypePermission(
-				_modelResourceAction.getBitwiseValue(), _group.getGroupId(),
-				_modelResourceAction.getName());
-
 		ResourcePermissionTestUtil.addResourcePermission(
 			_modelResourceAction.getBitwiseValue(),
-			_modelResourceAction.getName(),
-			StringUtil.valueOf(_group.getGroupId()),
-			_resourceTypePermission.getRoleId(), ResourceConstants.SCOPE_GROUP);
+			_modelResourceAction.getName(), String.valueOf(_group.getGroupId()),
+			RandomTestUtil.nextLong(), ResourceConstants.SCOPE_GROUP);
 	}
 
 	@AfterClass
@@ -117,12 +106,17 @@ public class GroupFinderTest {
 		ResourcePermissionLocalServiceUtil.deleteResourcePermission(
 			_resourcePermission);
 
-		ResourceTypePermissionLocalServiceUtil.deleteResourceTypePermission(
-			_resourceTypePermission);
-
 		UserLocalServiceUtil.deleteUser(_userGroupUser);
 
 		UserGroupLocalServiceUtil.deleteUserGroup(_userGroup);
+	}
+
+	@Test
+	public void testFindByActiveGroupIds() throws Exception {
+		List<Long> groups = GroupFinderUtil.findByActiveGroupIds(
+			TestPropsValues.getUserId());
+
+		Assert.assertFalse(groups.isEmpty());
 	}
 
 	@Test
@@ -134,31 +128,6 @@ public class GroupFinderTest {
 		List<Group> groups = findByC_C_N_D(
 			_arbitraryResourceAction.getActionId(),
 			_resourcePermission.getName(), _resourcePermission.getRoleId());
-
-		for (Group group : groups) {
-			if (group.getGroupId() == _group.getGroupId()) {
-				exists = true;
-
-				break;
-			}
-		}
-
-		Assert.assertTrue(
-			"The method findByC_C_N_D should have returned the group " +
-				_group.getGroupId(),
-			exists);
-	}
-
-	@Test
-	public void testFindByC_C_N_DJoinByRoleResourceTypePermissions()
-		throws Exception {
-
-		List<Group> groups = findByC_C_N_D(
-			_modelResourceAction.getActionId(),
-			_resourceTypePermission.getName(),
-			_resourceTypePermission.getRoleId());
-
-		boolean exists = false;
 
 		for (Group group : groups) {
 			if (group.getGroupId() == _group.getGroupId()) {
@@ -343,7 +312,6 @@ public class GroupFinderTest {
 	private static ResourceAction _modelResourceAction;
 	private static Organization _organization;
 	private static ResourcePermission _resourcePermission;
-	private static ResourceTypePermission _resourceTypePermission;
 	private static UserGroup _userGroup;
 	private static Group _userGroupGroup;
 	private static User _userGroupUser;

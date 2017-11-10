@@ -17,6 +17,10 @@
 <%@ include file="/init.jsp" %>
 
 <%
+String redirect = ParamUtil.getString(request, "redirect");
+
+String backURL = ParamUtil.getString(request, "backURL", redirect);
+
 Group selGroup = (Group)request.getAttribute(WebKeys.GROUP);
 
 long liveGroupId = layoutsAdminDisplayContext.getLiveGroupId();
@@ -27,6 +31,11 @@ PortletURL redirectURL = layoutsAdminDisplayContext.getRedirectURL();
 
 if (selGroup.isLayoutSetPrototype()) {
 	privateLayout = true;
+}
+
+if (Validator.isNotNull(backURL)) {
+	portletDisplay.setShowBackIcon(true);
+	portletDisplay.setURLBack(backURL);
 }
 
 renderResponse.setTitle(selGroup.getLayoutRootNodeName(privateLayout, locale));
@@ -50,6 +59,16 @@ renderResponse.setTitle(selGroup.getLayoutRootNodeName(privateLayout, locale));
 		formModelBean="<%= selLayoutSet %>"
 		id="<%= FormNavigatorConstants.FORM_NAVIGATOR_ID_LAYOUT_SET %>"
 		markupView="lexicon"
-		showButtons="<%= GroupPermissionUtil.contains(permissionChecker, selGroup, ActionKeys.MANAGE_LAYOUTS) && SitesUtil.isLayoutSetPrototypeUpdateable(selLayoutSet) %>"
+		showButtons="<%= false %>"
 	/>
+
+	<c:if test="<%= GroupPermissionUtil.contains(permissionChecker, selGroup, ActionKeys.MANAGE_LAYOUTS) && SitesUtil.isLayoutSetPrototypeUpdateable(selLayoutSet) %>">
+		<aui:button-row>
+			<aui:button cssClass="btn-lg" type="submit" value="save" />
+
+			<c:if test="<%= Validator.isNotNull(backURL) %>">
+				<aui:button cssClass="btn-lg" href="<%= backURL %>" type="cancel" />
+			</c:if>
+		</aui:button-row>
+	</c:if>
 </aui:form>

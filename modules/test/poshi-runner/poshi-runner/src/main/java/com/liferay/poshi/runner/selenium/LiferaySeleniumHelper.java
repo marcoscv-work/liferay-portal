@@ -21,7 +21,6 @@ import com.liferay.poshi.runner.util.FileUtil;
 import com.liferay.poshi.runner.util.GetterUtil;
 import com.liferay.poshi.runner.util.OSDetector;
 import com.liferay.poshi.runner.util.PropsValues;
-import com.liferay.poshi.runner.util.StringUtil;
 import com.liferay.poshi.runner.util.Validator;
 
 import java.awt.Rectangle;
@@ -364,11 +363,11 @@ public class LiferaySeleniumHelper {
 	}
 
 	public static String getNumberDecrement(String value) {
-		return StringUtil.valueOf(GetterUtil.getInteger(value) - 1);
+		return String.valueOf(GetterUtil.getInteger(value) - 1);
 	}
 
 	public static String getNumberIncrement(String value) {
-		return StringUtil.valueOf(GetterUtil.getInteger(value) + 1);
+		return String.valueOf(GetterUtil.getInteger(value) + 1);
 	}
 
 	public static String getSourceDirFilePath(String fileName)
@@ -418,6 +417,10 @@ public class LiferaySeleniumHelper {
 	}
 
 	public static String getTestConsoleLogFileContent() throws Exception {
+		if (Validator.isNull(PropsValues.TEST_CONSOLE_LOG_FILE_NAME)) {
+			return "";
+		}
+
 		Map<String, File> consoleLogFiles = new TreeMap<>();
 
 		String baseDirName = PropsValues.TEST_CONSOLE_LOG_FILE_NAME;

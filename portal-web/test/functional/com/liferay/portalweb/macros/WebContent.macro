@@ -244,7 +244,9 @@
 		<if>
 			<isset var="webContentContent" />
 			<then>
-				<execute function="AssertTextEquals" locator1="AlloyEditor#CONTENT_FIELD" value1="${webContentContent}" />
+				<execute function="AssertTextEquals" locator1="AlloyEditor#EDITOR" value1="${webContentContent}">
+					<var name="key_editor" value="content" />
+				</execute>
 			</then>
 		</if>
 	</command>
@@ -363,17 +365,15 @@
 			<var name="webContentTitle" value="${webContentTitle}" />
 		</execute>
 
-		<execute function="Click" locator1="AlloyEditor#CONTENT_FIELD" />
-
-		<execute function="Click" locator1="AlloyEditor#CONTENT_ADD_BUTTON" />
-
-		<execute function="Click" locator1="AlloyEditor#CONTENT_ADD_MENUBAR_IMAGE" />
+		<execute macro="ItemSelector#gotoItemSelectorViaAlloyEditor" />
 
 		<execute function="SelectFrame" locator1="IFrame#METADATA_SETS_IFRAME" />
 
 		<var name="key_imageFileName" value="${dmDocumentTitle}" />
 
 		<var method="StringUtil#replace('${dmDocumentTitle}', ' ', '+')" name="key_imageFileName" />
+
+		<execute function="Pause" locator1="1000" />
 
 		<execute function="Click" locator1="ItemSelector#SELECT_FILE_IMAGE_PREVIEW" />
 
@@ -495,6 +495,19 @@
 		</if>
 
 		<if>
+			<isset var="webContentColor" />
+			<then>
+				<execute function="Click" locator1="DDMField#TEXT">
+					<var name="key_fieldName" value="Color" />
+				</execute>
+
+				<execute function="Click" locator1="DDMField#COLOR_PICKER_COLOR">
+					<var name="key_colorCode" value="${webContentColor}" />
+				</execute>
+			</then>
+		</if>
+
+		<if>
 			<isset var="webContentDate" />
 			<then>
 				<execute function="Type" locator1="DDMField#DATE" value1="${webContentDate}" />
@@ -584,7 +597,7 @@
 		</if>
 
 		<if>
-			<isset var="WebContentSelectWCFile" />
+			<isset var="webContentSelectWCFile" />
 			<then>
 				<execute function="AssertClick" locator1="DDLEditRecord#WEB_CONTENT_CHOOSE_FROM_WEB_CONTENT_LIBRARY_BUTTON" value1="Select">
 					<var name="key_fieldName" value="${fieldName}" />
@@ -592,8 +605,8 @@
 
 				<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
-				<execute function="AssertClick" locator1="Link#WEB_CONTENT_ARTICLE" value1="${WebContentSelectWCFile}">
-					<var name="key_webContentTitle" value="${WebContentSelectWCFile}" />
+				<execute function="AssertClick" locator1="Link#WEB_CONTENT_ARTICLE" value1="${webContentSelectWCFile}">
+					<var name="key_webContentTitle" value="${webContentSelectWCFile}" />
 				</execute>
 
 				<execute function="SelectFrame" value1="relative=top" />
@@ -629,6 +642,15 @@
 		</if>
 
 		<if>
+			<isset var="webContentTextBox2" />
+			<then>
+				<execute function="Type" locator1="DDMField#TEXT_BOX" value1="${webContentTextBox2}" >
+					<var name="key_fieldName" value="${fieldName2}" />
+				</execute>
+			</then>
+		</if>
+
+		<if>
 			<isset var="webContentTextBoxList" />
 			<then>
 				<var name="count" value="1" />
@@ -644,9 +666,11 @@
 		</if>
 
 		<if>
-			<isset var="abstractSummary" />
+			<isset var="description" />
 			<then>
-				<execute function="Type" locator1="TextArea#SUMMARY" value1="${abstractSummary}" />
+				<execute macro="AlloyEditor#addDescription">
+					<var name="description" value="${description}" />
+				</execute>
 			</then>
 		</if>
 
@@ -789,7 +813,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Recycle Bin" />
 		</execute>
 
@@ -797,7 +823,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Web Content" />
 		</execute>
 
@@ -1378,7 +1406,9 @@
 	<command name="tearDownCP">
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Web Content" />
 		</execute>
 
@@ -1399,7 +1429,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Recycle Bin" />
 		</execute>
 
@@ -1565,7 +1597,9 @@
 				</execute>
 			</then>
 			<else>
-				<execute function="AssertTextEquals" locator1="AlloyEditor#CONTENT_FIELD" value1="${webContentContent}" />
+				<execute function="AssertTextEquals" locator1="AlloyEditor#EDITOR" value1="${webContentContent}">
+					<var name="key_editor" value="content" />
+				</execute>
 
 				<execute function="SelectFrame" value1="relative=top" />
 			</else>
@@ -1619,7 +1653,7 @@
 	</command>
 
 	<command name="viewDefaultLanguage">
-		<execute function="AssertTextEquals" locator1="NavTab#TAB_LINK" value1="${locale}">
+		<execute function="AssertTextEquals#assertPartialText" locator1="NavTab#TAB_LINK" value1="${locale}">
 			<var name="key_tab" value="${locale}" />
 		</execute>
 
@@ -1672,7 +1706,9 @@
 			<var name="displayStyle" value="List" />
 		</execute>
 
-		<execute function="AssertElementPresent" locator1="WC#ENTRY_LIST_TITLE" />
+		<execute function="AssertElementPresent" locator1="WC#ENTRY_LIST_TITLE">
+			<var name="key_webContentTitle" value="${webContentTitle}" />
+		</execute>
 	</command>
 
 	<command name="viewEditWCViaWCD">
@@ -1909,7 +1945,9 @@
 	<command name="viewStatus">
 		<execute function="AssertTextEquals" locator1="AssetWorkflow#WORKFLOW_STATUS" value1="${webContentStatus}" />
 		<execute function="AssertTextEquals" locator1="TextInput#TITLE" value1="${webContentTitle}" />
-		<execute function="AssertTextEquals" locator1="AlloyEditor#CONTENT_FIELD" value1="${webContentContent}" />
+		<execute function="AssertTextEquals" locator1="AlloyEditor#EDITOR" value1="${webContentContent}">
+			<var name="key_editor" value="content" />
+		</execute>
 
 		<execute function="SelectFrameTop" />
 	</command>
@@ -1969,7 +2007,15 @@
 			</else>
 		</if>
 
-		<execute function="AssertTextEquals#assertPartialText" locator1="WC#ENTRY_DESCRIPTIVE_TITLE" value1="${webContentTitle}" />
+		<if>
+			<equals arg1="${onLive}" arg2="true" />
+			<then>
+				<execute function="AssertTextEquals#assertPartialText" locator1="WC#ENTRY_DESCRIPTIVE_TITLE_ON_LIVE" value1="${webContentTitle}" />
+			</then>
+			<else>
+				<execute function="AssertTextEquals#assertPartialText" locator1="WC#ENTRY_DESCRIPTIVE_TITLE" value1="${webContentTitle}" />
+			</else>
+		</if>
 	</command>
 
 	<command name="viewTranslation">
@@ -1981,7 +2027,9 @@
 		</execute>
 
 		<execute function="AssertTextEquals" locator1="TextInput#TITLE" value1="${localizedTitle}" />
-		<execute function="AssertTextEquals" locator1="AlloyEditor#CONTENT_FIELD" value1="${localizedContent}" />
+		<execute function="AssertTextEquals" locator1="AlloyEditor#EDITOR" value1="${localizedContent}">
+			<var name="key_editor" value="content" />
+		</execute>
 	</command>
 
 	<command name="viewUnlocalizableTextBox">
@@ -2050,6 +2098,26 @@
 		<execute function="AssertTextEquals" locator1="TextInput#TITLE" value1="${webContentTitle}" />
 
 		<if>
+			<isset var="description" />
+			<then>
+				<execute function="AssertTextEquals" locator1="AlloyEditor#EDITOR" value1="${description}">
+					<var name="key_editor" value="description" />
+				</execute>
+			</then>
+		</if>
+
+		<if>
+			<isset var="webContentImage" />
+			<then>
+				<execute function="Click" locator1="Button#PREVIEW" />
+
+				<execute function="SelectFrameTop" value1="relative=top" />
+
+				<execute function="SikuliAssertElementPresent" locator1="DDMField#IMAGE_PREVIEW_PNG" />
+			</then>
+		</if>
+
+		<if>
 			<isset var="webContentText" />
 			<then>
 				<execute function="AssertTextEquals" locator1="DDMField#TEXT" value1="${webContentText}">
@@ -2078,6 +2146,15 @@
 		</if>
 
 		<if>
+			<isset var="webContentTextBox2" />
+			<then>
+				<var name="key_fieldName" value="${fieldName2}" />
+
+				<execute function="AssertTextEquals" locator1="DDMField#TEXT_BOX" value1="${webContentTextBox2}" />
+			</then>
+		</if>
+
+		<if>
 			<isset var="webContentTextBoxList" />
 			<then>
 				<var name="count" value="1" />
@@ -2101,7 +2178,9 @@
 
 		<execute function="AssertTextEquals" locator1="AssetWorkflow#WORKFLOW_STATUS" value1="Pending (${workflowTask})" />
 		<execute function="AssertTextEquals" locator1="TextInput#TITLE" value1="${webContentTitle}" />
-		<execute function="AssertTextEquals" locator1="AlloyEditor#CONTENT_FIELD" value1="${webContentContent}" />
+		<execute function="AssertTextEquals" locator1="AlloyEditor#EDITOR" value1="${webContentContent}">
+			<var name="key_editor" value="content" />
+		</execute>
 
 		<execute function="SelectFrameTop" />
 	</command>
@@ -2117,6 +2196,8 @@
 
 		<execute function="AssertTextEquals" locator1="AssetWorkflow#WORKFLOW_STATUS" value1="Pending (${workflowTask})" />
 		<execute function="AssertTextEquals" locator1="TextInput#TITLE" value1="${webContentTitle}" />
-		<execute function="AssertTextEquals" locator1="AlloyEditor#CONTENT_FIELD" value1="${webContentContent}" />
+		<execute function="AssertTextEquals" locator1="AlloyEditor#EDITOR" value1="${webContentContent}">
+			<var name="key_editor" value="content" />
+		</execute>
 	</command>
 </definition>

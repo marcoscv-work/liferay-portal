@@ -13,7 +13,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesConfiguration">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Configuration" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Workflow" />
 		</execute>
 
@@ -29,7 +31,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Web Content" />
 		</execute>
 
@@ -135,10 +139,14 @@
 		</execute>
 	</command>
 
-	<command name="ApproveMessageBoardsThreadPG" priority="4">
+	<command name="ApproveMessageBoardsThreadPG" priority="5">
+		<description message="This is a use case for LPS-72846." />
+
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Message Boards" />
 		</execute>
 
@@ -147,8 +155,17 @@
 			<var name="threadSubject" value="MB Thread Message Subject" />
 		</execute>
 
+		<execute macro="Notifications#viewBadgeCount">
+			<var name="notificationCount" value="1" />
+		</execute>
+
 		<execute macro="Page#gotoMyAccount">
 			<var name="portletName" value="My Workflow Tasks" />
+		</execute>
+
+		<execute macro="Workflow#viewNoDuplicateTaskAssignedToMyRoles">
+			<var name="workflowAssetTitle" value="MB Thread Message Subject" />
+			<var name="workflowTask" value="Review" />
 		</execute>
 
 		<execute macro="Workflow#assignToMeTaskByActions">

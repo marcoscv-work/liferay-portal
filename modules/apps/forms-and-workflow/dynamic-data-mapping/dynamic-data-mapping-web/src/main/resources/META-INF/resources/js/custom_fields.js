@@ -1176,7 +1176,7 @@ AUI.add(
 
 						DDMDateField.superclass.renderUI.apply(instance, arguments);
 
-						instance.datePicker = new A.DatePicker(
+						instance.datePicker = new A.DatePickerDeprecated(
 							{
 								calendar: {
 									locale: Liferay.ThemeDisplay.getLanguageId()
@@ -1221,7 +1221,7 @@ AUI.add(
 												inputFormatter: function(val) {
 													var instance = this;
 
-													var value = STR_BLANK;
+													var value = val;
 
 													if (Array.isArray(val)) {
 														value = instance.formatDate(val[0]);
