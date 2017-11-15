@@ -9,7 +9,9 @@
 
 		<execute macro="User#firstLoginPG" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Tags" />
 		</execute>
 
@@ -68,8 +70,6 @@
 	</command>
 
 	<command name="DeleteTagFromMenu" priority="5">
-		<property name="portal.acceptance" value="true" />
-
 		<execute macro="Tag#viewCP">
 			<var name="tagName" value="tagname1" />
 		</execute>

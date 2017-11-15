@@ -14,9 +14,9 @@
 
 package com.liferay.javadoc.formatter;
 
+import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
-import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -1144,7 +1144,8 @@ public class JavadocFormatter {
 		// Wrap special constants in code tags
 
 		text = text.replaceAll(
-			"(?i)(?<!<code>|\\w)(null|false|true)(?!\\w)", "<code>$1</code>");
+			"(?i)(?<!<code>|\\{@code |\\w)(null|false|true)(?!\\w)",
+			"<code>$1</code>");
 
 		return text;
 	}
@@ -1436,6 +1437,7 @@ public class JavadocFormatter {
 
 		if (Validator.isNotNull(docletTags)) {
 			if (_initializeMissingJavadocs || Validator.isNotNull(comment)) {
+				sb.append(indent);
 				sb.append(" *\n");
 			}
 
@@ -1716,13 +1718,15 @@ public class JavadocFormatter {
 
 			String modifier = modifiers.get(0);
 
-			for (int i = javaClass.getLineNumber(); i < lines.length; i++) {
+			for (int i = javaClass.getLineNumber() - 1; i < lines.length; i++) {
 				String line = StringUtil.trim(lines[i - 1]);
 
 				if (line.startsWith(modifier + StringPool.SPACE)) {
 					return _getAdjustedLineNumber(i, javaModel);
 				}
 			}
+
+			return -1;
 		}
 
 		if (javaModel instanceof JavaField) {
@@ -2207,7 +2211,75 @@ public class JavadocFormatter {
 		}
 
 		System.out.println(
-			"Updating " + _languagePropertiesFile + " key " + key);
+			StringBundler.concat(
+				"Updating ", String.valueOf(_languagePropertiesFile), " key ",
+				key));
+	}
+
+	private String _wrap(String text, int width) {
+		if (text == null) {
+			return null;
+		}
+
+		StringBundler sb = new StringBundler();
+
+		for (String line : StringUtil.splitLines(text)) {
+			if (line.isEmpty()) {
+				sb.append("\n");
+
+				continue;
+			}
+
+			int lineLength = 0;
+
+			for (String token : StringUtil.split(line, CharPool.SPACE)) {
+				if ((lineLength + token.length() + 1) > width) {
+					if (lineLength > 0) {
+						sb.append("\n");
+					}
+
+					if (token.length() > width) {
+						int pos = token.indexOf(CharPool.OPEN_PARENTHESIS);
+
+						if (pos != -1) {
+							sb.append(token.substring(0, pos + 1));
+							sb.append("\n");
+
+							token = token.substring(pos + 1);
+
+							sb.append(token);
+
+							lineLength = token.length();
+						}
+						else {
+							sb.append(token);
+
+							lineLength = token.length();
+						}
+					}
+					else {
+						sb.append(token);
+
+						lineLength = token.length();
+					}
+				}
+				else {
+					if (lineLength > 0) {
+						sb.append(StringPool.SPACE);
+
+						lineLength++;
+					}
+
+					sb.append(token);
+
+					lineLength += token.length();
+				}
+			}
+
+			sb.append("\n");
+		}
+
+		return sb.toString();
 	}
 
 	private String _wrapText(String text, int indentLength, String exclude) {
@@ -2227,7 +2299,7 @@ public class JavadocFormatter {
 		while (matcher.find()) {
 			String wrapped = _formatInlines(matcher.group());
 
-			wrapped = StringUtil.wrap(wrapped, 80 - indentLength, "\n");
+			wrapped = _wrap(wrapped, 80 - indentLength);
 
 			matcher.appendReplacement(sb, wrapped);
 		}
@@ -2248,7 +2320,7 @@ public class JavadocFormatter {
 		}
 		else {
 			text = _formatInlines(text);
-			text = StringUtil.wrap(text, 80 - indentLength, "\n");
+			text = _wrap(text, 80 - indentLength);
 		}
 
 		text = text.replaceAll("(?m)^", indent);

@@ -548,6 +548,73 @@ svn://svn.liferay.com/repos/public/alloy/trunk/sandbox/taglibs.
 	</target>
 
 	<target name="format-source">
+		<property location="${project.dir}/modules" name="source.formatter.modules.dir.absolute.path" />
+
+		<if>
+			<not>
+				<isset property="env.JENKINS_HOME" />
+			</not>
+			<then>
+				<var name="source.formatter.gradle.args" value="" />
+				<var name="source.formatter.gradle.task" value="formatSource" />
+
+				<if>
+					<isset property="source.file.extensions" />
+					<then>
+						<var name="source.formatter.gradle.args" value="${source.formatter.gradle.args} -DformatSource.file.extensions=${source.file.extensions}" />
+					</then>
+				</if>
+
+				<if>
+					<isset property="source.files" />
+					<then>
+						<var name="source.formatter.gradle.args" value="${source.formatter.gradle.args} -DformatSource.file.names=${source.files}" />
+					</then>
+				</if>
+
+				<if>
+					<istrue value="${source.formatter.show.debug.information}" />
+					<then>
+						<var name="source.formatter.gradle.args" value="${source.formatter.gradle.args} -Psource.formatter.show.debug.information=true" />
+					</then>
+				</if>
+
+				<if>
+					<istrue value="${jvm.debug}" />
+					<then>
+						<var name="source.formatter.gradle.args" value="${source.formatter.gradle.args} --jvm-debug" />
+					</then>
+				</if>
+
+				<if>
+					<istrue value="${format.current.branch}" />
+					<then>
+						<var name="source.formatter.gradle.task" value="formatSourceCurrentBranch" />
+					</then>
+				</if>
+
+				<if>
+					<istrue value="${format.latest.author}" />
+					<then>
+						<var name="source.formatter.gradle.task" value="formatSourceLatestAuthor" />
+					</then>
+				</if>
+
+				<if>
+					<istrue value="${format.local.changes}" />
+					<then>
+						<var name="source.formatter.gradle.task" value="formatSourceLocalChanges" />
+					</then>
+				</if>
+
+				<echo>
+Please run the following command from ${source.formatter.modules.dir.absolute.path} to show status updates during the Source Formatter execution:
+
+../gradlew -b util.gradle ${source.formatter.gradle.task}${source.formatter.gradle.args}
+				</echo>
+			</then>
+		</if>
+
 		<path id="source.formatter.classpath">
 			<fileset dir="${sdk.dir}/dependencies/com.liferay.source.formatter/lib" includes="*.jar" />
 			<path refid="project.classpath" />
@@ -593,6 +660,39 @@ svn://svn.liferay.com/repos/public/alloy/trunk/sandbox/taglibs.
 		</java>
 
 		<delete file="ServiceBuilder.temp" />
+
+		<condition else="npmRunFormat" property="source.formatter.npm.task" value="npmRunCheckFormat">
+			<and>
+				<isset property="source.auto.fix" />
+				<isfalse value="${source.auto.fix}" />
+			</and>
+		</condition>
+
+		<if>
+			<or>
+				<istrue value="${format.current.branch}" />
+				<istrue value="${format.latest.author}" />
+				<istrue value="${format.local.changes}" />
+			</or>
+			<then>
+				<echo>
+This target does not format .es.js files. Please run the following command from ${source.formatter.modules.dir.absolute.path} to do so:
+
+../gradlew ${source.formatter.npm.task}
+				</echo>
+			</then>
+			<elseif>
+				<not>
+					<or>
+						<isset property="source.file.extensions" />
+						<isset property="source.files" />
+					</or>
+				</not>
+				<then>
+					<gradle-execute checktask="true" dir="${project.dir}/modules" task="${source.formatter.npm.task}" />
+				</then>
+			</elseif>
+		</if>
 	</target>
 
 	<target name="format-source-bnd">

@@ -8,7 +8,9 @@
 
 		<execute macro="User#firstLoginPG" />
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -226,7 +228,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Web Content" />
 		</execute>
 
@@ -239,7 +243,9 @@
 
 		<execute macro="PortletEntry#publish" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Web Content" />
 		</execute>
 
@@ -254,7 +260,9 @@
 			<var name="targetFriendlyUrl" value="/web/guest/home" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Web Content" />
 		</execute>
 
@@ -262,7 +270,7 @@
 			<var name="feedName" value="WC Feed Title" />
 		</execute>
 
-		<var attribute="value" locator="//input[contains(@id,'JournalPortlet_url') and contains(@value,'journal/rss')]" name="rssFeedUrl" />
+		<var method="selenium#getAttribute('//input[contains(@id,\'JournalPortlet_url\') and contains(@value,\'journal/rss\')]@value')" name="rssFeedUrl" />
 		<var method="StringUtil#replace('${rssFeedUrl}', 'localhost', '127.0.0.1')" name="rssFeedUrl" />
 
 		<execute macro="Navigator#gotoSitePage">
@@ -625,7 +633,7 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<var attribute="href" locator="//div[@class='subscribe-action']/span/a[contains(@href,'asset_publisher')]" name="rssFeedUrl" />
+		<var method="selenium#getAttribute('//div[@class=\'subscribe-action\']/span/a[contains(@href,\'asset_publisher\')]@href')" name="rssFeedUrl" />
 		<var method="StringUtil#replace('${rssFeedUrl}', 'localhost', '127.0.0.1')" name="rssFeedUrl" />
 
 		<execute macro="Navigator#gotoSitePage">
@@ -709,7 +717,9 @@
 			<var name="siteName" value="${siteName}" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelConfiguration">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Configuration" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="System Settings" />
 		</execute>
 
@@ -773,7 +783,7 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<var attribute="href" locator="//div[@class='subscribe-action']/span/a[contains(@href,'asset_publisher')]" name="rssFeedUrl" />
+		<var method="selenium#getAttribute('//div[@class=\'subscribe-action\']/span/a[contains(@href,\'asset_publisher\')]@href')" name="rssFeedUrl" />
 
 		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="Site Page Name" />

@@ -14,12 +14,17 @@
 
 package com.liferay.portal.kernel.util;
 
+import com.liferay.petra.lang.ClassLoaderPool;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author Shuyang Zhou
+ * @deprecated As of 7.0.0, replaced by {@link
+ *             com.liferay.petra.lang.ClassResolverUtil}
  */
+@Deprecated
 public class ClassResolverUtil {
 
 	public static Class<?> resolve(String className, ClassLoader classLoader)
@@ -40,6 +45,10 @@ public class ClassResolverUtil {
 		}
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static Class<?> resolveByContextClassLoader(String className) {
 		Thread thread = Thread.currentThread();
 
@@ -53,6 +62,10 @@ public class ClassResolverUtil {
 		}
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static Class<?> resolveByPortalClassLoader(String className) {
 		ClassLoader portalClassLoader = PortalClassLoaderUtil.getClassLoader();
 
@@ -64,6 +77,10 @@ public class ClassResolverUtil {
 		}
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static Class<?> resolveByPortletClassLoader(
 		String className, String servletContextName) {
 
