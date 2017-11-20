@@ -21,6 +21,7 @@ label {
 		padding-left: 20px;
 	}
 }
+
 .radio input[type="radio"],
 .radio-inline input[type="radio"],
 .checkbox input[type="checkbox"],
@@ -129,6 +130,10 @@ label {
 
 .form-horizontal > .form-group {
 	@extend .row;
+}
+
+.form-inline label {
+	display: inline-block;
 }
 
 .input-lg {

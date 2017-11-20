@@ -36,8 +36,10 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.ArtifactRepositoryContainer;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.DependencySubstitutions;
 import org.gradle.api.artifacts.DependencySubstitutions.Substitution;
+import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.ModuleVersionSelector;
 import org.gradle.api.artifacts.ResolutionStrategy;
 import org.gradle.api.artifacts.component.ComponentSelector;
@@ -54,12 +56,6 @@ import org.gradle.util.GUtil;
  * @author Andrea Di Giorgi
  */
 public class GradleUtil extends com.liferay.gradle.util.GradleUtil {
-
-	public static final String PORTAL_TOOL_GROUP = "com.liferay";
-
-	public static final String SNAPSHOT_PROPERTY_NAME = "snapshot";
-
-	public static final String SNAPSHOT_VERSION_SUFFIX = "-SNAPSHOT";
 
 	public static MavenArtifactRepository addMavenArtifactRepository(
 		RepositoryHandler repositoryHandler, final Object url) {
@@ -274,6 +270,22 @@ public class GradleUtil extends com.liferay.gradle.util.GradleUtil {
 		return iterator.next();
 	}
 
+	public static boolean hasDependency(
+		DependencySet dependencySet, String group, String name) {
+
+		for (ModuleDependency moduleDependency :
+				dependencySet.withType(ModuleDependency.class)) {
+
+			if (group.equals(moduleDependency.getGroup()) &&
+				name.equals(moduleDependency.getName())) {
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public static boolean hasPlugin(
 		Project project, Class<? extends Plugin<?>> pluginClass) {
 
@@ -308,60 +320,6 @@ public class GradleUtil extends com.liferay.gradle.util.GradleUtil {
 		}
 
 		return false;
-	}
-
-	public static boolean isSnapshot(Project project) {
-		String version = String.valueOf(project.getVersion());
-
-		if (version.endsWith(SNAPSHOT_VERSION_SUFFIX)) {
-			return true;
-		}
-
-		return false;
-	}
-
-	public static boolean isSnapshot(Project project, String... propertyNames) {
-		boolean snapshot = false;
-
-		if (project.hasProperty(SNAPSHOT_PROPERTY_NAME)) {
-			snapshot = getProperty(project, SNAPSHOT_PROPERTY_NAME, true);
-		}
-
-		if (!snapshot) {
-			for (String propertyName : propertyNames) {
-				if (project.hasProperty(propertyName) &&
-					getProperty(project, propertyName, true)) {
-
-					snapshot = true;
-
-					break;
-				}
-			}
-		}
-
-		return snapshot;
-	}
-
-	public static boolean isTestProject(Project project) {
-		String projectName = project.getName();
-
-		if (projectName.endsWith("-test")) {
-			return true;
-		}
-
-		return false;
-	}
-
-	public static void setProjectSnapshotVersion(
-		Project project, String... propertyNames) {
-
-		String version = String.valueOf(project.getVersion());
-
-		if (isSnapshot(project, propertyNames) &&
-			!version.endsWith(SNAPSHOT_VERSION_SUFFIX)) {
-
-			project.setVersion(version + SNAPSHOT_VERSION_SUFFIX);
-		}
 	}
 
 	public static void substituteModuleDependencyWithProject(

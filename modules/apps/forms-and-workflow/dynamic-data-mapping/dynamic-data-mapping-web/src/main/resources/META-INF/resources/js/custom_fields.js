@@ -981,6 +981,16 @@ AUI.add(
 						value = A.Object.getValue(localizationMap, [defaultLocale, attribute]);
 
 						if (!isValue(value)) {
+							for (var localizationMapLocale in localizationMap) {
+								value = A.Object.getValue(localizationMap, [localizationMapLocale, attribute]);
+
+								if (isValue(value)) {
+									break;
+								}
+							}
+						}
+
+						if (!isValue(value)) {
 							value = STR_BLANK;
 						}
 					}
@@ -1176,7 +1186,7 @@ AUI.add(
 
 						DDMDateField.superclass.renderUI.apply(instance, arguments);
 
-						instance.datePicker = new A.DatePicker(
+						instance.datePicker = new A.DatePickerDeprecated(
 							{
 								calendar: {
 									locale: Liferay.ThemeDisplay.getLanguageId()
@@ -1221,7 +1231,7 @@ AUI.add(
 												inputFormatter: function(val) {
 													var instance = this;
 
-													var value = STR_BLANK;
+													var value = val;
 
 													if (Array.isArray(val)) {
 														value = instance.formatDate(val[0]);

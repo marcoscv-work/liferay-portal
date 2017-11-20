@@ -222,11 +222,11 @@
 
 		<execute function="Check" locator1="CalendarEditEvent#ALL_DAY_CHECKBOX" />
 
-		<execute function="AssertElementNotPresent#assertNotVisible" locator1="CalendarEditEvent#START_DATE_TIME" />
-		<execute function="AssertElementNotPresent#assertNotVisible" locator1="CalendarEditEvent#END_DATE_TIME" />
+		<execute function="AssertNotVisible" locator1="CalendarEditEvent#START_DATE_TIME" />
+		<execute function="AssertNotVisible" locator1="CalendarEditEvent#END_DATE_TIME" />
 
-		<var locator="CalendarEditEvent#END_DATE" name="endDate" />
-		<var locator="CalendarEditEvent#START_DATE" name="startDate" />
+		<var method="selenium#getElementValue(CalendarEditEvent#END_DATE)" name="endDate" />
+		<var method="selenium#getElementValue(CalendarEditEvent#START_DATE)" name="startDate" />
 
 		<execute macro="CalendarEvent#selectCalendar">
 			<var name="calendarName" value="${calendarName}" />
@@ -393,7 +393,7 @@
 			<var name="eventTitle" value="${eventTitle}" />
 		</execute>
 
-		<execute macro="CalendarEvent#publish" />
+		<execute macro="Button#clickPublish" />
 	</command>
 
 	<command name="addRegular">
@@ -404,10 +404,10 @@
 		<execute function="AssertNotChecked" locator1="CalendarEditEvent#ALL_DAY_CHECKBOX" />
 		<execute function="AssertNotChecked" locator1="CalendarEditEvent#REPEAT_CHECKBOX" />
 
-		<var locator="CalendarEditEvent#END_DATE" name="endDate" />
-		<var locator="CalendarEditEvent#END_DATE_TIME" name="endDateTime" />
-		<var locator="CalendarEditEvent#START_DATE" name="startDate" />
-		<var locator="CalendarEditEvent#START_DATE_TIME" name="startDateTime" />
+		<var method="selenium#getElementValue(CalendarEditEvent#END_DATE)" name="endDate" />
+		<var method="selenium#getElementValue(CalendarEditEvent#END_DATE_TIME)" name="endDateTime" />
+		<var method="selenium#getElementValue(CalendarEditEvent#START_DATE)" name="startDate" />
+		<var method="selenium#getElementValue(CalendarEditEvent#START_DATE_TIME)" name="startDateTime" />
 
 		<execute macro="CalendarEvent#selectCalendar">
 			<var name="calendarName" value="${calendarName}" />
@@ -497,10 +497,10 @@
 			<var name="eventTitle" value="${eventTitle}" />
 		</execute>
 
-		<var locator="CalendarEditEvent#END_DATE" name="endDate" />
-		<var locator="CalendarEditEvent#END_DATE_TIME" name="endDateTime" />
-		<var locator="CalendarEditEvent#START_DATE" name="startDate" />
-		<var locator="CalendarEditEvent#START_DATE_TIME" name="startDateTime" />
+		<var method="selenium#getElementValue(CalendarEditEvent#END_DATE)" name="endDate" />
+		<var method="selenium#getElementValue(CalendarEditEvent#END_DATE_TIME)" name="endDateTime" />
+		<var method="selenium#getElementValue(CalendarEditEvent#START_DATE)" name="startDate" />
+		<var method="selenium#getElementValue(CalendarEditEvent#START_DATE_TIME)" name="startDateTime" />
 
 		<execute macro="CalendarEvent#setRepeating">
 			<var name="frequency" value="${frequency}" />
@@ -645,7 +645,7 @@
 				<execute function="Type" locator1="CalendarEditEvent#START_DATE_TIME" value1="${setStartDateTime}" />
 				<execute function="Type" locator1="CalendarEditEvent#END_DATE_TIME" value1="${setEndDateTime}" />
 
-				<var locator="CalendarEditEvent#START_DATE" name="startDate" />
+				<var method="selenium#getElementValue(CalendarEditEvent#START_DATE)" name="startDate" />
 
 				<var name="endDate" value="${startDate}" />
 
@@ -685,7 +685,7 @@
 					<execute function="Type" locator1="CalendarEditEvent#START_DATE_TIME" value1="${setStartDateTime}" />
 					<execute function="Type" locator1="CalendarEditEvent#END_DATE_TIME" value1="${setEndDateTime}" />
 
-					<var locator="CalendarEditEvent#START_DATE" name="startDate" />
+					<var method="selenium#getElementValue(CalendarEditEvent#START_DATE)" name="startDate" />
 
 					<var name="endDate" value="${startDate}" />
 
@@ -770,10 +770,10 @@
 	</command>
 
 	<command name="compareEventDateAndTimeToResourcesAvailabilityDateAndTime">
-		<var locator="CalendarEditEvent#END_DATE" name="endDate" />
-		<var locator="CalendarEditEvent#END_DATE_TIME" name="endDateTime" />
-		<var locator="CalendarEditEvent#START_DATE" name="startDate" />
-		<var locator="CalendarEditEvent#START_DATE_TIME" name="startDateTime" />
+		<var method="selenium#getElementValue(CalendarEditEvent#END_DATE)" name="endDate" />
+		<var method="selenium#getElementValue(CalendarEditEvent#END_DATE_TIME)" name="endDateTime" />
+		<var method="selenium#getElementValue(CalendarEditEvent#START_DATE)" name="startDate" />
+		<var method="selenium#getElementValue(CalendarEditEvent#START_DATE_TIME)" name="startDateTime" />
 
 		<execute macro="CalendarEvent#_viewResourcesAvailabilityEvent">
 			<var name="endDate" value="${endDate}" />
@@ -1058,11 +1058,11 @@
 				<var name="startDateTime" value="12:00 AM" />
 
 				<execute function="AssertChecked" locator1="CalendarEditEvent#ALL_DAY_CHECKBOX" />
-				<execute function="AssertElementNotPresent#assertNotVisible" locator1="CalendarEditEvent#START_DATE_TIME" />
-				<execute function="AssertElementNotPresent#assertNotVisible" locator1="CalendarEditEvent#END_DATE_TIME" />
+				<execute function="AssertNotVisible" locator1="CalendarEditEvent#START_DATE_TIME" />
+				<execute function="AssertNotVisible" locator1="CalendarEditEvent#END_DATE_TIME" />
 
-				<var locator="CalendarEditEvent#END_DATE" name="endDate" />
-				<var locator="CalendarEditEvent#START_DATE" name="startDate" />
+				<var method="selenium#getElementValue(CalendarEditEvent#END_DATE)" name="endDate" />
+				<var method="selenium#getElementValue(CalendarEditEvent#START_DATE)" name="startDate" />
 
 				<execute function="AssertTextEquals" locator1="TextInput#TITLE" value1="${eventTitle}" />
 
@@ -1097,8 +1097,8 @@
 					<execute function="AssertElementPresent" locator1="CalendarEditEvent#END_DATE" />
 					<execute function="AssertElementPresent" locator1="CalendarEditEvent#END_DATE_TIME" />
 
-					<var locator="CalendarEditEvent#END_DATE" name="endDate" />
-					<var locator="CalendarEditEvent#START_DATE" name="startDate" />
+					<var method="selenium#getElementValue(CalendarEditEvent#END_DATE)" name="endDate" />
+					<var method="selenium#getElementValue(CalendarEditEvent#START_DATE)" name="startDate" />
 
 					<execute function="Type" locator1="CalendarEditEvent#START_DATE_TIME" value1="${startDateTime}" />
 
@@ -1135,8 +1135,8 @@
 					<execute function="AssertElementPresent" locator1="CalendarEditEvent#END_DATE" />
 					<execute function="AssertElementPresent" locator1="CalendarEditEvent#END_DATE_TIME" />
 
-					<var locator="CalendarEditEvent#END_DATE" name="endDate" />
-					<var locator="CalendarEditEvent#START_DATE" name="startDate" />
+					<var method="selenium#getElementValue(CalendarEditEvent#END_DATE)" name="endDate" />
+					<var method="selenium#getElementValue(CalendarEditEvent#START_DATE)" name="startDate" />
 
 					<execute function="Type" locator1="CalendarEditEvent#START_DATE_TIME" value1="${startDateTime}" />
 
@@ -1287,8 +1287,8 @@
 		<execute function="AssertElementPresent" locator1="CalendarEditEvent#END_DATE" />
 		<execute function="AssertElementPresent" locator1="CalendarEditEvent#END_DATE_TIME" />
 
-		<var locator="CalendarEditEvent#END_DATE" name="endDate" />
-		<var locator="CalendarEditEvent#START_DATE" name="startDate" />
+		<var method="selenium#getElementValue(CalendarEditEvent#END_DATE)" name="endDate" />
+		<var method="selenium#getElementValue(CalendarEditEvent#START_DATE)" name="startDate" />
 
 		<execute function="Type" locator1="CalendarEditEvent#START_DATE_TIME" value1="${startDateTime}" />
 
@@ -1452,8 +1452,8 @@
 
 	<command name="setAllDay">
 		<execute function="Check" locator1="CalendarEditEvent#ALL_DAY_CHECKBOX" />
-		<execute function="AssertElementNotPresent#assertNotVisible" locator1="CalendarEditEvent#START_DATE_TIME" />
-		<execute function="AssertElementNotPresent#assertNotVisible" locator1="CalendarEditEvent#END_DATE_TIME" />
+		<execute function="AssertNotVisible" locator1="CalendarEditEvent#START_DATE_TIME" />
+		<execute function="AssertNotVisible" locator1="CalendarEditEvent#END_DATE_TIME" />
 	</command>
 
 	<command name="setDates">
@@ -1462,7 +1462,7 @@
 	</command>
 
 	<command name="setDatesToday">
-		<var locator="CalendarEditEvent#START_DATE" name="endDate" />
+		<var method="selenium#getElementValue(CalendarEditEvent#START_DATE)" name="endDate" />
 
 		<execute function="Type" locator1="CalendarEditEvent#END_DATE" value1="${endDate}" />
 	</command>
@@ -1474,7 +1474,7 @@
 	<command name="setEndDateTomorrow">
 		<execute function="Click" locator1="CalendarEditEvent#END_DATE" />
 
-		<var locator="CalendarEditEvent#MINI_CALENDAR_DAY_SELECTED" name="daySelected" />
+		<var method="selenium#getText(CalendarEditEvent#MINI_CALENDAR_DAY_SELECTED)" name="daySelected" />
 
 		<var method="MathUtil#sum('${daySelected}', '1')" name="tomorrow" />
 
@@ -1540,7 +1540,7 @@
 			<then>
 				<execute function="AssertTextEquals#assertPartialText" locator1="CalendarEditEvent#REPEAT_DIALOG_SUMMARY" value1="${frequency}" />
 
-				<var locator="CalendarEditEvent#REPEAT_MONTHLY_CURRENT_DAY" name="currentDay" />
+				<var method="selenium#getElementValue(CalendarEditEvent#REPEAT_MONTHLY_CURRENT_DAY)" name="currentDay" />
 				<var method="StringUtil#lowerCase('${currentDay}')" name="currentDay" />
 				<var method="StringUtil#upperCaseFirstLetter('${currentDay}')" name="currentDay" />
 
@@ -1556,7 +1556,7 @@
 				<then>
 					<execute function="AssertTextEquals#assertPartialText" locator1="CalendarEditEvent#REPEAT_DIALOG_SUMMARY" value1="${frequency}" />
 
-					<var locator="CalendarEditEvent#REPEAT_WEEKLY_CURRENT_DAY" name="currentDay" />
+					<var method="selenium#getElementValue(CalendarEditEvent#REPEAT_WEEKLY_CURRENT_DAY)" name="currentDay" />
 					<var method="StringUtil#lowerCase('${currentDay}')" name="currentDay" />
 					<var method="StringUtil#upperCaseFirstLetter('${currentDay}')" name="currentDay" />
 
@@ -1674,12 +1674,18 @@
 		<if>
 			<equals arg1="${marketplace}" arg2="true" />
 			<then>
-				<execute macro="Page#add">
-					<var name="defaultURL" value="${defaultURL}" />
-					<var name="nodePort" value="${nodePort}" />
+				<execute macro="ProductMenu#gotoPortlet">
+					<var name="category" value="Navigation" />
+					<var name="panel" value="Site Administration" />
+					<var name="portlet" value="Site Pages" />
+				</execute>
+
+				<execute macro="SitePages#addPublicPage">
 					<var name="pageName" value="Marketplace Calendar Testing" />
-					<var name="pageTemplateName" value="${pageTemplateName}" />
-					<var name="sitePageType" value="${pageType}" />
+				</execute>
+
+				<execute macro="Navigator#gotoPage">
+					<var name="pageName" value="Marketplace Calendar Testing" />
 				</execute>
 
 				<execute macro="Portlet#addPG">
@@ -1695,6 +1701,8 @@
 		</if>
 
 		<execute macro="CalendarEvent#delete" />
+
+		<execute macro="Alert#waitForSuccessMessageHide" />
 	</command>
 
 	<command name="tearDownOnBusyDayInCurrentMonth">
@@ -2086,7 +2094,7 @@
 	</command>
 
 	<command name="viewRepeatingMonthPosition">
-		<var locator="CalendarEditEvent#REPEAT_MONTHLY_CURRENT_MONTH_POSITION" name="repeatingMonthPosition" />
+		<var method="selenium#getElementValue(CalendarEditEvent#REPEAT_MONTHLY_CURRENT_MONTH_POSITION)" name="repeatingMonthPosition" />
 
 		<if>
 			<equals arg1="${repeatingMonthPosition}" arg2="1" />

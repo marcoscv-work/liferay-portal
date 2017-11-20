@@ -14,7 +14,7 @@
 
 package com.liferay.source.formatter.checks;
 
-import com.liferay.portal.kernel.util.CharPool;
+import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -29,10 +29,11 @@ import com.liferay.source.formatter.util.FileUtil;
 import com.liferay.source.formatter.util.SourceFormatterUtil;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+
+import java.net.URL;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -97,6 +98,11 @@ public abstract class BaseSourceCheck implements SourceCheck {
 	@Override
 	public void setPortalSource(boolean portalSource) {
 		_portalSource = portalSource;
+	}
+
+	@Override
+	public void setProjectPathPrefix(String projectPathPrefix) {
+		_projectPathPrefix = projectPathPrefix;
 	}
 
 	@Override
@@ -222,17 +228,7 @@ public abstract class BaseSourceCheck implements SourceCheck {
 	}
 
 	protected File getFile(String fileName, int level) {
-		for (int i = 0; i < level; i++) {
-			File file = new File(_baseDirName + fileName);
-
-			if (file.exists()) {
-				return file;
-			}
-
-			fileName = "../" + fileName;
-		}
-
-		return null;
+		return SourceFormatterUtil.getFile(_baseDirName, fileName, level);
 	}
 
 	protected List<String> getFileNames(
@@ -281,8 +277,39 @@ public abstract class BaseSourceCheck implements SourceCheck {
 			s, increaseLevelStrings, decreaseLevelStrings, startLevel);
 	}
 
+	protected String getLine(String content, int lineCount) {
+		int nextLineStartPos = getLineStartPos(content, lineCount);
+
+		if (nextLineStartPos == -1) {
+			return null;
+		}
+
+		int nextLineEndPos = content.indexOf(
+			CharPool.NEW_LINE, nextLineStartPos);
+
+		if (nextLineEndPos == -1) {
+			return content.substring(nextLineStartPos);
+		}
+
+		return content.substring(nextLineStartPos, nextLineEndPos);
+	}
+
 	protected int getLineCount(String content, int pos) {
 		return StringUtil.count(content, 0, pos, CharPool.NEW_LINE) + 1;
+	}
+
+	protected int getLineStartPos(String content, int lineCount) {
+		int x = 0;
+
+		for (int i = 1; i < lineCount; i++) {
+			x = content.indexOf(CharPool.NEW_LINE, x + 1);
+
+			if (x == -1) {
+				return x;
+			}
+		}
+
+		return x + 1;
 	}
 
 	protected int getMaxLineLength() {
@@ -293,40 +320,38 @@ public abstract class BaseSourceCheck implements SourceCheck {
 		return _pluginsInsideModulesDirectoryNames;
 	}
 
-	protected Properties getPortalLanguageProperties() throws Exception {
-		Properties portalLanguageProperties = new Properties();
+	protected String getPortalContent(String fileName) throws Exception {
+		String content = getContent(fileName, ToolsUtil.PORTAL_MAX_DIR_LEVEL);
 
-		File portalLanguagePropertiesFile = getFile(
-			"portal-impl/src/content/Language.properties",
-			ToolsUtil.PORTAL_MAX_DIR_LEVEL);
-
-		if (portalLanguagePropertiesFile != null) {
-			InputStream inputStream = new FileInputStream(
-				portalLanguagePropertiesFile);
-
-			portalLanguageProperties.load(inputStream);
+		if (Validator.isNotNull(content)) {
+			return content;
 		}
 
-		return portalLanguageProperties;
+		String portalBranchName = _getPortalBranchName();
+
+		if (portalBranchName == null) {
+			return null;
+		}
+
+		try {
+			URL url = new URL(
+				StringBundler.concat(
+					_GIT_LIFERAY_PORTAL_URL, portalBranchName, StringPool.SLASH,
+					fileName));
+
+			return StringUtil.read(url.openStream());
+		}
+		catch (Exception e) {
+			return null;
+		}
 	}
 
-	protected String getProjectPathPrefix() throws Exception {
-		if (!_subrepository) {
-			return null;
-		}
+	protected String getProjectPathPrefix() {
+		return _projectPathPrefix;
+	}
 
-		File file = getFile(
-			"gradle.properties", ToolsUtil.PORTAL_MAX_DIR_LEVEL);
-
-		if (!file.exists()) {
-			return null;
-		}
-
-		Properties properties = new Properties();
-
-		properties.load(new FileInputStream(file));
-
-		return properties.getProperty("project.path.prefix");
+	protected Map<String, Properties> getPropertiesMap() {
+		return _propertiesMap;
 	}
 
 	protected SourceFormatterExcludes getSourceFormatterExcludes() {
@@ -420,21 +445,19 @@ public abstract class BaseSourceCheck implements SourceCheck {
 		return isExcludedPath(key, path, -1, parameter);
 	}
 
-	protected boolean isModulesApp(
-		String absolutePath, String projectPathPrefix, boolean privateOnly) {
-
+	protected boolean isModulesApp(String absolutePath, boolean privateOnly) {
 		if (absolutePath.contains("/modules/private/apps/") ||
 			(!privateOnly && absolutePath.contains("/modules/apps/"))) {
 
 			return true;
 		}
 
-		if (projectPathPrefix == null) {
+		if (_projectPathPrefix == null) {
 			return false;
 		}
 
-		if (projectPathPrefix.startsWith(":private:apps") ||
-			(!privateOnly && projectPathPrefix.startsWith(":apps:"))) {
+		if (_projectPathPrefix.startsWith(":private:apps") ||
+			(!privateOnly && _projectPathPrefix.startsWith(":apps:"))) {
 
 			return true;
 		}
@@ -472,6 +495,21 @@ public abstract class BaseSourceCheck implements SourceCheck {
 
 	protected boolean isPortalSource() {
 		return _portalSource;
+	}
+
+	protected boolean isReadOnly(String absolutePath) {
+
+		// This method should only be called temporarily by checks with new
+		// logic. After all source in all subrepositories has been changed
+		// according to new formatting rules, the call should be reverted.
+
+		for (String readOnlyDirName : _readOnlyDirNames) {
+			if (absolutePath.contains(readOnlyDirName)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	protected boolean isSubrepository() {
@@ -525,10 +563,42 @@ public abstract class BaseSourceCheck implements SourceCheck {
 		return sb.toString();
 	}
 
+	protected static final String RUN_OUTSIDE_PORTAL_EXCLUDES =
+		"run.outside.portal.excludes";
+
+	private String _getPortalBranchName() {
+		for (Map.Entry<String, Properties> entry : _propertiesMap.entrySet()) {
+			Properties properties = entry.getValue();
+
+			String portalBranchName = properties.getProperty(
+				_GIT_LIFERAY_PORTAL_BRANCH);
+
+			if (portalBranchName != null) {
+				return portalBranchName;
+			}
+		}
+
+		return null;
+	}
+
+	private static final String _GIT_LIFERAY_PORTAL_BRANCH =
+		"git.liferay.portal.branch";
+
+	private static final String _GIT_LIFERAY_PORTAL_URL =
+		"https://raw.githubusercontent.com/liferay/liferay-portal/";
+
+	private static final List<String> _readOnlyDirNames = Arrays.asList(
+		"/modules/apps/adaptive-media/", "/modules/apps/analytics/",
+		"/modules/apps/forms-and-workflow/dynamic-data-mapping/",
+		"/modules/apps/forms-and-workflow/portal-workflow/",
+		"/modules/apps/foundation/vulcan/",
+		"/modules/apps/web-experience/journal/", "/modules/private/apps/");
+
 	private String _baseDirName;
 	private int _maxLineLength;
 	private List<String> _pluginsInsideModulesDirectoryNames;
 	private boolean _portalSource;
+	private String _projectPathPrefix;
 	private Map<String, Properties> _propertiesMap;
 	private SourceFormatterExcludes _sourceFormatterExcludes;
 	private final Map<String, Set<SourceFormatterMessage>>

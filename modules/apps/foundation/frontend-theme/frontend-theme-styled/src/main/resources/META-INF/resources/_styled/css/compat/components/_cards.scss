@@ -25,7 +25,6 @@
 .card-row {
 	&.card-row-padded {
 		display: table;
-		height: 100%;
 		width: 100%;
 	}
 
@@ -105,6 +104,12 @@
 	.clamp-horizontal .clamp-container {
 		-ms-transform: none;
 		transform: none;
+	}
+}
+
+.panel-body, .panel-heading {
+	> .card-row {
+		display: table;
 	}
 }
 

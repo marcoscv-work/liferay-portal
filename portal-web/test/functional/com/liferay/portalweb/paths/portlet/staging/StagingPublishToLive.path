@@ -65,8 +65,18 @@
 	<td></td>
 </tr>
 <tr>
-	<td>DATE_SCHEDULE_REPEAT_DAILY_RADIO</td>
-	<td>//input[contains(@id,'recurrenceTypeDaily')]</td>
+	<td>DATE_SCHEDULE_END_DATE_END_BY_RADIO</td>
+	<td>//input[contains(@id,'schedulerEndBy')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DATE_SCHEDULE_END_DATE_INPUT</td>
+	<td>//input[contains(@id,'schedulerEndDate')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DATE_SCHEDULE_REPEAT_RADIO</td>
+	<td>//input[contains(@id,'recurrenceType${key_frequency}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -130,6 +140,11 @@
 <tr>
 	<td>CONTENT_CHOOSE_CONTENT_DELETION_HEADER</td>
 	<td>//div[contains(@id,'deletionsTitle')]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CONTENT_CHOOSE_CONTENT_DELETION_HEADER_NOT_EXPANDED</td>
+	<td>//div[contains(@id,'deletionsTitle')]/a[@aria-expanded='false']</td>
 	<td></td>
 </tr>
 <tr>
@@ -245,7 +260,7 @@
 <!--PUBLISH_TEMPLATES-->
 <tr>
 	<td>PUBLISH_TEMPLATES_NAME_FIELD</td>
-	<td>//input[contains(@id,'name')]</td>
+	<td>//div[contains(@class,'form-group')]//input[contains(@id,'name')]</td>
 	<td></td>
 </tr>
 <tr>

@@ -14,66 +14,92 @@
 
 package com.liferay.vulcan.resource;
 
-import com.liferay.vulcan.binary.BinaryFunction;
-import com.liferay.vulcan.identifier.Identifier;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.vulcan.pagination.Page;
 import com.liferay.vulcan.pagination.SingleModel;
+import com.liferay.vulcan.resource.identifier.Identifier;
+import com.liferay.vulcan.uri.Path;
 
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Instances of this interface will hold information about the routes supported
- * for a certain {@link Resource}.
+ * Holds information about the routes supported for a {@link
+ * CollectionResource}.
  *
  * <p>
- * All of the methods in this interface returns functions to get the different
- * endpoints of the {@link Resource}.
- * </p>
- *
- * <p>
- * Instances of this interface should always be created by using a {@link
- * com.liferay.vulcan.resource.builder.RoutesBuilder}.
+ * This interface's methods return functions to get the different endpoints of
+ * the collection resource. You should always use a {@link
+ * com.liferay.vulcan.resource.builder.RoutesBuilder} to create instances of
+ * this interface.
  * </p>
  *
  * @author Alejandro Hernández
  * @see    com.liferay.vulcan.resource.builder.RoutesBuilder
  */
+@ProviderType
 public interface Routes<T> {
 
 	/**
-	 * Returns the function used to create a binary resource of a {@link
-	 * Resource}. Returns <code>Optional#empty()</code> if no binary resource
-	 * has been added through {@link
-	 * com.liferay.vulcan.resource.builder.RepresentorBuilder.FirstStep#addBinary(
-	 * String, BinaryFunction)}.
+	 * Returns the function used to remove a single model of a {@link
+	 * CollectionResource}, if the endpoint was added through the {@link
+	 * com.liferay.vulcan.resource.builder.RoutesBuilder} and the function
+	 * therefore exists. Returns {@code Optional#empty()} otherwise.
 	 *
-	 * @return the function used to create the binary resource, if present;
-	 *         <code>Optional#empty()</code> otherwise.
+	 * @return the function used to remove a single model, if the function
+	 *         exists; {@code Optional#empty()} otherwise
 	 */
-	public Optional<Function<String, BinaryFunction<T>>>
-		getBinaryFunctionOptional();
+	public Optional<Consumer<Path>> getDeleteSingleModelConsumerOptional();
 
 	/**
-	 * Returns the supplier used to create the page of a {@link Resource}.
-	 * Returns <code>Optional#empty()</code> if the endpoint wasn't added
-	 * through the {@link com.liferay.vulcan.resource.builder.RoutesBuilder}.
+	 * Returns the function used to create the page of a {@link
+	 * CollectionResource}, if the endpoint was added through the {@link
+	 * com.liferay.vulcan.resource.builder.RoutesBuilder} and the function
+	 * therefore exists. Returns {@code Optional#empty()} otherwise.
 	 *
-	 * @return the supplier used to create the page, if present;
-	 *         <code>Optional#empty()</code> otherwise.
+	 * @return the function used to create the page, if the function exists;
+	 *         {@code Optional#empty()} otherwise
 	 */
-	public Optional<Function<Identifier, Page<T>>> getPageFunctionOptional();
+	public Optional<Function<Path, Function<Identifier, Page<T>>>>
+		getPageFunctionOptional();
 
 	/**
-	 * Returns the function used to create the single model of a {@link
-	 * Resource}. Returns <code>Optional#empty()</code> if the endpoint wasn't
-	 * added through the {@link
-	 * com.liferay.vulcan.resource.builder.RoutesBuilder}.
+	 * Returns the function that uses a POST request to create the single model
+	 * of a {@link CollectionResource}, if the endpoint was added through the
+	 * {@link com.liferay.vulcan.resource.builder.RoutesBuilder} and the
+	 * function therefore exists. Returns {@code Optional#empty()} otherwise.
 	 *
-	 * @return the function used to create the single model, if present;
-	 *         <code>Optional#empty()</code> otherwise.
+	 * @return the function that uses a POST request to create the single model,
+	 *         if the function exists; {@code Optional#empty()} otherwise
 	 */
-	public Optional<Function<Identifier, SingleModel<T>>>
+	public Optional<Function<Identifier, Function<Map<String, Object>,
+		SingleModel<T>>>> getPostSingleModelFunctionOptional();
+
+	/**
+	 * Returns the function that uses a GET request to retrieve the single model
+	 * of a {@link CollectionResource}, if the endpoint was added through the
+	 * {@link com.liferay.vulcan.resource.builder.RoutesBuilder} and the
+	 * function therefore exists. Returns {@code Optional#empty()} otherwise.
+	 *
+	 * @return the function that uses a GET request to retrieve the single
+	 *         model, if the function exists; {@code Optional#empty()} otherwise
+	 */
+	public Optional<Function<Path, SingleModel<T>>>
 		getSingleModelFunctionOptional();
+
+	/**
+	 * Returns the function used to update the single model of a {@link
+	 * CollectionResource}, if the endpoint was added through the {@link
+	 * com.liferay.vulcan.resource.builder.RoutesBuilder} and the function
+	 * therefore exists. Returns {@code Optional#empty()} otherwise.
+	 *
+	 * @return the function used to update the single model, if the function
+	 *         exists; {@code Optional#empty()} otherwise
+	 */
+	public Optional<Function<Path, Function<Map<String, Object>,
+		SingleModel<T>>>> getUpdateSingleModelFunctionOptional();
 
 }
