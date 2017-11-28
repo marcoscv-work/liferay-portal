@@ -45,7 +45,7 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 			FragmentActionKeys.ADD_FRAGMENT_ENTRY);
 
 		return fragmentEntryLocalService.addFragmentEntry(
-			groupId, getUserId(), fragmentCollectionId, name, css, html, js,
+			getUserId(), groupId, fragmentCollectionId, name, css, html, js,
 			serviceContext);
 	}
 
@@ -152,6 +152,17 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 
 		return fragmentEntryPersistence.filterFindByG_FCI_LikeN(
 			groupId, fragmentCollectionId, name, start, end, orderByComparator);
+	}
+
+	@Override
+	public FragmentEntry updateFragmentEntry(long fragmentEntryId, String name)
+		throws PortalException {
+
+		FragmentEntryPermission.check(
+			getPermissionChecker(), fragmentEntryId, ActionKeys.UPDATE);
+
+		return fragmentEntryLocalService.updateFragmentEntry(
+			fragmentEntryId, name);
 	}
 
 	@Override

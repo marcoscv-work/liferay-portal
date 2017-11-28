@@ -14,15 +14,16 @@
 
 package com.liferay.portal.deploy;
 
+import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.StreamUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
@@ -108,8 +109,7 @@ public class DeployUtil {
 	}
 
 	public static String getAutoDeployDestDir() throws Exception {
-		String destDir = PrefsPropsUtil.getString(
-			PropsKeys.AUTO_DEPLOY_DEST_DIR, PropsValues.AUTO_DEPLOY_DEST_DIR);
+		String destDir = PropsValues.AUTO_DEPLOY_DEST_DIR;
 
 		if (Validator.isNull(destDir)) {
 			destDir = getAutoDeployServerDestDir();
@@ -126,9 +126,7 @@ public class DeployUtil {
 		String serverId = GetterUtil.getString(ServerDetector.getServerId());
 
 		if (serverId.equals(ServerDetector.TOMCAT_ID)) {
-			destDir = PrefsPropsUtil.getString(
-				PropsKeys.AUTO_DEPLOY_TOMCAT_DEST_DIR,
-				PropsValues.AUTO_DEPLOY_TOMCAT_DEST_DIR);
+			destDir = PropsValues.AUTO_DEPLOY_TOMCAT_DEST_DIR;
 		}
 		else {
 			destDir = PrefsPropsUtil.getString(
@@ -136,9 +134,7 @@ public class DeployUtil {
 		}
 
 		if (Validator.isNull(destDir)) {
-			destDir = PrefsPropsUtil.getString(
-				PropsKeys.AUTO_DEPLOY_DEFAULT_DEST_DIR,
-				PropsValues.AUTO_DEPLOY_DEFAULT_DEST_DIR);
+			destDir = PropsValues.AUTO_DEPLOY_DEFAULT_DEST_DIR;
 		}
 
 		destDir = StringUtil.replace(
@@ -257,7 +253,9 @@ public class DeployUtil {
 
 		if (appServerType.equals(ServerDetector.JETTY_ID)) {
 			FileUtil.delete(
-				_getJettyHome() + "/contexts/" + deployDir.getName() + ".xml");
+				StringBundler.concat(
+					_getJettyHome(), "/contexts/", deployDir.getName(),
+					".xml"));
 		}
 
 		if (appServerType.equals(ServerDetector.JBOSS_ID) ||

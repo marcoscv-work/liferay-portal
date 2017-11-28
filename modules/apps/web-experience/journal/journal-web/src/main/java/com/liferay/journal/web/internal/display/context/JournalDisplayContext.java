@@ -643,8 +643,7 @@ public class JournalDisplayContext {
 			(JournalWebConfiguration)_request.getAttribute(
 				JournalWebConfiguration.class.getName());
 
-		String[] orderColumns =
-			new String[] {"display-date", "modified-date", "title"};
+		String[] orderColumns = {"display-date", "modified-date", "title"};
 
 		if (!journalWebConfiguration.journalArticleForceAutogenerateId()) {
 			orderColumns = ArrayUtil.append(orderColumns, "id");
@@ -774,8 +773,9 @@ public class JournalDisplayContext {
 
 		entriesChecker.setCssClass("entry-selector");
 		entriesChecker.setRememberCheckBoxStateURLRegex(
-			"^(?!.*" + _liferayPortletResponse.getNamespace() +
-				"redirect).*(folderId=" + getFolderId() + ")");
+			StringBundler.concat(
+				"^(?!.*", _liferayPortletResponse.getNamespace(),
+				"redirect).*(folderId=", String.valueOf(getFolderId()), ")"));
 
 		articleSearchContainer.setRowChecker(entriesChecker);
 

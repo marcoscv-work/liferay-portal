@@ -38,7 +38,6 @@ import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PropertiesUtil;
-import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -50,7 +49,6 @@ import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.DocumentException;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
-import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
 
 import java.io.IOException;
@@ -431,12 +429,8 @@ public class PluginPackageUtil {
 
 	private String[] _getRepositoryURLs() throws PluginPackageException {
 		try {
-			String[] trusted = PrefsPropsUtil.getStringArray(
-				PropsKeys.PLUGIN_REPOSITORIES_TRUSTED, StringPool.NEW_LINE,
-				PropsValues.PLUGIN_REPOSITORIES_TRUSTED);
-			String[] untrusted = PrefsPropsUtil.getStringArray(
-				PropsKeys.PLUGIN_REPOSITORIES_UNTRUSTED, StringPool.NEW_LINE,
-				PropsValues.PLUGIN_REPOSITORIES_UNTRUSTED);
+			String[] trusted = PropsValues.PLUGIN_REPOSITORIES_TRUSTED;
+			String[] untrusted = PropsValues.PLUGIN_REPOSITORIES_UNTRUSTED;
 
 			return ArrayUtil.append(trusted, untrusted);
 		}
@@ -508,10 +502,8 @@ public class PluginPackageUtil {
 	private boolean _isIgnored(PluginPackage pluginPackage) {
 		String packageId = pluginPackage.getPackageId();
 
-		String[] pluginPackagesIgnored = PrefsPropsUtil.getStringArray(
-			PropsKeys.PLUGIN_NOTIFICATIONS_PACKAGES_IGNORED,
-			StringPool.NEW_LINE,
-			PropsValues.PLUGIN_NOTIFICATIONS_PACKAGES_IGNORED);
+		String[] pluginPackagesIgnored =
+			PropsValues.PLUGIN_NOTIFICATIONS_PACKAGES_IGNORED;
 
 		for (int i = 0; i < pluginPackagesIgnored.length; i++) {
 			String curPluginPackagesIgnored = pluginPackagesIgnored[i];
@@ -561,9 +553,7 @@ public class PluginPackageUtil {
 		throws PluginPackageException {
 
 		try {
-			String[] trusted = PrefsPropsUtil.getStringArray(
-				PropsKeys.PLUGIN_REPOSITORIES_TRUSTED, StringPool.NEW_LINE,
-				PropsValues.PLUGIN_REPOSITORIES_TRUSTED);
+			String[] trusted = PropsValues.PLUGIN_REPOSITORIES_TRUSTED;
 
 			if (ArrayUtil.contains(trusted, repositoryURL)) {
 				return true;
@@ -579,10 +569,7 @@ public class PluginPackageUtil {
 	}
 
 	private boolean _isUpdateAvailable() {
-		if (!PrefsPropsUtil.getBoolean(
-				PropsKeys.PLUGIN_NOTIFICATIONS_ENABLED,
-				PropsValues.PLUGIN_NOTIFICATIONS_ENABLED)) {
-
+		if (!PropsValues.PLUGIN_NOTIFICATIONS_ENABLED) {
 			return false;
 		}
 
@@ -666,8 +653,10 @@ public class PluginPackageUtil {
 
 				if (responseCode != HttpServletResponse.SC_OK) {
 					throw new PluginPackageException(
-						"Unable to download file " + pluginsXmlURL +
-							" because of response code " + responseCode);
+						StringBundler.concat(
+							"Unable to download file ", pluginsXmlURL,
+							" because of response code ",
+							String.valueOf(responseCode)));
 				}
 			}
 
@@ -717,7 +706,8 @@ public class PluginPackageUtil {
 
 		if (_log.isDebugEnabled()) {
 			_log.debug(
-				"Loading plugin repository " + repositoryURL + ":\n" + xml);
+				StringBundler.concat(
+					"Loading plugin repository ", repositoryURL, ":\n", xml));
 		}
 
 		RemotePluginPackageRepository pluginPackageRepository =
@@ -897,13 +887,22 @@ public class PluginPackageUtil {
 				moduleVersion = displayName.substring(moduleVersionPos);
 			}
 			else {
-				moduleVersion = ReleaseInfo.getVersion();
+				String moduleIncrementalVersion = GetterUtil.getString(
+					properties.getProperty("module-incremental-version"));
+
+				if (Validator.isNull(moduleIncrementalVersion)) {
+					moduleVersion = ReleaseInfo.getVersion();
+				}
+				else {
+					moduleVersion =
+						ReleaseInfo.getVersion() + "." +
+							moduleIncrementalVersion;
+				}
 			}
 		}
 
-		String moduleId =
-			moduleGroupId + "/" + moduleArtifactId + "/" + moduleVersion +
-				"/war";
+		String moduleId = StringBundler.concat(
+			moduleGroupId, "/", moduleArtifactId, "/", moduleVersion, "/war");
 
 		String pluginName = GetterUtil.getString(
 			properties.getProperty("name"));
@@ -1103,14 +1102,16 @@ public class PluginPackageUtil {
 
 		if (version.equals(Version.UNKNOWN) && _log.isWarnEnabled()) {
 			_log.warn(
-				"Plugin package on context " + servletContextName +
-					" cannot be tracked because this WAR does not contain a " +
-						"liferay-plugin-package.xml file");
+				StringBundler.concat(
+					"Plugin package on context ", servletContextName,
+					" cannot be tracked because this WAR does not contain a ",
+					"liferay-plugin-package.xml file"));
 		}
 
 		PluginPackage pluginPackage = new PluginPackageImpl(
-			artifactGroupId + StringPool.SLASH + artifactId + StringPool.SLASH +
-				version + StringPool.SLASH + "war");
+			StringBundler.concat(
+				artifactGroupId, StringPool.SLASH, artifactId, StringPool.SLASH,
+				version, StringPool.SLASH, "war"));
 
 		pluginPackage.setName(artifactId);
 
@@ -1284,8 +1285,9 @@ public class PluginPackageUtil {
 				repositoryReport.addError(repositoryURL, ppe);
 
 				_log.error(
-					"Unable to load repository " + repositoryURL + " " +
-						ppe.toString());
+					StringBundler.concat(
+						"Unable to load repository ", repositoryURL, " ",
+						ppe.toString()));
 			}
 		}
 
@@ -1349,8 +1351,9 @@ public class PluginPackageUtil {
 		catch (PluginPackageException ppe) {
 			if (_log.isWarnEnabled()) {
 				_log.warn(
-					"Unable to reindex unistalled package " +
-						pluginPackage.getContext() + ": " + ppe.getMessage());
+					StringBundler.concat(
+						"Unable to reindex unistalled package ",
+						pluginPackage.getContext(), ": ", ppe.getMessage()));
 			}
 		}
 	}

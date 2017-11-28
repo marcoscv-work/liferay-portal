@@ -1,6 +1,5 @@
 Bundle-Name: Liferay Portal Messaging
 Bundle-SymbolicName: com.liferay.portal.messaging
-Bundle-Version: 3.0.8
-Export-Package: com.liferay.portal.messaging
+Bundle-Version: 4.0.2
 Liferay-Releng-Module-Group-Description:
 Liferay-Releng-Module-Group-Title: Runtime
