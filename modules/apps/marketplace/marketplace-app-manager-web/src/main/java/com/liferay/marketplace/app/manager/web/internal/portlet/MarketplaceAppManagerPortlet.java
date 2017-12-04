@@ -23,6 +23,7 @@ import com.liferay.marketplace.app.manager.web.internal.util.BundleUtil;
 import com.liferay.marketplace.bundle.BundleManagerUtil;
 import com.liferay.marketplace.exception.FileExtensionException;
 import com.liferay.marketplace.service.AppService;
+import com.liferay.petra.string.CharPool;
 import com.liferay.portal.bundle.blacklist.BundleBlacklistManager;
 import com.liferay.portal.kernel.deploy.DeployManagerUtil;
 import com.liferay.portal.kernel.model.LayoutTemplate;
@@ -44,13 +45,11 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.upload.UploadException;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringPool;
@@ -173,8 +172,7 @@ public class MarketplaceAppManagerPortlet extends MVCPortlet {
 			throw new FileExtensionException();
 		}
 		else {
-			String deployDir = PrefsPropsUtil.getString(
-				PropsKeys.AUTO_DEPLOY_DEPLOY_DIR);
+			String deployDir = PropsUtil.get(PropsKeys.AUTO_DEPLOY_DEPLOY_DIR);
 
 			FileUtil.copyFile(
 				file.toString(), deployDir + StringPool.SLASH + fileName);
@@ -439,7 +437,7 @@ public class MarketplaceAppManagerPortlet extends MVCPortlet {
 			if ((responseCode == HttpServletResponse.SC_OK) &&
 				(bytes.length > 0)) {
 
-				String deployDir = PrefsPropsUtil.getString(
+				String deployDir = PropsUtil.get(
 					PropsKeys.AUTO_DEPLOY_DEPLOY_DIR);
 
 				String destination = deployDir + StringPool.SLASH + fileName;

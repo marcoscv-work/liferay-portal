@@ -35,6 +35,8 @@
 		<or>
 			<available file="hotfix" />
 			<available file=".lfrbuild-app-server-lib" />
+			<available file=".lfrbuild-portal-pre" />
+			<contains string="${basedir}" substring="modules-compat-data" />
 			<contains string="${basedir}" substring="required-dependencies" />
 		</or>
 	</condition>

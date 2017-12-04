@@ -37,7 +37,7 @@ public class FragmentEntryLocalServiceImpl
 
 	@Override
 	public FragmentEntry addFragmentEntry(
-			long groupId, long userId, long fragmentCollectionId, String name,
+			long userId, long groupId, long fragmentCollectionId, String name,
 			String css, String html, String js, ServiceContext serviceContext)
 		throws PortalException {
 
@@ -143,6 +143,18 @@ public class FragmentEntryLocalServiceImpl
 
 		return fragmentEntryPersistence.findByG_FCI_LikeN(
 			groupId, fragmentCollectionId, name, start, end, orderByComparator);
+	}
+
+	@Override
+	public FragmentEntry updateFragmentEntry(long fragmentEntryId, String name)
+		throws PortalException {
+
+		FragmentEntry fragmentEntry = fragmentEntryPersistence.findByPrimaryKey(
+			fragmentEntryId);
+
+		return updateFragmentEntry(
+			fragmentEntryId, name, fragmentEntry.getCss(),
+			fragmentEntry.getHtml(), fragmentEntry.getJs());
 	}
 
 	@Override

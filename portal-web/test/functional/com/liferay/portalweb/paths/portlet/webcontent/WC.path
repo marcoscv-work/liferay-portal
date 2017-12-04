@@ -28,6 +28,11 @@
 	<td>//input[contains(@id,'assetPriority')]</td>
 	<td></td>
 </tr>
+<tr>
+	<td>SOURCE_GARBAGE_DATA</td>
+	<td>//pre[contains(.,'data')]</td>
+	<td></td>
+</tr>
 <!--SEARCH-->
 <tr>
 	<td>SEARCH_NONE</td>
@@ -231,6 +236,11 @@
 <tr>
 	<td>SELECT_FOLDER</td>
 	<td>//div[contains(@class,'treeview')]//div[contains(@class,'card-horizontal') and contains(.,'${key_folderName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ENTRY_TITLE</td>
+	<td>//a[contains(.,'${key_webContentTitle}')]</td>
 	<td></td>
 </tr>
 <!--FOLDER_TABLE-->

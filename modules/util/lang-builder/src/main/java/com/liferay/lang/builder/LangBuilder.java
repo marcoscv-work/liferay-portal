@@ -128,9 +128,15 @@ public class LangBuilder {
 		_excludedLanguageIds = excludedLanguageIds;
 		_langDirName = langDirName;
 		_langFileName = langFileName;
-		_translate = translate;
 
-		Translate.setSubscriptionKey(translateSubscriptionKey);
+		if (Validator.isNull(translateSubscriptionKey)) {
+			translate = false;
+		}
+		else {
+			Translate.setSubscriptionKey(translateSubscriptionKey);
+		}
+
+		_translate = translate;
 
 		_initKeysWithUpdatedValues();
 
@@ -176,7 +182,8 @@ public class LangBuilder {
 		}
 
 		File propertiesFile = new File(
-			_langDirName + "/" + _langFileName + ".properties");
+			StringBundler.concat(
+				_langDirName, "/", _langFileName, ".properties"));
 
 		String content = _orderProperties(propertiesFile);
 
@@ -188,11 +195,17 @@ public class LangBuilder {
 		// rewritten to use the right line separator
 
 		_orderProperties(
-			new File(_langDirName + "/" + _langFileName + "_en_AU.properties"));
+			new File(
+				StringBundler.concat(
+					_langDirName, "/", _langFileName, "_en_AU.properties")));
 		_orderProperties(
-			new File(_langDirName + "/" + _langFileName + "_en_GB.properties"));
+			new File(
+				StringBundler.concat(
+					_langDirName, "/", _langFileName, "_en_GB.properties")));
 		_orderProperties(
-			new File(_langDirName + "/" + _langFileName + "_fr_CA.properties"));
+			new File(
+				StringBundler.concat(
+					_langDirName, "/", _langFileName, "_fr_CA.properties")));
 
 		_copyProperties(propertiesFile, "en");
 
@@ -292,7 +305,9 @@ public class LangBuilder {
 		throws IOException {
 
 		Path path = Paths.get(
-			_langDirName, _langFileName + "_" + languageId + ".properties");
+			_langDirName,
+			StringBundler.concat(
+				_langFileName, "_", languageId, ".properties"));
 
 		Files.copy(file.toPath(), path, StandardCopyOption.REPLACE_EXISTING);
 	}
@@ -308,8 +323,9 @@ public class LangBuilder {
 		throws IOException {
 
 		File propertiesFile = new File(
-			_langDirName + "/" + _langFileName + "_" + languageId +
-				".properties");
+			StringBundler.concat(
+				_langDirName, "/", _langFileName, "_", languageId,
+				".properties"));
 
 		Properties properties = new Properties();
 
@@ -321,8 +337,9 @@ public class LangBuilder {
 
 		if (parentLanguageId != null) {
 			File parentPropertiesFile = new File(
-				_langDirName + "/" + _langFileName + "_" + parentLanguageId +
-					".properties");
+				StringBundler.concat(
+					_langDirName, "/", _langFileName, "_", parentLanguageId,
+					".properties"));
 
 			if (parentPropertiesFile.exists()) {
 				parentProperties = _readProperties(parentPropertiesFile);
@@ -362,8 +379,9 @@ public class LangBuilder {
 						((state != 9) && key.startsWith("language."))) {
 
 						throw new RuntimeException(
-							"File " + languageId + " with state " + state +
-								" has key " + key);
+							StringBundler.concat(
+								"File ", languageId, " with state ",
+								String.valueOf(state), " has key ", key));
 					}
 
 					String translatedText = properties.getProperty(key);
@@ -464,7 +482,9 @@ public class LangBuilder {
 						}
 					}
 
-					if (Validator.isNotNull(translatedText)) {
+					if (Validator.isNotNull(translatedText) &&
+						(_translate || !_isAutomatic(translatedText))) {
+
 						translatedText = _fixTranslation(translatedText);
 
 						if (firstLine) {
@@ -628,7 +648,8 @@ public class LangBuilder {
 
 	private void _initKeysWithUpdatedValues() throws Exception {
 		File backupLanguageFile = new File(
-			_langDirName + "/" + _langFileName + "_en.properties");
+			StringBundler.concat(
+				_langDirName, "/", _langFileName, "_en.properties"));
 
 		if (!backupLanguageFile.exists()) {
 			return;
@@ -638,7 +659,8 @@ public class LangBuilder {
 			backupLanguageFile);
 
 		File languageFile = new File(
-			_langDirName + "/" + _langFileName + ".properties");
+			StringBundler.concat(
+				_langDirName, "/", _langFileName, ".properties"));
 
 		Properties languageProperties = _readProperties(languageFile);
 
@@ -652,6 +674,16 @@ public class LangBuilder {
 				_keysWithUpdatedValues.add(key);
 			}
 		}
+	}
+
+	private boolean _isAutomatic(String value) {
+		if (value.endsWith(AUTOMATIC_COPY) ||
+			value.endsWith(AUTOMATIC_TRANSLATION)) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	private String _orderProperties(File propertiesFile) throws IOException {
@@ -682,7 +714,9 @@ public class LangBuilder {
 
 					String value = line.substring(pos + 1);
 
-					if (Validator.isNotNull(value)) {
+					if (Validator.isNotNull(value) &&
+						(_translate || !_isAutomatic(value))) {
+
 						value = _fixTranslation(line.substring(pos + 1));
 
 						value = _fixEnglishTranslation(key, value);

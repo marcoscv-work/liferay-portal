@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeStep;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
@@ -242,8 +243,10 @@ public class ModuleApplicationContextExtender extends AbstractExtender {
 
 			serviceDependency.setService(
 				Release.class,
-				"(&(release.bundle.symbolic.name=" + _bundle.getSymbolicName() +
-					")(release.schema.version=" + _bundle.getVersion() + "))");
+				StringBundler.concat(
+					"(&(release.bundle.symbolic.name=",
+					_bundle.getSymbolicName(), ")(release.schema.version=",
+					String.valueOf(_bundle.getVersion()), "))"));
 
 			_component.add(serviceDependency);
 		}
@@ -306,22 +309,47 @@ public class ModuleApplicationContextExtender extends AbstractExtender {
 							"sequences.sql");
 						String indexesSQL = getSQLTemplateString("indexes.sql");
 
-						try {
-							if (tablesSQL != null) {
+						if (tablesSQL != null) {
+							try {
 								db.runSQLTemplateString(tablesSQL, true, true);
 							}
+							catch (Exception e) {
+								throw new UpgradeException(
+									StringBundler.concat(
+										"Bundle ", String.valueOf(_bundle),
+										" has invalid content in ",
+										"tables.sql:\n", tablesSQL),
+									e);
+							}
+						}
 
-							if (sequencesSQL != null) {
+						if (sequencesSQL != null) {
+							try {
 								db.runSQLTemplateString(
 									sequencesSQL, true, true);
 							}
-
-							if (indexesSQL != null) {
-								db.runSQLTemplateString(indexesSQL, true, true);
+							catch (Exception e) {
+								throw new UpgradeException(
+									StringBundler.concat(
+										"Bundle ", String.valueOf(_bundle),
+										" has invalid content in ",
+										"sequences.sql:\n", sequencesSQL),
+									e);
 							}
 						}
-						catch (Exception e) {
-							throw new UpgradeException(e);
+
+						if (indexesSQL != null) {
+							try {
+								db.runSQLTemplateString(indexesSQL, true, true);
+							}
+							catch (Exception e) {
+								throw new UpgradeException(
+									StringBundler.concat(
+										"Bundle ", String.valueOf(_bundle),
+										" has invalid content in ",
+										"indexes.sql:\n", indexesSQL),
+									e);
+							}
 						}
 					}
 
