@@ -28,13 +28,15 @@
 
 				<execute macro="User#tearDownCP" />
 
-				<execute macro="Page#tearDownPG" />
+				<execute macro="Page#tearDownCP" />
 			</else>
 		</if>
 	</tear-down>
 
 	<command name="SearchAssetsScopeEverythingAcrossMultipleSites" priority="4">
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -42,7 +44,9 @@
 			<var name="siteName" value="Site Name 1" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Web Content" />
 		</execute>
 
@@ -55,7 +59,9 @@
 
 		<execute macro="PortletEntry#publish" />
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -63,7 +69,9 @@
 			<var name="siteName" value="Site Name 2" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -73,7 +81,9 @@
 			<var name="dmDocumentTitle" value="Apple" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -81,7 +91,9 @@
 			<var name="siteName" value="Site Name 3" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Blogs" />
 		</execute>
 
@@ -123,8 +135,111 @@
 		</execute>
 	</command>
 
+	<command name="SearchAssetsViaSearchBarWithDifferentScopes" priority="4">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
+			<var name="portlet" value="Sites" />
+		</execute>
+
+		<execute macro="Site#addBlankCP">
+			<var name="siteName" value="Test Site" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Test Site" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Blogs" />
+		</execute>
+
+		<execute macro="Blogs#addEntry">
+			<var name="entryContent" value="This is a blog about Potatoes" />
+			<var name="entryTitle" value="Potato Blog" />
+		</execute>
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
+			<var name="pageName" value="Search Page" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Documents and Media" />
+		</execute>
+
+		<execute macro="DMDocument#addCP">
+			<var name="dmDocumentDescription" value="DM Document Description" />
+			<var name="dmDocumentFile" value="Document_1.doc" />
+			<var name="dmDocumentTitle" value="Potato Document" />
+		</execute>
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Search Page" />
+		</execute>
+
+		<for list="Search Results,Search Bar" param="portletName">
+			<execute macro="Navigator#gotoPage">
+				<var name="pageName" value="Search Page" />
+			</execute>
+
+			<execute macro="Portlet#addPG">
+				<var name="portletName" value="${portletName}" />
+			</execute>
+		</for>
+
+		<execute macro="SearchBarPortlet#configureScopePG">
+			<var name="searchScope" value="Let the User Choose" />
+		</execute>
+
+		<execute macro="SearchBarPortlet#searchPG">
+			<var name="searchTerm" value="Potato" />
+		</execute>
+
+		<execute macro="Search#viewSearchResultsPG">
+			<var name="searchAssetTitle" value="Potato Blog" />
+			<var name="searchAssetType" value="Blogs Entry" />
+		</execute>
+
+		<execute macro="Search#viewSearchResultsPG">
+			<var name="searchAssetTitle" value="Potato Document" />
+			<var name="searchAssetType" value="Document" />
+		</execute>
+
+		<execute macro="SearchBarPortlet#selectScopeInputPG">
+			<var name="searchScope" value="This Site" />
+		</execute>
+
+		<execute macro="SearchBarPortlet#searchPG">
+			<var name="searchTerm" value="Potato" />
+		</execute>
+
+		<execute macro="Search#viewSearchNoPG">
+			<var name="searchAssetTitle" value="Potato Blog" />
+			<var name="searchAssetType" value="Blogs Entry" />
+		</execute>
+
+		<execute macro="Search#viewSearchResultsPG">
+			<var name="searchAssetTitle" value="Potato Document" />
+			<var name="searchAssetType" value="Document" />
+		</execute>
+	</command>
+
 	<command name="SearchByPermission" priority="4">
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Web Content" />
 		</execute>
 
@@ -137,7 +252,9 @@
 
 		<execute macro="PortletEntry#publish" />
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -148,7 +265,9 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -158,7 +277,9 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesMembers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Members" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Site Memberships" />
 		</execute>
 
@@ -191,7 +312,9 @@
 	</command>
 
 	<command name="SearchByUserFacet" priority="4">
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -202,7 +325,9 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -212,7 +337,9 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -223,7 +350,13 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
@@ -308,11 +441,13 @@
 			<var name="searchTerm" value="Entry" />
 		</execute>
 
-		<execute function="AssertTextNotPresent" locator1="SearchResults#USER_FACET_ANY_USER" value1="Any User" />
+		<execute function="AssertElementNotPresent" locator1="SearchResults#USER_FACET_ANY_USER" />
 	</command>
 
 	<command name="SearchDeletedWebContent" priority="4">
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Web Content" />
 		</execute>
 
@@ -325,7 +460,9 @@
 
 		<execute macro="PortletEntry#publish" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Web Content" />
 		</execute>
 
@@ -346,7 +483,9 @@
 	<command name="SearchEntriesByPortletsAndModifiedRangeFacet" priority="4">
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Blogs" />
 		</execute>
 
@@ -357,7 +496,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Blogs" />
 		</execute>
 
@@ -368,7 +509,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Web Content" />
 		</execute>
 
@@ -382,7 +525,7 @@
 		<execute macro="PortletEntry#publish" />
 
 		<execute macro="Portlet#changeDisplayStyle">
-			<var name="displayStyle" value="Descriptive" />
+			<var name="displayStyle" value="descriptive" />
 		</execute>
 
 		<execute macro="WebContent#viewTitle">
@@ -391,7 +534,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Web Content" />
 		</execute>
 
@@ -410,7 +555,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Wiki" />
 		</execute>
 
@@ -427,7 +574,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Wiki" />
 		</execute>
 
@@ -444,7 +593,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -457,7 +608,13 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Search Page" />
 		</execute>
 
@@ -478,7 +635,7 @@
 		<for list="Blogs Entry2 Title,WC WebContent1 Title,Wiki Page1 Title" param="searchAssetTitle">
 			<var name="key_searchAssetTitle" value="${searchAssetTitle}" />
 
-			<execute function="AssertTextNotPresent" locator1="SearchResults#ASSET_ENTRY_TABLE_TITLE" value1="${searchAssetTitle}" />
+			<execute function="AssertElementNotPresent" locator1="SearchResults#ASSET_ENTRY_TABLE_TITLE" />
 		</for>
 
 		<execute macro="Search#viewAssetTypeFacetPG">
@@ -502,14 +659,14 @@
 		<for list="Blogs Entry2 Title,WC WebContent1 Title,Wiki Page1 Title" param="searchAssetTitle">
 			<var name="key_searchAssetTitle" value="${searchAssetTitle}" />
 
-			<execute function="AssertTextNotPresent" locator1="SearchResults#ASSET_ENTRY_TABLE_TITLE" value1="${searchAssetTitle}" />
+			<execute function="AssertElementNotPresent" locator1="SearchResults#ASSET_ENTRY_TABLE_TITLE" />
 		</for>
 	</command>
 
 	<command name="SearchTwiceHideSitesFacet" priority="5">
-		<property name="portal.acceptance" value="true" />
-
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -520,7 +677,9 @@
 			<var name="userScreenName" value="usersn1" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -531,7 +690,9 @@
 			<var name="userScreenName" value="usersn2" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -539,20 +700,23 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Site Page" />
-			<var name="siteName" value="Site Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoSite">
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesMembers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Members" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Site Memberships" />
 		</execute>
 
@@ -619,9 +783,9 @@
 	</command>
 
 	<command name="SearchTwiceScopeEverything" priority="5">
-		<property name="portal.acceptance" value="true" />
-
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -632,7 +796,9 @@
 			<var name="userScreenName" value="usersn1" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -643,7 +809,9 @@
 			<var name="userScreenName" value="usersn2" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -651,20 +819,23 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Site Page" />
-			<var name="siteName" value="Site Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoSite">
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesMembers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Members" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Site Memberships" />
 		</execute>
 
@@ -740,9 +911,9 @@
 	</command>
 
 	<command name="SearchTwiceScopeLetUserChoose" priority="5">
-		<property name="portal.acceptance" value="true" />
-
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -753,7 +924,9 @@
 			<var name="userScreenName" value="usersn1" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -764,7 +937,9 @@
 			<var name="userScreenName" value="usersn2" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -772,20 +947,23 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Site Page" />
-			<var name="siteName" value="Site Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoSite">
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesMembers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Members" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Site Memberships" />
 		</execute>
 
@@ -863,9 +1041,9 @@
 	</command>
 
 	<command name="SearchTwiceScopeThisSite" priority="5">
-		<property name="portal.acceptance" value="true" />
-
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -876,7 +1054,9 @@
 			<var name="userScreenName" value="usersn1" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -887,7 +1067,9 @@
 			<var name="userScreenName" value="usersn2" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -895,20 +1077,23 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Site Page" />
-			<var name="siteName" value="Site Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoSite">
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesMembers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Members" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Site Memberships" />
 		</execute>
 
@@ -983,8 +1168,95 @@
 		</execute>
 	</command>
 
+	<command name="SearchUsingNewSitePagePortlets" priority="5">
+		<property name="portal.acceptance" value="true" />
+
+		<var name="searchAssetType" value="Web Content" />
+		<var name="searchPage" value="Search Page" />
+		<var name="searchTerm" value="Apple" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="${searchAssetType}" />
+		</execute>
+
+		<execute macro="WebContentNavigator#gotoAddCP" />
+
+		<execute macro="WebContent#addCP">
+			<var name="webContentContent" value="WC WebContent Content" />
+			<var name="webContentTitle" value="${searchTerm}" />
+		</execute>
+
+		<execute macro="PortletEntry#publish" />
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
+			<var name="pageName" value="${searchPage}" />
+		</execute>
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="${searchPage}" />
+		</execute>
+
+		<execute macro="Portlet#addPG">
+			<var name="portletName" value="Search Results" />
+		</execute>
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="${searchPage}" />
+		</execute>
+
+		<execute macro="Portlet#addPG">
+			<var name="portletName" value="Search Bar" />
+		</execute>
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="${searchPage}" />
+		</execute>
+
+		<execute macro="Portlet#addPG">
+			<var name="portletName" value="Type Facet" />
+		</execute>
+
+		<execute macro="NewSearchPortlet#search">
+			<var name="searchTerm" value="${searchTerm}" />
+		</execute>
+
+		<execute macro="NewSearchPortlet#checkFacetOption">
+			<var name="facetOption" value="${searchAssetType}" />
+		</execute>
+
+		<execute macro="NewSearchPortlet#assertFacetURL">
+			<var name="searchAssetType" value="${searchAssetType}" />
+			<var name="searchPage" value="${searchPage}" />
+			<var name="searchTerm" value="${searchTerm}" />
+		</execute>
+
+		<!--		<execute macro="Search#gotoUserSearchResultPG">
+			<var name="searchAssetTitle" value="${searchTerm}" />
+		</execute>
+
+		<execute macro="NewSearchPortlet#viewResultDetails">
+			<var name="searchTerm" value="${searchTerm}" />
+		</execute>-->
+	</command>
+
 	<command name="SearchXSSAsset" priority="4">
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
+			<var name="pageName" value="Message Boards Page" />
+		</execute>
+
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Message Boards Page" />
 		</execute>
 
@@ -1012,8 +1284,106 @@
 		</execute>
 	</command>
 
-	<command name="ViewURLChangesWithUpdatedSearchAndFacetParameters" priority="4">
+	<command name="ViewSearchResultForLongURL" priority="4">
 		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Documents and Media" />
+		</execute>
+
+		<execute macro="DMDocument#addCP">
+			<var name="dmDocumentDescription" value="DM Document Description 1" />
+			<var name="dmDocumentTitle" value="DM Document Title 1" />
+		</execute>
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="Search#searchPG">
+			<var name="searchTerm" value="Document" />
+		</execute>
+
+		<execute macro="Search#viewSearchAssetTitle">
+			<var name="searchAssetTitle" value="DM Document Title 1" />
+		</execute>
+
+		<execute macro="Search#searchPG">
+			<var name="searchTerm" value="Document" />
+		</execute>
+
+		<execute macro="Search#viewSearchAssetTitle">
+			<var name="searchAssetTitle" value="DM Document Title 1" />
+		</execute>
+
+		<execute macro="Search#gotoSearchResultPG">
+			<var name="searchAssetTitle" value="DM Document Title 1" />
+		</execute>
+
+		<execute macro="Search#viewSearchAssetDetailPage">
+			<var name="searchAssetTitle" value="DM Document Title 1" />
+		</execute>
+	</command>
+
+	<command name="ViewURLChangesWithMultiplesSearchFacetParameters" priority="4">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Blogs" />
+		</execute>
+
+		<execute macro="Blogs#addEntry">
+			<var name="entryContent" value="Potato Blog Entry Content" />
+			<var name="entryTitle" value="Potato Blogs Entry Title" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Documents and Media" />
+		</execute>
+
+		<execute macro="DMDocument#addCP">
+			<var name="dmDocumentDescription" value="DM Document Description" />
+			<var name="dmDocumentFile" value="Document_1.doc" />
+			<var name="dmDocumentTitle" value="Potato Document" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
+			<var name="pageName" value="Search Page" />
+		</execute>
+
+		<for list="Type Facet,Search Results,Search Bar" param="portletName">
+			<execute macro="Navigator#gotoPage">
+				<var name="pageName" value="Search Page" />
+			</execute>
+
+			<execute macro="Portlet#addPG">
+				<var name="portletName" value="${portletName}" />
+			</execute>
+		</for>
+
+		<execute macro="SearchBarPortlet#searchPG">
+			<var name="searchTerm" value="Potato" />
+		</execute>
+
+		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
+
+		<execute function="Click" locator1="TypeFacet#BLOGS_ENTRY" />
+
+		<execute function="AssertLocation" value1="${portalURL}/web/guest/search-page?q=Potato&amp;type=com.liferay.blogs.model.BlogsEntry" />
+
+		<execute function="Click" locator1="TypeFacet#DOCUMENT" />
+
+		<execute function="AssertLocation" value1="${portalURL}/web/guest/search-page?q=Potato&amp;type=com.liferay.blogs.model.BlogsEntry&amp;type=com.liferay.document.library.kernel.model.DLFileEntry" />
+	</command>
+
+	<command name="ViewURLChangesWithUpdatedSearchAndFacetParameters" priority="4">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Blogs" />
 		</execute>
 
@@ -1022,7 +1392,13 @@
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Search Page" />
 		</execute>
 
@@ -1064,10 +1440,53 @@
 		<execute function="AssertLocation" value1="${portalURL}/web/guest/search-page?keywordparameter=Blogs%20Entry%20Title&amp;type=com.liferay.blogs.model.BlogsEntry" />
 	</command>
 
+	<command name="ViewURLChangesWithUpdatedSearchAndScopeParameters" priority="4">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
+			<var name="pageName" value="Search Page" />
+		</execute>
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Search Page" />
+		</execute>
+
+		<execute macro="Portlet#addPG">
+			<var name="portletName" value="Search Bar" />
+		</execute>
+
+		<execute macro="SearchBarPortlet#configureParameterNamesPG">
+			<var name="keywordsParameterName" value="keywordparameter" />
+			<var name="scopeParameterName" value="scopeparameter" />
+		</execute>
+
+		<execute macro="SearchBarPortlet#configureScopePG">
+			<var name="searchScope" value="Let the User Choose" />
+		</execute>
+
+		<execute macro="SearchBarPortlet#selectScopeInputPG">
+			<var name="searchScope" value="This Site" />
+		</execute>
+
+		<execute macro="SearchBarPortlet#searchPG">
+			<var name="searchTerm" value="Potato" />
+		</execute>
+
+		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
+
+		<execute function="AssertLocation" value1="${portalURL}/web/guest/search-page?keywordparameter=Potato&amp;scopeparameter=this-site" />
+	</command>
+
 	<command name="ViewUserSearchResult" priority="4">
 		<property name="test.name.skip.portal.instance" value="SearchUsecase#ViewUserSearchResult" />
 
-		<execute macro="ProductMenu#gotoControlPanelConfiguration">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Configuration" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Server Administration" />
 		</execute>
 
@@ -1077,7 +1496,13 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Search Page" />
 		</execute>
 
@@ -1097,7 +1522,7 @@
 			<var name="searchAssetTitle" value="Test Test" />
 		</execute>
 
-		<execute macro="Search#gotoUserSearchResultPG">
+		<execute macro="Search#gotoSearchResultPG">
 			<var name="searchAssetTitle" value="Test Test" />
 		</execute>
 

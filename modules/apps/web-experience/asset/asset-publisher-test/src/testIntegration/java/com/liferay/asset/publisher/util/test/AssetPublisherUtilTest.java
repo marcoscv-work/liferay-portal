@@ -15,12 +15,13 @@
 package com.liferay.asset.publisher.util.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.asset.publisher.web.util.AssetPublisherUtil;
+import com.liferay.asset.publisher.util.AssetPublisherHelper;
 import com.liferay.asset.publisher.web.util.AssetQueryRule;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.util.ArrayList;
@@ -72,7 +73,7 @@ public class AssetPublisherUtilTest {
 		PortletPreferences portletPreferences =
 			getAssetPublisherPortletPreferences(assetQueryRules);
 
-		long[] assetCategoryIds = AssetPublisherUtil.getAssetCategoryIds(
+		long[] assetCategoryIds = _assetPublisherHelper.getAssetCategoryIds(
 			portletPreferences);
 
 		Assert.assertEquals(
@@ -97,7 +98,7 @@ public class AssetPublisherUtilTest {
 		PortletPreferences portletPreferences =
 			getAssetPublisherPortletPreferences(assetQueryRules);
 
-		long[] assetCategoryIds = AssetPublisherUtil.getAssetCategoryIds(
+		long[] assetCategoryIds = _assetPublisherHelper.getAssetCategoryIds(
 			portletPreferences);
 
 		Assert.assertEquals(
@@ -127,7 +128,7 @@ public class AssetPublisherUtilTest {
 		PortletPreferences portletPreferences =
 			getAssetPublisherPortletPreferences(assetQueryRules);
 
-		long[] assetCategoryIds = AssetPublisherUtil.getAssetCategoryIds(
+		long[] assetCategoryIds = _assetPublisherHelper.getAssetCategoryIds(
 			portletPreferences);
 
 		Assert.assertEquals(
@@ -149,7 +150,7 @@ public class AssetPublisherUtilTest {
 		PortletPreferences portletPreferences =
 			getAssetPublisherPortletPreferences(assetQueryRules);
 
-		long[] assetCategoryIds = AssetPublisherUtil.getAssetCategoryIds(
+		long[] assetCategoryIds = _assetPublisherHelper.getAssetCategoryIds(
 			portletPreferences);
 
 		Assert.assertEquals(
@@ -179,7 +180,7 @@ public class AssetPublisherUtilTest {
 		PortletPreferences portletPreferences =
 			getAssetPublisherPortletPreferences(assetQueryRules);
 
-		long[] assetCategoryIds = AssetPublisherUtil.getAssetCategoryIds(
+		long[] assetCategoryIds = _assetPublisherHelper.getAssetCategoryIds(
 			portletPreferences);
 
 		Assert.assertEquals(
@@ -203,7 +204,7 @@ public class AssetPublisherUtilTest {
 		PortletPreferences portletPreferences =
 			getAssetPublisherPortletPreferences(assetQueryRules);
 
-		long[] assetCategoryIds = AssetPublisherUtil.getAssetCategoryIds(
+		long[] assetCategoryIds = _assetPublisherHelper.getAssetCategoryIds(
 			portletPreferences);
 
 		Assert.assertEquals(
@@ -231,7 +232,7 @@ public class AssetPublisherUtilTest {
 		PortletPreferences portletPreferences =
 			getAssetPublisherPortletPreferences(assetQueryRules);
 
-		long[] assetCategoryIds = AssetPublisherUtil.getAssetCategoryIds(
+		long[] assetCategoryIds = _assetPublisherHelper.getAssetCategoryIds(
 			portletPreferences);
 
 		Assert.assertEquals(
@@ -255,7 +256,7 @@ public class AssetPublisherUtilTest {
 		PortletPreferences portletPreferences =
 			getAssetPublisherPortletPreferences(assetQueryRules);
 
-		long[] assetCategoryIds = AssetPublisherUtil.getAssetCategoryIds(
+		long[] assetCategoryIds = _assetPublisherHelper.getAssetCategoryIds(
 			portletPreferences);
 
 		Assert.assertEquals(
@@ -276,7 +277,7 @@ public class AssetPublisherUtilTest {
 		PortletPreferences portletPreferences =
 			getAssetPublisherPortletPreferences(assetQueryRules);
 
-		String[] assetTagNames = AssetPublisherUtil.getAssetTagNames(
+		String[] assetTagNames = _assetPublisherHelper.getAssetTagNames(
 			portletPreferences);
 
 		Assert.assertEquals(
@@ -301,7 +302,7 @@ public class AssetPublisherUtilTest {
 		PortletPreferences portletPreferences =
 			getAssetPublisherPortletPreferences(assetQueryRules);
 
-		String[] assetTagNames = AssetPublisherUtil.getAssetTagNames(
+		String[] assetTagNames = _assetPublisherHelper.getAssetTagNames(
 			portletPreferences);
 
 		Assert.assertEquals(
@@ -325,7 +326,7 @@ public class AssetPublisherUtilTest {
 		PortletPreferences portletPreferences =
 			getAssetPublisherPortletPreferences(assetQueryRules);
 
-		String[] assetTagNames = AssetPublisherUtil.getAssetTagNames(
+		String[] assetTagNames = _assetPublisherHelper.getAssetTagNames(
 			portletPreferences);
 
 		Assert.assertEquals(
@@ -350,7 +351,7 @@ public class AssetPublisherUtilTest {
 		PortletPreferences portletPreferences =
 			getAssetPublisherPortletPreferences(assetQueryRules);
 
-		String[] assetTagNames = AssetPublisherUtil.getAssetTagNames(
+		String[] assetTagNames = _assetPublisherHelper.getAssetTagNames(
 			portletPreferences);
 
 		Assert.assertEquals(
@@ -371,7 +372,7 @@ public class AssetPublisherUtilTest {
 		PortletPreferences portletPreferences =
 			getAssetPublisherPortletPreferences(assetQueryRules);
 
-		String[] assetTagNames = AssetPublisherUtil.getAssetTagNames(
+		String[] assetTagNames = _assetPublisherHelper.getAssetTagNames(
 			portletPreferences);
 
 		Assert.assertEquals(
@@ -394,7 +395,7 @@ public class AssetPublisherUtilTest {
 		PortletPreferences portletPreferences =
 			getAssetPublisherPortletPreferences(assetQueryRules);
 
-		String[] assetTagNames = AssetPublisherUtil.getAssetTagNames(
+		String[] assetTagNames = _assetPublisherHelper.getAssetTagNames(
 			portletPreferences);
 
 		Assert.assertEquals(
@@ -415,7 +416,7 @@ public class AssetPublisherUtilTest {
 		PortletPreferences portletPreferences =
 			getAssetPublisherPortletPreferences(assetQueryRules);
 
-		String[] assetTagNames = AssetPublisherUtil.getAssetTagNames(
+		String[] assetTagNames = _assetPublisherHelper.getAssetTagNames(
 			portletPreferences);
 
 		Assert.assertEquals(
@@ -438,7 +439,7 @@ public class AssetPublisherUtilTest {
 		PortletPreferences portletPreferences =
 			getAssetPublisherPortletPreferences(assetQueryRules);
 
-		String[] assetTagNames = AssetPublisherUtil.getAssetTagNames(
+		String[] assetTagNames = _assetPublisherHelper.getAssetTagNames(
 			portletPreferences);
 
 		Assert.assertEquals(
@@ -468,5 +469,8 @@ public class AssetPublisherUtilTest {
 
 		return portletPreferences;
 	}
+
+	@Inject
+	private AssetPublisherHelper _assetPublisherHelper;
 
 }

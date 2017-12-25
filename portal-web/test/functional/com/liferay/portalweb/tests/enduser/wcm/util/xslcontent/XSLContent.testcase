@@ -9,7 +9,9 @@
 
 		<execute macro="User#firstLoginPG" />
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -17,13 +19,14 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Test Page Name" />
-			<var name="siteName" value="Site Name" />
 		</execute>
 
 		<execute macro="Navigator#gotoSitePage">
@@ -35,7 +38,9 @@
 			<var name="portletName" value="XSL Content" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelConfiguration">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Configuration" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="System Settings" />
 		</execute>
 
@@ -68,7 +73,9 @@
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -93,7 +100,9 @@
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -118,7 +127,9 @@
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -134,7 +145,9 @@
 
 		<echo message="xml url ${xmlURL}" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -198,7 +211,9 @@
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -223,7 +238,9 @@
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -248,7 +265,9 @@
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -264,7 +283,9 @@
 
 		<echo message="xml url ${xmlURL}" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -316,7 +337,9 @@
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -341,7 +364,9 @@
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -366,7 +391,9 @@
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -382,7 +409,9 @@
 
 		<echo message="xml url ${xmlURL}" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -433,7 +462,9 @@
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -458,7 +489,9 @@
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -483,7 +516,9 @@
 			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -499,7 +534,9 @@
 
 		<echo message="xml url ${xmlURL}" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 

@@ -29,13 +29,15 @@
 	</tear-down>
 
 	<command name="EditDDLRecordViaMyWorkflowTasks" priority="5">
-		<property name="portal.acceptance" value="quarantine" />
+		<property name="portal.acceptance" value="false" />
 
 		<description message="This is a use case for LPS-61212." />
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Dynamic Data Lists" />
 		</execute>
 
@@ -53,7 +55,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Dynamic Data Lists" />
 		</execute>
 
@@ -70,7 +74,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Dynamic Data Lists" />
 		</execute>
 
@@ -88,7 +94,9 @@
 
 		<execute macro="DDLRecord#submitForPublication" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Dynamic Data Lists" />
 		</execute>
 
@@ -106,8 +114,12 @@
 
 		<execute macro="DDLRecord#submitForPublication" />
 
-		<execute macro="Page#gotoMyAccount">
-			<var name="portletName" value="My Workflow Tasks" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="My Account" />
+			<var name="panel" value="User" />
+			<var name="portlet" value="My Workflow Tasks" />
 		</execute>
 
 		<execute macro="Workflow#assignToMeTaskByActions">
@@ -140,8 +152,12 @@
 			<var name="fieldName" value="Text" />
 		</execute>
 
-		<execute macro="Page#gotoMyAccount">
-			<var name="portletName" value="My Workflow Tasks" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="My Account" />
+			<var name="panel" value="User" />
+			<var name="portlet" value="My Workflow Tasks" />
 		</execute>
 
 		<execute macro="Workflow#viewTaskAssignedToMeDetails">
@@ -163,7 +179,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Dynamic Data Lists" />
 		</execute>
 
@@ -182,7 +200,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Dynamic Data Lists" />
 		</execute>
 
@@ -200,7 +220,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Dynamic Data Lists" />
 		</execute>
 
@@ -218,8 +240,12 @@
 
 		<execute macro="DDLRecord#submitForPublication" />
 
-		<execute macro="Page#gotoMyAccount">
-			<var name="portletName" value="My Workflow Tasks" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="My Account" />
+			<var name="panel" value="User" />
+			<var name="portlet" value="My Workflow Tasks" />
 		</execute>
 
 		<execute macro="Workflow#assignToMeTaskByActions">
@@ -231,7 +257,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Dynamic Data Lists" />
 		</execute>
 
@@ -247,8 +275,12 @@
 			<var name="workflowStatus" value="Review" />
 		</execute>
 
-		<execute macro="Page#gotoMyAccount">
-			<var name="portletName" value="My Workflow Tasks" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="My Account" />
+			<var name="panel" value="User" />
+			<var name="portlet" value="My Workflow Tasks" />
 		</execute>
 
 		<execute macro="Workflow#rejectTaskByActions">
@@ -258,8 +290,12 @@
 			<var name="workflowTask" value="Review" />
 		</execute>
 
-		<execute macro="Page#gotoMyAccount">
-			<var name="portletName" value="My Workflow Tasks" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="My Account" />
+			<var name="panel" value="User" />
+			<var name="portlet" value="My Workflow Tasks" />
 		</execute>
 
 		<execute macro="Workflow#viewRejectedTask">
@@ -270,7 +306,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Dynamic Data Lists" />
 		</execute>
 

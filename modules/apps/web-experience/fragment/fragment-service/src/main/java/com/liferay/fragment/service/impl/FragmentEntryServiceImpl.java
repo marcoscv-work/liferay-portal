@@ -45,7 +45,7 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 			FragmentActionKeys.ADD_FRAGMENT_ENTRY);
 
 		return fragmentEntryLocalService.addFragmentEntry(
-			groupId, getUserId(), fragmentCollectionId, name, css, html, js,
+			getUserId(), groupId, fragmentCollectionId, name, css, html, js,
 			serviceContext);
 	}
 
@@ -155,16 +155,27 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 	}
 
 	@Override
-	public FragmentEntry updateFragmentEntry(
-			long fragmentEntryId, String name, String css, String html,
-			String js)
+	public FragmentEntry updateFragmentEntry(long fragmentEntryId, String name)
 		throws PortalException {
 
 		FragmentEntryPermission.check(
 			getPermissionChecker(), fragmentEntryId, ActionKeys.UPDATE);
 
 		return fragmentEntryLocalService.updateFragmentEntry(
-			fragmentEntryId, name, css, html, js);
+			fragmentEntryId, name);
+	}
+
+	@Override
+	public FragmentEntry updateFragmentEntry(
+			long fragmentEntryId, String name, String css, String html,
+			String js, ServiceContext serviceContext)
+		throws PortalException {
+
+		FragmentEntryPermission.check(
+			getPermissionChecker(), fragmentEntryId, ActionKeys.UPDATE);
+
+		return fragmentEntryLocalService.updateFragmentEntry(
+			fragmentEntryId, name, css, html, js, serviceContext);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

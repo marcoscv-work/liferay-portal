@@ -14,15 +14,18 @@
 
 package com.liferay.portal.kernel.test.rule.callback;
 
+import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.messaging.BaseAsyncDestination;
 import com.liferay.portal.kernel.messaging.BaseDestination;
 import com.liferay.portal.kernel.messaging.Destination;
 import com.liferay.portal.kernel.messaging.DestinationNames;
+import com.liferay.portal.kernel.messaging.InvokerMessageListener;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
+import com.liferay.portal.kernel.messaging.MessageListener;
 import com.liferay.portal.kernel.messaging.SynchronousDestination;
 import com.liferay.portal.kernel.messaging.proxy.ProxyModeThreadLocal;
 import com.liferay.portal.kernel.search.SearchEngineHelperUtil;
@@ -35,6 +38,7 @@ import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.registry.Filter;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
@@ -45,6 +49,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 
 import org.junit.Test;
 import org.junit.runner.Description;
@@ -100,9 +105,10 @@ public class SynchronousDestinationTestCallback
 
 		if (!hasSyncedMethod) {
 			throw new AssertionError(
-				testClass.getName() + " uses " +
-					SynchronousDestinationTestRule.class.getName() +
-						" without any usage of " + Sync.class.getName());
+				StringBundler.concat(
+					testClass.getName(), " uses ",
+					SynchronousDestinationTestRule.class.getName(),
+					" without any usage of ", Sync.class.getName()));
 		}
 
 		return null;
@@ -223,6 +229,67 @@ public class SynchronousDestinationTestCallback
 					SearchEngineHelperUtil.getSearchWriterDestinationName(
 						searchEngineId));
 			}
+
+			MessageBus messageBus = MessageBusUtil.getMessageBus();
+
+			BaseAsyncDestination schedulerDestination =
+				(BaseAsyncDestination)messageBus.getDestination(
+					DestinationNames.SCHEDULER_DISPATCH);
+
+			if (schedulerDestination == null) {
+				return;
+			}
+
+			for (MessageListener messageListener :
+					schedulerDestination.getMessageListeners()) {
+
+				InvokerMessageListener invokerMessageListener =
+					(InvokerMessageListener)messageListener;
+
+				MessageListener schedulerMessageListener =
+					invokerMessageListener.getMessageListener();
+
+				schedulerDestination.unregister(schedulerMessageListener);
+
+				_schedulerMessageListeners.add(schedulerMessageListener);
+			}
+
+			CountDownLatch startCountDownLatch = new CountDownLatch(
+				schedulerDestination.getWorkersMaxSize());
+
+			CountDownLatch endCountDownLatch = new CountDownLatch(1);
+
+			Message countDownMessage = new Message();
+
+			MessageListener messageListener = message -> {
+				if (countDownMessage == message) {
+					startCountDownLatch.countDown();
+
+					try {
+						endCountDownLatch.await();
+					}
+					catch (InterruptedException ie) {
+						ReflectionUtil.throwException(ie);
+					}
+				}
+			};
+
+			schedulerDestination.register(messageListener);
+
+			for (int i = 0; i < schedulerDestination.getWorkersMaxSize(); i++) {
+				schedulerDestination.send(countDownMessage);
+			}
+
+			try {
+				startCountDownLatch.await();
+			}
+			catch (InterruptedException ie) {
+				ReflectionUtil.throwException(ie);
+			}
+
+			schedulerDestination.unregister(messageListener);
+
+			endCountDownLatch.countDown();
 		}
 
 		public void replaceDestination(String destinationName) {
@@ -264,6 +331,17 @@ public class SynchronousDestinationTestCallback
 			for (String absentDestinationName : _absentDestinationNames) {
 				messageBus.removeDestination(absentDestinationName);
 			}
+
+			Destination destination = messageBus.getDestination(
+				DestinationNames.SCHEDULER_DISPATCH);
+
+			if (destination == null) {
+				return;
+			}
+
+			for (MessageListener messageListener : _schedulerMessageListeners) {
+				destination.register(messageListener);
+			}
 		}
 
 		public void setForceSync(boolean forceSync) {
@@ -278,14 +356,17 @@ public class SynchronousDestinationTestCallback
 			Registry registry = RegistryUtil.getRegistry();
 
 			return registry.getFilter(
-				"(&(destination.name=" + destinationName + ")(objectClass=" +
-					Destination.class.getName() + "))");
+				StringBundler.concat(
+					"(&(destination.name=", destinationName, ")(objectClass=",
+					Destination.class.getName(), "))"));
 		}
 
 		private final List<String> _absentDestinationNames = new ArrayList<>();
 		private final List<Destination> _asyncServiceDestinations =
 			new ArrayList<>();
 		private boolean _forceSync;
+		private final List<MessageListener> _schedulerMessageListeners =
+			new ArrayList<>();
 		private Sync _sync;
 
 	}

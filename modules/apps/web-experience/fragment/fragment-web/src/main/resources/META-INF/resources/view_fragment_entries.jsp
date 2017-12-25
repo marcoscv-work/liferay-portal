@@ -95,22 +95,44 @@ renderResponse.setTitle(fragmentDisplayContext.getFragmentCollectionTitle());
 
 			<%
 			row.setCssClass("entry-card lfr-asset-item " + row.getCssClass());
+
+			String imagePreviewURL = fragmentEntry.getImagePreviewURL(themeDisplay);
 			%>
 
 			<liferay-ui:search-container-column-text>
-				<liferay-frontend:icon-vertical-card
-					actionJsp="/fragment_entry_action.jsp"
-					actionJspServletContext="<%= application %>"
-					cssClass="entry-display-style"
-					icon="page"
-					resultRow="<%= row %>"
-					rowChecker="<%= searchContainer.getRowChecker() %>"
-					title="<%= fragmentEntry.getName() %>"
-				>
-					<liferay-frontend:vertical-card-header>
-						<liferay-ui:message arguments="<%= LanguageUtil.getTimeDescription(request, System.currentTimeMillis() - fragmentEntry.getCreateDate().getTime(), true) %>" key="x-ago" translateArguments="<%= false %>" />
-					</liferay-frontend:vertical-card-header>
-				</liferay-frontend:icon-vertical-card>
+				<c:choose>
+					<c:when test="<%= Validator.isNotNull(imagePreviewURL) %>">
+						<liferay-frontend:vertical-card
+							actionJsp="/fragment_entry_action.jsp"
+							actionJspServletContext="<%= application %>"
+							cssClass="entry-display-style"
+							imageCSSClass="aspect-ratio-bg-contain"
+							imageUrl="<%= imagePreviewURL %>"
+							resultRow="<%= row %>"
+							rowChecker="<%= searchContainer.getRowChecker() %>"
+							title="<%= fragmentEntry.getName() %>"
+						>
+							<liferay-frontend:vertical-card-header>
+								<liferay-ui:message arguments="<%= LanguageUtil.getTimeDescription(request, System.currentTimeMillis() - fragmentEntry.getCreateDate().getTime(), true) %>" key="x-ago" translateArguments="<%= false %>" />
+							</liferay-frontend:vertical-card-header>
+						</liferay-frontend:vertical-card>
+					</c:when>
+					<c:otherwise>
+						<liferay-frontend:icon-vertical-card
+							actionJsp="/fragment_entry_action.jsp"
+							actionJspServletContext="<%= application %>"
+							cssClass="entry-display-style"
+							icon="page"
+							resultRow="<%= row %>"
+							rowChecker="<%= searchContainer.getRowChecker() %>"
+							title="<%= fragmentEntry.getName() %>"
+						>
+							<liferay-frontend:vertical-card-header>
+								<liferay-ui:message arguments="<%= LanguageUtil.getTimeDescription(request, System.currentTimeMillis() - fragmentEntry.getCreateDate().getTime(), true) %>" key="x-ago" translateArguments="<%= false %>" />
+							</liferay-frontend:vertical-card-header>
+						</liferay-frontend:icon-vertical-card>
+					</c:otherwise>
+				</c:choose>
 			</liferay-ui:search-container-column-text>
 		</liferay-ui:search-container-row>
 
@@ -128,39 +150,71 @@ renderResponse.setTitle(fragmentDisplayContext.getFragmentCollectionTitle());
 		<liferay-frontend:add-menu-item id="addFragmentEntryMenuItem" title='<%= LanguageUtil.get(request, "add-fragment") %>' url="<%= addFragmentEntryURL.toString() %>" />
 	</liferay-frontend:add-menu>
 
-	<aui:script require="fragment-web/js/FragmentNameEditor">
-		var addFragmentEntryMenuItem = document.getElementById('<portlet:namespace />addFragmentEntryMenuItem');
+	<aui:script require="metal-dom/src/all/dom as dom">
+		var fieldName = '<%= LanguageUtil.get(request, "name") %>';
+		var namespace = '<%= renderResponse.getNamespace() %>';
+		var spritemap = '<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg';
 
-		addFragmentEntryMenuItem.addEventListener(
+		var addFragmentEntryMenuItemClickHandler = dom.delegate(
+			document.body,
 			'click',
+			'#<portlet:namespace />addFragmentEntryMenuItem',
 			function(event) {
 				event.preventDefault();
 
-				var fragmentNameEditor = new fragmentWebJsFragmentNameEditor.default(
-					{
-						addFragmentEntryURL: '<%= addFragmentEntryURL.toString() %>',
-						editFragmentEntryURL: '<portlet:renderURL><portlet:param name="mvcPath" value="/edit_fragment_entry.jsp" /><portlet:param name="fragmentCollectionId" value="<%= String.valueOf(fragmentDisplayContext.getFragmentCollectionId()) %>" /></portlet:renderURL>',
-						events: {
-							hide: function() {
-								fragmentNameEditor.disposeInternal();
-							}
-						},
-						namespace: '<portlet:namespace />',
-						spritemap: '<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg'
-					}
-				);
+				Liferay.Util.openSimpleInputModal({
+					dialogTitle: '<%= LanguageUtil.get(request, "add-fragment") %>',
+					formSubmitURL: '<%= addFragmentEntryURL.toString() %>',
+					mainFieldLabel: fieldName,
+					mainFieldName: 'name',
+					mainFieldPlaceholder: fieldName,
+					namespace: namespace,
+					spritemap: spritemap
+				});
+			}
+		);
+
+		var updateFragmentEntryMenuItemClickHandler = dom.delegate(
+			document.body,
+			'click',
+			'.<portlet:namespace />update-fragment-action-option > a',
+			function(event) {
+				var data = event.delegateTarget.dataset;
+
+				event.preventDefault();
+
+				Liferay.Util.openSimpleInputModal({
+					dialogTitle: '<%= LanguageUtil.get(request, "rename-fragment") %>',
+					formSubmitURL: data.formSubmitUrl,
+					idFieldName: 'id',
+					idFieldValue: data.idFieldValue,
+					mainFieldLabel: fieldName,
+					mainFieldName: 'name',
+					mainFieldPlaceholder: fieldName,
+					mainFieldValue: data.mainFieldValue,
+					namespace: namespace,
+					spritemap: spritemap
+				});
+			}
+		);
+
+		function handleDestroyPortlet () {
+			addFragmentEntryMenuItemClickHandler.removeListener();
+			updateFragmentEntryMenuItemClickHandler.removeListener();
+
+			Liferay.detach('destroyPortlet', handleDestroyPortlet);
+		}
+
+		Liferay.on('destroyPortlet', handleDestroyPortlet);
+
+		dom.on(
+			'#<portlet:namespace />deleteSelectedFragmentEntries',
+			'click',
+			function() {
+				if (confirm('<liferay-ui:message key="are-you-sure-you-want-to-delete-this" />')) {
+					submitForm(document.querySelector('#<portlet:namespace />fm'));
+				}
 			}
 		);
 	</aui:script>
 </c:if>
-
-<aui:script sandbox="<%= true %>">
-	$('#<portlet:namespace />deleteSelectedFragmentEntries').on(
-		'click',
-		function() {
-			if (confirm('<liferay-ui:message key="are-you-sure-you-want-to-delete-this" />')) {
-				submitForm($(document.<portlet:namespace />fm));
-			}
-		}
-	);
-</aui:script>

@@ -132,6 +132,22 @@
 	<td></td>
 	<td></td>
 </tr>
+<!--SELECT_MORE_THAN_ONE_ASSET_SUBTYPE-->
+<tr>
+	<td>SELECT_MORE_THAN_ONE_ASSET_SUBTYPE_MOVE_AVAILABLE</td>
+	<td>xpath=(//button[contains(@class,'move-left') and contains(@title,'Move selected items from Selected to Available.')])[3]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SELECT_MORE_THAN_ONE_ASSET_SUBTYPE_MOVE_SELECTED</td>
+	<td>xpath=(//button[contains(@class,'move-right') and contains(@title,'Move selected items from Available to Selected.')])[3]</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
 <!--FILTER-->
 <tr>
 	<td>FILTER_DROPDOWN</td>
@@ -237,12 +253,12 @@
 </tr>
 <tr>
 	<td>ORDERING_AND_GROUPING_ORDER_DIRECTIONAL_ICON</td>
-	<td>//div[contains(@class,'order-by-type')]//a[contains(.,'${key_sortOrder}')]//*[name()='svg'][contains(@class,'icon-angle')]</td>
+	<td>//div[contains(@class,'order-by-type')]//a[contains(.,'${key_sortOrder}')][span//*[name()='svg'][contains(@class,'icon-angle')]]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>ORDERING_AND_GROUPING_ORDER_GENERIC_ICON</td>
-	<td>//div[contains(@class,'order-by-type')]/span[not(contains(@class,'hide'))]//*[name()='svg'][contains(@class,'icon-angle')]</td>
+	<td>//div[contains(@class,'order-by-type')]/span[not(contains(@class,'hide'))]//a[span/*[name()='svg'][contains(@class,'icon-angle')]]</td>
 	<td></td>
 </tr>
 <tr>

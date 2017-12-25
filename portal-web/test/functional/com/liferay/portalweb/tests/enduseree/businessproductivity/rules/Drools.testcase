@@ -19,7 +19,7 @@
 				<execute macro="PortalInstances#tearDownCP" />
 			</then>
 			<else>
-				<execute macro="Page#tearDownPG" />
+				<execute macro="Page#tearDownCP" />
 			</else>
 		</if>
 	</tear-down>
@@ -27,7 +27,9 @@
 	<command name="ViewWebContentInSampleDrools" priority="4">
 		<property name="osgi.modules.includes" value="portal-rules-engine-sample-web" />
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -46,7 +48,9 @@
 			<var name="orgAddressType" value="Personal" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Tags" />
 		</execute>
 
@@ -54,7 +58,9 @@
 			<var name="tagName" value="americas" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Web Content" />
 		</execute>
 
@@ -68,7 +74,13 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Drools Page" />
 		</execute>
 

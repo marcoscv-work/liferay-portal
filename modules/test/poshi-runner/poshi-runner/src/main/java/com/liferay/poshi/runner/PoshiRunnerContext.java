@@ -209,14 +209,13 @@ public class PoshiRunnerContext {
 		if ((pathLocator == null) &&
 			_pathExtensions.containsKey(namespace + "." + className)) {
 
+			String pathExtension = _pathExtensions.get(
+				namespace + "." + className);
 			String commandName =
 				PoshiRunnerGetterUtil.getCommandNameFromClassCommandName(
 					pathLocatorKey);
 
-			pathLocator = _pathLocators.get(
-				namespace + "." +
-					_pathExtensions.get(namespace + "." + className) + "#" +
-						commandName);
+			return getPathLocator(pathExtension + "#" + commandName, namespace);
 		}
 
 		return pathLocator;
@@ -920,8 +919,8 @@ public class PoshiRunnerContext {
 		throws Exception {
 
 		for (String baseDirName : baseDirNames) {
-			for (URL url : _getPoshiURLs(
-					includes, baseDirName, _defaultNamespace)) {
+			for (URL url :
+					_getPoshiURLs(includes, baseDirName, _defaultNamespace)) {
 
 				_storeRootElement(
 					PoshiRunnerGetterUtil.getRootElementFromURL(url),
@@ -972,10 +971,11 @@ public class PoshiRunnerContext {
 
 					_namespaces.add(namespace);
 
-					for (URL poshiURL : _getPoshiURLs(
-							fileSystem, includes,
-							resourceURLString.substring(x + 1), namespace)) {
+					List<URL> poshiURLs = _getPoshiURLs(
+						fileSystem, includes,
+						resourceURLString.substring(x + 1), namespace);
 
+					for (URL poshiURL : poshiURLs) {
 						_storeRootElement(
 							PoshiRunnerGetterUtil.getRootElementFromURL(
 								poshiURL),

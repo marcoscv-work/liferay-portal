@@ -18,7 +18,7 @@
 				<execute macro="PortalInstances#tearDownCP" />
 			</then>
 			<else>
-				<execute macro="Page#tearDownPG" />
+				<execute macro="Page#tearDownCP" />
 
 				<execute macro="Site#tearDownCP" />
 			</else>
@@ -28,7 +28,17 @@
 	<command name="AddADTViaBreadcrumb" priority="4">
 		<property name="testray.component.names" value="Breadcrumb,Content and Appliation Templates" />
 
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
+			<var name="pageName" value="Page Name" />
+		</execute>
+
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Page Name" />
 		</execute>
 
@@ -46,8 +56,8 @@
 		</execute>
 
 		<execute macro="ApplicationDisplayTemplates#selectPortletADT">
-			<var name="adtType" value="Breadcrumb" />
 			<var name="portletName" value="Breadcrumb" />
+			<var name="templateName" value="Breadcrumb Test ADT" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -68,7 +78,9 @@
 		<property name="test.name.skip.portal.instance" value="Breadcrumb#ConfigureNoSave" />
 		<property name="testray.component.names" value="Breadcrumb" />
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -76,24 +88,23 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Parent Page Name" />
-			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
+		<execute macro="SitePages#addPublicChildPage">
+			<var name="childPageName" value="Child Page Name" />
+			<var name="parentPageName" value="Parent Page Name" />
 		</execute>
 
-		<execute macro="Page#addChild">
-			<var name="page" value="Public Pages" />
-			<var name="pageName" value="Parent Page Name" />
-			<var name="siteChildPageName" value="Child Page Name" />
-			<var name="siteName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
 		</execute>
 
 		<execute macro="Page#gotoChildPagePG">
@@ -136,7 +147,9 @@
 		<property name="custom.properties" value="default.layout.template.id=1_column" />
 		<property name="testray.component.names" value="Breadcrumb" />
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -144,13 +157,14 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Page Name" />
-			<var name="siteName" value="Site Name" />
 		</execute>
 
 		<execute macro="Navigator#gotoSitePage">
@@ -301,7 +315,9 @@
 		<property name="portal.acceptance" value="true" />
 		<property name="testray.component.names" value="Breadcrumb" />
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -309,24 +325,23 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Parent Page Name" />
-			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
+		<execute macro="SitePages#addPublicChildPage">
+			<var name="childPageName" value="Child Page Name" />
+			<var name="parentPageName" value="Parent Page Name" />
 		</execute>
 
-		<execute macro="Page#addChild">
-			<var name="page" value="Public Pages" />
-			<var name="pageName" value="Parent Page Name" />
-			<var name="siteChildPageName" value="Child Page Name" />
-			<var name="siteName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
 		</execute>
 
 		<execute macro="Page#gotoChildPagePG">
@@ -405,19 +420,21 @@
 	</command>
 
 	<command name="DisableShowPage" priority="5">
-		<property name="portal.acceptance" value="true" />
+		<property name="portal.acceptance" value="quarantine" />
 		<property name="testray.component.names" value="Breadcrumb" />
 
-		<execute macro="SitePageNavigator#gotoPages">
-			<var name="page" value="Public Pages" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
 		</execute>
 
-		<execute macro="Page#addChild">
-			<var name="page" value="Public Pages" />
-			<var name="pageName" value="Welcome" />
-			<var name="siteChildPageName" value="Child Page Name" />
-			<var name="siteScopeSelected" value="true" />
+		<execute macro="SitePages#addPublicChildPage">
+			<var name="childPageName" value="Child Page Name" />
+			<var name="parentPageName" value="Welcome" />
 		</execute>
+
+		<execute macro="ProductMenu#gotoSiteViaLink" />
 
 		<execute macro="Page#gotoChildPagePG">
 			<var name="childPageName" value="Child Page Name" />
@@ -476,7 +493,9 @@
 	<command name="DisableShowParentSite" priority="4">
 		<property name="testray.component.names" value="Breadcrumb" />
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -484,16 +503,19 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Page Name" />
-			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -502,28 +524,23 @@
 			<var name="siteName" value="Child SiteName" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
 		</execute>
 
-		<execute macro="Site#searchInputCP">
-			<var name="siteName" value="Child SiteName" />
-		</execute>
-
-		<execute macro="Page#add">
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Parent Page Name" />
-			<var name="siteName" value="Child SiteName" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
+		<execute macro="SitePages#addPublicChildPage">
+			<var name="childPageName" value="Child Page Name" />
+			<var name="parentPageName" value="Parent Page Name" />
 		</execute>
 
-		<execute macro="Page#addChild">
-			<var name="page" value="Public Pages" />
-			<var name="pageName" value="Parent Page Name" />
-			<var name="siteChildPageName" value="Child Page Name" />
-			<var name="siteName" value="Child SiteName" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Child SiteName" />
 		</execute>
 
 		<execute macro="Page#gotoChildPagePG">
@@ -572,15 +589,24 @@
 	<command name="DisplayTemplateWithHorizontalStyle" priority="4">
 		<property name="testray.component.names" value="Breadcrumb" />
 
-		<execute macro="SitePageNavigator#gotoPages">
-			<var name="page" value="Public Pages" />
+		<execute macro="TestCase#getSiteName">
+			<return from="siteName" name="siteName" />
+			<var name="siteName" value="${siteName}" />
 		</execute>
 
-		<execute macro="Page#addChild">
-			<var name="page" value="Public Pages" />
-			<var name="pageName" value="Welcome" />
-			<var name="siteChildPageName" value="Child Page Name" />
-			<var name="siteScopeSelected" value="true" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicChildPage">
+			<var name="childPageName" value="Child Page Name" />
+			<var name="parentPageName" value="Welcome" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="${siteName}" />
 		</execute>
 
 		<execute macro="Page#gotoChildPagePG">
@@ -622,15 +648,24 @@
 	<command name="DisplayTemplateWithVerticalStyle" priority="4">
 		<property name="testray.component.names" value="Breadcrumb" />
 
-		<execute macro="SitePageNavigator#gotoPages">
-			<var name="page" value="Public Pages" />
+		<execute macro="TestCase#getSiteName">
+			<return from="siteName" name="siteName" />
+			<var name="siteName" value="${siteName}" />
 		</execute>
 
-		<execute macro="Page#addChild">
-			<var name="page" value="Public Pages" />
-			<var name="pageName" value="Welcome" />
-			<var name="siteChildPageName" value="Child Page Name" />
-			<var name="siteScopeSelected" value="true" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicChildPage">
+			<var name="childPageName" value="Child Page Name" />
+			<var name="parentPageName" value="Welcome" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="${siteName}" />
 		</execute>
 
 		<execute macro="Page#gotoChildPagePG">
@@ -673,15 +708,24 @@
 		<property name="test.name.skip.portal.instance" value="Breadcrumb#EnableShowGuestSite" />
 		<property name="testray.component.names" value="Breadcrumb" />
 
-		<execute macro="SitePageNavigator#gotoPages">
-			<var name="page" value="Public Pages" />
+		<execute macro="TestCase#getSiteName">
+			<return from="siteName" name="siteName" />
+			<var name="siteName" value="${siteName}" />
 		</execute>
 
-		<execute macro="Page#addChild">
-			<var name="page" value="Public Pages" />
-			<var name="pageName" value="Welcome" />
-			<var name="siteChildPageName" value="Child Page Name" />
-			<var name="siteScopeSelected" value="true" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicChildPage">
+			<var name="childPageName" value="Child Page Name" />
+			<var name="parentPageName" value="Welcome" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="${siteName}" />
 		</execute>
 
 		<execute macro="Page#gotoChildPagePG">

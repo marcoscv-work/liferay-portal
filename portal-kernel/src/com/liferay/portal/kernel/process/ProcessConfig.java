@@ -16,6 +16,7 @@ package com.liferay.portal.kernel.process;
 
 import com.liferay.portal.kernel.io.PathHolder;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.File;
@@ -24,6 +25,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * @author Shuyang Zhou
@@ -35,12 +37,20 @@ public class ProcessConfig implements Serializable {
 	}
 
 	public String getBootstrapClassPath() {
-		return StringUtil.merge(
-			getBootstrapClassPathElements(), File.pathSeparator);
+		return _merge(getBootstrapClassPathHolders());
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #getBootstrapClassPathHolders()}
+	 */
+	@Deprecated
 	public String[] getBootstrapClassPathElements() {
 		return ArrayUtil.toStringArray(_bootstrapClassPathHolders);
+	}
+
+	public PathHolder[] getBootstrapClassPathHolders() {
+		return _bootstrapClassPathHolders;
 	}
 
 	public Map<String, String> getEnvironment() {
@@ -51,17 +61,29 @@ public class ProcessConfig implements Serializable {
 		return _javaExecutable;
 	}
 
+	public Consumer<ProcessLog> getProcessLogConsumer() {
+		return _processLogConsumer;
+	}
+
 	public ClassLoader getReactClassLoader() {
 		return _reactClassLoader;
 	}
 
 	public String getRuntimeClassPath() {
-		return StringUtil.merge(
-			getRuntimeClassPathElements(), File.pathSeparator);
+		return _merge(getRuntimeClassPathHolders());
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #getRuntimeClassPathHolders()}
+	 */
+	@Deprecated
 	public String[] getRuntimeClassPathElements() {
 		return ArrayUtil.toStringArray(_runtimeClassPathHolders);
+	}
+
+	public PathHolder[] getRuntimeClassPathHolders() {
+		return _runtimeClassPathHolders;
 	}
 
 	public static class Builder {
@@ -94,6 +116,14 @@ public class ProcessConfig implements Serializable {
 			return this;
 		}
 
+		public Builder setProcessLogConsumer(
+			Consumer<ProcessLog> processLogConsumer) {
+
+			_processLogConsumer = processLogConsumer;
+
+			return this;
+		}
+
 		public Builder setReactClassLoader(ClassLoader reactClassLoader) {
 			_reactClassLoader = reactClassLoader;
 
@@ -111,6 +141,8 @@ public class ProcessConfig implements Serializable {
 			"java.class.path");
 		private Map<String, String> _environment;
 		private String _javaExecutable = "java";
+		private Consumer<ProcessLog> _processLogConsumer = processLog -> {
+		};
 		private ClassLoader _reactClassLoader =
 			ProcessConfig.class.getClassLoader();
 		private String _runtimeClassPath = _bootstrapClassPath;
@@ -123,9 +155,24 @@ public class ProcessConfig implements Serializable {
 			builder._bootstrapClassPath);
 		_environment = builder._environment;
 		_javaExecutable = builder._javaExecutable;
+		_processLogConsumer = builder._processLogConsumer;
 		_reactClassLoader = builder._reactClassLoader;
 
 		_runtimeClassPathHolders = _toPathHolders(builder._runtimeClassPath);
+	}
+
+	private String _merge(PathHolder[] pathHolders) {
+		StringBundler sb = new StringBundler(2 * pathHolders.length - 1);
+
+		for (int i = 0; i < pathHolders.length; i++) {
+			sb.append(pathHolders[i]);
+
+			if ((pathHolders.length - 1) != i) {
+				sb.append(File.pathSeparator);
+			}
+		}
+
+		return sb.toString();
 	}
 
 	private PathHolder[] _toPathHolders(String classPath) {
@@ -148,6 +195,7 @@ public class ProcessConfig implements Serializable {
 	private final PathHolder[] _bootstrapClassPathHolders;
 	private final Map<String, String> _environment;
 	private final String _javaExecutable;
+	private final transient Consumer<ProcessLog> _processLogConsumer;
 	private final transient ClassLoader _reactClassLoader;
 	private final PathHolder[] _runtimeClassPathHolders;
 

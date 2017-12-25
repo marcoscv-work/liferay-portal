@@ -16,7 +16,7 @@ package com.liferay.portlet.asset.service.persistence.impl;
 
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetEntry;
-import com.liferay.asset.kernel.service.persistence.AssetCategoryUtil;
+import com.liferay.asset.kernel.service.AssetCategoryLocalServiceUtil;
 import com.liferay.asset.kernel.service.persistence.AssetEntryFinder;
 import com.liferay.asset.kernel.service.persistence.AssetEntryQuery;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
@@ -64,6 +64,9 @@ public class AssetEntryFinderImpl
 	public static final String FIND_BY_CLASS_NAME_ID =
 		AssetEntryFinder.class.getName() + ".findByClassNameId";
 
+	public static final String FIND_PRIORITY_BY_C_C =
+		AssetEntryFinder.class.getName() + ".findPriorityByC_C";
+
 	@Override
 	public int countEntries(AssetEntryQuery entryQuery) {
 		Session session = null;
@@ -93,6 +96,10 @@ public class AssetEntryFinderImpl
 		}
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public List<AssetEntry> findByDLFileEntryC_T(
 		long classNameId, String treePath) {
@@ -131,6 +138,10 @@ public class AssetEntryFinderImpl
 		}
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public List<AssetEntry> findByDLFolderC_T(
 		long classNameId, String treePath) {
@@ -179,6 +190,44 @@ public class AssetEntryFinderImpl
 
 			return (List<AssetEntry>)QueryUtil.list(
 				q, getDialect(), entryQuery.getStart(), entryQuery.getEnd());
+		}
+		catch (Exception e) {
+			throw new SystemException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	@Override
+	public double findPriorityByC_C(long classNameId, long classPK) {
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			String sql = CustomSQLUtil.get(FIND_PRIORITY_BY_C_C);
+
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+			q.addScalar("priority", Type.DOUBLE);
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(classNameId);
+			qPos.add(classPK);
+
+			Iterator<Double> itr = q.iterate();
+
+			if (itr.hasNext()) {
+				Double priority = itr.next();
+
+				if (priority != null) {
+					return priority;
+				}
+			}
+
+			return 0;
 		}
 		catch (Exception e) {
 			throw new SystemException(e);
@@ -757,15 +806,16 @@ public class AssetEntryFinderImpl
 	}
 
 	protected List<Long> getSubcategoryIds(long parentCategoryId) {
-		AssetCategory parentAssetCategory = AssetCategoryUtil.fetchByPrimaryKey(
-			parentCategoryId);
+		AssetCategory parentAssetCategory =
+			AssetCategoryLocalServiceUtil.fetchAssetCategory(parentCategoryId);
 
 		if (parentAssetCategory == null) {
 			return Collections.emptyList();
 		}
 
 		return ListUtil.toList(
-			AssetCategoryUtil.getDescendants(parentAssetCategory),
+			AssetCategoryLocalServiceUtil.getDescendantCategories(
+				parentAssetCategory),
 			AssetCategory.CATEGORY_ID_ACCESSOR);
 	}
 

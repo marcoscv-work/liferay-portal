@@ -143,7 +143,7 @@
 	</command>
 
 	<command name="addPollPG">
-		<execute function="AssertClick" locator1="Polls#ADD_NEW_POLL" value1="Add" />
+		<execute function="Click" locator1="Polls#ADD_NEW_POLL" />
 
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
@@ -166,7 +166,9 @@
 	</command>
 
 	<command name="selectPollPG">
-		<execute function="Click#makeVisibleClickAt" locator1="Polls#SELECT_QUESTION" />
+		<execute function="MouseOver#mouseOverNotVisible" locator1="Polls#SELECT_QUESTION" />
+
+		<execute function="Click" locator1="Polls#SELECT_QUESTION" />
 
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
@@ -181,7 +183,9 @@
 	<command name="tearDownCP">
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Polls" />
 		</execute>
 

@@ -16,8 +16,10 @@
 
 <%@ include file="/init.jsp" %>
 
-<%@ page import="com.liferay.frontend.taglib.servlet.taglib.AddMenuItem" %><%@
+<%@ page import="com.liferay.document.library.configuration.DLConfiguration" %><%@
+page import="com.liferay.frontend.taglib.servlet.taglib.AddMenuItem" %><%@
 page import="com.liferay.portal.kernel.dao.orm.QueryUtil" %><%@
+page import="com.liferay.portal.kernel.module.configuration.ConfigurationProviderUtil" %><%@
 page import="com.liferay.portal.kernel.search.QueryConfig" %><%@
 page import="com.liferay.portal.kernel.servlet.HttpHeaders" %><%@
 page import="com.liferay.portal.kernel.servlet.taglib.ui.Menu" %><%@
@@ -59,9 +61,11 @@ page import="com.liferay.wiki.web.internal.display.context.util.WikiRequestHelpe
 page import="com.liferay.wiki.web.internal.display.context.util.WikiSocialActivityHelper" %><%@
 page import="com.liferay.wiki.web.internal.display.context.util.WikiURLHelper" %><%@
 page import="com.liferay.wiki.web.internal.portlet.toolbar.item.WikiPortletToolbarContributor" %><%@
-page import="com.liferay.wiki.web.util.WikiWebComponentProvider" %>
+page import="com.liferay.wiki.web.internal.util.WikiWebComponentProvider" %>
 
 <%
+AssetHelper assetHelper = (AssetHelper)request.getAttribute(AssetWebKeys.ASSET_HELPER);
+
 WikiRequestHelper wikiRequestHelper = new WikiRequestHelper(request);
 
 WikiGroupServiceOverriddenConfiguration wikiGroupServiceOverriddenConfiguration = wikiRequestHelper.getWikiGroupServiceOverriddenConfiguration();

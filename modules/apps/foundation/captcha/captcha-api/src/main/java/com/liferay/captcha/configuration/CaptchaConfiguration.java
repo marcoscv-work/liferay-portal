@@ -28,19 +28,33 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 )
 public interface CaptchaConfiguration {
 
-	@Meta.AD(deflt = "1", description = "max-challenges-help", required = false)
+	@Meta.AD(
+		deflt = "1", description = "max-challenges-help",
+		name = "max-challenges", required = false
+	)
 	public int maxChallenges();
 
-	@Meta.AD(deflt = "true", required = false)
+	@Meta.AD(
+		deflt = "true", name = "create-account-captcha-enabled",
+		required = false
+	)
 	public boolean createAccountCaptchaEnabled();
 
-	@Meta.AD(deflt = "true", required = false)
+	@Meta.AD(
+		deflt = "true", name = "send-password-captcha-enabled", required = false
+	)
 	public boolean sendPasswordCaptchaEnabled();
 
-	@Meta.AD(deflt = "false", required = false)
+	@Meta.AD(
+		deflt = "false", name = "message-boards-edit-category-captcha-enabled",
+		required = false
+	)
 	public boolean messageBoardsEditCategoryCaptchaEnabled();
 
-	@Meta.AD(deflt = "false", required = false)
+	@Meta.AD(
+		deflt = "false", name = "message-boards-edit-message-captcha-enabled",
+		required = false
+	)
 	public boolean messageBoardsEditMessageCaptchaEnabled();
 
 	@Meta.AD(
@@ -99,7 +113,7 @@ public interface CaptchaConfiguration {
 	public String[] simpleCaptchaBackgroundProducers();
 
 	@Meta.AD(
-		deflt = "nl.captcha.gimpy.BlockGimpyRenderer|nl.captcha.gimpy.DropShadowGimpyRenderer|nl.captcha.gimpy.FishEyeGimpyRenderer|nl.captcha.gimpy.RippleGimpyRenderer|nl.captcha.gimpy.ShearGimpyRenderer",
+		deflt = "nl.captcha.gimpy.BlockGimpyRenderer|nl.captcha.gimpy.FishEyeGimpyRenderer|nl.captcha.gimpy.RippleGimpyRenderer|nl.captcha.gimpy.ShearGimpyRenderer",
 		description = "simple-captcha-gimpy-renderers-help",
 		name = "simple-captcha-gimpy-renderers", required = false
 	)

@@ -60,7 +60,11 @@ public interface Build {
 
 	public int getDownstreamBuildCount(String status);
 
+	public int getDownstreamBuildCount(String result, String status);
+
 	public List<Build> getDownstreamBuilds(String status);
+
+	public List<Build> getDownstreamBuilds(String result, String status);
 
 	public long getDuration();
 
@@ -74,15 +78,25 @@ public interface Build {
 
 	public String getJDK();
 
+	public JenkinsMaster getJenkinsMaster();
+
+	public JenkinsSlave getJenkinsSlave();
+
 	public String getJobName();
 
 	public String getJobURL();
 
 	public String getJobVariant();
 
+	public int getJobVariantsDownstreamBuildCount(List<String> jobVariants);
+
+	public List<Build> getJobVariantsDownstreamBuilds(List<String> jobVariants);
+
 	public Long getLatestStartTimestamp();
 
-	public String getMaster();
+	public Build getLongestRunningDownstreamBuild();
+
+	public TestResult getLongestRunningTest();
 
 	public String getOperatingSystem();
 
@@ -94,11 +108,9 @@ public interface Build {
 
 	public String getResult();
 
-	public String getSlave();
-
 	public Map<String, String> getStartPropertiesTempMap();
 
-	public Long getStartTimestamp();
+	public Long getStartTime();
 
 	public String getStatus();
 
@@ -117,6 +129,10 @@ public interface Build {
 	public List<TestResult> getTestResults(String testStatus);
 
 	public TopLevelBuild getTopLevelBuild();
+
+	public long getTotalDuration();
+
+	public int getTotalSlavesUsedCount();
 
 	public boolean hasBuildURL(String buildURL);
 

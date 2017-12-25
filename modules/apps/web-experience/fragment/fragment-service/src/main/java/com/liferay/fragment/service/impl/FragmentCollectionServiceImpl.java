@@ -46,7 +46,7 @@ public class FragmentCollectionServiceImpl
 			FragmentActionKeys.ADD_FRAGMENT_COLLECTION);
 
 		return fragmentCollectionLocalService.addFragmentCollection(
-			groupId, getUserId(), name, description, serviceContext);
+			getUserId(), groupId, name, description, serviceContext);
 	}
 
 	@Override
@@ -108,6 +108,13 @@ public class FragmentCollectionServiceImpl
 		}
 
 		return fragmentCollection;
+	}
+
+	@Override
+	public List<FragmentCollection> getFragmentCollections(long groupId)
+		throws PortalException {
+
+		return fragmentCollectionPersistence.filterFindByGroupId(groupId);
 	}
 
 	@Override

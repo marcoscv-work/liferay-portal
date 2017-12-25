@@ -14,7 +14,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesConfiguration">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Configuration" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Workflow" />
 		</execute>
 
@@ -23,7 +25,13 @@
 			<var name="workflowResourceValue" value="Wiki Page" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Wiki Page" />
 		</execute>
 
@@ -61,7 +69,9 @@
 	<command name="ApproveFrontPageUserEdit" priority="5">
 		<property name="portal.acceptance" value="true" />
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -72,7 +82,9 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -83,7 +95,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesMembers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Members" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Site Memberships" />
 		</execute>
 
@@ -108,7 +122,9 @@
 
 		<execute macro="UserBar#gotoMyAccount" />
 
-		<execute macro="ProductMenu#gotoUserMyAccount">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="My Account" />
+			<var name="panel" value="User" />
 			<var name="portlet" value="My Submissions" />
 		</execute>
 
@@ -124,8 +140,12 @@
 			<var name="userLoginFullName" value="Test Test" />
 		</execute>
 
-		<execute macro="Page#gotoMyAccount">
-			<var name="portletName" value="My Workflow Tasks" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="My Account" />
+			<var name="panel" value="User" />
+			<var name="portlet" value="My Workflow Tasks" />
 		</execute>
 
 		<execute macro="Workflow#assignToMeTaskByActions">
@@ -157,7 +177,9 @@
 
 		<execute macro="UserBar#gotoMyAccount" />
 
-		<execute macro="ProductMenu#gotoUserMyAccount">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="My Account" />
+			<var name="panel" value="User" />
 			<var name="portlet" value="My Submissions" />
 		</execute>
 
@@ -175,7 +197,9 @@
 	</command>
 
 	<command name="RejectFrontPageUserEdit" priority="4">
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -186,7 +210,9 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -197,7 +223,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesMembers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Members" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Site Memberships" />
 		</execute>
 
@@ -222,7 +250,9 @@
 
 		<execute macro="UserBar#gotoMyAccount" />
 
-		<execute macro="ProductMenu#gotoUserMyAccount">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="My Account" />
+			<var name="panel" value="User" />
 			<var name="portlet" value="My Submissions" />
 		</execute>
 
@@ -238,8 +268,12 @@
 			<var name="userLoginFullName" value="Test Test" />
 		</execute>
 
-		<execute macro="Page#gotoMyAccount">
-			<var name="portletName" value="My Workflow Tasks" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="My Account" />
+			<var name="panel" value="User" />
+			<var name="portlet" value="My Workflow Tasks" />
 		</execute>
 
 		<execute macro="Workflow#assignToMeTaskByActions">
@@ -269,7 +303,9 @@
 
 		<execute macro="UserBar#gotoMyAccount" />
 
-		<execute macro="ProductMenu#gotoUserMyAccount">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="My Account" />
+			<var name="panel" value="User" />
 			<var name="portlet" value="My Submissions" />
 		</execute>
 
@@ -311,8 +347,12 @@
 			<var name="wikiPageUsername" value="Test Test" />
 		</execute>
 
-		<execute macro="Page#gotoMyAccount">
-			<var name="portletName" value="My Workflow Tasks" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="My Account" />
+			<var name="panel" value="User" />
+			<var name="portlet" value="My Workflow Tasks" />
 		</execute>
 
 		<execute macro="Workflow#assignToMeTaskByActions">
@@ -321,8 +361,12 @@
 			<var name="workflowTask" value="Review" />
 		</execute>
 
-		<execute macro="Page#gotoMyAccount">
-			<var name="portletName" value="My Workflow Tasks" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="My Account" />
+			<var name="panel" value="User" />
+			<var name="portlet" value="My Workflow Tasks" />
 		</execute>
 
 		<execute macro="Workflow#rejectTaskByActions">
@@ -331,8 +375,12 @@
 			<var name="workflowTask" value="Review" />
 		</execute>
 
-		<execute macro="Page#gotoMyAccount">
-			<var name="portletName" value="My Workflow Tasks" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="My Account" />
+			<var name="panel" value="User" />
+			<var name="portlet" value="My Workflow Tasks" />
 		</execute>
 
 		<execute macro="Workflow#viewRejectedTask">

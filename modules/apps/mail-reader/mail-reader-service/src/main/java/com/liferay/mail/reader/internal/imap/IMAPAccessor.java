@@ -674,9 +674,11 @@ public class IMAPAccessor {
 			stopWatch.stop();
 
 			_log.debug(
-				"Downloaded " + jxMessages.length + " messages from folder " +
-					jxFolder.getFullName() + " completed in " +
-						stopWatch.getTime() + " ms");
+				StringBundler.concat(
+					"Downloaded ", String.valueOf(jxMessages.length),
+					" messages from folder ", jxFolder.getFullName(),
+					" completed in ", String.valueOf(stopWatch.getTime()),
+					" ms"));
 		}
 	}
 
@@ -781,7 +783,7 @@ public class IMAPAccessor {
 	}
 
 	protected String getFlags(Message jxMessage) throws MessagingException {
-		StringBundler sb = new StringBundler();
+		StringBundler sb = new StringBundler(4);
 
 		if (jxMessage.isSet(Flags.Flag.FLAGGED)) {
 			sb.append(MailConstants.FLAG_FLAGGED);

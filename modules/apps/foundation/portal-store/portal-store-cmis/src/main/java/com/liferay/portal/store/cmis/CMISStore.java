@@ -19,10 +19,10 @@ import com.liferay.document.library.kernel.exception.NoSuchFileException;
 import com.liferay.document.library.kernel.store.BaseStore;
 import com.liferay.document.library.kernel.store.Store;
 import com.liferay.document.library.kernel.util.DLUtil;
+import com.liferay.petra.string.CharPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -479,7 +479,7 @@ public class CMISStore extends BaseStore {
 			sb.append("\"dl.store.impl\" to use CMIS to persist documents. ");
 			sb.append("CMIS is deprecated and is not supported.");
 
-			_log.warn(sb);
+			_log.warn(sb.toString());
 		}
 
 		_cmisStoreConfiguration = ConfigurableUtil.createConfigurable(

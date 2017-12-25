@@ -3,6 +3,8 @@ AUI.add(
 	function(A) {
 		var AArray = A.Array;
 
+		var AObject = A.Object;
+
 		var DateMath = A.DataType.DateMath;
 
 		var Lang = A.Lang;
@@ -35,7 +37,7 @@ AUI.add(
 				'<a title="{label}">{label}</a>' +
 			'</li>';
 
-		var TPL_PAGES_CONTAINER = '<ul class="lfr-ddm-pages-container nav"></ul>';
+		var TPL_PAGES_CONTAINER = '<ul class="lfr-ddm-pages-container nav vertical-scrolling"></ul>';
 
 		var TPL_REPEATABLE_ADD = '<a class="icon-plus-sign lfr-ddm-repeatable-add-button" href="javascript:;"></a>';
 
@@ -189,7 +191,7 @@ AUI.add(
 
 				var field = new FieldClass(
 					A.merge(
-						instance.getAttrs(A.Object.keys(DDMPortletSupport.ATTRS)),
+						instance.getAttrs(AObject.keys(DDMPortletSupport.ATTRS)),
 						{
 							container: fieldNode,
 							dataType: fieldDefinition.dataType,
@@ -402,7 +404,7 @@ AUI.add(
 						return field;
 					},
 
-					getDefaulLocale: function() {
+					getDefaultLocale: function() {
 						var instance = this;
 
 						var defaultLocale = themeDisplay.getDefaultLanguageId();
@@ -522,6 +524,26 @@ AUI.add(
 						instance.get('container').remove(true);
 					},
 
+					removeNotAvailableLocales: function(localizationMap) {
+						var instance = this;
+
+						var parent = instance.get('parent');
+
+						var translationManager = parent.get('translationManager');
+
+						var availableLocales = translationManager.get('availableLocales');
+
+						if (availableLocales.length == 0) {
+							return;
+						}
+
+						for (var localization in localizationMap) {
+							if (availableLocales.indexOf(localization) == -1) {
+								delete localizationMap[localization];
+							}
+						}
+					},
+
 					renderRepeatableUI: function() {
 						var instance = this;
 
@@ -555,13 +577,13 @@ AUI.add(
 						if (labelNode) {
 							var tipNode = labelNode.one('.taglib-icon-help');
 
-							if (Lang.isValue(label) && Lang.isNode(labelNode)) {
+							if (!A.UA.ie && Lang.isValue(label) && Lang.isNode(labelNode)) {
 								labelNode.html(A.Escape.html(label));
 							}
 
 							var fieldDefinition = instance.getFieldDefinition();
 
-							if (fieldDefinition.required) {
+							if (!A.UA.ie && fieldDefinition.required) {
 								labelNode.append(TPL_REQUIRED_MARK);
 							}
 
@@ -584,7 +606,7 @@ AUI.add(
 					syncLabelUI: function() {
 						var instance = this;
 
-						var defaultLocale = instance.getDefaulLocale();
+						var defaultLocale = instance.getDefaultLocale();
 
 						var fieldDefinition = instance.getFieldDefinition();
 
@@ -674,6 +696,10 @@ AUI.add(
 
 						var value = instance.getValue();
 
+						if (AObject.keys(localizationMap).length != 0) {
+							this.removeNotAvailableLocales(localizationMap);
+						}
+
 						if (instance.get('localizable')) {
 							localizationMap[locale] = value;
 						}
@@ -733,7 +759,7 @@ AUI.add(
 						if (tipNode) {
 							var instance = this;
 
-							var defaultLocale = instance.getDefaulLocale();
+							var defaultLocale = instance.getDefaultLocale();
 							var fieldDefinition = instance.getFieldDefinition();
 
 							var tipsMap = fieldDefinition.tip;
@@ -741,7 +767,7 @@ AUI.add(
 							if (Lang.isObject(tipsMap)) {
 								var tip = tipsMap[instance.get('displayLocale')] || tipsMap[defaultLocale];
 
-								tipNode.attr('title', A.Escape.html(tip));
+								tipNode.attr('title', tip);
 							}
 
 							labelNode.append(tipNode);
@@ -1196,7 +1222,6 @@ AUI.add(
 						var instance = this;
 
 						instance.setValue('');
-
 					},
 
 					_handleSelectButtonClick: function(event) {
@@ -2865,6 +2890,10 @@ AUI.add(
 						value: false
 					},
 
+					requestedLocale: {
+						validator: Lang.isString
+					},
+
 					translationManager: {
 						valueFn: '_valueTranslationManager'
 					}
@@ -2919,6 +2948,10 @@ AUI.add(
 						AArray.invoke(instance.eventHandlers, 'detach');
 						AArray.invoke(instance.get('fields'), 'destroy');
 
+						if (instance._translationManagerHandle) {
+							instance._translationManagerHandle.detach();
+						}
+
 						instance.get('container').remove();
 
 						instance.eventHandlers = null;
@@ -2929,6 +2962,12 @@ AUI.add(
 								item.destroy();
 							}
 						);
+
+						var translationManager = instance.get('translationManager');
+
+						if (translationManager) {
+							translationManager.destroy();
+						}
 
 						instance.repeatableInstances = null;
 					},
@@ -2948,9 +2987,13 @@ AUI.add(
 
 						var fieldContainer = field.get('container');
 
+						var parentField = field.get('parent');
+
 						var parentNode = fieldContainer.get('parentNode');
 
-						var repeatableInstance = instance.repeatableInstances[fieldName];
+						var treeName = fieldName + '_' + parentField.get('instanceId');
+
+						var repeatableInstance = instance.repeatableInstances[treeName];
 
 						if (!repeatableInstance) {
 							var ddPlugins = [];
@@ -2987,7 +3030,7 @@ AUI.add(
 									},
 									dropOn: '#' + parentNode.attr('id'),
 									helper: A.Node.create(TPL_REPEATABLE_HELPER),
-									nodes: '[data-fieldName=' + fieldName + ']',
+									nodes: '#' + parentNode.attr('id') + ' [data-fieldName=' + fieldName + ']',
 									placeholder: A.Node.create('<div class="form-builder-placeholder"></div>'),
 									sortCondition: function(event) {
 										var dropNode = event.drop.get('node');
@@ -2999,9 +3042,9 @@ AUI.add(
 
 							repeatableInstance.after('drag:align', A.bind(instance._afterRepeatableDragAlign, instance));
 
-							repeatableInstance.after('drag:end', A.rbind(instance._afterRepeatableDragEnd, instance, field.get('parent')));
+							repeatableInstance.after('drag:end', A.rbind(instance._afterRepeatableDragEnd, instance, parentField));
 
-							instance.repeatableInstances[fieldName] = repeatableInstance;
+							instance.repeatableInstances[treeName] = repeatableInstance;
 						}
 						else {
 							repeatableInstance.add(fieldContainer);
@@ -3142,6 +3185,29 @@ AUI.add(
 						instance.updateDDMFormInputValue();
 					},
 
+					_onTranslationManagerRegistered: function(event) {
+						var instance = this;
+
+						var translationManagerId = instance.get('portletNamespace') + 'translationManager';
+
+						var translationManager = instance.get('translationManager');
+
+						translationManager.destroy();
+
+						translationManager = Liferay.component(translationManagerId);
+
+						translationManager.addTarget(instance);
+
+						AArray.each(
+							instance.get('fields'),
+							function(field) {
+								translationManager.addTarget(field);
+							}
+						);
+
+						instance.set('translationManager', translationManager);
+					},
+
 					_valueDisplayLocale: function() {
 						var instance = this;
 
@@ -3175,13 +3241,20 @@ AUI.add(
 					_valueTranslationManager: function() {
 						var instance = this;
 
-						var translationManager = Liferay.component(instance.get('portletNamespace') + 'translationManager');
+						var translationManagerId = instance.get('portletNamespace') + 'translationManager';
+
+						var translationManager = Liferay.component(translationManagerId);
 
 						if (!translationManager) {
 							translationManager = new Liferay.TranslationManager(
 								{
-									defaultLocale: themeDisplay.getLanguageId()
+									defaultLocale: instance.get('requestedLocale') || themeDisplay.getLanguageId()
 								}
+							);
+
+							instance._translationManagerHandle = Liferay.once(
+								translationManagerId + ':registered',
+								instance._onTranslationManagerRegistered.bind(instance)
 							);
 						}
 

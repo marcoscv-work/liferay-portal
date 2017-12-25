@@ -29,13 +29,15 @@
 
 				<execute macro="Polls#tearDownCP" />
 
-				<execute macro="Page#tearDownPG" />
+				<execute macro="Page#tearDownCP" />
 			</else>
 		</if>
 	</tear-down>
 
 	<command name="BlogsDemo" priority="4">
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -46,7 +48,9 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -57,7 +61,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesConfiguration">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Configuration" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Social Activity" />
 		</execute>
 
@@ -84,7 +90,13 @@
 			<var name="userAction" value="Votes on a Blog" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Social Activity Page" />
 		</execute>
 
@@ -100,7 +112,13 @@
 
 		<execute function="AssertTextEquals" locator1="Portlet#BODY" value1="There are no active users for this period." />
 
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Blogs Page" />
 		</execute>
 
@@ -265,7 +283,13 @@
 	<command name="Localization" priority="4">
 		<property name="test.name.skip.portal.instance" value="SocialactivityUsecase#Localization" />
 
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Social Activity Page" />
 		</execute>
 
@@ -277,7 +301,9 @@
 			<var name="portletName" value="Language Selector" />
 		</execute>
 
-		<execute macro="ProductMenuHelper#expandPanelControlPanel" />
+		<execute macro="ProductMenuHelper#expandPanel">
+			<var name="panel" value="Control Panel" />
+		</execute>
 
 		<execute macro="LanguagePortlet#selectLanguagePG">
 			<var name="language" value="French (France)" />
@@ -337,19 +363,31 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesConfiguration">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Configuration" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Social Activity" />
 		</execute>
 
-		<execute macro="Page#gotoMyAccount">
-			<var name="portletName" value="Account Settings" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="My Account" />
+			<var name="panel" value="User" />
+			<var name="portlet" value="Account Settings" />
 		</execute>
 
 		<execute function="AssertSelectedLabel" locator1="MyAccount#LANGUAGE_SELECT" value1="English (United States)" />
 	</command>
 
 	<command name="SaveUserStatisticsConfiguration" priority="4">
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="User Statistics Page" />
 		</execute>
 
@@ -403,7 +441,13 @@
 	</command>
 
 	<command name="ViewActivityViaGroupStatistics" priority="4">
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Group Statistics Page" />
 		</execute>
 
@@ -428,7 +472,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesConfiguration">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Configuration" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Social Activity" />
 		</execute>
 
@@ -441,7 +487,9 @@
 		<for list="${blogsEntryCounterList}" param="entryCount" >
 			<execute macro="Navigator#openURL" />
 
-			<execute macro="ProductMenu#gotoSitesContent">
+			<execute macro="ProductMenu#gotoPortlet">
+				<var name="category" value="Content" />
+				<var name="panel" value="Site Administration" />
 				<var name="portlet" value="Blogs" />
 			</execute>
 

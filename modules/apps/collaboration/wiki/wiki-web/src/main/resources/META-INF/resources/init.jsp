@@ -31,11 +31,12 @@ taglib uri="http://liferay.com/tld/trash" prefix="liferay-trash" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
 taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 
-<%@ page import="com.liferay.asset.kernel.model.AssetEntry" %><%@
+<%@ page import="com.liferay.asset.constants.AssetWebKeys" %><%@
+page import="com.liferay.asset.kernel.model.AssetEntry" %><%@
 page import="com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil" %><%@
 page import="com.liferay.asset.kernel.service.AssetEntryServiceUtil" %><%@
 page import="com.liferay.asset.kernel.service.AssetTagLocalServiceUtil" %><%@
-page import="com.liferay.asset.util.impl.AssetUtil" %><%@
+page import="com.liferay.asset.util.AssetHelper" %><%@
 page import="com.liferay.document.library.display.context.DLMimeTypeDisplayContext" %><%@
 page import="com.liferay.document.library.kernel.document.conversion.DocumentConversionUtil" %><%@
 page import="com.liferay.document.library.kernel.util.DLUtil" %><%@
@@ -83,7 +84,6 @@ page import="com.liferay.portal.kernel.util.ListUtil" %><%@
 page import="com.liferay.portal.kernel.util.MathUtil" %><%@
 page import="com.liferay.portal.kernel.util.ParamUtil" %><%@
 page import="com.liferay.portal.kernel.util.PortalUtil" %><%@
-page import="com.liferay.portal.kernel.util.PrefsPropsUtil" %><%@
 page import="com.liferay.portal.kernel.util.PropsKeys" %><%@
 page import="com.liferay.portal.kernel.util.PropsUtil" %><%@
 page import="com.liferay.portal.kernel.util.ReflectionUtil" %><%@
@@ -114,7 +114,7 @@ page import="com.liferay.wiki.service.WikiPageLocalServiceUtil" %><%@
 page import="com.liferay.wiki.service.WikiPageServiceUtil" %><%@
 page import="com.liferay.wiki.web.internal.search.NodesChecker" %><%@
 page import="com.liferay.wiki.web.internal.search.PagesChecker" %><%@
-page import="com.liferay.wiki.web.util.WikiPortletUtil" %>
+page import="com.liferay.wiki.web.internal.util.WikiPortletUtil" %>
 
 <%@ page import="java.text.DecimalFormatSymbols" %><%@
 page import="java.text.Format" %>

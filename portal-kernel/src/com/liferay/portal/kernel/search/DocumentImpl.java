@@ -56,8 +56,8 @@ import java.util.Set;
 public class DocumentImpl implements Document {
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by
-	 *             {@link Field#getLocalizedName(Locale, String)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             Field#getLocalizedName(Locale, String)}
 	 */
 	@Deprecated
 	public static String getLocalizedName(Locale locale, String name) {
@@ -65,8 +65,8 @@ public class DocumentImpl implements Document {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by
-	 *             {@link Field#getLocalizedName(String, String)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             Field#getLocalizedName(String, String)}
 	 */
 	@Deprecated
 	public static String getLocalizedName(String languageId, String name) {
@@ -74,8 +74,8 @@ public class DocumentImpl implements Document {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by
-	 *             {@link Field#getSortableFieldName(String)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             Field#getSortableFieldName(String)}
 	 */
 	@Deprecated
 	public static String getSortableFieldName(String name) {
@@ -130,16 +130,14 @@ public class DocumentImpl implements Document {
 			return;
 		}
 
-		if (_dateFormat == null) {
-			_dateFormat = FastDateFormatFactoryUtil.getSimpleDateFormat(
-				_INDEX_DATE_FORMAT_PATTERN);
-		}
-
 		String[] datesString = new String[values.length];
 		Long[] datesTime = new Long[values.length];
 
 		for (int i = 0; i < values.length; i++) {
-			datesString[i] = _dateFormat.format(values[i]);
+			Format dateFormat = _getDateFormat();
+
+			datesString[i] = dateFormat.format(values[i]);
+
 			datesTime[i] = values[i].getTime();
 		}
 
@@ -169,7 +167,10 @@ public class DocumentImpl implements Document {
 		Long[] datesTime = new Long[values.length];
 
 		for (int i = 0; i < values.length; i++) {
-			datesString[i] = _dateFormat.format(values[i]);
+			Format dateFormat = _getDateFormat();
+
+			datesString[i] = dateFormat.format(values[i]);
+
 			datesTime[i] = values[i].getTime();
 		}
 
@@ -1160,6 +1161,15 @@ public class DocumentImpl implements Document {
 
 		_createSortableTextField(
 			name, typify, Collections.min(Arrays.<String>asList(values)));
+	}
+
+	private Format _getDateFormat() {
+		if (_dateFormat == null) {
+			_dateFormat = FastDateFormatFactoryUtil.getSimpleDateFormat(
+				_INDEX_DATE_FORMAT_PATTERN);
+		}
+
+		return _dateFormat;
 	}
 
 	private static final String _INDEX_DATE_FORMAT_PATTERN = PropsUtil.get(

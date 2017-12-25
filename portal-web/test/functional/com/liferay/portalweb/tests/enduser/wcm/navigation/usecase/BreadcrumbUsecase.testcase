@@ -19,7 +19,7 @@
 				<execute macro="PortalInstances#tearDownCP" />
 			</then>
 			<else>
-				<execute macro="Page#tearDownPG" />
+				<execute macro="Page#tearDownCP" />
 
 				<execute macro="Site#tearDownCP" />
 			</else>
@@ -29,7 +29,9 @@
 	<command name="BreadcrumbConfiguration" priority="3">
 		<property name="test.name.skip.portal.instance" value="BreadcrumbUsecase#BreadcrumbConfiguration" />
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -37,24 +39,23 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Parent Page Name" />
-			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
+		<execute macro="SitePages#addPublicChildPage">
+			<var name="childPageName" value="Child Page Name" />
+			<var name="parentPageName" value="Parent Page Name" />
 		</execute>
 
-		<execute macro="Page#addChild">
-			<var name="page" value="Public Pages" />
-			<var name="pageName" value="Parent Page Name" />
-			<var name="siteChildPageName" value="Child Page Name" />
-			<var name="siteName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
 		</execute>
 
 		<execute macro="Page#gotoChildPagePG">
@@ -168,7 +169,9 @@
 
 		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -176,13 +179,14 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Site Page Name" />
-			<var name="siteName" value="Site Name" />
 		</execute>
 
 		<execute macro="Navigator#gotoSpecificURLPage">

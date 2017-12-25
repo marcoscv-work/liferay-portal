@@ -87,7 +87,7 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 
 		// Tag
 
-		User user = userPersistence.findByPrimaryKey(userId);
+		User user = userLocalService.getUser(userId);
 
 		long tagId = counterLocalService.increment();
 
@@ -178,7 +178,7 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 	public List<AssetTag> checkTags(long userId, long groupId, String[] names)
 		throws PortalException {
 
-		Group group = groupPersistence.findByPrimaryKey(groupId);
+		Group group = groupLocalService.getGroup(groupId);
 
 		return checkTags(userId, group, names);
 	}
@@ -201,8 +201,6 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		tag.setAssetCount(Math.max(0, tag.getAssetCount() - 1));
 
 		assetTagPersistence.update(tag);
-
-		assetTagStatsLocalService.updateTagStats(tagId, classNameId);
 
 		return tag;
 	}
@@ -239,10 +237,6 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		// Tag
 
 		assetTagPersistence.remove(tag);
-
-		// Stats
-
-		assetTagStatsLocalService.deleteTagStatsByTagId(tag.getTagId());
 
 		// Indexer
 
@@ -460,6 +454,25 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 	}
 
 	/**
+	 * Returns the primary keys of the asset tags with the names.
+	 *
+	 * @param  name the name of the asset tags
+	 * @return the primary keys of the asset tags with the names
+	 */
+	@Override
+	public long[] getTagIds(String name) {
+		List<AssetTag> tags = assetTagPersistence.findByName(name);
+
+		List<Long> tagIds = new ArrayList<>(tags.size());
+
+		for (AssetTag tag : tags) {
+			tagIds.add(tag.getTagId());
+		}
+
+		return ArrayUtil.toArray(tagIds.toArray(new Long[tagIds.size()]));
+	}
+
+	/**
 	 * Returns the names of all the asset tags.
 	 *
 	 * @return the names of all the asset tags
@@ -557,6 +570,11 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		return assetTagFinder.countByG_C_N(groupId, classNameId, name);
 	}
 
+	@Override
+	public int getTagsSize(long groupId, String name) {
+		return assetTagFinder.countByG_N(groupId, name);
+	}
+
 	/**
 	 * Returns <code>true</code> if the group contains an asset tag with the
 	 * name.
@@ -595,8 +613,6 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		tag.setAssetCount(tag.getAssetCount() + 1);
 
 		assetTagPersistence.update(tag);
-
-		assetTagStatsLocalService.updateTagStats(tagId, classNameId);
 
 		return tag;
 	}
