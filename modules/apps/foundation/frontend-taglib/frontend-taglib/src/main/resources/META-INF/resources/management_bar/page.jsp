@@ -107,6 +107,12 @@
 					<c:if test="<%= Validator.isNotNull(actionButtons) %>">
 						<%= actionButtons %>
 					</c:if>
+
+					<li class="nav-item">
+						<a class="btn btn-primary nav-btn nav-btn-monospaced navbar-breakpoint-down-d-none" href="#1">
+							<aui:icon image="icon-plus" markupView="lexicon" />
+						</a>
+					</li>
 				</ul>
 			</div>
 		</div>
