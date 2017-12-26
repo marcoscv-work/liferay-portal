@@ -51,16 +51,16 @@ renderResponse.setTitle((recordSet == null) ? LanguageUtil.get(request, "new-for
 
 	<div class="autosave-bar management-bar management-bar-default">
 		<div class="container-fluid-1280">
-			<div class="toolbar">
-				<div class="toolbar-group-field">
+			<div class="navbar-nav">
+				<div class="nav-item">
 				</div>
 
-				<div class="toolbar-group-content">
-					<span class="autosave-feedback management-bar-text" id="<portlet:namespace />autosaveMessage"></span>
+				<div class="nav-item">
+					<span class="autosave-feedback navbar-text" id="<portlet:namespace />autosaveMessage"></span>
 				</div>
 
-				<div class="toolbar-group-field">
-					<button class="btn btn-link publish-icon <%= (recordSet == null) ? "hide" : "" %>" data-original-title="<liferay-ui:message key="copy-url" />" id="<portlet:namespace />publishIcon" type="button" title="<liferay-ui:message key="copy-url" />">
+				<div class="nav-item">
+					<button class="btn btn-link nav-btn publish-icon <%= (recordSet == null) ? "hide" : "" %>" data-original-title="<liferay-ui:message key="copy-url" />" id="<portlet:namespace />publishIcon" type="button" title="<liferay-ui:message key="copy-url" />">
 						<svg class="lexicon-icon">
 							<use xlink:href="<%= ddlFormAdminDisplayContext.getLexiconIconsPath() %>link" />
 						</svg>

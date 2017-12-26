@@ -32,7 +32,7 @@
 
 				<c:if test="<%= Validator.isNotNull(filters) %>">
 					<li class="dropdown nav-item">
-						<a aria-expanded="false" aria-haspopup="true" class="dropdown-toggle nav-link nav-link-monospaced navbar-breakpoint-d-none" data-toggle="dropdown" href="#1" role="button">
+						<a aria-expanded="false" aria-haspopup="true" class="dropdown-toggle  nav-link nav-link-monospaced navbar-breakpoint-d-none" data-toggle="dropdown" href="#1" role="button">
 							<aui:icon image="icon-filter" markupView="lexicon" />
 						</a>
 
@@ -83,7 +83,7 @@
 	</div>
 
 	<c:if test="<%= Validator.isNotNull(actionButtons) || includeCheckBox %>">
-		<div class="management-bar management-bar-primary navbar navbar-expand-md" id="<%= namespace %>actionButtons">
+		<div class="management-bar management-bar-primary management-bar-secondary-bar navbar navbar-expand-md" id="<%= namespace %>actionButtons">
 			<div class="container">
 				<ul class="navbar-nav">
 					<c:if test="<%= includeCheckBox %>">
