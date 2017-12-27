@@ -56,7 +56,7 @@ if (Validator.isNotNull(languageId)) {
 							</c:when>
 							<c:otherwise>
 								<div class="dropdown">
-									<a aria-expanded="true" class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">
+									<a aria-expanded="false" class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">
 										<span class="management-bar-item-title">
 											<liferay-ui:message key='<%= LanguageUtil.format(request, "version-x", sourceVersion) %>' />
 										</span>
@@ -107,7 +107,7 @@ if (Validator.isNotNull(languageId)) {
 						</c:when>
 						<c:otherwise>
 							<div class="dropdown">
-								<a aria-expanded="true" class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">
+								<a aria-expanded="false" class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">
 									<span class="management-bar-item-title">
 										<liferay-ui:message key='<%= LanguageUtil.format(request, "version-x", targetVersion) %>' />
 									</span>
