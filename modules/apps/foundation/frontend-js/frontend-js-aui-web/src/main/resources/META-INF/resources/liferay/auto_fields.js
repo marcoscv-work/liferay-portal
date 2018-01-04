@@ -4,7 +4,7 @@ AUI.add(
 		var AObject = A.Object;
 		var Lang = A.Lang;
 
-		var CSS_ICON_LOADING = 'loading-animation';
+		var CSS_ICON_LOADING = 'loading-icon loading-icon-dotted';
 
 		var CSS_VALIDATION_HELPER_CLASSES = [
 			'error',
@@ -29,7 +29,7 @@ AUI.add(
 				'</span>' +
 			'</span>';
 
-		var TPL_LOADING = '<div class="' + CSS_ICON_LOADING + '"></div>';
+		var TPL_LOADING = '<span class="' + CSS_ICON_LOADING + '"><span class="loading-icon-indicator"></span></span>';
 
 		/**
 		 * OPTIONS

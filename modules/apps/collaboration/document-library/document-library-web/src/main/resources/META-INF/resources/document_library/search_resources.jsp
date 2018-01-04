@@ -340,7 +340,9 @@ SearchContainer dlSearchContainer = new SearchContainer(liferayPortletRequest, p
 									<liferay-ui:message key="searching,-please-wait" />
 								</div>
 
-								<div class="loading-animation"></div>
+								<span class="loading-icon loading-icon-dotted">
+									<span class="loading-icon-indicator"></span>
+								</span>
 							</c:otherwise>
 						</c:choose>
 					</div>
@@ -361,7 +363,9 @@ SearchContainer dlSearchContainer = new SearchContainer(liferayPortletRequest, p
 										<liferay-ui:message key="searching,-please-wait" />
 									</div>
 
-									<div class="loading-animation"></div>
+									<span class="loading-icon loading-icon-dotted">
+										<span class="loading-icon-indicator"></span>
+									</span>
 								</c:otherwise>
 							</c:choose>
 						</div>

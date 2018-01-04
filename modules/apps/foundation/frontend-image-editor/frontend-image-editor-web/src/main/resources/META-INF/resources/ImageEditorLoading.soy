@@ -6,5 +6,7 @@
  * @param? show
  */
 {template .render}
-	<div class="{$show ? '' : 'fade'} loading-animation"></div>
+	<span class="{$show ? '' : 'fade'} loading-icon loading-icon-dotted">
+		<span class="loading-icon-indicator"></span>
+	</span>
 {/template}

@@ -52,7 +52,7 @@ AUI.add(
 
 		var TPL_CHECKED = ' checked="checked" ';
 
-		var TPL_LOADING = '<div class="loading-animation" />';
+		var TPL_LOADING = '<span class="loading-icon loading-icon-dotted"><span class="loading-icon-indicator"></span></span>';
 
 		var TPL_SEARCH_FORM = '<form action="javascript:;" class="form-search lfr-tag-selector-search">' +
 				'<input class="form-control lfr-tag-selector-input search-query" placeholder="{0}" type="text" />' +

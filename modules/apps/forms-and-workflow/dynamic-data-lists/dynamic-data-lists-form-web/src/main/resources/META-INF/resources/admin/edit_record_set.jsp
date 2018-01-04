@@ -35,7 +35,9 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle((recordSet == null) ? LanguageUtil.get(request, "new-form") : LanguageUtil.get(request, "edit-form"));
 %>
 
-<div class="loading-animation" id="<portlet:namespace />loader"></div>
+<span class="loading-icon loading-icon-dotted" id="<portlet:namespace />loader">
+	<span class="loading-icon-indicator"></span>
+</span>
 
 <portlet:actionURL name="saveRecordSet" var="saveRecordSetURL">
 	<portlet:param name="mvcPath" value="/admin/edit_record_set.jsp" />

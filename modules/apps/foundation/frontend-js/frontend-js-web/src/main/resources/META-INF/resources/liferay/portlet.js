@@ -154,7 +154,7 @@
 			var placeHolder = options.placeHolder;
 
 			if (!placeHolder) {
-				placeHolder = A.Node.create('<div class="loading-animation" />');
+				placeHolder = A.Node.create('<span class="loading-icon loading-icon-dotted"><span class="loading-icon-indicator"></span></span>');
 			}
 			else {
 				placeHolder = A.one(placeHolder);

@@ -40,7 +40,9 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle((structure == null) ? LanguageUtil.get(request, "new-field-set") : LanguageUtil.get(request, "edit-field-set"));
 %>
 
-<div class="loading-animation" id="<portlet:namespace />loader"></div>
+<span class="loading-icon loading-icon-dotted" id="<portlet:namespace />loader">
+	<span class="loading-icon-indicator"></span>
+</span>
 
 <portlet:actionURL name="saveStructure" var="saveStructureURL">
 	<portlet:param name="mvcPath" value="/admin/edit_field_set.jsp" />

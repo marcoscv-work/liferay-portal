@@ -9,7 +9,7 @@ AUI.add(
 
 		var BOUNDING_BOX = 'boundingBox';
 
-		var CSS_LOADING_ANIMATION = 'loading-animation';
+		var CSS_LOADING_ANIMATION = 'loading-icon loading-icon-dotted';
 
 		var CSS_TAGS_LIST = 'lfr-categories-selector-list';
 
@@ -661,7 +661,7 @@ AUI.add(
 									searchResults.toggle(!!searchValue);
 								}
 
-								popup.entriesNode.all('.tree-view, .loading-animation').remove(true);
+								popup.entriesNode.all('.tree-view, .loading-icon').remove(true);
 
 								entries.forEach(instance._vocabulariesIterator, instance);
 
