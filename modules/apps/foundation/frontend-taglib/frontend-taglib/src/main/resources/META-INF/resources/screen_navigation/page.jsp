@@ -53,25 +53,34 @@ List<ScreenNavigationEntry> screenNavigationEntries = (List<ScreenNavigationEntr
 	<div class="row">
 		<c:if test="<%= screenNavigationEntries.size() > 1 %>">
 			<div class="<%= navCssClass %>">
-				<ul class="main-content-nav nav nav-nested">
+				<nav class="menubar menubar-transparent menubar-vertical-expand-md">
+					<a aria-controls="menubarVerticalNestedCollapse01" aria-expanded="false" class="menubar-toggler" data-toggle="collapse" href="#menubarVerticalNestedCollapse01" role="button">
+						Show menu
+						<aui:icon image="caret-bottom" markupView="lexicon" />
+					</a>
 
-					<%
-					for (ScreenNavigationEntry screenNavigationEntry : screenNavigationEntries) {
-						PortletURL screenNavigationEntryURL = PortletURLUtil.clone(portletURL, liferayPortletResponse);
+					<div class="menubar-collapse collapse" id="menubarVerticalNestedCollapse01">
+						<ul class="nav nav-nested">
 
-						screenNavigationEntryURL.setParameter("screenNavigationCategoryKey", screenNavigationEntry.getCategoryKey());
-						screenNavigationEntryURL.setParameter("screenNavigationEntryKey", screenNavigationEntry.getEntryKey());
-					%>
+							<%
+							for (ScreenNavigationEntry screenNavigationEntry : screenNavigationEntries) {
+								PortletURL screenNavigationEntryURL = PortletURLUtil.clone(portletURL, liferayPortletResponse);
 
-						<li class="<%= Objects.equals(selectedScreenNavigationEntry.getEntryKey(), screenNavigationEntry.getEntryKey()) ? "active" : StringPool.BLANK %>">
-							<a href="<%= screenNavigationEntryURL %>"><%= screenNavigationEntry.getLabel(themeDisplay.getLocale()) %></a>
-						</li>
+								screenNavigationEntryURL.setParameter("screenNavigationCategoryKey", screenNavigationEntry.getCategoryKey());
+								screenNavigationEntryURL.setParameter("screenNavigationEntryKey", screenNavigationEntry.getEntryKey());
+							%>
 
-					<%
-					}
-					%>
+								<li class="nav-item">
+									<a class="nav-link <%= Objects.equals(selectedScreenNavigationEntry.getEntryKey(), screenNavigationEntry.getEntryKey()) ? "active" : StringPool.BLANK %>" href="<%= screenNavigationEntryURL %>"><%= screenNavigationEntry.getLabel(themeDisplay.getLocale()) %></a>
+								</li>
 
-				</ul>
+							<%
+							}
+							%>
+
+						</ul>
+					</div>
+				</nav>
 			</div>
 		</c:if>
 
