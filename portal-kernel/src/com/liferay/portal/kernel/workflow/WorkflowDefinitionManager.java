@@ -16,6 +16,7 @@ package com.liferay.portal.kernel.workflow;
 
 import com.liferay.portal.kernel.messaging.proxy.MessagingProxy;
 import com.liferay.portal.kernel.messaging.proxy.ProxyMode;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
 import java.util.HashMap;
@@ -32,9 +33,24 @@ import java.util.Map;
 @MessagingProxy(mode = ProxyMode.SYNC)
 public interface WorkflowDefinitionManager {
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #deployWorkflowDefinition(long, long, String, String,
+	 *             byte[])}
+	 * @review
+	 */
+	@Deprecated
 	public WorkflowDefinition deployWorkflowDefinition(
 			long companyId, long userId, String title, byte[] bytes)
 		throws WorkflowException;
+
+	public default WorkflowDefinition deployWorkflowDefinition(
+			long companyId, long userId, String title, String name,
+			byte[] bytes)
+		throws WorkflowException {
+
+		throw new UnsupportedOperationException();
+	}
 
 	public int getActiveWorkflowDefinitionCount(long companyId)
 		throws WorkflowException;
@@ -52,9 +68,22 @@ public interface WorkflowDefinitionManager {
 			OrderByComparator<WorkflowDefinition> orderByComparator)
 		throws WorkflowException;
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #getLatestWorkflowDefinition(long, String)}
+	 * @review
+	 */
+	@Deprecated
 	public WorkflowDefinition getLatestKaleoDefinition(
 			long companyId, String name)
 		throws WorkflowException;
+
+	public default WorkflowDefinition getLatestWorkflowDefinition(
+			long companyId, String name)
+		throws WorkflowException {
+
+		throw new UnsupportedOperationException();
+	}
 
 	public default List<WorkflowDefinition> getLatestWorkflowDefinitions(
 			long companyId, int start, int end,
@@ -85,7 +114,7 @@ public interface WorkflowDefinitionManager {
 			}
 		}
 
-		return (List<WorkflowDefinition>)latestWorkflowDefinitions.values();
+		return ListUtil.fromMapValues(latestWorkflowDefinitions);
 	}
 
 	public WorkflowDefinition getWorkflowDefinition(

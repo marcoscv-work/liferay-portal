@@ -15,11 +15,11 @@
 package com.liferay.portal.osgi.debug.declarative.service.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
-import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.StreamUtil;
@@ -118,18 +118,18 @@ public class DeclarativeServiceDependencyManagerTest {
 
 			LoggingEvent loggingEvent = loggingEvents.get(0);
 
-			Assert.assertEquals(Level.INFO, loggingEvent.getLevel());
 			Assert.assertEquals(
 				"All declarative service components are satisfied",
 				loggingEvent.getMessage());
+			Assert.assertEquals(Level.INFO, loggingEvent.getLevel());
 
 			loggingEvent = loggingEvents.get(1);
 
-			Assert.assertEquals(Level.INFO, loggingEvent.getLevel());
 			Assert.assertEquals(
 				"Stopped scanning for unsatisfied declarative service " +
 					"components",
 				loggingEvent.getMessage());
+			Assert.assertEquals(Level.INFO, loggingEvent.getLevel());
 		}
 	}
 
@@ -153,27 +153,33 @@ public class DeclarativeServiceDependencyManagerTest {
 
 			LoggingEvent loggingEvent = loggingEvents.get(0);
 
-			Assert.assertEquals(Level.WARN, loggingEvent.getLevel());
-
 			String message = (String)loggingEvent.getMessage();
+
+			message = message.replaceAll("\\s", "");
+			message = message.replaceAll("\\n", "");
+			message = message.replaceAll("_", "");
 
 			StringBundler sb = new StringBundler(4);
 
 			sb.append("name: ");
 			sb.append(DeclarativeServiceTestComponent.class.getName());
-			sb.append(", unsatisfied references: ");
-			sb.append(
-				"\n\t\t{name: declarativeServiceTestReference, target: null}");
+			sb.append(", unsatisfied references: {name: ");
+			sb.append("declarativeServiceTestReference, target: null}");
 
-			Assert.assertTrue(message.contains(sb.toString()));
+			String s = sb.toString();
+
+			Assert.assertTrue(
+				message, message.contains(s.replaceAll("\\s", "")));
+
+			Assert.assertEquals(Level.WARN, loggingEvent.getLevel());
 
 			loggingEvent = loggingEvents.get(1);
 
-			Assert.assertEquals(Level.INFO, loggingEvent.getLevel());
 			Assert.assertEquals(
 				"Stopped scanning for unsatisfied declarative service " +
 					"components",
 				loggingEvent.getMessage());
+			Assert.assertEquals(Level.INFO, loggingEvent.getLevel());
 		}
 		finally {
 			bundle.uninstall();

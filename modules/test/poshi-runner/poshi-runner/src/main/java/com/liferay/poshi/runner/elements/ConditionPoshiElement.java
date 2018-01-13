@@ -53,8 +53,8 @@ public class ConditionPoshiElement extends ExecutePoshiElement {
 	}
 
 	@Override
-	protected String createReadableBlock(String content) {
-		String readableBlock = super.createReadableBlock(content);
+	protected String createFunctionReadableBlock(String content) {
+		String readableBlock = super.createFunctionReadableBlock(content);
 
 		readableBlock = readableBlock.trim();
 
@@ -74,8 +74,18 @@ public class ConditionPoshiElement extends ExecutePoshiElement {
 	private boolean _isElementType(
 		PoshiElement parentPoshiElement, String readableSyntax) {
 
-		if ((parentPoshiElement instanceof IfPoshiElement) &&
-			readableSyntax.endsWith(")") &&
+		if (!isConditionValidInParent(parentPoshiElement)) {
+			return false;
+		}
+
+		if (readableSyntax.contains(" && ") ||
+			readableSyntax.contains(" || ") || readableSyntax.startsWith("!") ||
+			readableSyntax.startsWith("else if (")) {
+
+			return false;
+		}
+
+		if (readableSyntax.endsWith(")") &&
 			!readableSyntax.startsWith("isSet(")) {
 
 			return true;

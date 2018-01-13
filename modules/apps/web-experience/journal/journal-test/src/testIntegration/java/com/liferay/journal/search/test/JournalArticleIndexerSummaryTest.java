@@ -15,12 +15,14 @@
 package com.liferay.journal.search.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.test.util.JournalArticleBuilder;
 import com.liferay.journal.test.util.JournalArticleContent;
 import com.liferay.journal.test.util.JournalArticleTitle;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.LayoutSet;
+import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
@@ -30,11 +32,9 @@ import com.liferay.portal.kernel.search.Summary;
 import com.liferay.portal.kernel.search.highlight.HighlightUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
-import com.liferay.portal.kernel.service.LayoutSetLocalServiceUtil;
+import com.liferay.portal.kernel.service.ThemeLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
-import com.liferay.portal.kernel.test.rule.Sync;
-import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
@@ -42,7 +42,6 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.TimeZoneUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.service.test.ServiceTestUtil;
@@ -74,15 +73,12 @@ import org.springframework.mock.web.portlet.MockRenderRequest;
  * @author Bryan Engler
  */
 @RunWith(Arquillian.class)
-@Sync
 public class JournalArticleIndexerSummaryTest {
 
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(),
-			SynchronousDestinationTestRule.INSTANCE);
+		new LiferayIntegrationTestRule();
 
 	@Before
 	public void setUp() throws Exception {
@@ -118,10 +114,10 @@ public class JournalArticleIndexerSummaryTest {
 
 		Document document = getDocument(title, content);
 
-		String highlightedContent = concat(
+		String highlightedContent = StringBundler.concat(
 			HighlightUtil.HIGHLIGHT_TAG_OPEN, "test",
 			HighlightUtil.HIGHLIGHT_TAG_CLOSE, " content");
-		String highlightedTitle = concat(
+		String highlightedTitle = StringBundler.concat(
 			HighlightUtil.HIGHLIGHT_TAG_OPEN, "test",
 			HighlightUtil.HIGHLIGHT_TAG_CLOSE, " title");
 
@@ -152,16 +148,16 @@ public class JournalArticleIndexerSummaryTest {
 
 		Document document = getDocument(title, content);
 
-		String staleHighlightedContent = concat(
+		String staleHighlightedContent = StringBundler.concat(
 			HighlightUtil.HIGHLIGHT_TAG_OPEN, "test",
 			HighlightUtil.HIGHLIGHT_TAG_CLOSE, " stale content");
-		String staleHighlightedTitle = concat(
+		String staleHighlightedTitle = StringBundler.concat(
 			HighlightUtil.HIGHLIGHT_TAG_OPEN, "test",
 			HighlightUtil.HIGHLIGHT_TAG_CLOSE, " stale title");
 
 		setSnippets(staleHighlightedTitle, staleHighlightedContent, document);
 
-		String highlightedContent = concat(
+		String highlightedContent = StringBundler.concat(
 			HighlightUtil.HIGHLIGHT_TAG_OPEN, "test",
 			HighlightUtil.HIGHLIGHT_TAG_CLOSE, " content");
 
@@ -182,16 +178,6 @@ public class JournalArticleIndexerSummaryTest {
 		Assert.assertEquals(title, summary.getTitle());
 	}
 
-	protected String concat(String s1, String s2, String... stringArray) {
-		StringBundler sb = new StringBundler(2 + stringArray.length);
-
-		sb.append(s1);
-		sb.append(s2);
-		sb.append(stringArray);
-
-		return sb.toString();
-	}
-
 	protected HttpServletRequest createHttpServletRequest(
 		PortletRequest portletRequest) {
 
@@ -210,11 +196,15 @@ public class JournalArticleIndexerSummaryTest {
 	protected PortletRequest createPortletRequest() throws Exception {
 		PortletRequest portletRequest = new MockRenderRequest();
 
-		portletRequest.setAttribute(
-			WebKeys.THEME_DISPLAY,
-			createThemeDisplay(
-				createHttpServletRequest(portletRequest),
-				createHttpServletResponse()));
+		HttpServletRequest request = createHttpServletRequest(portletRequest);
+
+		HttpServletResponse response = createHttpServletResponse();
+
+		ThemeDisplay themeDisplay = createThemeDisplay(request, response);
+
+		portletRequest.setAttribute(WebKeys.THEME_DISPLAY, themeDisplay);
+
+		request.setAttribute(WebKeys.THEME_DISPLAY, themeDisplay);
 
 		return portletRequest;
 	}
@@ -233,9 +223,16 @@ public class JournalArticleIndexerSummaryTest {
 		themeDisplay.setCompany(
 			CompanyLocalServiceUtil.getCompany(_group.getCompanyId()));
 		themeDisplay.setLayout(LayoutTestUtil.addLayout(_group));
-		themeDisplay.setLayoutSet(
-			LayoutSetLocalServiceUtil.createLayoutSet(
-				CounterLocalServiceUtil.increment()));
+
+		LayoutSet layoutSet = _group.getPublicLayoutSet();
+
+		themeDisplay.setLayoutSet(layoutSet);
+
+		Theme theme = ThemeLocalServiceUtil.getTheme(
+			_group.getCompanyId(), layoutSet.getThemeId());
+
+		themeDisplay.setLookAndFeel(theme, null);
+
 		themeDisplay.setRealUser(_user);
 		themeDisplay.setRequest(httpServletRequest);
 		themeDisplay.setResponse(httpServletResponse);
@@ -271,12 +268,12 @@ public class JournalArticleIndexerSummaryTest {
 	}
 
 	protected String getFieldName(String field) {
-		return concat(
+		return StringBundler.concat(
 			field, StringPool.UNDERLINE, LocaleUtil.toLanguageId(Locale.US));
 	}
 
 	protected String getSnippetFieldName(String field) {
-		return concat(
+		return StringBundler.concat(
 			Field.SNIPPET, StringPool.UNDERLINE, field, StringPool.UNDERLINE,
 			LocaleUtil.toLanguageId(Locale.US));
 	}

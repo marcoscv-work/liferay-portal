@@ -16,6 +16,7 @@ package com.liferay.portal.osgi.debug.spring.extender.internal;
 
 import static java.lang.Thread.sleep;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -125,38 +126,37 @@ public class UnavailableComponentScanner {
 			}
 
 			if (!unavailableComponentDeclarations.isEmpty()) {
-				sb.append("Found unavailable component in bundle ");
-				sb.append(bundle);
-				sb.append(".\n");
+				sb.append("Found unavailable component in bundle {id: ");
+				sb.append(bundle.getBundleId());
+				sb.append(", name: ");
+				sb.append(bundle.getSymbolicName());
+				sb.append(", version: ");
+				sb.append(bundle.getVersion());
+				sb.append("}.\n");
 
-				for (Map.Entry<
-						ComponentDeclaration,
-						List<ComponentDependencyDeclaration>> entry :
-							unavailableComponentDeclarations.entrySet()) {
+				for (Map.Entry
+						<ComponentDeclaration,
+							List<ComponentDependencyDeclaration>> entry :
+								unavailableComponentDeclarations.entrySet()) {
 
-					sb.append("\tComponent ");
-					sb.append(entry.getKey());
+					sb.append("\tComponent with ID ");
+
+					ComponentDeclaration componentDeclaration = entry.getKey();
+
+					sb.append(componentDeclaration.getId());
+
 					sb.append(" is unavailable due to missing required ");
-					sb.append("dependencies: ");
+					sb.append("dependencies:\n\t\t");
 
-					List<ComponentDependencyDeclaration>
-						componentDependencyDeclarations = entry.getValue();
-
-					for (int i = 0; i < componentDependencyDeclarations.size();
-						i++) {
-
-						if (i != 0) {
-							sb.append(", ");
-						}
-
-						ComponentDependencyDeclaration
-							componentDependencyDeclaration =
-								componentDependencyDeclarations.get(i);
+					for (ComponentDependencyDeclaration
+							componentDependencyDeclaration :
+								entry.getValue()) {
 
 						sb.append(componentDependencyDeclaration);
+						sb.append("\n\t\t");
 					}
 
-					sb.append(".");
+					sb.setStringAt(StringPool.NEW_LINE, sb.index() - 1);
 				}
 			}
 		}

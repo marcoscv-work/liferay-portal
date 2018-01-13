@@ -501,6 +501,11 @@ public class AssetCategoryLocalServiceUtil {
 		return getService().getChildCategoriesCount(parentCategoryId);
 	}
 
+	public static java.util.List<com.liferay.asset.kernel.model.AssetCategory> getDescendantCategories(
+		com.liferay.asset.kernel.model.AssetCategory category) {
+		return getService().getDescendantCategories(category);
+	}
+
 	public static java.util.List<com.liferay.asset.kernel.model.AssetCategory> getEntryCategories(
 		long entryId) {
 		return getService().getEntryCategories(entryId);
@@ -533,6 +538,13 @@ public class AssetCategoryLocalServiceUtil {
 	public static java.util.List<java.lang.Long> getSubcategoryIds(
 		long parentCategoryId) {
 		return getService().getSubcategoryIds(parentCategoryId);
+	}
+
+	public static long[] getViewableCategoryIds(java.lang.String className,
+		long classPK, long[] categoryIds)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .getViewableCategoryIds(className, classPK, categoryIds);
 	}
 
 	public static java.util.List<com.liferay.asset.kernel.model.AssetCategory> getVocabularyCategories(

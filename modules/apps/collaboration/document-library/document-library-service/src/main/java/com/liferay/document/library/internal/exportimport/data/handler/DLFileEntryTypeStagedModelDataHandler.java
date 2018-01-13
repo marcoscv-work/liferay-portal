@@ -35,9 +35,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.verify.extender.marker.VerifyProcessCompletionMarker;
 
 import java.util.HashMap;
 import java.util.List;
@@ -185,8 +183,7 @@ public class DLFileEntryTypeStagedModelDataHandler
 					PortletDataContext.REFERENCE_TYPE_STRONG);
 
 			referenceElement.addAttribute(
-				"structure-id",
-				StringUtil.valueOf(ddmStructure.getStructureId()));
+				"structure-id", String.valueOf(ddmStructure.getStructureId()));
 		}
 
 		long defaultUserId = _userLocalService.getDefaultUserId(
@@ -399,8 +396,7 @@ public class DLFileEntryTypeStagedModelDataHandler
 		target = "(&(verify.process.name=com.liferay.document.library.service))",
 		unbind = "-"
 	)
-	protected void setVerifyProcessCompletionMarker(
-		VerifyProcessCompletionMarker verifyProcessCompletionMarker) {
+	protected void setVerifyProcessCompletionMarker(Object object) {
 	}
 
 	private DDMStructureLocalService _ddmStructureLocalService;

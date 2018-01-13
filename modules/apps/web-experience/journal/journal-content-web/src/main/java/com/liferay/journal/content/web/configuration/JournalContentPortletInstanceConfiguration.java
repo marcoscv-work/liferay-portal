@@ -28,26 +28,26 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 @Meta.OCD(
 	id = "com.liferay.journal.content.web.configuration.JournalContentPortletInstanceConfiguration",
 	localization = "content/Language",
-	name = "journal.content.portlet.instance.configuration.name"
+	name = "journal-content-portlet-instance-configuration-name"
 )
 public interface JournalContentPortletInstanceConfiguration {
 
-	@Meta.AD(required = false)
+	@Meta.AD(name = "article-id", required = false)
 	public String articleId();
 
-	@Meta.AD(required = false)
+	@Meta.AD(name = "content-metadata-asset-addon-entry-keys", required = false)
 	public String contentMetadataAssetAddonEntryKeys();
 
-	@Meta.AD(required = false)
+	@Meta.AD(name = "ddm-template-key", required = false)
 	public String ddmTemplateKey();
 
-	@Meta.AD(required = false)
+	@Meta.AD(name = "enable-view-count-increment", required = false)
 	public String enableViewCountIncrement();
 
-	@Meta.AD(deflt = "0", required = false)
+	@Meta.AD(deflt = "0", name = "group-id", required = false)
 	public long groupId();
 
-	@Meta.AD(required = false)
+	@Meta.AD(name = "user-tool-asset-addon-entry-keys", required = false)
 	public String userToolAssetAddonEntryKeys();
 
 }
