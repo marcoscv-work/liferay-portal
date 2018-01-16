@@ -9,7 +9,9 @@
 
 		<execute macro="User#firstLoginPG" />
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -20,7 +22,9 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -30,7 +34,9 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelUsers">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
@@ -53,7 +59,7 @@
 
 				<execute macro="DMFolder#tearDownCP" />
 
-				<execute macro="Page#tearDownPG" />
+				<execute macro="Page#tearDownCP" />
 
 				<execute macro="User#tearDownCP" />
 			</else>
@@ -61,7 +67,13 @@
 	</tear-down>
 
 	<command name="ViewMentionViaDMComment" priority="5">
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
@@ -75,7 +87,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -97,7 +111,9 @@
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
-		<execute function="Click" locator1="Icon#DISPLAY_STYLE_DESCRIPTIVE" />
+		<execute macro="Portlet#changeDisplayStyle">
+			<var name="displayStyle" value="descriptive" />
+		</execute>
 
 		<execute macro="DMDocument#viewPG">
 			<var name="dmDocumentDescription" value="DM Document Description" />
@@ -117,7 +133,13 @@
 	</command>
 
 	<command name="ViewReplyMentionViaDMComment" priority="5">
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
@@ -131,7 +153,9 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesContent">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Content" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
@@ -153,7 +177,9 @@
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
-		<execute function="Click" locator1="Icon#DISPLAY_STYLE_DESCRIPTIVE" />
+		<execute macro="Portlet#changeDisplayStyle">
+			<var name="displayStyle" value="descriptive" />
+		</execute>
 
 		<execute macro="DMDocument#viewPG">
 			<var name="dmDocumentDescription" value="DM Document Description" />
@@ -182,7 +208,9 @@
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
-		<execute function="Click" locator1="Icon#DISPLAY_STYLE_DESCRIPTIVE" />
+		<execute macro="Portlet#changeDisplayStyle">
+			<var name="displayStyle" value="descriptive" />
+		</execute>
 
 		<execute macro="DMDocument#viewPG">
 			<var name="dmDocumentDescription" value="DM Document Description" />

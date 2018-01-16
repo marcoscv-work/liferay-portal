@@ -18,7 +18,10 @@ import com.liferay.gradle.util.Validator;
 
 import java.io.File;
 
+import java.util.Map;
 import java.util.regex.Pattern;
+
+import org.dm.gradle.plugins.bundle.BundleExtension;
 
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -39,6 +42,10 @@ public class GradlePluginsDefaultsUtil {
 
 	public static final String[] JSON_VERSION_FILE_NAMES =
 		{"npm-shrinkwrap.json", "package-lock.json", "package.json"};
+
+	public static final String SNAPSHOT_PROPERTY_NAME = "snapshot";
+
+	public static final String SNAPSHOT_VERSION_SUFFIX = "-SNAPSHOT";
 
 	public static final String TMP_MAVEN_REPOSITORY_DIR_NAME = ".m2-tmp";
 
@@ -127,5 +134,96 @@ public class GradlePluginsDefaultsUtil {
 				});
 		}
 	}
+
+	public static String getBundleInstruction(Project project, String key) {
+		Map<String, String> bundleInstructions = getBundleInstructions(project);
+
+		return bundleInstructions.get(key);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Map<String, String> getBundleInstructions(Project project) {
+		BundleExtension bundleExtension = GradleUtil.getExtension(
+			project, BundleExtension.class);
+
+		return (Map<String, String>)bundleExtension.getInstructions();
+	}
+
+	public static boolean isPrivateProject(Project project) {
+		String path = project.getPath();
+
+		if (path.startsWith(":private:")) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean isSnapshot(Project project) {
+		String version = String.valueOf(project.getVersion());
+
+		if (version.endsWith(SNAPSHOT_VERSION_SUFFIX)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean isSnapshot(Project project, String... propertyNames) {
+		boolean snapshot = false;
+
+		if (project.hasProperty(SNAPSHOT_PROPERTY_NAME)) {
+			snapshot = GradleUtil.getProperty(
+				project, SNAPSHOT_PROPERTY_NAME, true);
+		}
+
+		if (!snapshot) {
+			for (String propertyName : propertyNames) {
+				if (project.hasProperty(propertyName) &&
+					GradleUtil.getProperty(project, propertyName, true)) {
+
+					snapshot = true;
+
+					break;
+				}
+			}
+		}
+
+		return snapshot;
+	}
+
+	public static boolean isTestProject(File dir) {
+		String dirName = dir.getName();
+
+		if (dirName.endsWith(_TEST_PROJECT_SUFFIX)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean isTestProject(Project project) {
+		String projectName = project.getName();
+
+		if (projectName.endsWith(_TEST_PROJECT_SUFFIX)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static void setProjectSnapshotVersion(
+		Project project, String... propertyNames) {
+
+		String version = String.valueOf(project.getVersion());
+
+		if (isSnapshot(project, propertyNames) &&
+			!version.endsWith(SNAPSHOT_VERSION_SUFFIX)) {
+
+			project.setVersion(version + SNAPSHOT_VERSION_SUFFIX);
+		}
+	}
+
+	private static final String _TEST_PROJECT_SUFFIX = "-test";
 
 }

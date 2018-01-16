@@ -16,7 +16,7 @@ package com.liferay.dynamic.data.mapping.expression.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.petra.string.StringPool;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,8 +36,8 @@ public class FunctionCallExpression extends Expression {
 	}
 
 	@Override
-	public <T> T accept(ExpressionVisitor<T> visitor) {
-		return visitor.visit(this);
+	public <T> T accept(ExpressionVisitor<T> expressionVisitor) {
+		return expressionVisitor.visit(this);
 	}
 
 	public int getArity() {

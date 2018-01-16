@@ -14,8 +14,9 @@
 
 package com.liferay.portal.kernel.util;
 
-import com.liferay.portal.kernel.concurrent.ConcurrentReferenceValueHashMap;
-import com.liferay.portal.kernel.memory.FinalizeManager;
+import com.liferay.petra.concurrent.ConcurrentReferenceValueHashMap;
+import com.liferay.petra.memory.FinalizeManager;
+import com.liferay.petra.string.CharPool;
 
 import java.util.Map;
 import java.util.regex.Pattern;

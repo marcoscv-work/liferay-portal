@@ -21,7 +21,6 @@ import com.liferay.poshi.runner.util.FileUtil;
 import com.liferay.poshi.runner.util.GetterUtil;
 import com.liferay.poshi.runner.util.OSDetector;
 import com.liferay.poshi.runner.util.PropsValues;
-import com.liferay.poshi.runner.util.StringUtil;
 import com.liferay.poshi.runner.util.Validator;
 
 import java.awt.Rectangle;
@@ -256,9 +255,7 @@ public class LiferaySeleniumHelper {
 			sb.append("##\n");
 			sb.append("\n");
 
-			for (int i = 0; i < _javaScriptExceptions.size(); i++) {
-				Exception exception = _javaScriptExceptions.get(i);
-
+			for (Exception exception : _javaScriptExceptions) {
 				sb.append(exception.getMessage());
 
 				sb.append("\n");
@@ -287,9 +284,7 @@ public class LiferaySeleniumHelper {
 			sb.append("##\n");
 			sb.append("\n");
 
-			for (int i = 0; i < _liferayExceptions.size(); i++) {
-				Exception exception = _liferayExceptions.get(i);
-
+			for (Exception exception : _liferayExceptions) {
 				sb.append(exception.getMessage());
 
 				sb.append("\n");
@@ -364,11 +359,11 @@ public class LiferaySeleniumHelper {
 	}
 
 	public static String getNumberDecrement(String value) {
-		return StringUtil.valueOf(GetterUtil.getInteger(value) - 1);
+		return String.valueOf(GetterUtil.getInteger(value) - 1);
 	}
 
 	public static String getNumberIncrement(String value) {
-		return StringUtil.valueOf(GetterUtil.getInteger(value) + 1);
+		return String.valueOf(GetterUtil.getInteger(value) + 1);
 	}
 
 	public static String getSourceDirFilePath(String fileName)
@@ -418,6 +413,10 @@ public class LiferaySeleniumHelper {
 	}
 
 	public static String getTestConsoleLogFileContent() throws Exception {
+		if (Validator.isNull(PropsValues.TEST_CONSOLE_LOG_FILE_NAME)) {
+			return "";
+		}
+
 		Map<String, File> consoleLogFiles = new TreeMap<>();
 
 		String baseDirName = PropsValues.TEST_CONSOLE_LOG_FILE_NAME;
@@ -651,9 +650,7 @@ public class LiferaySeleniumHelper {
 		StringBuilder sb = new StringBuilder();
 
 		if (!_javaScriptExceptions.isEmpty()) {
-			for (int i = 0; i < _javaScriptExceptions.size(); i++) {
-				Exception exception = _javaScriptExceptions.get(i);
-
+			for (Exception exception : _javaScriptExceptions) {
 				sb.append("<value><![CDATA[");
 				sb.append(exception.getMessage());
 				sb.append("]]></value>\n");
@@ -661,9 +658,7 @@ public class LiferaySeleniumHelper {
 		}
 
 		if (!_liferayExceptions.isEmpty()) {
-			for (int i = 0; i < _liferayExceptions.size(); i++) {
-				Exception exception = _liferayExceptions.get(i);
-
+			for (Exception exception : _liferayExceptions) {
 				sb.append("<value><![CDATA[");
 				sb.append(exception.getMessage());
 				sb.append("]]></value>\n");

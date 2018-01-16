@@ -14,9 +14,10 @@
 
 package com.liferay.document.library.web.internal.portlet.configuration.icon;
 
+import com.liferay.document.library.constants.DLPortletKeys;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
-import com.liferay.document.library.web.constants.DLPortletKeys;
 import com.liferay.document.library.web.internal.portlet.action.ActionUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.configuration.icon.BasePortletConfigurationIcon;
@@ -25,8 +26,8 @@ import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.util.RepositoryUtil;
 import com.liferay.portlet.documentlibrary.service.permission.DLFolderPermission;
 import com.liferay.taglib.security.PermissionsURLTag;
 
@@ -98,18 +99,27 @@ public class FolderPermissionPortletConfigurationIcon
 
 	@Override
 	public boolean isShow(PortletRequest portletRequest) {
-		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
 		try {
 			Folder folder = ActionUtil.getFolder(portletRequest);
 
-			if (folder != null) {
-				return DLFolderPermission.contains(
-					themeDisplay.getPermissionChecker(),
-					themeDisplay.getScopeGroupId(), folder.getFolderId(),
-					ActionKeys.PERMISSIONS);
+			if (folder == null) {
+				return false;
 			}
+
+			if (!folder.isMountPoint() &&
+				RepositoryUtil.isExternalRepository(folder.getRepositoryId())) {
+
+				return false;
+			}
+
+			ThemeDisplay themeDisplay =
+				(ThemeDisplay)portletRequest.getAttribute(
+					WebKeys.THEME_DISPLAY);
+
+			return DLFolderPermission.contains(
+				themeDisplay.getPermissionChecker(),
+				themeDisplay.getScopeGroupId(), folder.getFolderId(),
+				ActionKeys.PERMISSIONS);
 		}
 		catch (Exception e) {
 		}

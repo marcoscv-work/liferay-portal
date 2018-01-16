@@ -1,3 +1,11 @@
-.modal-header {
-	display: block;
+@if $compat-modals {
+	.modal-header {
+		.btn-toolbar {
+			@extend .order-2;
+		}
+
+		.btn-toolbar + .modal-title {
+			@extend .order-1;
+		}
+	}
 }

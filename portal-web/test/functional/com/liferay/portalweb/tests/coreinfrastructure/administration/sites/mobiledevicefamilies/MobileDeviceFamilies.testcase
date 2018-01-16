@@ -1,6 +1,7 @@
 <definition component-name="portal-mobile-device-rules">
 	<property name="portal.release" value="true" />
 	<property name="portal.upstream" value="true" />
+	<property name="blacklist.portal.profile.names.remove" value="com.liferay.portal.mobile.device.detection.fiftyonedegrees,com.liferay.portal.mobile.device.detection.fiftyonedegrees.enterprise" />
 	<property name="testray.main.component.name" value="Mobile Device Rules" />
 
 	<set-up>
@@ -20,13 +21,15 @@
 			<else>
 				<execute macro="PortalInstances#tearDownCP" />
 
-				<execute macro="Page#tearDownPG" />
+				<execute macro="Page#tearDownCP" />
 			</else>
 		</if>
 	</tear-down>
 
 	<command name="AssertMobileDeviceRuleActionOnSitePage" priority="5">
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -34,17 +37,25 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Page for Linux" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Page for Windows" />
 		</execute>
 
 		<execute macro="Navigator#openURL" />
 
-		<execute macro="ProductMenu#gotoSitesConfiguration">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Configuration" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Mobile Device Families" />
 		</execute>
 
@@ -52,7 +63,9 @@
 			<var name="deviceFamilyName" value="Linux Family Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesConfiguration">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Configuration" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Mobile Device Families" />
 		</execute>
 
@@ -63,7 +76,9 @@
 			<var name="ruleOSScope" value="Linux" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesConfiguration">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Configuration" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Mobile Device Families" />
 		</execute>
 
@@ -71,7 +86,9 @@
 			<var name="deviceFamilyName" value="Windows Device Family Name" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoSitesConfiguration">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Configuration" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Mobile Device Families" />
 		</execute>
 
@@ -82,12 +99,19 @@
 			<var name="ruleOSScope" value="Windows" />
 		</execute>
 
-		<execute macro="Page#add">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Mobile Device Family Test Page" />
 		</execute>
 
-		<execute macro="SitePageNavigator#gotoEditPage">
-			<var name="page" value="Mobile Device Family Test Page" />
+		<execute macro="LexiconEntry#gotoEntryMenuItem">
+			<var name="menuItem" value="Configure" />
+			<var name="rowEntry" value="Mobile Device Family Test Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoNavTab">

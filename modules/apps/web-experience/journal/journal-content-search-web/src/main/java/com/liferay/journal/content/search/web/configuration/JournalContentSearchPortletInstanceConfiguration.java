@@ -28,17 +28,17 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 @Meta.OCD(
 	id = "com.liferay.journal.content.search.web.configuration.JournalContentSearchPortletInstanceConfiguration",
 	localization = "content/Language",
-	name = "journal.content.search.portlet.instance.configuration.name"
+	name = "journal-content-search-portlet-instance-configuration-name"
 )
 public interface JournalContentSearchPortletInstanceConfiguration {
 
-	@Meta.AD(deflt = "true", required = false)
+	@Meta.AD(deflt = "true", name = "enable-highlighting", required = false)
 	public boolean enableHighlighting();
 
-	@Meta.AD(deflt = "true", required = false)
+	@Meta.AD(deflt = "true", name = "show-listed", required = false)
 	public boolean showListed();
 
-	@Meta.AD(required = false)
+	@Meta.AD(name = "target-portlet-id", required = false)
 	public String targetPortletId();
 
 }
