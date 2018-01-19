@@ -61,7 +61,6 @@ page import="com.liferay.portal.kernel.security.permission.ActionKeys" %><%@
 page import="com.liferay.portal.kernel.service.LayoutLocalServiceUtil" %><%@
 page import="com.liferay.portal.kernel.service.LayoutSetBranchLocalServiceUtil" %><%@
 page import="com.liferay.portal.kernel.service.permission.GroupPermissionUtil" %><%@
-page import="com.liferay.portal.kernel.servlet.SessionMessages" %><%@
 page import="com.liferay.portal.kernel.util.AggregateResourceBundle" %><%@
 page import="com.liferay.portal.kernel.util.ArrayUtil" %><%@
 page import="com.liferay.portal.kernel.util.CalendarFactoryUtil" %><%@
@@ -95,11 +94,9 @@ page import="java.util.Map" %><%@
 page import="java.util.ResourceBundle" %><%@
 page import="java.util.Set" %>
 
-<%@ page import="javax.portlet.ActionRequest" %><%@
-page import="javax.portlet.PortletMode" %><%@
+<%@ page import="javax.portlet.PortletMode" %><%@
 page import="javax.portlet.PortletRequest" %><%@
-page import="javax.portlet.PortletResponse" %><%@
-page import="javax.portlet.PortletURL" %>
+page import="javax.portlet.PortletResponse" %>
 
 <liferay-frontend:defineObjects />
 

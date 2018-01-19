@@ -96,7 +96,7 @@ String organizationRoleSyncEntitiesEventName = liferayPortletResponse.getNamespa
 		cssClass="modify-link"
 		id="selectRegularRoleLink"
 		label="<%= true %>"
-		linkCssClass="btn btn-default btn-lg"
+		linkCssClass="btn btn-primary"
 		message="select"
 		method="get"
 		url="javascript:;"
@@ -337,7 +337,7 @@ String organizationRoleSyncEntitiesEventName = liferayPortletResponse.getNamespa
 		cssClass="modify-link"
 		id="selectOrganizationRoleLink"
 		label="<%= true %>"
-		linkCssClass="btn btn-default btn-lg"
+		linkCssClass="btn btn-primary"
 		message="select"
 		method="get"
 		url="javascript:;"
@@ -423,8 +423,11 @@ String organizationRoleSyncEntitiesEventName = liferayPortletResponse.getNamespa
 				<liferay-ui:search-container-column-text
 					cssClass="table-cell-content"
 					name="site"
-					value="<%= HtmlUtil.escape(userGroupRole.getGroup().getDescriptiveName(locale)) %>"
-				/>
+				>
+					<liferay-staging:descriptive-name
+						group="<%= userGroupRole.getGroup() %>"
+					/>
+				</liferay-ui:search-container-column-text>
 
 				<%
 				boolean membershipProtected = false;
@@ -456,7 +459,7 @@ String organizationRoleSyncEntitiesEventName = liferayPortletResponse.getNamespa
 				cssClass="modify-link"
 				id="selectSiteRoleLink"
 				label="<%= true %>"
-				linkCssClass="btn btn-default btn-lg"
+				linkCssClass="btn btn-primary"
 				message="select"
 				method="get"
 				url="javascript:;"
@@ -601,8 +604,11 @@ String organizationRoleSyncEntitiesEventName = liferayPortletResponse.getNamespa
 			<liferay-ui:search-container-column-text
 				cssClass="table-cell-content"
 				name="site"
-				value="<%= HtmlUtil.escape(userGroupGroupRole.getGroup().getDescriptiveName(locale)) %>"
-			/>
+			>
+				<liferay-staging:descriptive-name
+					group="<%= userGroupGroupRole.getGroup() %>"
+				/>
+			</liferay-ui:search-container-column-text>
 
 			<liferay-ui:search-container-column-text
 				cssClass="table-cell-content"

@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -171,16 +172,16 @@ public abstract class PortletRequestImpl implements LiferayPortletRequest {
 
 	@Override
 	public Enumeration<String> getAttributeNames() {
-		List<String> names = new ArrayList<>();
+		Set<String> names = new HashSet<>();
 
 		Enumeration<String> enu = _request.getAttributeNames();
 
-		while (enu.hasMoreElements()) {
-			String name = enu.nextElement();
+		_copyAttributeNames(names, enu);
 
-			if (!name.equals(JavaConstants.JAVAX_SERVLET_INCLUDE_PATH_INFO)) {
-				names.add(name);
-			}
+		if (_portletRequestDispatcherRequest != null) {
+			enu = _portletRequestDispatcherRequest.getAttributeNames();
+
+			_copyAttributeNames(names, enu);
 		}
 
 		return Collections.enumeration(names);
@@ -321,6 +322,10 @@ public abstract class PortletRequestImpl implements LiferayPortletRequest {
 	@Override
 	public String getPortletName() {
 		return _portletName;
+	}
+
+	public HttpServletRequest getPortletRequestDispatcherRequest() {
+		return _portletRequestDispatcherRequest;
 	}
 
 	@Override
@@ -623,6 +628,10 @@ public abstract class PortletRequestImpl implements LiferayPortletRequest {
 
 	@Override
 	public boolean isRequestedSessionIdValid() {
+		if (_session.isInvalidated() || _invalidSession) {
+			return false;
+		}
+
 		return _request.isRequestedSessionIdValid();
 	}
 
@@ -644,7 +653,9 @@ public abstract class PortletRequestImpl implements LiferayPortletRequest {
 		try {
 			long companyId = PortalUtil.getCompanyId(_request);
 
-			String roleLink = _portlet.getRoleMappers().get(role);
+			Map<String, String> roleMappersMap = _portlet.getRoleMappers();
+
+			String roleLink = roleMappersMap.get(role);
 
 			if (Validator.isNotNull(roleLink)) {
 				return RoleLocalServiceUtil.hasUserRole(
@@ -897,7 +908,8 @@ public abstract class PortletRequestImpl implements LiferayPortletRequest {
 		}
 
 		_mergePublicRenderParameters(
-			dynamicRequest, publicRenderParametersMap, preferences);
+			dynamicRequest, publicRenderParametersMap, preferences,
+			getLifecycle());
 
 		_processCheckbox(dynamicRequest);
 
@@ -954,7 +966,7 @@ public abstract class PortletRequestImpl implements LiferayPortletRequest {
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link
 	 *             #_mergePublicRenderParameters(DynamicServletRequest, Map,
-	 *             PortletPreferences)}
+	 *             PortletPreferences, String)}
 	 */
 	@Deprecated
 	protected void mergePublicRenderParameters(
@@ -962,7 +974,8 @@ public abstract class PortletRequestImpl implements LiferayPortletRequest {
 		long plid) {
 
 		_mergePublicRenderParameters(
-			dynamicRequest, Collections.emptyMap(), preferences);
+			dynamicRequest, Collections.emptyMap(), preferences,
+			getLifecycle());
 	}
 
 	protected String removePortletNamespace(
@@ -975,10 +988,22 @@ public abstract class PortletRequestImpl implements LiferayPortletRequest {
 		return name;
 	}
 
+	private void _copyAttributeNames(
+		Set<String> names, Enumeration<String> enumeration) {
+
+		while (enumeration.hasMoreElements()) {
+			String name = enumeration.nextElement();
+
+			if (!name.equals(JavaConstants.JAVAX_SERVLET_INCLUDE_PATH_INFO)) {
+				names.add(name);
+			}
+		}
+	}
+
 	private void _mergePublicRenderParameters(
 		DynamicServletRequest dynamicRequest,
 		Map<String, String[]> publicRenderParametersMap,
-		PortletPreferences preferences) {
+		PortletPreferences preferences, String lifecycle) {
 
 		Set<PublicRenderParameter> publicRenderParameters =
 			_portlet.getPublicRenderParameters();
@@ -1007,7 +1032,16 @@ public abstract class PortletRequestImpl implements LiferayPortletRequest {
 
 				String name = publicRenderParameter.getIdentifier();
 
-				if (dynamicRequest.getParameter(name) == null) {
+				String[] requestValues = dynamicRequest.getParameterValues(
+					name);
+
+				if ((requestValues != null) &&
+					lifecycle.equals(PortletRequest.RESOURCE_PHASE)) {
+
+					dynamicRequest.setParameterValues(
+						name, ArrayUtil.append(requestValues, values));
+				}
+				else {
 					dynamicRequest.setParameterValues(name, values);
 				}
 			}

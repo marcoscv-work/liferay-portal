@@ -16,6 +16,7 @@ package com.liferay.document.library.internal.exportimport.data.handler;
 
 import com.liferay.document.library.exportimport.data.handler.DLPluggableContentDataHandler;
 import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.document.library.kernel.model.DLFileEntryConstants;
 import com.liferay.document.library.kernel.model.DLFileEntryMetadata;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.model.DLFileVersion;
@@ -46,6 +47,7 @@ import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelModifiedDateComparator;
 import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerList;
 import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerListFactory;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -68,13 +70,11 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileEntry;
 import com.liferay.portal.repository.portletrepository.PortletRepository;
-import com.liferay.portal.repository.registry.RepositoryClassDefinitionCatalogUtil;
-import com.liferay.portal.verify.extender.marker.VerifyProcessCompletionMarker;
+import com.liferay.portal.util.RepositoryUtil;
 import com.liferay.portlet.documentlibrary.lar.FileEntryUtil;
 import com.liferay.trash.TrashHelper;
 
@@ -82,7 +82,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -345,7 +344,7 @@ public class FileEntryStagedModelDataHandler
 
 		long userId = portletDataContext.getUserId(fileEntry.getUserUuid());
 
-		if (_isExternalRepository(fileEntry.getRepositoryId())) {
+		if (RepositoryUtil.isExternalRepository(fileEntry.getRepositoryId())) {
 
 			// References has been automatically imported, nothing to do here
 
@@ -583,7 +582,10 @@ public class FileEntryStagedModelDataHandler
 								latestExistingFileVersion.getVersion();
 
 							if (!latestExistingVersion.equals(
-									importedFileEntry.getVersion())) {
+									importedFileEntry.getVersion()) &&
+								!latestExistingVersion.equals(
+									DLFileEntryConstants.
+										PRIVATE_WORKING_COPY_VERSION)) {
 
 								_dlAppService.deleteFileVersion(
 									latestExistingFileVersion.getFileEntryId(),
@@ -632,7 +634,9 @@ public class FileEntryStagedModelDataHandler
 		}
 		finally {
 			try {
-				is.close();
+				if (is != null) {
+					is.close();
+				}
 			}
 			catch (IOException ioe) {
 				_log.error(ioe, ioe);
@@ -897,8 +901,7 @@ public class FileEntryStagedModelDataHandler
 		target = "(&(verify.process.name=com.liferay.document.library.service))",
 		unbind = "-"
 	)
-	protected void setVerifyProcessCompletionMarker(
-		VerifyProcessCompletionMarker verifyProcessCompletionMarker) {
+	protected void setVerifyProcessCompletionMarker(Object object) {
 	}
 
 	@Override
@@ -960,23 +963,6 @@ public class FileEntryStagedModelDataHandler
 
 			throw pde;
 		}
-	}
-
-	private boolean _isExternalRepository(long repositoryId)
-		throws PortalException {
-
-		Repository repository = _repositoryLocalService.fetchRepository(
-			repositoryId);
-
-		if (repository == null) {
-			return false;
-		}
-
-		Collection<String> externalRepositoryClassNames =
-			RepositoryClassDefinitionCatalogUtil.
-				getExternalRepositoryClassNames();
-
-		return externalRepositoryClassNames.contains(repository.getClassName());
 	}
 
 	private void _overrideFileVersion(

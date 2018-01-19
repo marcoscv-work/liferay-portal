@@ -15,12 +15,15 @@
 package com.liferay.gradle.plugins.defaults.internal;
 
 import com.liferay.gradle.plugins.BaseDefaultsPlugin;
+import com.liferay.gradle.plugins.defaults.internal.util.GradlePluginsDefaultsUtil;
 import com.liferay.gradle.plugins.defaults.internal.util.GradleUtil;
+import com.liferay.gradle.plugins.node.NodeExtension;
 import com.liferay.gradle.plugins.node.NodePlugin;
 import com.liferay.gradle.plugins.node.tasks.NpmShrinkwrapTask;
 import com.liferay.gradle.plugins.node.tasks.PublishNodeModuleTask;
 
 import java.util.Collections;
+import java.util.concurrent.Callable;
 
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -38,6 +41,7 @@ public class NodeDefaultsPlugin extends BaseDefaultsPlugin<NodePlugin> {
 
 	@Override
 	protected void configureDefaults(Project project, NodePlugin nodePlugin) {
+		_configureNode(project);
 		_configureTaskClean(project);
 		_configureTaskNpmShrinkwrap(project);
 		_configureTasksPublishNodeModule(project);
@@ -49,6 +53,13 @@ public class NodeDefaultsPlugin extends BaseDefaultsPlugin<NodePlugin> {
 	}
 
 	private NodeDefaultsPlugin() {
+	}
+
+	private void _configureNode(Project project) {
+		NodeExtension nodeExtension = GradleUtil.getExtension(
+			project, NodeExtension.class);
+
+		nodeExtension.npmArgs("--no-package-lock");
 	}
 
 	private void _configureTaskClean(Project project) {
@@ -71,6 +82,54 @@ public class NodeDefaultsPlugin extends BaseDefaultsPlugin<NodePlugin> {
 			_NPM_SHRINKWRAP_EXCLUDED_DEPENDENCIES);
 	}
 
+	private void _configureTaskPublishNodeModule(
+		PublishNodeModuleTask publishNodeModuleTask) {
+
+		final Project project = publishNodeModuleTask.getProject();
+
+		publishNodeModuleTask.doFirst(
+			MavenDefaultsPlugin.failReleaseOnWrongBranchAction);
+
+		if (GradlePluginsDefaultsUtil.isPrivateProject(project)) {
+			publishNodeModuleTask.setEnabled(false);
+		}
+
+		publishNodeModuleTask.setModuleAuthor(
+			"Nathan Cavanaugh <nathan.cavanaugh@liferay.com> " +
+				"(https://github.com/natecavanaugh)");
+		publishNodeModuleTask.setModuleBugsUrl("https://issues.liferay.com/");
+		publishNodeModuleTask.setModuleLicense("LGPL");
+		publishNodeModuleTask.setModuleMain("package.json");
+		publishNodeModuleTask.setModuleRepository("liferay/liferay-portal");
+
+		publishNodeModuleTask.setModuleVersion(
+			new Callable<String>() {
+
+				@Override
+				public String call() throws Exception {
+					String version = String.valueOf(project.getVersion());
+
+					if (version.endsWith(
+							GradlePluginsDefaultsUtil.
+								SNAPSHOT_VERSION_SUFFIX)) {
+
+						version = version.substring(
+							0,
+							version.length() -
+								GradlePluginsDefaultsUtil.
+									SNAPSHOT_VERSION_SUFFIX.length());
+
+						version += "-alpha." + System.currentTimeMillis();
+					}
+
+					return version;
+				}
+
+			});
+
+		publishNodeModuleTask.setOverriddenPackageJsonKeys("version");
+	}
+
 	private void _configureTasksPublishNodeModule(Project project) {
 		TaskContainer taskContainer = project.getTasks();
 
@@ -82,8 +141,7 @@ public class NodeDefaultsPlugin extends BaseDefaultsPlugin<NodePlugin> {
 				public void execute(
 					PublishNodeModuleTask publishNodeModuleTask) {
 
-					publishNodeModuleTask.doFirst(
-						MavenDefaultsPlugin.failReleaseOnWrongBranchAction);
+					_configureTaskPublishNodeModule(publishNodeModuleTask);
 				}
 
 			});

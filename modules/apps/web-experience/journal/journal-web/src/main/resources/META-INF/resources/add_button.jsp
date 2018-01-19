@@ -23,7 +23,7 @@
 		<portlet:param name="eventName" value='<%= renderResponse.getNamespace() + "selectAddMenuItem" %>' />
 	</portlet:renderURL>
 
-	<liferay-frontend:add-menu maxItems="<%= journalDisplayContext.getMaxAddMenuItems() %>" viewMoreURL="<%= viewMoreURL %>">
+	<liferay-frontend:add-menu inline="<%= true %>" maxItems="<%= journalDisplayContext.getMaxAddMenuItems() %>" viewMoreURL="<%= viewMoreURL %>">
 		<c:if test="<%= JournalFolderPermission.contains(permissionChecker, scopeGroupId, journalDisplayContext.getFolderId(), ActionKeys.ADD_FOLDER) %>">
 			<portlet:renderURL var="addFolderURL">
 				<portlet:param name="mvcPath" value="/edit_folder.jsp" />
@@ -38,7 +38,7 @@
 		<c:if test="<%= JournalFolderPermission.contains(permissionChecker, scopeGroupId, journalDisplayContext.getFolderId(), ActionKeys.ADD_ARTICLE) %>">
 
 			<%
-			List<DDMStructure> ddmStructures = JournalFolderServiceUtil.getDDMStructures(PortalUtil.getCurrentAndAncestorSiteGroupIds(scopeGroupId), journalDisplayContext.getFolderId(), journalDisplayContext.getRestrictionType());
+			List<DDMStructure> ddmStructures = journalDisplayContext.getDDMStructures();
 
 			for (DDMStructure ddmStructure : ddmStructures) {
 				AddMenuKeys.AddMenuType type = AddMenuKeys.AddMenuType.DEFAULT;

@@ -22,7 +22,7 @@ String searchContainerId = ParamUtil.getString(request, "searchContainerId");
 
 <liferay-frontend:management-bar
 	disabled="<%= journalDisplayContext.isDisabledManagementBar() %>"
-	includeCheckBox="<%= !user.isDefaultUser() && journalDisplayContext.isShowEditActions() %>"
+	includeCheckBox='<%= !user.isDefaultUser() && journalDisplayContext.isShowEditActions() && !Objects.equals(journalDisplayContext.getTabs1(), "versions") %>'
 	searchContainerId="<%= searchContainerId %>"
 >
 	<liferay-frontend:management-bar-buttons>
@@ -38,6 +38,10 @@ String searchContainerId = ParamUtil.getString(request, "searchContainerId");
 			portletURL="<%= journalDisplayContext.getPortletURL() %>"
 			selectedDisplayStyle="<%= journalDisplayContext.getDisplayStyle() %>"
 		/>
+
+		<c:if test="<%= !journalDisplayContext.isSearch() %>">
+			<liferay-util:include page="/add_button.jsp" servletContext="<%= application %>" />
+		</c:if>
 	</liferay-frontend:management-bar-buttons>
 
 	<%

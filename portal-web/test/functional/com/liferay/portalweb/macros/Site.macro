@@ -23,7 +23,7 @@
 			<var name="navItem" value="Users" />
 		</execute>
 
-		<execute function="Click" locator1="Button#PLUS" />
+		<execute macro="LexiconEntry#gotoAdd" />
 
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
@@ -60,7 +60,7 @@
 	</command>
 
 	<command name="addCP">
-		<execute function="Click" locator1="Button#PLUS" />
+		<execute macro="LexiconEntry#gotoAdd" />
 
 		<if>
 			<not>
@@ -169,9 +169,7 @@
 			</then>
 		</if>
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSuccessMessage" />
+		<execute macro="PortletEntry#save" />
 
 		<execute function="AssertTextEquals" locator1="SitesEditSite#DETAILS_NAME" value1="${siteName}" />
 	</command>
@@ -237,7 +235,7 @@
 		<execute function="Click" locator1="SiteMemberships#REQUEST_MESSAGE" />
 
 		<execute macro="Portlet#changeDisplayStyle">
-			<var name="displayStyle" value="List" />
+			<var name="displayStyle" value="list" />
 		</execute>
 
 		<execute function="AssertTextEquals" locator1="SiteMembershipsViewMembershipRequests#USER_NAME" value1="${userFirstName} ${userLastName}" />
@@ -288,7 +286,7 @@
 		<execute function="SelectFrame" locator1="SiteSettingsDefaultUserAssociations#TEAMS_SELECT_IFRAME" />
 
 		<execute macro="Portlet#changeDisplayStyle">
-			<var name="displayStyle" value="List" />
+			<var name="displayStyle" value="list" />
 		</execute>
 
 		<var name="key_rowEntry" value="${teamName}" />
@@ -313,7 +311,7 @@
 			<var name="navItem" value="Organizations" />
 		</execute>
 
-		<execute function="Click" locator1="Button#PLUS" />
+		<execute macro="LexiconEntry#gotoAdd" />
 
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
@@ -557,7 +555,7 @@
 
 		<execute function="Confirm" value1="Disabling the Recycle Bin prevents the restoring of content that has been moved to the Recycle Bin." />
 
-		<execute function="AssertNotChecked#assertNotCheckedToggleSwitch" locator1="Checkbox#ENABLE_RECYCLE_BIN" />
+		<execute function="AssertNotChecked#assertNotCheckedNotVisible" locator1="Checkbox#ENABLE_RECYCLE_BIN" />
 
 		<execute macro="PortletEntry#save" />
 	</command>
@@ -784,13 +782,13 @@
 			</elseif>
 		</if>
 
-		<execute macro="Button#clickSave" />
-
-		<execute macro="Alert#viewSuccessMessage" />
+		<execute macro="PortletEntry#save" />
 	</command>
 
 	<command name="manageMembershipOptions">
-		<execute macro="ProductMenu#gotoSitesConfiguration">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Configuration" />
+			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Site Settings" />
 		</execute>
 
@@ -862,7 +860,9 @@
 
 		<execute function="Click" locator1="Button#SUBMIT" />
 
-		<execute function="Click" locator1="Icon#DISPLAY_STYLE_LIST" />
+		<execute macro="Portlet#changeDisplayStyle">
+			<var name="displayStyle" value="list" />
+		</execute>
 
 		<execute function="AssertTextEquals" locator1="SiteMembershipsUserGroups#USER_GROUP_TABLE_NAME" value1="${userGroupName}" />
 
@@ -1010,7 +1010,9 @@
 	</command>
 
 	<command name="tearDownCP">
-		<execute macro="ProductMenu#gotoControlPanelSites">
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Sites" />
+			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Sites" />
 		</execute>
 
@@ -1033,7 +1035,7 @@
 	</command>
 
 	<command name="viewCannotAdd">
-		<execute function="Click" locator1="Button#PLUS" />
+		<execute macro="LexiconEntry#gotoAdd" />
 
 		<execute function="AssertClick" locator1="MenuItem#ANY_MENU_ITEM" value1="Blank Site">
 			<var name="key_menuItem" value="Blank Site" />
@@ -1161,7 +1163,7 @@
 			<var name="navItem" value="Users" />
 		</execute>
 
-		<execute function="Click" locator1="Button#PLUS" />
+		<execute macro="LexiconEntry#gotoAdd" />
 
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
@@ -1350,7 +1352,7 @@
 		<execute function="Click" locator1="SiteMemberships#REQUEST_MESSAGE" />
 
 		<execute macro="Portlet#changeDisplayStyle">
-			<var name="displayStyle" value="List" />
+			<var name="displayStyle" value="list" />
 		</execute>
 
 		<execute function="AssertTextEquals" locator1="SiteMembershipsViewMembershipRequests#USER_NAME" value1="${userFirstName} ${userLastName}" />

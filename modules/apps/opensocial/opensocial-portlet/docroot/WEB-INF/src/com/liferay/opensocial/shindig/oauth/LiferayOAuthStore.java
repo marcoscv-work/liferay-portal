@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 
 import net.oauth.OAuth;
@@ -61,8 +62,9 @@ public class LiferayOAuthStore implements OAuthStore {
 		if (oAuthConsumer == null) {
 			throw new GadgetException(
 				GadgetException.Code.INTERNAL_SERVER_ERROR,
-				"No key for gadget " + securityToken.getAppUrl() +
-					" and service " + serviceName);
+				StringBundler.concat(
+					"No key for gadget ", securityToken.getAppUrl(),
+					" and service ", serviceName));
 		}
 
 		net.oauth.OAuthConsumer netOAuthConsumer = null;
@@ -206,9 +208,9 @@ public class LiferayOAuthStore implements OAuthStore {
 			return _oAuthConsumer;
 		}
 
-		if (oAuthConsumer.getKeyType().equals(
-				OAuthConsumerConstants.KEY_TYPE_RSA_PRIVATE)) {
+		String keyType = oAuthConsumer.getKeyType();
 
+		if (keyType.equals(OAuthConsumerConstants.KEY_TYPE_RSA_PRIVATE)) {
 			if (_oAuthConsumer == null) {
 				throw new GadgetException(
 					GadgetException.Code.INTERNAL_SERVER_ERROR,

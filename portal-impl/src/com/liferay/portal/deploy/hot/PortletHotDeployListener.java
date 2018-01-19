@@ -48,6 +48,7 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -75,6 +76,10 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import javax.portlet.PortletURLGenerationListener;
+import javax.portlet.filter.ActionFilter;
+import javax.portlet.filter.EventFilter;
+import javax.portlet.filter.RenderFilter;
+import javax.portlet.filter.ResourceFilter;
 
 import javax.servlet.ServletContext;
 
@@ -296,8 +301,9 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 			}
 			else {
 				_log.info(
-					portlets.size() + " portlets for " + servletContextName +
-						" are available for use");
+					StringBundler.concat(
+						String.valueOf(portlets.size()), " portlets for ",
+						servletContextName, " are available for use"));
 			}
 		}
 	}
@@ -321,14 +327,12 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 
 		Set<String> portletIds = new HashSet<>();
 
-		if (portlets != null) {
-			if (_log.isInfoEnabled()) {
-				_log.info("Unregistering portlets for " + servletContextName);
-			}
+		if (_log.isInfoEnabled()) {
+			_log.info("Unregistering portlets for " + servletContextName);
+		}
 
-			for (Portlet portlet : portlets) {
-				_destroyPortlet(servletContext, portlet, portletIds);
-			}
+		for (Portlet portlet : portlets) {
+			_destroyPortlet(servletContext, portlet, portletIds);
 		}
 
 		ServletContextPool.remove(servletContextName);
@@ -359,8 +363,9 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 			}
 			else {
 				_log.info(
-					portlets.size() + " portlets for " + servletContextName +
-						" were unregistered");
+					StringBundler.concat(
+						String.valueOf(portlets.size()), " portlets for ",
+						servletContextName, " were unregistered"));
 			}
 		}
 	}
@@ -390,7 +395,10 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 			CustomUserAttributes customUserAttributesInstance =
 				(CustomUserAttributes)clazz.newInstance();
 
-			portletContextBag.getCustomUserAttributes().put(
+			Map<String, CustomUserAttributes> customUserAttributesMap =
+				portletContextBag.getCustomUserAttributes();
+
+			customUserAttributesMap.put(
 				attrCustomClass, customUserAttributesInstance);
 		}
 
@@ -401,15 +409,16 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 				(javax.portlet.filter.PortletFilter)newInstance(
 					classLoader,
 					new Class<?>[] {
-						javax.portlet.filter.ActionFilter.class,
-						javax.portlet.filter.EventFilter.class,
+						ActionFilter.class, EventFilter.class,
 						javax.portlet.filter.PortletFilter.class,
-						javax.portlet.filter.RenderFilter.class,
-						javax.portlet.filter.ResourceFilter.class
+						RenderFilter.class, ResourceFilter.class
 					},
 					portletFilter.getFilterClass());
 
-			portletContextBag.getPortletFilters().put(
+			Map<String, javax.portlet.filter.PortletFilter> portletFiltersMap =
+				portletContextBag.getPortletFilters();
+
+			portletFiltersMap.put(
 				portletFilter.getFilterName(), portletFilterInstance);
 		}
 
@@ -427,7 +436,10 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 					classLoader, PortletURLGenerationListener.class,
 					portletURLListener.getListenerClass());
 
-			portletContextBag.getPortletURLListeners().put(
+			Map<String, PortletURLGenerationListener> portletURLListenersMap =
+				portletContextBag.getPortletURLListeners();
+
+			portletURLListenersMap.put(
 				portletURLListener.getListenerClass(),
 				portletURLListenerInstance);
 
@@ -512,6 +524,8 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 			ServletContext servletContext, Portlet portlet,
 			Set<String> portletIds)
 		throws Exception {
+
+		portlet.unsetReady();
 
 		PortletApp portletApp = portlet.getPortletApp();
 

@@ -300,11 +300,11 @@ renderResponse.setTitle(!configuredPublish ? LanguageUtil.get(request, "new-publ
 		</div>
 
 		<aui:button-row>
-			<aui:button cssClass="btn-lg" id="addButton" onClick='<%= renderResponse.getNamespace() + "schedulePublishEvent();" %>' value="add-event" />
+			<aui:button id="addButton" onClick='<%= renderResponse.getNamespace() + "schedulePublishEvent();" %>' value="add-event" />
 
-			<aui:button cssClass="btn-lg" id="publishButton" type="submit" value="<%= LanguageUtil.get(request, publishMessageKey) %>" />
+			<aui:button id="publishButton" type="submit" value="<%= LanguageUtil.get(request, publishMessageKey) %>" />
 
-			<aui:button cssClass="btn-lg" href="<%= basePortletURL %>" type="cancel" />
+			<aui:button href="<%= basePortletURL %>" type="cancel" />
 		</aui:button-row>
 	</div>
 </aui:form>
@@ -312,6 +312,8 @@ renderResponse.setTitle(!configuredPublish ? LanguageUtil.get(request, "new-publ
 <aui:script>
 	function <portlet:namespace />publishPages() {
 		var exportImport = Liferay.component('<portlet:namespace />ExportImportComponent');
+
+		var deletePortletDataBeforeImportingCheckbox = AUI.$('#<portlet:namespace />deletePortletDataBeforeImportingCheckbox');
 
 		var dateChecker = exportImport.getDateRangeChecker();
 
@@ -324,7 +326,12 @@ renderResponse.setTitle(!configuredPublish ? LanguageUtil.get(request, "new-publ
 				form.fm('<%= PortletDataHandlerKeys.PORTLET_DATA_CONTROL_DEFAULT %>').val(true);
 			}
 
-			submitForm(form);
+			if (deletePortletDataBeforeImportingCheckbox.length && deletePortletDataBeforeImportingCheckbox[0].checked) {
+				confirm('<%= UnicodeLanguageUtil.get(request, "delete-portlet-data-before-importing-confirmation") %>') && submitForm(form);
+			}
+			else {
+				submitForm(form);
+			}
 		}
 		else {
 			exportImport.showNotification(dateChecker);

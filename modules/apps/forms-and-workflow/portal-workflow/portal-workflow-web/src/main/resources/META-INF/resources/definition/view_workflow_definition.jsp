@@ -26,7 +26,11 @@ String content = workflowDefinition.getContent();
 portletDisplay.setShowBackIcon(true);
 portletDisplay.setURLBack(redirect);
 
-renderResponse.setTitle(workflowDefinition.getName());
+renderResponse.setTitle(workflowDefinition.getTitle(LanguageUtil.getLanguageId(request)));
+
+String state = (String)request.getParameter(WorkflowWebKeys.WORKFLOW_JSP_STATE);
+
+boolean previewBeforeRestore = WorkflowWebKeys.WORKFLOW_PREVIEW_BEFORE_RESTORE_STATE.equals(state);
 %>
 
 <liferay-portlet:renderURL var="editWorkflowDefinitionURL">
@@ -36,36 +40,69 @@ renderResponse.setTitle(workflowDefinition.getName());
 	<portlet:param name="version" value="<%= String.valueOf(workflowDefinition.getVersion()) %>" />
 </liferay-portlet:renderURL>
 
-<div class="container-fluid-1280">
+<div class="<%= previewBeforeRestore ? "" : "container-fluid-1280" %>" id="container">
 	<aui:model-context bean="<%= workflowDefinition %>" model="<%= WorkflowDefinition.class %>" />
 
-	<div class="panel text-center">
-		<aui:workflow-status markupView="lexicon" model="<%= WorkflowDefinition.class %>" showHelpMessage="<%= false %>" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= WorkflowConstants.STATUS_APPROVED %>" version="<%= String.valueOf(workflowDefinition.getVersion()) %>" />
-	</div>
+	<liferay-frontend:info-bar>
+		<div class="container-fluid-1280">
+			<c:if test="<%= !previewBeforeRestore %>">
+				<div class="info-bar-item">
+					<c:choose>
+						<c:when test="<%= workflowDefinition.isActive() %>">
+							<span class="label label-info">
+								<liferay-ui:message key="published" />
+							</span>
+						</c:when>
+						<c:otherwise>
+							<span class="label label-secondary">
+								<liferay-ui:message key="not-published" />
+							</span>
+						</c:otherwise>
+					</c:choose>
+				</div>
+			</c:if>
+
+			<%
+			String userName = workflowDefinitionDisplayContext.getUserName(workflowDefinition);
+			%>
+
+			<span>
+				<c:choose>
+					<c:when test="<%= userName == null %>">
+						<%= dateFormatTime.format(workflowDefinition.getModifiedDate()) %>
+					</c:when>
+					<c:when test="<%= previewBeforeRestore %>">
+						<liferay-ui:message arguments="<%= new String[] {dateFormatTime.format(workflowDefinition.getModifiedDate()), userName} %>" key="revision-from-x-by-x" translateArguments="<%= false %>" />
+					</c:when>
+					<c:otherwise>
+						<liferay-ui:message arguments="<%= new String[] {dateFormatTime.format(workflowDefinition.getModifiedDate()), userName} %>" key="x-by-x" translateArguments="<%= false %>" />
+					</c:otherwise>
+				</c:choose>
+			</span>
+		</div>
+	</liferay-frontend:info-bar>
 
 	<aui:input name="content" type="hidden" value="<%= content %>" />
 
-	<div class="card-horizontal">
-		<div class="card-row-padded">
-			<aui:fieldset>
-				<aui:col>
-					<aui:field-wrapper label="title">
-						<liferay-ui:input-localized disabled="<%= true %>" name="title" xml='<%= BeanPropertiesUtil.getString(workflowDefinition, "title") %>' />
-					</aui:field-wrapper>
-				</aui:col>
+	<aui:fieldset cssClass="workflow-definition-content">
+		<aui:col>
+			<aui:field-wrapper label="title">
+				<liferay-ui:input-localized disabled="<%= true %>" name="title" xml='<%= BeanPropertiesUtil.getString(workflowDefinition, "title") %>' />
+			</aui:field-wrapper>
+		</aui:col>
 
-				<aui:col id="contentSourceWrapper">
-					<div class="content-source" id="<portlet:namespace />contentEditor"></div>
-				</aui:col>
-			</aui:fieldset>
-		</div>
-	</div>
+		<aui:col cssClass="workflow-definition-content-source-wrapper" id="contentSourceWrapper">
+			<div class="workflow-definition-content-source" id="<portlet:namespace />contentEditor"></div>
+		</aui:col>
+	</aui:fieldset>
 
-	<aui:button-row>
-		<aui:button cssClass="btn-lg" href="<%= editWorkflowDefinitionURL %>" primary="<%= true %>" value='<%= LanguageUtil.get(request, "edit") %>' />
-
-		<aui:button cssClass="btn-lg" href="<%= redirect %>" type="cancel" />
-	</aui:button-row>
+	<c:choose>
+		<c:when test="<%= !previewBeforeRestore %>">
+			<aui:button-row>
+				<aui:button href="<%= editWorkflowDefinitionURL %>" primary="<%= true %>" value="edit" />
+			</aui:button-row>
+		</c:when>
+	</c:choose>
 </div>
 
 <aui:script use="aui-ace-editor,liferay-xml-formatter">
@@ -78,15 +115,17 @@ renderResponse.setTitle(workflowDefinition.getName());
 			mode: 'xml',
 			readOnly: 'true',
 			tabSize: 4,
-			width: 600
+			width: '100%'
 		}
 	).render();
+
+	var xmlFormatter = new Liferay.XMLFormatter();
 
 	var editorContentElement = A.one('#<portlet:namespace />content');
 
 	if (editorContentElement) {
-		contentEditor.set(STR_VALUE, editorContentElement.val());
-	}
+		var content = xmlFormatter.format(editorContentElement.val());
 
-	contentEditor.set('width', A.one('#<portlet:namespace />contentSourceWrapper').get('clientWidth'));
+		contentEditor.set(STR_VALUE, content);
+	}
 </aui:script>

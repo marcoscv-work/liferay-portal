@@ -19,7 +19,6 @@ import com.liferay.calendar.model.Calendar;
 import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.calendar.model.CalendarBookingConstants;
 import com.liferay.calendar.service.base.CalendarBookingServiceBaseImpl;
-import com.liferay.calendar.service.permission.CalendarPermission;
 import com.liferay.calendar.util.CalendarUtil;
 import com.liferay.calendar.util.JCalendarUtil;
 import com.liferay.calendar.util.RSSUtil;
@@ -27,9 +26,12 @@ import com.liferay.calendar.workflow.CalendarBookingWorkflowConstants;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.access.control.AccessControlled;
-import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionFactory;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -55,6 +57,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Eduardo Lundgren
@@ -111,7 +115,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarId,
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
@@ -182,7 +186,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 		CalendarBooking calendarBooking =
 			calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarBooking.getCalendarId(),
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
@@ -198,12 +202,12 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 		CalendarBooking calendarBooking =
 			calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarBooking.getCalendarId(),
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
 		calendarBookingLocalService.deleteCalendarBookingInstance(
-			calendarBooking, instanceIndex, allFollowing);
+			getUserId(), calendarBooking, instanceIndex, allFollowing);
 	}
 
 	@Override
@@ -215,12 +219,12 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 		CalendarBooking calendarBooking =
 			calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarBooking.getCalendarId(),
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
 		calendarBookingLocalService.deleteCalendarBookingInstance(
-			calendarBooking, instanceIndex, allFollowing,
+			getUserId(), calendarBooking, instanceIndex, allFollowing,
 			deleteRecurringCalendarBookings);
 	}
 
@@ -232,12 +236,12 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 		CalendarBooking calendarBooking =
 			calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarBooking.getCalendarId(),
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
 		calendarBookingLocalService.deleteCalendarBookingInstance(
-			calendarBookingId, startTime, allFollowing);
+			getUserId(), calendarBookingId, startTime, allFollowing);
 	}
 
 	@Override
@@ -247,7 +251,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 		CalendarBooking calendarBooking =
 			calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarBooking.getCalendar(),
 			CalendarActionKeys.VIEW_BOOKING_DETAILS);
 
@@ -284,7 +288,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 			long calendarId, long parentCalendarBookingId)
 		throws PortalException {
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarId,
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
@@ -384,6 +388,39 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 
 	@Override
 	public List<CalendarBooking> getChildCalendarBookings(
+			long parentCalendarBookingId,
+			boolean includeStagingCalendarBookings)
+		throws PortalException {
+
+		List<CalendarBooking> childCalendarBookings = getChildCalendarBookings(
+			parentCalendarBookingId);
+
+		if (includeStagingCalendarBookings) {
+			return childCalendarBookings;
+		}
+
+		Stream<CalendarBooking> stream = childCalendarBookings.stream();
+
+		stream = stream.filter(
+			calendarBooking -> {
+				try {
+					return !calendarLocalService.isStagingCalendar(
+						calendarBooking.getCalendar());
+				}
+				catch (PortalException pe) {
+					if (_log.isWarnEnabled()) {
+						_log.warn(pe, pe);
+					}
+
+					return true;
+				}
+			});
+
+		return stream.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<CalendarBooking> getChildCalendarBookings(
 			long parentCalendarBookingId, int status)
 		throws PortalException {
 
@@ -406,7 +443,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 		CalendarBooking calendarBooking =
 			calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarBooking.getCalendarId(),
 			ActionKeys.VIEW);
 
@@ -422,7 +459,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 		CalendarBooking calendarBooking =
 			calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarBooking.getCalendarId(),
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
@@ -486,7 +523,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 		CalendarBooking calendarBooking =
 			calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarBooking.getCalendarId(),
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
@@ -502,7 +539,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 		CalendarBooking calendarBooking =
 			calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarBooking.getCalendarId(),
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
@@ -518,7 +555,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 		CalendarBooking calendarBooking =
 			calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarBooking.getCalendarId(),
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
@@ -610,7 +647,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarId,
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
@@ -631,7 +668,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarId,
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
@@ -652,7 +689,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 			String secondReminderType, ServiceContext serviceContext)
 		throws PortalException {
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarId,
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
@@ -674,7 +711,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarId,
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
@@ -731,7 +768,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 			String secondReminderType, ServiceContext serviceContext)
 		throws PortalException {
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarId,
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
@@ -750,7 +787,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 		CalendarBooking calendarBooking =
 			calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarBooking.getCalendarId(),
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
@@ -815,7 +852,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 			String secondReminderType, ServiceContext serviceContext)
 		throws PortalException {
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarId,
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
@@ -843,7 +880,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		CalendarPermission.check(
+		_calendarModelResourcePermission.check(
 			getPermissionChecker(), calendarId,
 			CalendarActionKeys.MANAGE_BOOKINGS);
 
@@ -928,7 +965,11 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 			CalendarBooking calendarBooking)
 		throws PortalException {
 
-		if (!CalendarPermission.contains(
+		_calendarModelResourcePermission.check(
+			getPermissionChecker(), calendarBooking.getCalendarId(),
+			ActionKeys.VIEW);
+
+		if (!_calendarModelResourcePermission.contains(
 				getPermissionChecker(), calendarBooking.getCalendarId(),
 				CalendarActionKeys.VIEW_BOOKING_DETAILS)) {
 
@@ -956,11 +997,11 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 				continue;
 			}
 
-			if (!CalendarPermission.contains(
+			if (!_calendarModelResourcePermission.contains(
 					getPermissionChecker(), calendarBooking.getCalendarId(),
 					CalendarActionKeys.VIEW_BOOKING_DETAILS)) {
 
-				if (!CalendarPermission.contains(
+				if (!_calendarModelResourcePermission.contains(
 						getPermissionChecker(), calendarBooking.getCalendarId(),
 						actionId)) {
 
@@ -976,10 +1017,10 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 	}
 
 	protected boolean isPendingInWorkflow(CalendarBooking calendarBooking)
-		throws PortalException, PrincipalException {
+		throws PortalException {
 
 		if (calendarBooking.isPending() &&
-			!CalendarPermission.contains(
+			!_calendarModelResourcePermission.contains(
 				getPermissionChecker(), calendarBooking.getCalendarId(),
 				CalendarActionKeys.MANAGE_BOOKINGS)) {
 
@@ -988,5 +1029,14 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 
 		return false;
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		CalendarBookingServiceImpl.class);
+
+	private static volatile ModelResourcePermission<Calendar>
+		_calendarModelResourcePermission =
+			ModelResourcePermissionFactory.getInstance(
+				CalendarBookingServiceImpl.class,
+				"_calendarModelResourcePermission", Calendar.class);
 
 }

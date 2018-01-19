@@ -27,8 +27,10 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * @author Shuyang Zhou
+ * @author     Shuyang Zhou
+ * @deprecated As of 7.0.0, with no direct replacement
  */
+@Deprecated
 public class CharPipe {
 
 	public CharPipe() {
@@ -361,7 +363,9 @@ public class CharPipe {
 				string = StringPool.NULL;
 			}
 			else {
-				string = charSequence.subSequence(start, end).toString();
+				charSequence = charSequence.subSequence(start, end);
+
+				string = charSequence.toString();
 			}
 
 			write(string, 0, string.length());

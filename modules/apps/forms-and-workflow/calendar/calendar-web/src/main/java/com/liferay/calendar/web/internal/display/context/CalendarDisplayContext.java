@@ -15,15 +15,17 @@
 package com.liferay.calendar.web.internal.display.context;
 
 import com.liferay.calendar.constants.CalendarActionKeys;
+import com.liferay.calendar.constants.CalendarPortletKeys;
 import com.liferay.calendar.model.Calendar;
 import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.calendar.model.CalendarResource;
 import com.liferay.calendar.recurrence.Recurrence;
 import com.liferay.calendar.service.CalendarBookingLocalService;
+import com.liferay.calendar.service.CalendarBookingService;
 import com.liferay.calendar.service.CalendarLocalService;
 import com.liferay.calendar.service.CalendarService;
-import com.liferay.calendar.service.permission.CalendarPermission;
 import com.liferay.calendar.util.RecurrenceUtil;
+import com.liferay.calendar.web.internal.security.permission.resource.CalendarPermission;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -33,10 +35,14 @@ import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Adam Brandizzi
@@ -46,18 +52,31 @@ public class CalendarDisplayContext {
 	public CalendarDisplayContext(
 		GroupLocalService groupLocalService,
 		CalendarBookingLocalService calendarBookingLocalService,
-		CalendarService calendarService,
-		CalendarLocalService calendarLocalService, ThemeDisplay themeDisplay) {
+		CalendarBookingService calendarBookingService,
+		CalendarLocalService calendarLocalService,
+		CalendarService calendarService, ThemeDisplay themeDisplay) {
 
 		_groupLocalService = groupLocalService;
 		_calendarBookingLocalService = calendarBookingLocalService;
-		_calendarService = calendarService;
+		_calendarBookingService = calendarBookingService;
 		_calendarLocalService = calendarLocalService;
+		_calendarService = calendarService;
 		_themeDisplay = themeDisplay;
 	}
 
+	public List<CalendarBooking> getChildCalendarBookings(
+			CalendarBooking calendarBooking)
+		throws PortalException {
+
+		Group group = _themeDisplay.getScopeGroup();
+
+		return _calendarBookingService.getChildCalendarBookings(
+			calendarBooking.getCalendarBookingId(), group.isStagingGroup());
+	}
+
 	public Calendar getDefaultCalendar(
-		List<Calendar> groupCalendars, List<Calendar> userCalendars) {
+			List<Calendar> groupCalendars, List<Calendar> userCalendars)
+		throws PortalException {
 
 		Calendar defaultCalendar = null;
 
@@ -105,6 +124,20 @@ public class CalendarDisplayContext {
 		return defaultCalendar;
 	}
 
+	public String getEditCalendarBookingRedirectURL(
+		HttpServletRequest request, String defaultURL) {
+
+		String redirect = ParamUtil.getString(request, "redirect");
+
+		String ppid = HttpUtil.getParameter(redirect, "p_p_id", false);
+
+		if (ppid.equals(CalendarPortletKeys.CALENDAR)) {
+			return defaultURL;
+		}
+
+		return ParamUtil.getString(request, "redirect", defaultURL);
+	}
+
 	public Recurrence getLastRecurrence(CalendarBooking calendarBooking)
 		throws PortalException {
 
@@ -131,7 +164,7 @@ public class CalendarDisplayContext {
 			}
 			catch (PrincipalException pe) {
 				if (_log.isInfoEnabled()) {
-					StringBundler sb = new StringBundler();
+					StringBundler sb = new StringBundler(4);
 
 					sb.append("No ");
 					sb.append(ActionKeys.VIEW);
@@ -200,6 +233,7 @@ public class CalendarDisplayContext {
 		CalendarDisplayContext.class.getName());
 
 	private final CalendarBookingLocalService _calendarBookingLocalService;
+	private final CalendarBookingService _calendarBookingService;
 	private final CalendarLocalService _calendarLocalService;
 	private final CalendarService _calendarService;
 	private final GroupLocalService _groupLocalService;

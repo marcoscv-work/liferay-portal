@@ -22,9 +22,7 @@ long assetCategoryId = ParamUtil.getLong(request, "categoryId");
 if (assetCategoryId > 0) {
 	AssetCategory assetCategory = AssetCategoryLocalServiceUtil.getCategory(assetCategoryId);
 
-	assetCategory = assetCategory.toEscapedModel();
-
-	PortalUtil.setPageKeywords(assetCategory.getTitle(locale), request);
+	PortalUtil.setPageKeywords(HtmlUtil.escape(assetCategory.getTitle(locale)), request);
 }
 
 String assetTagName = ParamUtil.getString(request, "tag");
@@ -39,9 +37,9 @@ if (assetPublisherDisplayContext.isEnableTagBasedNavigation() && assetPublisherD
 %>
 
 <div class="subscribe-action">
-	<c:if test="<%= !portletName.equals(AssetPublisherPortletKeys.HIGHEST_RATED_ASSETS) && !portletName.equals(AssetPublisherPortletKeys.MOST_VIEWED_ASSETS) && !portletName.equals(AssetPublisherPortletKeys.RECENT_CONTENT) && !portletName.equals(AssetPublisherPortletKeys.RELATED_ASSETS) && PortletPermissionUtil.contains(permissionChecker, 0, layout, portletDisplay.getId(), ActionKeys.SUBSCRIBE, false, false) && AssetPublisherUtil.getEmailAssetEntryAddedEnabled(portletPreferences) %>">
+	<c:if test="<%= !portletName.equals(AssetPublisherPortletKeys.HIGHEST_RATED_ASSETS) && !portletName.equals(AssetPublisherPortletKeys.MOST_VIEWED_ASSETS) && !portletName.equals(AssetPublisherPortletKeys.RECENT_CONTENT) && !portletName.equals(AssetPublisherPortletKeys.RELATED_ASSETS) && PortletPermissionUtil.contains(permissionChecker, 0, layout, portletDisplay.getId(), ActionKeys.SUBSCRIBE, false, false) && assetPublisherWebUtil.getEmailAssetEntryAddedEnabled(portletPreferences) %>">
 		<c:choose>
-			<c:when test="<%= AssetPublisherUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), themeDisplay.getPlid(), portletDisplay.getId()) %>">
+			<c:when test="<%= assetPublisherWebUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), themeDisplay.getPlid(), portletDisplay.getId()) %>">
 				<portlet:actionURL name="unsubscribe" var="unsubscribeURL">
 					<portlet:param name="redirect" value="<%= currentURL %>" />
 				</portlet:actionURL>

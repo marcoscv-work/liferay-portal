@@ -15,9 +15,10 @@
 package com.liferay.wiki.engine.jspwiki.internal;
 
 import com.ecyrd.jspwiki.WikiContext;
+import com.ecyrd.jspwiki.WikiEngine;
 import com.ecyrd.jspwiki.url.URLConstructor;
 
-import com.liferay.portal.kernel.util.CharPool;
+import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.kernel.util.Validator;
@@ -38,8 +39,7 @@ public class LiferayURLConstructor implements URLConstructor {
 	}
 
 	@Override
-	public void initialize(
-		com.ecyrd.jspwiki.WikiEngine engine, Properties props) {
+	public void initialize(WikiEngine engine, Properties props) {
 	}
 
 	@Override

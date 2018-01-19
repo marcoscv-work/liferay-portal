@@ -277,7 +277,7 @@ while (manageableCalendarsIterator.hasNext()) {
 		<liferay-portlet:param name="calendarBookingId" value="<%= String.valueOf(calendarBookingId) %>" />
 	</liferay-portlet:renderURL>
 
-	<aui:input name="redirect" type="hidden" value="<%= redirectURL %>" />
+	<aui:input name="redirect" type="hidden" value="<%= calendarDisplayContext.getEditCalendarBookingRedirectURL(request, redirectURL) %>" />
 	<aui:input name="calendarBookingId" type="hidden" value="<%= calendarBookingId %>" />
 	<aui:input name="instanceIndex" type="hidden" value="<%= instanceIndex %>" />
 	<aui:input name="childCalendarIds" type="hidden" />
@@ -369,7 +369,7 @@ while (manageableCalendarsIterator.hasNext()) {
 
 				<liferay-ui:panel collapsible="<%= true %>" defaultState="closed" extended="<%= false %>" id="calendarBookingInvitationPanel" markupView="lexicon" persistState="<%= true %>" title="invitations">
 					<c:if test="<%= invitable %>">
-						<aui:input inputCssClass="calendar-portlet-invite-resources-input" label="" name="inviteResource" placeholder="add-people-groups-rooms" type="text" />
+						<aui:input inputCssClass="calendar-portlet-invite-resources-input" label="" name="inviteResource" placeholder="add-people-sites-rooms" type="text" />
 
 						<div class="separator"><!-- --></div>
 					</c:if>
@@ -470,9 +470,9 @@ while (manageableCalendarsIterator.hasNext()) {
 		}
 		%>
 
-		<aui:button cssClass="btn-lg" name="publishButton" type="submit" value="<%= publishButtonLabel %>" />
+		<aui:button name="publishButton" type="submit" value="<%= publishButtonLabel %>" />
 
-		<aui:button cssClass="btn-lg" name="saveButton" primary="<%= false %>" type="submit" value="save-as-draft" />
+		<aui:button name="saveButton" primary="<%= false %>" type="submit" value="save-as-draft" />
 
 		<c:if test="<%= calendarBooking != null %>">
 			<liferay-security:permissionsURL
@@ -484,7 +484,7 @@ while (manageableCalendarsIterator.hasNext()) {
 				var="permissionsCalendarBookingURL"
 			/>
 
-			<aui:button cssClass="btn-lg" href="<%= permissionsCalendarBookingURL %>" value="permissions" />
+			<aui:button href="<%= permissionsCalendarBookingURL %>" value="permissions" />
 		</c:if>
 	</aui:button-row>
 </aui:form>

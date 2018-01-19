@@ -97,12 +97,12 @@
 </tr>
 <tr>
 	<td>INLINE_PERMISSIONS_ADD_SHORTCUT_CHECKBOX</td>
-	<td>//input[@id='${key_roleName}_ACTION_ADD_SHORTCUT']</td>
+	<td>//input[@id='${key_roleTitle}_ACTION_ADD_SHORTCUT']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>INLINE_PERMISSIONS_ADD_SUBFOLDER_CHECKBOX</td>
-	<td>//input[@id='${key_roleName}_ACTION_ADD_SUBFOLDER']</td>
+	<td>//input[@id='${key_roleTitle}_ACTION_ADD_SUBFOLDER']</td>
 	<td></td>
 </tr>
 <tr>
@@ -162,8 +162,8 @@
 	<td></td>
 </tr>
 <tr>
-	<td>CONTENT_PERMISSIONS_ADD_RECORD_CHECKBOX</td>
-	<td>//input[contains(@id,'${key_roleTitle}_ACTION_ADD_RECORD')]</td>
+	<td>CONTENT_PERMISSIONS_ADD_FORM_INSTANCE_RECORD_CHECKBOX</td>
+	<td>//input[contains(@id,'${key_roleTitle}_ACTION_ADD_FORM_INSTANCE_RECORD')] | //input[contains(@id,'${key_roleTitle}_ACTION_ADD_RECORD')]</td>
 	<td></td>
 </tr>
 <tr>

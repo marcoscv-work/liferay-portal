@@ -99,7 +99,7 @@ public class AssetVocabularyLocalServiceImpl
 
 		// Vocabulary
 
-		User user = userPersistence.findByPrimaryKey(userId);
+		User user = userLocalService.getUser(userId);
 		String name = titleMap.get(LocaleUtil.getSiteDefault());
 
 		validate(groupId, name);
@@ -416,7 +416,9 @@ public class AssetVocabularyLocalServiceImpl
 		AssetVocabulary vocabulary =
 			assetVocabularyPersistence.findByPrimaryKey(vocabularyId);
 
-		if (!vocabulary.getName().equals(name)) {
+		String vocabularyName = vocabulary.getName();
+
+		if (!vocabularyName.equals(name)) {
 			validate(vocabulary.getGroupId(), name);
 		}
 

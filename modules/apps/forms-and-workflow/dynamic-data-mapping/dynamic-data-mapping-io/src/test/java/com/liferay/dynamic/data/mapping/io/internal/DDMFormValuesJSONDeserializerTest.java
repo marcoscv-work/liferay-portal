@@ -17,10 +17,13 @@ package com.liferay.dynamic.data.mapping.io.internal;
 import com.liferay.dynamic.data.mapping.io.DDMFormValuesJSONDeserializer;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
+import com.liferay.dynamic.data.mapping.model.LocalizedValue;
+import com.liferay.dynamic.data.mapping.model.UnlocalizedValue;
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.test.util.DDMFormTestUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.json.JSONFactoryImpl;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -29,6 +32,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Assert;
@@ -48,6 +52,52 @@ public class DDMFormValuesJSONDeserializerTest extends BaseDDMTestCase {
 		super.setUp();
 
 		setUpDDMFormValuesJSONDeserializer();
+	}
+
+	@Test
+	public void testDeserializationWithEmptyFields() throws Exception {
+		DDMForm ddmForm = DDMFormTestUtil.createDDMForm();
+
+		ddmForm.addDDMFormField(
+			DDMFormTestUtil.createTextDDMFormField(
+				"Text1", false, false, false));
+
+		ddmForm.addDDMFormField(
+			DDMFormTestUtil.createDDMFormField(
+				"Select1", "Select1", "select", "string", true, false, false));
+
+		String serializedDDMFormValues = read(
+			"ddm-form-values-json-deserializer-empty-values.json");
+
+		DDMFormValues ddmFormValues =
+			_ddmFormValuesJSONDeserializer.deserialize(
+				ddmForm, serializedDDMFormValues);
+
+		Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap =
+			ddmFormValues.getDDMFormFieldValuesMap();
+
+		Assert.assertEquals(
+			ddmFormFieldValuesMap.toString(), 2, ddmFormFieldValuesMap.size());
+
+		List<DDMFormFieldValue> ddmFormFieldValues = ddmFormFieldValuesMap.get(
+			"Text1");
+
+		DDMFormFieldValue ddmFormFieldValue = ddmFormFieldValues.get(0);
+
+		Value value = ddmFormFieldValue.getValue();
+
+		Assert.assertTrue(value instanceof UnlocalizedValue);
+		Assert.assertEquals(
+			StringPool.BLANK, value.getString(value.getDefaultLocale()));
+
+		ddmFormFieldValues = ddmFormFieldValuesMap.get("Select1");
+
+		ddmFormFieldValue = ddmFormFieldValues.get(0);
+
+		value = ddmFormFieldValue.getValue();
+
+		Assert.assertTrue(value instanceof LocalizedValue);
+		Assert.assertEquals("[]", value.getString(value.getDefaultLocale()));
 	}
 
 	@Test
@@ -258,8 +308,12 @@ public class DDMFormValuesJSONDeserializerTest extends BaseDDMTestCase {
 
 		Assert.assertEquals(
 			availableLocales.toString(), 2, availableLocales.size());
-		Assert.assertTrue(availableLocales.contains(LocaleUtil.US));
-		Assert.assertTrue(availableLocales.contains(LocaleUtil.BRAZIL));
+		Assert.assertTrue(
+			availableLocales.toString(),
+			availableLocales.contains(LocaleUtil.US));
+		Assert.assertTrue(
+			availableLocales.toString(),
+			availableLocales.contains(LocaleUtil.BRAZIL));
 	}
 
 	protected void testBooleanDDMFormFieldValueValues(
