@@ -8,8 +8,12 @@
 	}
 }
 
-.lfr-fulscreen-source-editor-dialog .modal-footer {
-	text-align: left;
+.lfr-fulscreen-source-editor-dialog {
+	max-width: none;
+
+	.modal-footer {
+		text-align: left;
+	}
 }
 
 .lfr-fullscreen-source-editor {
