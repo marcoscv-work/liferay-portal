@@ -65,7 +65,7 @@ data.put("qa-id", "navigation");
 </liferay-util:include>
 
 <div id="<portlet:namespace />journalContainer">
-	<div class="closed container-fluid-1280 sidenav-container sidenav-right" id="<portlet:namespace />infoPanelId">
+	<div class="closed container container-no-gutters-sm-down container-view sidenav-container sidenav-right" id="<portlet:namespace />infoPanelId">
 		<c:if test="<%= journalDisplayContext.isShowInfoPanel() %>">
 			<liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" id="/journal/info_panel" var="sidebarPanelURL" />
 

@@ -76,8 +76,8 @@ if (Validator.isNotNull(editorGadgetURL)) {
 
 	<aui:model-context bean="<%= gadget %>" model="<%= Gadget.class %>" />
 
-	<div class="container-fluid-1280">
 		<div class="card card-row-padded main-content-card">
+	<div class="container container-no-gutters-sm-down container-view">
 			<aui:fieldset>
 				<c:choose>
 					<c:when test="<%= editorGadget %>">

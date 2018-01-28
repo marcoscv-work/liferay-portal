@@ -101,7 +101,7 @@ renderResponse.setTitle((workflowDefinition == null) ? LanguageUtil.get(request,
 	</liferay-frontend:info-bar>
 </c:if>
 
-<div class="closed container-fluid-1280 sidenav-container sidenav-right" id="<portlet:namespace />infoPanelId">
+<div class="closed container container-no-gutters-sm-down container-view sidenav-container sidenav-right" id="<portlet:namespace />infoPanelId">
 	<c:if test="<%= workflowDefinition != null %>">
 		<div class="lfr-portal-workflow-sidenav">
 			<div class="sidebar sidebar-light">

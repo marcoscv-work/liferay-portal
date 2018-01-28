@@ -54,7 +54,7 @@ renderResponse.setTitle(LanguageUtil.get(request, "publish-templates"));
 int exportImportConfigurationType = stagingGroup.isStagedRemotely() ? ExportImportConfigurationConstants.TYPE_PUBLISH_LAYOUT_REMOTE : ExportImportConfigurationConstants.TYPE_PUBLISH_LAYOUT_LOCAL;
 %>
 
-<div class="closed container-fluid-1280 sidenav-container sidenav-right" id="<portlet:namespace />infoPanelId">
+<div class="closed container container-no-gutters-sm-down container-view sidenav-container sidenav-right" id="<portlet:namespace />infoPanelId">
 	<aui:form action="<%= portletURL %>">
 		<liferay-ui:search-container
 			displayTerms="<%= new PublishConfigurationDisplayTerms(renderRequest) %>"
