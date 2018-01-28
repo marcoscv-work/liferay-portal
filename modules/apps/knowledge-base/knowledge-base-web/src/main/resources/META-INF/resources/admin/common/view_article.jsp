@@ -84,7 +84,7 @@ if (portletTitleBasedNavigation) {
 			<liferay-util:include page="/admin/common/article_tools.jsp" servletContext="<%= application %>" />
 		</div>
 
-		<div <%= portletTitleBasedNavigation ? "class=\"main-content-card panel\"" : StringPool.BLANK %>>
+		<div <%= portletTitleBasedNavigation ? "class=\"sheet main-content-card\"" : StringPool.BLANK %>>
 			<div class="kb-entity-body <%= portletTitleBasedNavigation ? "panel-body" : StringPool.BLANK %>">
 				<c:if test="<%= portletTitleBasedNavigation %>">
 					<h1>

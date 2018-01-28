@@ -429,7 +429,7 @@ if (portletTitleBasedNavigation) {
 		</liferay-util:buffer>
 
 		<div class="body-row">
-			<div class="main-content-card panel">
+			<div class="sheet main-content-card">
 				<div class="document-info panel-body">
 					<h2 title="<%= HtmlUtil.escapeAttribute(documentTitle) %>">
 						<%= HtmlUtil.escape(documentTitle) %>

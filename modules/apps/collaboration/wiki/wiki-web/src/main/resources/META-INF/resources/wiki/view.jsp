@@ -142,7 +142,7 @@ if (portletTitleBasedNavigation) {
 	</c:if>
 
 	<div class="sidenav-content">
-		<div <%= portletTitleBasedNavigation ? "class=\"panel main-content-card\"" : StringPool.BLANK %>>
+		<div <%= portletTitleBasedNavigation ? "class=\"sheet main-content-card\"" : StringPool.BLANK %>>
 			<div <%= portletTitleBasedNavigation ? "class=\"panel-body\"" : StringPool.BLANK %>>
 				<c:if test="<%= !portletTitleBasedNavigation %>">
 					<c:choose>
