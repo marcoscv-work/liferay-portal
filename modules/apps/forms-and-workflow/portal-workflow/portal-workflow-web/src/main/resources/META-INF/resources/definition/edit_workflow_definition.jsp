@@ -197,35 +197,33 @@ renderResponse.setTitle((workflowDefinition == null) ? LanguageUtil.get(request,
 			<aui:input name="content" type="hidden" value="<%= content %>" />
 			<aui:input name="successMessage" type="hidden" value='<%= active ? LanguageUtil.get(request, "workflow-updated-successfully") : LanguageUtil.get(request, "workflow-published-successfully") %>' />
 
-			<div class="card-horizontal main-content-card">
-				<div class="card-row-padded">
-					<liferay-ui:error exception="<%= WorkflowDefinitionFileException.class %>" message="please-enter-a-valid-definition-before-publishing" />
-					<liferay-ui:error exception="<%= WorkflowDefinitionTitleException.class %>" message="please-name-your-workflow-before-publishing" />
+			<div class="sheet main-content-card">
+				<liferay-ui:error exception="<%= WorkflowDefinitionFileException.class %>" message="please-enter-a-valid-definition-before-publishing" />
+				<liferay-ui:error exception="<%= WorkflowDefinitionTitleException.class %>" message="please-name-your-workflow-before-publishing" />
 
-					<aui:fieldset cssClass="workflow-definition-content">
-						<aui:col>
-							<aui:field-wrapper label="title">
-								<liferay-ui:input-localized name="title" xml='<%= BeanPropertiesUtil.getString(workflowDefinition, "title") %>' />
-							</aui:field-wrapper>
-						</aui:col>
+				<aui:fieldset cssClass="workflow-definition-content">
+					<aui:col>
+						<aui:field-wrapper label="title">
+							<liferay-ui:input-localized name="title" xml='<%= BeanPropertiesUtil.getString(workflowDefinition, "title") %>' />
+						</aui:field-wrapper>
+					</aui:col>
 
-						<aui:col cssClass="workflow-definition-upload">
-							<liferay-util:buffer var="importFileMark">
-								<aui:a href="#" id="uploadLink">
-									<%= StringUtil.toLowerCase(LanguageUtil.get(request, "import-a-file")) %>
-								</aui:a>
-							</liferay-util:buffer>
+					<aui:col cssClass="workflow-definition-upload">
+						<liferay-util:buffer var="importFileMark">
+							<aui:a href="#" id="uploadLink">
+								<%= StringUtil.toLowerCase(LanguageUtil.get(request, "import-a-file")) %>
+							</aui:a>
+						</liferay-util:buffer>
 
-							<liferay-ui:message arguments="<%= importFileMark %>" key="write-your-definition-or-x" translateArguments="<%= false %>" />
+						<liferay-ui:message arguments="<%= importFileMark %>" key="write-your-definition-or-x" translateArguments="<%= false %>" />
 
-							<input class="workflow-definition-upload-source" id="<portlet:namespace />upload" type="file" />
-						</aui:col>
+						<input class="workflow-definition-upload-source" id="<portlet:namespace />upload" type="file" />
+					</aui:col>
 
-						<aui:col cssClass="workflow-definition-content-source-wrapper" id="contentSourceWrapper">
-							<div class="workflow-definition-content-source" id="<portlet:namespace />contentEditor"></div>
-						</aui:col>
-					</aui:fieldset>
-				</div>
+					<aui:col cssClass="workflow-definition-content-source-wrapper" id="contentSourceWrapper">
+						<div class="workflow-definition-content-source" id="<portlet:namespace />contentEditor"></div>
+					</aui:col>
+				</aui:fieldset>
 			</div>
 
 			<aui:button-row>

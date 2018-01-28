@@ -37,7 +37,7 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle(title);
 %>
 
-<div class="card-horizontal main-content-card">
+<div class="sheet main-content-card">
 	<div class="panel-body">
 		<c:if test="<%= assetEntry != null %>">
 			<div class="locale-actions">

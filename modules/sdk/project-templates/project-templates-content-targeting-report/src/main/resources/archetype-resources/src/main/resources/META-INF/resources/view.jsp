@@ -20,20 +20,18 @@ page import="java.util.Map" %>
 Map<String, Object> context = (Map<String, Object>)request.getAttribute("context");
 %>
 
-<div class="card main-content-card taglib-empty-result-message">
-	<div class="card-row card-row-padded">
-		<div class="taglib-empty-result-message-header"></div>
+<div class="sheet taglib-empty-result-message">
+	<div class="taglib-empty-result-message-header"></div>
 
-		<div class="text-center text-muted">
-			<liferay-ui:message key="your-data-should-be-displayed-here" />
+	<div class="sheet-text text-center text-muted">
+		<liferay-ui:message key="your-data-should-be-displayed-here" />
 
-			<p>
-				Setting 1: <%= GetterUtil.getString(context.get("setting1")) %>
-			</p>
+		<p>
+			Setting 1: <%= GetterUtil.getString(context.get("setting1")) %>
+		</p>
 
-			<p>
-				Setting 2: <%= GetterUtil.getString(context.get("setting2")) %>
-			</p>
-		</div>
+		<p>
+			Setting 2: <%= GetterUtil.getString(context.get("setting2")) %>
+		</p>
 	</div>
 </div>

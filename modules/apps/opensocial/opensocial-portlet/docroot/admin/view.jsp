@@ -17,70 +17,68 @@
 <%@ include file="/init.jsp" %>
 
 <div class="container-fluid-1280">
-	<div class="card main-content-card">
-		<div class="card-row card-row-padded">
+	<div class="sheet">
 
-			<%
-			PortletURL portletURL = renderResponse.createRenderURL();
-			%>
+		<%
+		PortletURL portletURL = renderResponse.createRenderURL();
+		%>
 
-			<liferay-ui:search-container
-				emptyResultsMessage="there-are-no-gadgets"
-				headerNames="name"
-				iteratorURL="<%= portletURL %>"
-				total="<%= GadgetLocalServiceUtil.getGadgetsCount(company.getCompanyId()) %>"
+		<liferay-ui:search-container
+			emptyResultsMessage="there-are-no-gadgets"
+			headerNames="name"
+			iteratorURL="<%= portletURL %>"
+			total="<%= GadgetLocalServiceUtil.getGadgetsCount(company.getCompanyId()) %>"
+		>
+			<liferay-ui:search-container-results
+				results="<%= GadgetLocalServiceUtil.getGadgets(company.getCompanyId(), searchContainer.getStart(), searchContainer.getEnd()) %>"
+			/>
+
+			<liferay-ui:search-container-row
+				className="com.liferay.opensocial.model.Gadget"
+				keyProperty="gadgetId"
+				modelVar="gadget"
 			>
-				<liferay-ui:search-container-results
-					results="<%= GadgetLocalServiceUtil.getGadgets(company.getCompanyId(), searchContainer.getStart(), searchContainer.getEnd()) %>"
+				<liferay-ui:search-container-column-text
+					name="gadget"
+					property="name"
 				/>
 
-				<liferay-ui:search-container-row
-					className="com.liferay.opensocial.model.Gadget"
-					keyProperty="gadgetId"
-					modelVar="gadget"
-				>
-					<liferay-ui:search-container-column-text
-						name="gadget"
-						property="name"
-					/>
+				<%
+				String gadgetURL = gadget.getUrl();
+				%>
 
-					<%
-					String gadgetURL = gadget.getUrl();
-					%>
+				<liferay-ui:search-container-column-text
+					href="<%= gadgetURL %>"
+					name="url"
+					value="<%= gadgetURL %>"
+				/>
 
-					<liferay-ui:search-container-column-text
-						href="<%= gadgetURL %>"
-						name="url"
-						value="<%= gadgetURL %>"
-					/>
+				<liferay-ui:search-container-column-jsp
+					align="right"
+					cssClass="entry-action"
+					path="/admin/gadget_action.jsp"
+					valign="top"
+				/>
+			</liferay-ui:search-container-row>
 
-					<liferay-ui:search-container-column-jsp
-						align="right"
-						cssClass="entry-action"
-						path="/admin/gadget_action.jsp"
-						valign="top"
-					/>
-				</liferay-ui:search-container-row>
-
-				<aui:button-row>
-					<c:if test="<%= GadgetPermission.contains(permissionChecker, themeDisplay.getScopeGroupId(), ActionKeys.PUBLISH_GADGET) %>">
-						<portlet:renderURL var="publishGadgetURL">
-							<portlet:param name="mvcPath" value="/admin/edit_gadget.jsp" />
-							<portlet:param name="redirect" value="<%= currentURL %>" />
-						</portlet:renderURL>
-
-						<aui:button onClick="<%= publishGadgetURL %>" value="publish-gadget" />
-					</c:if>
-
-					<portlet:actionURL name="refreshGadgets" var="refreshGadgetsURL">
+			<aui:button-row>
+				<c:if test="<%= GadgetPermission.contains(permissionChecker, themeDisplay.getScopeGroupId(), ActionKeys.PUBLISH_GADGET) %>">
+					<portlet:renderURL var="publishGadgetURL">
+						<portlet:param name="mvcPath" value="/admin/edit_gadget.jsp" />
 						<portlet:param name="redirect" value="<%= currentURL %>" />
-					</portlet:actionURL>
+					</portlet:renderURL>
 
-					<aui:button onClick="<%= refreshGadgetsURL %>" value="refresh-gadgets" />
-				</aui:button-row>
+					<aui:button onClick="<%= publishGadgetURL %>" value="publish-gadget" />
+				</c:if>
 
-				<liferay-ui:search-iterator />
-			</liferay-ui:search-container>
-		</div>
+				<portlet:actionURL name="refreshGadgets" var="refreshGadgetsURL">
+					<portlet:param name="redirect" value="<%= currentURL %>" />
+				</portlet:actionURL>
+
+				<aui:button onClick="<%= refreshGadgetsURL %>" value="refresh-gadgets" />
+			</aui:button-row>
+
+			<liferay-ui:search-iterator />
+		</liferay-ui:search-container>
 	</div>
 </div>
