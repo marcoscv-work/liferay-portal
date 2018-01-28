@@ -95,13 +95,13 @@ if (Validator.isNotNull(editorGadgetURL)) {
 
 				<div class="category-treeview" id="<portlet:namespace />categoryTreeView"></div>
 			</aui:fieldset>
+
+			<div class="sheet-footer">
+				<aui:button type="submit" />
+
+				<aui:button href="<%= redirect %>" type="cancel" />
+			</div>
 		</div>
-
-		<aui:button-row>
-			<aui:button type="submit" />
-
-			<aui:button href="<%= redirect %>" type="cancel" />
-		</aui:button-row>
 	</div>
 </aui:form>
 
