@@ -1,0 +1,1 @@
+<#assign show_header = getterUtil.getBoolean(themeDisplay.getThemeSetting("show-header")) />
