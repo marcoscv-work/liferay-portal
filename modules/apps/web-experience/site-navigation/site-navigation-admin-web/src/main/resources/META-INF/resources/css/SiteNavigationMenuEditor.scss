@@ -1,16 +1,41 @@
 .site-navigation-menu-container {
 	.container-item {
+		box-sizing: border-box;
+		max-width: 100%;
 		overflow: hidden;
 		padding: 2px;
-		width: 100%;
 
 		.selected .card {
 			box-shadow: none;
 			outline: 2px solid #65B6F0;
 		}
+
+		&:focus {
+			box-shadow: none;
+			outline: none;
+
+			.site-navigation-menu-item .card {
+				box-shadow: none;
+				outline: 2px solid #BABFCE;
+			}
+
+			.site-navigation-menu-item.selected .card {
+				box-shadow: none;
+				outline: 2px solid #65B6F0;
+			}
+		}
+	}
+
+	.container-item--nested {
+		padding-left: 10ch;
 	}
 
 	.item-dragging {
 		opacity: 0.4;
 	}
+}
+
+.site-navigation-menu-item {
+	max-width: 100%;
+	width: 40ch;
 }

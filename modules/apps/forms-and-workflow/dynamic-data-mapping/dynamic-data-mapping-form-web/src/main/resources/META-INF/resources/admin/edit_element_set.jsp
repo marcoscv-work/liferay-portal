@@ -47,6 +47,12 @@ renderResponse.setTitle((structure == null) ? LanguageUtil.get(request, "new-ele
 </portlet:actionURL>
 
 <div class="hide portlet-forms" id="<portlet:namespace />formContainer">
+	<aui:nav-bar cssClass="collapse-basic-search" id="toolbar" markupView="lexicon">
+		<aui:nav cssClass="navbar-nav">
+			<aui:nav-item id="showElementSet" label='<%= LanguageUtil.get(request, "builder") %>' selected="<%= true %>" />
+		</aui:nav>
+	</aui:nav-bar>
+
 	<div class="container-fluid-1280">
 		<aui:translation-manager
 			availableLocales="<%= availableLocales %>"
@@ -56,7 +62,7 @@ renderResponse.setTitle((structure == null) ? LanguageUtil.get(request, "new-ele
 		/>
 	</div>
 
-	<button class="btn btn-primary lfr-ddm-add-field">
+	<button class="btn btn-primary lfr-ddm-add-field lfr-ddm-plus-button">
 		<svg class="lexicon-icon">
 			<use xlink:href="<%= ddmFormAdminDisplayContext.getLexiconIconsPath() %>plus" />
 		</svg>
@@ -70,7 +76,7 @@ renderResponse.setTitle((structure == null) ? LanguageUtil.get(request, "new-ele
 
 		<%@ include file="/admin/exceptions.jspf" %>
 
-		<aui:fieldset cssClass="ddm-form-basic-info">
+		<div class="ddm-form-basic-info">
 			<div class="container-fluid-1280">
 				<h1>
 					<liferay-ui:input-editor
@@ -100,13 +106,13 @@ renderResponse.setTitle((structure == null) ? LanguageUtil.get(request, "new-ele
 
 				<aui:input name="description" type="hidden" />
 			</div>
-		</aui:fieldset>
+		</div>
 
-		<aui:fieldset cssClass="container-fluid-1280 ddm-form-builder-app">
+		<div class="container-fluid-1280 ddm-form-builder-app">
 			<aui:input name="serializedFormBuilderContext" type="hidden" />
 
 			<div id="<portlet:namespace />formBuilder"></div>
-		</aui:fieldset>
+		</div>
 
 		<div class="container-fluid-1280">
 			<aui:button-row cssClass="ddm-form-builder-buttons">

@@ -46,8 +46,8 @@ buildscript {
 apply plugin: "org.ajoberstar.grgit"
 
 task cherryPickArtifacts
-task incrementMajorVersions
 task lockDependencyVersion
+task prepareMajorIncrement
 task syncGitRepoReleases
 
 cherryPickArtifacts {
@@ -76,79 +76,6 @@ cherryPickArtifacts {
 	}
 
 	group = "releng"
-}
-
-incrementMajorVersions {
-	description = "Increments the major version of all modules and portal artifacts."
-
-	doLast {
-		Closure<Void> incrementMajorVersionClosure = {
-			File dir ->
-
-			File versionFile = null
-			Pattern versionPattern = null
-
-			File bndBndFile = new File(dir, "bnd.bnd")
-			File buildXmlFile = new File(dir, "build.xml")
-
-			if (bndBndFile.exists()) {
-				versionFile = bndBndFile
-				versionPattern = ~/Bundle-Version: (\w+\.\w+\.\w+)/
-			}
-			else if (buildXmlFile.exists()) {
-				versionFile = buildXmlFile
-				versionPattern = ~/<property name="artifact\.version" value="(\w+\.\w+\.\w+)" \/>/
-			}
-			else {
-				throw new GradleException("Unable to increment major version of ${dir}")
-			}
-
-			String content = versionFile.getText("UTF-8")
-
-			content = content.replaceFirst(versionPattern) {
-				String all, String versionString ->
-
-				VersionNumber versionNumber = VersionNumber.parse(versionString)
-
-				VersionNumber newVersionNumber = new VersionNumber(versionNumber.major + 1, 0, 0, null)
-
-				all.replace versionString, newVersionNumber as String
-			}
-
-			versionFile.setText content, "UTF-8"
-		}
-
-		projectDir.traverse(
-			preDir: {
-				if (it.name in [".gradle", ".github", "build", "classes", "node_modules", "third-party"]) {
-					return FileVisitResult.SKIP_SUBTREE
-				}
-
-				if (_isGitRepoReadOnly(it)) {
-					return FileVisitResult.SKIP_SUBTREE
-				}
-
-				File bndBndFile = new File(it, "bnd.bnd")
-
-				if (!bndBndFile.exists()) {
-					return FileVisitResult.CONTINUE
-				}
-
-				incrementMajorVersionClosure it
-
-				return FileVisitResult.SKIP_SUBTREE
-			},
-			type: FileType.DIRECTORIES
-		)
-
-		File portalRootDir = projectDir.parentFile
-
-		String[] dirNames = ["portal-impl", "portal-kernel", "portal-test", "portal-test-integration", "portal-web", "support-tomcat", "util-bridges", "util-java", "util-slf4j", "util-taglib"]
-
-		dirNames.each {
-			incrementMajorVersionClosure new File(portalRootDir, it)
-		}
-	}
 }
 
 lockDependencyVersion {
@@ -229,6 +156,184 @@ lockDependencyVersion {
 
 		if (commitChanges) {
 			grgit.commit message: "${dependencyProjectName} ${dependencyVersion} apply"
+		}
+	}
+}
+
+prepareMajorIncrement {
+	description = "Prepares the build scripts of modules and portal artifacts to a major version increment."
+
+	doLast {
+		Map<String, String> moduleNamePathsMap = [
+			"com.liferay.portal.configuration.metatype": ":apps:static:portal-configuration:portal-configuration-metatype-api",
+			"com.liferay.portal.osgi.web.wab.generator": ":apps:static:portal-osgi-web:portal-osgi-web-wab-generator-api",
+			"com.liferay.portal.profile": ":apps:static:portal:portal-profile-api",
+			"com.liferay.portal.template.soy": ":apps:foundation:portal-template:portal-template-soy-api",
+			"com.liferay.portal.upgrade": ":apps:foundation:portal:portal-upgrade-api"
+		]
+
+		projectDir.traverse(
+			preDir: {
+				if (it.name in [".gradle", ".github", "build", "classes", "node_modules", "project-templates", "third-party"]) {
+					return FileVisitResult.SKIP_SUBTREE
+				}
+
+				if (_isGitRepoReadOnly(it)) {
+					return FileVisitResult.SKIP_SUBTREE
+				}
+
+				File bndBndFile = new File(it, "bnd.bnd")
+
+				if (!bndBndFile.exists()) {
+					return FileVisitResult.CONTINUE
+				}
+
+				Properties bndProperties = GUtil.loadProperties(bndBndFile)
+
+				String bundleSymbolicName = bndProperties.getProperty("Bundle-SymbolicName")
+
+				if (!bundleSymbolicName) {
+					return FileVisitResult.CONTINUE
+				}
+
+				String modulePath = relativePath(it)
+
+				modulePath = ":" + modulePath.replace(File.separatorChar, ':' as char)
+
+				moduleNamePathsMap[bundleSymbolicName] = modulePath
+
+				return FileVisitResult.SKIP_SUBTREE
+			},
+			type: FileType.DIRECTORIES
+		)
+
+		Closure<Void> convertToProjectDependenciesClosure = {
+			File dir ->
+
+			File buildGradleFile = new File(dir, "build.gradle")
+
+			String content = buildGradleFile.getText("UTF-8")
+
+			content = content.replaceAll(/group: "com\.liferay", name: "(.+)", version: "\d.+"/) {
+				String dependency, String artifactName ->
+
+				String modulePath = moduleNamePathsMap[artifactName]
+
+				if (!modulePath) {
+					println "Unable to find project for artifact ${artifactName}"
+
+					return dependency
+				}
+
+				File lfrbuildPortalFile = new File(dir, ".lfrbuild-portal")
+
+				if (lfrbuildPortalFile.exists()) {
+					String moduleDirName = modulePath.substring(1)
+
+					File moduleDir = new File(projectDir, moduleDirName.replace(':' as char, File.separatorChar))
+
+					File moduleLfrbuildPortalFile = new File(moduleDir, ".lfrbuild-portal")
+
+					if (!moduleLfrbuildPortalFile.exists()) {
+						println "Skipping dependency from ${dir} to ${moduleDir}"
+
+						return dependency
+					}
+				}
+
+				return "project(\"${modulePath}\")"
+			}
+
+			content = content.replaceAll(/group: "com\.liferay\.portal", name: "(.+)", version: "\d.+"/) {
+				String dependency, String artifactName ->
+
+				"group: \"com.liferay.portal\", name: \"${artifactName}\", version: \"default\""
+			}
+
+			buildGradleFile.setText content, "UTF-8"
+		}
+
+		Closure<Void> incrementMajorVersionClosure = {
+			File dir ->
+
+			File versionFile = null
+			Pattern versionPattern = null
+
+			File bndBndFile = new File(dir, "bnd.bnd")
+			File buildXmlFile = new File(dir, "build.xml")
+
+			if (bndBndFile.exists()) {
+				versionFile = bndBndFile
+				versionPattern = ~/Bundle-Version: (\w+\.\w+\.\w+)/
+			}
+			else if (buildXmlFile.exists()) {
+				versionFile = buildXmlFile
+				versionPattern = ~/<property name="artifact\.version" value="(\w+\.\w+\.\w+)" \/>/
+			}
+			else {
+				throw new GradleException("Unable to increment major version of ${dir}")
+			}
+
+			String content = versionFile.getText("UTF-8")
+
+			String oldVersionString = null
+			String newVersionString = null
+
+			content = content.replaceFirst(versionPattern) {
+				String all, String versionString ->
+
+				if (versionString == "1.0.0") {
+					println "Skipping increment of version ${versionString} in ${dir}"
+
+					return all
+				}
+
+				oldVersionString = versionString
+
+				VersionNumber versionNumber = VersionNumber.parse(versionString)
+
+				VersionNumber newVersionNumber = new VersionNumber(versionNumber.major + 1, 0, 0, null)
+
+				newVersionString = newVersionNumber as String
+
+				all.replace versionString, newVersionString
+			}
+
+			if (oldVersionString && newVersionString) {
+				for (String jsonFileName in ["package.json", "package-lock.json"]) {
+					File jsonFile = new File(dir, jsonFileName)
+
+					if (jsonFile.exists()) {
+						String json = jsonFile.getText("UTF-8")
+
+						json = json.replace("\n\t\"version\": \"${oldVersionString}\"", "\n\t\"version\": \"${newVersionString}\"")
+						json = json.replace("\n  \"version\": \"${oldVersionString}\"", "\n  \"version\": \"${newVersionString}\"")
+
+						jsonFile.setText json, "UTF-8"
+					}
+				}
+			}
+
+			versionFile.setText content, "UTF-8"
+		}
+
+		moduleNamePathsMap.each {
+			String bundleSymbolicName, String modulePath ->
+
+			modulePath = modulePath.replace(':' as char, File.separatorChar)
+
+			File moduleDir = file(modulePath.substring(1))
+
+			convertToProjectDependenciesClosure moduleDir
+			incrementMajorVersionClosure moduleDir
+		}
+
+		File portalRootDir = projectDir.parentFile
+
+		String[] dirNames = ["portal-impl", "portal-kernel", "portal-test", "portal-test-integration", "portal-web", "support-tomcat", "util-bridges", "util-java", "util-slf4j", "util-taglib"]
+
+		dirNames.each {
+			incrementMajorVersionClosure new File(portalRootDir, it)
 		}
 	}
 }

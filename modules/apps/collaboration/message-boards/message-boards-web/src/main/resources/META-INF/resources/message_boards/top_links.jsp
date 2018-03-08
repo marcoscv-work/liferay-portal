@@ -34,7 +34,7 @@ long categoryId = MBUtil.getCategoryId(request, category);
 		messageBoardsHomeURL.setParameter("tag", StringPool.BLANK);
 		%>
 
-		<aui:nav-item href="<%= messageBoardsHomeURL.toString() %>" label="message-boards-home" selected='<%= mvcRenderCommandName.equals("/message_boards/edit_category") || mvcRenderCommandName.equals("/message_boards/edit_message") || (mvcRenderCommandName.equals("/message_boards/view") || mvcRenderCommandName.equals("/message_boards/view_category") || mvcRenderCommandName.equals("/message_boards/view_message")) %>' />
+		<aui:nav-item href="<%= messageBoardsHomeURL.toString() %>" label="home" selected='<%= mvcRenderCommandName.equals("/message_boards/edit_category") || mvcRenderCommandName.equals("/message_boards/edit_message") || (mvcRenderCommandName.equals("/message_boards/view") || mvcRenderCommandName.equals("/message_boards/view_category") || mvcRenderCommandName.equals("/message_boards/view_message")) %>' />
 
 		<%
 		PortletURL viewRecentPostsURL = renderResponse.createRenderURL();
@@ -74,7 +74,7 @@ long categoryId = MBUtil.getCategoryId(request, category);
 
 		<aui:nav-item href="<%= viewStatisticsURL.toString() %>" label="statistics" selected='<%= mvcRenderCommandName.equals("/message_boards/view_statistics") %>' />
 
-		<c:if test="<%= MBPermission.contains(permissionChecker, scopeGroupId, ActionKeys.BAN_USER) %>">
+		<c:if test="<%= portletName.equals(MBPortletKeys.MESSAGE_BOARDS_ADMIN) && MBResourcePermission.contains(permissionChecker, scopeGroupId, ActionKeys.BAN_USER) %>">
 
 			<%
 			PortletURL bannedUsersURL = renderResponse.createRenderURL();

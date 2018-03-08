@@ -17,15 +17,13 @@ package com.liferay.source.formatter.checkstyle.util;
 import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.source.formatter.SourceFormatterArgs;
+import com.liferay.source.formatter.checks.configuration.SourceFormatterSuppressions;
 import com.liferay.source.formatter.checkstyle.Checker;
 
 import com.puppycrawl.tools.checkstyle.ConfigurationLoader;
 import com.puppycrawl.tools.checkstyle.DefaultConfiguration;
 import com.puppycrawl.tools.checkstyle.PropertiesExpander;
 import com.puppycrawl.tools.checkstyle.api.Configuration;
-import com.puppycrawl.tools.checkstyle.filters.SuppressionsLoader;
-
-import java.io.File;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,7 +89,8 @@ public class CheckstyleUtil {
 	}
 
 	public static Checker getChecker(
-			Configuration configuration, List<File> suppressionsFiles,
+			Configuration configuration,
+			SourceFormatterSuppressions sourceFormatterSuppressions,
 			SourceFormatterArgs sourceFormatterArgs)
 		throws Exception {
 
@@ -101,11 +100,7 @@ public class CheckstyleUtil {
 
 		checker.setModuleClassLoader(classLoader);
 
-		for (File suppressionsFile : suppressionsFiles) {
-			checker.addFilter(
-				SuppressionsLoader.loadSuppressions(
-					suppressionsFile.getAbsolutePath()));
-		}
+		checker.addFilter(sourceFormatterSuppressions.getCheckstyleFilterSet());
 
 		checker.configure(configuration);
 
@@ -126,10 +121,6 @@ public class CheckstyleUtil {
 
 		if (name.startsWith("com.liferay.")) {
 			int pos = name.lastIndexOf(CharPool.PERIOD);
-
-			if (!name.endsWith("Check")) {
-				name = name.concat("Check");
-			}
 
 			checkNames.add(name.substring(pos + 1));
 		}
