@@ -1520,6 +1520,10 @@ public interface PropsKeys {
 
 	public static final String MINIFIER_INLINE_CONTENT_CACHE_SKIP_JAVASCRIPT = "minifier.inline.content.cache.skip.javascript";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement, as minifiers have been extracted as OSGi components
+	 */
+	@Deprecated
 	public static final String MINIFIER_JAVASCRIPT_IMPL = "minifier.javascript.impl";
 
 	public static final String MOBILE_DEVICE_RULES_PUBLISH_TO_LIVE_BY_DEFAULT = "mobile.device.rules.publish.to.live.by.default";
@@ -1688,10 +1692,22 @@ public interface PropsKeys {
 
 	public static final String ORGANIZATIONS_ASSIGNMENT_STRICT = "organizations.assignment.strict";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static final String ORGANIZATIONS_CHILDREN_TYPES = "organizations.children.types";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static final String ORGANIZATIONS_COUNTRY_ENABLED = "organizations.country.enabled";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static final String ORGANIZATIONS_COUNTRY_REQUIRED = "organizations.country.required";
 
 	public static final String ORGANIZATIONS_FORM_ADD_IDENTIFICATION = "organizations.form.add.identification";
@@ -1708,10 +1724,18 @@ public interface PropsKeys {
 
 	public static final String ORGANIZATIONS_MEMBERSHIP_STRICT = "organizations.membership.strict";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static final String ORGANIZATIONS_ROOTABLE = "organizations.rootable";
 
 	public static final String ORGANIZATIONS_SEARCH_WITH_INDEX = "organizations.search.with.index";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static final String ORGANIZATIONS_TYPES = "organizations.types";
 
 	public static final String PASSWORDS_DEFAULT_POLICY_ALLOW_DICTIONARY_WORDS = "passwords.default.policy.allow.dictionary.words";
@@ -2687,14 +2711,34 @@ public interface PropsKeys {
 
 	public static final String YUI_COMPRESSOR_CSS_LINE_BREAK = "yui.compressor.css.line.break";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement, as minifiers have been extracted as OSGi components
+	 */
+	@Deprecated
 	public static final String YUI_COMPRESSOR_JS_DISABLE_OPTIMIZATIONS = "yui.compressor.js.disable.optimizations";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement, as minifiers have been extracted as OSGi components
+	 */
+	@Deprecated
 	public static final String YUI_COMPRESSOR_JS_LINE_BREAK = "yui.compressor.js.line.break";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement, as minifiers have been extracted as OSGi components
+	 */
+	@Deprecated
 	public static final String YUI_COMPRESSOR_JS_MUNGE = "yui.compressor.js.munge";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement, as minifiers have been extracted as OSGi components
+	 */
+	@Deprecated
 	public static final String YUI_COMPRESSOR_JS_PRESERVE_ALL_SEMICOLONS = "yui.compressor.js.preserve.all.semicolons";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement, as minifiers have been extracted as OSGi components
+	 */
+	@Deprecated
 	public static final String YUI_COMPRESSOR_JS_VERBOSE = "yui.compressor.js.verbose";
 
 	public static final String ZIP_FILE_NAME_ENCODING = "zip.file.name.encoding";

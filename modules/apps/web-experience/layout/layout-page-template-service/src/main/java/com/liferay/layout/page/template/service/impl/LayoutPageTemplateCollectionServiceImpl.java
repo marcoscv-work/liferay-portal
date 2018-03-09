@@ -106,12 +106,34 @@ public class LayoutPageTemplateCollectionServiceImpl
 	}
 
 	@Override
+	public List<LayoutPageTemplateCollection>
+			getBasicLayoutPageTemplateCollections(
+				long groupId, int start, int end,
+				OrderByComparator<LayoutPageTemplateCollection>
+					orderByComparator)
+		throws PortalException {
+
+		return layoutPageTemplateCollectionPersistence.filterFindByG_T(
+			groupId, LayoutPageTemplateCollectionTypeConstants.TYPE_BASIC,
+			start, end, orderByComparator);
+	}
+
+	@Override
 	public List<LayoutPageTemplateCollection> getLayoutPageTemplateCollections(
 			long groupId)
 		throws PortalException {
 
 		return layoutPageTemplateCollectionPersistence.filterFindByGroupId(
 			groupId);
+	}
+
+	@Override
+	public List<LayoutPageTemplateCollection> getLayoutPageTemplateCollections(
+			long groupId, int type)
+		throws PortalException {
+
+		return layoutPageTemplateCollectionPersistence.filterFindByG_T(
+			groupId, type);
 	}
 
 	@Override
