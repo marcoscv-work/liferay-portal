@@ -1,3 +1,33 @@
+.lfr-search-container-wrapper {
+	a {
+		color: #272833;
+	}
+
+	.lfr-icon-menu > .dropdown-toggle {
+		color: #6B6C7E;
+	}
+
+	.list-group {
+		margin-bottom: 0;
+
+		.list-group-item {
+			border-radius: 0;
+
+			h4 {
+				font-size: 0.9375rem;
+			}
+
+			.checkbox {
+				margin-top: 0;
+			}
+		}
+
+		& + .taglib-search-iterator-page-iterator-bottom {
+			margin-top: 20px;
+		}
+	}
+}
+
 .lfr-search-container .entry-action {
 	width: 1px;
 
