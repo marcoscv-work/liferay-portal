@@ -15,9 +15,10 @@
 package com.liferay.source.formatter.checks.util;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.source.formatter.SourceFormatterMessage;
 import com.liferay.source.formatter.checks.FileCheck;
 import com.liferay.source.formatter.checks.GradleFileCheck;
@@ -25,13 +26,14 @@ import com.liferay.source.formatter.checks.JavaTermCheck;
 import com.liferay.source.formatter.checks.SourceCheck;
 import com.liferay.source.formatter.checks.configuration.SourceCheckConfiguration;
 import com.liferay.source.formatter.checks.configuration.SourceChecksResult;
-import com.liferay.source.formatter.checks.configuration.SourceChecksSuppressions;
 import com.liferay.source.formatter.checks.configuration.SourceFormatterConfiguration;
+import com.liferay.source.formatter.checks.configuration.SourceFormatterSuppressions;
 import com.liferay.source.formatter.parser.GradleFile;
 import com.liferay.source.formatter.parser.GradleFileParser;
 import com.liferay.source.formatter.parser.JavaClass;
 import com.liferay.source.formatter.parser.JavaClassParser;
 import com.liferay.source.formatter.parser.ParseException;
+import com.liferay.source.formatter.util.CheckType;
 import com.liferay.source.formatter.util.DebugUtil;
 import com.liferay.source.formatter.util.SourceFormatterUtil;
 
@@ -40,7 +42,10 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -52,18 +57,19 @@ public class SourceChecksUtil {
 
 	public static List<SourceCheck> getSourceChecks(
 			SourceFormatterConfiguration sourceFormatterConfiguration,
-			String sourceProcessorName, boolean portalSource,
-			boolean subrepository, boolean includeModuleChecks)
+			String sourceProcessorName, Map<String, Properties> propertiesMap,
+			boolean portalSource, boolean subrepository,
+			boolean includeModuleChecks)
 		throws Exception {
 
 		List<SourceCheck> sourceChecks = _getSourceChecks(
-			sourceFormatterConfiguration, sourceProcessorName, portalSource,
-			subrepository, includeModuleChecks);
+			sourceFormatterConfiguration, sourceProcessorName, propertiesMap,
+			portalSource, subrepository, includeModuleChecks);
 
 		sourceChecks.addAll(
 			_getSourceChecks(
-				sourceFormatterConfiguration, "all", includeModuleChecks,
-				subrepository, includeModuleChecks));
+				sourceFormatterConfiguration, "all", propertiesMap,
+				includeModuleChecks, subrepository, includeModuleChecks));
 
 		return sourceChecks;
 	}
@@ -72,7 +78,7 @@ public class SourceChecksUtil {
 			File file, String fileName, String absolutePath, String content,
 			Set<String> modifiedMessages, boolean modulesFile,
 			List<SourceCheck> sourceChecks,
-			SourceChecksSuppressions sourceChecksSuppressions,
+			SourceFormatterSuppressions sourceFormatterSuppressions,
 			boolean showDebugInformation)
 		throws Exception {
 
@@ -93,7 +99,7 @@ public class SourceChecksUtil {
 
 			Class<?> clazz = sourceCheck.getClass();
 
-			if (sourceChecksSuppressions.isSuppressed(
+			if (sourceFormatterSuppressions.isSuppressed(
 					clazz.getSimpleName(), absolutePath)) {
 
 				continue;
@@ -115,8 +121,9 @@ public class SourceChecksUtil {
 					catch (ParseException pe) {
 						sourceChecksResult.addSourceFormatterMessage(
 							new SourceFormatterMessage(
-								fileName, pe.getMessage(), "SourceCheck",
-								clazz.getSimpleName(), null, -1));
+								fileName, pe.getMessage(),
+								CheckType.SOURCE_CHECK, clazz.getSimpleName(),
+								null, -1));
 
 						continue;
 					}
@@ -138,8 +145,9 @@ public class SourceChecksUtil {
 					catch (ParseException pe) {
 						sourceChecksResult.addSourceFormatterMessage(
 							new SourceFormatterMessage(
-								fileName, pe.getMessage(), "SourceCheck",
-								clazz.getSimpleName(), null, -1));
+								fileName, pe.getMessage(),
+								CheckType.SOURCE_CHECK, clazz.getSimpleName(),
+								null, -1));
 
 						continue;
 					}
@@ -163,7 +171,11 @@ public class SourceChecksUtil {
 				sb.append(file.toString());
 				sb.append(CharPool.SPACE);
 				sb.append(CharPool.OPEN_PARENTHESIS);
-				sb.append("SourceCheck");
+
+				CheckType checkType = CheckType.SOURCE_CHECK;
+
+				sb.append(checkType.getValue());
+
 				sb.append(CharPool.COLON);
 				sb.append(clazz.getSimpleName());
 				sb.append(CharPool.CLOSE_PARENTHESIS);
@@ -183,10 +195,51 @@ public class SourceChecksUtil {
 		return sourceChecksResult;
 	}
 
+	private static List<String> _getOverrideValues(
+		String attributeName, Class<? extends SourceCheck> sourceCheckClass,
+		Map<String, Properties> propertiesMap) {
+
+		String simpleName = sourceCheckClass.getSimpleName();
+
+		String[] simpleNameArray = simpleName.split(
+			"(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])");
+
+		String simpleNameValue = StringUtil.merge(simpleNameArray, ".");
+
+		String[] attributeNameArray = attributeName.split(
+			"(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])");
+
+		String attributeNameValue = StringUtil.merge(attributeNameArray, ".");
+
+		String key = StringBundler.concat(
+			"override.", StringUtil.toLowerCase(simpleNameValue), ".",
+			StringUtil.toLowerCase(attributeNameValue));
+
+		StringBundler sb = new StringBundler(propertiesMap.size() * 2);
+
+		for (Map.Entry<String, Properties> entry : propertiesMap.entrySet()) {
+			Properties properties = entry.getValue();
+
+			String value = properties.getProperty(key);
+
+			if (value != null) {
+				sb.append(value);
+				sb.append(CharPool.COMMA);
+			}
+		}
+
+		if (sb.index() > 0) {
+			sb.setIndex(sb.index() - 1);
+		}
+
+		return ListUtil.toList(StringUtil.split(sb.toString()));
+	}
+
 	private static List<SourceCheck> _getSourceChecks(
 			SourceFormatterConfiguration sourceFormatterConfiguration,
-			String sourceProcessorName, boolean portalSource,
-			boolean subrepository, boolean includeModuleChecks)
+			String sourceProcessorName, Map<String, Properties> propertiesMap,
+			boolean portalSource, boolean subrepository,
+			boolean includeModuleChecks)
 		throws Exception {
 
 		List<SourceCheck> sourceChecks = new ArrayList<>();
@@ -244,12 +297,20 @@ public class SourceChecksUtil {
 			for (String attributeName :
 					sourceCheckConfiguration.attributeNames()) {
 
-				for (String attributeValue :
-						sourceCheckConfiguration.getAttributeValues(
-							attributeName)) {
+				List<String> values = Collections.emptyList();
 
-					BeanUtils.setProperty(
-						sourceCheck, attributeName, attributeValue);
+				if (portalSource) {
+					values = _getOverrideValues(
+						attributeName, sourceCheck.getClass(), propertiesMap);
+				}
+
+				if (values.isEmpty()) {
+					values = sourceCheckConfiguration.getAttributeValues(
+						attributeName);
+				}
+
+				for (String value : values) {
+					BeanUtils.setProperty(sourceCheck, attributeName, value);
 				}
 			}
 

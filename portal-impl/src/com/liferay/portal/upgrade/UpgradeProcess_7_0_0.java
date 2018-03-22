@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeAddress;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeAsset;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeAssetTagsResourcePermission;
-import com.liferay.portal.upgrade.v7_0_0.UpgradeBookmarks;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeCompanyId;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeDocumentLibrary;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeDocumentLibraryPortletId;
@@ -71,10 +70,11 @@ public class UpgradeProcess_7_0_0 extends UpgradeProcess {
 
 		upgrade(UpgradeKernelPackage.class);
 
+		upgrade(UpgradeSharding.class);
+
 		upgrade(UpgradeAddress.class);
 		upgrade(UpgradeAsset.class);
 		upgrade(UpgradeAssetTagsResourcePermission.class);
-		upgrade(UpgradeBookmarks.class);
 		upgrade(UpgradeCompanyId.class);
 		upgrade(UpgradeDocumentLibrary.class);
 		upgrade(UpgradeDocumentLibraryPortletId.class);
@@ -107,8 +107,6 @@ public class UpgradeProcess_7_0_0 extends UpgradeProcess {
 		upgrade(UpgradeWebsite.class);
 
 		upgrade(UpgradeMobileDeviceRules.class);
-
-		upgrade(UpgradeSharding.class);
 
 		clearIndexesCache();
 	}

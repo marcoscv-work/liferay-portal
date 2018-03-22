@@ -14,23 +14,12 @@
 
 package com.liferay.user.associated.data.entity;
 
-import com.liferay.portal.kernel.exception.PortalException;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.liferay.portal.kernel.model.StagedModel;
 
 /**
  * @author William Newbury
  */
-public interface UADEntity {
-
-	public default Map<String, Object> getEntityNonAnonymizableFieldValues(
-			List<String> fieldNames)
-		throws PortalException {
-
-		return new HashMap<>();
-	}
+public interface UADEntity extends StagedModel {
 
 	public String getUADEntityId();
 

@@ -65,6 +65,10 @@ public interface SiteNavigationMenuLocalService extends BaseLocalService,
 		long groupId, ServiceContext serviceContext) throws PortalException;
 
 	public SiteNavigationMenu addSiteNavigationMenu(long userId, long groupId,
+		java.lang.String name, int type, boolean auto,
+		ServiceContext serviceContext) throws PortalException;
+
+	public SiteNavigationMenu addSiteNavigationMenu(long userId, long groupId,
 		java.lang.String name, int type, ServiceContext serviceContext)
 		throws PortalException;
 
@@ -186,7 +190,13 @@ public interface SiteNavigationMenuLocalService extends BaseLocalService,
 	public SiteNavigationMenu fetchSiteNavigationMenu(long siteNavigationMenuId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public SiteNavigationMenu fetchSiteNavigationMenu(long groupId, int type);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<SiteNavigationMenu> getAutoSiteNavigationMenus(long groupId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
@@ -256,8 +266,8 @@ public interface SiteNavigationMenuLocalService extends BaseLocalService,
 		java.lang.String keywords);
 
 	public SiteNavigationMenu updateSiteNavigationMenu(long userId,
-		long siteNavigationMenuId, int type, ServiceContext serviceContext)
-		throws PortalException;
+		long siteNavigationMenuId, int type, boolean auto,
+		ServiceContext serviceContext) throws PortalException;
 
 	public SiteNavigationMenu updateSiteNavigationMenu(long userId,
 		long siteNavigationMenuId, java.lang.String name,

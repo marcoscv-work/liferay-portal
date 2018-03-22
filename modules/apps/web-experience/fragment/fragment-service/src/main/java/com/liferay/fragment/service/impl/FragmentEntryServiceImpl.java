@@ -18,9 +18,9 @@ import com.liferay.fragment.constants.FragmentActionKeys;
 import com.liferay.fragment.constants.FragmentConstants;
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.fragment.service.base.FragmentEntryServiceBaseImpl;
+import com.liferay.portal.dao.orm.custom.sql.CustomSQLUtil;
+import com.liferay.portal.kernel.dao.orm.WildcardMode;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionFactory;
@@ -53,6 +53,21 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 
 	@Override
 	public FragmentEntry addFragmentEntry(
+			long groupId, long fragmentCollectionId, String fragmentEntryKey,
+			String name, int status, ServiceContext serviceContext)
+		throws PortalException {
+
+		_portletResourcePermission.check(
+			getPermissionChecker(), groupId,
+			FragmentActionKeys.ADD_FRAGMENT_ENTRY);
+
+		return fragmentEntryLocalService.addFragmentEntry(
+			getUserId(), groupId, fragmentCollectionId, fragmentEntryKey, name,
+			status, serviceContext);
+	}
+
+	@Override
+	public FragmentEntry addFragmentEntry(
 			long groupId, long fragmentCollectionId, String name, String css,
 			String html, String js, int status, ServiceContext serviceContext)
 		throws PortalException {
@@ -64,6 +79,22 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 		return fragmentEntryLocalService.addFragmentEntry(
 			getUserId(), groupId, fragmentCollectionId, name, css, html, js,
 			status, serviceContext);
+	}
+
+	@Override
+	public FragmentEntry addFragmentEntry(
+			long groupId, long fragmentCollectionId, String fragmentEntryKey,
+			String name, String css, String html, String js, int status,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		_portletResourcePermission.check(
+			getPermissionChecker(), groupId,
+			FragmentActionKeys.ADD_FRAGMENT_ENTRY);
+
+		return fragmentEntryLocalService.addFragmentEntry(
+			getUserId(), groupId, fragmentCollectionId, fragmentEntryKey, name,
+			css, html, js, status, serviceContext);
 	}
 
 	@Override
@@ -116,13 +147,12 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 		long groupId, long fragmentCollectionId, String name) {
 
 		return fragmentEntryPersistence.filterCountByG_FCI_LikeN(
-			groupId, fragmentCollectionId, name);
+			groupId, fragmentCollectionId,
+			CustomSQLUtil.keywords(name, WildcardMode.SURROUND)[0]);
 	}
 
 	@Override
-	public List<FragmentEntry> getFragmentEntries(long fragmentCollectionId)
-		throws PortalException {
-
+	public List<FragmentEntry> getFragmentEntries(long fragmentCollectionId) {
 		return fragmentEntryLocalService.getFragmentEntries(
 			fragmentCollectionId);
 	}
@@ -137,8 +167,7 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 
 	@Override
 	public List<FragmentEntry> getFragmentEntries(
-			long groupId, long fragmentCollectionId, int start, int end)
-		throws PortalException {
+		long groupId, long fragmentCollectionId, int start, int end) {
 
 		return fragmentEntryPersistence.filterFindByG_FCI(
 			groupId, fragmentCollectionId, start, end);
@@ -146,9 +175,8 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 
 	@Override
 	public List<FragmentEntry> getFragmentEntries(
-			long groupId, long fragmentCollectionId, int start, int end,
-			OrderByComparator<FragmentEntry> orderByComparator)
-		throws PortalException {
+		long groupId, long fragmentCollectionId, int start, int end,
+		OrderByComparator<FragmentEntry> orderByComparator) {
 
 		return fragmentEntryPersistence.filterFindByG_FCI(
 			groupId, fragmentCollectionId, start, end, orderByComparator);
@@ -160,7 +188,21 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 		int end, OrderByComparator<FragmentEntry> orderByComparator) {
 
 		return fragmentEntryPersistence.filterFindByG_FCI_LikeN(
-			groupId, fragmentCollectionId, name, start, end, orderByComparator);
+			groupId, fragmentCollectionId,
+			CustomSQLUtil.keywords(name, WildcardMode.SURROUND)[0], start, end,
+			orderByComparator);
+	}
+
+	@Override
+	public String[] getTempFileNames(long groupId, String folderName)
+		throws PortalException {
+
+		_portletResourcePermission.check(
+			getPermissionChecker(), groupId,
+			FragmentActionKeys.ADD_FRAGMENT_ENTRY);
+
+		return fragmentEntryLocalService.getTempFileNames(
+			getUserId(), groupId, folderName);
 	}
 
 	@Override
@@ -187,9 +229,6 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 			getUserId(), fragmentEntryId, name, css, html, js, status,
 			serviceContext);
 	}
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		FragmentEntryServiceImpl.class);
 
 	private static volatile ModelResourcePermission<FragmentEntry>
 		_fragmentEntryModelResourcePermission =

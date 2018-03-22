@@ -47,10 +47,19 @@ AssetCategoryUtil.addPortletBreadcrumbEntry(assetCategoriesDisplayContext.getVoc
 				viewCategoryHomeURL.setParameter("navigation", "all");
 				%>
 
-				<liferay-frontend:management-bar-filter-item active="<%= assetCategoriesDisplayContext.isNavigationAll() %>" label="all" url="<%= viewCategoryHomeURL.toString() %>" />
+				<liferay-frontend:management-bar-filter-item
+					active="<%= assetCategoriesDisplayContext.isNavigationAll() %>"
+					label="all"
+					url="<%= viewCategoryHomeURL.toString() %>"
+				/>
 
 				<c:if test="<%= assetCategoriesDisplayContext.isFlattenedNavigationAllowed() %>">
-					<liferay-frontend:management-bar-filter-item active="<%= assetCategoriesDisplayContext.isNavigationCategory() %>" id="selectCategory" label="category" url="javascript:;" />
+					<liferay-frontend:management-bar-filter-item
+						active="<%= assetCategoriesDisplayContext.isNavigationCategory() %>"
+						id="selectCategory"
+						label="category"
+						url="javascript:;"
+					/>
 				</c:if>
 			</liferay-frontend:management-bar-navigation>
 
@@ -72,7 +81,9 @@ AssetCategoryUtil.addPortletBreadcrumbEntry(assetCategoriesDisplayContext.getVoc
 
 				<li>
 					<aui:form action="<%= portletURL %>" name="searchFm">
-						<liferay-ui:input-search markupView="lexicon" />
+						<liferay-ui:input-search
+							markupView="lexicon"
+						/>
 					</aui:form>
 				</li>
 			</c:if>
@@ -87,10 +98,36 @@ AssetCategoryUtil.addPortletBreadcrumbEntry(assetCategoriesDisplayContext.getVoc
 			portletURL="<%= changeDisplayStyleURL %>"
 			selectedDisplayStyle="<%= assetCategoriesDisplayContext.getDisplayStyle() %>"
 		/>
+
+		<c:if test="<%= assetCategoriesDisplayContext.isShowCategoriesAddButton() %>">
+			<portlet:renderURL var="addCategoryURL">
+				<portlet:param name="mvcPath" value="/edit_category.jsp" />
+
+				<c:if test="<%= assetCategoriesDisplayContext.getCategoryId() > 0 %>">
+					<portlet:param name="parentCategoryId" value="<%= String.valueOf(assetCategoriesDisplayContext.getCategoryId()) %>" />
+				</c:if>
+
+				<portlet:param name="vocabularyId" value="<%= String.valueOf(assetCategoriesDisplayContext.getVocabularyId()) %>" />
+			</portlet:renderURL>
+
+			<liferay-frontend:add-menu
+				inline="<%= true %>"
+			>
+				<liferay-frontend:add-menu-item
+					title='<%= LanguageUtil.get(request, (assetCategoriesDisplayContext.getCategoryId() > 0) ? "add-subcategory" : "add-category") %>'
+					url="<%= addCategoryURL.toString() %>"
+				/>
+			</liferay-frontend:add-menu>
+		</c:if>
 	</liferay-frontend:management-bar-buttons>
 
 	<liferay-frontend:management-bar-action-buttons>
-		<liferay-frontend:management-bar-button href="javascript:;" icon="trash" id="deleteSelectedCategories" label="delete" />
+		<liferay-frontend:management-bar-button
+			href="javascript:;"
+			icon="trash"
+			id="deleteSelectedCategories"
+			label="delete"
+		/>
 	</liferay-frontend:management-bar-action-buttons>
 </liferay-frontend:management-bar>
 
@@ -233,25 +270,12 @@ AssetCategoryUtil.addPortletBreadcrumbEntry(assetCategoriesDisplayContext.getVoc
 			</c:choose>
 		</liferay-ui:search-container-row>
 
-		<liferay-ui:search-iterator displayStyle="<%= assetCategoriesDisplayContext.getDisplayStyle() %>" markupView="lexicon" />
+		<liferay-ui:search-iterator
+			displayStyle="<%= assetCategoriesDisplayContext.getDisplayStyle() %>"
+			markupView="lexicon"
+		/>
 	</liferay-ui:search-container>
 </aui:form>
-
-<c:if test="<%= assetCategoriesDisplayContext.isShowCategoriesAddButton() %>">
-	<portlet:renderURL var="addCategoryURL">
-		<portlet:param name="mvcPath" value="/edit_category.jsp" />
-
-		<c:if test="<%= assetCategoriesDisplayContext.getCategoryId() > 0 %>">
-			<portlet:param name="parentCategoryId" value="<%= String.valueOf(assetCategoriesDisplayContext.getCategoryId()) %>" />
-		</c:if>
-
-		<portlet:param name="vocabularyId" value="<%= String.valueOf(assetCategoriesDisplayContext.getVocabularyId()) %>" />
-	</portlet:renderURL>
-
-	<liferay-frontend:add-menu>
-		<liferay-frontend:add-menu-item title='<%= LanguageUtil.get(request, (assetCategoriesDisplayContext.getCategoryId() > 0) ? "add-subcategory" : "add-category") %>' url="<%= addCategoryURL.toString() %>" />
-	</liferay-frontend:add-menu>
-</c:if>
 
 <portlet:actionURL name="moveCategory" var="moveCategoryURL">
 	<portlet:param name="redirect" value="<%= currentURL %>" />

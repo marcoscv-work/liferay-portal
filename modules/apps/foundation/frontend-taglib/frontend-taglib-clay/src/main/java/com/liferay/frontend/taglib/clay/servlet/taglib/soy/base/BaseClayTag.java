@@ -55,7 +55,17 @@ public abstract class BaseClayTag extends TemplateRendererTag {
 				themeDisplay.getPathThemeImages().concat("/clay/icons.svg"));
 		}
 
-		setHydrate(_hydrate);
+		super.setComponentId(_componentId);
+
+		if (_hydrate || Validator.isNotNull(_componentId) ||
+			Validator.isNotNull(context.get("data"))) {
+
+			setHydrate(true);
+		}
+		else {
+			setHydrate(false);
+		}
+
 		setTemplateNamespace(_componentBaseName + ".render");
 
 		return super.doStartTag();
@@ -74,6 +84,15 @@ public abstract class BaseClayTag extends TemplateRendererTag {
 				"clay-", _moduleBaseName, "/lib/", _componentBaseName));
 	}
 
+	@Override
+	public void setComponentId(String componentId) {
+		_componentId = componentId;
+	}
+
+	public void setData(Map<String, String> data) {
+		putValue("data", data);
+	}
+
 	public void setElementClasses(String elementClasses) {
 		putValue("elementClasses", elementClasses);
 	}
@@ -87,6 +106,7 @@ public abstract class BaseClayTag extends TemplateRendererTag {
 	}
 
 	private final String _componentBaseName;
+	private String _componentId;
 	private final boolean _hydrate;
 	private final String _moduleBaseName;
 

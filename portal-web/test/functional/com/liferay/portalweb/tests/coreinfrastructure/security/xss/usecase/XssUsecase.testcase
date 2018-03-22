@@ -52,25 +52,33 @@
 			]]>
 		</var>
 
-		<execute function="Open" locator1="${maliciousURL1}" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${maliciousURL1}" />
+		</execute>
 
 		<execute function="AssertTextEquals" locator1="Home#ERROR_MESSAGE_ALERT_ERROR" value1="Not Found" />
 		<execute function="AssertTextEquals#assertPartialText" locator1="Home#ERROR_MESSAGE_RESOURCE_NOT_FOUND" value1="The requested resource could not be found." />
 		<execute function="AssertElementPresent" locator1="Home#URL_ERROR_MESSAGE" />
 
-		<execute function="Open" locator1="${maliciousURL2}" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${maliciousURL2}" />
+		</execute>
 
 		<execute function="AssertTextEquals" locator1="Home#ERROR_MESSAGE_ALERT_ERROR" value1="Not Found" />
 		<execute function="AssertTextEquals#assertPartialText" locator1="Home#ERROR_MESSAGE_RESOURCE_NOT_FOUND" value1="The requested resource could not be found." />
 		<execute function="AssertElementPresent" locator1="Home#URL_ERROR_MESSAGE" />
 
-		<execute function="Open" locator1="${maliciousURL3}" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${maliciousURL3}" />
+		</execute>
 
 		<execute function="AssertTextEquals" locator1="Home#ERROR_MESSAGE_ALERT_ERROR" value1="Not Found" />
 		<execute function="AssertTextEquals#assertPartialText" locator1="Home#ERROR_MESSAGE_RESOURCE_NOT_FOUND" value1="The requested resource could not be found." />
 		<execute function="AssertElementPresent" locator1="Home#URL_ERROR_MESSAGE" />
 
-		<execute function="Open" locator1="${maliciousURL4}" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${maliciousURL4}" />
+		</execute>
 
 		<execute function="AssertTextEquals" locator1="Home#ERROR_MESSAGE_ALERT_ERROR" value1="Not Found" />
 		<execute function="AssertTextEquals#assertPartialText" locator1="Home#ERROR_MESSAGE_RESOURCE_NOT_FOUND" value1="The requested resource could not be found." />
@@ -87,7 +95,7 @@
 		</execute>
 
 		<execute macro="User#editDetailsViaMyAccount">
-			<var name="userLastNameEdit"><![CDATA[<script>document.write("XSS"); window.stop();</script>]]></var>
+			<var name="userLastNameEdit"><![CDATA[<script>alert(123);</script>]]></var>
 		</execute>
 
 		<execute macro="Navigator#openURL" />
@@ -108,10 +116,16 @@
 		</execute>
 
 		<execute function="AssertElementNotPresent" locator1="//body[.='XSS']" />
+
+		<var name="actualScript"><![CDATA[<script>alert(123);</script>]]></var>
+		<var name="escapedScript"><![CDATA[&lt;script&gt;alert(123);&lt;/script&gt;]]></var>
+
+		<execute function="AssertHTMLSourceTextNotPresent" value1="${actualScript}" />
+		<execute function="AssertHTMLSourceTextPresent" value1="${escapedScript}" />
 	</command>
 
 	<command name="ViewControlPanelNoXSS" priority="5">
-		<var name="siteName"><![CDATA[<script>document.write("XSS"); window.stop();</script>]]></var>
+		<var name="siteName"><![CDATA[<script>alert(123);</script>]]></var>
 
 		<execute macro="ProductMenu#gotoPortlet">
 			<var name="category" value="Sites" />
@@ -138,6 +152,12 @@
 		<execute function="AssertClick" locator1="ContentRow#ENTRY_CONTENT_ENTRY_NAME_LINK" value1="${siteName}" />
 
 		<execute function="AssertElementNotPresent" locator1="//body[.='XSS']" />
+
+		<var name="actualScript"><![CDATA[<script>alert(123);</script>]]></var>
+		<var name="escapedScript"><![CDATA[&lt;script&gt;alert(123);&lt;/script&gt;]]></var>
+
+		<execute function="AssertHTMLSourceTextNotPresent" value1="${actualScript}" />
+		<execute function="AssertHTMLSourceTextPresent" value1="${escapedScript}" />
 
 		<execute function="AssertTextEquals" locator1="Portlet#HEADER" value1="Pages" />
 
@@ -166,7 +186,10 @@
 	<command name="ViewJSONWSNoXSS" priority="5">
 		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
 
-		<execute function="Open" locator1="${portalURL}/api/jsonws?contextPath=%22%3E%3Cimg%20src=x%20onerror=alert%28/contextPath/%29%3E" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${portalURL}/api/jsonws?contextPath=%22%3E%3Cimg%20src=x%20onerror=alert%28/contextPath/%29%3E" />
+		</execute>
+
 		<execute function="AssertAlertNotPresent" />
 	</command>
 
@@ -191,7 +214,9 @@
 			<var name="portletName" value="Asset Publisher" />
 		</execute>
 
-		<execute function="Open" locator1="${portalURL}/web/guest/home?p_p_id=com_liferay_portlet_configuration_web_portlet_PortletConfigurationPortlet&amp;p_p_state=pop_up&amp;_com_liferay_portlet_configuration_web_portlet_PortletConfigurationPortlet_mvcPath=%2Fedit_configuration.jsp&amp;_com_liferay_portlet_configuration_web_portlet_PortletConfigurationPortlet_portletResource=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_7awylRgVDERT;alert(1)//%22;alert(2)//%22;alert(3)//%E2%80%93%3E%3C/script%3E%22%3E%27%3E%3Cscript%3Ealert(4)%3C/script%3E&amp;_com_liferay_portlet_configuration_web_portlet_PortletConfigurationPortlet_resourcePrimKey=asdfxxx" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${portalURL}/web/guest/home?p_p_id=com_liferay_portlet_configuration_web_portlet_PortletConfigurationPortlet&amp;p_p_state=pop_up&amp;_com_liferay_portlet_configuration_web_portlet_PortletConfigurationPortlet_mvcPath=%2Fedit_configuration.jsp&amp;_com_liferay_portlet_configuration_web_portlet_PortletConfigurationPortlet_portletResource=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_7awylRgVDERT;alert(1)//%22;alert(2)//%22;alert(3)//%E2%80%93%3E%3C/script%3E%22%3E%27%3E%3Cscript%3Ealert(4)%3C/script%3E&amp;_com_liferay_portlet_configuration_web_portlet_PortletConfigurationPortlet_resourcePrimKey=asdfxxx" />
+		</execute>
 
 		<execute function="AssertAlertNotPresent" />
 
@@ -212,11 +237,11 @@
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
-			<var name="pageName"><![CDATA[<script>document.write("XSS"); window.stop();</script>]]></var>
+			<var name="pageName"><![CDATA[<script>alert(123);</script>]]></var>
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
-			<var name="pageName"><![CDATA[<script>document.write("XSS"); window.stop();</script>]]></var>
+			<var name="pageName"><![CDATA[<script>alert(123);</script>]]></var>
 		</execute>
 
 		<execute macro="Portlet#addPG">
@@ -228,7 +253,13 @@
 			<var name="portletOption" value="Look and Feel Configuration" />
 		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="//body[.='XSS']" />
+		<execute function="AssertElementNotPresent" locator1="//body[.='123']" />
+
+		<var name="actualScript"><![CDATA[<script>alert(123);</script>]]></var>
+		<var name="escapedScript"><![CDATA[&lt;script&gt;alert(123);&lt;/script&gt;]]></var>
+
+		<execute function="AssertHTMLSourceTextNotPresent" value1="${actualScript}" />
+		<execute function="AssertHTMLSourceTextPresent" value1="${escapedScript}" />
 	</command>
 
 	<command name="ViewMobileDeviceRulesNoXSS" priority="5">
@@ -252,9 +283,9 @@
 			<var name="portlet" value="Site Pages" />
 		</execute>
 
-		<execute macro="LexiconEntry#gotoEntryMenuItem">
+		<execute macro="SitePages#gotoPageMenuItem">
 			<var name="menuItem" value="Configure" />
-			<var name="rowEntry" value="Welcome" />
+			<var name="pageName" value="Welcome" />
 		</execute>
 
 		<execute macro="Navigator#gotoNavTab">
@@ -272,10 +303,16 @@
 		</execute>
 
 		<execute function="AssertElementNotPresent" locator1="//body[.='123']" />
+
+		<var name="actualScript"><![CDATA[<script>alert(123);</script>]]></var>
+		<var name="escapedScript"><![CDATA[&lt;script&gt;alert(123);&lt;/script&gt;]]></var>
+
+		<execute function="AssertHTMLSourceTextNotPresent" value1="${actualScript}" />
+		<execute function="AssertHTMLSourceTextPresent" value1="${escapedScript}" />
 	</command>
 
 	<command name="ViewRecycleBinNoXSS" priority="5">
-		<var name="entryTitle"><![CDATA[<script>document.write("XSS"); window.stop();</script>]]></var>
+		<var name="entryTitle"><![CDATA[<script>alert(123);</script>]]></var>
 
 		<execute macro="Navigator#openURL" />
 
@@ -329,7 +366,13 @@
 			<var name="assetType" value="Blogs Entry" />
 		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="//body[.='XSS']" />
+		<execute function="AssertElementNotPresent" locator1="//body[.='123']" />
+
+		<var name="actualScript"><![CDATA[<script>alert(123);</script>]]></var>
+		<var name="escapedScript"><![CDATA[&lt;script&gt;alert(123);&lt;/script&gt;]]></var>
+
+		<execute function="AssertHTMLSourceTextNotPresent" value1="${actualScript}" />
+		<execute function="AssertHTMLSourceTextPresent" value1="${escapedScript}" />
 	</command>
 
 	<command name="ViewRolesNoXSS" priority="4">
@@ -340,7 +383,7 @@
 		</execute>
 
 		<execute macro="Role#add">
-			<var name="roleTitle"><![CDATA[<script>document.write("XSS"); window.stop();</script>]]></var>
+			<var name="roleTitle"><![CDATA[<script>alert(123);</script>]]></var>
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
@@ -350,7 +393,7 @@
 		</execute>
 
 		<execute macro="Role#viewCP">
-			<var name="roleTitle"><![CDATA[<script>document.write("XSS"); window.stop();</script>]]></var>
+			<var name="roleTitle"><![CDATA[<script>alert(123);</script>]]></var>
 			<var name="roleType" value="Regular" />
 		</execute>
 
@@ -364,7 +407,13 @@
 			<var name="portletName" value="Sign In" />
 		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="//body[.='XSS']" />
+		<execute function="AssertElementNotPresent" locator1="//body[.='123']" />
+
+		<var name="actualScript"><![CDATA[<script>alert(123);</script>]]></var>
+		<var name="escapedScript"><![CDATA[&lt;script&gt;alert(123);&lt;/script&gt;]]></var>
+
+		<execute function="AssertHTMLSourceTextNotPresent" value1="${actualScript}" />
+		<execute function="AssertHTMLSourceTextPresent" value1="${escapedScript}" />
 	</command>
 
 	<command name="ViewURLValidateNoXSS" priority="5">
@@ -400,10 +449,16 @@
 			]]>
 		</var>
 
-		<execute function="Open" locator1="${maliciousURL1}" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${maliciousURL1}" />
+		</execute>
+
 		<execute function="AssertAlertNotPresent" />
 
-		<execute function="Open" locator1="${maliciousURL2}" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${maliciousURL2}" />
+		</execute>
+
 		<execute function="AssertAlertNotPresent" />
 
 		<execute macro="Navigator#openURL" />
@@ -414,13 +469,22 @@
 			<var name="portlet" value="Account Settings" />
 		</execute>
 
-		<execute function="Open" locator1="${maliciousURL3}" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${maliciousURL3}" />
+		</execute>
+
 		<execute function="AssertAlertNotPresent" />
 
-		<execute function="Open" locator1="${maliciousURL4}" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${maliciousURL4}" />
+		</execute>
+
 		<execute function="AssertAlertNotPresent" />
 
-		<execute function="Open" locator1="${maliciousURL5}" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${maliciousURL5}" />
+		</execute>
+
 		<execute function="AssertAlertNotPresent" />
 	</command>
 
@@ -434,9 +498,9 @@
 		</execute>
 
 		<execute macro="User#editDetailsViaMyAccount">
-			<var name="userFirstNameEdit"><![CDATA[<script>document.write("XSS"); window.stop();</script>]]></var>
-			<var name="userLastNameEdit"><![CDATA[<script>document.write("XSS"); window.stop();</script>]]></var>
-			<var name="userMiddleNameEdit"><![CDATA[<script>document.write("XSS"); window.stop();</script>]]></var>
+			<var name="userFirstNameEdit"><![CDATA[<script>alert(123);</script>]]></var>
+			<var name="userLastNameEdit"><![CDATA[<script>alert(123);</script>]]></var>
+			<var name="userMiddleNameEdit"><![CDATA[<script>alert(123);</script>]]></var>
 		</execute>
 
 		<execute macro="Navigator#openURL" />
@@ -461,5 +525,11 @@
 		</execute>
 
 		<execute function="AssertElementNotPresent" locator1="//body[.='XSS']" />
+
+		<var name="actualScript"><![CDATA[<script>alert(123);</script>]]></var>
+		<var name="escapedScript"><![CDATA[&lt;script&gt;alert(123);&lt;/script&gt;]]></var>
+
+		<execute function="AssertHTMLSourceTextNotPresent" value1="${actualScript}" />
+		<execute function="AssertHTMLSourceTextPresent" value1="${escapedScript}" />
 	</command>
 </definition>

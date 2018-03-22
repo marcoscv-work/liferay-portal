@@ -14,12 +14,14 @@
 
 package com.liferay.layout.page.template.service.impl;
 
-import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.fragment.service.FragmentEntryService;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateActionKeys;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateConstants;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.base.LayoutPageTemplateEntryServiceBaseImpl;
+import com.liferay.petra.string.StringPool;
+import com.liferay.portal.dao.orm.custom.sql.CustomSQLUtil;
+import com.liferay.portal.kernel.dao.orm.WildcardMode;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -44,7 +46,7 @@ public class LayoutPageTemplateEntryServiceImpl
 	@Override
 	public LayoutPageTemplateEntry addLayoutPageTemplateEntry(
 			long groupId, long layoutPageTemplateCollectionId, String name,
-			List<FragmentEntry> fragmentEntries, ServiceContext serviceContext)
+			long[] fragmentEntryIds, ServiceContext serviceContext)
 		throws PortalException {
 
 		_portletResourcePermission.check(
@@ -53,7 +55,7 @@ public class LayoutPageTemplateEntryServiceImpl
 
 		return layoutPageTemplateEntryLocalService.addLayoutPageTemplateEntry(
 			getUserId(), groupId, layoutPageTemplateCollectionId, name,
-			fragmentEntries, serviceContext);
+			fragmentEntryIds, serviceContext);
 	}
 
 	@Override
@@ -101,6 +103,14 @@ public class LayoutPageTemplateEntryServiceImpl
 
 		return layoutPageTemplateEntryLocalService.
 			deleteLayoutPageTemplateEntry(layoutPageTemplateEntryId);
+	}
+
+	@Override
+	public LayoutPageTemplateEntry fetchDefaultLayoutPageTemplateEntry(
+		long groupId, long classNameId) {
+
+		return layoutPageTemplateEntryPersistence.fetchByG_C_D_First(
+			groupId, classNameId, true, null);
 	}
 
 	@Override
@@ -166,7 +176,8 @@ public class LayoutPageTemplateEntryServiceImpl
 		OrderByComparator<LayoutPageTemplateEntry> orderByComparator) {
 
 		return layoutPageTemplateEntryPersistence.filterFindByG_L_LikeN(
-			groupId, layoutPageTemplateCollectionId, name, start, end,
+			groupId, layoutPageTemplateCollectionId,
+			CustomSQLUtil.keywords(name, WildcardMode.SURROUND)[0], start, end,
 			orderByComparator);
 	}
 
@@ -183,32 +194,23 @@ public class LayoutPageTemplateEntryServiceImpl
 		long groupId, long layoutPageTemplateFolder, String name) {
 
 		return layoutPageTemplateEntryPersistence.filterCountByG_L_LikeN(
-			groupId, layoutPageTemplateFolder, name);
+			groupId, layoutPageTemplateFolder,
+			CustomSQLUtil.keywords(name, WildcardMode.SURROUND)[0]);
 	}
 
 	@Override
 	public LayoutPageTemplateEntry updateLayoutPageTemplateEntry(
 			long layoutPageTemplateEntryId, long[] fragmentEntryIds,
-			ServiceContext serviceContext)
+			String editableValues, ServiceContext serviceContext)
 		throws PortalException {
 
 		LayoutPageTemplateEntry layoutPageTemplateEntry =
 			fetchLayoutPageTemplateEntry(layoutPageTemplateEntryId);
 
-		List<FragmentEntry> fragmentEntries = new ArrayList<>();
-
-		for (long fragmentEntryId : fragmentEntryIds) {
-			FragmentEntry fragmentEntry =
-				_fragmentEntryService.fetchFragmentEntry(fragmentEntryId);
-
-			fragmentEntries.add(fragmentEntry);
-		}
-
 		return layoutPageTemplateEntryLocalService.
 			updateLayoutPageTemplateEntry(
-				getUserId(), layoutPageTemplateEntryId,
-				layoutPageTemplateEntry.getName(), fragmentEntries,
-				serviceContext);
+				layoutPageTemplateEntryId, layoutPageTemplateEntry.getName(),
+				fragmentEntryIds, editableValues, serviceContext);
 	}
 
 	@Override
@@ -227,7 +229,7 @@ public class LayoutPageTemplateEntryServiceImpl
 	@Override
 	public LayoutPageTemplateEntry updateLayoutPageTemplateEntry(
 			long layoutPageTemplateEntryId, String name,
-			List<FragmentEntry> fragmentEntries, ServiceContext serviceContext)
+			long[] fragmentEntryIds, ServiceContext serviceContext)
 		throws PortalException {
 
 		_layoutPageTemplateEntryModelResourcePermission.check(
@@ -236,8 +238,8 @@ public class LayoutPageTemplateEntryServiceImpl
 
 		return layoutPageTemplateEntryLocalService.
 			updateLayoutPageTemplateEntry(
-				getUserId(), layoutPageTemplateEntryId, name, fragmentEntries,
-				serviceContext);
+				layoutPageTemplateEntryId, name, fragmentEntryIds,
+				StringPool.BLANK, serviceContext);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

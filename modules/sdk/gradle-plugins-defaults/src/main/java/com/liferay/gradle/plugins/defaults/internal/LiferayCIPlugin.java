@@ -29,6 +29,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
@@ -144,6 +145,7 @@ public class LiferayCIPlugin implements Plugin<Project> {
 	private void _configureTaskNpmInstall(NpmInstallTask npmInstallTask) {
 		npmInstallTask.setNodeModulesCacheDir(_NODE_MODULES_CACHE_DIR);
 		npmInstallTask.setRemoveShrinkwrappedUrls(Boolean.TRUE);
+		npmInstallTask.setUseNpmCI(Boolean.FALSE);
 	}
 
 	private void _configureTasksDownloadNode(Project project) {
@@ -263,6 +265,12 @@ public class LiferayCIPlugin implements Plugin<Project> {
 					Project dependencyProject =
 						projectDependency.getDependencyProject();
 
+					if (_lfrbuildPortalIgnoredProjectPaths.contains(
+							dependencyProject.getPath())) {
+
+						continue;
+					}
+
 					File file = dependencyProject.file(".lfrbuild-portal");
 
 					if (!file.exists()) {
@@ -283,5 +291,8 @@ public class LiferayCIPlugin implements Plugin<Project> {
 	private static final int _NPM_INSTALL_RETRIES = 3;
 
 	private static final String _SASS_BINARY_SITE_ARG = "--sass-binary-site=";
+
+	private static final Set<String> _lfrbuildPortalIgnoredProjectPaths =
+		Collections.singleton(":test:arquillian-extension-junit-bridge");
 
 }

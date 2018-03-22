@@ -41,7 +41,9 @@
 		<c:if test="<%= assetTagsSelectorDisplayContext.isShowTagsSearch() %>">
 			<li>
 				<aui:form action="<%= assetTagsSelectorDisplayContext.getPortletURL() %>" name="searchFm">
-					<liferay-ui:input-search markupView="lexicon" />
+					<liferay-ui:input-search
+						markupView="lexicon"
+					/>
 				</aui:form>
 			</li>
 		</c:if>
@@ -78,12 +80,25 @@
 			/>
 		</liferay-ui:search-container-row>
 
-		<liferay-ui:search-iterator displayStyle="<%= assetTagsSelectorDisplayContext.getDisplayStyle() %>" markupView="lexicon" />
+		<liferay-ui:search-iterator
+			displayStyle="<%= assetTagsSelectorDisplayContext.getDisplayStyle() %>"
+			markupView="lexicon"
+		/>
 	</liferay-ui:search-container>
 </div>
 
 <aui:script use="liferay-search-container">
 	var searchContainer = Liferay.SearchContainer.get('<portlet:namespace />tags');
+
+	var searchContainerData = searchContainer.getData(true);
+
+	var selectedTagNames = <%= JSONFactoryUtil.serialize(assetTagsSelectorDisplayContext.getSelectedTagNames()) %>;
+
+	selectedTagNames = selectedTagNames.filter(
+		function(tag) {
+			return searchContainerData.indexOf(tag) === -1;
+		}
+	);
 
 	searchContainer.on(
 		'rowToggled',
@@ -93,7 +108,7 @@
 			var selectedItems = event.elements.allSelectedElements;
 
 			if (selectedItems.size() > 0) {
-				items = selectedItems.attr('value').join(',');
+				items = selectedTagNames.concat(selectedItems.attr('value')).join(',');
 			}
 
 			Liferay.Util.getOpener().Liferay.fire(

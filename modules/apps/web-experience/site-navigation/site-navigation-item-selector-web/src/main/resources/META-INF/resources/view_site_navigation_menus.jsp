@@ -17,7 +17,9 @@
 <%@ include file="/init.jsp" %>
 
 <%
-String displayStyle = siteNavigationItemSelectorViewDisplayContext.getDisplayStyle();
+SiteNavigationMenuItemSelectorViewDisplayContext siteNavigationMenuItemSelectorViewDisplayContext = (SiteNavigationMenuItemSelectorViewDisplayContext)request.getAttribute(SiteNavigationItemSelectorWebKeys.SITE_NAVIGATION_MENU_ITEM_SELECTOR_DISPLAY_CONTEXT);
+
+String displayStyle = siteNavigationMenuItemSelectorViewDisplayContext.getDisplayStyle();
 %>
 
 <liferay-frontend:management-bar
@@ -25,35 +27,45 @@ String displayStyle = siteNavigationItemSelectorViewDisplayContext.getDisplaySty
 >
 	<liferay-frontend:management-bar-buttons>
 		<liferay-frontend:management-bar-display-buttons
-			displayViews="<%= siteNavigationItemSelectorViewDisplayContext.getDisplayViews() %>"
-			portletURL="<%= siteNavigationItemSelectorViewDisplayContext.getPortletURL() %>"
+			displayViews="<%= siteNavigationMenuItemSelectorViewDisplayContext.getDisplayViews() %>"
+			portletURL="<%= siteNavigationMenuItemSelectorViewDisplayContext.getPortletURL() %>"
 			selectedDisplayStyle="<%= displayStyle %>"
 		/>
 	</liferay-frontend:management-bar-buttons>
 
 	<liferay-frontend:management-bar-filters>
-		<liferay-frontend:management-bar-navigation label="all">
+		<liferay-frontend:management-bar-navigation
+			label="all"
+		>
 
 			<%
-			PortletURL portletURL = siteNavigationItemSelectorViewDisplayContext.getPortletURL();
+			PortletURL portletURL = siteNavigationMenuItemSelectorViewDisplayContext.getPortletURL();
 			%>
 
-			<liferay-frontend:management-bar-filter-item active="<%= true %>" label="all" url="<%= portletURL.toString() %>" />
+			<liferay-frontend:management-bar-filter-item
+				active="<%= true %>"
+				label="all"
+				url="<%= portletURL.toString() %>"
+			/>
 		</liferay-frontend:management-bar-navigation>
 
 		<liferay-frontend:management-bar-sort
-			orderByCol="<%= siteNavigationItemSelectorViewDisplayContext.getOrderByCol() %>"
-			orderByType="<%= siteNavigationItemSelectorViewDisplayContext.getOrderByType() %>"
-			orderColumns="<%= siteNavigationItemSelectorViewDisplayContext.getOrderColumns() %>"
-			portletURL="<%= siteNavigationItemSelectorViewDisplayContext.getPortletURL() %>"
+			orderByCol="<%= siteNavigationMenuItemSelectorViewDisplayContext.getOrderByCol() %>"
+			orderByType="<%= siteNavigationMenuItemSelectorViewDisplayContext.getOrderByType() %>"
+			orderColumns="<%= siteNavigationMenuItemSelectorViewDisplayContext.getOrderColumns() %>"
+			portletURL="<%= siteNavigationMenuItemSelectorViewDisplayContext.getPortletURL() %>"
 		/>
+
+		<li>
+			<liferay-item-selector:search />
+		</li>
 	</liferay-frontend:management-bar-filters>
 </liferay-frontend:management-bar>
 
-<aui:form action="<%= siteNavigationItemSelectorViewDisplayContext.getPortletURL() %>" cssClass="container-fluid-1280" name="selectSiteNavigationMenuFm">
+<aui:form action="<%= siteNavigationMenuItemSelectorViewDisplayContext.getPortletURL() %>" cssClass="container-fluid-1280" name="selectSiteNavigationMenuFm">
 	<liferay-ui:search-container
 		id="siteNavigationMenus"
-		searchContainer="<%= siteNavigationItemSelectorViewDisplayContext.getSearchContainer() %>"
+		searchContainer="<%= siteNavigationMenuItemSelectorViewDisplayContext.getSearchContainer() %>"
 	>
 		<liferay-ui:search-container-row
 			className="com.liferay.site.navigation.model.SiteNavigationMenu"
@@ -71,12 +83,13 @@ String displayStyle = siteNavigationItemSelectorViewDisplayContext.getDisplaySty
 			<c:choose>
 				<c:when test='<%= displayStyle.equals("descriptive") %>'>
 					<liferay-ui:search-container-column-user
-						cssClass="user-icon-lg"
 						showDetails="<%= false %>"
 						userId="<%= siteNavigationMenu.getUserId() %>"
 					/>
 
-					<liferay-ui:search-container-column-text colspan="<%= 2 %>">
+					<liferay-ui:search-container-column-text
+						colspan="<%= 2 %>"
+					>
 						<h4>
 							<aui:a cssClass="selector-button" data="<%= data %>" href="javascript:;">
 								<%= HtmlUtil.escape(siteNavigationMenu.getName()) %>
@@ -118,7 +131,7 @@ String displayStyle = siteNavigationItemSelectorViewDisplayContext.getDisplaySty
 
 							<liferay-frontend:vertical-card-sticker-bottom>
 								<liferay-ui:user-portrait
-									cssClass="sticker sticker-bottom user-icon-lg"
+									cssClass="sticker sticker-bottom"
 									userId="<%= siteNavigationMenu.getUserId() %>"
 								/>
 							</liferay-frontend:vertical-card-sticker-bottom>
@@ -148,10 +161,13 @@ String displayStyle = siteNavigationItemSelectorViewDisplayContext.getDisplaySty
 			</c:choose>
 		</liferay-ui:search-container-row>
 
-		<liferay-ui:search-iterator displayStyle="<%= displayStyle %>" markupView="lexicon" />
+		<liferay-ui:search-iterator
+			displayStyle="<%= displayStyle %>"
+			markupView="lexicon"
+		/>
 	</liferay-ui:search-container>
 </aui:form>
 
 <aui:script use="aui-base">
-	Liferay.Util.selectEntityHandler('#<portlet:namespace />selectSiteNavigationMenuFm', '<%= HtmlUtil.escapeJS(siteNavigationItemSelectorViewDisplayContext.getItemSelectedEventName()) %>');
+	Liferay.Util.selectEntityHandler('#<portlet:namespace />selectSiteNavigationMenuFm', '<%= HtmlUtil.escapeJS(siteNavigationMenuItemSelectorViewDisplayContext.getItemSelectedEventName()) %>');
 </aui:script>

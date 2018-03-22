@@ -1,4 +1,14 @@
 <definition>
+	<command name="changeLocale">
+		<execute function="Click" locator1="Button#LOCALIZATION">
+			<var name="key_fieldName" value="${fieldName}" />
+		</execute>
+
+		<execute function="Click" locator1="Translation#LOCALIZATION_NAME">
+			<var method="StringUtil#replace('${locale}', '-', '_')" name="key_locale" />
+		</execute>
+	</command>
+
 	<command name="clickEditFromEllipsis">
 		<execute function="Click#waitForMenuToggleJSClick" locator1="Icon#BODY_VERTICAL_ELLIPSIS" />
 
@@ -14,12 +24,9 @@
 	</command>
 
 	<command name="deleteViaMenuItem">
-		<execute function="Click#waitForMenuToggleJSClick" locator1="Icon#ROW_VERTICAL_ELLIPSIS">
-			<var name="key_rowEntry" value="${rowEntry}" />
-		</execute>
-
-		<execute function="AssertClickNoError" locator1="MenuItem#ANY_MENU_ITEM" value1="Delete">
-			<var name="key_menuItem" value="Delete" />
+		<execute macro="LexiconEntry#gotoEntryMenuItemNoError">
+			<var name="menuItem" value="Delete" />
+			<var name="rowEntry" value="${rowEntry}" />
 		</execute>
 
 		<execute function="Confirm" value1="Are you sure you want to delete this? It will be deleted immediately." />
@@ -43,9 +50,16 @@
 		<execute function="Type" locator1="TextArea#DESCRIPTION" value1="${description}" />
 	</command>
 
+	<command name="inputDescriptionTextInput">
+		<execute function="Click" locator1="TextInput#DESCRIPTION" />
+
+		<execute function="Type" locator1="TextInput#DESCRIPTION" value1="${description}" />
+	</command>
+
 	<command name="inputLocalizedName">
-		<execute function="Click" locator1="Language#SITE_NAME_TRANSLATION">
-			<var name="key_language" value="${language}" />
+		<execute macro="PortletEntry#changeLocale">
+			<var name="fieldName" value="Name" />
+			<var name="locale" value="${language}" />
 		</execute>
 
 		<execute macro="PortletEntry#inputName">
@@ -87,6 +101,12 @@
 
 	<command name="saveAsDraft">
 		<execute macro="Button#clickSaveAsDraft" />
+
+		<execute macro="Alert#viewSuccessMessage" />
+	</command>
+
+	<command name="update">
+		<execute macro="Button#clickUpdate" />
 
 		<execute macro="Alert#viewSuccessMessage" />
 	</command>

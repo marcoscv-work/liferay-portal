@@ -30,17 +30,10 @@ searchURL.setParameter("formInstanceId", String.valueOf(ddmFormInstance.getFormI
 renderResponse.setTitle(LanguageUtil.get(request, "form-entries"));
 %>
 
-<aui:nav-bar cssClass="collapse-basic-search" markupView="lexicon">
-	<aui:nav cssClass="navbar-nav">
-		<aui:nav-item label="<%= HtmlUtil.escape(ddmFormInstance.getName(locale)) %>" selected="<%= true %>" />
-	</aui:nav>
-
-	<aui:nav-bar-search>
-		<aui:form action="<%= searchURL %>" method="post" name="fm">
-			<liferay-ui:input-search autoFocus="<%= true %>" markupView="lexicon" />
-		</aui:form>
-	</aui:nav-bar-search>
-</aui:nav-bar>
+<clay:navigation-bar
+	inverted="<%= true %>"
+	items="<%= ddmFormViewFormInstanceRecordsDisplayContext.getNavigationItems() %>"
+/>
 
 <liferay-frontend:management-bar
 	includeCheckBox="<%= true %>"
@@ -58,10 +51,23 @@ renderResponse.setTitle(LanguageUtil.get(request, "form-entries"));
 			orderColumns='<%= new String[] {"modified-date"} %>'
 			portletURL="<%= searchURL %>"
 		/>
+
+		<li>
+			<aui:form action="<%= searchURL %>" method="post" name="fm">
+				<liferay-ui:input-search
+					autoFocus="<%= true %>"
+					markupView="lexicon"
+				/>
+			</aui:form>
+		</li>
 	</liferay-frontend:management-bar-filters>
 
 	<liferay-frontend:management-bar-action-buttons>
-		<liferay-frontend:management-bar-button href='<%= "javascript:" + renderResponse.getNamespace() + "deleteRecords();" %>' icon="trash" label="delete" />
+		<liferay-frontend:management-bar-button
+			href='<%= "javascript:" + renderResponse.getNamespace() + "deleteRecords();" %>'
+			icon="trash"
+			label="delete"
+		/>
 	</liferay-frontend:management-bar-action-buttons>
 </liferay-frontend:management-bar>
 
@@ -86,12 +92,16 @@ renderResponse.setTitle(LanguageUtil.get(request, "form-entries"));
 
 				Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap = ddmFormValues.getDDMFormFieldValuesMap();
 
+				DDMForm ddmForm = ddmFormValues.getDDMForm();
+
+				Map<String, DDMFormField> ddmFormFieldsMap = ddmForm.getDDMFormFieldsMap(true);
+
 				for (DDMFormField ddmFormField : ddmFormViewFormInstanceRecordsDisplayContext.getDDMFormFields()) {
 				%>
 
 					<liferay-ui:search-container-column-text
 						name="<%= ddmFormViewFormInstanceRecordsDisplayContext.getColumnName(ddmFormField) %>"
-						value="<%= ddmFormViewFormInstanceRecordsDisplayContext.getColumnValue(ddmFormField, ddmFormFieldValuesMap.get(ddmFormField.getName())) %>"
+						value="<%= ddmFormViewFormInstanceRecordsDisplayContext.getColumnValue(ddmFormFieldsMap.get(ddmFormField.getName()), ddmFormFieldValuesMap.get(ddmFormField.getName())) %>"
 					/>
 
 				<%
@@ -118,13 +128,20 @@ renderResponse.setTitle(LanguageUtil.get(request, "form-entries"));
 				/>
 			</liferay-ui:search-container-row>
 
-			<liferay-ui:search-iterator displayStyle="<%= ddmFormViewFormInstanceRecordsDisplayContext.getDisplayStyle() %>" markupView="lexicon" paginate="<%= false %>" searchContainer="<%= ddmFormViewFormInstanceRecordsDisplayContext.getDDMFormInstanceRecordSearchContainer() %>" />
+			<liferay-ui:search-iterator
+				displayStyle="<%= ddmFormViewFormInstanceRecordsDisplayContext.getDisplayStyle() %>"
+				markupView="lexicon"
+				paginate="<%= false %>"
+				searchContainer="<%= ddmFormViewFormInstanceRecordsDisplayContext.getDDMFormInstanceRecordSearchContainer() %>"
+			/>
 		</liferay-ui:search-container>
 	</aui:form>
 </div>
 
 <div class="container-fluid-1280">
-	<liferay-ui:search-paginator searchContainer="<%= ddmFormViewFormInstanceRecordsDisplayContext.getDDMFormInstanceRecordSearchContainer() %>" />
+	<liferay-ui:search-paginator
+		searchContainer="<%= ddmFormViewFormInstanceRecordsDisplayContext.getDDMFormInstanceRecordSearchContainer() %>"
+	/>
 </div>
 
 <%@ include file="/admin/export_form_instance.jspf" %>

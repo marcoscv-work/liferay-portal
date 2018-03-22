@@ -41,7 +41,9 @@
 				<a class="${logo_css_class} align-items-center d-inline-flex" href="${site_default_url}" title="<@liferay.language_format arguments="" key="go-to-x" />">
 					<img alt="${logo_description}" class="mr-3" height="48" src="${site_logo}" />
 
-					<h1 class="font-weight-bold h2 mb-0 text-dark">${site_name}</h1>
+					<#if show_site_name>
+						<h1 class="font-weight-bold h2 mb-0 text-dark">${site_name}</h1>
+					</#if>
 				</a>
 
 				<#include "${full_templates_path}/navigation.ftl" />
@@ -65,8 +67,8 @@
 		</#if>
 	</section>
 
-	<footer class="mt-3 navigation-bar-secondary" id="footer" role="contentinfo">
-		<div class="container py-5">
+	<footer id="footer" role="contentinfo">
+		<div class="container">
 			<div class="row">
 				<div class="col-md-6 text-center text-md-left">
 					<@liferay.language key="powered-by" />

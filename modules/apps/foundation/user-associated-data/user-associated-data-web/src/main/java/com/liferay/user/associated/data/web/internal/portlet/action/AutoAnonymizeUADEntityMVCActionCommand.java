@@ -14,19 +14,15 @@
 
 package com.liferay.user.associated.data.web.internal.portlet.action;
 
-import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.user.associated.data.aggregator.UADEntityAggregator;
 import com.liferay.user.associated.data.anonymizer.UADEntityAnonymizer;
-import com.liferay.user.associated.data.registry.UADRegistry;
-import com.liferay.users.admin.constants.UsersAdminPortletKeys;
+import com.liferay.user.associated.data.constants.UserAssociatedDataPortletKeys;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Noah Sherrill
@@ -34,41 +30,31 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	immediate = true,
 	property = {
-		"javax.portlet.name=" + UsersAdminPortletKeys.MY_ORGANIZATIONS,
-		"javax.portlet.name=" + UsersAdminPortletKeys.USERS_ADMIN,
-		"mvc.command.name=/users_admin/auto_anonymize_uad_entity"
+		"javax.portlet.name=" + UserAssociatedDataPortletKeys.USER_ASSOCIATED_DATA,
+		"mvc.command.name=/auto_anonymize_uad_entity"
 	},
 	service = MVCActionCommand.class
 )
 public class AutoAnonymizeUADEntityMVCActionCommand
-	extends BaseMVCActionCommand {
+	extends BaseUADMVCActionCommand {
 
 	@Override
 	protected void doProcessAction(
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
-		_autoAnonymizeUADEntity(actionRequest);
-	}
-
-	private void _autoAnonymizeUADEntity(ActionRequest actionRequest)
-		throws Exception {
-
 		String uadRegistryKey = ParamUtil.getString(
 			actionRequest, "uadRegistryKey");
 
-		UADEntityAggregator uadEntityAggregator =
-			_uadRegistry.getUADEntityAggregator(uadRegistryKey);
 		UADEntityAnonymizer uadEntityAnonymizer =
-			_uadRegistry.getUADEntityAnonymizer(uadRegistryKey);
-
-		String uadEntityId = ParamUtil.getString(actionRequest, "uadEntityId");
+			uadRegistry.getUADEntityAnonymizer(uadRegistryKey);
 
 		uadEntityAnonymizer.autoAnonymize(
-			uadEntityAggregator.getUADEntity(uadEntityId));
-	}
+			getUADEntity(actionRequest, uadRegistryKey));
 
-	@Reference
-	private UADRegistry _uadRegistry;
+		String redirect = ParamUtil.getString(actionRequest, "redirect");
+
+		sendRedirect(actionRequest, actionResponse, redirect);
+	}
 
 }

@@ -14,19 +14,15 @@
 
 package com.liferay.user.associated.data.web.internal.portlet.action;
 
-import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.user.associated.data.aggregator.UADEntityAggregator;
 import com.liferay.user.associated.data.anonymizer.UADEntityAnonymizer;
-import com.liferay.user.associated.data.registry.UADRegistry;
-import com.liferay.users.admin.constants.UsersAdminPortletKeys;
+import com.liferay.user.associated.data.constants.UserAssociatedDataPortletKeys;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Noah Sherrill
@@ -34,40 +30,29 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	immediate = true,
 	property = {
-		"javax.portlet.name=" + UsersAdminPortletKeys.MY_ORGANIZATIONS,
-		"javax.portlet.name=" + UsersAdminPortletKeys.USERS_ADMIN,
-		"mvc.command.name=/users_admin/delete_uad_entity"
+		"javax.portlet.name=" + UserAssociatedDataPortletKeys.USER_ASSOCIATED_DATA,
+		"mvc.command.name=/delete_uad_entity"
 	},
 	service = MVCActionCommand.class
 )
-public class DeleteUADEntityMVCActionCommand extends BaseMVCActionCommand {
+public class DeleteUADEntityMVCActionCommand extends BaseUADMVCActionCommand {
 
 	@Override
 	protected void doProcessAction(
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
-		_deleteUADEntity(actionRequest);
-	}
-
-	private void _deleteUADEntity(ActionRequest actionRequest)
-		throws Exception {
-
 		String uadRegistryKey = ParamUtil.getString(
 			actionRequest, "uadRegistryKey");
 
-		UADEntityAggregator uadEntityAggregator =
-			_uadRegistry.getUADEntityAggregator(uadRegistryKey);
 		UADEntityAnonymizer uadEntityAnonymizer =
-			_uadRegistry.getUADEntityAnonymizer(uadRegistryKey);
+			uadRegistry.getUADEntityAnonymizer(uadRegistryKey);
 
-		String uadEntityId = ParamUtil.getString(actionRequest, "uadEntityId");
+		uadEntityAnonymizer.delete(getUADEntity(actionRequest, uadRegistryKey));
 
-		uadEntityAnonymizer.delete(
-			uadEntityAggregator.getUADEntity(uadEntityId));
+		String redirect = ParamUtil.getString(actionRequest, "redirect");
+
+		sendRedirect(actionRequest, actionResponse, redirect);
 	}
-
-	@Reference
-	private UADRegistry _uadRegistry;
 
 }

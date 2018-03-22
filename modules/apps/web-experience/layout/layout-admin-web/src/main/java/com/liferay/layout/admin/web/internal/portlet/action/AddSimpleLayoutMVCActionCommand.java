@@ -30,11 +30,12 @@ import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.service.LayoutService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
+import com.liferay.portal.kernel.servlet.MultiSessionMessages;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PropertiesParamUtil;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.util.PropsValues;
@@ -42,7 +43,6 @@ import com.liferay.portal.util.PropsValues;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -85,7 +85,7 @@ public class AddSimpleLayoutMVCActionCommand extends BaseMVCActionCommand {
 
 		Map<Locale, String> nameMap = new HashMap<>();
 
-		nameMap.put(themeDisplay.getLocale(), name);
+		nameMap.put(LocaleUtil.getSiteDefault(), name);
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			Layout.class.getName(), actionRequest);
@@ -99,10 +99,9 @@ public class AddSimpleLayoutMVCActionCommand extends BaseMVCActionCommand {
 		try {
 			Layout layout = _layoutService.addLayout(
 				groupId, privateLayout, parentLayoutId, nameMap,
-				new HashMap<Locale, String>(), new HashMap<Locale, String>(),
-				new HashMap<Locale, String>(), new HashMap<Locale, String>(),
-				type, typeSettingsProperties.toString(), false,
-				new HashMap<Locale, String>(), serviceContext);
+				new HashMap<>(), new HashMap<>(), new HashMap<>(),
+				new HashMap<>(), type, typeSettingsProperties.toString(), false,
+				new HashMap<>(), serviceContext);
 
 			LayoutTypePortlet layoutTypePortlet =
 				(LayoutTypePortlet)layout.getLayoutType();
@@ -120,6 +119,12 @@ public class AddSimpleLayoutMVCActionCommand extends BaseMVCActionCommand {
 				stagingGroupId, privateLayout, layout.getLayoutId(),
 				layout.getTypeSettingsProperties());
 
+			String portletResource = ParamUtil.getString(
+				actionRequest, "portletResource");
+
+			MultiSessionMessages.add(
+				actionRequest, portletResource + "layoutAdded", layout);
+
 			jsonObject.put("redirectURL", getRedirectURL(actionResponse));
 
 			JSONPortletResponseUtil.writeJSON(
@@ -130,14 +135,10 @@ public class AddSimpleLayoutMVCActionCommand extends BaseMVCActionCommand {
 				_log.debug(pe, pe);
 			}
 
-			ResourceBundle resourceBundle =
-				_resourceBundleLoader.loadResourceBundle(
-					themeDisplay.getLocale());
-
 			jsonObject.put(
 				"error",
 				LanguageUtil.get(
-					resourceBundle, "an-unexpected-error-occurred"));
+					themeDisplay.getLocale(), "an-unexpected-error-occurred"));
 
 			JSONPortletResponseUtil.writeJSON(
 				actionRequest, actionResponse, jsonObject);
@@ -166,11 +167,5 @@ public class AddSimpleLayoutMVCActionCommand extends BaseMVCActionCommand {
 
 	@Reference
 	private Portal _portal;
-
-	@Reference(
-		target = "(bundle.symbolic.name=com.liferay.layout.admin.web)",
-		unbind = "-"
-	)
-	private ResourceBundleLoader _resourceBundleLoader;
 
 }

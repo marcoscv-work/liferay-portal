@@ -18,6 +18,7 @@ import com.liferay.gradle.plugins.BaseDefaultsPlugin;
 import com.liferay.gradle.plugins.defaults.internal.util.GradlePluginsDefaultsUtil;
 import com.liferay.gradle.plugins.defaults.internal.util.GradleUtil;
 import com.liferay.gradle.plugins.node.NodePlugin;
+import com.liferay.gradle.plugins.node.tasks.NpmInstallTask;
 import com.liferay.gradle.plugins.node.tasks.PublishNodeModuleTask;
 
 import java.util.concurrent.Callable;
@@ -25,8 +26,6 @@ import java.util.concurrent.Callable;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.plugins.BasePlugin;
-import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.TaskContainer;
 
 /**
@@ -38,7 +37,7 @@ public class NodeDefaultsPlugin extends BaseDefaultsPlugin<NodePlugin> {
 
 	@Override
 	protected void configureDefaults(Project project, NodePlugin nodePlugin) {
-		_configureTaskClean(project);
+		_configureTaskNpmInstall(project);
 		_configureTasksPublishNodeModule(project);
 	}
 
@@ -50,15 +49,11 @@ public class NodeDefaultsPlugin extends BaseDefaultsPlugin<NodePlugin> {
 	private NodeDefaultsPlugin() {
 	}
 
-	private void _configureTaskClean(Project project) {
-		boolean cleanNodeModules = Boolean.getBoolean("clean.node.modules");
+	private void _configureTaskNpmInstall(Project project) {
+		NpmInstallTask npmInstallTask = (NpmInstallTask)GradleUtil.getTask(
+			project, NodePlugin.NPM_INSTALL_TASK_NAME);
 
-		if (cleanNodeModules) {
-			Delete delete = (Delete)GradleUtil.getTask(
-				project, BasePlugin.CLEAN_TASK_NAME);
-
-			delete.delete("node_modules");
-		}
+		npmInstallTask.setUseNpmCI(Boolean.TRUE);
 	}
 
 	private void _configureTaskPublishNodeModule(

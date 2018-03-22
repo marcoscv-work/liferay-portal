@@ -19,10 +19,8 @@
 <%
 LayoutPageTemplateDisplayContext layoutPageTemplateDisplayContext = new LayoutPageTemplateDisplayContext(renderRequest, renderResponse, request);
 
-portletDisplay.setShowBackIcon(true);
-portletDisplay.setURLBack(layoutPageTemplateDisplayContext.getLayoutPageTemplateCollectionRedirect());
-
-renderResponse.setTitle(layoutPageTemplateDisplayContext.getLayoutPageTemplateCollectionTitle());
+PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "page-templates"), layoutPageTemplateDisplayContext.getLayoutPageTemplateCollectionRedirect());
+PortalUtil.addPortletBreadcrumbEntry(request, layoutPageTemplateDisplayContext.getLayoutPageTemplateCollectionTitle(), null);
 %>
 
 <clay:navigation-bar
@@ -41,6 +39,23 @@ renderResponse.setTitle(layoutPageTemplateDisplayContext.getLayoutPageTemplateCo
 			portletURL="<%= currentURLObj %>"
 			selectedDisplayStyle="<%= layoutPageTemplateDisplayContext.getDisplayStyle() %>"
 		/>
+
+		<c:if test="<%= layoutPageTemplateDisplayContext.isShowAddButton(LayoutPageTemplateActionKeys.ADD_LAYOUT_PAGE_TEMPLATE_ENTRY) %>">
+			<portlet:renderURL var="addLayoutPageTemplateEntryURL">
+				<portlet:param name="mvcPath" value="/edit_layout_page_template_entry.jsp" />
+				<portlet:param name="layoutPageTemplateCollectionId" value="<%= String.valueOf(layoutPageTemplateDisplayContext.getLayoutPageTemplateCollectionId()) %>" />
+			</portlet:renderURL>
+
+			<liferay-frontend:add-menu
+				inline="<%= true %>"
+			>
+				<liferay-frontend:add-menu-item
+					id="addLayoutPageTemplateEntryMenuItem"
+					title='<%= LanguageUtil.get(request, "add-page-template") %>'
+					url="<%= addLayoutPageTemplateEntryURL.toString() %>"
+				/>
+			</liferay-frontend:add-menu>
+		</c:if>
 	</liferay-frontend:management-bar-buttons>
 
 	<liferay-frontend:management-bar-filters>
@@ -67,14 +82,21 @@ renderResponse.setTitle(layoutPageTemplateDisplayContext.getLayoutPageTemplateCo
 
 			<li>
 				<aui:form action="<%= portletURL.toString() %>" method="post" name="fm1">
-					<liferay-ui:input-search markupView="lexicon" />
+					<liferay-ui:input-search
+						markupView="lexicon"
+					/>
 				</aui:form>
 			</li>
 		</c:if>
 	</liferay-frontend:management-bar-filters>
 
 	<liferay-frontend:management-bar-action-buttons>
-		<liferay-frontend:management-bar-button href="javascript:;" icon="trash" id="deleteSelectedLayoutPageTemplateEntries" label="delete" />
+		<liferay-frontend:management-bar-button
+			href="javascript:;"
+			icon="trash"
+			id="deleteSelectedLayoutPageTemplateEntries"
+			label="delete"
+		/>
 	</liferay-frontend:management-bar-action-buttons>
 </liferay-frontend:management-bar>
 
@@ -83,6 +105,15 @@ renderResponse.setTitle(layoutPageTemplateDisplayContext.getLayoutPageTemplateCo
 </portlet:actionURL>
 
 <aui:form action="<%= deleteLayoutPageTemplateEntryURL %>" cssClass="container-fluid-1280" name="fm">
+	<div id="breadcrumb">
+		<liferay-ui:breadcrumb
+			showCurrentGroup="<%= false %>"
+			showGuestGroup="<%= false %>"
+			showLayout="<%= false %>"
+			showPortletBreadcrumb="<%= true %>"
+		/>
+	</div>
+
 	<liferay-ui:search-container
 		id="layoutPageTemplateEntries"
 		searchContainer="<%= layoutPageTemplateDisplayContext.getLayoutPageTemplateEntriesSearchContainer() %>"
@@ -136,31 +167,23 @@ renderResponse.setTitle(layoutPageTemplateDisplayContext.getLayoutPageTemplateCo
 			</liferay-ui:search-container-column-text>
 		</liferay-ui:search-container-row>
 
-		<liferay-ui:search-iterator displayStyle="<%= layoutPageTemplateDisplayContext.getDisplayStyle() %>" markupView="lexicon" />
+		<liferay-ui:search-iterator
+			displayStyle="<%= layoutPageTemplateDisplayContext.getDisplayStyle() %>"
+			markupView="lexicon"
+		/>
 	</liferay-ui:search-container>
 </aui:form>
-
-<c:if test="<%= layoutPageTemplateDisplayContext.isShowAddButton(LayoutPageTemplateActionKeys.ADD_LAYOUT_PAGE_TEMPLATE_ENTRY) %>">
-	<portlet:renderURL var="addLayoutPageTemplateEntryURL">
-		<portlet:param name="mvcPath" value="/edit_layout_page_template_entry.jsp" />
-		<portlet:param name="layoutPageTemplateCollectionId" value="<%= String.valueOf(layoutPageTemplateDisplayContext.getLayoutPageTemplateCollectionId()) %>" />
-	</portlet:renderURL>
-
-	<liferay-frontend:add-menu>
-		<liferay-frontend:add-menu-item id="addLayoutPageTemplateEntryMenuItem" title='<%= LanguageUtil.get(request, "add-page-template") %>' url="<%= addLayoutPageTemplateEntryURL.toString() %>" />
-	</liferay-frontend:add-menu>
-</c:if>
 
 <portlet:actionURL name="/layout/add_layout_page_template_entry" var="addLayoutPageTemplateEntryURL">
 	<portlet:param name="mvcPath" value="/edit_layout_page_template_entry.jsp" />
 	<portlet:param name="layoutPageTemplateCollectionId" value="<%= String.valueOf(layoutPageTemplateDisplayContext.getLayoutPageTemplateCollectionId()) %>" />
 </portlet:actionURL>
 
-<aui:script require="metal-dom/src/all/dom as dom">
+<aui:script require="metal-dom/src/all/dom as dom,frontend-js-web/liferay/modal/commands/OpenSimpleInputModal.es as modalCommands">
 	function handleAddLayoutPageTemplateEntryMenuItemClick(event) {
 		event.preventDefault();
 
-		Liferay.Util.openSimpleInputModal(
+		modalCommands.openSimpleInputModal(
 			{
 				dialogTitle: '<liferay-ui:message key="add-page-template" />',
 				formSubmitURL: '<%= addLayoutPageTemplateEntryURL %>',
@@ -182,7 +205,7 @@ renderResponse.setTitle(layoutPageTemplateDisplayContext.getLayoutPageTemplateCo
 
 			event.preventDefault();
 
-			Liferay.Util.openSimpleInputModal(
+			modalCommands.openSimpleInputModal(
 				{
 					dialogTitle: '<liferay-ui:message key="rename-layout-page-template" />',
 					formSubmitURL: data.formSubmitUrl,

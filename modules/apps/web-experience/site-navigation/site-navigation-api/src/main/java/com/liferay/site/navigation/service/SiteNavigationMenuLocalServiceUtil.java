@@ -51,6 +51,16 @@ public class SiteNavigationMenuLocalServiceUtil {
 
 	public static com.liferay.site.navigation.model.SiteNavigationMenu addSiteNavigationMenu(
 		long userId, long groupId, java.lang.String name, int type,
+		boolean auto,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .addSiteNavigationMenu(userId, groupId, name, type, auto,
+			serviceContext);
+	}
+
+	public static com.liferay.site.navigation.model.SiteNavigationMenu addSiteNavigationMenu(
+		long userId, long groupId, java.lang.String name, int type,
 		com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
@@ -211,8 +221,18 @@ public class SiteNavigationMenuLocalServiceUtil {
 		return getService().fetchSiteNavigationMenu(siteNavigationMenuId);
 	}
 
+	public static com.liferay.site.navigation.model.SiteNavigationMenu fetchSiteNavigationMenu(
+		long groupId, int type) {
+		return getService().fetchSiteNavigationMenu(groupId, type);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery() {
 		return getService().getActionableDynamicQuery();
+	}
+
+	public static java.util.List<com.liferay.site.navigation.model.SiteNavigationMenu> getAutoSiteNavigationMenus(
+		long groupId) {
+		return getService().getAutoSiteNavigationMenus(groupId);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
@@ -303,12 +323,12 @@ public class SiteNavigationMenuLocalServiceUtil {
 	}
 
 	public static com.liferay.site.navigation.model.SiteNavigationMenu updateSiteNavigationMenu(
-		long userId, long siteNavigationMenuId, int type,
+		long userId, long siteNavigationMenuId, int type, boolean auto,
 		com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .updateSiteNavigationMenu(userId, siteNavigationMenuId,
-			type, serviceContext);
+			type, auto, serviceContext);
 	}
 
 	public static com.liferay.site.navigation.model.SiteNavigationMenu updateSiteNavigationMenu(

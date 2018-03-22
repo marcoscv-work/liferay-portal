@@ -33,11 +33,18 @@
 						replace="http://\1-\2/\2"
 					/>
 
-					<get dest="${tstamp.value}.txt" ignoreerrors="true" src="${jenkins.build.url}/consoleText" />
+					<get
+						dest="${tstamp.value}.txt"
+						ignoreerrors="true"
+						src="${jenkins.build.url}/consoleText"
+					/>
 
 					<var name="jenkins.console.txt" unset="true" />
 
-					<loadfile property="jenkins.console.txt" srcfile="${tstamp.value}.txt" />
+					<loadfile
+						property="jenkins.console.txt"
+						srcfile="${tstamp.value}.txt"
+					/>
 
 					<delete file="${tstamp.value}.txt" />
 
@@ -352,13 +359,16 @@ mariadb.executable=${mariadb.executable}]]></echo>
 				<then>
 					<mkdir dir="${env.WORKSPACE}/test-results" />
 
-					<copy file="test-results/TESTS-TestSuites.xml" tofile="${env.WORKSPACE}/test-results/TESTS-TestSuites.xml" />
+					<copy
+						file="test-results/TESTS-TestSuites.xml"
+						tofile="${env.WORKSPACE}/test-results/TESTS-TestSuites.xml"
+					/>
 				</then>
 			</if>
 		</sequential>
 	</macrodef>
 
-	<macrodef name="prepare-liferay-classes" >
+	<macrodef name="prepare-liferay-classes">
 		<attribute name="merged.jar" />
 		<attribute name="portal.bundle.dir" />
 
@@ -368,18 +378,27 @@ mariadb.executable=${mariadb.executable}]]></echo>
 			<delete dir="${merged-classes}" />
 			<mkdir dir="${merged-classes}" />
 
-			<unzip dest="${merged-classes}">
+			<unzip
+				dest="${merged-classes}"
+			>
 				<patternset>
 					<include name="**/com/liferay/**" />
 				</patternset>
-				<fileset dir="@{portal.bundle.dir}">
+				<fileset
+					dir="@{portal.bundle.dir}"
+				>
 					<include name="**/*.jar" />
 					<include name="**/*.war" />
 				</fileset>
 			</unzip>
 
-			<jar destfile="@{merged.jar}" update="true">
-				<fileset dir="${merged-classes}">
+			<jar
+				destfile="@{merged.jar}"
+				update="true"
+			>
+				<fileset
+					dir="${merged-classes}"
+				>
 					<include name="**/*.class" />
 				</fileset>
 			</jar>
@@ -466,7 +485,10 @@ app.server.type=@{app.server.type}]]></echo>
 			<antcall inheritAll="false" target="compile-test" />
 
 			<delete>
-				<fileset dir="bundles" includes="*.zip" />
+				<fileset
+					dir="bundles"
+					includes="*.zip"
+				/>
 			</delete>
 
 			<if>
@@ -483,7 +505,11 @@ app.server.type=@{app.server.type}]]></echo>
 				</then>
 			</if>
 
-			<zip basedir="." destfile="liferay-portal-bundle-@{app.server.type}.zip" includes="bundles/**" />
+			<zip
+				basedir="."
+				destfile="liferay-portal-bundle-@{app.server.type}.zip"
+				includes="bundles/**"
+			/>
 
 			<execute>
 				<![CDATA[
@@ -516,7 +542,10 @@ app.server.type=@{app.server.type}]]></echo>
 		<sequential>
 			<antcall inheritAll="false" target="setup-sdk" />
 
-			<unzip dest="." src="liferay-portal-source.zip" />
+			<unzip
+				dest="."
+				src="liferay-portal-source.zip"
+			/>
 
 			<execute>
 				<![CDATA[
@@ -532,8 +561,8 @@ app.server.type=@{app.server.type}]]></echo>
 
 			<echo if:set="env.JENKINS_HOME">ANT_OPTS=${env.ANT_OPTS}</echo>
 
-			<antcall if:set="env.JENKINS_HOME" target="clean-up-db2-processes" inheritAll="false" />
-			<antcall if:set="env.JENKINS_HOME" target="clean-up-java-processes" inheritAll="false" />
+			<antcall if:set="env.JENKINS_HOME" inheritAll="false" target="clean-up-db2-processes" />
+			<antcall if:set="env.JENKINS_HOME" inheritAll="false" target="clean-up-java-processes" />
 		</sequential>
 	</macrodef>
 
@@ -866,9 +895,15 @@ app.server.type=@{app.server.type}]]></echo>
 										src="@{test.plugins.war.zip.url}"
 									/>
 
-									<unzip dest="." src="plugins.war.zip">
+									<unzip
+										dest="."
+										src="plugins.war.zip"
+									>
 										<mapper>
-											<globmapper from="plugins/*" to="plugins/marketplace/*" />
+											<globmapper
+												from="plugins/*"
+												to="plugins/marketplace/*"
+											/>
 										</mapper>
 									</unzip>
 
@@ -1170,8 +1205,12 @@ app.server.type=@{app.server.type}]]></echo>
 							<antcall inheritall="false" target="stop-app-server" />
 
 							<delete includeemptydirs="false">
-								<fileset dir="${liferay.home}/osgi/marketplace/override" />
-								<fileset dir="${liferay.home}/osgi/static" />
+								<fileset
+									dir="${liferay.home}/osgi/marketplace/override"
+								/>
+								<fileset
+									dir="${liferay.home}/osgi/static"
+								/>
 							</delete>
 
 							<trycatch>
@@ -1300,7 +1339,9 @@ app.server.type=@{app.server.type}]]></echo>
 
 							<for param="app.dir">
 								<path>
-									<dirset dir="modules">
+									<dirset
+										dir="modules"
+									>
 										<include name="apps/*" />
 										<include name="private/apps/*" />
 									</dirset>
@@ -1631,7 +1672,10 @@ app.server.type=@{app.server.type}]]></echo>
 
 			<if>
 				<not>
-					<resourcecontains resource="${app.server.tomcat.dir}/bin/setenv.bat" substring="${dummy.socket.proxy}" />
+					<resourcecontains
+						resource="${app.server.tomcat.dir}/bin/setenv.bat"
+						substring="${dummy.socket.proxy}"
+					/>
 				</not>
 				<then>
 					<echo append="true" file="${app.server.tomcat.dir}/bin/setenv.bat">
@@ -1643,7 +1687,10 @@ app.server.type=@{app.server.type}]]></echo>
 			</if>
 			<if>
 				<not>
-					<resourcecontains resource="${app.server.tomcat.dir}/bin/setenv.sh" substring="${dummy.socket.proxy}" />
+					<resourcecontains
+						resource="${app.server.tomcat.dir}/bin/setenv.sh"
+						substring="${dummy.socket.proxy}"
+					/>
 				</not>
 				<then>
 					<echo append="true" file="${app.server.tomcat.dir}/bin/setenv.sh">
@@ -1659,14 +1706,24 @@ app.server.type=@{app.server.type}]]></echo>
 	<macrodef name="setup-testable-tomcat-gc">
 		<sequential>
 			<if>
-				<resourcecontains resource="${app.server.tomcat.dir}/bin/setenv.bat" substring="${test.batch.app.server.tomcat.setenv.gc.old}" />
+				<resourcecontains
+					resource="${app.server.tomcat.dir}/bin/setenv.bat"
+					substring="${test.batch.app.server.tomcat.setenv.gc.old}"
+				/>
 				<then>
-					<replace file="${app.server.tomcat.dir}/bin/setenv.bat" token="${test.batch.app.server.tomcat.setenv.gc.old}" value="${test.batch.app.server.tomcat.setenv.gc.new}" />
+					<replace
+						file="${app.server.tomcat.dir}/bin/setenv.bat"
+						token="${test.batch.app.server.tomcat.setenv.gc.old}"
+						value="${test.batch.app.server.tomcat.setenv.gc.new}"
+					/>
 				</then>
 				<else>
 					<if>
 						<not>
-							<resourcecontains resource="${app.server.tomcat.dir}/bin/setenv.bat" substring="${test.batch.app.server.tomcat.setenv.gc.new}" />
+							<resourcecontains
+								resource="${app.server.tomcat.dir}/bin/setenv.bat"
+								substring="${test.batch.app.server.tomcat.setenv.gc.new}"
+							/>
 						</not>
 						<then>
 							<fail message="Unable to setup Tomcat GC properties for ${app.server.tomcat.dir}/bin/setenv.bat." />
@@ -1676,14 +1733,24 @@ app.server.type=@{app.server.type}]]></echo>
 			</if>
 
 			<if>
-				<resourcecontains resource="${app.server.tomcat.dir}/bin/setenv.sh" substring="${test.batch.app.server.tomcat.setenv.gc.old}" />
+				<resourcecontains
+					resource="${app.server.tomcat.dir}/bin/setenv.sh"
+					substring="${test.batch.app.server.tomcat.setenv.gc.old}"
+				/>
 				<then>
-					<replace file="${app.server.tomcat.dir}/bin/setenv.sh" token="${test.batch.app.server.tomcat.setenv.gc.old}" value="${test.batch.app.server.tomcat.setenv.gc.new}" />
+					<replace
+						file="${app.server.tomcat.dir}/bin/setenv.sh"
+						token="${test.batch.app.server.tomcat.setenv.gc.old}"
+						value="${test.batch.app.server.tomcat.setenv.gc.new}"
+					/>
 				</then>
 				<else>
 					<if>
 						<not>
-							<resourcecontains resource="${app.server.tomcat.dir}/bin/setenv.sh" substring="${test.batch.app.server.tomcat.setenv.gc.new}" />
+							<resourcecontains
+								resource="${app.server.tomcat.dir}/bin/setenv.sh"
+								substring="${test.batch.app.server.tomcat.setenv.gc.new}"
+							/>
 						</not>
 						<then>
 							<fail message="Unable to setup Tomcat GC properties for ${app.server.tomcat.dir}/bin/setenv.sh." />
@@ -1702,7 +1769,10 @@ app.server.type=@{app.server.type}]]></echo>
 
 			<if>
 				<not>
-					<resourcecontains resource="${app.server.tomcat.dir}/bin/setenv.bat" substring="${heap.dump.on.oom}" />
+					<resourcecontains
+						resource="${app.server.tomcat.dir}/bin/setenv.bat"
+						substring="${heap.dump.on.oom}"
+					/>
 				</not>
 				<then>
 					<echo append="true" file="${app.server.tomcat.dir}/bin/setenv.bat">
@@ -1714,7 +1784,10 @@ app.server.type=@{app.server.type}]]></echo>
 			</if>
 			<if>
 				<not>
-					<resourcecontains resource="${app.server.tomcat.dir}/bin/setenv.sh" substring="${heap.dump.on.oom}" />
+					<resourcecontains
+						resource="${app.server.tomcat.dir}/bin/setenv.sh"
+						substring="${heap.dump.on.oom}"
+					/>
 				</not>
 				<then>
 					<echo append="true" file="${app.server.tomcat.dir}/bin/setenv.sh">
@@ -1735,7 +1808,10 @@ app.server.type=@{app.server.type}]]></echo>
 
 			<if>
 				<not>
-					<resourcecontains resource="${app.server.tomcat.dir}/bin/setenv.bat" substring="${print.final.flags}" />
+					<resourcecontains
+						resource="${app.server.tomcat.dir}/bin/setenv.bat"
+						substring="${print.final.flags}"
+					/>
 				</not>
 				<then>
 					<echo append="true" file="${app.server.tomcat.dir}/bin/setenv.bat">
@@ -1747,7 +1823,10 @@ app.server.type=@{app.server.type}]]></echo>
 			</if>
 			<if>
 				<not>
-					<resourcecontains resource="${app.server.tomcat.dir}/bin/setenv.sh" substring="${print.final.flags}" />
+					<resourcecontains
+						resource="${app.server.tomcat.dir}/bin/setenv.sh"
+						substring="${print.final.flags}"
+					/>
 				</not>
 				<then>
 					<echo append="true" file="${app.server.tomcat.dir}/bin/setenv.sh">
@@ -1947,6 +2026,44 @@ app.server.type=@{app.server.type}]]></echo>
 
 	<target name="functional-bundle-marketplaceapp-smoke-wildfly-mysql56-jdk8">
 		<antcall target="functional-bundle-wildfly-mysql56-jdk8" />
+	</target>
+
+	<target name="functional-bundle-tomcat-db2105-jdk8">
+		<set-tomcat-version-number liferay.portal.bundle="${test.portal.bundle.version}" />
+
+		<run-functional-test
+			app.server.type="tomcat"
+			database.type="db2"
+			setup.proxy="false"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.plugin.zip.url="${test.plugin.zip.url}"
+			test.plugins.war.zip.url="${test.plugins.war.zip.url}"
+			test.portal.bundle.version="${test.portal.bundle.version}"
+			test.portal.bundle.zip.url="${test.portal.bundle.zip.url}"
+			test.portal.lpkg.name="${test.portal.lpkg.name}"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
+	</target>
+
+	<target name="functional-bundle-tomcat-hypersonic20-jdk8">
+		<set-tomcat-version-number liferay.portal.bundle="${test.portal.bundle.version}" />
+
+		<run-functional-test
+			app.server.type="tomcat"
+			database.type="hypersonic"
+			setup.proxy="false"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.plugin.zip.url="${test.plugin.zip.url}"
+			test.plugins.war.zip.url="${test.plugins.war.zip.url}"
+			test.portal.bundle.version="${test.portal.bundle.version}"
+			test.portal.bundle.zip.url="${test.portal.bundle.zip.url}"
+			test.portal.lpkg.name="${test.portal.lpkg.name}"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
 	</target>
 
 	<target name="functional-bundle-tomcat-mariadb100-jdk8">
@@ -2187,8 +2304,16 @@ app.server.type=@{app.server.type}]]></echo>
 		<run-functional-test app.server.type="wildfly" database.type="mariadb" test.portal.log.assert="true" />
 	</target>
 
+	<target name="functional-tomcat80-db2105-jdk8">
+		<run-functional-test app.server.type="tomcat" database.type="db2" />
+	</target>
+
 	<target name="functional-tomcat80-hypersonic20-jdk8">
 		<run-functional-test app.server.type="tomcat" database.type="hypersonic" />
+	</target>
+
+	<target name="functional-tomcat80-mariadb100-jdk8">
+		<run-functional-test app.server.type="tomcat" database.type="mariadb" />
 	</target>
 
 	<target name="functional-tomcat80-mysql55-jdk8">
@@ -2201,6 +2326,10 @@ app.server.type=@{app.server.type}]]></echo>
 
 	<target name="functional-tomcat80-mysql56-jdk8-quarantine">
 		<antcall target="functional-tomcat80-mysql56-jdk8" />
+	</target>
+
+	<target name="functional-tomcat80-oracle121-jdk8">
+		<run-functional-test app.server.type="tomcat" database.type="oracle" />
 	</target>
 
 	<target name="functional-tomcat80-postgresql94-jdk8">
@@ -2272,7 +2401,10 @@ app.server.type=@{app.server.type}]]></echo>
 					</path>
 					<sequential>
 						<if>
-							<resourcecontains resource="@{gradle.plugin.dir}/build.gradle" substring="gradleTest" />
+							<resourcecontains
+								resource="@{gradle.plugin.dir}/build.gradle"
+								substring="gradleTest"
+							/>
 							<then>
 								<gradle-execute dir="@{gradle.plugin.dir}" task="gradleTest" />
 							</then>
@@ -2534,7 +2666,7 @@ ${output.content}</echo>
 	</target>
 
 	<target name="patching-tool-custom-scripts-jdk8">
-		<fail message="Please set the property liferay.jenkins.dir" >
+		<fail message="Please set the property liferay.jenkins.dir">
 			<condition>
 				<not>
 					<isset property="liferay.jenkins.dir" />
@@ -2693,7 +2825,10 @@ ${output.content}</echo>
 
 					<print-file file.name="${project.dir}/git.diff" />
 
-					<copy file="${project.dir}/git.diff" todir="${release.tool.dir}" />
+					<copy
+						file="${project.dir}/git.diff"
+						todir="${release.tool.dir}"
+					/>
 
 					<print-file file.name="${release.tool.dir}/git.diff" />
 
@@ -2767,7 +2902,10 @@ ${output.content}</echo>
 
 								<prepare-test-environment />
 
-								<move file="bundles" tofile="bun dles" />
+								<move
+									file="bundles"
+									tofile="bun dles"
+								/>
 							</sequential>
 						</then>
 						<else>
@@ -2849,7 +2987,7 @@ ${output.content}</echo>
 							<then>
 								<echo>${output.content}</echo>
 
-								<fail message="createdb failed with return code ${return.code}."  />
+								<fail message="createdb failed with return code ${return.code}." />
 							</then>
 						</if>
 					</try>
@@ -2915,11 +3053,20 @@ ${output.content}</echo>
 			<condition>
 				<and>
 					<not>
-						<resourcecontains resource="${project.dir}/sass-compiler-log" substring="Using Ruby Sass compiler" />
+						<resourcecontains
+							resource="${project.dir}/sass-compiler-log"
+							substring="Using Ruby Sass compiler"
+						/>
 					</not>
 					<or>
-						<resourcecontains resource="${project.dir}/sass-compiler-log" substring="Unable to load Ruby compiler, falling back to native" />
-						<resourcecontains resource="${project.dir}/sass-compiler-log" substring="Using native Sass compiler" />
+						<resourcecontains
+							resource="${project.dir}/sass-compiler-log"
+							substring="Unable to load Ruby compiler, falling back to native"
+						/>
+						<resourcecontains
+							resource="${project.dir}/sass-compiler-log"
+							substring="Using native Sass compiler"
+						/>
 					</or>
 				</and>
 			</condition>
@@ -2933,7 +3080,10 @@ ${output.content}</echo>
 
 				<var name="log.files" unset="true" />
 
-				<fileset dir="${project.dir}" id="log.files">
+				<fileset
+					dir="${project.dir}"
+					id="log.files"
+				>
 					<include name="baseline-reports/*.log" />
 					<include name="modules/**/baseline.log" />
 				</fileset>
@@ -2972,7 +3122,9 @@ ${output.content}</echo>
 				<echo>Deleting stale baseline log files.</echo>
 
 				<for param="log.file">
-					<fileset dir="${project.dir}">
+					<fileset
+						dir="${project.dir}"
+					>
 						<include name="baseline-reports/*.log" />
 						<include name="modules/**/baseline.log" />
 					</fileset>
@@ -3042,11 +3194,27 @@ ${output.content}</echo>
 
 				<record action="stop" name="${project.dir}/build.services.output.txt" />
 
-				<replaceregexp byline="true" file="${project.dir}/build.services.output.txt" match="Writing \/.+\/docroot\/WEB-INF\/src\/service\.properties" replace="" />
-				<replace file="${project.dir}/build.services.output.txt" token="Writing src/service.properties" value="" />
-				<replace file="${project.dir}/build.services.output.txt" token="Writing src/main/resources/service.properties" value="" />
+				<replaceregexp
+					byline="true"
+					file="${project.dir}/build.services.output.txt"
+					match="Writing \/.+\/docroot\/WEB-INF\/src\/service\.properties"
+					replace=""
+				/>
+				<replace
+					file="${project.dir}/build.services.output.txt"
+					token="Writing src/service.properties"
+					value=""
+				/>
+				<replace
+					file="${project.dir}/build.services.output.txt"
+					token="Writing src/main/resources/service.properties"
+					value=""
+				/>
 
-				<loadfile property="build.services.output.txt.content" srcfile="${project.dir}/build.services.output.txt" />
+				<loadfile
+					property="build.services.output.txt.content"
+					srcfile="${project.dir}/build.services.output.txt"
+				/>
 
 				<delete file="${project.dir}/build.services.output.txt" />
 
@@ -3088,8 +3256,35 @@ information. Make sure to commit in all build services results.
 	<target name="slim-profile-jdk8">
 		<run-batch-test>
 			<test-action>
-				<ant dir="." target="all" >
+				<ant dir="." target="all">
 					<property name="build.profile" value="slim" />
+				</ant>
+			</test-action>
+		</run-batch-test>
+	</target>
+
+	<target name="source-format-current-branch-jdk8">
+		<run-batch-test>
+			<test-action>
+				<antcall target="compile" />
+
+				<antcall target="install-portal-snapshots" />
+
+				<if>
+					<available file="modules/util/source-formatter" />
+					<then>
+						<gradle-execute dir="modules/util/source-formatter" task="deploy" />
+					</then>
+				</if>
+
+				<ant dir="portal-impl" target="format-source-all">
+					<property name="format.current.branch" value="true" />
+					<property name="show.documentation" value="false" />
+					<property name="source.auto.fix" value="false" />
+					<property name="source.fail.on.error" value="true" />
+					<property name="source.print.errors" value="false" />
+					<property name="source.throw.exception" value="true" />
+					<property name="source.use.properties" value="false" />
 				</ant>
 			</test-action>
 		</run-batch-test>
@@ -3118,7 +3313,7 @@ information. Make sure to commit in all build services results.
 					<property name="source.auto.fix" value="false" />
 					<property name="source.fail.on.error" value="true" />
 					<property if:true="${liferay.releng.public}" name="source.formatter.excludes" value="modules/private/**" />
-					<property name="source.print.errors" value="true" />
+					<property name="source.print.errors" value="false" />
 					<property name="source.throw.exception" value="true" />
 					<property name="source.use.properties" value="false" />
 				</ant>
@@ -3226,7 +3421,9 @@ information. Make sure to commit in all build services results.
 		<echo>Deleting stale baseline log files.</echo>
 
 		<delete failonerror="false">
-			<fileset dir="${project.dir}">
+			<fileset
+				dir="${project.dir}"
+			>
 				<include name="baseline-reports/*.log" />
 				<include name="modules/**/baseline.log" />
 			</fileset>
@@ -3251,7 +3448,10 @@ information. Make sure to commit in all build services results.
 
 		<var name="log.files" unset="true" />
 
-		<fileset dir="${project.dir}" id="log.files">
+		<fileset
+			dir="${project.dir}"
+			id="log.files"
+		>
 			<include name="baseline-reports/*.log" />
 			<include name="modules/**/baseline.log" />
 		</fileset>
@@ -3333,7 +3533,7 @@ information. Make sure to commit in all build services results.
 		<echo file="create-header.sql">use master
 dump transaction master with no_log
 go
-alter database master on master=500
+disk resize name="master", size="500m"
 go
 drop database lportal
 go
@@ -3401,7 +3601,7 @@ ${output.content}</echo>
 					<then>
 						<clean-restart-sybase retry="true" />
 
-						<fail message="Return code: ${return.code}"  />
+						<fail message="Return code: ${return.code}" />
 					</then>
 				</if>
 			</sequential>

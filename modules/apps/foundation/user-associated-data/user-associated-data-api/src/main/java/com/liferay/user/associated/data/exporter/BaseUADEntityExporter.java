@@ -16,6 +16,12 @@ package com.liferay.user.associated.data.exporter;
 
 import com.liferay.document.library.kernel.exception.NoSuchFolderException;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
+import com.liferay.exportimport.kernel.lar.ManifestSummary;
+import com.liferay.exportimport.kernel.lar.PortletDataContext;
+import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
+import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerRegistryUtil;
+import com.liferay.exportimport.kernel.lar.StagedModelType;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -28,9 +34,8 @@ import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.user.associated.data.entity.UADEntity;
-
-import java.util.List;
+import com.liferay.user.associated.data.aggregator.UADEntityAggregator;
+import com.liferay.user.associated.data.util.UADEntityChunkedCommandUtil;
 
 import org.osgi.service.component.annotations.Reference;
 
@@ -40,10 +45,39 @@ import org.osgi.service.component.annotations.Reference;
 public abstract class BaseUADEntityExporter implements UADEntityExporter {
 
 	@Override
-	public void exportAll(long userId) throws PortalException {
-		for (UADEntity uadEntity : getUADEntities(userId)) {
-			export(uadEntity);
-		}
+	public long count(long userId) throws PortalException {
+		return getUADEntityAggregator().count(userId);
+	}
+
+	@Override
+	public void exportAll(long userId, PortletDataContext portletDataContext)
+		throws PortalException {
+
+		UADEntityChunkedCommandUtil.executeChunkedCommand(
+			userId, getUADEntityAggregator(), this::export);
+	}
+
+	@Override
+	public StagedModelDataHandler getStagedModelDataHandler() {
+		StagedModelDataHandler stagedModelDataHandler =
+			StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(
+				getUADEntityName());
+
+		return stagedModelDataHandler;
+	}
+
+	@Override
+	public void prepareManifestSummary(
+			long userId, PortletDataContext portletDataContext)
+		throws PortalException {
+
+		ManifestSummary manifestSummary =
+			portletDataContext.getManifestSummary();
+
+		StagedModelType stagedModelType = new StagedModelType(
+			getUADEntityName());
+
+		manifestSummary.addModelAdditionCount(stagedModelType, count(userId));
 	}
 
 	protected Folder getFolder(
@@ -90,7 +124,11 @@ public abstract class BaseUADEntityExporter implements UADEntityExporter {
 		return JSONFactoryUtil.looseSerialize(object);
 	}
 
-	protected abstract List<UADEntity> getUADEntities(long userId);
+	protected abstract UADEntityAggregator getUADEntityAggregator();
+
+	protected String getUADEntityName() {
+		return StringPool.BLANK;
+	}
 
 	@Reference
 	protected GroupLocalService groupLocalService;

@@ -14,7 +14,6 @@
 
 package com.liferay.dynamic.data.mapping.internal.exportimport.data.handler;
 
-import com.liferay.dynamic.data.mapping.exportimport.content.processor.DDMFormValuesExportImportContentProcessor;
 import com.liferay.dynamic.data.mapping.exportimport.staged.model.repository.DDMFormInstanceRecordStagedModelRepository;
 import com.liferay.dynamic.data.mapping.io.DDMFormValuesJSONDeserializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormValuesJSONSerializer;
@@ -24,12 +23,13 @@ import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceLocalService;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.StorageEngine;
+import com.liferay.exportimport.content.processor.ExportImportContentProcessor;
+import com.liferay.exportimport.data.handler.base.BaseStagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataException;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.exportimport.lar.BaseStagedModelDataHandler;
 import com.liferay.exportimport.staged.model.repository.StagedModelRepository;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -217,9 +217,12 @@ public class DDMFormInstanceRecordStagedModelDataHandler
 			ddmFormInstanceRecordStagedModelRepository;
 	}
 
-	@Reference(unbind = "-")
+	@Reference(
+		target = "(model.class.name=com.liferay.dynamic.data.mapping.storage.DDMFormValues)",
+		unbind = "-"
+	)
 	protected void setDDMFormValuesExportImportContentProcessor(
-		DDMFormValuesExportImportContentProcessor
+		ExportImportContentProcessor<DDMFormValues>
 			ddmFormValuesExportImportContentProcessor) {
 
 		_ddmFormValuesExportImportContentProcessor =
@@ -277,7 +280,7 @@ public class DDMFormInstanceRecordStagedModelDataHandler
 	private DDMFormInstanceLocalService _ddmFormInstanceLocalService;
 	private DDMFormInstanceRecordStagedModelRepository
 		_ddmFormInstanceRecordStagedModelRepository;
-	private DDMFormValuesExportImportContentProcessor
+	private ExportImportContentProcessor<DDMFormValues>
 		_ddmFormValuesExportImportContentProcessor;
 	private DDMFormValuesJSONDeserializer _ddmFormValuesJSONDeserializer;
 	private DDMFormValuesJSONSerializer _ddmFormValuesJSONSerializer;

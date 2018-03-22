@@ -27,8 +27,6 @@ SearchContainer userSearchContainer = new UserSearch(renderRequest, editSiteTeam
 
 UserSearchTerms searchTerms = (UserSearchTerms)userSearchContainer.getSearchTerms();
 
-userSearchContainer.setEmptyResultsMessageCssClass(searchTerms.isSearch() ? StringPool.BLANK : "taglib-empty-result-message-header-has-plus-btn");
-
 LinkedHashMap<String, Object> userParams = new LinkedHashMap<String, Object>();
 
 userParams.put("inherit", Boolean.TRUE);
@@ -73,7 +71,9 @@ RowChecker rowChecker = new EmptyOnClickRowChecker(renderResponse);
 				<aui:form action="<%= editSiteTeamAssignmentsDisplayContext.getEditTeamAssignmentsURL() %>" name="searchFm">
 					<liferay-portlet:renderURLParams varImpl="portletURL" />
 
-					<liferay-ui:input-search markupView="lexicon" />
+					<liferay-ui:input-search
+						markupView="lexicon"
+					/>
 				</aui:form>
 			</li>
 		</c:if>
@@ -89,10 +89,33 @@ RowChecker rowChecker = new EmptyOnClickRowChecker(renderResponse);
 			portletURL="<%= changeDisplayStyleURL %>"
 			selectedDisplayStyle="<%= displayStyle %>"
 		/>
+
+		<portlet:actionURL name="addTeamUsers" var="addTeamUsersURL" />
+
+		<aui:form action="<%= addTeamUsersURL %>" cssClass="hide" name="addTeamUsersFm">
+			<aui:input name="tabs1" type="hidden" value="<%= editSiteTeamAssignmentsDisplayContext.getTabs1() %>" />
+			<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
+			<aui:input name="teamId" type="hidden" value="<%= String.valueOf(editSiteTeamAssignmentsDisplayContext.getTeamId()) %>" />
+		</aui:form>
+
+		<liferay-frontend:add-menu
+			inline="<%= true %>"
+		>
+			<liferay-frontend:add-menu-item
+				id="addUsers"
+				title='<%= LanguageUtil.get(request, "add-team-members") %>'
+				url="javascript:;"
+			/>
+		</liferay-frontend:add-menu>
 	</liferay-frontend:management-bar-buttons>
 
 	<liferay-frontend:management-bar-action-buttons>
-		<liferay-frontend:management-bar-button href="javascript:;" icon="trash" id="deleteUsers" label="delete" />
+		<liferay-frontend:management-bar-button
+			href="javascript:;"
+			icon="trash"
+			id="deleteUsers"
+			label="delete"
+		/>
 	</liferay-frontend:management-bar-action-buttons>
 </liferay-frontend:management-bar>
 
@@ -104,7 +127,6 @@ RowChecker rowChecker = new EmptyOnClickRowChecker(renderResponse);
 	<aui:input name="teamId" type="hidden" value="<%= String.valueOf(editSiteTeamAssignmentsDisplayContext.getTeamId()) %>" />
 
 	<liferay-ui:search-container
-		emptyResultsMessage="there-are-no-members.-you-can-add-a-member-by-clicking-the-plus-button-on-the-bottom-right-corner"
 		id="users"
 		rowChecker="<%= rowChecker %>"
 		searchContainer="<%= userSearchContainer %>"
@@ -125,21 +147,12 @@ RowChecker rowChecker = new EmptyOnClickRowChecker(renderResponse);
 			<%@ include file="/user_columns.jspf" %>
 		</liferay-ui:search-container-row>
 
-		<liferay-ui:search-iterator displayStyle="<%= displayStyle %>" markupView="lexicon" />
+		<liferay-ui:search-iterator
+			displayStyle="<%= displayStyle %>"
+			markupView="lexicon"
+		/>
 	</liferay-ui:search-container>
 </aui:form>
-
-<portlet:actionURL name="addTeamUsers" var="addTeamUsersURL" />
-
-<aui:form action="<%= addTeamUsersURL %>" cssClass="hide" name="addTeamUsersFm">
-	<aui:input name="tabs1" type="hidden" value="<%= editSiteTeamAssignmentsDisplayContext.getTabs1() %>" />
-	<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
-	<aui:input name="teamId" type="hidden" value="<%= String.valueOf(editSiteTeamAssignmentsDisplayContext.getTeamId()) %>" />
-</aui:form>
-
-<liferay-frontend:add-menu>
-	<liferay-frontend:add-menu-item id="addUsers" title='<%= LanguageUtil.get(request, "add-team-members") %>' url="javascript:;" />
-</liferay-frontend:add-menu>
 
 <aui:script use="liferay-item-selector-dialog">
 	var Util = Liferay.Util;

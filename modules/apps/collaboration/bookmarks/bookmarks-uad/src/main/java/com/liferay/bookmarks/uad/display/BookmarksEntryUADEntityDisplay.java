@@ -15,15 +15,14 @@
 package com.liferay.bookmarks.uad.display;
 
 import com.liferay.bookmarks.uad.constants.BookmarksUADConstants;
+import com.liferay.bookmarks.uad.entity.BookmarksEntryUADEntity;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.user.associated.data.anonymizer.UADEntityAnonymizer;
-import com.liferay.user.associated.data.display.BaseUADEntityDisplay;
 import com.liferay.user.associated.data.display.UADEntityDisplay;
 import com.liferay.user.associated.data.entity.UADEntity;
 
-import java.util.List;
+import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -36,34 +35,56 @@ import org.osgi.service.component.annotations.Reference;
 	property = "model.class.name=" + BookmarksUADConstants.CLASS_NAME_BOOKMARKS_ENTRY,
 	service = UADEntityDisplay.class
 )
-public class BookmarksEntryUADEntityDisplay extends BaseUADEntityDisplay {
+public class BookmarksEntryUADEntityDisplay implements UADEntityDisplay {
 
-	@Override
+	public String getApplicationName() {
+		return BookmarksUADConstants.UAD_ENTITY_SET_NAME;
+	}
+
+	public String[] getDisplayFieldNames() {
+		return _bookmarksEntryUADEntityDisplayHelper.getDisplayFieldNames();
+	}
+
 	public String getEditURL(
 			UADEntity uadEntity, LiferayPortletRequest liferayPortletRequest,
 			LiferayPortletResponse liferayPortletResponse)
 		throws Exception {
 
-		return "";
+		BookmarksEntryUADEntity bookmarksEntryUADEntity =
+			(BookmarksEntryUADEntity)uadEntity;
+
+		return _bookmarksEntryUADEntityDisplayHelper.getBookmarksEntryEditURL(
+			bookmarksEntryUADEntity.getBookmarksEntry(), liferayPortletRequest,
+			liferayPortletResponse);
+	}
+
+	public String getKey() {
+		return BookmarksUADConstants.CLASS_NAME_BOOKMARKS_ENTRY;
 	}
 
 	@Override
-	public String getEntityTypeDescription() {
+	public Map<String, Object> getUADEntityNonanonymizableFieldValues(
+		UADEntity uadEntity) {
+
+		BookmarksEntryUADEntity bookmarksEntryUADEntity =
+			(BookmarksEntryUADEntity)uadEntity;
+
+		return _bookmarksEntryUADEntityDisplayHelper.
+			getUADEntityNonanonymizableFieldValues(
+				bookmarksEntryUADEntity.getBookmarksEntry());
+	}
+
+	public String getUADEntityTypeDescription() {
 		return "A link to another page or website";
 	}
 
-	@Override
-	public String getEntityTypeName() {
-		return "Bookmarks Entry";
-	}
-
-	@Override
-	public List<String> getEntityTypeNonAnonymizableFieldNamesList() {
-		return null;
+	public String getUADEntityTypeName() {
+		return "BookmarksEntry";
 	}
 
 	@Reference
-	protected Portal portal;
+	private BookmarksEntryUADEntityDisplayHelper
+		_bookmarksEntryUADEntityDisplayHelper;
 
 	@Reference(
 		target = "(model.class.name=" + BookmarksUADConstants.CLASS_NAME_BOOKMARKS_ENTRY + ")"

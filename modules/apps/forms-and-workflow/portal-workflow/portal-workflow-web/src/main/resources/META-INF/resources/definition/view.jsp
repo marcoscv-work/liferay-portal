@@ -73,8 +73,6 @@ WorkflowDefinitionSearch workflowDefinitionSearch = new WorkflowDefinitionSearch
 	<liferay-ui:message arguments="<%= messageArguments %>" key="<%= messageKey %>" translateArguments="<%= false %>" />
 </liferay-ui:error>
 
-<liferay-util:include page="/definition/add_button.jsp" servletContext="<%= application %>" />
-
 <liferay-frontend:management-bar
 	searchContainerId="workflowDefinitions"
 >
@@ -84,6 +82,8 @@ WorkflowDefinitionSearch workflowDefinitionSearch = new WorkflowDefinitionSearch
 			portletURL="<%= displayStyleURL %>"
 			selectedDisplayStyle="list"
 		/>
+
+		<liferay-util:include page="/definition/add_button.jsp" servletContext="<%= application %>" />
 	</liferay-frontend:management-bar-buttons>
 
 	<liferay-frontend:management-bar-filters>
@@ -99,6 +99,8 @@ WorkflowDefinitionSearch workflowDefinitionSearch = new WorkflowDefinitionSearch
 			orderColumns='<%= new String[] {"title", "last-modified"} %>'
 			portletURL="<%= portletURL %>"
 		/>
+
+		<liferay-util:include page="/search.jsp" servletContext="<%= application %>" />
 	</liferay-frontend:management-bar-filters>
 </liferay-frontend:management-bar>
 
@@ -155,6 +157,11 @@ WorkflowDefinitionSearch workflowDefinitionSearch = new WorkflowDefinitionSearch
 			/>
 		</liferay-ui:search-container-row>
 
-		<liferay-ui:search-iterator displayStyle="list" markupView="lexicon" resultRowSplitter="<%= new WorkflowDefinitionResultRowSplitter() %>" searchContainer="<%= workflowDefinitionSearch %>" />
+		<liferay-ui:search-iterator
+			displayStyle="list"
+			markupView="lexicon"
+			resultRowSplitter="<%= new WorkflowDefinitionResultRowSplitter() %>"
+			searchContainer="<%= workflowDefinitionSearch %>"
+		/>
 	</liferay-ui:search-container>
 </div>

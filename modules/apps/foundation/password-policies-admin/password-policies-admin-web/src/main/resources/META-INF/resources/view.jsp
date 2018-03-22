@@ -78,7 +78,10 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "passwor
 
 			<li>
 				<aui:form action="<%= searchURL %>" name="searchFm">
-					<liferay-ui:input-search autoFocus="<%= windowState.equals(WindowState.MAXIMIZED) %>" markupView="lexicon" />
+					<liferay-ui:input-search
+						autoFocus="<%= windowState.equals(WindowState.MAXIMIZED) %>"
+						markupView="lexicon"
+					/>
 				</aui:form>
 			</li>
 		</c:if>
@@ -90,6 +93,24 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "passwor
 			portletURL="<%= renderResponse.createRenderURL() %>"
 			selectedDisplayStyle="<%= displayStyle %>"
 		/>
+
+		<c:if test="<%= PortalPermissionUtil.contains(permissionChecker, ActionKeys.ADD_PASSWORD_POLICY) %>">
+			<portlet:renderURL var="viewPasswordPoliciesURL" />
+
+			<portlet:renderURL var="addPasswordPolicyURL">
+				<portlet:param name="mvcPath" value="/edit_password_policy.jsp" />
+				<portlet:param name="redirect" value="<%= viewPasswordPoliciesURL %>" />
+			</portlet:renderURL>
+
+			<liferay-frontend:add-menu
+				inline="<%= true %>"
+			>
+				<liferay-frontend:add-menu-item
+					title='<%= LanguageUtil.get(request, "add") %>'
+					url="<%= addPasswordPolicyURL.toString() %>"
+				/>
+			</liferay-frontend:add-menu>
+		</c:if>
 	</liferay-frontend:management-bar-buttons>
 
 	<liferay-frontend:management-bar-action-buttons>
@@ -102,7 +123,12 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "passwor
 	<aui:input name="passwordPolicyIds" type="hidden" />
 
 	<div id="breadcrumb">
-		<liferay-ui:breadcrumb showCurrentGroup="<%= false %>" showGuestGroup="<%= false %>" showLayout="<%= false %>" showPortletBreadcrumb="<%= true %>" />
+		<liferay-ui:breadcrumb
+			showCurrentGroup="<%= false %>"
+			showGuestGroup="<%= false %>"
+			showLayout="<%= false %>"
+			showPortletBreadcrumb="<%= true %>"
+		/>
 	</div>
 
 	<c:if test="<%= passwordPolicyEnabled %>">
@@ -151,7 +177,11 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "passwor
 				<%@ include file="/search_columns.jspf" %>
 			</liferay-ui:search-container-row>
 
-			<liferay-ui:search-iterator displayStyle="<%= displayStyle %>" markupView="lexicon" searchContainer="<%= passwordPolicySearchContainer %>" />
+			<liferay-ui:search-iterator
+				displayStyle="<%= displayStyle %>"
+				markupView="lexicon"
+				searchContainer="<%= passwordPolicySearchContainer %>"
+			/>
 		</liferay-ui:search-container>
 	</c:if>
 </aui:form>
@@ -175,16 +205,3 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "passwor
 		}
 	);
 </aui:script>
-
-<c:if test="<%= PortalPermissionUtil.contains(permissionChecker, ActionKeys.ADD_PASSWORD_POLICY) %>">
-	<portlet:renderURL var="viewPasswordPoliciesURL" />
-
-	<portlet:renderURL var="addPasswordPolicyURL">
-		<portlet:param name="mvcPath" value="/edit_password_policy.jsp" />
-		<portlet:param name="redirect" value="<%= viewPasswordPoliciesURL %>" />
-	</portlet:renderURL>
-
-	<liferay-frontend:add-menu>
-		<liferay-frontend:add-menu-item title='<%= LanguageUtil.get(request, "add") %>' url="<%= addPasswordPolicyURL.toString() %>" />
-	</liferay-frontend:add-menu>
-</c:if>
