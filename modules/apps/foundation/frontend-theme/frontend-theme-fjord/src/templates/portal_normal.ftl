@@ -21,23 +21,21 @@
 		<div id="wrapper">
 			<header id="banner" role="banner">
 				<div class="container-fluid-1280">
-					<nav class="navbar">
-						<div class="navbar-header">
-							<a class="${logo_css_class}" href="${site_default_url}" rel="home" title="<@liferay.language_format arguments="${site_name}" key="go-to-x" />">
-								<img alt="${logo_description}" height="${company_logo_height}" src="${site_logo}" width="${company_logo_width}" />
+					<nav class="navbar ${nav_collapse}">
+						<a class="navbar-brand ${logo_css_class}" href="${site_default_url}" rel="home" title="<@liferay.language_format arguments="${site_name}" key="go-to-x" />">
+							<img alt="${logo_description}" height="${company_logo_height}" src="${site_logo}" width="${company_logo_width}" />
 
-								<#if show_site_name>
-									<span class="site-name" title="<@liferay.language_format arguments="${site_name}" key="go-to-x" />">
-										${site_name}
-									</span>
-								</#if>
-							</a>
+							<#if show_site_name>
+								<span class="site-name" title="<@liferay.language_format arguments="${site_name}" key="go-to-x" />">
+									${site_name}
+								</span>
+							</#if>
+						</a>
 
-							<button class="collapsed navbar-toggle" data-target="#navigationCollapse" data-toggle="collapse" type="button">
-								<span class="icon-bar"></span>
-								<span class="icon-bar"></span>
-							</button>
-						</div>
+						<button  aria-expanded="false" class="collapsed navbar-toggler" data-target="#navigationCollapse" data-toggle="collapse" type="button">
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
 
 						<#if has_navigation && is_setup_complete>
 							<#include full_templates_path + "/navigation.ftl">
