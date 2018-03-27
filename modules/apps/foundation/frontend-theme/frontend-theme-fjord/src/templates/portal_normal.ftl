@@ -20,7 +20,7 @@
 
 		<div id="wrapper">
 			<header id="banner" role="banner">
-				<div class="container-fluid-1280">
+				<div class="container-fluid container-fluid-max-xl">
 					<nav class="navbar ${nav_collapse}">
 						<a class="navbar-brand ${logo_css_class}" href="${site_default_url}" rel="home" title="<@liferay.language_format arguments="${site_name}" key="go-to-x" />">
 							<img alt="${logo_description}" height="${company_logo_height}" src="${site_logo}" width="${company_logo_width}" />
@@ -65,7 +65,7 @@
 			</main>
 
 			<footer id="footer" role="contentinfo">
-				<div class="container-fluid-1280" id="company-info">
+				<div class="container-fluid container-fluid-max-xl" id="company-info">
 					<div class="text-center" id="footer-brand">
 						<img alt="${logo_description}" height="${company_logo_height}" src="${site_logo}" width="${company_logo_width}" />
 					</div>
@@ -77,7 +77,7 @@
 					<#include "${full_templates_path}/social_media.ftl" />
 				</div>
 
-				<div class="container-fluid-1280">
+				<div class="container-fluid container-fluid-max-xl">
 					<p id="copyright">
 						<small><@liferay.language key="powered-by" /> <a href="http://www.liferay.com" rel="external">Liferay</a></small>
 					</p>
