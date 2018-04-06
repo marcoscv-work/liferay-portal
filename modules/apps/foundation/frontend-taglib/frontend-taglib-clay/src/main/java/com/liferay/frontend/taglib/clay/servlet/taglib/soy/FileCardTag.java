@@ -14,67 +14,40 @@
 
 package com.liferay.frontend.taglib.clay.servlet.taglib.soy;
 
-import com.liferay.frontend.taglib.clay.servlet.taglib.soy.base.BaseClayTag;
+import com.liferay.frontend.taglib.clay.servlet.taglib.soy.base.BaseClayCardTag;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItemList;
 
 /**
  * @author Julien Castelain
  */
-public class FileCardTag extends BaseClayTag {
+public class FileCardTag extends BaseClayCardTag {
 
 	public FileCardTag() {
-		super("card", "ClayFileCard", true);
-	}
-
-	public void setActionItems(Object actionItems) {
-		putValue("actionItems", actionItems);
-	}
-
-	public void setDisabled(Boolean disabled) {
-		putValue("disabled", disabled);
-	}
-
-	public void setFileType(String fileType) {
-		putValue("fileType", fileType);
-	}
-
-	public void setFileTypeStyle(String fileTypeStyle) {
-		putValue("fileTypeStyle", fileTypeStyle);
-	}
-
-	public void setGroupName(String groupName) {
-		putValue("groupName", groupName);
-	}
-
-	public void setHref(String href) {
-		putValue("href", href);
+		super("ClayFileCard");
 	}
 
 	public void setIcon(String icon) {
 		putValue("icon", icon);
 	}
 
-	public void setInputName(String inputName) {
-		putValue("inputName", inputName);
-	}
-
-	public void setInputValue(String inputValue) {
-		putValue("inputValue", inputValue);
-	}
-
-	public void setLabels(Object labels) {
-		putValue("labels", labels);
+	public void setLabels(LabelItemList labelItemList) {
+		putValue("labels", labelItemList);
 	}
 
 	public void setLabelStylesMap(Object labelStylesMap) {
 		putValue("labelStylesMap", labelStylesMap);
 	}
 
-	public void setSelectable(Boolean selectable) {
-		putValue("selectable", selectable);
+	public void setStickerLabel(String stickerLabel) {
+		putValue("stickerLabel", stickerLabel);
 	}
 
-	public void setSelected(Boolean selected) {
-		putValue("selected", selected);
+	public void setStickerShape(String stickerShape) {
+		putValue("stickerShape", stickerShape);
+	}
+
+	public void setStickerStyle(String stickerStyle) {
+		putValue("stickerStyle", stickerStyle);
 	}
 
 	public void setSubtitle(String subtitle) {

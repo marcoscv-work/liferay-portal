@@ -32,6 +32,7 @@ List repositoryEntries = (List)request.getAttribute("liferay-item-selector:repos
 int repositoryEntriesCount = GetterUtil.getInteger(request.getAttribute("liferay-item-selector:repository-entry-browser:repositoryEntriesCount"));
 boolean showBreadcrumb = GetterUtil.getBoolean(request.getAttribute("liferay-item-selector:repository-entry-browser:showBreadcrumb"));
 boolean showDragAndDropZone = GetterUtil.getBoolean(request.getAttribute("liferay-item-selector:repository-entry-browser:showDragAndDropZone"));
+boolean showSearch = GetterUtil.getBoolean(request.getAttribute("liferay-item-selector:repository-entry-browser:showSearch"));
 String tabName = GetterUtil.getString(request.getAttribute("liferay-item-selector:repository-entry-browser:tabName"));
 PortletURL uploadURL = (PortletURL)request.getAttribute("liferay-item-selector:repository-entry-browser:uploadURL");
 
@@ -81,6 +82,12 @@ if (Validator.isNotNull(keywords)) {
 				orderColumns="<%= orderColumns %>"
 				portletURL="<%= sortURL %>"
 			/>
+
+			<c:if test="<%= showSearch %>">
+				<li>
+					<liferay-item-selector:search />
+				</li>
+			</c:if>
 		</liferay-frontend:management-bar-filters>
 	</liferay-frontend:management-bar>
 </c:if>
@@ -165,7 +172,13 @@ if (Validator.isNotNull(keywords)) {
 			closeSearchURL.setParameter("folderId", String.valueOf(folderId));
 			%>
 
-			<liferay-ui:icon cssClass="close-search" iconCssClass="icon-remove" id="closeSearch" message="remove" url="<%= closeSearchURL.toString() %>" />
+			<liferay-ui:icon
+				cssClass="close-search"
+				iconCssClass="icon-remove"
+				id="closeSearch"
+				message="remove"
+				url="<%= closeSearchURL.toString() %>"
+			/>
 		</div>
 
 	<%
@@ -173,7 +186,9 @@ if (Validator.isNotNull(keywords)) {
 	%>
 
 	<c:if test="<%= showDragAndDropZone && !showSearchInfo && DLFolderPermission.contains(permissionChecker, scopeGroupId, folderId, ActionKeys.ADD_DOCUMENT) %>">
-		<liferay-util:buffer var="selectFileHTML">
+		<liferay-util:buffer
+			var="selectFileHTML"
+		>
 			<label class="btn btn-default" for="<%= randomNamespace %>InputFile"><liferay-ui:message key="select-file" /></label>
 
 			<input accept="<%= ListUtil.isEmpty(extensions) ? "*" : StringUtil.merge(extensions) %>" class="hide" id="<%= randomNamespace %>InputFile" type="file" />
@@ -235,7 +250,9 @@ if (Validator.isNotNull(keywords)) {
 							String thumbnailSrc = DLUtil.getThumbnailSrc(fileEntry, themeDisplay);
 						%>
 
-							<liferay-ui:search-container-column-text name="title">
+							<liferay-ui:search-container-column-text
+								name="title"
+							>
 								<a class="item-preview" data-metadata="<%= HtmlUtil.escapeAttribute(itemMedatadaJSONObject.toString()) %>" data-returnType="<%= HtmlUtil.escapeAttribute(ItemSelectorRepositoryEntryBrowserUtil.getItemSelectorReturnTypeClassName(itemSelectorReturnTypeResolver, existingFileEntryReturnType)) %>" data-url="<%= HtmlUtil.escapeAttribute(DLUtil.getPreviewURL(fileEntry, latestFileVersion, themeDisplay, StringPool.BLANK)) %>" data-value="<%= HtmlUtil.escapeAttribute(ItemSelectorRepositoryEntryBrowserUtil.getValue(itemSelectorReturnTypeResolver, existingFileEntryReturnType, fileEntry, themeDisplay)) %>" href="<%= Validator.isNotNull(thumbnailSrc) ? HtmlUtil.escapeHREF(DLUtil.getImagePreviewURL(fileEntry, themeDisplay)) : themeDisplay.getPathThemeImages() + "/file_system/large/default.png" %>" title="<%= HtmlUtil.escapeAttribute(title) %>">
 
 									<%
@@ -252,11 +269,19 @@ if (Validator.isNotNull(keywords)) {
 								</a>
 							</liferay-ui:search-container-column-text>
 
-							<liferay-ui:search-container-column-text name="size" value="<%= TextFormatter.formatStorageSize(fileEntry.getSize(), locale) %>" />
+							<liferay-ui:search-container-column-text
+								name="size"
+								value="<%= TextFormatter.formatStorageSize(fileEntry.getSize(), locale) %>"
+							/>
 
-							<liferay-ui:search-container-column-status name="status" status="<%= latestFileVersion.getStatus() %>" />
+							<liferay-ui:search-container-column-status
+								name="status"
+								status="<%= latestFileVersion.getStatus() %>"
+							/>
 
-							<liferay-ui:search-container-column-text name="modified-date">
+							<liferay-ui:search-container-column-text
+								name="modified-date"
+							>
 								<liferay-ui:message arguments="<%= new String[] {LanguageUtil.getTimeDescription(locale, System.currentTimeMillis() - fileEntry.getModifiedDate().getTime(), true), HtmlUtil.escape(fileEntry.getUserName())} %>" key="x-ago-by-x" translateArguments="<%= false %>" />
 							</liferay-ui:search-container-column-text>
 
@@ -269,7 +294,9 @@ if (Validator.isNotNull(keywords)) {
 							viewFolderURL.setParameter("folderId", String.valueOf(folder.getFolderId()));
 						%>
 
-							<liferay-ui:search-container-column-text name="title">
+							<liferay-ui:search-container-column-text
+								name="title"
+							>
 								<a href="<%= HtmlUtil.escapeHREF(viewFolderURL.toString()) %>" title="<%= HtmlUtil.escapeAttribute(folder.getName()) %>">
 									<i class="icon-folder-open"></i>
 
@@ -279,11 +306,19 @@ if (Validator.isNotNull(keywords)) {
 								</a>
 							</liferay-ui:search-container-column-text>
 
-							<liferay-ui:search-container-column-text name="size" value="--" />
+							<liferay-ui:search-container-column-text
+								name="size"
+								value="--"
+							/>
 
-							<liferay-ui:search-container-column-text name="status" value="--" />
+							<liferay-ui:search-container-column-text
+								name="status"
+								value="--"
+							/>
 
-							<liferay-ui:search-container-column-text name="modified-date">
+							<liferay-ui:search-container-column-text
+								name="modified-date"
+							>
 								<liferay-ui:message arguments="<%= new String[] {LanguageUtil.getTimeDescription(locale, System.currentTimeMillis() - folder.getModifiedDate().getTime(), true), HtmlUtil.escape(folder.getUserName())} %>" key="x-ago-by-x" translateArguments="<%= false %>" />
 							</liferay-ui:search-container-column-text>
 
@@ -323,7 +358,9 @@ if (Validator.isNotNull(keywords)) {
 									viewFolderURL.setParameter("folderId", String.valueOf(folder.getFolderId()));
 								%>
 
-									<liferay-ui:search-container-column-text colspan="<%= 3 %>">
+									<liferay-ui:search-container-column-text
+										colspan="<%= 3 %>"
+									>
 										<liferay-frontend:horizontal-card
 											resultRow="<%= row %>"
 											text="<%= folder.getName() %>"
@@ -383,7 +420,7 @@ if (Validator.isNotNull(keywords)) {
 													title="<%= title %>"
 												>
 													<liferay-frontend:vertical-card-sticker-bottom>
-														<div class="sticker sticker-bottom <%= stickerCssClass %>">
+														<div class="sticker sticker-secondary sticker-bottom-left <%= stickerCssClass %>">
 															<%= fileExtensionSticker %>
 														</div>
 													</liferay-frontend:vertical-card-sticker-bottom>
@@ -430,7 +467,9 @@ if (Validator.isNotNull(keywords)) {
 										src='<%= themeDisplay.getPathThemeImages() + "/file_system/large/" + folderImage + ".png" %>'
 									/>
 
-									<liferay-ui:search-container-column-text colspan="<%= 3 %>">
+									<liferay-ui:search-container-column-text
+										colspan="<%= 3 %>"
+									>
 										<liferay-ui:app-view-entry
 											author="<%= folder.getUserName() %>"
 											createDate="<%= folder.getCreateDate() %>"
@@ -466,7 +505,7 @@ if (Validator.isNotNull(keywords)) {
 										</c:when>
 										<c:when test="<%= (dlMimeTypeDisplayContext != null) && Validator.isNotNull(latestFileVersion.getExtension()) %>">
 											<liferay-ui:search-container-column-text>
-												<div class="sticker-default sticker-lg <%= dlMimeTypeDisplayContext.getCssClassFileMimeType(fileEntry.getMimeType()) %>">
+												<div class="sticker <%= dlMimeTypeDisplayContext.getCssClassFileMimeType(fileEntry.getMimeType()) %>">
 													<%= StringUtil.shorten(StringUtil.upperCase(latestFileVersion.getExtension()), 3, StringPool.BLANK) %>
 												</div>
 											</liferay-ui:search-container-column-text>
@@ -478,7 +517,9 @@ if (Validator.isNotNull(keywords)) {
 										</c:otherwise>
 									</c:choose>
 
-									<liferay-ui:search-container-column-text colspan="<%= 2 %>">
+									<liferay-ui:search-container-column-text
+										colspan="<%= 2 %>"
+									>
 										<div class="item-preview" data-href="<%= Validator.isNotNull(thumbnailSrc) ? HtmlUtil.escapeHREF(DLUtil.getImagePreviewURL(fileEntry, themeDisplay)) : themeDisplay.getPathThemeImages() + "/file_system/large/default.png" %>" data-metadata="<%= HtmlUtil.escapeAttribute(itemMedatadaJSONObject.toString()) %>" data-returnType="<%= HtmlUtil.escapeAttribute(ItemSelectorRepositoryEntryBrowserUtil.getItemSelectorReturnTypeClassName(itemSelectorReturnTypeResolver, existingFileEntryReturnType)) %>" data-title="<%= HtmlUtil.escapeAttribute(title) %>" data-url="<%= HtmlUtil.escapeAttribute(DLUtil.getPreviewURL(fileEntry, latestFileVersion, themeDisplay, StringPool.BLANK)) %>" data-value="<%= HtmlUtil.escapeAttribute(ItemSelectorRepositoryEntryBrowserUtil.getValue(itemSelectorReturnTypeResolver, existingFileEntryReturnType, fileEntry, themeDisplay)) %>">
 											<liferay-ui:app-view-entry
 												assetCategoryClassName="<%= DLFileEntry.class.getName() %>"
@@ -510,11 +551,18 @@ if (Validator.isNotNull(keywords)) {
 				</c:choose>
 			</liferay-ui:search-container-row>
 
-			<liferay-ui:search-iterator displayStyle="<%= displayStyle %>" markupView="lexicon" resultRowSplitter="<%= new RepositoryEntryResultRowSplitter() %>" searchContainer="<%= searchContainer %>" />
+			<liferay-ui:search-iterator
+				displayStyle="<%= displayStyle %>"
+				markupView="lexicon"
+				resultRowSplitter="<%= new RepositoryEntryResultRowSplitter() %>"
+				searchContainer="<%= searchContainer %>"
+			/>
 		</liferay-ui:search-container>
 
 		<c:if test="<%= !showSearchInfo && (uploadURL != null) %>">
-			<liferay-ui:drop-here-info message="drop-files-here" />
+			<liferay-ui:drop-here-info
+				message="drop-files-here"
+			/>
 		</c:if>
 	</c:if>
 </div>

@@ -13,6 +13,7 @@
 {template .render}
 	{@param label: string}
 	{@param name: string}
+	{@param pathThemeImages: string}
 	{@param readOnly: bool}
 	{@param showLabel: bool}
 	{@param value: string}
@@ -32,26 +33,26 @@
 	{/let}
 
 	<div class="{$formGroupClass}" data-fieldname="{$name}">
+		{let $labelAttributes kind="attributes"}
+			for="{$name}"
+		{/let}
+
+		<label {$labelAttributes}>
+			{if $showLabel}
+				{$label}{sp}
+			{/if}
+
+			{if $required}
+				<svg aria-hidden="true" class="lexicon-icon lexicon-icon-asterisk reference-mark">
+					<use xlink:href="{$pathThemeImages}/lexicon/icons.svg#asterisk" />
+				</svg>
+			{/if}
+		</label>
+
 		{if $showLabel}
-			{let $labelAttributes kind="attributes"}
-				class="control-label
-					{if $readOnly}
-						{sp}disabled
-					{/if}
-				"
-
-				for="{$name}"
-			{/let}
-
-			<label {$labelAttributes}>
-				{$label}
-
-				{if $required}
-					<span class="icon-asterisk text-warning"></span>
-				{/if}
-			</label>
-
-			<p class="liferay-ddm-form-field-tip">{$tip ?: ''}</p>
+			{if $tip}
+				<span class="form-text">{$tip}</span>
+			{/if}
 		{/if}
 
 		{let $displayValue: $formattedValue ? $formattedValue : $predefinedValue /}
@@ -69,7 +70,7 @@
 				{/if}
 
 				{if $readOnly}
-					readonly
+					disabled
 				{/if}
 
 				maxlength="10"

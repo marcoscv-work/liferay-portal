@@ -14,11 +14,24 @@
 
 package com.liferay.apio.architect.message.json.ld.internal;
 
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_CONTEXT;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_EXPECTS;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_ID;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_METHOD;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_OPERATION;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_TYPE;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_VOCAB;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.MEDIA_TYPE;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.TYPE_OPERATION;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.URL_HYDRA_PROFILE;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.URL_SCHEMA_ORG;
+
 import com.liferay.apio.architect.list.FunctionalList;
 import com.liferay.apio.architect.message.json.JSONObjectBuilder;
 import com.liferay.apio.architect.message.json.SingleModelMessageMapper;
 import com.liferay.apio.architect.operation.Method;
 import com.liferay.apio.architect.operation.Operation;
+import com.liferay.apio.architect.single.model.SingleModel;
 
 import java.util.List;
 import java.util.Optional;
@@ -46,7 +59,7 @@ public class JSONLDSingleModelMessageMapper<T>
 
 	@Override
 	public String getMediaType() {
-		return "application/ld+json";
+		return MEDIA_TYPE;
 	}
 
 	@Override
@@ -61,13 +74,26 @@ public class JSONLDSingleModelMessageMapper<T>
 	}
 
 	@Override
+	public void mapBooleanListField(
+		JSONObjectBuilder jsonObjectBuilder, String fieldName,
+		List<Boolean> value) {
+
+		jsonObjectBuilder.field(
+			fieldName
+		).arrayValue(
+		).addAllBooleans(
+			value
+		);
+	}
+
+	@Override
 	public void mapEmbeddedOperationFormURL(
 		JSONObjectBuilder singleModelJSONObjectBuilder,
 		JSONObjectBuilder operationJSONObjectBuilder,
 		FunctionalList<String> embeddedPathElements, String url) {
 
 		operationJSONObjectBuilder.field(
-			"expects"
+			FIELD_NAME_EXPECTS
 		).stringValue(
 			url
 		);
@@ -80,7 +106,7 @@ public class JSONLDSingleModelMessageMapper<T>
 		FunctionalList<String> embeddedPathElements, Method method) {
 
 		operationJSONObjectBuilder.field(
-			"method"
+			FIELD_NAME_METHOD
 		).stringValue(
 			method.name()
 		);
@@ -99,6 +125,24 @@ public class JSONLDSingleModelMessageMapper<T>
 		).field(
 			fieldName
 		).booleanValue(
+			value
+		);
+	}
+
+	@Override
+	public void mapEmbeddedResourceBooleanListField(
+		JSONObjectBuilder jsonObjectBuilder,
+		FunctionalList<String> embeddedPathElements, String fieldName,
+		List<Boolean> value) {
+
+		Stream<String> tailStream = embeddedPathElements.tailStream();
+
+		jsonObjectBuilder.nestedField(
+			embeddedPathElements.head(), tailStream.toArray(String[]::new)
+		).field(
+			fieldName
+		).arrayValue(
+		).addAllBooleans(
 			value
 		);
 	}
@@ -138,6 +182,24 @@ public class JSONLDSingleModelMessageMapper<T>
 	}
 
 	@Override
+	public void mapEmbeddedResourceNumberListField(
+		JSONObjectBuilder jsonObjectBuilder,
+		FunctionalList<String> embeddedPathElements, String fieldName,
+		List<Number> value) {
+
+		Stream<String> tailStream = embeddedPathElements.tailStream();
+
+		jsonObjectBuilder.nestedField(
+			embeddedPathElements.head(), tailStream.toArray(String[]::new)
+		).field(
+			fieldName
+		).arrayValue(
+		).addAllNumbers(
+			value
+		);
+	}
+
+	@Override
 	public void mapEmbeddedResourceStringField(
 		JSONObjectBuilder jsonObjectBuilder,
 		FunctionalList<String> embeddedPathElements, String fieldName,
@@ -155,6 +217,24 @@ public class JSONLDSingleModelMessageMapper<T>
 	}
 
 	@Override
+	public void mapEmbeddedResourceStringListField(
+		JSONObjectBuilder jsonObjectBuilder,
+		FunctionalList<String> embeddedPathElements, String fieldName,
+		List<String> value) {
+
+		Stream<String> tailStream = embeddedPathElements.tailStream();
+
+		jsonObjectBuilder.nestedField(
+			embeddedPathElements.head(), tailStream.toArray(String[]::new)
+		).field(
+			fieldName
+		).arrayValue(
+		).addAllStrings(
+			value
+		);
+	}
+
+	@Override
 	public void mapEmbeddedResourceTypes(
 		JSONObjectBuilder jsonObjectBuilder,
 		FunctionalList<String> embeddedPathElements, List<String> types) {
@@ -164,7 +244,7 @@ public class JSONLDSingleModelMessageMapper<T>
 		jsonObjectBuilder.nestedField(
 			embeddedPathElements.head(), tailStream.toArray(String[]::new)
 		).field(
-			"@type"
+			FIELD_NAME_TYPE
 		).arrayValue(
 		).addAllStrings(
 			types
@@ -181,7 +261,7 @@ public class JSONLDSingleModelMessageMapper<T>
 		jsonObjectBuilder.nestedField(
 			embeddedPathElements.head(), tailStream.toArray(String[]::new)
 		).field(
-			"@id"
+			FIELD_NAME_ID
 		).stringValue(
 			url
 		);
@@ -221,19 +301,36 @@ public class JSONLDSingleModelMessageMapper<T>
 
 		Optional<String> optional = embeddedPathElements.lastOptional();
 
-		jsonObjectBuilder.ifElseCondition(
-			optional.isPresent(),
-			builder -> builder.nestedField(
+		if (optional.isPresent()) {
+			jsonObjectBuilder.nestedField(
 				head, middle
-			).nestedField(
-				"@context", optional.get()
-			),
-			builder -> builder.nestedField("@context", head)
-		).field(
-			"@type"
-		).stringValue(
-			"@id"
-		);
+			).field(
+				FIELD_NAME_CONTEXT
+			).arrayValue(
+			).add(
+				builder -> builder.field(
+					optional.get()
+				).field(
+					FIELD_NAME_TYPE
+				).stringValue(
+					FIELD_NAME_ID
+				)
+			);
+		}
+		else {
+			jsonObjectBuilder.field(
+				FIELD_NAME_CONTEXT
+			).arrayValue(
+			).add(
+				builder -> builder.field(
+					head
+				).field(
+					FIELD_NAME_TYPE
+				).stringValue(
+					FIELD_NAME_ID
+				)
+			);
+		}
 	}
 
 	@Override
@@ -248,12 +345,25 @@ public class JSONLDSingleModelMessageMapper<T>
 	}
 
 	@Override
+	public void mapNumberListField(
+		JSONObjectBuilder jsonObjectBuilder, String fieldName,
+		List<Number> value) {
+
+		jsonObjectBuilder.field(
+			fieldName
+		).arrayValue(
+		).addAllNumbers(
+			value
+		);
+	}
+
+	@Override
 	public void mapOperationFormURL(
 		JSONObjectBuilder singleModelJSONObjectBuilder,
 		JSONObjectBuilder operationJSONObjectBuilder, String url) {
 
 		operationJSONObjectBuilder.field(
-			"expects"
+			FIELD_NAME_EXPECTS
 		).stringValue(
 			url
 		);
@@ -265,7 +375,7 @@ public class JSONLDSingleModelMessageMapper<T>
 		JSONObjectBuilder operationJSONObjectBuilder, Method method) {
 
 		operationJSONObjectBuilder.field(
-			"method"
+			FIELD_NAME_METHOD
 		).stringValue(
 			method.name()
 		);
@@ -274,7 +384,7 @@ public class JSONLDSingleModelMessageMapper<T>
 	@Override
 	public void mapSelfURL(JSONObjectBuilder jsonObjectBuilder, String url) {
 		jsonObjectBuilder.field(
-			"@id"
+			FIELD_NAME_ID
 		).stringValue(
 			url
 		);
@@ -292,11 +402,24 @@ public class JSONLDSingleModelMessageMapper<T>
 	}
 
 	@Override
+	public void mapStringListField(
+		JSONObjectBuilder jsonObjectBuilder, String fieldName,
+		List<String> value) {
+
+		jsonObjectBuilder.field(
+			fieldName
+		).arrayValue(
+		).addAllStrings(
+			value
+		);
+	}
+
+	@Override
 	public void mapTypes(
 		JSONObjectBuilder jsonObjectBuilder, List<String> types) {
 
 		jsonObjectBuilder.field(
-			"@type"
+			FIELD_NAME_TYPE
 		).arrayValue(
 		).addAllStrings(
 			types
@@ -305,13 +428,25 @@ public class JSONLDSingleModelMessageMapper<T>
 
 	@Override
 	public void onFinish(
-		JSONObjectBuilder jsonObjectBuilder, T model, Class<T> modelClass,
+		JSONObjectBuilder jsonObjectBuilder, SingleModel<T> singleModel,
 		HttpHeaders httpHeaders) {
 
-		jsonObjectBuilder.nestedField(
-			"@context", "@vocab"
-		).stringValue(
-			"http://schema.org"
+		jsonObjectBuilder.field(
+			FIELD_NAME_CONTEXT
+		).arrayValue(
+		).add(
+			builder -> builder.field(
+				FIELD_NAME_VOCAB
+			).stringValue(
+				URL_SCHEMA_ORG
+			)
+		);
+
+		jsonObjectBuilder.field(
+			FIELD_NAME_CONTEXT
+		).arrayValue(
+		).addString(
+			URL_HYDRA_PROFILE
 		);
 	}
 
@@ -327,21 +462,21 @@ public class JSONLDSingleModelMessageMapper<T>
 		String[] tail = tailStream.toArray(String[]::new);
 
 		operationJSONObjectBuilder.field(
-			"@id"
+			FIELD_NAME_ID
 		).stringValue(
-			operation.name
+			"_:" + operation.name
 		);
 
 		operationJSONObjectBuilder.field(
-			"@type"
+			FIELD_NAME_TYPE
 		).stringValue(
-			"Operation"
+			TYPE_OPERATION
 		);
 
 		singleModelJSONObjectBuilder.nestedField(
 			head, tail
 		).field(
-			"operation"
+			FIELD_NAME_OPERATION
 		).arrayValue(
 		).add(
 			operationJSONObjectBuilder
@@ -354,19 +489,19 @@ public class JSONLDSingleModelMessageMapper<T>
 		JSONObjectBuilder operationJSONObjectBuilder, Operation operation) {
 
 		operationJSONObjectBuilder.field(
-			"@id"
+			FIELD_NAME_ID
 		).stringValue(
-			operation.name
+			"_:" + operation.name
 		);
 
 		operationJSONObjectBuilder.field(
-			"@type"
+			FIELD_NAME_TYPE
 		).stringValue(
-			"Operation"
+			TYPE_OPERATION
 		);
 
 		singleModelJSONObjectBuilder.field(
-			"operation"
+			FIELD_NAME_OPERATION
 		).arrayValue(
 		).add(
 			operationJSONObjectBuilder

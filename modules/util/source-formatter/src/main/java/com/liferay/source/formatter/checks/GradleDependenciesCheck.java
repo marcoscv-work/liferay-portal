@@ -15,8 +15,8 @@
 package com.liferay.source.formatter.checks;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.tools.ToolsUtil;
@@ -124,7 +124,9 @@ public class GradleDependenciesCheck extends BaseFileCheck {
 			if (isModulesApp(absolutePath, false) &&
 				_hasBNDFile(absolutePath)) {
 
-				if (configuration.equals("compile")) {
+				if (!_isTestUtilModule(absolutePath) &&
+					configuration.equals("compile")) {
+
 					dependency = StringUtil.replaceFirst(
 						dependency, "compile", "provided");
 				}
@@ -154,7 +156,11 @@ public class GradleDependenciesCheck extends BaseFileCheck {
 	private String _getConfiguration(String dependency) {
 		int pos = dependency.indexOf(StringPool.SPACE);
 
-		return dependency.substring(0, pos);
+		if (pos != -1) {
+			return dependency.substring(0, pos);
+		}
+
+		return dependency;
 	}
 
 	private List<String> _getDependenciesBlocks(String content) {
@@ -200,6 +206,20 @@ public class GradleDependenciesCheck extends BaseFileCheck {
 		File file = new File(absolutePath.substring(0, pos + 1) + "bnd.bnd");
 
 		return file.exists();
+	}
+
+	private boolean _isTestUtilModule(String absolutePath) {
+		int x = absolutePath.lastIndexOf(StringPool.SLASH);
+
+		int y = absolutePath.lastIndexOf(StringPool.SLASH, x - 1);
+
+		String moduleName = absolutePath.substring(y + 1, x);
+
+		if (!moduleName.endsWith("-test-util")) {
+			return false;
+		}
+
+		return true;
 	}
 
 	private final Pattern _dependenciesPattern = Pattern.compile(

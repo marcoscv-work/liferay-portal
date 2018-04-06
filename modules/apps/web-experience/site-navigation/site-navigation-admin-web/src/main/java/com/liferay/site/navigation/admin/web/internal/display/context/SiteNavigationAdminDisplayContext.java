@@ -266,16 +266,7 @@ public class SiteNavigationAdminDisplayContext {
 			_liferayPortletRequest, getPortletURL(), null,
 			"there-are-no-navigation-menus");
 
-		if (Validator.isNull(getKeywords())) {
-			if (isShowAddButton()) {
-				searchContainer.setEmptyResultsMessageCssClass(
-					"there-are-no-navigation-menus-you-can-add-a-menu-by-" +
-						"clicking-the-plus-button-on-the-bottom-right-corner");
-				searchContainer.setEmptyResultsMessageCssClass(
-					"taglib-empty-result-message-header-has-plus-btn");
-			}
-		}
-		else {
+		if (Validator.isNotNull(getKeywords())) {
 			searchContainer.setSearch(true);
 		}
 
@@ -396,20 +387,6 @@ public class SiteNavigationAdminDisplayContext {
 		return _siteNavigationMenuName;
 	}
 
-	public boolean isNotPrimarySiteNavigationMenu() {
-		SiteNavigationMenu primarySiteNavigationMenu =
-			getPrimarySiteNavigationMenu();
-
-		if ((primarySiteNavigationMenu == null) ||
-			(primarySiteNavigationMenu.getSiteNavigationMenuId() ==
-				getSiteNavigationMenuId())) {
-
-			return false;
-		}
-
-		return true;
-	}
-
 	public boolean isShowAddButton() {
 		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
 			WebKeys.THEME_DISPLAY);
@@ -423,6 +400,20 @@ public class SiteNavigationAdminDisplayContext {
 		}
 
 		return false;
+	}
+
+	public boolean isShowPrimarySiteNavigationMenuMessage() {
+		SiteNavigationMenu primarySiteNavigationMenu =
+			getPrimarySiteNavigationMenu();
+
+		if ((primarySiteNavigationMenu == null) ||
+			(primarySiteNavigationMenu.getSiteNavigationMenuId() ==
+				getSiteNavigationMenuId())) {
+
+			return false;
+		}
+
+		return true;
 	}
 
 	private String _getFirstSiteNavigationMenuItem() {

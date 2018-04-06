@@ -14,28 +14,12 @@
 
 package com.liferay.bookmarks.uad.exporter;
 
-import com.liferay.bookmarks.constants.BookmarksPortletKeys;
 import com.liferay.bookmarks.model.BookmarksEntry;
+import com.liferay.bookmarks.service.BookmarksEntryLocalService;
 import com.liferay.bookmarks.uad.constants.BookmarksUADConstants;
-import com.liferay.bookmarks.uad.entity.BookmarksEntryUADEntity;
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
-import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
-import com.liferay.portal.kernel.repository.model.Folder;
-import com.liferay.portal.kernel.util.ContentTypes;
-import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.user.associated.data.aggregator.UADEntityAggregator;
-import com.liferay.user.associated.data.entity.UADEntity;
-import com.liferay.user.associated.data.exception.UADEntityException;
-import com.liferay.user.associated.data.exception.UADEntityExporterException;
-import com.liferay.user.associated.data.exporter.BaseUADEntityExporter;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.user.associated.data.exporter.DynamicQueryUADEntityExporter;
 import com.liferay.user.associated.data.exporter.UADEntityExporter;
-
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-
-import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -48,61 +32,20 @@ import org.osgi.service.component.annotations.Reference;
 	property = {"model.class.name=" + BookmarksUADConstants.CLASS_NAME_BOOKMARKS_ENTRY},
 	service = UADEntityExporter.class
 )
-public class BookmarksEntryUADEntityExporter extends BaseUADEntityExporter {
+public class BookmarksEntryUADEntityExporter
+	extends DynamicQueryUADEntityExporter<BookmarksEntry> {
 
 	@Override
-	public void export(UADEntity uadEntity) throws PortalException {
-		BookmarksEntry bookmarksEntry = _getBookmarksEntry(uadEntity);
-
-		String json = getJSON(bookmarksEntry);
-
-		Folder folder = getFolder(
-			bookmarksEntry.getCompanyId(), BookmarksPortletKeys.BOOKMARKS,
-			_FOLDER_NAME);
-
-		try {
-			InputStream is = new UnsyncByteArrayInputStream(
-				json.getBytes(StringPool.UTF8));
-
-			PortletFileRepositoryUtil.addPortletFileEntry(
-				folder.getGroupId(), bookmarksEntry.getUserId(),
-				Group.class.getName(), folder.getGroupId(),
-				BookmarksPortletKeys.BOOKMARKS, folder.getFolderId(), is,
-				uadEntity.getUADEntityId() + ".json",
-				ContentTypes.APPLICATION_JSON, false);
-		}
-		catch (UnsupportedEncodingException uee) {
-			throw new UADEntityExporterException(uee);
-		}
+	protected ActionableDynamicQuery doGetActionableDynamicQuery() {
+		return _bookmarksEntryLocalService.getActionableDynamicQuery();
 	}
 
 	@Override
-	protected List<UADEntity> getUADEntities(long userId) {
-		return _uadEntityAggregator.getUADEntities(userId);
+	protected String[] doGetUserIdFieldNames() {
+		return BookmarksUADConstants.USER_ID_FIELD_NAMES_BOOKMARKS_ENTRY;
 	}
 
-	private BookmarksEntry _getBookmarksEntry(UADEntity uadEntity)
-		throws PortalException {
-
-		_validate(uadEntity);
-
-		BookmarksEntryUADEntity bookmarksEntryUADEntity =
-			(BookmarksEntryUADEntity)uadEntity;
-
-		return bookmarksEntryUADEntity.getBookmarksEntry();
-	}
-
-	private void _validate(UADEntity uadEntity) throws PortalException {
-		if (!(uadEntity instanceof BookmarksEntryUADEntity)) {
-			throw new UADEntityException();
-		}
-	}
-
-	private static final String _FOLDER_NAME = "UADExport";
-
-	@Reference(
-		target = "(model.class.name=" + BookmarksUADConstants.CLASS_NAME_BOOKMARKS_ENTRY + ")"
-	)
-	private UADEntityAggregator _uadEntityAggregator;
+	@Reference
+	private BookmarksEntryLocalService _bookmarksEntryLocalService;
 
 }

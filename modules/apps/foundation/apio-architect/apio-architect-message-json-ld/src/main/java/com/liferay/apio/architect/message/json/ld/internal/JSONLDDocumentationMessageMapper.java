@@ -14,6 +14,15 @@
 
 package com.liferay.apio.architect.message.json.ld.internal;
 
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_CONTEXT;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_DESCRIPTION;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_ID;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_TITLE;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_TYPE;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.MEDIA_TYPE;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.TYPE_API_DOCUMENTATION;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.URL_HYDRA_PROFILE;
+
 import com.liferay.apio.architect.documentation.Documentation;
 import com.liferay.apio.architect.message.json.DocumentationMessageMapper;
 import com.liferay.apio.architect.message.json.JSONObjectBuilder;
@@ -38,7 +47,7 @@ public class JSONLDDocumentationMessageMapper
 
 	@Override
 	public String getMediaType() {
-		return "application/ld+json";
+		return MEDIA_TYPE;
 	}
 
 	@Override
@@ -46,7 +55,7 @@ public class JSONLDDocumentationMessageMapper
 		JSONObjectBuilder jsonObjectBuilder, String description) {
 
 		jsonObjectBuilder.field(
-			"description"
+			FIELD_NAME_DESCRIPTION
 		).stringValue(
 			description
 		);
@@ -55,7 +64,7 @@ public class JSONLDDocumentationMessageMapper
 	@Override
 	public void mapTitle(JSONObjectBuilder jsonObjectBuilder, String title) {
 		jsonObjectBuilder.field(
-			"title"
+			FIELD_NAME_TITLE
 		).stringValue(
 			title
 		);
@@ -67,21 +76,21 @@ public class JSONLDDocumentationMessageMapper
 		HttpHeaders httpHeaders) {
 
 		jsonObjectBuilder.field(
-			"@context"
+			FIELD_NAME_CONTEXT
 		).stringValue(
-			"http://www.w3.org/ns/hydra/context.jsonld"
+			URL_HYDRA_PROFILE
 		);
 
 		jsonObjectBuilder.field(
-			"@id"
+			FIELD_NAME_ID
 		).stringValue(
 			"http://api.example.com/doc/"
 		);
 
 		jsonObjectBuilder.field(
-			"@type"
+			FIELD_NAME_TYPE
 		).stringValue(
-			"ApiDocumentation"
+			TYPE_API_DOCUMENTATION
 		);
 	}
 

@@ -14,23 +14,28 @@
 
 package com.liferay.apio.architect.jaxrs.json.internal.writer;
 
-import static org.osgi.service.component.annotations.ReferenceCardinality.AT_LEAST_ONE;
-import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+import static com.liferay.apio.architect.unsafe.Unsafe.unsafeCast;
 
-import com.liferay.apio.architect.error.ApioDeveloperError.MustHaveMessageMapper;
-import com.liferay.apio.architect.error.ApioDeveloperError.MustHaveProvider;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+
 import com.liferay.apio.architect.functional.Try;
+import com.liferay.apio.architect.identifier.Identifier;
 import com.liferay.apio.architect.language.Language;
 import com.liferay.apio.architect.message.json.PageMessageMapper;
 import com.liferay.apio.architect.pagination.Page;
 import com.liferay.apio.architect.request.RequestInfo;
 import com.liferay.apio.architect.response.control.Embedded;
 import com.liferay.apio.architect.response.control.Fields;
+import com.liferay.apio.architect.routes.ItemRoutes;
+import com.liferay.apio.architect.single.model.SingleModel;
+import com.liferay.apio.architect.unsafe.Unsafe;
 import com.liferay.apio.architect.url.ServerURL;
 import com.liferay.apio.architect.wiring.osgi.manager.PathIdentifierMapperManager;
 import com.liferay.apio.architect.wiring.osgi.manager.ProviderManager;
+import com.liferay.apio.architect.wiring.osgi.manager.message.json.PageMessageMapperManager;
 import com.liferay.apio.architect.wiring.osgi.manager.representable.NameManager;
 import com.liferay.apio.architect.wiring.osgi.manager.representable.RepresentableManager;
+import com.liferay.apio.architect.wiring.osgi.manager.router.ItemRouterManager;
 import com.liferay.apio.architect.wiring.osgi.util.GenericUtil;
 import com.liferay.apio.architect.writer.PageWriter;
 
@@ -44,18 +49,19 @@ import java.lang.reflect.Type;
 
 import java.nio.charset.StandardCharsets;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
+import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
@@ -121,86 +127,80 @@ public class PageMessageBodyWriter<T>
 			).httpServletRequest(
 				_httpServletRequest
 			).serverURL(
-				getServerURL()
+				_providerManager.provideMandatory(
+					_httpServletRequest, ServerURL.class)
 			).embedded(
 				_providerManager.provideOptional(
-					Embedded.class, _httpServletRequest
+					_httpServletRequest, Embedded.class
 				).orElse(
 					__ -> false
 				)
 			).fields(
 				_providerManager.provideOptional(
-					Fields.class, _httpServletRequest
+					_httpServletRequest, Fields.class
 				).orElse(
 					__ -> string -> true
 				)
 			).language(
 				_providerManager.provideOptional(
-					Language.class, _httpServletRequest
+					_httpServletRequest, Language.class
 				).orElse(
 					Locale::getDefault
 				)
 			).build());
 
+		Optional<PageMessageMapper<T>> optional =
+			_pageMessageMapperManager.getPageMessageMapperOptional(_request);
+
+		PageMessageMapper<T> pageMessageMapper = optional.orElseThrow(
+			NotSupportedException::new);
+
 		PageWriter<T> pageWriter = PageWriter.create(
 			builder -> builder.page(
 				page
 			).pageMessageMapper(
-				getPageMessageMapper(mediaType, page)
+				pageMessageMapper
 			).pathFunction(
-				_pathIdentifierMapperManager::map
+				_pathIdentifierMapperManager::mapToPath
 			).resourceNameFunction(
 				_nameManager::getNameOptional
 			).representorFunction(
-				_representableManager::getRepresentorOptional
+				name -> unsafeCast(
+					_representableManager.getRepresentorOptional(name))
 			).requestInfo(
 				requestInfo
+			).singleModelFunction(
+				this::_getSingleModelOptional
 			).build());
+
+		httpHeaders.put(
+			CONTENT_TYPE,
+			Collections.singletonList(pageMessageMapper.getMediaType()));
 
 		printWriter.println(pageWriter.write());
 
 		printWriter.close();
 	}
 
-	/**
-	 * Returns the right {@link PageMessageMapper} for the provided {@code
-	 * MediaType} that supports writing the provided {@link Page}.
-	 *
-	 * @param  mediaType the request's {@code MediaType}
-	 * @param  page the {@code Page} to write
-	 * @return the {@code PageMessageMapper} that writes the {@code Page} in the
-	 *         {@code MediaType}
-	 */
-	protected PageMessageMapper<T> getPageMessageMapper(
-		MediaType mediaType, Page<T> page) {
+	private Optional<SingleModel> _getSingleModelOptional(
+		Object identifier, Class<? extends Identifier> identifierClass) {
 
-		Stream<PageMessageMapper<T>> stream = _pageMessageMappers.stream();
+		Optional<String> nameOptional = _nameManager.getNameOptional(
+			identifierClass.getName());
 
-		String mediaTypeString = mediaType.toString();
-
-		return stream.filter(
-			bodyWriter ->
-				mediaTypeString.equals(bodyWriter.getMediaType()) &&
-				bodyWriter.supports(page, _httpHeaders)
-		).findFirst(
-		).orElseThrow(
-			() -> new MustHaveMessageMapper(
-				mediaTypeString, page.getModelClass())
+		return nameOptional.flatMap(
+			_itemRouterManager::getItemRoutesOptional
+		).flatMap(
+			ItemRoutes::getItemFunctionOptional
+		).map(
+			function -> function.apply(_httpServletRequest)
+		).map(
+			function -> function.apply(identifier)
+		).flatMap(
+			Try::toOptional
+		).map(
+			Unsafe::unsafeCast
 		);
-	}
-
-	/**
-	 * Returns the server URL, or throws a {@link MustHaveProvider} developer
-	 * error.
-	 *
-	 * @return the server URL
-	 */
-	protected ServerURL getServerURL() {
-		Optional<ServerURL> optional = _providerManager.provideOptional(
-			ServerURL.class, _httpServletRequest);
-
-		return optional.orElseThrow(
-			() -> new MustHaveProvider(ServerURL.class));
 	}
 
 	@Context
@@ -210,10 +210,13 @@ public class PageMessageBodyWriter<T>
 	private HttpServletRequest _httpServletRequest;
 
 	@Reference
+	private ItemRouterManager _itemRouterManager;
+
+	@Reference
 	private NameManager _nameManager;
 
-	@Reference(cardinality = AT_LEAST_ONE, policyOption = GREEDY)
-	private List<PageMessageMapper<T>> _pageMessageMappers;
+	@Reference
+	private PageMessageMapperManager _pageMessageMapperManager;
 
 	@Reference
 	private PathIdentifierMapperManager _pathIdentifierMapperManager;
@@ -223,5 +226,8 @@ public class PageMessageBodyWriter<T>
 
 	@Reference
 	private RepresentableManager _representableManager;
+
+	@Context
+	private Request _request;
 
 }

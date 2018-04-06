@@ -145,7 +145,7 @@ task checkDocker() {
 
 				url.toURL().text
 
-				println("Portal startup finished")
+				println("Whiteboard startup finished")
 
 				break
 			}
@@ -185,6 +185,7 @@ task runDocker(type: Exec) {
 	commandLine 'docker', 'run',
 	'-e', "JACOCO_DIR=${rootDir}/build/jacoco",
 	'-e', "JAVA_OPTS=$javaOpts",
+	'-e', "LIFERAY_APIO_AUTH=${System.getenv('LIFERAY_APIO_AUTH')}",
 	'-e', "ROOT_DIR=${rootDir}",
 	'-p', '5005:5005',
 	'-p', '8080:8080',
@@ -200,7 +201,22 @@ task runDocker(type: Exec) {
 }
 
 def getClientDeployDir() {
-	return new File(rootDir, project.property("com.liferay.apio.architect.deploy.dir"))
+	if (project.hasProperty('liferay.home')) {
+		return new File(project.getProperty('liferay.home').toString() + '/osgi/modules')
+	}
+
+	Properties properties = new Properties()
+	def file = project.rootProject.file('local.properties')
+
+	if (file.exists()) {
+		properties.load(file.newDataInputStream())
+	}
+
+	def apioDeployProperty = 'com.liferay.apio.architect.deploy.dir'
+
+	def sdkDir = properties.getProperty(apioDeployProperty)
+
+	return new File(rootDir, (sdkDir ?: project.property(apioDeployProperty)).toString())
 }
 
 def getImageName() {

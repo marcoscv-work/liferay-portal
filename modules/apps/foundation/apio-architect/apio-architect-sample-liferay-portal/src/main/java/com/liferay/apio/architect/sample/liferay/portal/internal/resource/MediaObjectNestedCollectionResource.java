@@ -14,31 +14,27 @@
 
 package com.liferay.apio.architect.sample.liferay.portal.internal.resource;
 
+import static com.liferay.apio.architect.sample.liferay.portal.internal.idempotent.Idempotent.idempotent;
+
+import com.liferay.apio.architect.file.BinaryFile;
+import com.liferay.apio.architect.functional.Try;
 import com.liferay.apio.architect.pagination.PageItems;
 import com.liferay.apio.architect.pagination.Pagination;
 import com.liferay.apio.architect.representor.Representor;
 import com.liferay.apio.architect.resource.NestedCollectionResource;
 import com.liferay.apio.architect.routes.ItemRoutes;
 import com.liferay.apio.architect.routes.NestedCollectionRoutes;
-import com.liferay.blogs.kernel.exception.NoSuchEntryException;
-import com.liferay.document.library.kernel.exception.NoSuchFolderException;
-import com.liferay.document.library.kernel.model.DLFileEntry;
-import com.liferay.document.library.kernel.model.DLFolder;
-import com.liferay.document.library.kernel.service.DLFileEntryService;
-import com.liferay.document.library.kernel.service.DLFolderService;
-import com.liferay.portal.kernel.exception.NoSuchUserException;
+import com.liferay.apio.architect.sample.liferay.portal.internal.form.MediaObjectCreatorForm;
+import com.liferay.apio.architect.sample.liferay.portal.internal.form.MediaObjectUpdaterForm;
+import com.liferay.apio.architect.sample.liferay.portal.internal.identifier.FolderIdentifier;
+import com.liferay.apio.architect.sample.liferay.portal.internal.identifier.MediaObjectIdentifier;
+import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.security.auth.PrincipalException;
-import com.liferay.portal.kernel.service.UserLocalService;
-
-import java.io.InputStream;
+import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.service.ServiceContext;
 
 import java.util.List;
-import java.util.Optional;
-
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.ServerErrorException;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -46,19 +42,23 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * Provides the information necessary to expose <a
  * href="http://schema.org/MediaObject">MediaObject </a> resources through a web
- * API. The resources are mapped from the internal model {@code DLFileEntry}.
+ * API. The resources are mapped from the internal model {@code FileEntry}.
  *
  * @author Javier Gamarra
  */
 @Component(immediate = true)
 public class MediaObjectNestedCollectionResource
-	implements NestedCollectionResource <DLFileEntry, Long, DLFolder, Long> {
+	implements NestedCollectionResource<FileEntry, Long,
+		MediaObjectIdentifier, Long, FolderIdentifier> {
 
 	@Override
-	public NestedCollectionRoutes<DLFileEntry> collectionRoutes(
-		NestedCollectionRoutes.Builder<DLFileEntry, Long> builder) {
+	public NestedCollectionRoutes<FileEntry, Long> collectionRoutes(
+		NestedCollectionRoutes.Builder<FileEntry, Long> builder) {
 
-		return builder.addGetter(
+		return builder.addCreator(
+			this::_addFileEntry, (credentials, folderId) -> true,
+			MediaObjectCreatorForm::buildForm
+		).addGetter(
 			this::_getPageItems
 		).build();
 	}
@@ -69,137 +69,112 @@ public class MediaObjectNestedCollectionResource
 	}
 
 	@Override
-	public ItemRoutes<DLFileEntry> itemRoutes(
-		ItemRoutes.Builder<DLFileEntry, Long> builder) {
+	public ItemRoutes<FileEntry, Long> itemRoutes(
+		ItemRoutes.Builder<FileEntry, Long> builder) {
 
 		return builder.addGetter(
-			this::_getDLFileEntry
+			_dlAppService::getFileEntry
 		).addRemover(
-			this::_deleteDLFileEntry
+			idempotent(_dlAppService::deleteFileEntry),
+			(credentials, fileEntryId) -> true
+		).addUpdater(
+			this::_updateFileEntry, (credentials, fileEntryId) -> true,
+			MediaObjectUpdaterForm::buildForm
 		).build();
 	}
 
 	@Override
-	public Representor<DLFileEntry, Long> representor(
-		Representor.Builder<DLFileEntry, Long> builder) {
+	public Representor<FileEntry, Long> representor(
+		Representor.Builder<FileEntry, Long> builder) {
 
 		return builder.types(
 			"MediaObject"
 		).identifier(
-			DLFileEntry::getFileEntryId
+			FileEntry::getFileEntryId
 		).addBidirectionalModel(
-			"folder", "mediaObjects", DLFolder.class,
-			this::_getDLFolderOptional, DLFolder::getFolderId
+			"folder", "mediaObject", FolderIdentifier.class,
+			FileEntry::getFolderId
 		).addBinary(
-			"contentStream", this::_getInputStream
+			"contentStream", this::_getBinaryFile
 		).addDate(
-			"dateCreated", DLFileEntry::getCreateDate
+			"dateCreated", FileEntry::getCreateDate
 		).addDate(
-			"dateModified", DLFileEntry::getModifiedDate
+			"dateModified", FileEntry::getModifiedDate
 		).addDate(
-			"datePublished", DLFileEntry::getLastPublishDate
-		).addLinkedModel(
-			"author", User.class, this::_getUserOptional
+			"datePublished", FileEntry::getLastPublishDate
 		).addNumber(
-			"contentSize", DLFileEntry::getSize
+			"contentSize", FileEntry::getSize
 		).addString(
-			"fileFormat", DLFileEntry::getMimeType
+			"fileFormat", FileEntry::getMimeType
 		).addString(
-			"headline", DLFileEntry::getTitle
+			"headline", FileEntry::getTitle
 		).addString(
-			"name", DLFileEntry::getName
+			"name", FileEntry::getFileName
 		).addString(
-			"text", DLFileEntry::getDescription
+			"text", FileEntry::getDescription
 		).build();
 	}
 
-	private void _deleteDLFileEntry(Long dlFileEntryId) {
-		try {
-			_dlFileEntryService.deleteFileEntry(dlFileEntryId);
-		}
-		catch (PortalException pe) {
-			throw new ServerErrorException(500, pe);
-		}
+	private FileEntry _addFileEntry(
+			Long folderId, MediaObjectCreatorForm mediaObjectCreatorForm)
+		throws PortalException {
+
+		Folder folder = _dlAppService.getFolder(folderId);
+
+		BinaryFile binaryFile = mediaObjectCreatorForm.getBinaryFile();
+
+		return _dlAppService.addFileEntry(
+			folder.getGroupId(), folderId, mediaObjectCreatorForm.getName(),
+			binaryFile.getMimeType(), mediaObjectCreatorForm.getTitle(),
+			mediaObjectCreatorForm.getDescription(), null,
+			binaryFile.getInputStream(), binaryFile.getSize(),
+			new ServiceContext());
 	}
 
-	private DLFileEntry _getDLFileEntry(Long dlFileEntryId) {
-		try {
-			return _dlFileEntryService.getFileEntry(dlFileEntryId);
-		}
-		catch (NoSuchEntryException | PrincipalException e) {
-			throw new NotFoundException(
-				"Unable to get file " + dlFileEntryId, e);
-		}
-		catch (PortalException pe) {
-			throw new ServerErrorException(500, pe);
-		}
+	private BinaryFile _getBinaryFile(FileEntry fileEntry) {
+		Try<FileEntry> fileEntryTry = Try.success(fileEntry);
+
+		return fileEntryTry.map(
+			file -> new BinaryFile(
+				file.getContentStream(), fileEntry.getSize(),
+				file.getMimeType())
+		).orElse(
+			null
+		);
 	}
 
-	private Optional<DLFolder> _getDLFolderOptional(DLFileEntry dlFileEntry) {
-		try {
-			return Optional.of(
-				_dlFolderService.getFolder(dlFileEntry.getFolderId()));
-		}
-		catch (NoSuchFolderException nsfe) {
-			throw new NotFoundException(
-				"Unable to get group " + dlFileEntry.getFolderId(), nsfe);
-		}
-		catch (PortalException pe) {
-			throw new ServerErrorException(500, pe);
-		}
+	private PageItems<FileEntry> _getPageItems(
+			Pagination pagination, Long folderId)
+		throws PortalException {
+
+		Folder folder = _dlAppService.getFolder(folderId);
+
+		List<FileEntry> dlFileEntries = _dlAppService.getFileEntries(
+			folder.getGroupId(), folder.getFolderId(),
+			pagination.getStartPosition(), pagination.getEndPosition());
+		int count = _dlAppService.getFileEntriesCount(
+			folder.getGroupId(), folder.getFolderId());
+
+		return new PageItems<>(dlFileEntries, count);
 	}
 
-	private InputStream _getInputStream(DLFileEntry dlFileEntry) {
-		try {
-			return dlFileEntry.getContentStream();
-		}
-		catch (PortalException pe) {
-			throw new ServerErrorException(500, pe);
-		}
-	}
+	private FileEntry _updateFileEntry(
+			Long fileEntryId, MediaObjectUpdaterForm mediaObjectUpdaterForm)
+		throws PortalException {
 
-	private PageItems<DLFileEntry> _getPageItems(
-		Pagination pagination, Long dlFolderId) {
+		BinaryFile binaryFile = mediaObjectUpdaterForm.getBinaryFile();
 
-		try {
-			DLFolder dlFolder = _dlFolderService.getFolder(dlFolderId);
-
-			List<DLFileEntry> dlFileEntries =
-				_dlFileEntryService.getFileEntries(
-					dlFolder.getGroupId(), dlFolder.getFolderId(),
-					pagination.getStartPosition(), pagination.getEndPosition(),
-					null);
-			int count = _dlFileEntryService.getFileEntriesCount(
-				dlFolder.getGroupId(), dlFolder.getFolderId());
-
-			return new PageItems<>(dlFileEntries, count);
-		}
-		catch (PortalException pe) {
-			throw new ServerErrorException(500, pe);
-		}
-	}
-
-	private Optional<User> _getUserOptional(DLFileEntry dlFileEntry) {
-		try {
-			return Optional.ofNullable(
-				_userService.getUserById(dlFileEntry.getUserId()));
-		}
-		catch (NoSuchUserException | PrincipalException e) {
-			throw new NotFoundException(
-				"Unable to get user " + dlFileEntry.getUserId(), e);
-		}
-		catch (PortalException pe) {
-			throw new ServerErrorException(500, pe);
-		}
+		return _dlAppService.updateFileEntry(
+			fileEntryId, mediaObjectUpdaterForm.getName(),
+			binaryFile.getMimeType(), mediaObjectUpdaterForm.getTitle(),
+			mediaObjectUpdaterForm.getDescription(),
+			mediaObjectUpdaterForm.getChangelog(),
+			mediaObjectUpdaterForm.getMajorVersion(),
+			binaryFile.getInputStream(), binaryFile.getSize(),
+			new ServiceContext());
 	}
 
 	@Reference
-	private DLFileEntryService _dlFileEntryService;
-
-	@Reference
-	private DLFolderService _dlFolderService;
-
-	@Reference
-	private UserLocalService _userService;
+	private DLAppService _dlAppService;
 
 }

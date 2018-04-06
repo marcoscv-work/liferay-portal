@@ -36,6 +36,21 @@ renderResponse.setTitle(LanguageUtil.get(request, "fragments"));
 			portletURL="<%= currentURLObj %>"
 			selectedDisplayStyle="<%= fragmentDisplayContext.getDisplayStyle() %>"
 		/>
+
+		<c:if test="<%= fragmentDisplayContext.isShowAddButton(FragmentActionKeys.ADD_FRAGMENT_COLLECTION) %>">
+			<portlet:renderURL var="addFragmentCollectionURL">
+				<portlet:param name="mvcRenderCommandName" value="/fragment/edit_fragment_collection" />
+			</portlet:renderURL>
+
+			<liferay-frontend:add-menu
+				inline="<%= true %>"
+			>
+				<liferay-frontend:add-menu-item
+					title='<%= LanguageUtil.get(request, "add-collection") %>'
+					url="<%= addFragmentCollectionURL.toString() %>"
+				/>
+			</liferay-frontend:add-menu>
+		</c:if>
 	</liferay-frontend:management-bar-buttons>
 
 	<liferay-frontend:management-bar-filters>
@@ -60,16 +75,28 @@ renderResponse.setTitle(LanguageUtil.get(request, "fragments"));
 
 			<li>
 				<aui:form action="<%= portletURL.toString() %>" method="post" name="fm1">
-					<liferay-ui:input-search markupView="lexicon" />
+					<liferay-ui:input-search
+						markupView="lexicon"
+					/>
 				</aui:form>
 			</li>
 		</c:if>
 	</liferay-frontend:management-bar-filters>
 
 	<liferay-frontend:management-bar-action-buttons>
-		<liferay-frontend:management-bar-button href="javascript:;" icon="import-export" id="exportSelectedFragmentCollections" label="export" />
+		<liferay-frontend:management-bar-button
+			href="javascript:;"
+			icon="import-export"
+			id="exportSelectedFragmentCollections"
+			label="export"
+		/>
 
-		<liferay-frontend:management-bar-button href="javascript:;" icon="trash" id="deleteSelectedFragmentCollections" label="delete" />
+		<liferay-frontend:management-bar-button
+			href="javascript:;"
+			icon="trash"
+			id="deleteSelectedFragmentCollections"
+			label="delete"
+		/>
 	</liferay-frontend:management-bar-action-buttons>
 </liferay-frontend:management-bar>
 
@@ -93,7 +120,9 @@ renderResponse.setTitle(LanguageUtil.get(request, "fragments"));
 			%>
 
 			<liferay-ui:search-container-column-text>
-				<liferay-ui:search-container-column-text colspan="<%= 2 %>">
+				<liferay-ui:search-container-column-text
+					colspan="<%= 2 %>"
+				>
 					<liferay-frontend:horizontal-card
 						actionJsp="/fragment_collection_action.jsp"
 						actionJspServletContext="<%= application %>"
@@ -112,19 +141,12 @@ renderResponse.setTitle(LanguageUtil.get(request, "fragments"));
 			</liferay-ui:search-container-column-text>
 		</liferay-ui:search-container-row>
 
-		<liferay-ui:search-iterator displayStyle="<%= fragmentDisplayContext.getDisplayStyle() %>" markupView="lexicon" />
+		<liferay-ui:search-iterator
+			displayStyle="<%= fragmentDisplayContext.getDisplayStyle() %>"
+			markupView="lexicon"
+		/>
 	</liferay-ui:search-container>
 </aui:form>
-
-<c:if test="<%= fragmentDisplayContext.isShowAddButton(FragmentActionKeys.ADD_FRAGMENT_COLLECTION) %>">
-	<portlet:renderURL var="addFragmentCollectionURL">
-		<portlet:param name="mvcRenderCommandName" value="/fragment/edit_fragment_collection" />
-	</portlet:renderURL>
-
-	<liferay-frontend:add-menu>
-		<liferay-frontend:add-menu-item title='<%= LanguageUtil.get(request, "add-collection") %>' url="<%= addFragmentCollectionURL.toString() %>" />
-	</liferay-frontend:add-menu>
-</c:if>
 
 <aui:script require="metal-dom/src/all/dom as dom">
 	var deleteSelectedFragmentCollectionsHandler = dom.on(

@@ -31,6 +31,7 @@ import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
@@ -68,6 +69,16 @@ public class FragmentDisplayContext {
 
 		if ((fragmentEntry != null) && Validator.isNull(_cssContent)) {
 			_cssContent = fragmentEntry.getCss();
+
+			if (Validator.isNull(_cssContent)) {
+				StringBundler sb = new StringBundler(3);
+
+				sb.append(".fragment_");
+				sb.append(fragmentEntry.getFragmentEntryId());
+				sb.append(" {\n}");
+
+				_cssContent = sb.toString();
+			}
 		}
 
 		return _cssContent;
@@ -97,24 +108,6 @@ public class FragmentDisplayContext {
 		}
 
 		return redirect;
-	}
-
-	public List<NavigationItem> getEditFragmentEntryNavigationItems() {
-		List<NavigationItem> navigationItems = new ArrayList<>();
-
-		NavigationItem entriesNavigationItem = new NavigationItem();
-
-		entriesNavigationItem.setActive(true);
-
-		PortletURL mainURL = _renderResponse.createRenderURL();
-
-		entriesNavigationItem.setHref(mainURL.toString());
-
-		entriesNavigationItem.setLabel(LanguageUtil.get(_request, "code"));
-
-		navigationItems.add(entriesNavigationItem);
-
-		return navigationItems;
 	}
 
 	public String getEditFragmentEntryRedirect() throws PortalException {
@@ -175,17 +168,11 @@ public class FragmentDisplayContext {
 	}
 
 	public String getFragmentCollectionsRedirect() throws PortalException {
-		String redirect = ParamUtil.getString(_request, "redirect");
+		PortletURL backURL = _renderResponse.createRenderURL();
 
-		if (Validator.isNull(redirect)) {
-			PortletURL backURL = _renderResponse.createRenderURL();
+		backURL.setParameter("mvcRenderCommandName", "/fragment/view");
 
-			backURL.setParameter("mvcRenderCommandName", "/fragment/view");
-
-			redirect = backURL.toString();
-		}
-
-		return redirect;
+		return backURL.toString();
 	}
 
 	public SearchContainer getFragmentCollectionsSearchContainer()
@@ -203,15 +190,7 @@ public class FragmentDisplayContext {
 				_renderRequest, _renderResponse.createRenderURL(), null,
 				"there-are-no-collections");
 
-		if (!isSearch()) {
-			fragmentCollectionsSearchContainer.setEmptyResultsMessage(
-				"there-are-no-collections.-you-can-add-a-collection-by-" +
-					"clicking-the-plus-button-on-the-bottom-right-corner");
-
-			fragmentCollectionsSearchContainer.setEmptyResultsMessageCssClass(
-				"taglib-empty-result-message-header-has-plus-btn");
-		}
-		else {
+		if (isSearch()) {
 			fragmentCollectionsSearchContainer.setSearch(true);
 		}
 
@@ -290,14 +269,7 @@ public class FragmentDisplayContext {
 			_renderRequest, _renderResponse.createRenderURL(), null,
 			"there-are-no-fragments");
 
-		if (!isSearch()) {
-			fragmentEntriesSearchContainer.setEmptyResultsMessage(
-				"there-are-no-fragments.-you-can-add-a-fragment-by-clicking-" +
-					"the-plus-button-on-the-bottom-right-corner");
-			fragmentEntriesSearchContainer.setEmptyResultsMessageCssClass(
-				"taglib-empty-result-message-header-has-plus-btn");
-		}
-		else {
+		if (isSearch()) {
 			fragmentEntriesSearchContainer.setSearch(true);
 		}
 
@@ -366,23 +338,6 @@ public class FragmentDisplayContext {
 		return _fragmentEntryId;
 	}
 
-	public List<NavigationItem> getFragmentEntryNavigationItems() {
-		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		List<NavigationItem> navigationItems = new ArrayList<>();
-
-		NavigationItem entriesNavigationItem = new NavigationItem();
-
-		entriesNavigationItem.setActive(true);
-		entriesNavigationItem.setHref(themeDisplay.getURLCurrent());
-		entriesNavigationItem.setLabel(LanguageUtil.get(_request, "fragments"));
-
-		navigationItems.add(entriesNavigationItem);
-
-		return navigationItems;
-	}
-
 	public String getFragmentEntryTitle() throws PortalException {
 		FragmentEntry fragmentEntry = getFragmentEntry();
 
@@ -404,6 +359,16 @@ public class FragmentDisplayContext {
 
 		if ((fragmentEntry != null) && Validator.isNull(_htmlContent)) {
 			_htmlContent = fragmentEntry.getHtml();
+
+			if (Validator.isNull(_htmlContent)) {
+				StringBundler sb = new StringBundler(3);
+
+				sb.append("<div class=\"fragment_");
+				sb.append(fragmentEntry.getFragmentEntryId());
+				sb.append("\">\n</div>");
+
+				_htmlContent = sb.toString();
+			}
 		}
 
 		return _htmlContent;

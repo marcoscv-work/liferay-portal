@@ -14,10 +14,29 @@
 
 package com.liferay.apio.architect.message.json.ld.internal;
 
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_CONTEXT;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_FIRST;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_ID;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_LAST;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_MEMBER;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_NEXT;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_NUMBER_OF_ITEMS;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_PREVIOUS;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_TOTAL_ITEMS;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_TYPE;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_VIEW;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.FIELD_NAME_VOCAB;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.MEDIA_TYPE;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.TYPE_COLLECTION;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.TYPE_PARTIAL_COLLECTION_VIEW;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.URL_HYDRA_PROFILE;
+import static com.liferay.apio.architect.message.json.ld.internal.JSONLDConstants.URL_SCHEMA_ORG;
+
 import com.liferay.apio.architect.message.json.JSONObjectBuilder;
 import com.liferay.apio.architect.message.json.PageMessageMapper;
 import com.liferay.apio.architect.message.json.SingleModelMessageMapper;
 import com.liferay.apio.architect.pagination.Page;
+import com.liferay.apio.architect.single.model.SingleModel;
 
 import java.util.Optional;
 
@@ -42,7 +61,7 @@ public class JSONLDPageMessageMapper<T> implements PageMessageMapper<T> {
 
 	@Override
 	public String getMediaType() {
-		return "application/ld+json";
+		return MEDIA_TYPE;
 	}
 
 	@Override
@@ -64,7 +83,7 @@ public class JSONLDPageMessageMapper<T> implements PageMessageMapper<T> {
 		JSONObjectBuilder jsonObjectBuilder, String url) {
 
 		jsonObjectBuilder.nestedField(
-			"view", "@id"
+			FIELD_NAME_VIEW, FIELD_NAME_ID
 		).stringValue(
 			url
 		);
@@ -75,7 +94,7 @@ public class JSONLDPageMessageMapper<T> implements PageMessageMapper<T> {
 		JSONObjectBuilder jsonObjectBuilder, String url) {
 
 		jsonObjectBuilder.nestedField(
-			"view", "first"
+			FIELD_NAME_VIEW, FIELD_NAME_FIRST
 		).stringValue(
 			url
 		);
@@ -86,7 +105,7 @@ public class JSONLDPageMessageMapper<T> implements PageMessageMapper<T> {
 		JSONObjectBuilder jsonObjectBuilder, int totalCount) {
 
 		jsonObjectBuilder.field(
-			"totalItems"
+			FIELD_NAME_TOTAL_ITEMS
 		).numberValue(
 			totalCount
 		);
@@ -97,7 +116,7 @@ public class JSONLDPageMessageMapper<T> implements PageMessageMapper<T> {
 		JSONObjectBuilder jsonObjectBuilder, String url) {
 
 		jsonObjectBuilder.nestedField(
-			"view", "last"
+			FIELD_NAME_VIEW, FIELD_NAME_LAST
 		).stringValue(
 			url
 		);
@@ -108,7 +127,7 @@ public class JSONLDPageMessageMapper<T> implements PageMessageMapper<T> {
 		JSONObjectBuilder jsonObjectBuilder, String url) {
 
 		jsonObjectBuilder.nestedField(
-			"view", "next"
+			FIELD_NAME_VIEW, FIELD_NAME_NEXT
 		).stringValue(
 			url
 		);
@@ -117,7 +136,7 @@ public class JSONLDPageMessageMapper<T> implements PageMessageMapper<T> {
 	@Override
 	public void mapPageCount(JSONObjectBuilder jsonObjectBuilder, int count) {
 		jsonObjectBuilder.field(
-			"numberOfItems"
+			FIELD_NAME_NUMBER_OF_ITEMS
 		).numberValue(
 			count
 		);
@@ -128,7 +147,7 @@ public class JSONLDPageMessageMapper<T> implements PageMessageMapper<T> {
 		JSONObjectBuilder jsonObjectBuilder, String url) {
 
 		jsonObjectBuilder.nestedField(
-			"view", "previous"
+			FIELD_NAME_VIEW, FIELD_NAME_PREVIOUS
 		).stringValue(
 			url
 		);
@@ -139,41 +158,47 @@ public class JSONLDPageMessageMapper<T> implements PageMessageMapper<T> {
 		JSONObjectBuilder jsonObjectBuilder, Page<T> page,
 		HttpHeaders httpHeaders) {
 
-		jsonObjectBuilder.nestedField(
-			"@context", "Collection"
-		).stringValue(
-			"http://www.w3.org/ns/hydra/pagination.jsonld"
-		);
-
-		jsonObjectBuilder.nestedField(
-			"@context", "@vocab"
-		).stringValue(
-			"http://schema.org"
-		);
-
-		jsonObjectBuilder.nestedField(
-			"view", "@type"
+		jsonObjectBuilder.field(
+			FIELD_NAME_CONTEXT
 		).arrayValue(
-		).addString(
-			"PartialCollectionView"
+		).add(
+			builder -> builder.field(
+				FIELD_NAME_VOCAB
+			).stringValue(
+				URL_SCHEMA_ORG
+			)
 		);
 
 		jsonObjectBuilder.field(
-			"@type"
+			FIELD_NAME_CONTEXT
 		).arrayValue(
 		).addString(
-			"Collection"
+			URL_HYDRA_PROFILE
+		);
+
+		jsonObjectBuilder.nestedField(
+			FIELD_NAME_VIEW, FIELD_NAME_TYPE
+		).arrayValue(
+		).addString(
+			TYPE_PARTIAL_COLLECTION_VIEW
+		);
+
+		jsonObjectBuilder.field(
+			FIELD_NAME_TYPE
+		).arrayValue(
+		).addString(
+			TYPE_COLLECTION
 		);
 	}
 
 	@Override
 	public void onFinishItem(
 		JSONObjectBuilder pageJSONObjectBuilder,
-		JSONObjectBuilder itemJSONObjectBuilder, T model, Class<T> modelClass,
+		JSONObjectBuilder itemJSONObjectBuilder, SingleModel<T> singleModel,
 		HttpHeaders httpHeaders) {
 
 		pageJSONObjectBuilder.field(
-			"members"
+			FIELD_NAME_MEMBER
 		).arrayValue(
 		).add(
 			itemJSONObjectBuilder

@@ -14,20 +14,25 @@
 
 package com.liferay.apio.architect.jaxrs.json.internal.writer;
 
-import static org.osgi.service.component.annotations.ReferenceCardinality.AT_LEAST_ONE;
-import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+import static com.liferay.apio.architect.unsafe.Unsafe.unsafeCast;
 
-import com.liferay.apio.architect.error.ApioDeveloperError;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+
 import com.liferay.apio.architect.functional.Try;
+import com.liferay.apio.architect.identifier.Identifier;
 import com.liferay.apio.architect.language.Language;
 import com.liferay.apio.architect.message.json.SingleModelMessageMapper;
 import com.liferay.apio.architect.request.RequestInfo;
 import com.liferay.apio.architect.response.control.Embedded;
 import com.liferay.apio.architect.response.control.Fields;
+import com.liferay.apio.architect.routes.ItemRoutes;
 import com.liferay.apio.architect.single.model.SingleModel;
+import com.liferay.apio.architect.unsafe.Unsafe;
 import com.liferay.apio.architect.url.ServerURL;
 import com.liferay.apio.architect.wiring.osgi.manager.PathIdentifierMapperManager;
 import com.liferay.apio.architect.wiring.osgi.manager.ProviderManager;
+import com.liferay.apio.architect.wiring.osgi.manager.message.json.SingleModelMessageMapperManager;
+import com.liferay.apio.architect.wiring.osgi.manager.representable.IdentifierClassManager;
 import com.liferay.apio.architect.wiring.osgi.manager.representable.NameManager;
 import com.liferay.apio.architect.wiring.osgi.manager.representable.RepresentableManager;
 import com.liferay.apio.architect.wiring.osgi.manager.router.ItemRouterManager;
@@ -44,18 +49,19 @@ import java.lang.reflect.Type;
 
 import java.nio.charset.StandardCharsets;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
+import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
@@ -121,43 +127,56 @@ public class SingleModelMessageBodyWriter<T>
 			).httpServletRequest(
 				_httpServletRequest
 			).serverURL(
-				getServerURL()
+				_providerManager.provideMandatory(
+					_httpServletRequest, ServerURL.class)
 			).embedded(
 				_providerManager.provideOptional(
-					Embedded.class, _httpServletRequest
+					_httpServletRequest, Embedded.class
 				).orElse(
 					__ -> false
 				)
 			).fields(
 				_providerManager.provideOptional(
-					Fields.class, _httpServletRequest
+					_httpServletRequest, Fields.class
 				).orElse(
 					__ -> string -> true
 				)
 			).language(
 				_providerManager.provideOptional(
-					Language.class, _httpServletRequest
+					_httpServletRequest, Language.class
 				).orElse(
 					Locale::getDefault
 				)
 			).build());
 
+		Optional<SingleModelMessageMapper<T>> optional =
+			_singleModelMessageMapperManager.
+				getSingleModelMessageMapperOptional(_request);
+
+		SingleModelMessageMapper<T> singleModelMessageMapper =
+			optional.orElseThrow(NotSupportedException::new);
+
 		SingleModelWriter<T> singleModelWriter = SingleModelWriter.create(
 			builder -> builder.singleModel(
 				singleModel
 			).modelMessageMapper(
-				getSingleModelMessageMapper(mediaType, singleModel)
+				singleModelMessageMapper
 			).pathFunction(
-				_pathIdentifierMapperManager::map
+				_pathIdentifierMapperManager::mapToPath
 			).resourceNameFunction(
 				_nameManager::getNameOptional
 			).representorFunction(
-				_representableManager::getRepresentorOptional
+				name -> unsafeCast(
+					_representableManager.getRepresentorOptional(name))
 			).requestInfo(
 				requestInfo
-			).operationsFunction(
-				_itemRouterManager::getOperations
+			).singleModelFunction(
+				this::_getSingleModelOptional
 			).build());
+
+		httpHeaders.put(
+			CONTENT_TYPE,
+			Collections.singletonList(singleModelMessageMapper.getMediaType()));
 
 		Optional<String> resultOptional = singleModelWriter.write();
 
@@ -166,45 +185,24 @@ public class SingleModelMessageBodyWriter<T>
 		printWriter.close();
 	}
 
-	/**
-	 * Returns the server URL, or throws a {@link
-	 * ApioDeveloperError.MustHaveProvider} developer error.
-	 *
-	 * @return the server URL
-	 */
-	protected ServerURL getServerURL() {
-		Optional<ServerURL> optional = _providerManager.provideOptional(
-			ServerURL.class, _httpServletRequest);
+	private Optional<SingleModel> _getSingleModelOptional(
+		Object identifier, Class<? extends Identifier> identifierClass) {
 
-		return optional.orElseThrow(
-			() -> new ApioDeveloperError.MustHaveProvider(ServerURL.class));
-	}
+		Optional<String> nameOptional = _nameManager.getNameOptional(
+			identifierClass.getName());
 
-	/**
-	 * Returns the right {@link SingleModelMessageMapper} for the provided
-	 * {@code MediaType} that supports writing the provided {@link SingleModel}.
-	 *
-	 * @param  mediaType the request's {@code MediaType}
-	 * @param  singleModel the single model to write
-	 * @return the {@code SingleModelMessageMapper} that writes the {@code
-	 *         SingleModel} in the {@code MediaType}
-	 */
-	protected SingleModelMessageMapper<T> getSingleModelMessageMapper(
-		MediaType mediaType, SingleModel<T> singleModel) {
-
-		Stream<SingleModelMessageMapper<T>> stream =
-			_singleModelMessageMappers.stream();
-
-		String mediaTypeString = mediaType.toString();
-
-		return stream.filter(
-			messageMapper ->
-				mediaTypeString.equals(messageMapper.getMediaType()) &&
-				 messageMapper.supports(singleModel, _httpHeaders)
-		).findFirst(
-		).orElseThrow(
-			() -> new ApioDeveloperError.MustHaveMessageMapper(
-				mediaTypeString, singleModel.getModelClass())
+		return nameOptional.flatMap(
+			_itemRouterManager::getItemRoutesOptional
+		).flatMap(
+			ItemRoutes::getItemFunctionOptional
+		).map(
+			function -> function.apply(_httpServletRequest)
+		).map(
+			function -> function.apply(identifier)
+		).flatMap(
+			Try::toOptional
+		).map(
+			Unsafe::unsafeCast
 		);
 	}
 
@@ -213,6 +211,9 @@ public class SingleModelMessageBodyWriter<T>
 
 	@Context
 	private HttpServletRequest _httpServletRequest;
+
+	@Reference
+	private IdentifierClassManager _identifierClassManager;
 
 	@Reference
 	private ItemRouterManager _itemRouterManager;
@@ -229,7 +230,10 @@ public class SingleModelMessageBodyWriter<T>
 	@Reference
 	private RepresentableManager _representableManager;
 
-	@Reference(cardinality = AT_LEAST_ONE, policyOption = GREEDY)
-	private List<SingleModelMessageMapper<T>> _singleModelMessageMappers;
+	@Context
+	private Request _request;
+
+	@Reference
+	private SingleModelMessageMapperManager _singleModelMessageMapperManager;
 
 }

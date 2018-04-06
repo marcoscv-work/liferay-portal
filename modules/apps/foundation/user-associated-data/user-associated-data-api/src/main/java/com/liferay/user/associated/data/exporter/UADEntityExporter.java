@@ -17,16 +17,19 @@ package com.liferay.user.associated.data.exporter;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.user.associated.data.entity.UADEntity;
+
+import java.io.File;
 
 /**
  * @author William Newbury
  */
 @ProviderType
-public interface UADEntityExporter {
+public interface UADEntityExporter<T> {
 
-	public void export(UADEntity uadEntity) throws PortalException;
+	public long count(long userId) throws PortalException;
 
-	public void exportAll(long userId) throws PortalException;
+	public byte[] export(T t) throws PortalException;
+
+	public File exportAll(long userId) throws PortalException;
 
 }

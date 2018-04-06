@@ -27,25 +27,24 @@ SiteNavigationMenu siteNavigationMenu = siteNavigationAdminDisplayContext.getSit
 <aui:form action="<%= editSiteNavigationMenuSettingsURL %>">
 	<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 	<aui:input name="siteNavigationMenuId" type="hidden" value="<%= siteNavigationMenu.getSiteNavigationMenuId() %>" />
+	<aui:input name="type" type="hidden" value="<%= siteNavigationMenu.getType() %>" />
 
-	<aui:fieldset helpMessage="function-help" label="function">
-		<aui:input checked="<%= siteNavigationMenu.getType() == SiteNavigationConstants.TYPE_PRIMARY %>" label="main-menu" name="type" type="radio" value="<%= SiteNavigationConstants.TYPE_PRIMARY %>" wrapperCssClass="mb-1" />
+	<%
+	String typeKey = siteNavigationMenu.getTypeKey();
+	%>
 
-		<%
-		SiteNavigationMenu primarySiteNavigationMenu = siteNavigationAdminDisplayContext.getPrimarySiteNavigationMenu();
-		%>
+	<c:if test="<%= Validator.isNotNull(typeKey) %>">
+		<div class="mb-4">
+			<h5>
+				<strong><liferay-ui:message key="this-menu-will-act-as-the" /></strong>
+			</h5>
 
-		<c:if test="<%= siteNavigationAdminDisplayContext.isNotPrimarySiteNavigationMenu() %>">
-			<div class="text-muted" id="<portlet:namespace/>currentPrimaryMenu">
-				<liferay-ui:message arguments="<%= primarySiteNavigationMenu.getName() %>" key="current-main-menu-x" />
-			</div>
-		</c:if>
+			<aui:icon image="check-circle-full" markupView="lexicon" /> <liferay-ui:message key="<%= typeKey %>" />
+		</div>
+	</c:if>
 
-		<aui:input checked="<%= siteNavigationMenu.getType() == SiteNavigationConstants.TYPE_SECONDARY %>" label="subsidiary-menu" name="type" type="radio" value="<%= SiteNavigationConstants.TYPE_SECONDARY %>" wrapperCssClass="mt-4" />
-
-		<aui:input checked="<%= siteNavigationMenu.getType() == SiteNavigationConstants.TYPE_SOCIAL %>" label="social-menu" name="type" type="radio" value="<%= SiteNavigationConstants.TYPE_SOCIAL %>" />
-
-		<aui:input checked="<%= siteNavigationMenu.getType() == SiteNavigationConstants.TYPE_DEFAULT %>" label="default" name="type" type="radio" value="<%= SiteNavigationConstants.TYPE_DEFAULT %>" />
+	<aui:fieldset>
+		<aui:input checked="<%= siteNavigationMenu.isAuto() %>" label="add-new-pages-to-this-menu" name="auto" type="checkbox" />
 	</aui:fieldset>
 
 	<aui:button-row>

@@ -47,6 +47,7 @@ import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
 import com.liferay.journal.configuration.JournalFileUploadsConfiguration;
 import com.liferay.journal.configuration.JournalGroupServiceConfiguration;
 import com.liferay.journal.configuration.JournalServiceConfiguration;
+import com.liferay.journal.constants.JournalActivityKeys;
 import com.liferay.journal.constants.JournalConstants;
 import com.liferay.journal.exception.ArticleContentException;
 import com.liferay.journal.exception.ArticleExpirationDateException;
@@ -69,15 +70,16 @@ import com.liferay.journal.model.JournalArticleResource;
 import com.liferay.journal.model.JournalFolder;
 import com.liferay.journal.model.impl.JournalArticleDisplayImpl;
 import com.liferay.journal.service.base.JournalArticleLocalServiceBaseImpl;
-import com.liferay.journal.social.JournalActivityKeys;
 import com.liferay.journal.util.JournalConverter;
+import com.liferay.journal.util.JournalHelper;
 import com.liferay.journal.util.comparator.ArticleIDComparator;
 import com.liferay.journal.util.comparator.ArticleVersionComparator;
 import com.liferay.journal.util.impl.JournalUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.xml.XMLUtil;
-import com.liferay.portal.kernel.comment.CommentManagerUtil;
+import com.liferay.portal.kernel.bean.BeanReference;
+import com.liferay.portal.kernel.comment.CommentManager;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -158,6 +160,7 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SubscriptionSender;
+import com.liferay.portal.kernel.util.TempFileEntryUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
@@ -174,8 +177,8 @@ import com.liferay.portal.spring.extender.service.ServiceReference;
 import com.liferay.social.kernel.model.SocialActivityConstants;
 import com.liferay.subscription.service.SubscriptionLocalService;
 import com.liferay.trash.TrashHelper;
-import com.liferay.trash.kernel.exception.RestoreEntryException;
-import com.liferay.trash.kernel.exception.TrashEntryException;
+import com.liferay.trash.exception.RestoreEntryException;
+import com.liferay.trash.exception.TrashEntryException;
 import com.liferay.trash.kernel.model.TrashEntry;
 import com.liferay.trash.kernel.model.TrashVersion;
 import com.liferay.upload.AttachmentContentUpdater;
@@ -214,7 +217,9 @@ public class JournalArticleLocalServiceImpl
 	extends JournalArticleLocalServiceBaseImpl {
 
 	/**
-	 * Adds a web content article with additional parameters.
+	 * Adds a web content article with additional parameters. All scheduling
+	 * parameters (display date, expiration date, and review date) use the
+	 * current user's timezone.
 	 *
 	 * <p>
 	 * The web content articles hold HTML content wrapped in XML. The XML lets
@@ -534,7 +539,9 @@ public class JournalArticleLocalServiceImpl
 	}
 
 	/**
-	 * Adds a web content article with additional parameters.
+	 * Adds a web content article with additional parameters. All scheduling
+	 * parameters (display date, expiration date, and review date) use the
+	 * current user's timezone.
 	 *
 	 * <p>
 	 * The web content articles hold HTML content wrapped in XML. The XML lets
@@ -1195,7 +1202,7 @@ public class JournalArticleLocalServiceImpl
 
 			// Comment
 
-			CommentManagerUtil.deleteDiscussion(
+			_commentManager.deleteDiscussion(
 				JournalArticle.class.getName(), article.getResourcePrimKey());
 
 			// Content searches
@@ -3969,7 +3976,7 @@ public class JournalArticleLocalServiceImpl
 		// Comment
 
 		if (isArticleCommentsEnabled(article.getCompanyId())) {
-			CommentManagerUtil.moveDiscussionToTrash(
+			_commentManager.moveDiscussionToTrash(
 				JournalArticle.class.getName(), article.getResourcePrimKey());
 		}
 
@@ -4175,7 +4182,7 @@ public class JournalArticleLocalServiceImpl
 		// Comment
 
 		if (isArticleCommentsEnabled(article.getCompanyId())) {
-			CommentManagerUtil.restoreDiscussionFromTrash(
+			_commentManager.restoreDiscussionFromTrash(
 				JournalArticle.class.getName(), article.getResourcePrimKey());
 		}
 
@@ -5306,7 +5313,9 @@ public class JournalArticleLocalServiceImpl
 	}
 
 	/**
-	 * Updates the web content article with additional parameters.
+	 * Updates the web content article with additional parameters. All
+	 * scheduling parameters (display date, expiration date, and review date)
+	 * use the current user's timezone.
 	 *
 	 * @param  userId the primary key of the user updating the web content
 	 *         article
@@ -5527,6 +5536,8 @@ public class JournalArticleLocalServiceImpl
 			article.setArticleId(articleId);
 			article.setVersion(version);
 			article.setSmallImageId(latestArticle.getSmallImageId());
+
+			serviceContext.setAttribute("version", version);
 
 			_addArticleLocalizedFields(
 				article.getCompanyId(), article.getId(), titleMap,
@@ -5804,7 +5815,9 @@ public class JournalArticleLocalServiceImpl
 	}
 
 	/**
-	 * Updates the web content article with additional parameters.
+	 * Updates the web content article with additional parameters. All
+	 * scheduling parameters (display date, expiration date, and review date)
+	 * use the current user's timezone.
 	 *
 	 * @param  userId the primary key of the user updating the web content
 	 *         article
@@ -6693,7 +6706,7 @@ public class JournalArticleLocalServiceImpl
 					folder.getFolderId(), fileEntry.getContentStream(),
 					fileEntryName, fileEntry.getMimeType(), false);
 
-				dlAppLocalService.deleteFileEntry(
+				TempFileEntryUtil.deleteTempFileEntry(
 					tempFileEntry.getFileEntryId());
 			}
 
@@ -7743,14 +7756,7 @@ public class JournalArticleLocalServiceImpl
 
 		String articleTitle = article.getTitle(serviceContext.getLanguageId());
 
-		if (Validator.isNotNull(article.getLayoutUuid())) {
-			articleURL = getURLViewInContext(article, serviceContext);
-		}
-		else {
-			articleURL = buildArticleURL(
-				articleURL, article.getGroupId(), article.getFolderId(),
-				article.getArticleId());
-		}
+		articleURL = getURLViewInContext(article, serviceContext);
 
 		if (action.equals("add") &&
 			journalGroupServiceConfiguration.emailArticleAddedEnabled()) {
@@ -7868,7 +7874,7 @@ public class JournalArticleLocalServiceImpl
 
 			articleContent = articleDisplay.getContent();
 
-			articleDiffs = JournalUtil.diffHtml(
+			articleDiffs = _journalHelper.diffHtml(
 				article.getGroupId(), article.getArticleId(),
 				previousApprovedArticle.getVersion(), article.getVersion(),
 				LocaleUtil.toLanguageId(LocaleUtil.getSiteDefault()),
@@ -8002,7 +8008,7 @@ public class JournalArticleLocalServiceImpl
 			Hits hits = indexer.search(
 				searchContext, JournalUtil.SELECTED_FIELD_NAMES);
 
-			List<JournalArticle> articles = JournalUtil.getArticles(hits);
+			List<JournalArticle> articles = _journalHelper.getArticles(hits);
 
 			if (articles != null) {
 				return new BaseModelSearchResult<>(articles, hits.getLength());
@@ -8605,7 +8611,7 @@ public class JournalArticleLocalServiceImpl
 			long groupId, long folderId, String ddmStructureKey)
 		throws PortalException {
 
-		int restrictionType = JournalUtil.getRestrictionType(folderId);
+		int restrictionType = _journalHelper.getRestrictionType(folderId);
 
 		DDMStructure ddmStructure = ddmStructureLocalService.getStructure(
 			PortalUtil.getSiteGroupId(groupId),
@@ -8663,7 +8669,8 @@ public class JournalArticleLocalServiceImpl
 		}
 
 		if (Validator.isNotNull(layoutUuid)) {
-			Layout layout = JournalUtil.getArticleLayout(layoutUuid, groupId);
+			Layout layout = _journalHelper.getArticleLayout(
+				layoutUuid, groupId);
 
 			if (layout == null) {
 				throw new NoSuchLayoutException(
@@ -8957,8 +8964,14 @@ public class JournalArticleLocalServiceImpl
 	@ServiceReference(type = AttachmentContentUpdater.class)
 	private AttachmentContentUpdater _attachmentContentUpdater;
 
+	@ServiceReference(type = CommentManager.class)
+	private CommentManager _commentManager;
+
 	@ServiceReference(type = JournalFileUploadsConfiguration.class)
 	private JournalFileUploadsConfiguration _journalFileUploadsConfiguration;
+
+	@BeanReference(type = JournalHelper.class)
+	private JournalHelper _journalHelper;
 
 	private Date _previousCheckDate;
 

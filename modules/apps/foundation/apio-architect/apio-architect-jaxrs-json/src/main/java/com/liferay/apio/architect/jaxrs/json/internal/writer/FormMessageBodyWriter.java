@@ -14,11 +14,8 @@
 
 package com.liferay.apio.architect.jaxrs.json.internal.writer;
 
-import static org.osgi.service.component.annotations.ReferenceCardinality.AT_LEAST_ONE;
-import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 
-import com.liferay.apio.architect.error.ApioDeveloperError.MustHaveFormMessageMapper;
-import com.liferay.apio.architect.error.ApioDeveloperError.MustHaveProvider;
 import com.liferay.apio.architect.form.Form;
 import com.liferay.apio.architect.functional.Try;
 import com.liferay.apio.architect.functional.Try.Success;
@@ -29,6 +26,7 @@ import com.liferay.apio.architect.response.control.Embedded;
 import com.liferay.apio.architect.response.control.Fields;
 import com.liferay.apio.architect.url.ServerURL;
 import com.liferay.apio.architect.wiring.osgi.manager.ProviderManager;
+import com.liferay.apio.architect.wiring.osgi.manager.message.json.FormMessageMapperManager;
 import com.liferay.apio.architect.wiring.osgi.util.GenericUtil;
 import com.liferay.apio.architect.writer.FormWriter;
 
@@ -42,18 +40,19 @@ import java.lang.reflect.Type;
 
 import java.nio.charset.StandardCharsets;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
+import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
@@ -94,7 +93,7 @@ public class FormMessageBodyWriter implements MessageBodyWriter<Success<Form>> {
 	public void writeTo(
 			Success<Form> success, Class<?> aClass, Type type,
 			Annotation[] annotations, MediaType mediaType,
-			MultivaluedMap<String, Object> multivaluedMap,
+			MultivaluedMap<String, Object> httpHeaders,
 			OutputStream outputStream)
 		throws IOException, WebApplicationException {
 
@@ -105,8 +104,11 @@ public class FormMessageBodyWriter implements MessageBodyWriter<Success<Form>> {
 
 		Form form = success.getValue();
 
-		FormMessageMapper formMessageMapper = getFormMessageMapper(
-			mediaType, form);
+		Optional<FormMessageMapper> optional =
+			_formMessageMapperManager.getFormMessageMapperOptional(_request);
+
+		FormMessageMapper formMessageMapper = optional.orElseThrow(
+			NotSupportedException::new);
 
 		RequestInfo requestInfo = RequestInfo.create(
 			builder -> builder.httpHeaders(
@@ -114,22 +116,23 @@ public class FormMessageBodyWriter implements MessageBodyWriter<Success<Form>> {
 			).httpServletRequest(
 				_httpServletRequest
 			).serverURL(
-				getServerURL()
+				_providerManager.provideMandatory(
+					_httpServletRequest, ServerURL.class)
 			).embedded(
 				_providerManager.provideOptional(
-					Embedded.class, _httpServletRequest
+					_httpServletRequest, Embedded.class
 				).orElse(
 					__ -> false
 				)
 			).fields(
 				_providerManager.provideOptional(
-					Fields.class, _httpServletRequest
+					_httpServletRequest, Fields.class
 				).orElse(
 					__ -> string -> true
 				)
 			).language(
 				_providerManager.provideOptional(
-					Language.class, _httpServletRequest
+					_httpServletRequest, Language.class
 				).orElse(
 					Locale::getDefault
 				)
@@ -144,53 +147,17 @@ public class FormMessageBodyWriter implements MessageBodyWriter<Success<Form>> {
 				requestInfo
 			).build());
 
+		httpHeaders.put(
+			CONTENT_TYPE,
+			Collections.singletonList(formMessageMapper.getMediaType()));
+
 		printWriter.println(formWriter.write());
 
 		printWriter.close();
 	}
 
-	/**
-	 * Returns the right {@link FormMessageMapper} for the provided {@code
-	 * MediaType} that supports writing the provided {@link Form}.
-	 *
-	 * @param  mediaType the request's {@code MediaType}
-	 * @param  form the {@code Form} to write
-	 * @return the {@code FormMessageMapper} that writes the {@code Form} in the
-	 *         {@code MediaType}
-	 */
-	protected FormMessageMapper getFormMessageMapper(
-		MediaType mediaType, Form form) {
-
-		Stream<FormMessageMapper> stream = _formMessageMappers.stream();
-
-		String mediaTypeString = mediaType.toString();
-
-		return stream.filter(
-			bodyWriter ->
-				mediaTypeString.equals(bodyWriter.getMediaType()) &&
-				bodyWriter.supports(form, _httpHeaders)
-		).findFirst(
-		).orElseThrow(
-			() -> new MustHaveFormMessageMapper(mediaTypeString)
-		);
-	}
-
-	/**
-	 * Returns the server URL, or throws a {@link MustHaveProvider} developer
-	 * error.
-	 *
-	 * @return the server URL
-	 */
-	protected ServerURL getServerURL() {
-		Optional<ServerURL> optional = _providerManager.provideOptional(
-			ServerURL.class, _httpServletRequest);
-
-		return optional.orElseThrow(
-			() -> new MustHaveProvider(ServerURL.class));
-	}
-
-	@Reference(cardinality = AT_LEAST_ONE, policyOption = GREEDY)
-	private List<FormMessageMapper> _formMessageMappers;
+	@Reference
+	private FormMessageMapperManager _formMessageMapperManager;
 
 	@Context
 	private HttpHeaders _httpHeaders;
@@ -200,5 +167,8 @@ public class FormMessageBodyWriter implements MessageBodyWriter<Success<Form>> {
 
 	@Reference
 	private ProviderManager _providerManager;
+
+	@Context
+	private Request _request;
 
 }

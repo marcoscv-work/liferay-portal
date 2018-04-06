@@ -15,10 +15,10 @@
 package com.liferay.source.formatter.checks;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.tools.ToolsUtil;
@@ -571,6 +571,7 @@ public class JavaCombineLinesCheck extends BaseFileCheck {
 
 		if ((trimmedLine.length() + previousLineLength) <= getMaxLineLength()) {
 			if (previousLine.endsWith(StringPool.OPEN_PARENTHESIS) &&
+				!previousLine.matches("\t+\\)\\.[^\\)\\(]+\\(") &&
 				line.matches(".*\\)( \\{)?") && (getLevel(line) < 0)) {
 
 				return _getCombinedLinesContent(

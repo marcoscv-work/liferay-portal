@@ -14,28 +14,12 @@
 
 package com.liferay.announcements.uad.exporter;
 
-import com.liferay.announcements.constants.AnnouncementsPortletKeys;
 import com.liferay.announcements.kernel.model.AnnouncementsFlag;
+import com.liferay.announcements.kernel.service.AnnouncementsFlagLocalService;
 import com.liferay.announcements.uad.constants.AnnouncementsUADConstants;
-import com.liferay.announcements.uad.entity.AnnouncementsFlagUADEntity;
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
-import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
-import com.liferay.portal.kernel.repository.model.Folder;
-import com.liferay.portal.kernel.util.ContentTypes;
-import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.user.associated.data.aggregator.UADEntityAggregator;
-import com.liferay.user.associated.data.entity.UADEntity;
-import com.liferay.user.associated.data.exception.UADEntityException;
-import com.liferay.user.associated.data.exception.UADEntityExporterException;
-import com.liferay.user.associated.data.exporter.BaseUADEntityExporter;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.user.associated.data.exporter.DynamicQueryUADEntityExporter;
 import com.liferay.user.associated.data.exporter.UADEntityExporter;
-
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-
-import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -48,61 +32,20 @@ import org.osgi.service.component.annotations.Reference;
 	property = {"model.class.name=" + AnnouncementsUADConstants.CLASS_NAME_ANNOUNCEMENTS_FLAG},
 	service = UADEntityExporter.class
 )
-public class AnnouncementsFlagUADEntityExporter extends BaseUADEntityExporter {
+public class AnnouncementsFlagUADEntityExporter
+	extends DynamicQueryUADEntityExporter<AnnouncementsFlag> {
 
 	@Override
-	public void export(UADEntity uadEntity) throws PortalException {
-		AnnouncementsFlag announcementsFlag = _getAnnouncementsFlag(uadEntity);
-
-		String json = getJSON(announcementsFlag);
-
-		Folder folder = getFolder(
-			announcementsFlag.getCompanyId(),
-			AnnouncementsPortletKeys.ANNOUNCEMENTS, _FOLDER_NAME);
-
-		try {
-			InputStream is = new UnsyncByteArrayInputStream(
-				json.getBytes(StringPool.UTF8));
-
-			PortletFileRepositoryUtil.addPortletFileEntry(
-				folder.getGroupId(), announcementsFlag.getUserId(),
-				Group.class.getName(), folder.getGroupId(),
-				AnnouncementsPortletKeys.ANNOUNCEMENTS, folder.getFolderId(),
-				is, uadEntity.getUADEntityId() + ".json",
-				ContentTypes.APPLICATION_JSON, false);
-		}
-		catch (UnsupportedEncodingException uee) {
-			throw new UADEntityExporterException(uee);
-		}
+	protected ActionableDynamicQuery doGetActionableDynamicQuery() {
+		return _announcementsFlagLocalService.getActionableDynamicQuery();
 	}
 
 	@Override
-	protected List<UADEntity> getUADEntities(long userId) {
-		return _uadEntityAggregator.getUADEntities(userId);
+	protected String[] doGetUserIdFieldNames() {
+		return AnnouncementsUADConstants.USER_ID_FIELD_NAMES_ANNOUNCEMENTS_FLAG;
 	}
 
-	private AnnouncementsFlag _getAnnouncementsFlag(UADEntity uadEntity)
-		throws PortalException {
-
-		_validate(uadEntity);
-
-		AnnouncementsFlagUADEntity announcementsFlagUADEntity =
-			(AnnouncementsFlagUADEntity)uadEntity;
-
-		return announcementsFlagUADEntity.getAnnouncementsFlag();
-	}
-
-	private void _validate(UADEntity uadEntity) throws PortalException {
-		if (!(uadEntity instanceof AnnouncementsFlagUADEntity)) {
-			throw new UADEntityException();
-		}
-	}
-
-	private static final String _FOLDER_NAME = "UADExport";
-
-	@Reference(
-		target = "(model.class.name=" + AnnouncementsUADConstants.CLASS_NAME_ANNOUNCEMENTS_FLAG + ")"
-	)
-	private UADEntityAggregator _uadEntityAggregator;
+	@Reference
+	private AnnouncementsFlagLocalService _announcementsFlagLocalService;
 
 }

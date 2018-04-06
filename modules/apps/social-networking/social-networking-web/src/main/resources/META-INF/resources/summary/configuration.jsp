@@ -24,10 +24,10 @@
 	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.UPDATE %>" />
 	<aui:input name="redirect" type="hidden" value="<%= configurationRenderURL %>" />
 
-	<div class="portlet-configuration-body-content">
+	<div class="portlet-configuration-body-content sheet">
 		<div class="container-fluid-1280">
 			<c:if test="<%= PortalUtil.isRSSFeedsEnabled() %>">
-				<liferay-ui:rss-settings
+				<liferay-rss:rss-settings
 					delta="<%= rssDelta %>"
 					displayStyle="<%= rssDisplayStyle %>"
 					enabled="<%= enableRSS %>"

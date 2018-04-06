@@ -15,9 +15,10 @@
 package com.liferay.apio.architect.alias.routes;
 
 import com.liferay.apio.architect.alias.RequestFunction;
+import com.liferay.apio.architect.form.Body;
+import com.liferay.apio.architect.functional.Try;
 import com.liferay.apio.architect.single.model.SingleModel;
 
-import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -26,9 +27,10 @@ import java.util.function.Function;
  *
  * @author Alejandro Hernández
  * @param  <T> the model's type
- * @review
+ * @param  <S> the parent model identifier's type. It must be a subclass of
+ *         {@code Identifier}.
  */
 @FunctionalInterface
-public interface NestedCreateItemFunction<T> extends RequestFunction
-	<Function<Object, Function<Map<String, Object>, SingleModel<T>>>> {
+public interface NestedCreateItemFunction<T, S>
+	extends RequestFunction <Function<S, Function<Body, Try<SingleModel<T>>>>> {
 }

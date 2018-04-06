@@ -20,13 +20,13 @@ import com.liferay.apio.architect.representor.Representor;
 import com.liferay.apio.architect.resource.CollectionResource;
 import com.liferay.apio.architect.routes.CollectionRoutes;
 import com.liferay.apio.architect.routes.ItemRoutes;
-import com.liferay.apio.architect.sample.liferay.portal.website.WebSite;
-import com.liferay.apio.architect.sample.liferay.portal.website.WebSiteService;
+import com.liferay.apio.architect.sample.liferay.portal.internal.identifier.WebSiteIdentifier;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.util.ListUtil;
 
-import java.util.Optional;
-
-import javax.ws.rs.NotFoundException;
+import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -34,18 +34,18 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * Provides the information necessary to expose <a
  * href="http://schema.org/WebSite">WebSite </a> resources through a web API.
- * The resources are mapped from the internal model {@link WebSite}.
+ * The resources are mapped from the internal model {@link Group}.
  *
- * @author Victor Oliveira
  * @author Alejandro Hernández
+ * @author Victor Oliveira
  */
 @Component(immediate = true)
 public class WebSiteCollectionResource
-	implements CollectionResource<WebSite, Long> {
+	implements CollectionResource<Group, Long, WebSiteIdentifier> {
 
 	@Override
-	public CollectionRoutes<WebSite> collectionRoutes(
-		CollectionRoutes.Builder<WebSite> builder) {
+	public CollectionRoutes<Group> collectionRoutes(
+		CollectionRoutes.Builder<Group> builder) {
 
 		return builder.addGetter(
 			this::_getPageItems, Company.class
@@ -58,43 +58,48 @@ public class WebSiteCollectionResource
 	}
 
 	@Override
-	public ItemRoutes<WebSite> itemRoutes(
-		ItemRoutes.Builder<WebSite, Long> builder) {
+	public ItemRoutes<Group, Long> itemRoutes(
+		ItemRoutes.Builder<Group, Long> builder) {
 
 		return builder.addGetter(
-			this::_getWebSite
+			_groupLocalService::getGroup
 		).build();
 	}
 
 	@Override
-	public Representor<WebSite, Long> representor(
-		Representor.Builder<WebSite, Long> builder) {
+	public Representor<Group, Long> representor(
+		Representor.Builder<Group, Long> builder) {
 
 		return builder.types(
 			"WebSite"
 		).identifier(
-			WebSite::getWebSiteId
+			Group::getGroupId
 		).addLocalizedString(
-			"name", WebSite::getName
-		).addString(
-			"description", WebSite::getDescription
+			"description",
+			(group, language) -> group.getDescription(
+				language.getPreferredLocale())
+		).addLocalizedString(
+			"name",
+			(group, language) -> group.getName(language.getPreferredLocale())
 		).build();
 	}
 
-	private PageItems<WebSite> _getPageItems(
+	private PageItems<Group> _getPageItems(
 		Pagination pagination, Company company) {
 
-		return _webSiteService.getPageItems(pagination, company.getCompanyId());
-	}
+		List<Group> groups = _groupLocalService.getGroups(
+			company.getCompanyId(), 0, true);
 
-	private WebSite _getWebSite(Long webSiteId) {
-		Optional<WebSite> optional = _webSiteService.getWebSite(webSiteId);
+		List<Group> paginatedGroups = ListUtil.subList(
+			groups, pagination.getStartPosition(), pagination.getEndPosition());
 
-		return optional.orElseThrow(
-			() -> new NotFoundException("Unable to get website " + webSiteId));
+		int count = _groupLocalService.getGroupsCount(
+			company.getCompanyId(), 0, true);
+
+		return new PageItems<>(paginatedGroups, count);
 	}
 
 	@Reference
-	private WebSiteService _webSiteService;
+	private GroupLocalService _groupLocalService;
 
 }

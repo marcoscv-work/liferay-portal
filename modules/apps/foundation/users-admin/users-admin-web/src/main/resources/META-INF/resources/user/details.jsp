@@ -17,14 +17,10 @@
 <%@ include file="/init.jsp" %>
 
 <%
-User selUser = (User)request.getAttribute("user.selUser");
+User selUser = (User)request.getAttribute(UsersAdminWebKeys.SELECTED_USER);
 
-if (selUser == null) {
-	selUser = PortalUtil.getSelectedUser(request);
-}
-
-Contact selContact = (Contact)request.getAttribute("user.selContact");
-PasswordPolicy passwordPolicy = (PasswordPolicy)request.getAttribute("user.passwordPolicy");
+PasswordPolicy passwordPolicy = userDisplayContext.getPasswordPolicy();
+Contact selContact = userDisplayContext.getContact();
 
 Calendar birthday = CalendarFactoryUtil.getCalendar();
 
@@ -39,13 +35,18 @@ if (selContact != null) {
 String organizationIdsString = ParamUtil.getString(request, "organizationsSearchContainerPrimaryKeys");
 %>
 
-<liferay-ui:error-marker key="<%= WebKeys.ERROR_SECTION %>" value="details" />
+<liferay-ui:error-marker
+	key="<%= WebKeys.ERROR_SECTION %>"
+	value="details"
+/>
 
 <aui:model-context bean="<%= selUser %>" model="<%= User.class %>" />
 
 <div class="row">
 	<aui:fieldset cssClass="col-md-6">
 		<liferay-ui:success key="verificationEmailSent" message="your-email-verification-code-has-been-sent-and-the-new-email-address-will-be-applied-to-your-account-once-it-has-been-verified" />
+
+		<liferay-ui:error exception="<%= CompanyMaxUsersException.class %>" message="unable-to-create-user-account-because-the-maximum-number-of-users-has-been-reached" />
 
 		<liferay-ui:error exception="<%= GroupFriendlyURLException.class %>" focusField="screenName">
 
@@ -151,7 +152,10 @@ String organizationIdsString = ParamUtil.getString(request, "organizationsSearch
 			</c:otherwise>
 		</c:choose>
 
-		<liferay-ui:user-name-fields contact="<%= selContact %>" user="<%= selUser %>" />
+		<liferay-ui:user-name-fields
+			contact="<%= selContact %>"
+			user="<%= selUser %>"
+		/>
 	</aui:fieldset>
 
 	<aui:fieldset cssClass="col-md-5">
@@ -161,7 +165,7 @@ String organizationIdsString = ParamUtil.getString(request, "organizationsSearch
 					<c:when test='<%= UsersAdminUtil.hasUpdateFieldPermission(permissionChecker, user, selUser, "portrait") %>'>
 
 						<%
-						UserFileUploadsConfiguration userFileUploadsConfiguration = (UserFileUploadsConfiguration)request.getAttribute(UserFileUploadsConfiguration.class.getName());
+						UserFileUploadsConfiguration userFileUploadsConfiguration = ConfigurationProviderUtil.getSystemConfiguration(UserFileUploadsConfiguration.class);
 						%>
 
 						<liferay-ui:logo-selector
@@ -239,3 +243,11 @@ String organizationIdsString = ParamUtil.getString(request, "organizationsSearch
 		</c:if>
 	</aui:fieldset>
 </div>
+
+<aui:script>
+	function <portlet:namespace />saveUser(cmd) {
+		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = cmd;
+
+		submitForm(document.<portlet:namespace />fm);
+	}
+</aui:script>

@@ -17,10 +17,35 @@
 <%@ include file="/layout/view/init.jsp" %>
 
 <%
-for (FragmentEntryInstanceLink fragmentEntryInstanceLink : fragmentEntryInstanceLinks) {
+String ppid = ParamUtil.getString(request, "p_p_id");
+
+if ((themeDisplay.isStatePopUp() || themeDisplay.isWidget() || layoutTypePortlet.hasStateMax()) && Validator.isNotNull(ppid)) {
+	String templateId = null;
+	String templateContent = null;
+	String langType = null;
+
+	if (themeDisplay.isStatePopUp() || themeDisplay.isWidget()) {
+		templateId = theme.getThemeId() + LayoutTemplateConstants.STANDARD_SEPARATOR + "pop_up";
+		templateContent = LayoutTemplateLocalServiceUtil.getContent("pop_up", true, theme.getThemeId());
+		langType = LayoutTemplateLocalServiceUtil.getLangType("pop_up", true, theme.getThemeId());
+	}
+	else {
+		ppid = StringUtil.split(layoutTypePortlet.getStateMax())[0];
+
+		templateId = theme.getThemeId() + LayoutTemplateConstants.STANDARD_SEPARATOR + "max";
+		templateContent = LayoutTemplateLocalServiceUtil.getContent("max", true, theme.getThemeId());
+		langType = LayoutTemplateLocalServiceUtil.getLangType("max", true, theme.getThemeId());
+	}
+
+	if (Validator.isNotNull(templateContent)) {
+		RuntimePageUtil.processTemplate(request, response, ppid, new StringTemplateResource(templateId, templateContent), langType);
+	}
+}
+else {
+	ContentLayoutTypeControllerDisplayContext contentLayoutTypeControllerDisplayContext = new ContentLayoutTypeControllerDisplayContext(request, response);
 %>
 
-	<%= FragmentEntryRenderUtil.renderFragmentEntry(fragmentEntryInstanceLink.getFragmentEntryId(), fragmentEntryInstanceLink.getPosition()) %>
+	<%= contentLayoutTypeControllerDisplayContext.getRenderedContent() %>
 
 <%
 }

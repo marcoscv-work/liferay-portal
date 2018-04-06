@@ -112,7 +112,7 @@ ShoppingOrder order = ShoppingOrderLocalServiceUtil.getLatestOrder(user.getUserI
 						<liferay-ui:message key="number" />:
 					</th>
 					<td>
-						<%= CreditCard.hide(order.getCcNumber()) %>
+						<%= ShoppingUtil.hideCardNumber(order.getCcNumber()) %>
 					</td>
 				</tr>
 				<tr>
@@ -229,7 +229,9 @@ ShoppingOrder order = ShoppingOrderLocalServiceUtil.getLatestOrder(user.getUserI
 			/>
 		</liferay-ui:search-container-row>
 
-		<liferay-ui:search-iterator markupView="lexicon" />
+		<liferay-ui:search-iterator
+			markupView="lexicon"
+		/>
 	</liferay-ui:search-container>
 
 	<aui:input name="itemIds" type="hidden" value="<%= itemIds %>" />

@@ -16,7 +16,8 @@ package com.liferay.site.navigation.service;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.osgi.util.ServiceTrackerFactory;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -108,11 +109,11 @@ public class SiteNavigationMenuServiceUtil {
 	}
 
 	public static com.liferay.site.navigation.model.SiteNavigationMenu updateSiteNavigationMenu(
-		long siteNavigationMenuId, int type,
+		long siteNavigationMenuId, int type, boolean auto,
 		com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
-				   .updateSiteNavigationMenu(siteNavigationMenuId, type,
+				   .updateSiteNavigationMenu(siteNavigationMenuId, type, auto,
 			serviceContext);
 	}
 
@@ -129,6 +130,17 @@ public class SiteNavigationMenuServiceUtil {
 		return _serviceTracker.getService();
 	}
 
-	private static ServiceTracker<SiteNavigationMenuService, SiteNavigationMenuService> _serviceTracker =
-		ServiceTrackerFactory.open(SiteNavigationMenuService.class);
+	private static ServiceTracker<SiteNavigationMenuService, SiteNavigationMenuService> _serviceTracker;
+
+	static {
+		Bundle bundle = FrameworkUtil.getBundle(SiteNavigationMenuService.class);
+
+		ServiceTracker<SiteNavigationMenuService, SiteNavigationMenuService> serviceTracker =
+			new ServiceTracker<SiteNavigationMenuService, SiteNavigationMenuService>(bundle.getBundleContext(),
+				SiteNavigationMenuService.class, null);
+
+		serviceTracker.open();
+
+		_serviceTracker = serviceTracker;
+	}
 }

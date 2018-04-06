@@ -63,16 +63,18 @@ import com.liferay.journal.service.JournalFeedService;
 import com.liferay.journal.service.JournalFolderService;
 import com.liferay.journal.util.JournalContent;
 import com.liferay.journal.util.JournalConverter;
-import com.liferay.journal.util.impl.JournalUtil;
+import com.liferay.journal.util.JournalHelper;
 import com.liferay.journal.web.asset.JournalArticleAssetRenderer;
 import com.liferay.journal.web.configuration.JournalWebConfiguration;
 import com.liferay.journal.web.internal.portlet.action.ActionUtil;
 import com.liferay.journal.web.util.JournalPortletUtil;
+import com.liferay.journal.web.util.JournalUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.diff.CompareVersionsException;
 import com.liferay.portal.kernel.exception.LocaleException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
@@ -105,13 +107,13 @@ import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.RSSUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.rss.util.RSSUtil;
 import com.liferay.trash.TrashHelper;
 import com.liferay.trash.kernel.service.TrashEntryService;
 import com.liferay.trash.util.TrashWebKeys;
@@ -535,7 +537,7 @@ public class JournalPortlet extends MVCPortlet {
 			String diffHtmlResults = null;
 
 			try {
-				diffHtmlResults = JournalUtil.diffHtml(
+				diffHtmlResults = _journalHelper.diffHtml(
 					groupId, articleId, sourceVersion, targetVersion,
 					languageId,
 					new PortletRequestModel(resourceRequest, resourceResponse),
@@ -735,7 +737,8 @@ public class JournalPortlet extends MVCPortlet {
 		String layoutUuid = ParamUtil.getString(
 			uploadPortletRequest, "layoutUuid");
 
-		Layout targetLayout = JournalUtil.getArticleLayout(layoutUuid, groupId);
+		Layout targetLayout = _journalHelper.getArticleLayout(
+			layoutUuid, groupId);
 
 		if (targetLayout == null) {
 			layoutUuid = null;
@@ -1295,6 +1298,7 @@ public class JournalPortlet extends MVCPortlet {
 			cause instanceof LocaleException ||
 			cause instanceof MaxAddMenuFavItemsException ||
 			cause instanceof StorageFieldRequiredException ||
+			cause instanceof SystemException ||
 			super.isSessionErrorException(cause)) {
 
 			return true;
@@ -1471,6 +1475,9 @@ public class JournalPortlet extends MVCPortlet {
 
 	@Reference
 	private JournalFolderService _journalFolderService;
+
+	@Reference
+	private JournalHelper _journalHelper;
 
 	private volatile JournalWebConfiguration _journalWebConfiguration;
 

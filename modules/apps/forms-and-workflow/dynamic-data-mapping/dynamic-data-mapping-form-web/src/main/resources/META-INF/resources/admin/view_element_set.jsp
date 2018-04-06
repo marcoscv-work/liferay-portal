@@ -90,21 +90,12 @@ portletURL.setParameter("displayStyle", displayStyle);
 				</c:choose>
 			</liferay-ui:search-container-row>
 
-			<liferay-ui:search-iterator displayStyle="<%= displayStyle %>" markupView="lexicon" />
+			<liferay-ui:search-iterator
+				displayStyle="<%= displayStyle %>"
+				markupView="lexicon"
+			/>
 		</liferay-ui:search-container>
 	</aui:form>
 </div>
-
-<c:if test="<%= ddmFormAdminDisplayContext.isShowAddButton() %>">
-	<portlet:renderURL var="addFieldSetURL">
-		<portlet:param name="mvcPath" value="/admin/edit_element_set.jsp" />
-		<portlet:param name="redirect" value="<%= currentURL %>" />
-		<portlet:param name="groupId" value="<%= String.valueOf(scopeGroupId) %>" />
-	</portlet:renderURL>
-
-	<liferay-frontend:add-menu>
-		<liferay-frontend:add-menu-item title='<%= LanguageUtil.get(request, "new-element-set") %>' url="<%= addFieldSetURL.toString() %>" />
-	</liferay-frontend:add-menu>
-</c:if>
 
 <aui:script use="liferay-ddm-form-portlet"></aui:script>

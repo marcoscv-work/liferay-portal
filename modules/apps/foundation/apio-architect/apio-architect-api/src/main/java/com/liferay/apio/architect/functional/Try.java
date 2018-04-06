@@ -14,33 +14,35 @@
 
 package com.liferay.apio.architect.functional;
 
+import com.liferay.apio.architect.consumer.throwable.ThrowableConsumer;
 import com.liferay.apio.architect.exception.FalsePredicateException;
-import com.liferay.apio.architect.function.ThrowableFunction;
+import com.liferay.apio.architect.function.throwable.ThrowableFunction;
 import com.liferay.apio.architect.supplier.ThrowableSupplier;
 
 import java.io.Closeable;
 
+import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
- * Implements the monadic {@code Try} type. Instances of this class represent
- * the result of an operation that either succeeds with type {@code T}, or fails
- * with an exception. Only two descendants of this class are allowed: {@link
- * Success} for the success case, and {@link Failure} for the failure case.
+ * Implements the monadic {@code Try} type. This class's instances represent the
+ * result of an operation that either succeeds with type {@code T} or fails with
+ * an exception. Only two descendants of this class are allowed: {@link Success}
+ * for the success case, and {@link Failure} for the failure case.
  *
  * Never instantiate this class directly. If you're unsure whether the operation
  * will succeed, use {@link #fromFallible(ThrowableSupplier)} to create an
  * instance of this class. To create a {@code Failure} instance directly
- * from an exception, use {@link #fail(Exception)}. To create a
- * {@code Success} instance directly from {@code T}, use
- * {@link #success(Object)}.
+ * from an exception, use {@link #fail(Exception)}. To create a {@code Success}
+ * instance directly from {@code T}, use {@link #success(Object)}.
  *
  * @author Alejandro Hernández
- * @param  <T> the {@code Try}'s possible value type
- * @review
+ * @param  <T> the possible value type
  */
 @SuppressWarnings("unused")
 public abstract class Try<T> {
@@ -109,6 +111,37 @@ public abstract class Try<T> {
 	}
 
 	/**
+	 * Creates a new {@code Try} instance by executing a fallible lambda that
+	 * returns an {@code Optional} in a {@link ThrowableSupplier}. If this
+	 * throws an exception, a {@code Failure} instance is created. If the
+	 * returned {@code Optional} is empty, a {@code Failure} containing the
+	 * exception supplier's value is returned. Otherwise, a {@code Success}
+	 * instance with the lambda's {@code Optional} result is created.
+	 *
+	 * @param  throwableSupplier the throwable supplier that contains the
+	 *         fallible lambda that returns an {@code Optional}
+	 * @param  supplier the supplier for the exception if the obtained {@code
+	 *         Optional} is {@code Optional#empty()}
+	 * @return {@code Failure} if the throwable supplier throws an exception, or
+	 *         the {@code Optional} is empty; {@code Success} otherwise
+	 */
+	public static <T> Try<T> fromOptional(
+		ThrowableSupplier<Optional<T>> throwableSupplier,
+		Supplier<? extends Exception> supplier) {
+
+		Objects.requireNonNull(throwableSupplier);
+		Objects.requireNonNull(supplier);
+
+		Try<Optional<T>> optionalTry = fromFallible(throwableSupplier);
+
+		return optionalTry.map(
+			Optional::get
+		).mapFailMatching(
+			NoSuchElementException.class, supplier
+		);
+	}
+
+	/**
 	 * Creates a new {@code Try} instance from an object. This method creates
 	 * the instance as a {@code Success} object.
 	 *
@@ -156,7 +189,7 @@ public abstract class Try<T> {
 	 *
 	 * <p>
 	 * If {@code successFunction} throws an {@code Exception}, this method
-	 * returns the result of applying {@code successFunction} to the new {@code
+	 * returns the result of applying {@code failureFunction} to the new {@code
 	 * Exception}.
 	 * </p>
 	 *
@@ -192,6 +225,22 @@ public abstract class Try<T> {
 	 *         instance'S exception wrapped in a {@code RuntimeException}
 	 */
 	public abstract T getUnchecked();
+
+	/**
+	 * Calls the provided consumer if the current {@code Try} instance is a
+	 * {@code Failure}; otherwise nothing occurs.
+	 *
+	 * @param consumer the consumer
+	 */
+	public abstract void ifFailure(Consumer<Exception> consumer);
+
+	/**
+	 * Calls the provided consumer if the current {@code Try} instance is a
+	 * {@code Success}; otherwise nothing occurs.
+	 *
+	 * @param consumer the consumer
+	 */
+	public abstract void ifSuccess(Consumer<T> consumer);
 
 	/**
 	 * Returns {@code true} if the current {@code Try} instance is a {@code
@@ -256,6 +305,59 @@ public abstract class Try<T> {
 	 */
 	public abstract <S extends Exception, U extends Exception> Try<T>
 		mapFailMatching(Class<U> exceptionClass, Supplier<S> supplier);
+
+	/**
+	 * Returns the result of applying the mapping function to the {@code
+	 * Success} instance's value and unwrapping the resulting {@code Optional},
+	 * if the current {@code Try} instance is a {@code Success} and the {@code
+	 * Optional} isn't {@code Optional#empty()}; otherwise returns the {@code
+	 * Failure}.
+	 *
+	 * @param  throwableFunction the mapping function
+	 * @return the mapping function's result if the {@code Success} instance's
+	 *         value doesn't return {@code Optional#empty()}; the {@code
+	 *         Failure} instance otherwise
+	 */
+	public <S> Try<S> mapOptional(
+		ThrowableFunction<? super T, ? extends Optional<S>> throwableFunction) {
+
+		Try<T> tTry = this;
+
+		return tTry.map(
+			throwableFunction
+		).map(
+			Optional::get
+		);
+	}
+
+	/**
+	 * Returns the result of applying the mapping function to the {@code
+	 * Success} instance's value and unwrapping the resulting {@code Optional},
+	 * if the current {@code Try} instance is a {@code Success} and the {@code
+	 * Optional} isn't {@code Optional#empty()}; otherwise returns the {@code
+	 * Failure} instance with the provided exception.
+	 *
+	 * @param  throwableFunction the mapping function
+	 * @param  supplier the exception's supplier in case the obtained {@code
+	 *         Optional} is {@code Optional#empty()}
+	 * @return the mapping function's result if the {@code Success} instance's
+	 *         value doesn't return {@code Optional#empty()}; the {@code
+	 *         Failure} instance otherwise
+	 */
+	public <S> Try<S> mapOptional(
+		ThrowableFunction<? super T, ? extends Optional<S>> throwableFunction,
+		Supplier<? extends Exception> supplier) {
+
+		Try<T> tTry = this;
+
+		return tTry.map(
+			throwableFunction
+		).map(
+			Optional::get
+		).mapFailMatching(
+			NoSuchElementException.class, supplier
+		);
+	}
 
 	/**
 	 * Returns the {@code Success} instance'S value, if the current {@code Try}
@@ -323,6 +425,36 @@ public abstract class Try<T> {
 		ThrowableFunction<? super Exception, Try<T>> throwableFunction);
 
 	/**
+	 * Returns the current {@code Try} instance as an {@code Optional}
+	 * containing the value if it's a {@code Success} or {@code
+	 * Optional#empty()} if it's a {@code Failure}.
+	 *
+	 * @return an {@code Optional} containing the value if it's a {@code
+	 *         Success}; {@code Optional#empty()} otherwise
+	 */
+	public abstract Optional<T> toOptional();
+
+	/**
+	 * Applies {@code failureConsumer} if this is a {@code Failure}, or {@code
+	 * successConsumer} if this is a {@code Success}.
+	 *
+	 * <p>
+	 * If {@code successConsumer} throws an {@code Exception}, this method
+	 * returns the result of applying {@code failureConsumer} to the new {@code
+	 * Exception}.
+	 * </p>
+	 *
+	 * @param  failureConsumer the consumer to apply when this {@code Try} is a
+	 *         {@code Failure}
+	 * @param  successConsumer the consumer to apply when this {@code Try} is a
+	 *         {@code Success}
+	 * @review
+	 */
+	public abstract void voidFold(
+		Consumer<Exception> failureConsumer,
+		ThrowableConsumer<T> successConsumer);
+
+	/**
 	 * The implementation of {@code Try}'S failure case. Don't try to
 	 * instantiate this class directly. To instantiate this class when you don't
 	 * know if the operation will fail, use {@link
@@ -376,6 +508,17 @@ public abstract class Try<T> {
 			}
 
 			throw new RuntimeException(_exception);
+		}
+
+		@Override
+		public void ifFailure(Consumer<Exception> consumer) {
+			Objects.requireNonNull(consumer);
+
+			consumer.accept(_exception);
+		}
+
+		@Override
+		public void ifSuccess(Consumer<T> consumer) {
 		}
 
 		@Override
@@ -459,6 +602,21 @@ public abstract class Try<T> {
 			}
 		}
 
+		@Override
+		public Optional<T> toOptional() {
+			return Optional.empty();
+		}
+
+		@Override
+		public void voidFold(
+			Consumer<Exception> failureConsumer,
+			ThrowableConsumer<T> successConsumer) {
+
+			Objects.requireNonNull(failureConsumer);
+
+			failureConsumer.accept(_exception);
+		}
+
 		private Failure(Exception exception) {
 			_exception = exception;
 		}
@@ -508,6 +666,7 @@ public abstract class Try<T> {
 			ThrowableFunction<T, S> successFunction) {
 
 			Objects.requireNonNull(successFunction);
+			Objects.requireNonNull(failureFunction);
 
 			try {
 				return successFunction.apply(_value);
@@ -534,6 +693,17 @@ public abstract class Try<T> {
 		 */
 		public T getValue() {
 			return _value;
+		}
+
+		@Override
+		public void ifFailure(Consumer<Exception> consumer) {
+		}
+
+		@Override
+		public void ifSuccess(Consumer<T> consumer) {
+			Objects.requireNonNull(consumer);
+
+			consumer.accept(_value);
 		}
 
 		@Override
@@ -610,6 +780,27 @@ public abstract class Try<T> {
 			Objects.requireNonNull(throwableFunction);
 
 			return this;
+		}
+
+		@Override
+		public Optional<T> toOptional() {
+			return Optional.ofNullable(_value);
+		}
+
+		@Override
+		public void voidFold(
+			Consumer<Exception> failureConsumer,
+			ThrowableConsumer<T> successConsumer) {
+
+			Objects.requireNonNull(successConsumer);
+			Objects.requireNonNull(failureConsumer);
+
+			try {
+				successConsumer.accept(_value);
+			}
+			catch (Exception e) {
+				failureConsumer.accept(e);
+			}
 		}
 
 		private Success(T value) {

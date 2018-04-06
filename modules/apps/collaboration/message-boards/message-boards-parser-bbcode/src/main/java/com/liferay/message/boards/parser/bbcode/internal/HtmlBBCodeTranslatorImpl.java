@@ -14,6 +14,7 @@
 
 package com.liferay.message.boards.parser.bbcode.internal;
 
+import com.liferay.message.boards.util.MBUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
@@ -27,7 +28,6 @@ import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portlet.messageboards.util.MBUtil;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -771,6 +771,7 @@ public class HtmlBBCodeTranslatorImpl implements BBCodeTranslator {
 	private final Map<String, String> _orderedListStyles;
 	private final Map<String, String> _unorderedListStyles;
 	private final Pattern _urlPattern = Pattern.compile(
-		"^[-;/?:@&=+$,_.!~*'()%0-9a-z#]{1,2048}$", Pattern.CASE_INSENSITIVE);
+		"^[-;/?:@&=+$,_.!~*'()%\\p{Digit}\\p{L}#]{1,2048}$",
+		Pattern.CASE_INSENSITIVE);
 
 }
