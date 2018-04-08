@@ -288,8 +288,7 @@ public class BatchBuild extends BaseBuild {
 			}
 
 			testResults.addAll(
-				TestResult.getTestResults(
-					axisBuild, suitesJSONArray, testStatus));
+				getTestResults(axisBuild, suitesJSONArray, testStatus));
 		}
 
 		return testResults;
@@ -439,11 +438,10 @@ public class BatchBuild extends BaseBuild {
 				"env.option." + environmentType + "." + name + "." +
 					environmentMajorVersion.replace(".", ""));
 		}
-		else {
-			return buildProperties.getProperty(
-				"env.option." + environmentType + "." + name +
-					environmentMajorVersion.replace(".", ""));
-		}
+
+		return buildProperties.getProperty(
+			"env.option." + environmentType + "." + name +
+				environmentMajorVersion.replace(".", ""));
 	}
 
 	@Override
@@ -479,7 +477,8 @@ public class BatchBuild extends BaseBuild {
 				for (TestResult testResult : getTestResults(null)) {
 					String testStatus = testResult.getStatus();
 
-					if (testStatus.equals("PASSED") ||
+					if (testStatus.equals("FIXED") ||
+						testStatus.equals("PASSED") ||
 						testStatus.equals("SKIPPED")) {
 
 						continue;

@@ -17,10 +17,10 @@ package com.liferay.blogs.internal.verify;
 import com.liferay.blogs.linkback.LinkbackConsumer;
 import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.blogs.service.BlogsEntryLocalService;
-import com.liferay.message.boards.kernel.model.MBMessage;
-import com.liferay.message.boards.kernel.service.MBMessageLocalService;
 import com.liferay.message.boards.model.MBDiscussion;
+import com.liferay.message.boards.model.MBMessage;
 import com.liferay.message.boards.service.MBDiscussionLocalService;
+import com.liferay.message.boards.service.MBMessageLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -47,7 +47,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	immediate = true,
-	property = {"verify.process.name=com.liferay.blogs.trackbacks"},
+	property = "verify.process.name=com.liferay.blogs.trackbacks",
 	service = VerifyProcess.class
 )
 public class VerifyBlogsTrackbacks extends VerifyProcess {

@@ -11,8 +11,20 @@
 		}
 	}
 
+	.field-type-editor {
+		padding: 0;
+
+		.alloy-editor {
+			padding-bottom: 0.5rem;
+			padding-left: 1rem;
+			padding-right: 1rem;
+			padding-top: 0.5rem;
+		}
+	}
+
 	.alloy-editor {
 		padding-right: 4px;
+		width: 100%;
 	}
 
 	.form-inline .checkbox label {
@@ -86,7 +98,7 @@
 	}
 
 	.has-error .key-value-editor {
-		display: none
+		display: none;
 	}
 
 	.liferay-ddm-form-field-checkbox,
@@ -201,7 +213,7 @@ div.portlet-forms-admin .form-builder-layout .layout-row-container-row .layout-r
 	display: none;
 }
 
-.lfr-ddm-add-field.btn {
+.lfr-ddm-plus-button.btn {
 	cursor: pointer;
 	padding: 0.43125rem 0.67125rem;
 	position: fixed;

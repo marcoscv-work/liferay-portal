@@ -21,7 +21,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.SessionClicks;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.product.navigation.product.menu.web.constants.ProductNavigationProductMenuWebKeys;
+import com.liferay.product.navigation.product.menu.constants.ProductNavigationProductMenuWebKeys;
 
 import java.util.Map;
 
@@ -34,7 +34,7 @@ import org.osgi.service.component.annotations.Component;
  */
 @Component(
 	immediate = true,
-	property = {"type=" + TemplateContextContributor.TYPE_THEME},
+	property = "type=" + TemplateContextContributor.TYPE_THEME,
 	service = TemplateContextContributor.class
 )
 public class ProductMenuTemplateContextContributor

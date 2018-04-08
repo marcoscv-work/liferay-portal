@@ -125,13 +125,21 @@ CommentSectionDisplayContext commentSectionDisplayContext = CommentDisplayContex
 										<div class="panel-body">
 											<div class="lfr-discussion-details">
 												<liferay-ui:user-portrait
-													cssClass="user-icon-lg"
 													user="<%= user %>"
 												/>
 											</div>
 
 											<div class="lfr-discussion-body">
-												<liferay-ui:input-editor configKey="commentEditor" contents="" editorName='<%= PropsUtil.get("editor.wysiwyg.portal-web.docroot.html.taglib.ui.discussion.jsp") %>' name='<%= randomNamespace + "postReplyBody0" %>' onChangeMethod='<%= randomNamespace + "0ReplyOnChange" %>' placeholder="type-your-comment-here" showSource="<%= false %>" skipEditorLoading="<%= skipEditorLoading %>" />
+												<liferay-ui:input-editor
+													configKey="commentEditor"
+													contents=""
+													editorName='<%= PropsUtil.get("editor.wysiwyg.portal-web.docroot.html.taglib.ui.discussion.jsp") %>'
+													name='<%= randomNamespace + "postReplyBody0" %>'
+													onChangeMethod='<%= randomNamespace + "0ReplyOnChange" %>'
+													placeholder="type-your-comment-here"
+													showSource="<%= false %>"
+													skipEditorLoading="<%= skipEditorLoading %>"
+												/>
 
 												<aui:input name="postReplyBody0" type="hidden" />
 

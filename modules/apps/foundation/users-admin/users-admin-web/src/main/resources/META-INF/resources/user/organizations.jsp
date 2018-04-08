@@ -17,8 +17,6 @@
 <%@ include file="/init.jsp" %>
 
 <%
-UserDisplayContext userDisplayContext = new UserDisplayContext(request, initDisplayContext);
-
 User selUser = userDisplayContext.getSelectedUser();
 
 List<Organization> organizations = userDisplayContext.getOrganizations();
@@ -28,11 +26,16 @@ String organizationIdsString = ParamUtil.getString(request, "organizationsSearch
 currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "organizations");
 %>
 
-<liferay-ui:error-marker key="<%= WebKeys.ERROR_SECTION %>" value="organizations" />
+<liferay-ui:error-marker
+	key="<%= WebKeys.ERROR_SECTION %>"
+	value="organizations"
+/>
 
 <liferay-ui:membership-policy-error />
 
-<liferay-util:buffer var="removeOrganizationIcon">
+<liferay-util:buffer
+	var="removeOrganizationIcon"
+>
 	<liferay-ui:icon
 		icon="times"
 		markupView="lexicon"
@@ -96,7 +99,9 @@ currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "organi
 		</c:if>
 	</liferay-ui:search-container-row>
 
-	<liferay-ui:search-iterator markupView="lexicon" />
+	<liferay-ui:search-iterator
+		markupView="lexicon"
+	/>
 </liferay-ui:search-container>
 
 <c:if test="<%= !portletName.equals(myAccountPortletId) %>">

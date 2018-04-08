@@ -19,6 +19,7 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 
 <%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
+taglib uri="http://liferay.com/tld/clay" prefix="clay" %><%@
 taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
 taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %><%@
 taglib uri="http://liferay.com/tld/security" prefix="liferay-security" %><%@
@@ -37,6 +38,7 @@ page import="com.liferay.dynamic.data.mapping.exception.StructureFieldException"
 page import="com.liferay.dynamic.data.mapping.exception.StructureNameException" %><%@
 page import="com.liferay.dynamic.data.mapping.exception.TemplateNameException" %><%@
 page import="com.liferay.dynamic.data.mapping.exception.TemplateScriptException" %><%@
+page import="com.liferay.dynamic.data.mapping.exception.TemplateSmallImageContentException" %><%@
 page import="com.liferay.dynamic.data.mapping.exception.TemplateSmallImageNameException" %><%@
 page import="com.liferay.dynamic.data.mapping.exception.TemplateSmallImageSizeException" %><%@
 page import="com.liferay.dynamic.data.mapping.model.DDMForm" %><%@
@@ -46,12 +48,6 @@ page import="com.liferay.dynamic.data.mapping.model.DDMStructureVersion" %><%@
 page import="com.liferay.dynamic.data.mapping.model.DDMTemplate" %><%@
 page import="com.liferay.dynamic.data.mapping.model.DDMTemplateConstants" %><%@
 page import="com.liferay.dynamic.data.mapping.model.DDMTemplateVersion" %><%@
-page import="com.liferay.dynamic.data.mapping.search.StructureDisplayTerms" %><%@
-page import="com.liferay.dynamic.data.mapping.search.StructureSearch" %><%@
-page import="com.liferay.dynamic.data.mapping.search.StructureSearchTerms" %><%@
-page import="com.liferay.dynamic.data.mapping.search.TemplateDisplayTerms" %><%@
-page import="com.liferay.dynamic.data.mapping.search.TemplateSearch" %><%@
-page import="com.liferay.dynamic.data.mapping.search.TemplateSearchTerms" %><%@
 page import="com.liferay.dynamic.data.mapping.service.DDMStorageLinkLocalServiceUtil" %><%@
 page import="com.liferay.dynamic.data.mapping.service.DDMStructureLinkLocalServiceUtil" %><%@
 page import="com.liferay.dynamic.data.mapping.service.DDMStructureLocalServiceUtil" %><%@
@@ -64,7 +60,6 @@ page import="com.liferay.dynamic.data.mapping.service.permission.DDMStructurePer
 page import="com.liferay.dynamic.data.mapping.service.permission.DDMTemplatePermission" %><%@
 page import="com.liferay.dynamic.data.mapping.storage.StorageType" %><%@
 page import="com.liferay.dynamic.data.mapping.util.DDMDisplay" %><%@
-page import="com.liferay.dynamic.data.mapping.util.DDMDisplayTabItem" %><%@
 page import="com.liferay.dynamic.data.mapping.util.DDMNavigationHelper" %><%@
 page import="com.liferay.dynamic.data.mapping.util.DDMUtil" %><%@
 page import="com.liferay.dynamic.data.mapping.validator.DDMFormLayoutValidationException" %><%@
@@ -74,6 +69,13 @@ page import="com.liferay.dynamic.data.mapping.web.configuration.DDMWebConfigurat
 page import="com.liferay.dynamic.data.mapping.web.internal.display.context.DDMDisplayContext" %><%@
 page import="com.liferay.dynamic.data.mapping.web.internal.search.DDMStructureRowChecker" %><%@
 page import="com.liferay.dynamic.data.mapping.web.internal.search.DDMTemplateRowChecker" %><%@
+page import="com.liferay.dynamic.data.mapping.web.internal.search.StructureDisplayTerms" %><%@
+page import="com.liferay.dynamic.data.mapping.web.internal.search.StructureSearch" %><%@
+page import="com.liferay.dynamic.data.mapping.web.internal.search.StructureSearchTerms" %><%@
+page import="com.liferay.dynamic.data.mapping.web.internal.search.TemplateDisplayTerms" %><%@
+page import="com.liferay.dynamic.data.mapping.web.internal.search.TemplateSearch" %><%@
+page import="com.liferay.dynamic.data.mapping.web.internal.search.TemplateSearchTerms" %><%@
+page import="com.liferay.dynamic.data.mapping.web.internal.util.PortletDisplayTemplateUtil" %><%@
 page import="com.liferay.petra.string.CharPool" %><%@
 page import="com.liferay.petra.string.StringPool" %><%@
 page import="com.liferay.portal.kernel.bean.BeanParamUtil" %><%@
@@ -120,7 +122,6 @@ page import="com.liferay.portal.kernel.util.WebKeys" %><%@
 page import="com.liferay.portal.kernel.workflow.WorkflowConstants" %><%@
 page import="com.liferay.portal.template.TemplateContextHelper" %><%@
 page import="com.liferay.portlet.display.template.PortletDisplayTemplate" %><%@
-page import="com.liferay.portlet.display.template.PortletDisplayTemplateUtil" %><%@
 page import="com.liferay.taglib.search.ResultRow" %>
 
 <%@ page import="java.util.ArrayList" %><%@

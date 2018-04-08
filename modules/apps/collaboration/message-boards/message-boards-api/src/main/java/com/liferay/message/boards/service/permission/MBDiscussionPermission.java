@@ -14,11 +14,11 @@
 
 package com.liferay.message.boards.service.permission;
 
-import com.liferay.message.boards.kernel.model.MBMessage;
-import com.liferay.message.boards.kernel.service.MBMessageLocalService;
 import com.liferay.message.boards.model.MBDiscussion;
+import com.liferay.message.boards.model.MBMessage;
 import com.liferay.message.boards.service.MBBanLocalService;
 import com.liferay.message.boards.service.MBDiscussionLocalService;
+import com.liferay.message.boards.service.MBMessageLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
@@ -43,9 +43,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	immediate = true,
-	property = {
-		"model.class.name=com.liferay.message.boards.model.MBDiscussion"
-	},
+	property = "model.class.name=com.liferay.message.boards.model.MBDiscussion",
 	service = BaseModelPermissionChecker.class
 )
 public class MBDiscussionPermission implements BaseModelPermissionChecker {

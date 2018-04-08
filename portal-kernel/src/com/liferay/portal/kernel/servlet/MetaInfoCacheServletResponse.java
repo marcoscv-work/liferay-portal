@@ -15,8 +15,8 @@
 package com.liferay.portal.kernel.servlet;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -455,6 +455,12 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 		_metaData._contentLength = contentLength;
 
 		super.setContentLength(contentLength);
+	}
+
+	public void setContentLengthLong(long contentLengthLong) {
+		int contentLength = Math.toIntExact(contentLengthLong);
+
+		setContentLength(contentLength);
 	}
 
 	@Override

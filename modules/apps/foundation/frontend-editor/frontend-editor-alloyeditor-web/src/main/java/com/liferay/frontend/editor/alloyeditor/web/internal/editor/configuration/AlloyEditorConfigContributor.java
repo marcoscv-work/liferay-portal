@@ -40,7 +40,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Roberto Díaz
  */
 @Component(
-	property = {"editor.name=alloyeditor"},
+	property = "editor.name=alloyeditor",
 	service = EditorConfigContributor.class
 )
 public class AlloyEditorConfigContributor
@@ -61,10 +61,10 @@ public class AlloyEditorConfigContributor
 		String extraPlugins = jsonObject.getString("extraPlugins");
 
 		if (Validator.isNotNull(extraPlugins)) {
-			extraPlugins += ",itemselector,media";
+			extraPlugins += ",itemselector,media,videoembed";
 		}
 		else {
-			extraPlugins = "itemselector,media";
+			extraPlugins = "itemselector,media,videoembed";
 		}
 
 		jsonObject.put("extraPlugins", extraPlugins);
@@ -180,7 +180,9 @@ public class AlloyEditorConfigContributor
 	protected JSONObject getToolbarsAddJSONObject() {
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
-		jsonObject.put("buttons", toJSONArray("['image', 'table', 'hline']"));
+		jsonObject.put(
+			"buttons",
+			toJSONArray("['image', 'embedVideo', 'table', 'hline']"));
 		jsonObject.put("tabIndex", 2);
 
 		return jsonObject;
@@ -220,6 +222,7 @@ public class AlloyEditorConfigContributor
 	protected JSONArray getToolbarsStylesSelectionsJSONArray(Locale locale) {
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
+		jsonArray.put(getToolbarsStylesSelectionsVideoEmbedJSONObject());
 		jsonArray.put(getToolbarsStylesSelectionsLinkJSONObject());
 		jsonArray.put(getToolbarsStylesSelectionsImageJSONObject());
 		jsonArray.put(getToolbarsStylesSelectionsTextJSONObject(locale));
@@ -231,7 +234,7 @@ public class AlloyEditorConfigContributor
 	protected JSONObject getToolbarsStylesSelectionsLinkJSONObject() {
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
-		jsonObject.put("buttons", toJSONArray("['linkEdit']"));
+		jsonObject.put("buttons", toJSONArray("['linkEditBrowse']"));
 		jsonObject.put("name", "link");
 		jsonObject.put("test", "AlloyEditor.SelectionTest.link");
 
@@ -269,13 +272,25 @@ public class AlloyEditorConfigContributor
 		jsonArray.put("underline");
 		jsonArray.put("ol");
 		jsonArray.put("ul");
-		jsonArray.put("link");
+		jsonArray.put("linkBrowse");
 		jsonArray.put("twitter");
 
 		jsonObject.put("buttons", jsonArray);
 
 		jsonObject.put("name", "text");
 		jsonObject.put("test", "AlloyEditor.SelectionTest.text");
+
+		return jsonObject;
+	}
+
+	protected JSONObject getToolbarsStylesSelectionsVideoEmbedJSONObject() {
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+
+		jsonObject.put(
+			"buttons",
+			toJSONArray("['imageLeft', 'imageCenter', 'imageRight']"));
+		jsonObject.put("name", "videoEmbed");
+		jsonObject.put("test", "AlloyEditor.SelectionTest.videoembed");
 
 		return jsonObject;
 	}

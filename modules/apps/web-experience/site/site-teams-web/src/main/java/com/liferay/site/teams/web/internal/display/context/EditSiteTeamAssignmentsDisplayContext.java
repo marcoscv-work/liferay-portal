@@ -15,16 +15,15 @@
 package com.liferay.site.teams.web.internal.display.context;
 
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.NavigationItem;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.NavigationItemList;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Team;
 import com.liferay.portal.kernel.service.TeamLocalServiceUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import javax.portlet.PortletException;
 import javax.portlet.PortletURL;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
@@ -56,40 +55,31 @@ public class EditSiteTeamAssignmentsDisplayContext {
 		return portletURL;
 	}
 
-	public List<NavigationItem> getNavigationItems() throws PortletException {
-		List<NavigationItem> navigationItems = new ArrayList<>();
+	public List<NavigationItem> getNavigationItems() {
+		return new NavigationItemList() {
+			{
+				add(
+					navigationItem -> {
+						navigationItem.setActive(
+							Objects.equals(getTabs1(), "users"));
+						navigationItem.setHref(
+							getEditTeamAssignmentsURL(), "tabs1", "users");
+						navigationItem.setLabel(
+							LanguageUtil.get(_request, "users"));
+					});
 
-		NavigationItem userNavigationItem = new NavigationItem();
-
-		userNavigationItem.setActive(Objects.equals(getTabs1(), "users"));
-
-		PortletURL usersURL = getEditTeamAssignmentsURL();
-
-		usersURL.setParameter("tabs1", "users");
-
-		userNavigationItem.setHref(usersURL.toString());
-
-		userNavigationItem.setLabel(LanguageUtil.get(_request, "users"));
-
-		navigationItems.add(userNavigationItem);
-
-		NavigationItem userGroupsNavigationItem = new NavigationItem();
-
-		userGroupsNavigationItem.setActive(
-			Objects.equals(getTabs1(), "user-groups"));
-
-		PortletURL userGroupsURL = getEditTeamAssignmentsURL();
-
-		userGroupsURL.setParameter("tabs1", "user-groups");
-
-		userGroupsNavigationItem.setHref(userGroupsURL.toString());
-
-		userGroupsNavigationItem.setLabel(
-			LanguageUtil.get(_request, "user-groups"));
-
-		navigationItems.add(userGroupsNavigationItem);
-
-		return navigationItems;
+				add(
+					navigationItem -> {
+						navigationItem.setActive(
+							Objects.equals(getTabs1(), "user-groups"));
+						navigationItem.setHref(
+							getEditTeamAssignmentsURL(), "tabs1",
+							"user-groups");
+						navigationItem.setLabel(
+							LanguageUtil.get(_request, "user-groups"));
+					});
+			}
+		};
 	}
 
 	public String getTabs1() {

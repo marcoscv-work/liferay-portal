@@ -25,7 +25,6 @@ import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerRegistryUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelModifiedDateComparator;
 import com.liferay.exportimport.staged.model.repository.StagedModelRepository;
-import com.liferay.exportimport.staged.model.repository.base.BaseStagedModelRepository;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -51,16 +50,14 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	immediate = true,
-	property = {
-		"model.class.name=com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord"
-	},
+	property = "model.class.name=com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord",
 	service = {
 		DDMFormInstanceRecordStagedModelRepository.class,
 		StagedModelRepository.class
 	}
 )
 public class DDMFormInstanceRecordStagedModelRepository
-	extends BaseStagedModelRepository<DDMFormInstanceRecord> {
+	implements StagedModelRepository<DDMFormInstanceRecord> {
 
 	@Override
 	public DDMFormInstanceRecord addStagedModel(

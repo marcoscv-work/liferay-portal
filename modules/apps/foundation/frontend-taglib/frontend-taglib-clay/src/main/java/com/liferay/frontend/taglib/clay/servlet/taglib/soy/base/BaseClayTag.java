@@ -55,7 +55,28 @@ public abstract class BaseClayTag extends TemplateRendererTag {
 				themeDisplay.getPathThemeImages().concat("/clay/icons.svg"));
 		}
 
-		setHydrate(_hydrate);
+		String namespace = getNamespace();
+		String[] namespacedParams = getNamespacedParams();
+
+		if (Validator.isNotNull(namespace) && (namespacedParams != null)) {
+			for (String parameterName : namespacedParams) {
+				String parameterValue = (String)context.get(parameterName);
+
+				putValue(parameterName, namespace + parameterValue);
+			}
+		}
+
+		super.setComponentId(_componentId);
+
+		if (_hydrate || Validator.isNotNull(_componentId) ||
+			Validator.isNotNull(context.get("data"))) {
+
+			setHydrate(true);
+		}
+		else {
+			setHydrate(false);
+		}
+
 		setTemplateNamespace(_componentBaseName + ".render");
 
 		return super.doStartTag();
@@ -74,6 +95,19 @@ public abstract class BaseClayTag extends TemplateRendererTag {
 				"clay-", _moduleBaseName, "/lib/", _componentBaseName));
 	}
 
+	public String getNamespace() {
+		return _namespace;
+	}
+
+	@Override
+	public void setComponentId(String componentId) {
+		_componentId = componentId;
+	}
+
+	public void setData(Map<String, String> data) {
+		putValue("data", data);
+	}
+
 	public void setElementClasses(String elementClasses) {
 		putValue("elementClasses", elementClasses);
 	}
@@ -82,12 +116,22 @@ public abstract class BaseClayTag extends TemplateRendererTag {
 		putValue("id", id);
 	}
 
+	public void setNamespace(String namespace) {
+		_namespace = namespace;
+	}
+
 	public void setSpritemap(String spritemap) {
 		putValue("spritemap", spritemap);
 	}
 
+	protected String[] getNamespacedParams() {
+		return null;
+	}
+
 	private final String _componentBaseName;
+	private String _componentId;
 	private final boolean _hydrate;
 	private final String _moduleBaseName;
+	private String _namespace;
 
 }

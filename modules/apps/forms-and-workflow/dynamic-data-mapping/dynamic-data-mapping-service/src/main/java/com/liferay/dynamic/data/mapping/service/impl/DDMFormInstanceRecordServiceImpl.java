@@ -18,11 +18,11 @@ import com.liferay.dynamic.data.mapping.constants.DDMActionKeys;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord;
 import com.liferay.dynamic.data.mapping.service.base.DDMFormInstanceRecordServiceBaseImpl;
 import com.liferay.dynamic.data.mapping.service.permission.DDMFormInstancePermission;
-import com.liferay.dynamic.data.mapping.service.permission.DDMFormInstanceRecordPermission;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.util.OrderByComparator;
 
 import java.util.List;
 
@@ -56,9 +56,9 @@ public class DDMFormInstanceRecordServiceImpl
 			ddmFormInstanceRecordLocalService.getFormInstanceRecord(
 				ddmFormInstanceRecordId);
 
-		DDMFormInstanceRecordPermission.check(
-			getPermissionChecker(),
-			ddmFormInstanceRecord.getFormInstanceRecordId(), ActionKeys.DELETE);
+		DDMFormInstancePermission.check(
+			getPermissionChecker(), ddmFormInstanceRecord.getFormInstance(),
+			ActionKeys.DELETE);
 
 		ddmFormInstanceRecordLocalService.deleteFormInstanceRecord(
 			ddmFormInstanceRecord);
@@ -73,9 +73,9 @@ public class DDMFormInstanceRecordServiceImpl
 			ddmFormInstanceRecordLocalService.getFormInstanceRecord(
 				ddmFormInstanceRecordId);
 
-		DDMFormInstanceRecordPermission.check(
-			getPermissionChecker(),
-			ddmFormInstanceRecord.getFormInstanceRecordId(), ActionKeys.VIEW);
+		DDMFormInstancePermission.check(
+			getPermissionChecker(), ddmFormInstanceRecord.getFormInstance(),
+			ActionKeys.VIEW);
 
 		return ddmFormInstanceRecord;
 	}
@@ -93,6 +93,30 @@ public class DDMFormInstanceRecordServiceImpl
 	}
 
 	@Override
+	public List<DDMFormInstanceRecord> getFormInstanceRecords(
+			long ddmFormInstanceId, int status, int start, int end,
+			OrderByComparator<DDMFormInstanceRecord> orderByComparator)
+		throws PortalException {
+
+		DDMFormInstancePermission.contains(
+			getPermissionChecker(), ddmFormInstanceId, ActionKeys.VIEW);
+
+		return ddmFormInstanceRecordLocalService.getFormInstanceRecords(
+			ddmFormInstanceId, status, start, end, orderByComparator);
+	}
+
+	@Override
+	public int getFormInstanceRecordsCount(long ddmFormInstanceId)
+		throws PortalException {
+
+		DDMFormInstancePermission.contains(
+			getPermissionChecker(), ddmFormInstanceId, ActionKeys.VIEW);
+
+		return ddmFormInstanceRecordLocalService.getFormInstanceRecordsCount(
+			ddmFormInstanceId);
+	}
+
+	@Override
 	public void revertFormInstanceRecord(
 			long ddmFormInstanceRecordId, String version,
 			ServiceContext serviceContext)
@@ -102,9 +126,9 @@ public class DDMFormInstanceRecordServiceImpl
 			ddmFormInstanceRecordLocalService.getFormInstanceRecord(
 				ddmFormInstanceRecordId);
 
-		DDMFormInstanceRecordPermission.check(
-			getPermissionChecker(),
-			ddmFormInstanceRecord.getFormInstanceRecordId(), ActionKeys.UPDATE);
+		DDMFormInstancePermission.check(
+			getPermissionChecker(), ddmFormInstanceRecord.getFormInstance(),
+			ActionKeys.UPDATE);
 
 		ddmFormInstanceRecordLocalService.revertFormInstanceRecord(
 			getGuestOrUserId(), ddmFormInstanceRecordId, version,
@@ -121,9 +145,9 @@ public class DDMFormInstanceRecordServiceImpl
 			ddmFormInstanceRecordLocalService.getFormInstanceRecord(
 				ddmFormInstanceRecordId);
 
-		DDMFormInstanceRecordPermission.check(
-			getPermissionChecker(),
-			ddmFormInstanceRecord.getFormInstanceRecordId(), ActionKeys.UPDATE);
+		DDMFormInstancePermission.check(
+			getPermissionChecker(), ddmFormInstanceRecord.getFormInstance(),
+			ActionKeys.UPDATE);
 
 		return ddmFormInstanceRecordLocalService.updateFormInstanceRecord(
 			getUserId(), ddmFormInstanceRecordId, majorVersion, ddmFormValues,

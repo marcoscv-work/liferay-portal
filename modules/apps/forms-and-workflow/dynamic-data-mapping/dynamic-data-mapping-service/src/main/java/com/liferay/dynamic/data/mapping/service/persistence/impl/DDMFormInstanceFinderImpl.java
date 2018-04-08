@@ -17,6 +17,7 @@ package com.liferay.dynamic.data.mapping.service.persistence.impl;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.dynamic.data.mapping.model.impl.DDMFormInstanceImpl;
 import com.liferay.dynamic.data.mapping.service.persistence.DDMFormInstanceFinder;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.dao.orm.custom.sql.CustomSQLUtil;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -26,7 +27,6 @@ import com.liferay.portal.kernel.dao.orm.Type;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -67,6 +67,11 @@ public class DDMFormInstanceFinderImpl
 	}
 
 	@Override
+	public int filterCountByC_G(long companyId, long groupId) {
+		return filterCountByKeywords(companyId, groupId, null);
+	}
+
+	@Override
 	public int filterCountByC_G_N_D(
 		long companyId, long groupId, String[] names, String[] descriptions,
 		boolean andOperator) {
@@ -95,6 +100,13 @@ public class DDMFormInstanceFinderImpl
 		return filterFindByC_G_N_D(
 			companyId, groupId, names, descriptions, andOperator, start, end,
 			orderByComparator);
+	}
+
+	@Override
+	public List<DDMFormInstance> filterFindByC_G(
+		long companyId, long groupId, int start, int end) {
+
+		return filterFindByKeywords(companyId, groupId, null, start, end, null);
 	}
 
 	@Override

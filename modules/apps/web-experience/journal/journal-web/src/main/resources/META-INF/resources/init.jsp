@@ -20,6 +20,7 @@
 
 <%@ taglib uri="http://liferay.com/tld/asset" prefix="liferay-asset" %><%@
 taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
+taglib uri="http://liferay.com/tld/clay" prefix="clay" %><%@
 taglib uri="http://liferay.com/tld/ddm" prefix="liferay-ddm" %><%@
 taglib uri="http://liferay.com/tld/expando" prefix="liferay-expando" %><%@
 taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
@@ -58,6 +59,7 @@ page import="com.liferay.dynamic.data.mapping.service.permission.DDMTemplatePerm
 page import="com.liferay.dynamic.data.mapping.storage.DDMFormValues" %><%@
 page import="com.liferay.dynamic.data.mapping.util.DDMNavigationHelper" %><%@
 page import="com.liferay.dynamic.data.mapping.util.comparator.StructureModifiedDateComparator" %><%@
+page import="com.liferay.frontend.taglib.clay.servlet.taglib.util.JSPNavigationItemList" %><%@
 page import="com.liferay.frontend.taglib.servlet.taglib.util.AddMenuKeys" %><%@
 page import="com.liferay.item.selector.ItemSelector" %><%@
 page import="com.liferay.item.selector.ItemSelectorReturnType" %><%@
@@ -105,7 +107,6 @@ page import="com.liferay.journal.service.JournalFolderLocalServiceUtil" %><%@
 page import="com.liferay.journal.service.JournalFolderServiceUtil" %><%@
 page import="com.liferay.journal.util.JournalContent" %><%@
 page import="com.liferay.journal.util.comparator.ArticleVersionComparator" %><%@
-page import="com.liferay.journal.util.impl.JournalUtil" %><%@
 page import="com.liferay.journal.web.asset.JournalArticleAssetRenderer" %><%@
 page import="com.liferay.journal.web.configuration.JournalWebConfiguration" %><%@
 page import="com.liferay.journal.web.internal.dao.search.JournalResultRowSplitter" %><%@
@@ -120,7 +121,9 @@ page import="com.liferay.journal.web.internal.security.permission.resource.Journ
 page import="com.liferay.journal.web.internal.security.permission.resource.JournalFeedPermission" %><%@
 page import="com.liferay.journal.web.internal.security.permission.resource.JournalFolderPermission" %><%@
 page import="com.liferay.journal.web.internal.security.permission.resource.JournalPermission" %><%@
+page import="com.liferay.journal.web.internal.util.JournalHelperUtil" %><%@
 page import="com.liferay.journal.web.util.JournalPortletUtil" %><%@
+page import="com.liferay.journal.web.util.JournalUtil" %><%@
 page import="com.liferay.layout.item.selector.criterion.LayoutItemSelectorCriterion" %><%@
 page import="com.liferay.petra.string.StringPool" %><%@
 page import="com.liferay.portal.kernel.bean.BeanParamUtil" %><%@

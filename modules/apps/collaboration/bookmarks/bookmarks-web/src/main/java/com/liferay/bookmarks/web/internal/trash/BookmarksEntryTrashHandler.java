@@ -18,7 +18,7 @@ import com.liferay.bookmarks.model.BookmarksEntry;
 import com.liferay.bookmarks.model.BookmarksFolder;
 import com.liferay.bookmarks.service.BookmarksEntryLocalService;
 import com.liferay.bookmarks.service.BookmarksFolderLocalService;
-import com.liferay.bookmarks.util.BookmarksUtil;
+import com.liferay.bookmarks.web.internal.util.BookmarksUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.ContainerModel;
 import com.liferay.portal.kernel.model.TrashedModel;
@@ -42,7 +42,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Zsolt Berentey
  */
 @Component(
-	property = {"model.class.name=com.liferay.bookmarks.model.BookmarksEntry"},
+	property = "model.class.name=com.liferay.bookmarks.model.BookmarksEntry",
 	service = TrashHandler.class
 )
 public class BookmarksEntryTrashHandler extends BookmarksBaseTrashHandler {
