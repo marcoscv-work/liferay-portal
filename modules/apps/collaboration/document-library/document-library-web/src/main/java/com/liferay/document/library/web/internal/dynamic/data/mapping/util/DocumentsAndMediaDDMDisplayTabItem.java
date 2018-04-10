@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
+import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
 
 import java.util.ResourceBundle;
 
@@ -34,7 +35,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alejandro Tardín
  */
 @Component(
-	property = {"javax.portlet.name=" + PortletKeys.DOCUMENT_LIBRARY},
+	property = "javax.portlet.name=" + PortletKeys.DOCUMENT_LIBRARY,
 	service =
 		{DDMDisplayTabItem.class, DocumentsAndMediaDDMDisplayTabItem.class}
 )
@@ -45,9 +46,11 @@ public class DocumentsAndMediaDDMDisplayTabItem implements DDMDisplayTabItem {
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse) {
 
-		ResourceBundle resourceBundle =
-			_resourceBundleLoader.loadResourceBundle(
-				liferayPortletRequest.getLocale());
+		ResourceBundleLoader resourceBundleLoader =
+			ResourceBundleLoaderUtil.getPortalResourceBundleLoader();
+
+		ResourceBundle resourceBundle = resourceBundleLoader.loadResourceBundle(
+			liferayPortletRequest.getLocale());
 
 		return LanguageUtil.get(resourceBundle, "documents-and-media");
 	}
@@ -70,10 +73,5 @@ public class DocumentsAndMediaDDMDisplayTabItem implements DDMDisplayTabItem {
 
 	@Reference
 	private Portal _portal;
-
-	@Reference(
-		target = "(bundle.symbolic.name=com.liferay.document.library.web)"
-	)
-	private ResourceBundleLoader _resourceBundleLoader;
 
 }

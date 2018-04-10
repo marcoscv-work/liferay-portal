@@ -14,6 +14,9 @@
 
 package com.liferay.apio.architect.sample.internal.resource;
 
+import static com.liferay.apio.architect.sample.internal.auth.PermissionChecker.hasPermission;
+
+import com.liferay.apio.architect.credentials.Credentials;
 import com.liferay.apio.architect.pagination.PageItems;
 import com.liferay.apio.architect.pagination.Pagination;
 import com.liferay.apio.architect.representor.Representor;
@@ -22,36 +25,43 @@ import com.liferay.apio.architect.routes.ItemRoutes;
 import com.liferay.apio.architect.routes.NestedCollectionRoutes;
 import com.liferay.apio.architect.sample.internal.form.BlogPostingCommentCreatorForm;
 import com.liferay.apio.architect.sample.internal.form.BlogPostingCommentUpdaterForm;
-import com.liferay.apio.architect.sample.internal.model.BlogPosting;
-import com.liferay.apio.architect.sample.internal.model.BlogPostingComment;
-import com.liferay.apio.architect.sample.internal.model.Person;
+import com.liferay.apio.architect.sample.internal.identifier.BlogPostingCommentId;
+import com.liferay.apio.architect.sample.internal.identifier.BlogPostingId;
+import com.liferay.apio.architect.sample.internal.identifier.PersonId;
+import com.liferay.apio.architect.sample.internal.model.BlogPostingCommentModel;
 
 import java.util.List;
 import java.util.Optional;
 
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotFoundException;
 
 import org.osgi.service.component.annotations.Component;
 
 /**
  * Provides all the information necessary to expose <a
- * href="http://schema.org/Comment">Comment </a> resources through a web API.
- * The resources are mapped from the internal {@link BlogPostingComment} model.
+ * href="http://schema.org/Comment">Comment</a> resources through a web API. The
+ * resources are mapped from the internal {@link BlogPostingCommentModel} model.
  *
  * @author Alejandro Hernández
  */
 @Component(immediate = true)
 public class BlogPostingCommentNestedCollectionResource implements
-	NestedCollectionResource<BlogPostingComment, Long, BlogPosting, Long> {
+	NestedCollectionResource
+		<BlogPostingCommentModel, Long, BlogPostingCommentId, Long,
+			BlogPostingId> {
 
 	@Override
-	public NestedCollectionRoutes<BlogPostingComment> collectionRoutes(
-		NestedCollectionRoutes.Builder<BlogPostingComment, Long> builder) {
+	public NestedCollectionRoutes<BlogPostingCommentModel, Long>
+		collectionRoutes(
+			NestedCollectionRoutes.Builder<BlogPostingCommentModel, Long>
+				builder) {
 
 		return builder.addGetter(
 			this::_getPageItems
 		).addCreator(
-			this::_addBlogPostingComment,
+			this::_addBlogPostingComment, Credentials.class,
+			(credentials, blogPostingModelId) -> hasPermission(credentials),
 			BlogPostingCommentCreatorForm::buildForm
 		).build();
 	}
@@ -62,88 +72,98 @@ public class BlogPostingCommentNestedCollectionResource implements
 	}
 
 	@Override
-	public ItemRoutes<BlogPostingComment> itemRoutes(
-		ItemRoutes.Builder<BlogPostingComment, Long> builder) {
+	public ItemRoutes<BlogPostingCommentModel, Long> itemRoutes(
+		ItemRoutes.Builder<BlogPostingCommentModel, Long> builder) {
 
 		return builder.addGetter(
 			this::_getBlogPostingComment
 		).addRemover(
-			this::_deleteBlogPostingComment
+			this::_deleteBlogPostingComment, Credentials.class,
+			(credentials, id) -> hasPermission(credentials)
 		).addUpdater(
-			this::_updateBlogPostingComment,
+			this::_updateBlogPostingComment, Credentials.class,
+			(credentials, id) -> hasPermission(credentials),
 			BlogPostingCommentUpdaterForm::buildForm
 		).build();
 	}
 
 	@Override
-	public Representor<BlogPostingComment, Long> representor(
-		Representor.Builder<BlogPostingComment, Long> builder) {
+	public Representor<BlogPostingCommentModel, Long> representor(
+		Representor.Builder<BlogPostingCommentModel, Long> builder) {
 
 		return builder.types(
 			"Comment"
 		).identifier(
-			BlogPostingComment::getBlogPostingCommentId
+			BlogPostingCommentModel::getId
 		).addDate(
-			"dateCreated", BlogPostingComment::getCreateDate
+			"dateCreated", BlogPostingCommentModel::getCreateDate
 		).addDate(
-			"dateModified", BlogPostingComment::getModifiedDate
+			"dateModified", BlogPostingCommentModel::getModifiedDate
 		).addLinkedModel(
-			"author", Person.class,
-			blogPostingComment ->
-				Person.getPerson(blogPostingComment.getAuthorId())
+			"author", PersonId.class, BlogPostingCommentModel::getAuthorId
 		).addString(
-			"text", BlogPostingComment::getContent
+			"text", BlogPostingCommentModel::getContent
 		).build();
 	}
 
-	private BlogPostingComment _addBlogPostingComment(
-		Long blogPostId,
-		BlogPostingCommentCreatorForm blogPostingCommentCreatorForm) {
+	private BlogPostingCommentModel _addBlogPostingComment(
+		Long blogPostingModelId,
+		BlogPostingCommentCreatorForm blogPostingCommentCreatorForm,
+		Credentials credentials) {
 
-		return BlogPostingComment.addBlogPostingComment(
-			blogPostingCommentCreatorForm.getAuthor(), blogPostId,
+		if (!hasPermission(credentials)) {
+			throw new ForbiddenException();
+		}
+
+		return BlogPostingCommentModel.create(
+			blogPostingCommentCreatorForm.getAuthor(), blogPostingModelId,
 			blogPostingCommentCreatorForm.getText());
 	}
 
-	private void _deleteBlogPostingComment(Long blogPostingCommentId) {
-		BlogPostingComment.deleteBlogPostingComment(blogPostingCommentId);
+	private void _deleteBlogPostingComment(Long id, Credentials credentials) {
+		if (!hasPermission(credentials)) {
+			throw new ForbiddenException();
+		}
+
+		BlogPostingCommentModel.remove(id);
 	}
 
-	private BlogPostingComment _getBlogPostingComment(
-		Long blogPostingCommentId) {
-
-		Optional<BlogPostingComment> optional =
-			BlogPostingComment.getBlogPostingCommentOptional(
-				blogPostingCommentId);
+	private BlogPostingCommentModel _getBlogPostingComment(Long id) {
+		Optional<BlogPostingCommentModel> optional =
+			BlogPostingCommentModel.get(id);
 
 		return optional.orElseThrow(
 			() -> new NotFoundException(
-				"Unable to get blog posting comment " + blogPostingCommentId));
+				"Unable to get blog posting comment " + id));
 	}
 
-	private PageItems<BlogPostingComment> _getPageItems(
-		Pagination pagination, Long blogPostId) {
+	private PageItems<BlogPostingCommentModel> _getPageItems(
+		Pagination pagination, Long blogPostingModelId) {
 
-		List<BlogPostingComment> blogsEntries =
-			BlogPostingComment.getBlogPostingComments(
-				blogPostId, pagination.getStartPosition(),
+		List<BlogPostingCommentModel> blogPostingCommentModels =
+			BlogPostingCommentModel.getPage(
+				blogPostingModelId, pagination.getStartPosition(),
 				pagination.getEndPosition());
-		int count = BlogPostingComment.getBlogPostingCommentsCount(blogPostId);
+		int count = BlogPostingCommentModel.getCount(blogPostingModelId);
 
-		return new PageItems<>(blogsEntries, count);
+		return new PageItems<>(blogPostingCommentModels, count);
 	}
 
-	private BlogPostingComment _updateBlogPostingComment(
-		Long blogPostingCommentId,
-		BlogPostingCommentUpdaterForm blogPostingCommentUpdaterForm) {
+	private BlogPostingCommentModel _updateBlogPostingComment(
+		Long id, BlogPostingCommentUpdaterForm blogPostingCommentUpdaterForm,
+		Credentials credentials) {
 
-		Optional<BlogPostingComment> optional =
-			BlogPostingComment.updateBlogPostingComment(
-				blogPostingCommentId, blogPostingCommentUpdaterForm.getText());
+		if (!hasPermission(credentials)) {
+			throw new ForbiddenException();
+		}
+
+		Optional<BlogPostingCommentModel> optional =
+			BlogPostingCommentModel.update(
+				id, blogPostingCommentUpdaterForm.getText());
 
 		return optional.orElseThrow(
 			() -> new NotFoundException(
-				"Unable to get blog posting comment " + blogPostingCommentId));
+				"Unable to get blog posting comment " + id));
 	}
 
 }

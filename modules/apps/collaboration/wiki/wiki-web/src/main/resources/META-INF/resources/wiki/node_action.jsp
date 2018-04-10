@@ -29,7 +29,13 @@ else {
 }
 %>
 
-<liferay-ui:icon-menu direction="left-side" icon="<%= StringPool.BLANK %>" markupView="lexicon" message="<%= StringPool.BLANK %>" showWhenSingleIcon="<%= true %>">
+<liferay-ui:icon-menu
+	direction="left-side"
+	icon="<%= StringPool.BLANK %>"
+	markupView="lexicon"
+	message="<%= StringPool.BLANK %>"
+	showWhenSingleIcon="<%= true %>"
+>
 	<c:if test="<%= WikiNodePermission.contains(permissionChecker, node, ActionKeys.UPDATE) %>">
 		<portlet:renderURL var="editURL">
 			<portlet:param name="mvcRenderCommandName" value="/wiki/edit_node" />
@@ -74,7 +80,7 @@ else {
 	</c:if>
 
 	<c:if test="<%= wikiGroupServiceOverriddenConfiguration.enableRss() %>">
-		<liferay-ui:rss
+		<liferay-rss:rss
 			delta="<%= GetterUtil.getInteger(wikiGroupServiceOverriddenConfiguration.rssDelta()) %>"
 			displayStyle="<%= wikiGroupServiceOverriddenConfiguration.rssDisplayStyle() %>"
 			feedType="<%= wikiGroupServiceOverriddenConfiguration.rssFeedType() %>"

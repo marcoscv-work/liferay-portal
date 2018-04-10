@@ -58,6 +58,9 @@ public class AddMenuItemTag extends IncludeTag {
 
 	@Override
 	protected void cleanUp() {
+		super.cleanUp();
+
+		_anchorData = null;
 		_cssClass = null;
 		_id = null;
 		_title = null;

@@ -22,10 +22,6 @@ import com.liferay.portal.kernel.search.suggest.Suggester;
 import com.liferay.portal.kernel.search.suggest.SuggesterTranslator;
 import com.liferay.portal.kernel.search.suggest.SuggesterVisitor;
 import com.liferay.portal.kernel.search.suggest.TermSuggester;
-import com.liferay.portal.search.elasticsearch.suggest.AggregateSuggesterTranslator;
-import com.liferay.portal.search.elasticsearch.suggest.CompletionSuggesterTranslator;
-import com.liferay.portal.search.elasticsearch.suggest.PhraseSuggesterTranslator;
-import com.liferay.portal.search.elasticsearch.suggest.TermSuggesterTranslator;
 
 import org.elasticsearch.search.suggest.SuggestBuilder;
 
@@ -36,7 +32,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Michael C. Han
  */
 @Component(
-	immediate = true, property = {"search.engine.impl=Elasticsearch"},
+	immediate = true, property = "search.engine.impl=Elasticsearch",
 	service = SuggesterTranslator.class
 )
 public class ElasticsearchSuggesterTranslator

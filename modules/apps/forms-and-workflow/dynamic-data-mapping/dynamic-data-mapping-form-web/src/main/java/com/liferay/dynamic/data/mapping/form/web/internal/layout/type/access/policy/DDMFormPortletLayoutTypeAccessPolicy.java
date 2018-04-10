@@ -14,7 +14,7 @@
 
 package com.liferay.dynamic.data.mapping.form.web.internal.layout.type.access.policy;
 
-import com.liferay.dynamic.data.mapping.form.web.internal.constants.DDMFormPortletKeys;
+import com.liferay.dynamic.data.mapping.constants.DDMPortletKeys;
 import com.liferay.dynamic.data.mapping.form.web.internal.layout.type.constants.DDMFormPortletLayoutTypeConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutTypeAccessPolicy;
@@ -30,7 +30,7 @@ import org.osgi.service.component.annotations.Component;
  */
 @Component(
 	immediate = true,
-	property = {"layout.type=" + DDMFormPortletLayoutTypeConstants.LAYOUT_TYPE},
+	property = "layout.type=" + DDMFormPortletLayoutTypeConstants.LAYOUT_TYPE,
 	service = LayoutTypeAccessPolicy.class
 )
 public class DDMFormPortletLayoutTypeAccessPolicy
@@ -70,7 +70,7 @@ public class DDMFormPortletLayoutTypeAccessPolicy
 
 		if (StringUtil.equalsIgnoreCase(
 				portlet.getPortletId(),
-				DDMFormPortletKeys.DYNAMIC_DATA_MAPPING_FORM)) {
+				DDMPortletKeys.DYNAMIC_DATA_MAPPING_FORM)) {
 
 			return true;
 		}

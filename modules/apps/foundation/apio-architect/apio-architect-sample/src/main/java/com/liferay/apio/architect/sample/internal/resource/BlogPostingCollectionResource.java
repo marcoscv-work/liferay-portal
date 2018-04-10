@@ -14,43 +14,51 @@
 
 package com.liferay.apio.architect.sample.internal.resource;
 
+import static com.liferay.apio.architect.sample.internal.auth.PermissionChecker.hasPermission;
+
+import com.liferay.apio.architect.credentials.Credentials;
 import com.liferay.apio.architect.pagination.PageItems;
 import com.liferay.apio.architect.pagination.Pagination;
 import com.liferay.apio.architect.representor.Representor;
 import com.liferay.apio.architect.resource.CollectionResource;
 import com.liferay.apio.architect.routes.CollectionRoutes;
 import com.liferay.apio.architect.routes.ItemRoutes;
+import com.liferay.apio.architect.sample.internal.auth.PermissionChecker;
 import com.liferay.apio.architect.sample.internal.form.BlogPostingForm;
-import com.liferay.apio.architect.sample.internal.model.BlogPosting;
-import com.liferay.apio.architect.sample.internal.model.BlogPostingComment;
-import com.liferay.apio.architect.sample.internal.model.Person;
+import com.liferay.apio.architect.sample.internal.identifier.BlogPostingCommentId;
+import com.liferay.apio.architect.sample.internal.identifier.BlogPostingId;
+import com.liferay.apio.architect.sample.internal.identifier.PersonId;
+import com.liferay.apio.architect.sample.internal.model.BlogPostingModel;
 
 import java.util.List;
 import java.util.Optional;
 
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotFoundException;
 
 import org.osgi.service.component.annotations.Component;
 
 /**
  * Provides all the information necessary to expose <a
- * href="http://schema.org/BlogPosting">BlogPosting </a> resources through a web
- * API. The resources are mapped from the internal {@link BlogPosting} model.
+ * href="http://schema.org/BlogPosting">BlogPosting</a> resources through a web
+ * API. The resources are mapped from the internal {@link BlogPostingModel}
+ * model.
  *
  * @author Alejandro Hernández
  */
 @Component(immediate = true)
 public class BlogPostingCollectionResource
-	implements CollectionResource<BlogPosting, Long> {
+	implements CollectionResource<BlogPostingModel, Long, BlogPostingId> {
 
 	@Override
-	public CollectionRoutes<BlogPosting> collectionRoutes(
-		CollectionRoutes.Builder<BlogPosting> builder) {
+	public CollectionRoutes<BlogPostingModel> collectionRoutes(
+		CollectionRoutes.Builder<BlogPostingModel> builder) {
 
 		return builder.addGetter(
 			this::_getPageItems
 		).addCreator(
-			this::_addBlogPosting, BlogPostingForm::buildForm
+			this::_addBlogPostingModel, Credentials.class,
+			PermissionChecker::hasPermission, BlogPostingForm::buildForm
 		).build();
 	}
 
@@ -60,86 +68,98 @@ public class BlogPostingCollectionResource
 	}
 
 	@Override
-	public ItemRoutes<BlogPosting> itemRoutes(
-		ItemRoutes.Builder<BlogPosting, Long> builder) {
+	public ItemRoutes<BlogPostingModel, Long> itemRoutes(
+		ItemRoutes.Builder<BlogPostingModel, Long> builder) {
 
 		return builder.addGetter(
-			this::_getBlogPosting
+			this::_getBlogPostingModel
 		).addRemover(
-			this::_deleteBlogPosting
+			this::_deleteBlogPostingModel, Credentials.class,
+			(credentials, id) -> hasPermission(credentials)
 		).addUpdater(
-			this::_updateBlogPosting, BlogPostingForm::buildForm
+			this::_updateBlogPostingModel, Credentials.class,
+			(credentials, id) -> hasPermission(credentials),
+			BlogPostingForm::buildForm
 		).build();
 	}
 
 	@Override
-	public Representor<BlogPosting, Long> representor(
-		Representor.Builder<BlogPosting, Long> builder) {
+	public Representor<BlogPostingModel, Long> representor(
+		Representor.Builder<BlogPostingModel, Long> builder) {
 
 		return builder.types(
 			"BlogPosting"
 		).identifier(
-			BlogPosting::getBlogPostingId
+			BlogPostingModel::getId
 		).addDate(
-			"dateCreated", BlogPosting::getCreateDate
+			"dateCreated", BlogPostingModel::getCreateDate
 		).addDate(
-			"dateModified", BlogPosting::getModifiedDate
+			"dateModified", BlogPostingModel::getModifiedDate
 		).addLinkedModel(
-			"creator", Person.class,
-			blogPosting -> Person.getPerson(blogPosting.getCreatorId())
+			"creator", PersonId.class, BlogPostingModel::getCreatorId
 		).addRelatedCollection(
-			"comments", BlogPostingComment.class, BlogPosting::getBlogPostingId
+			"comment", BlogPostingCommentId.class
 		).addString(
-			"alternativeHeadline", BlogPosting::getSubtitle
+			"alternativeHeadline", BlogPostingModel::getSubtitle
 		).addString(
-			"articleBody", BlogPosting::getContent
+			"articleBody", BlogPostingModel::getContent
 		).addString(
-			"fileFormat", blogPosting -> "text/html"
+			"fileFormat", __ -> "text/html"
 		).addString(
-			"headline", BlogPosting::getTitle
+			"headline", BlogPostingModel::getTitle
 		).build();
 	}
 
-	private BlogPosting _addBlogPosting(BlogPostingForm blogPostingForm) {
-		return BlogPosting.addBlogPosting(
+	private BlogPostingModel _addBlogPostingModel(
+		BlogPostingForm blogPostingForm, Credentials credentials) {
+
+		if (!hasPermission(credentials)) {
+			throw new ForbiddenException();
+		}
+
+		return BlogPostingModel.create(
 			blogPostingForm.getArticleBody(), blogPostingForm.getCreator(),
 			blogPostingForm.getAlternativeHeadline(),
 			blogPostingForm.getHeadline());
 	}
 
-	private void _deleteBlogPosting(Long blogPostingId) {
-		BlogPosting.deleteBlogPosting(blogPostingId);
+	private void _deleteBlogPostingModel(Long id, Credentials credentials) {
+		if (!hasPermission(credentials)) {
+			throw new ForbiddenException();
+		}
+
+		BlogPostingModel.remove(id);
 	}
 
-	private BlogPosting _getBlogPosting(Long blogPostingId) {
-		Optional<BlogPosting> optional = BlogPosting.getBlogPosting(
-			blogPostingId);
+	private BlogPostingModel _getBlogPostingModel(Long id) {
+		Optional<BlogPostingModel> optional = BlogPostingModel.get(id);
 
 		return optional.orElseThrow(
-			() -> new NotFoundException(
-				"Unable to get blog posting " + blogPostingId));
+			() -> new NotFoundException("Unable to get blog posting " + id));
 	}
 
-	private PageItems<BlogPosting> _getPageItems(Pagination pagination) {
-		List<BlogPosting> blogPostings = BlogPosting.getBlogPostings(
+	private PageItems<BlogPostingModel> _getPageItems(Pagination pagination) {
+		List<BlogPostingModel> blogPostingModels = BlogPostingModel.getPage(
 			pagination.getStartPosition(), pagination.getEndPosition());
-		int count = BlogPosting.getBlogPostingCount();
+		int count = BlogPostingModel.getCount();
 
-		return new PageItems<>(blogPostings, count);
+		return new PageItems<>(blogPostingModels, count);
 	}
 
-	private BlogPosting _updateBlogPosting(
-		Long blogPostingId, BlogPostingForm blogPostingForm) {
+	private BlogPostingModel _updateBlogPostingModel(
+		Long id, BlogPostingForm blogPostingForm, Credentials credentials) {
 
-		Optional<BlogPosting> optional = BlogPosting.updateBlogPosting(
-			blogPostingId, blogPostingForm.getArticleBody(),
-			blogPostingForm.getCreator(),
+		if (!hasPermission(credentials)) {
+			throw new ForbiddenException();
+		}
+
+		Optional<BlogPostingModel> optional = BlogPostingModel.update(
+			id, blogPostingForm.getArticleBody(), blogPostingForm.getCreator(),
 			blogPostingForm.getAlternativeHeadline(),
 			blogPostingForm.getHeadline());
 
 		return optional.orElseThrow(
-			() -> new NotFoundException(
-				"Unable to get blog posting " + blogPostingId));
+			() -> new NotFoundException("Unable to get blog posting " + id));
 	}
 
 }

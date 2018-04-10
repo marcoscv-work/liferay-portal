@@ -153,15 +153,9 @@ public class EditUserMVCActionCommand extends BaseMVCActionCommand {
 			new ArrayList<Phone>(), new ArrayList<Website>(),
 			new ArrayList<AnnouncementsDelivery>(), sendEmail, serviceContext);
 
-		user = _userService.updateUser(
-			user.getUserId(), StringPool.BLANK, StringPool.BLANK,
-			StringPool.BLANK, user.getPasswordReset(), null, null,
-			user.getScreenName(), user.getEmailAddress(), facebookId,
-			user.getOpenId(), true, null, languageId, user.getTimeZoneId(),
-			user.getGreeting(), comments, firstName, middleName, lastName,
-			prefixId, suffixId, male, birthdayMonth, birthdayDay, birthdayYear,
-			null, null, null, null, null, jobTitle, null, null, null, null,
-			null, null, null, null, null, null, serviceContext);
+		user.setComments(comments);
+
+		user = userLocalService.updateUser(user);
 
 		return user;
 	}
@@ -215,6 +209,8 @@ public class EditUserMVCActionCommand extends BaseMVCActionCommand {
 
 			if (cmd.equals(Constants.ADD)) {
 				user = addUser(actionRequest);
+
+				SessionMessages.add(actionRequest, "userAdded");
 			}
 			else if (cmd.equals(Constants.DEACTIVATE) ||
 					 cmd.equals(Constants.DELETE) ||

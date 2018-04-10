@@ -14,8 +14,13 @@
  */
 --%>
 
-<%@ include file="/init.jsp" %>
+<%@ page import="com.liferay.layout.type.controller.content.internal.display.context.ContentLayoutTypeControllerDisplayContext" %><%@
+page import="com.liferay.portal.kernel.layoutconfiguration.util.RuntimePageUtil" %><%@
+page import="com.liferay.portal.kernel.model.LayoutTemplateConstants" %><%@
+page import="com.liferay.portal.kernel.service.LayoutTemplateLocalServiceUtil" %><%@
+page import="com.liferay.portal.kernel.template.StringTemplateResource" %><%@
+page import="com.liferay.portal.kernel.util.ParamUtil" %><%@
+page import="com.liferay.portal.kernel.util.StringUtil" %><%@
+page import="com.liferay.portal.kernel.util.Validator" %>
 
-<%
-List<FragmentEntryInstanceLink> fragmentEntryInstanceLinks = (List<FragmentEntryInstanceLink>)request.getAttribute(ContentLayoutTypeControllerWebKeys.LAYOUT_FRAGMENTS);
-%>
+<%@ include file="/init.jsp" %>

@@ -23,7 +23,7 @@ import com.liferay.calendar.model.Calendar;
 import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.calendar.model.CalendarResource;
 import com.liferay.calendar.service.CalendarBookingLocalService;
-import com.liferay.calendar.util.CalendarResourceUtil;
+import com.liferay.calendar.web.internal.util.CalendarResourceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
@@ -49,7 +49,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	immediate = true,
-	property = {"javax.portlet.name=" + CalendarPortletKeys.CALENDAR},
+	property = "javax.portlet.name=" + CalendarPortletKeys.CALENDAR,
 	service = AssetRendererFactory.class
 )
 public class CalendarBookingAssetRendererFactory
