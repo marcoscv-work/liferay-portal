@@ -14,10 +14,10 @@
 
 package com.liferay.social.privatemessaging.web.internal.notifications;
 
-import com.liferay.message.boards.kernel.model.MBMessage;
-import com.liferay.message.boards.kernel.model.MBThread;
-import com.liferay.message.boards.kernel.service.MBMessageLocalService;
-import com.liferay.message.boards.kernel.service.MBThreadLocalService;
+import com.liferay.message.boards.model.MBMessage;
+import com.liferay.message.boards.model.MBThread;
+import com.liferay.message.boards.service.MBMessageLocalService;
+import com.liferay.message.boards.service.MBThreadLocalService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -55,7 +55,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	immediate = true,
-	property = {"javax.portlet.name=" + PrivateMessagingPortletKeys.PRIVATE_MESSAGING},
+	property = "javax.portlet.name=" + PrivateMessagingPortletKeys.PRIVATE_MESSAGING,
 	service = UserNotificationHandler.class
 )
 public class PrivateMessagingUserNotificationHandler

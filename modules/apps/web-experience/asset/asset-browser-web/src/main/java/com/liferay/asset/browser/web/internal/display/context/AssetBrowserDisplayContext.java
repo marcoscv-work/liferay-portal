@@ -141,13 +141,7 @@ public class AssetBrowserDisplayContext {
 		AssetBrowserSearch assetBrowserSearch = new AssetBrowserSearch(
 			_renderRequest, getPortletURL());
 
-		if (Validator.isNull(getKeywords())) {
-			if (Validator.isNotNull(getAddButtonURL())) {
-				assetBrowserSearch.setEmptyResultsMessageCssClass(
-					"taglib-empty-result-message-header-has-plus-btn");
-			}
-		}
-		else {
+		if (Validator.isNotNull(getKeywords())) {
 			assetBrowserSearch.setSearch(true);
 		}
 
@@ -392,6 +386,10 @@ public class AssetBrowserDisplayContext {
 	public PortletURL getPortletURL() throws PortalException {
 		PortletURL portletURL = _renderResponse.createRenderURL();
 
+		if (getKeywords() != null) {
+			portletURL.setParameter("keywords", getKeywords());
+		}
+
 		portletURL.setParameter("groupId", String.valueOf(getGroupId()));
 
 		long selectedGroupId = ParamUtil.getLong(_request, "selectedGroupId");
@@ -400,12 +398,13 @@ public class AssetBrowserDisplayContext {
 			portletURL.setParameter(
 				"selectedGroupId", String.valueOf(selectedGroupId));
 		}
+		else {
+			long[] selectedGroupIds = getSelectedGroupIds();
 
-		long[] selectedGroupIds = getSelectedGroupIds();
-
-		if (selectedGroupIds.length > 0) {
-			portletURL.setParameter(
-				"selectedGroupIds", StringUtil.merge(selectedGroupIds));
+			if (selectedGroupIds.length > 0) {
+				portletURL.setParameter(
+					"selectedGroupIds", StringUtil.merge(selectedGroupIds));
+			}
 		}
 
 		portletURL.setParameter(
@@ -413,15 +412,15 @@ public class AssetBrowserDisplayContext {
 		portletURL.setParameter("typeSelection", getTypeSelection());
 		portletURL.setParameter(
 			"subtypeSelectionId", String.valueOf(getSubtypeSelectionId()));
-		portletURL.setParameter(
-			"showNonindexable", String.valueOf(isShowNonindexable()));
-		portletURL.setParameter(
-			"showScheduled", String.valueOf(isShowScheduled()));
 
 		if (getListable() != null) {
 			portletURL.setParameter("listable", String.valueOf(getListable()));
 		}
 
+		portletURL.setParameter(
+			"showNonindexable", String.valueOf(isShowNonindexable()));
+		portletURL.setParameter(
+			"showScheduled", String.valueOf(isShowScheduled()));
 		portletURL.setParameter("eventName", getEventName());
 
 		return portletURL;

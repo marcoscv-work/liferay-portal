@@ -47,7 +47,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Michael C. Han
  */
 @Component(
-	immediate = true, property = {"search.engine.impl=Solr"},
+	immediate = true, property = "search.engine.impl=Solr",
 	service = SpellCheckIndexWriter.class
 )
 public class SolrSpellCheckIndexWriter
@@ -118,12 +118,6 @@ public class SolrSpellCheckIndexWriter
 		sb.append(Field.COMPANY_ID);
 		sb.append(StringPool.COLON);
 		sb.append(searchContext.getCompanyId());
-
-		addQuerySeparator(sb);
-
-		sb.append(Field.SPELL_CHECK_WORD);
-		sb.append(StringPool.COLON);
-		sb.append(Boolean.TRUE.toString());
 
 		addQuerySeparator(sb);
 

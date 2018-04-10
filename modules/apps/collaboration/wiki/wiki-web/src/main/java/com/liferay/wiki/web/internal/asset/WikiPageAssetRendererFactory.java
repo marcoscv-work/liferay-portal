@@ -23,7 +23,7 @@ import com.liferay.portal.kernel.portlet.LiferayPortletURL;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.trash.TrashHelper;
 import com.liferay.wiki.constants.WikiPortletKeys;
-import com.liferay.wiki.engine.impl.WikiEngineRenderer;
+import com.liferay.wiki.engine.WikiEngineRenderer;
 import com.liferay.wiki.exception.NoSuchPageException;
 import com.liferay.wiki.model.WikiPage;
 import com.liferay.wiki.service.WikiPageLocalService;
@@ -48,7 +48,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Sergio González
  */
 @Component(
-	immediate = true, property = {"javax.portlet.name=" + WikiPortletKeys.WIKI},
+	immediate = true, property = "javax.portlet.name=" + WikiPortletKeys.WIKI,
 	service = AssetRendererFactory.class
 )
 public class WikiPageAssetRendererFactory

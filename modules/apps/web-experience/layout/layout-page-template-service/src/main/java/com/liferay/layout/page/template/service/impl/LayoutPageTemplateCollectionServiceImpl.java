@@ -20,9 +20,9 @@ import com.liferay.layout.page.template.constants.LayoutPageTemplateConstants;
 import com.liferay.layout.page.template.model.LayoutPageTemplateCollection;
 import com.liferay.layout.page.template.service.base.LayoutPageTemplateCollectionServiceBaseImpl;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.dao.orm.custom.sql.CustomSQLUtil;
+import com.liferay.portal.kernel.dao.orm.WildcardMode;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionFactory;
@@ -106,12 +106,34 @@ public class LayoutPageTemplateCollectionServiceImpl
 	}
 
 	@Override
+	public List<LayoutPageTemplateCollection>
+			getBasicLayoutPageTemplateCollections(
+				long groupId, int start, int end,
+				OrderByComparator<LayoutPageTemplateCollection>
+					orderByComparator)
+		throws PortalException {
+
+		return layoutPageTemplateCollectionPersistence.filterFindByG_T(
+			groupId, LayoutPageTemplateCollectionTypeConstants.TYPE_BASIC,
+			start, end, orderByComparator);
+	}
+
+	@Override
 	public List<LayoutPageTemplateCollection> getLayoutPageTemplateCollections(
 			long groupId)
 		throws PortalException {
 
 		return layoutPageTemplateCollectionPersistence.filterFindByGroupId(
 			groupId);
+	}
+
+	@Override
+	public List<LayoutPageTemplateCollection> getLayoutPageTemplateCollections(
+			long groupId, int type)
+		throws PortalException {
+
+		return layoutPageTemplateCollectionPersistence.filterFindByG_T(
+			groupId, type);
 	}
 
 	@Override
@@ -157,7 +179,8 @@ public class LayoutPageTemplateCollectionServiceImpl
 		throws PortalException {
 
 		return layoutPageTemplateCollectionPersistence.filterFindByG_LikeN(
-			groupId, name, start, end, orderByComparator);
+			groupId, CustomSQLUtil.keywords(name, WildcardMode.SURROUND)[0],
+			start, end, orderByComparator);
 	}
 
 	@Override
@@ -171,7 +194,7 @@ public class LayoutPageTemplateCollectionServiceImpl
 		long groupId, String name) {
 
 		return layoutPageTemplateCollectionPersistence.filterCountByG_LikeN(
-			groupId, name);
+			groupId, CustomSQLUtil.keywords(name, WildcardMode.SURROUND)[0]);
 	}
 
 	@Override
@@ -188,9 +211,6 @@ public class LayoutPageTemplateCollectionServiceImpl
 			updateLayoutPageTemplateCollection(
 				layoutPageTemplateCollectionId, name, description);
 	}
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		LayoutPageTemplateCollectionServiceImpl.class);
 
 	private static volatile
 		ModelResourcePermission<LayoutPageTemplateCollection>

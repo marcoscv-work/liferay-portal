@@ -19,16 +19,21 @@
 <%
 String actionCommandName = (String)request.getAttribute(UsersAdminWebKeys.ACTION_COMMAND_NAME);
 boolean editable = (boolean)request.getAttribute(UsersAdminWebKeys.EDITABLE);
+String formLabel = (String)request.getAttribute(UsersAdminWebKeys.FORM_LABEL);
 String jspPath = (String)request.getAttribute(UsersAdminWebKeys.JSP_PATH);
 
 User selUser = PortalUtil.getSelectedUser(request);
 
 request.setAttribute(UsersAdminWebKeys.SELECTED_USER, selUser);
 
+if (selUser != null) {
+	PortalUtil.setPageSubtitle(selUser.getFullName(), request);
+}
+
 long selUserId = (selUser != null) ? selUser.getUserId() : 0;
 
-String screenNavigationCategoryKey = ParamUtil.getString(request, "screenNavigationCategoryKey");
-String screenNavigationEntryKey = ParamUtil.getString(request, "screenNavigationEntryKey");
+String screenNavigationCategoryKey = ParamUtil.getString(request, "screenNavigationCategoryKey", UserFormConstants.CATEGORY_KEY_GENERAL);
+String screenNavigationEntryKey = ParamUtil.getString(request, "screenNavigationEntryKey", UserFormConstants.ENTRY_KEY_INFORMATION);
 %>
 
 <portlet:actionURL name="<%= actionCommandName %>" var="actionCommandURL" />
@@ -51,6 +56,8 @@ if (!portletName.equals(UsersAdminPortletKeys.MY_ACCOUNT)) {
 }
 %>
 
+<liferay-ui:success key="userAdded" message="the-user-was-created-successfully" />
+
 <aui:form action="<%= actionCommandURL %>" cssClass="container-fluid-1280 portlet-users-admin-edit-user" data-senna-off="true" method="post" name="fm">
 	<aui:input name="redirect" type="hidden" value="<%= redirect.toString() %>" />
 	<aui:input name="p_u_i_d" type="hidden" value="<%= selUserId %>" />
@@ -58,18 +65,22 @@ if (!portletName.equals(UsersAdminPortletKeys.MY_ACCOUNT)) {
 	<aui:input name="screenNavigationEntryKey" type="hidden" value="<%= screenNavigationEntryKey %>" />
 
 	<aui:fieldset-group markupView="lexicon">
-		<aui:fieldset>
-			<liferay-util:include page="<%= jspPath %>" servletContext="<%= application %>" />
+		<div class="sheet">
+			<h2 class="sheet-title"><%= formLabel %></h2>
+
+			<div class="sheet-section">
+				<liferay-util:include page="<%= jspPath %>" servletContext="<%= application %>" />
+			</div>
 
 			<c:if test="<%= editable %>">
-				<aui:button-row>
+				<div class="sheet-footer">
 					<aui:button primary="<%= true %>" type="submit" />
 
 					<c:if test="<%= !portletName.equals(UsersAdminPortletKeys.MY_ACCOUNT) %>">
 						<aui:button href="<%= viewUsersRenderURL.toString() %>" type="cancel" />
 					</c:if>
-				</aui:button-row>
+				</div>
 			</c:if>
-		</aui:fieldset>
+		</div>
 	</aui:fieldset-group>
 </aui:form>

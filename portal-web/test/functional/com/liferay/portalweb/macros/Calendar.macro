@@ -5,7 +5,7 @@
 
 	<command name="_checkForRSSTitle">
 		<if>
-			<condition function="IsElementNotPresent" locator1="CalendarRSS#FEED_TITLE"  />
+			<condition function="IsElementNotPresent" locator1="CalendarRSS#FEED_TITLE" />
 			<then>
 				<execute macro="Navigator#gotoPage">
 					<var name="pageName" value="${pageName}" />
@@ -830,7 +830,7 @@
 		<execute function="AssertTextEquals" locator1="CalendarManageCalendars#CALENDAR_TABLE_DESCRIPTION" value1="${calendarDescription}" />
 		<execute function="AssertElementPresent" locator1="CalendarManageCalendars#CALENDAR_TABLE_COLOR" />
 		<execute function="AssertTextEquals" locator1="CalendarManageCalendars#CALENDAR_TABLE_DEFAULT" value1="${calendarDefault}" />
-		<execute function="AssertElementPresent" locator1="CalendarManageCalendars#CALENDAR_TABLE_ACTIONS" value1="${calendarDefault}" />
+		<execute function="AssertElementPresent" locator1="CalendarManageCalendars#CALENDAR_TABLE_ACTIONS" />
 	</command>
 
 	<command name="viewColor">
@@ -922,7 +922,9 @@
 	</command>
 
 	<command name="viewNoRSS">
-		<execute function="Open" locator1="${rssURL}" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${rssURL}" />
+		</execute>
 
 		<var name="pageName" value="Welcome" />
 
@@ -1022,7 +1024,7 @@
 
 		<execute function="SelectWindow" locator1="title=${siteName}" />
 
-		<execute function="AssertTextEquals" locator1="CalendarRSS#FEED_TITLE"  value1="${calendarName}" />
+		<execute function="AssertTextEquals" locator1="CalendarRSS#FEED_TITLE" value1="${calendarName}" />
 
 		<var name="key_eventTitle" value="${eventTitle}" />
 
@@ -1039,7 +1041,7 @@
 
 		<execute function="SelectWindow" locator1="title=${siteName}" />
 
-		<execute function="AssertTextEquals" locator1="CalendarRSS#FEED_TITLE"  value1="${calendarName}" />
+		<execute function="AssertTextEquals" locator1="CalendarRSS#FEED_TITLE" value1="${calendarName}" />
 
 		<var name="key_eventTitle" value="${eventTitle}" />
 

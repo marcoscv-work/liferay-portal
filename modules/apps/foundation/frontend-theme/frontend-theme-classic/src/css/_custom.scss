@@ -1,4 +1,5 @@
 @import "components/navbars";
+@import "components/widget";
 @import "portlet/portlet_decorators";
 @import "portlet/portlet_hello_world";
 
@@ -47,14 +48,14 @@ header {
 	}
 
 	.search-input {
-		background-color: #29343D;
+		background-color: $complementary-color;
 		border-color: transparent;
 		color: #FFF;
 		font-size: 0.88rem;
 		padding: 0.28rem 2rem 0.28rem 1rem;
 
 		&:focus {
-			background-color: #29343D;
+			background-color: $secondary;
 			color: #FFF;
 		}
 	}
@@ -67,5 +68,37 @@ header {
 		@include media-query(null, $screen-xs-max) {
 			display: none;
 		}
+	}
+}
+
+.info-panel {
+	@include md {
+		bottom: 0;
+		position: absolute;
+		top: 0;
+
+		> .sidenav-menu {
+			bottom: 0;
+			position: absolute;
+			right: 0 !important;
+			top: 0;
+		}
+	}
+}
+
+.btn-group + .info-panel {
+	@include md {
+		top: auto;
+	}
+}
+
+#footer {
+	background-color: $complementary-color;
+	color: #FFF;
+	margin-top: 1rem;
+
+	> .container {
+		padding-bottom: 3rem;
+		padding-top: 3rem;
 	}
 }

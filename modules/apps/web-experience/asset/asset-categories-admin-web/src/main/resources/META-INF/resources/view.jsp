@@ -49,7 +49,9 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "vocabul
 
 				<li>
 					<aui:form action="<%= portletURL %>" name="searchFm">
-						<liferay-ui:input-search markupView="lexicon" />
+						<liferay-ui:input-search
+							markupView="lexicon"
+						/>
 					</aui:form>
 				</li>
 			</c:if>
@@ -64,10 +66,30 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "vocabul
 			portletURL="<%= changeDisplayStyleURL %>"
 			selectedDisplayStyle="<%= assetCategoriesDisplayContext.getDisplayStyle() %>"
 		/>
+
+		<c:if test="<%= assetCategoriesDisplayContext.isShowVocabulariesAddButton() %>">
+			<portlet:renderURL var="addVocabularyURL">
+				<portlet:param name="mvcPath" value="/edit_vocabulary.jsp" />
+			</portlet:renderURL>
+
+			<liferay-frontend:add-menu
+				inline="<%= true %>"
+			>
+				<liferay-frontend:add-menu-item
+					title='<%= LanguageUtil.get(request, "add-vocabulary") %>'
+					url="<%= addVocabularyURL.toString() %>"
+				/>
+			</liferay-frontend:add-menu>
+		</c:if>
 	</liferay-frontend:management-bar-buttons>
 
 	<liferay-frontend:management-bar-action-buttons>
-		<liferay-frontend:management-bar-button href="javascript:;" icon="trash" id="deleteSelectedVocabularies" label="delete" />
+		<liferay-frontend:management-bar-button
+			href="javascript:;"
+			icon="trash"
+			id="deleteSelectedVocabularies"
+			label="delete"
+		/>
 	</liferay-frontend:management-bar-action-buttons>
 </liferay-frontend:management-bar>
 
@@ -212,19 +234,12 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "vocabul
 			</c:choose>
 		</liferay-ui:search-container-row>
 
-		<liferay-ui:search-iterator displayStyle="<%= assetCategoriesDisplayContext.getDisplayStyle() %>" markupView="lexicon" />
+		<liferay-ui:search-iterator
+			displayStyle="<%= assetCategoriesDisplayContext.getDisplayStyle() %>"
+			markupView="lexicon"
+		/>
 	</liferay-ui:search-container>
 </aui:form>
-
-<c:if test="<%= assetCategoriesDisplayContext.isShowVocabulariesAddButton() %>">
-	<portlet:renderURL var="addVocabularyURL">
-		<portlet:param name="mvcPath" value="/edit_vocabulary.jsp" />
-	</portlet:renderURL>
-
-	<liferay-frontend:add-menu>
-		<liferay-frontend:add-menu-item title='<%= LanguageUtil.get(request, "add-vocabulary") %>' url="<%= addVocabularyURL.toString() %>" />
-	</liferay-frontend:add-menu>
-</c:if>
 
 <aui:script sandbox="<%= true %>">
 	$('#<portlet:namespace />deleteSelectedVocabularies').on(

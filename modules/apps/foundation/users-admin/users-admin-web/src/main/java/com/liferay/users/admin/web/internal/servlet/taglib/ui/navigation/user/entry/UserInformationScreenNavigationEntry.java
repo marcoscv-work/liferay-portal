@@ -17,18 +17,13 @@ package com.liferay.users.admin.web.internal.servlet.taglib.ui.navigation.user.e
 import com.liferay.frontend.taglib.servlet.taglib.ScreenNavigationEntry;
 import com.liferay.users.admin.constants.UserFormConstants;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.osgi.service.component.annotations.Component;
 
 /**
  * @author Pei-Jung Lan
  */
 @Component(
-	property = {"screen.navigation.entry.order:Integer=10"},
+	property = "screen.navigation.entry.order:Integer=10",
 	service = ScreenNavigationEntry.class
 )
 public class UserInformationScreenNavigationEntry
@@ -36,7 +31,7 @@ public class UserInformationScreenNavigationEntry
 
 	@Override
 	public String getActionCommandName() {
-		return null;
+		return "/users_admin/edit_user";
 	}
 
 	@Override
@@ -51,14 +46,7 @@ public class UserInformationScreenNavigationEntry
 
 	@Override
 	public String getJspPath() {
-		return null;
-	}
-
-	@Override
-	public void render(HttpServletRequest request, HttpServletResponse response)
-		throws IOException {
-
-		jspRenderer.renderJSP(request, response, "/user/information.jsp");
+		return "/user/information.jsp";
 	}
 
 }

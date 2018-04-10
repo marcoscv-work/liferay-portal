@@ -6,7 +6,7 @@
 {template .render}
 	{@param dialogTitle: string}
 	{@param formSubmitURL: string}
-	{@param mainFieldLabel: string}
+	{@param mainFieldLabel: html}
 	{@param mainFieldName: string}
 	{@param namespace: string}
 	{@param spritemap: string}
@@ -15,7 +15,7 @@
 	{@param? _handleFormSubmit: any}
 	{@param? _handleModalVisibleChanged: any}
 	{@param? _loadingResponse: bool}
-	{@param? checkboxFieldLabel: string}
+	{@param? checkboxFieldLabel: html}
 	{@param? checkboxFieldName: string}
 	{@param? checkboxFieldValue: bool}
 	{@param? id: string}
@@ -25,9 +25,9 @@
 	{@param? mainFieldValue: string}
 
 	<div id="{$id ?: ''}">
-		{call Modal.render}
+		{call liferay.frontend.Modal.render}
 			{param body kind="html"}
-				<form action="{$formSubmitURL}" method="post" data-onsubmit="{$_handleFormSubmit}">
+				<form action="{$formSubmitURL}" data-onsubmit="{$_handleFormSubmit}" method="post" ref="form">
 					{if $idFieldName}
 						<input
 							name="{$namespace}{$idFieldName}"
@@ -58,6 +58,7 @@
 							class="form-control"
 							name="{$namespace}{$mainFieldName}"
 							placeholder="{$mainFieldPlaceholder ?: ''}"
+							ref="mainField"
 							type="text"
 							value="{$mainFieldValue ?: ''}"
 						{/let}
@@ -89,51 +90,57 @@
 
 								<input {$checkboxFieldAttributes} />
 
-								<span class="form-check-description">
+								<span class="form-check-label-text">
 									{$checkboxFieldLabel}
 								</span>
 							</label>
 						</div>
 					{/if}
-
-					{let $cancelButtonAttributes kind="attributes"}
-						{if $_loadingResponse}disabled{/if}
-						class="btn"
-						data-onclick="{$_handleCancelButtonClick}"
-						type="button"
-					{/let}
-
-					<button {$cancelButtonAttributes}>
-						{msg desc=""}cancel{/msg}
-					</button>
-
-					{let $submitButtonCssClasses kind="text"}
-						btn btn-primary
-
-						{if $_loadingResponse}
-							{sp}loading
-						{/if}
-					{/let}
-
-					{let $submitButtonAttributes kind="attributes"}
-						{if $_loadingResponse}disabled{/if}
-						class="{$submitButtonCssClasses}"
-						type="submit"
-					{/let}
-
-					<button {$submitButtonAttributes}>
-						<span class="loading-icon linear"></span>
-						{msg desc=""}submit{/msg}
-					</button>
 				</form>
 			{/param}
 
-			{param dialogClasses: 'aspect-ratio-item-center-middle' /}
+			{param dialogClasses: 'modal-dialog-sm' /}
 			{param events: ['visibleChanged': $_handleModalVisibleChanged] /}
+
+			{param footer kind="html"}
+				{let $submitButtonCssClasses kind="text"}
+					btn btn-primary
+
+					{if $_loadingResponse}
+						{sp}loading
+					{/if}
+				{/let}
+
+				{let $submitButtonAttributes kind="attributes"}
+					{if $_loadingResponse}disabled{/if}
+					class="{$submitButtonCssClasses}"
+					data-onclick="{$_handleFormSubmit}"
+				{/let}
+
+				<button {$submitButtonAttributes}>
+					<span class="loading-icon linear"></span>
+					{msg desc=""}submit{/msg}
+				</button>
+
+				{let $cancelButtonAttributes kind="attributes"}
+					{if $_loadingResponse}disabled{/if}
+					class="btn btn-secondary"
+					data-onclick="{$_handleCancelButtonClick}"
+					type="button"
+				{/let}
+
+				<button {$cancelButtonAttributes}>
+					{msg desc=""}cancel{/msg}
+				</button>
+			{/param}
 
 			{param header kind="html"}
 				{$dialogTitle}
 			{/param}
+
+			{param ref: 'modal' /}
+
+			{param spritemap: $spritemap /}
 		{/call}
 	</div>
 {/template}

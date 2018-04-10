@@ -32,7 +32,7 @@
 
 	var TPL_LEXICON_ICON = '<svg class="lexicon-icon lexicon-icon-{0} {1}" focusable="false" role="image">' +
 			'<use data-href="' + themeDisplay.getPathThemeImages() + '/lexicon/icons.svg#{0}" />' +
-			'<title>{0}</title>'
+			'<title>{0}</title>' +
 		'</svg>';
 
 	var Window = {
@@ -994,7 +994,7 @@
 
 		toCharCode: _.memoize(
 			function(name) {
-				return _.invoke(name, 'charCodeAt').join('');
+				return _.invokeMap(name, 'charCodeAt').join('');
 			}
 		),
 

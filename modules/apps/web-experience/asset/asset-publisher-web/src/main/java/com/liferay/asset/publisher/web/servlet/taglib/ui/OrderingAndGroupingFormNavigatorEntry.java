@@ -14,7 +14,7 @@
 
 package com.liferay.asset.publisher.web.servlet.taglib.ui;
 
-import com.liferay.asset.publisher.web.constants.AssetPublisherConstants;
+import com.liferay.asset.publisher.constants.AssetPublisherConstants;
 import com.liferay.asset.publisher.web.util.AssetPublisherCustomizer;
 import com.liferay.asset.publisher.web.util.AssetPublisherCustomizerRegistry;
 import com.liferay.portal.kernel.model.Portlet;
@@ -35,7 +35,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	property = {"form.navigator.entry.order:Integer=200"},
+	property = "form.navigator.entry.order:Integer=200",
 	service = FormNavigatorEntry.class
 )
 public class OrderingAndGroupingFormNavigatorEntry
