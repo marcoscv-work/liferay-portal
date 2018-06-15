@@ -40,10 +40,20 @@ public class TestClassGroupFactory {
 					batchName, portalTestClassJob);
 			}
 
+			if (batchName.startsWith("modules-compile-")) {
+				return new ModulesCompileBatchTestClassGroup(
+					batchName, portalTestClassJob);
+			}
+
 			if (batchName.startsWith("modules-integration-") ||
 				batchName.startsWith("modules-unit-")) {
 
 				return new ModulesJUnitBatchTestClassGroup(
+					batchName, portalTestClassJob);
+			}
+
+			if (batchName.startsWith("modules-semantic-versioning-")) {
+				return new ModulesSemVerBatchTestClassGroup(
 					batchName, portalTestClassJob);
 			}
 
@@ -54,11 +64,6 @@ public class TestClassGroupFactory {
 
 			if (batchName.startsWith("portal-frontend-js-")) {
 				return new NPMTestBatchTestClassGroup(
-					batchName, portalTestClassJob);
-			}
-
-			if (batchName.startsWith("semantic-versioning-")) {
-				return new SemVerBaselineBatchTestClassGroup(
 					batchName, portalTestClassJob);
 			}
 

@@ -131,7 +131,7 @@ RatingsStats ratingsStats = (RatingsStats)request.getAttribute("view_entry_conte
 											AssetEntry assetEntry = _getAssetEntry(request, entry);
 											%>
 
-											- <liferay-ui:message arguments="<%= assetEntry.getViewCount() %>" key='<%= assetEntry.getViewCount() == 1 ? "x-view" : "x-views" %>' />
+											- <liferay-ui:message arguments="<%= assetEntry.getViewCount() %>" key='<%= (assetEntry.getViewCount() == 1) ? "x-view" : "x-views" %>' />
 										</c:if>
 									</div>
 								</div>
@@ -277,7 +277,7 @@ RatingsStats ratingsStats = (RatingsStats)request.getAttribute("view_entry_conte
 					</c:if>
 
 					<div class="autofit-col autofit-col-end">
-						<liferay-util:include page="/blogs/social_bookmarks.jsp" servletContext="<%= application %>" />
+						<%@ include file="/blogs/social_bookmarks.jspf" %>
 					</div>
 				</div>
 

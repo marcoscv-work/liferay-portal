@@ -17,6 +17,8 @@
 <%@ include file="/init.jsp" %>
 
 <%
+LayoutPageTemplateDisplayContext layoutPageTemplateDisplayContext = (LayoutPageTemplateDisplayContext)request.getAttribute(LayoutAdminWebKeys.LAYOUT_PAGE_TEMPLATE_DISPLAY_CONTEXT);
+
 ResultRow row = (ResultRow)request.getAttribute(WebKeys.SEARCH_CONTAINER_RESULT_ROW);
 
 LayoutPageTemplateEntry layoutPageTemplateEntry = (LayoutPageTemplateEntry)row.getObject();
@@ -30,38 +32,34 @@ LayoutPageTemplateEntry layoutPageTemplateEntry = (LayoutPageTemplateEntry)row.g
 	showWhenSingleIcon="<%= true %>"
 >
 	<c:if test="<%= LayoutPageTemplateEntryPermission.contains(permissionChecker, layoutPageTemplateEntry, ActionKeys.UPDATE) %>">
-		<portlet:renderURL var="editLayoutPageTemplateEntryURL">
-			<portlet:param name="mvcRenderCommandName" value="/layout/edit_layout_page_template_entry" />
-			<portlet:param name="redirect" value="<%= currentURL %>" />
-			<portlet:param name="layoutPageTemplateEntryId" value="<%= String.valueOf(layoutPageTemplateEntry.getLayoutPageTemplateEntryId()) %>" />
-			<portlet:param name="layoutPageTemplateCollectionId" value="<%= String.valueOf(layoutPageTemplateEntry.getLayoutPageTemplateCollectionId()) %>" />
-		</portlet:renderURL>
-
 		<liferay-ui:icon
 			message="edit"
-			url="<%= editLayoutPageTemplateEntryURL %>"
+			url="<%= layoutPageTemplateDisplayContext.getEditLayoutPageTemplateEntryURL(layoutPageTemplateEntry) %>"
 		/>
 	</c:if>
 
 	<c:if test="<%= LayoutPageTemplateEntryPermission.contains(permissionChecker, layoutPageTemplateEntry, ActionKeys.UPDATE) %>">
-		<portlet:actionURL name="/layout/update_layout_page_template_entry" var="updateLayoutPageTemplateEntryURL">
-			<portlet:param name="redirect" value="<%= currentURL %>" />
-			<portlet:param name="layoutPageTemplateCollectionId" value="<%= String.valueOf(layoutPageTemplateEntry.getLayoutPageTemplateCollectionId()) %>" />
-			<portlet:param name="layoutPageTemplateEntryId" value="<%= String.valueOf(layoutPageTemplateEntry.getLayoutPageTemplateEntryId()) %>" />
-		</portlet:actionURL>
+		<liferay-ui:icon
+			cssClass='<%= renderResponse.getNamespace() + "update-layout-page-template-action-option" %>'
+			data="<%= layoutPageTemplateDisplayContext.getUpdateLayoutPageTemplateEntryData(layoutPageTemplateEntry) %>"
+			message="rename"
+			url="javascript:;"
+		/>
+	</c:if>
+
+	<c:if test="<%= LayoutPageTemplateEntryPermission.contains(permissionChecker, layoutPageTemplateEntry, ActionKeys.UPDATE) %>">
 
 		<%
-		Map<String, Object> updateLayoutPageTemplateEntryData = new HashMap<String, Object>();
+		Map<String, Object> data = new HashMap<>();
 
-		updateLayoutPageTemplateEntryData.put("form-submit-url", updateLayoutPageTemplateEntryURL.toString());
-		updateLayoutPageTemplateEntryData.put("id-field-value", layoutPageTemplateEntry.getLayoutPageTemplateEntryId());
-		updateLayoutPageTemplateEntryData.put("main-field-value", layoutPageTemplateEntry.getName());
+		data.put("item-selector-url", layoutPageTemplateDisplayContext.getItemSelectorURL(layoutPageTemplateEntry.getLayoutPageTemplateEntryId()));
+		data.put("layout-page-template-entry-id", layoutPageTemplateEntry.getLayoutPageTemplateEntryId());
 		%>
 
 		<liferay-ui:icon
-			cssClass='<%= renderResponse.getNamespace() + "update-layout-page-template-action-option" %>'
-			data="<%= updateLayoutPageTemplateEntryData %>"
-			message="rename"
+			cssClass="update-layout-page-template-entry-preview"
+			data="<%= data %>"
+			message="change-thumbnail"
 			url="javascript:;"
 		/>
 	</c:if>

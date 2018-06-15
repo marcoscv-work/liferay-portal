@@ -80,7 +80,8 @@ public class SPATopHeadJSPDynamicInclude extends BaseJSPDynamicInclude {
 		values.put(
 			"message",
 			_language.get(
-				_spaUtil.getLanguageResourceBundle(themeDisplay.getLocale()),
+				_spaUtil.getLanguageResourceBundle(
+					"frontend-js-spa-web", themeDisplay.getLocale()),
 				"it-looks-like-this-is-taking-longer-than-expected"));
 		values.put(
 			"navigationExceptionSelectors",
@@ -94,7 +95,8 @@ public class SPATopHeadJSPDynamicInclude extends BaseJSPDynamicInclude {
 		values.put(
 			"title",
 			_language.get(
-				_spaUtil.getLanguageResourceBundle(themeDisplay.getLocale()),
+				_spaUtil.getLanguageResourceBundle(
+					"frontend-js-spa-web", themeDisplay.getLocale()),
 				"oops"));
 		values.put("validStatusCodes", _spaUtil.getValidStatusCodes());
 
@@ -132,19 +134,6 @@ public class SPATopHeadJSPDynamicInclude extends BaseJSPDynamicInclude {
 		return null;
 	}
 
-	@Reference(
-		cardinality = ReferenceCardinality.OPTIONAL,
-		policy = ReferencePolicy.DYNAMIC,
-		policyOption = ReferencePolicyOption.GREEDY
-	)
-	protected void setSPAUtil(SPAUtil spaUtil) {
-		_spaUtil = spaUtil;
-	}
-
-	protected void unsetSPAUtil(SPAUtil spaUtil) {
-		_spaUtil = null;
-	}
-
 	private static final String _TMPL_CONTENT = StringUtil.read(
 		SPATopHeadJSPDynamicInclude.class, "/META-INF/resources/init.tmpl");
 
@@ -160,6 +149,11 @@ public class SPATopHeadJSPDynamicInclude extends BaseJSPDynamicInclude {
 	@Reference
 	private Props _props;
 
-	private SPAUtil _spaUtil;
+	@Reference(
+		cardinality = ReferenceCardinality.OPTIONAL,
+		policy = ReferencePolicy.DYNAMIC,
+		policyOption = ReferencePolicyOption.GREEDY
+	)
+	private volatile SPAUtil _spaUtil;
 
 }

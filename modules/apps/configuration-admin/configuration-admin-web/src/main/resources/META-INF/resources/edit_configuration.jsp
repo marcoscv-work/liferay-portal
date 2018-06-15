@@ -41,14 +41,15 @@ if (configurationModel.isFactory()) {
 
 PortalUtil.addPortletBreadcrumbEntry(request, portletDisplay.getPortletDisplayName(), String.valueOf(renderResponse.createRenderURL()));
 
-String categoryDisplayName = LanguageUtil.get(request, "category." + configurationModel.getCategory());
+ConfigurationCategoryMenuDisplay configurationCategoryMenuDisplay = (ConfigurationCategoryMenuDisplay)request.getAttribute(ConfigurationAdminWebKeys.CONFIGURATION_CATEGORY_MENU_DISPLAY);
 
-PortletURL viewCategoryURL = renderResponse.createRenderURL();
+ConfigurationCategoryDisplay configurationCategoryDisplay = configurationCategoryMenuDisplay.getConfigurationCategoryDisplay();
 
-viewCategoryURL.setParameter("mvcRenderCommandName", "/view_category");
-viewCategoryURL.setParameter("configurationCategory", configurationModel.getCategory());
+String categoryDisplayName = HtmlUtil.escape(configurationCategoryDisplay.getCategoryLabel(locale));
 
-PortalUtil.addPortletBreadcrumbEntry(request, categoryDisplayName, viewCategoryURL.toString());
+String viewCategoryHREF = ConfigurationCategoryUtil.getHREF(configurationCategoryMenuDisplay, liferayPortletResponse, renderRequest, renderResponse);
+
+PortalUtil.addPortletBreadcrumbEntry(request, categoryDisplayName, viewCategoryHREF);
 
 ResourceBundleLoaderProvider resourceBundleLoaderProvider = (ResourceBundleLoaderProvider)request.getAttribute(ConfigurationAdminWebKeys.RESOURCE_BUNDLE_LOADER_PROVIDER);
 
@@ -60,16 +61,6 @@ String configurationModelName = (componentResourceBundle != null) ? LanguageUtil
 
 if (configurationModel.isFactory() && !configurationModel.isCompanyFactory()) {
 	PortalUtil.addPortletBreadcrumbEntry(request, configurationModelName, viewFactoryInstancesURL.toString());
-
-	if (configurationModel.hasConfiguration()) {
-		PortalUtil.addPortletBreadcrumbEntry(request, configurationModel.getLabel(), null);
-	}
-	else {
-		PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "add"), null);
-	}
-}
-else {
-	PortalUtil.addPortletBreadcrumbEntry(request, configurationModelName, null);
 }
 
 portletDisplay.setShowBackIcon(true);
@@ -114,8 +105,24 @@ renderResponse.setTitle(categoryDisplayName);
 					<aui:input name="factoryPid" type="hidden" value="<%= configurationModel.getFactoryPid() %>" />
 					<aui:input name="pid" type="hidden" value="<%= configurationModel.getID() %>" />
 
+					<%
+					String configurationTitle;
+
+					if (configurationModel.isFactory() && !configurationModel.isCompanyFactory()) {
+						if (configurationModel.hasConfiguration()) {
+							configurationTitle = configurationModel.getLabel();
+						}
+						else {
+							configurationTitle = LanguageUtil.get(request, "add");
+						}
+					}
+					else {
+						configurationTitle = (componentResourceBundle != null) ? LanguageUtil.get(componentResourceBundle, configurationModel.getName()) : configurationModel.getName();
+					}
+					%>
+
 					<h2>
-						<%= (componentResourceBundle != null) ? LanguageUtil.get(componentResourceBundle, configurationModel.getName()) : configurationModel.getName() %>
+						<%= configurationTitle %>
 
 						<c:if test="<%= configurationModel.hasConfiguration() %>">
 							<liferay-ui:icon-menu
@@ -186,7 +193,7 @@ renderResponse.setTitle(categoryDisplayName);
 					<%
 					ConfigurationFormRenderer configurationFormRenderer = (ConfigurationFormRenderer)request.getAttribute(ConfigurationAdminWebKeys.CONFIGURATION_FORM_RENDERER);
 
-					configurationFormRenderer.render(request, response);
+					configurationFormRenderer.render(request, PipingServletResponse.createPipingServletResponse(pageContext));
 					%>
 
 					<aui:button-row>

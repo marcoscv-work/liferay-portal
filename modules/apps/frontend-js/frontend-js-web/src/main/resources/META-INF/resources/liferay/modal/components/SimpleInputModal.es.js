@@ -54,9 +54,8 @@ class SimpleInputModal extends Component {
 			.then(response => response.json())
 			.then(
 				responseContent => {
-					this._loadingResponse = false;
-
 					if (responseContent.error) {
+						this._loadingResponse = false;
 						this._handleFormError(responseContent);
 					}
 					else {
@@ -64,7 +63,7 @@ class SimpleInputModal extends Component {
 					}
 				}
 			)
-			.catch(
+			.catch (
 				response => {
 					this._handleFormError(response);
 				}

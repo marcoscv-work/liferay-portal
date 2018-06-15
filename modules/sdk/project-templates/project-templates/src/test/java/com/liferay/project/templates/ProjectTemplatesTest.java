@@ -36,6 +36,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.StringWriter;
 
 import java.net.URI;
 
@@ -55,6 +56,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
@@ -763,10 +765,10 @@ public class ProjectTemplatesTest {
 			"public class FooPortletKeys");
 		_testContains(
 			gradleProjectDir, "src/main/java/foo/test/portlet/FooPortlet.java",
-			"package foo.test.portlet;", "javax.portlet.display-name=foo.test",
+			"package foo.test.portlet;", "javax.portlet.display-name=Foo",
 			"javax.portlet.name=\" + FooPortletKeys.Foo",
 			"public class FooPortlet extends GenericPortlet {",
-			"printWriter.print(\"foo.test Portlet");
+			"printWriter.print(\"Hello from Foo");
 
 		File mavenProjectDir = _buildTemplateWithMaven(
 			"portlet", "foo.test", "com.test", "-DclassName=Foo",
@@ -829,7 +831,7 @@ public class ProjectTemplatesTest {
 				"/ProviderTestPortletKeys.java",
 			"package provider.test.constants;",
 			"public class ProviderTestPortletKeys",
-			"public static final String ProviderTest = \"ProviderTest\";");
+			"public static final String ProviderTest = \"providertest\";");
 
 		File mavenProjectDir = _buildTemplateWithMaven(
 			"portlet-provider", "provider.test", "com.test",
@@ -884,9 +886,9 @@ public class ProjectTemplatesTest {
 		_testContains(
 			gradleProjectDir,
 			"src/main/java/portlet/portlet/PortletPortlet.java",
-			"package portlet.portlet;", "javax.portlet.display-name=portlet",
+			"package portlet.portlet;", "javax.portlet.display-name=Portlet",
 			"public class PortletPortlet extends GenericPortlet {",
-			"printWriter.print(\"portlet Portlet");
+			"printWriter.print(\"Hello from Portlet");
 
 		File mavenProjectDir = _buildTemplateWithMaven(
 			"portlet", "portlet", "com.test", "-DclassName=Portlet",
@@ -1214,7 +1216,7 @@ public class ProjectTemplatesTest {
 		_testContains(
 			gradleProjectDir,
 			"src/main/java/com/liferay/test/constants/FooPortletKeys.java",
-			"public static final String Foo = \"Foo\"");
+			"public static final String Foo = \"foo\"");
 		_testContains(
 			gradleProjectDir,
 			"src/main/java/com/liferay/test/portlet/FooPortlet.java",
@@ -1306,7 +1308,7 @@ public class ProjectTemplatesTest {
 		_testContains(
 			gradleProjectDir,
 			"src/main/java/com/liferay/test/constants/FooPortletKeys.java",
-			"public static final String Foo = \"Foo\"");
+			"public static final String Foo = \"foo\"");
 		_testContains(
 			gradleProjectDir,
 			"src/main/java/com/liferay/test/portlet/FooSoyPortletRegister.java",
@@ -1966,6 +1968,87 @@ public class ProjectTemplatesTest {
 	}
 
 	@Test
+	public void testCompareGradlePluginVersions() throws Exception {
+		String template = "mvc-portlet";
+		String name = "foo";
+
+		File gradleProjectDir = _buildTemplateWithGradle(template, name);
+
+		File workspaceDir = _buildWorkspace();
+
+		File modulesDir = new File(workspaceDir, "modules");
+
+		_buildTemplateWithGradle(modulesDir, template, name);
+
+		Optional<String> result = _executeGradle(
+			gradleProjectDir, true, _GRADLE_TASK_PATH_BUILD);
+
+		Matcher matcher = _gradlePluginVersionPattern.matcher(result.get());
+
+		String standaloneGradlePluginVersion = null;
+
+		if (matcher.matches()) {
+			standaloneGradlePluginVersion = matcher.group(1);
+		}
+
+		result = _executeGradle(
+			workspaceDir, true, ":modules:" + name + ":clean");
+
+		matcher = _gradlePluginVersionPattern.matcher(result.get());
+
+		String workspaceGradlePluginVersion = null;
+
+		if (matcher.matches()) {
+			workspaceGradlePluginVersion = matcher.group(1);
+		}
+
+		Assert.assertEquals(
+			"com.liferay.plugin versions do not match",
+			standaloneGradlePluginVersion, workspaceGradlePluginVersion);
+	}
+
+	@Test
+	public void testCompareServiceBuilderPluginVersions() throws Exception {
+		String name = "sample";
+		String packageName = "com.test.sample";
+		String serviceProjectName = name + "-service";
+
+		File gradleProjectDir = _buildTemplateWithGradle(
+			"service-builder", name, "--package-name", packageName);
+
+		Optional<String> gradleResult = _executeGradle(
+			gradleProjectDir, true, ":" + serviceProjectName + ":dependencies");
+
+		String gradleServiceBuilderVersion = null;
+
+		Matcher matcher = _serviceBuilderVersionPattern.matcher(
+			gradleResult.get());
+
+		if (matcher.matches()) {
+			gradleServiceBuilderVersion = matcher.group(1);
+		}
+
+		File mavenProjectDir = _buildTemplateWithMaven(
+			"service-builder", name, "com.test", "-Dpackage=" + packageName);
+
+		String mavenResult = _executeMaven(
+			new File(mavenProjectDir, serviceProjectName),
+			_MAVEN_GOAL_BUILD_SERVICE);
+
+		matcher = _serviceBuilderVersionPattern.matcher(mavenResult);
+
+		String mavenServiceBuilderVersion = null;
+
+		if (matcher.matches()) {
+			mavenServiceBuilderVersion = matcher.group(1);
+		}
+
+		Assert.assertEquals(
+			"com.liferay.portal.tools.service.builder versions do not match",
+			gradleServiceBuilderVersion, mavenServiceBuilderVersion);
+	}
+
+	@Test
 	public void testListTemplates() throws Exception {
 		final Map<String, String> expectedTemplates = new TreeMap<>();
 
@@ -2369,7 +2452,8 @@ public class ProjectTemplatesTest {
 		}
 	}
 
-	private static void _executeGradle(File projectDir, String... taskPaths)
+	private static Optional<String> _executeGradle(
+			File projectDir, boolean debug, String... taskPaths)
 		throws IOException {
 
 		final String repositoryUrl = mavenExecutor.getRepositoryUrl();
@@ -2413,7 +2497,12 @@ public class ProjectTemplatesTest {
 
 		List<String> arguments = new ArrayList<>(taskPaths.length + 5);
 
-		arguments.add("--stacktrace");
+		if (debug) {
+			arguments.add("--debug");
+		}
+		else {
+			arguments.add("--stacktrace");
+		}
 
 		String httpProxyHost = mavenExecutor.getHttpProxyHost();
 		int httpProxyPort = mavenExecutor.getHttpProxyPort();
@@ -2425,6 +2514,13 @@ public class ProjectTemplatesTest {
 
 		for (String taskPath : taskPaths) {
 			arguments.add(taskPath);
+		}
+
+		String stdOutput = null;
+		StringWriter stringWriter = new StringWriter();
+
+		if (debug) {
+			gradleRunner.forwardStdOutput(stringWriter);
 		}
 
 		gradleRunner.withArguments(arguments);
@@ -2444,9 +2540,22 @@ public class ProjectTemplatesTest {
 				"Unexpected outcome for task \"" + buildTask.getPath() + "\"",
 				TaskOutcome.SUCCESS, buildTask.getOutcome());
 		}
+
+		if (debug) {
+			stdOutput = stringWriter.toString();
+			stringWriter.close();
+		}
+
+		return Optional.ofNullable(stdOutput);
 	}
 
-	private static void _executeMaven(File projectDir, String... args)
+	private static void _executeGradle(File projectDir, String... taskPaths)
+		throws IOException {
+
+		_executeGradle(projectDir, false, taskPaths);
+	}
+
+	private static String _executeMaven(File projectDir, String... args)
 		throws Exception {
 
 		String[] completeArgs = new String[args.length + 1];
@@ -2458,6 +2567,8 @@ public class ProjectTemplatesTest {
 		MavenExecutor.Result result = mavenExecutor.execute(projectDir, args);
 
 		Assert.assertEquals(result.output, 0, result.exitCode);
+
+		return result.output;
 	}
 
 	private static void _testArchetyper(
@@ -3441,8 +3552,7 @@ public class ProjectTemplatesTest {
 	private static final String _OUTPUT_FILENAME_GLOB_REGEX = "*.{jar,war}";
 
 	private static final String _REPOSITORY_CDN_URL =
-		"https://cdn.lfrs.sl/repository.liferay.com/nexus/content/groups" +
-			"/public";
+		"https://repository-cdn.liferay.com/nexus/content/groups/public";
 
 	private static final String[] _SPRING_MVC_PORTLET_JAR_NAMES = {
 		"aop", "beans", "context", "core", "expression", "web", "webmvc",
@@ -3455,7 +3565,14 @@ public class ProjectTemplatesTest {
 		"test.debug.bundle.diffs");
 
 	private static URI _gradleDistribution;
+	private static final Pattern _gradlePluginVersionPattern = Pattern.compile(
+		".*com\\.liferay\\.gradle\\.plugins:([0-9]+\\.[0-9]+\\.[0-9]+).*",
+		Pattern.DOTALL | Pattern.MULTILINE);
 	private static XPathExpression _pomXmlNpmInstallXPathExpression;
 	private static Properties _projectTemplateVersions;
+	private static final Pattern _serviceBuilderVersionPattern =
+		Pattern.compile(
+			".*service\\.builder:([0-9]+\\.[0-9]+\\.[0-9]+).*",
+			Pattern.DOTALL | Pattern.MULTILINE);
 
 }

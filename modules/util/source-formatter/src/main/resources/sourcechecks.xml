@@ -2,13 +2,12 @@
 
 <source-formatter>
 	<source-processor name="all">
+		<check name="CDNCheck" />
 		<check name="IncorrectFileLocationCheck" />
 		<check name="ReturnCharacterCheck" />
 	</source-processor>
 	<source-processor name="BNDSourceProcessor">
-		<check name="BNDBundleCheck">
-			<property name="enabled" value="false" />
-		</check>
+		<check name="BNDBundleCheck" />
 		<check name="BNDCapabilityCheck" />
 		<check name="BNDDefinitionKeysCheck" />
 		<check name="BNDImportsCheck" />
@@ -50,6 +49,8 @@
 		<check name="CSSWhitespaceCheck" />
 	</source-processor>
 	<source-processor name="DockerfileSourceProcessor">
+		<check name="DockerfileEmptyLinesCheck" />
+		<check name="DockerfileInstructionCheck" />
 		<check name="WhitespaceCheck">
 			<property name="allowLeadingSpaces" value="true" />
 		</check>
@@ -69,6 +70,7 @@
 		<check name="GradleBlockOrderCheck" />
 		<check name="GradleBodyCheck" />
 		<check name="GradleDependenciesCheck" />
+		<check name="GradleDependencyConfigurationCheck" />
 		<check name="GradleExportedPackageDependenciesCheck" />
 		<check name="GradleImportsCheck" />
 		<check name="GradleIndentationCheck" />
@@ -100,6 +102,7 @@
 		<check name="JavaCollatorUtilCheck" />
 		<check name="JavaCombineLinesCheck" />
 		<check name="JavaConfigurationAdminCheck" />
+		<check name="JavaConfigurationCategoryCheck" />
 		<check name="JavaConstructorParametersCheck" />
 		<check name="JavaConstructorSuperCallCheck" />
 		<check name="JavaDeprecatedJavadocCheck" />
@@ -123,6 +126,7 @@
 		<check name="JavaLocalSensitiveComparisonCheck" />
 		<check name="JavaLongLinesCheck" />
 		<check name="JavaMetaOCDIdCheck" />
+		<check name="JavaModifiedServiceMethodCheck" />
 		<check name="JavaPackagePathCheck" />
 		<check name="JavaParameterAnnotationsCheck" />
 		<check name="JavaProcessCallableCheck" />
@@ -206,6 +210,7 @@
 		<check name="JavaLogStringBundlerCheck" />
 		<check name="JavaMultiPlusConcatCheck" />
 		<check name="JavaProviderTypeAnnotationCheck" />
+		<check name="JavaServiceObjectCheck" />
 		<check name="JavaServiceUtilCheck" />
 		<check name="JavaStringBundlerInitialCapacityCheck" />
 		<check name="JavaSwitchCheck" />
@@ -245,13 +250,13 @@
 		<check name="JSPDefineObjectsCheck" />
 		<check name="JSPEmptyLinesCheck" />
 		<check name="JSPExceptionOrderCheck" />
-		<check name="JSPIfStatementCheck" />
 		<check name="JSPImportsCheck" />
 		<check name="JSPIncludeCheck" />
 		<check name="JSPIndentationCheck" />
 		<check name="JSPLanguageUtilCheck" />
 		<check name="JSPLineBreakCheck" />
 		<check name="JSPLogFileNameCheck" />
+		<check name="JSPParenthesesCheck" />
 		<check name="JSPRedirectBackURLCheck" />
 		<check name="JSPSessionKeysCheck" />
 		<check name="JSPStringBundlerCheck" />
@@ -308,8 +313,11 @@
 		<check name="PropertiesCommentsCheck" />
 		<check name="PropertiesDefinitionKeysCheck" />
 		<check name="PropertiesDependenciesFileCheck" />
+		<check name="PropertiesEmptyLinesCheck" />
 		<check name="PropertiesImportedFilesContentCheck" />
-		<check name="PropertiesLanguageKeysCheck" />
+		<check name="PropertiesLanguageKeysCheck">
+			<property name="enabled" value="false" />
+		</check>
 		<check name="PropertiesLiferayPluginPackageFileCheck" />
 		<check name="PropertiesLongLinesCheck" />
 		<check name="PropertiesPortalFileCheck" />
@@ -362,6 +370,9 @@
 		<check name="XMLResourceActionsFileCheck" />
 		<check name="XMLServiceEntityNameCheck" />
 		<check name="XMLServiceFileCheck" />
+		<check name="XMLServiceReferenceCheck">
+			<property name="enabled" value="false" />
+		</check>
 		<check name="XMLSolrSchemaFileCheck" />
 		<check name="XMLSuppressionsFileCheck" />
 		<check name="XMLTagAttributesCheck" />

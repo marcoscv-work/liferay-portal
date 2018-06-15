@@ -194,19 +194,6 @@
 		</execute>
 	</command>
 
-	<command name="copyApplicationsFromPageToPage">
-		<execute macro="LexiconEntry#gotoHeaderMenuItem">
-			<var name="menuItem" value="Copy Applications" />
-		</execute>
-
-		<execute function="AssertTextEquals" locator1="Message#INFO" value1="The applications in page ${pageName} will be replaced with the ones in the page you select below." />
-		<execute function="AssertTextEquals" locator1="SitePagesEditPage#COPY_APPLICATIONS_COPY_FROM_PAGE_LABEL" value1="Copy from Page" />
-
-		<execute function="Select#selectPartialText" locator1="SitePagesEditPage#COPY_APPLICATIONS_COPY_FROM_PAGE_SELECT" value1="${pageNameCopy}" />
-
-		<execute macro="PortletEntry#save" />
-	</command>
-
 	<command name="deleteFriendlyURLPG">
 		<execute macro="Navigator#gotoNavTab">
 			<var name="navTab" value="General" />
@@ -235,17 +222,23 @@
 			<var name="portlet" value="Pages" />
 		</execute>
 
-		<execute macro="LexiconEntry#gotoEntryMenuItem">
-			<var name="menuItem" value="Configure" />
-			<var name="rowEntry" value="${page}" />
-		</execute>
-
 		<if>
-			<condition function="IsElementPresent" locator1="SitePagesEditPage#PAGE_TYPE_LAYOUT" />
+			<isset var="page" />
 			<then>
-				<execute function="AssertClick" locator1="SitePages#DETAILS_NAVIGATION_ADVANCED" value1="Advanced" />
+				<execute macro="SitePages#gotoPageMenuItem">
+					<var name="menuItem" value="Configure" />
+					<var name="pageName" value="${page}" />
+				</execute>
+
+				<execute macro="Navigator#gotoNavTab">
+					<var name="navTab" value="Advanced" />
+				</execute>
 			</then>
 			<else>
+				<execute macro="LexiconEntry#gotoHeaderMenuItem">
+					<var name="menuItem" value="Configure" />
+				</execute>
+
 				<execute macro="Panel#expandPanel">
 					<var name="panel" value="Logo" />
 				</execute>
@@ -435,12 +428,6 @@
 		<execute macro="ProductMenuHelper#gotoPortlet">
 			<var name="portlet" value="${portletName}" />
 		</execute>
-	</command>
-
-	<command name="hideFromNavigationMenu">
-		<execute function="Check#checkToggleSwitch" locator1="Checkbox#HIDE_FROM_NAVIGATION_MENU" />
-
-		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
 	</command>
 
 	<command name="localizedPG">
@@ -871,9 +858,10 @@
 		<if>
 			<isset var="friendlyUrlLocalized" />
 			<then>
-				<var name="key_friendlyUrlLocalized" value="${friendlyUrlLocalized}" />
-
-				<execute function="Click" locator1="SitePagesEditPage#FRIENDLY_URL_LOCALIZED" />
+				<execute macro="PortletEntry#changeLocale">
+					<var name="fieldName" value="Friendly URL" />
+					<var name="locale" value="${friendlyUrlLocalized}" />
+				</execute>
 			</then>
 		</if>
 
@@ -1056,6 +1044,7 @@
 	<command name="viewSiteNameTranslationsPG">
 		<execute macro="LanguagePortlet#selectLanguagePG">
 			<var name="locale" value="${locale}" />
+			<var name="textIcon" value="${textIcon}" />
 		</execute>
 
 		<execute function="AssertTextEquals" locator1="Home#SITE_NAME" value1="${siteName}" />

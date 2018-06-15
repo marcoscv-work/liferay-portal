@@ -51,7 +51,7 @@ ManifestSummary manifestSummary = ExportImportHelperUtil.getManifestSummary(them
 
 	<div class="export-dialog-tree">
 		<div class="container-fluid-1280">
-			<aui:fieldset-group id="<portlet:namespace />importConfiguration" markupView="lexicon">
+			<aui:fieldset-group markupView="lexicon">
 				<aui:fieldset cssClass="options-group" label="file">
 					<dl class="import-file-details options">
 						<dt>
@@ -172,8 +172,8 @@ ManifestSummary manifestSummary = ExportImportHelperUtil.getManifestSummary(them
 										<liferay-util:buffer
 											var="badgeHTML"
 										>
-											<span class="badge badge-info"><%= importModelCount > 0 ? importModelCount : StringPool.BLANK %></span>
-											<span class="badge badge-warning deletions"><%= modelDeletionCount > 0 ? (modelDeletionCount + StringPool.SPACE + LanguageUtil.get(request, "deletions")) : StringPool.BLANK %></span>
+											<span class="badge badge-info"><%= (importModelCount > 0) ? importModelCount : StringPool.BLANK %></span>
+											<span class="badge badge-warning deletions"><%= (modelDeletionCount > 0) ? (modelDeletionCount + StringPool.SPACE + LanguageUtil.get(request, "deletions")) : StringPool.BLANK %></span>
 										</liferay-util:buffer>
 
 										<%

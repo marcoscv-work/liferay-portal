@@ -1301,7 +1301,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		return new WikiPageDisplayImpl(
 			page.getUserId(), page.getNodeId(), page.getTitle(),
 			page.getVersion(), page.getContent(), formattedContent,
-			page.getFormat(), page.getHead(), page.getAttachmentsFileEntries());
+			page.getFormat(), page.isHead(), page.getAttachmentsFileEntries());
 	}
 
 	@Override
@@ -1886,7 +1886,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		}
 
 		updatePage(
-			userId, page, 0, newTitle, content, summary, page.getMinorEdit(),
+			userId, page, 0, newTitle, content, summary, page.isMinorEdit(),
 			page.getFormat(), page.getParentTitle(), page.getRedirectTitle(),
 			serviceContext);
 	}
@@ -2332,8 +2332,8 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		}
 
 		for (WikiPage versionPage : versionPages) {
-			versionPage.setRedirectTitle(page.getRedirectTitle());
 			versionPage.setTitle(newTitle);
+			versionPage.setRedirectTitle(page.getRedirectTitle());
 
 			wikiPagePersistence.update(versionPage);
 		}
@@ -2650,9 +2650,9 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 			// Version page
 
-			versionPage.setParentTitle(newParentTitle);
 			versionPage.setNodeId(newNodeId);
 			versionPage.setTitle(page.getTitle());
+			versionPage.setParentTitle(newParentTitle);
 
 			trashVersion = trashVersionLocalService.fetchVersion(
 				WikiPage.class.getName(), versionPage.getPageId());
@@ -2896,9 +2896,9 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 			page.getResourcePrimKey(), oldNodeId, false);
 
 		for (WikiPage pageVersion : pageVersions) {
-			pageVersion.setParentTitle(newParentTitle);
 			pageVersion.setNodeId(newNodeId);
 			pageVersion.setTitle(originalTitle);
+			pageVersion.setParentTitle(newParentTitle);
 
 			wikiPagePersistence.update(pageVersion);
 		}

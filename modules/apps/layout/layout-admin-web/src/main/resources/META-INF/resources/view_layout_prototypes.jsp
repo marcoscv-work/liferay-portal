@@ -48,7 +48,7 @@
 			className="com.liferay.layout.page.template.model.LayoutPageTemplateEntry"
 			cssClass="selectable"
 			escapedModel="<%= true %>"
-			keyProperty="layoutPageTemplateEntryId"
+			keyProperty="layoutPrototypeId"
 			modelVar="layoutPageTemplateEntry"
 		>
 
@@ -121,7 +121,7 @@
 	};
 
 	Liferay.componentReady('layoutPrototypeManagementToolbar').then(
-		(managementToolbar) => {
+		function(managementToolbar) {
 			managementToolbar.on(
 				['actionItemClicked', 'filterItemClicked'],
 				function(event) {
