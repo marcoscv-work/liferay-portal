@@ -63,12 +63,12 @@ public class BNDBundleInformationCheck extends BaseFileCheck {
 			String strippedBundleName = StringUtil.removeChars(
 				bundleName, CharPool.DASH, CharPool.SPACE);
 
-			String expectedBundleName = "liferay" + moduleName;
+			String expectedBundleName = "liferay-" + moduleName;
 
 			expectedBundleName = expectedBundleName.replaceAll(
-				"-impl$", "implementation");
+				"(?<!portal)-impl($|-)", "implementation");
 			expectedBundleName = expectedBundleName.replaceAll(
-				"-util$", "utilities");
+				"(?<!portal)-util($|-)", "utilities");
 
 			expectedBundleName = StringUtil.removeChars(
 				expectedBundleName, CharPool.DASH);
@@ -87,7 +87,7 @@ public class BNDBundleInformationCheck extends BaseFileCheck {
 				"bnd_bundle_information.markdown");
 		}
 
-		if (moduleName.contains("-import-") ||
+		if (moduleName.endsWith("-import") || moduleName.contains("-import-") ||
 			moduleName.contains("-private-")) {
 
 			return;

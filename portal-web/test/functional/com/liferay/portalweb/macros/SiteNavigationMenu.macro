@@ -4,14 +4,12 @@
 	</command>
 
 	<command name="_addItemPage">
-		<execute function="AssertClick" locator1="Button#ADD" value1="Add" />
-
 		<execute macro="IFrame#selectConfigurationFrame" />
 
 		<if>
 			<contains string="${privacy}" substring="{privacy}" />
 			<then>
-				<var name="privacy" value="Public" />
+				<var name="privacy" value="Public Pages" />
 			</then>
 		</if>
 
@@ -149,7 +147,7 @@
 			<var name="name" value="${menuName}" />
 		</execute>
 
-		<execute macro="Modal#submit" />
+		<execute macro="Modal#save" />
 	</command>
 
 	<command name="configureMenuFunction">
@@ -174,6 +172,12 @@
 				<execute function="Confirm" value1="Do you want to replace ${navigationMenu} for Default as primary navigation? This will affect all the pages using primary navigation." />
 			</then>
 		</if>
+	</command>
+
+	<command name="deleteItem">
+		<execute function="Click" locator1="SiteNavigationMenu#ITEM_ENTRY_CLOSE">
+			<var name="key_itemName" value="${itemName}" />
+		</execute>
 	</command>
 
 	<command name="editItem">
@@ -287,7 +291,7 @@
 
 	<command name="viewMenuType">
 		<execute function="AssertTextEquals" locator1="SiteNavigationMenu#MENU_MARKED_AS" value1="${menuType}">
-			<var name="key_markedAs" value="${markedAs}" />
+			<var name="key_markedAs" value="${menuType}" />
 			<var name="key_rowEntry" value="${rowEntry}" />
 		</execute>
 	</command>

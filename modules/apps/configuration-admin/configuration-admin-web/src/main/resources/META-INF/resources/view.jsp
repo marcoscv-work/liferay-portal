@@ -18,27 +18,21 @@
 
 <%
 List<ConfigurationCategorySectionDisplay> configurationCategorySectionDisplays = (List<ConfigurationCategorySectionDisplay>)request.getAttribute(ConfigurationAdminWebKeys.CONFIGURATION_CATEGORY_SECTION_DISPLAYS);
+ConfigurationEntryRetriever configurationEntryRetriever = (ConfigurationEntryRetriever)request.getAttribute(ConfigurationAdminWebKeys.CONFIGURATION_ENTRY_RETRIEVER);
 %>
 
-<liferay-frontend:management-bar>
-	<liferay-frontend:management-bar-filters>
-		<li>
-			<portlet:renderURL var="redirectURL" />
+<portlet:renderURL var="redirectURL" />
 
-			<portlet:renderURL var="searchURL">
-				<portlet:param name="mvcRenderCommandName" value="/search" />
-				<portlet:param name="redirect" value="<%= redirectURL %>" />
-			</portlet:renderURL>
+<portlet:renderURL var="searchURL">
+	<portlet:param name="mvcRenderCommandName" value="/search" />
+	<portlet:param name="redirect" value="<%= redirectURL %>" />
+</portlet:renderURL>
 
-			<aui:form action="<%= searchURL %>" name="searchFm">
-				<liferay-ui:input-search
-					autoFocus="<%= true %>"
-					markupView="lexicon"
-				/>
-			</aui:form>
-		</li>
-	</liferay-frontend:management-bar-filters>
-</liferay-frontend:management-bar>
+<clay:management-toolbar
+	searchActionURL="<%= searchURL %>"
+	selectable="<%= false %>"
+	showSearch="<%= true %>"
+/>
 
 <div class="container-fluid container-fluid-max-xl container-view">
 	<ul class="list-group">
@@ -57,22 +51,20 @@ List<ConfigurationCategorySectionDisplay> configurationCategorySectionDisplays =
 
 					<%
 					for (ConfigurationCategoryDisplay configurationCategoryDisplay : configurationCategorySectionDisplay.getConfigurationCategoryDisplays()) {
+						ConfigurationCategoryMenuDisplay configurationCategoryMenuDisplay = configurationEntryRetriever.getConfigurationCategoryMenuDisplay(configurationCategoryDisplay.getCategoryKey(), themeDisplay.getLanguageId());
+
+						String viewCategoryHREF = ConfigurationCategoryUtil.getHREF(configurationCategoryMenuDisplay, liferayPortletResponse, renderRequest, renderResponse);
 					%>
 
-						<portlet:renderURL var="categoryURL">
-							<portlet:param name="mvcRenderCommandName" value="/view_category" />
-							<portlet:param name="configurationCategory" value="<%= configurationCategoryDisplay.getCategoryKey() %>" />
-						</portlet:renderURL>
-
 						<li class="list-group-card-item">
-							<a href="<%= categoryURL %>">
+							<a href="<%= viewCategoryHREF %>">
 								<clay:icon
 									elementClasses="user-icon-sm"
 									symbol="<%= configurationCategoryDisplay.getCategoryIcon() %>"
 								/>
 
 								<span class="list-group-card-item-text">
-									<liferay-ui:message key='<%= "category." + configurationCategoryDisplay.getCategoryKey() %>' />
+									<%= HtmlUtil.escape(configurationCategoryDisplay.getCategoryLabel(locale)) %>
 								</span>
 							</a>
 						</li>

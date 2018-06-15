@@ -24,7 +24,7 @@ import java.util.Set;
  * @author Michael Hashimoto
  */
 public class PortalReleaseJob
-	extends BaseJob implements PortalTestClassJob, BatchDependentJob {
+	extends BaseJob implements BatchDependentJob, PortalTestClassJob {
 
 	public PortalReleaseJob(String jobName, String portalBranchName) {
 		super(jobName);
@@ -41,27 +41,31 @@ public class PortalReleaseJob
 		}
 		catch (IOException ioe) {
 			throw new RuntimeException(
-				"Unable to not create a Git working directory", ioe);
+				"Unable to create a Git working directory", ioe);
 		}
 
 		jobProperties = JenkinsResultsParserUtil.getProperties(
 			new File(
-				_jenkinsGitWorkingDirectory.getWorkingDirectory(),
-				"commands/dependencies/test-portal-release.properties"));
+				_portalGitWorkingDirectory.getWorkingDirectory(),
+				"test.properties"));
 
 		jobProperties.putAll(
 			JenkinsResultsParserUtil.getProperties(
 				new File(
-					_portalGitWorkingDirectory.getWorkingDirectory(),
-					"test.properties")));
+					_jenkinsGitWorkingDirectory.getWorkingDirectory(),
+					"commands/dependencies/test-portal-release.properties")));
 	}
 
 	@Override
 	public Set<String> getBatchNames() {
-		String testBatchNames = JenkinsResultsParserUtil.getProperty(
+		String testBatchNamesString = JenkinsResultsParserUtil.getProperty(
 			jobProperties, "test.batch.names[" + _portalBranchName + "]");
 
-		return getSetFromString(testBatchNames);
+		Set<String> testBatchNames = getSetFromString(testBatchNamesString);
+
+		testBatchNames.addAll(_getOptionalBatchNames());
+
+		return testBatchNames;
 	}
 
 	@Override
@@ -82,8 +86,25 @@ public class PortalReleaseJob
 		return _portalGitWorkingDirectory;
 	}
 
+	public void setPortalReleaseRef(String portalReleaseRef) {
+		_portalReleaseRef = portalReleaseRef;
+	}
+
+	private Set<String> _getOptionalBatchNames() {
+		if (_portalReleaseRef == null) {
+			return Collections.emptySet();
+		}
+
+		String testBatchNamesString = JenkinsResultsParserUtil.getProperty(
+			jobProperties,
+			"test.batch.names.optional[" + _portalReleaseRef + "]");
+
+		return getSetFromString(testBatchNamesString);
+	}
+
 	private final GitWorkingDirectory _jenkinsGitWorkingDirectory;
 	private final String _portalBranchName;
 	private final PortalGitWorkingDirectory _portalGitWorkingDirectory;
+	private String _portalReleaseRef;
 
 }

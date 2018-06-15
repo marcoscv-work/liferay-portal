@@ -16,6 +16,7 @@ package com.liferay.portal.search.solr.internal;
 
 import com.liferay.portal.kernel.search.IndexSearcher;
 import com.liferay.portal.kernel.search.IndexWriter;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.Digester;
 import com.liferay.portal.kernel.util.Localization;
@@ -27,6 +28,7 @@ import com.liferay.portal.search.solr.document.SolrUpdateDocumentCommand;
 import com.liferay.portal.search.solr.internal.document.DefaultSolrDocumentFactory;
 import com.liferay.portal.search.solr.internal.facet.DefaultFacetProcessor;
 import com.liferay.portal.search.solr.internal.filter.BooleanFilterTranslatorImpl;
+import com.liferay.portal.search.solr.internal.filter.DateRangeFilterTranslatorImpl;
 import com.liferay.portal.search.solr.internal.filter.DateRangeTermFilterTranslatorImpl;
 import com.liferay.portal.search.solr.internal.filter.ExistsFilterTranslatorImpl;
 import com.liferay.portal.search.solr.internal.filter.GeoBoundingBoxFilterTranslatorImpl;
@@ -108,6 +110,8 @@ public class SolrIndexingFixture implements IndexingFixture {
 	protected static SolrFilterTranslator createSolrFilterTranslator() {
 		return new SolrFilterTranslator() {
 			{
+				dateRangeFilterTranslator = new DateRangeFilterTranslatorImpl();
+
 				setBooleanQueryTranslator(new BooleanFilterTranslatorImpl());
 				setDateRangeTermFilterTranslator(
 					new DateRangeTermFilterTranslatorImpl());
@@ -204,11 +208,14 @@ public class SolrIndexingFixture implements IndexingFixture {
 	}
 
 	protected NGramQueryBuilderImpl createNGramQueryBuilder() {
-		return new NGramQueryBuilderImpl() {
-			{
-				setNGramHolderBuilder(new NGramHolderBuilderImpl());
-			}
-		};
+		NGramQueryBuilderImpl nGramQueryBuilderImpl =
+			new NGramQueryBuilderImpl();
+
+		ReflectionTestUtil.setFieldValue(
+			nGramQueryBuilderImpl, "_nGramHolderBuilder",
+			new NGramHolderBuilderImpl());
+
+		return nGramQueryBuilderImpl;
 	}
 
 	protected Props createProps() {
@@ -220,6 +227,14 @@ public class SolrIndexingFixture implements IndexingFixture {
 			props
 		).get(
 			PropsKeys.INDEX_SEARCH_LIMIT
+		);
+
+		Mockito.doReturn(
+			"yyyyMMddHHmmss"
+		).when(
+			props
+		).get(
+			PropsKeys.INDEX_DATE_FORMAT_PATTERN
 		);
 
 		return props;

@@ -45,10 +45,10 @@ renderResponse.setTitle((role == null) ? LanguageUtil.get(request, "new-role") :
 <c:if test="<%= role != null %>">
 	<c:choose>
 		<c:when test="<%= role.getType() == RoleConstants.TYPE_REGULAR %>">
-			<liferay-ui:success embed="<%= false %>" key="roleCreated" message='<%= LanguageUtil.format(request, "x-was-created-successfully.-you-can-now-define-its-permissions-and-assign-users", roleName) %>' />
+			<liferay-ui:success key="roleCreated" message='<%= LanguageUtil.format(request, "x-was-created-successfully.-you-can-now-define-its-permissions-and-assign-users", roleName) %>' />
 		</c:when>
 		<c:otherwise>
-			<liferay-ui:success embed="<%= false %>" key="roleCreated" message='<%= LanguageUtil.format(request, "x-was-created-successfully.-you-can-now-define-its-permissions", roleName) %>' />
+			<liferay-ui:success key="roleCreated" message='<%= LanguageUtil.format(request, "x-was-created-successfully.-you-can-now-define-its-permissions", roleName) %>' />
 		</c:otherwise>
 	</c:choose>
 </c:if>
@@ -66,7 +66,7 @@ renderResponse.setTitle((role == null) ? LanguageUtil.get(request, "new-role") :
 	<portlet:param name="type" value="<%= String.valueOf(type) %>" />
 </portlet:renderURL>
 
-<aui:form action="<%= editRoleURL %>" cssClass="container-fluid-1280" method="post" name="fm">
+<aui:form action="<%= editRoleURL %>" cssClass="container-fluid container-fluid-max-xl container-form-lg" method="post" name="fm">
 	<aui:input name="redirect" type="hidden" value="<%= editRoleRenderURL %>" />
 	<aui:input name="roleId" type="hidden" value="<%= roleId %>" />
 

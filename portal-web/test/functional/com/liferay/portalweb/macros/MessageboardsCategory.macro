@@ -28,7 +28,7 @@
 
 		<execute function="Click" locator1="Button#SAVE" />
 
-		<execute function="AssertTextEquals" locator1="TextInput#REQUIRED_ALERT" value1="This field is required." />
+		<execute macro="Alert#viewRequiredField" />
 	</command>
 
 	<command name="addPG">
@@ -109,7 +109,7 @@
 
 		<execute function="Click" locator1="Button#SAVE" />
 
-		<execute function="AssertTextEquals" locator1="TextInput#REQUIRED_ALERT" value1="This field is required." />
+		<execute macro="Alert#viewRequiredField" />
 	</command>
 
 	<command name="addSubcategoryNullPG">
@@ -174,11 +174,11 @@
 
 	<command name="deleteCP">
 		<if>
-			<condition function="IsElementPresent" locator1="Checkbox#SELECT_ALL" />
+			<condition function="IsElementPresent" locator1="Checkbox#LEXICON_SELECT_ALL_CONTAINER" />
 			<then>
 				<execute macro="PortletEntry#selectAll" />
 
-				<execute function="Click" locator1="Button#RECYCLE_BIN" />
+				<execute function="Click" locator1="Icon#DELETE" />
 
 				<execute function="AssertElementPresent" locator1="Message#SUCCESS" />
 			</then>
@@ -359,17 +359,17 @@
 	<command name="viewMySubscriptionsPG">
 		<execute function="AssertClick" locator1="MessageBoards#NAVIGATION_MY_SUBSCRIPTIONS" value1="My Subscriptions" />
 
-		<var method="StringUtil#upperCase('${parentcategory1}')" name="parentcategory1" />
+		<execute function="AssertTextEquals" locator1="MessageBoardsMySubscriptions#CATEGORY_TABLE_CATEGORY_BREADCRUMB_1" value1="${parentcategory1}">
+			<var name="key_parentcategory1" value="${parentcategory1}" />
+		</execute>
 
-		<execute function="AssertTextEquals" locator1="MessageBoardsMySubscriptions#CATEGORY_TABLE_CATEGORY_BREADCRUMB_1" value1="${parentcategory1}" />
+		<execute function="AssertTextEquals" locator1="MessageBoardsMySubscriptions#CATEGORY_TABLE_CATEGORY_BREADCRUMB_2" value1="${parentcategory2}">
+			<var name="key_parentcategory2" value="${parentcategory2}" />
+		</execute>
 
-		<var method="StringUtil#upperCase('${parentcategory2}')" name="parentcategory2" />
-
-		<execute function="AssertTextEquals" locator1="MessageBoardsMySubscriptions#CATEGORY_TABLE_CATEGORY_BREADCRUMB_2" value1="${parentcategory2}" />
-
-		<var method="StringUtil#upperCase('${subscribedThread}')" name="subscribedThread" />
-
-		<execute function="AssertTextEquals#assertPartialText" locator1="MessageBoardsMySubscriptions#CATEGORY_TABLE_CATEGORY_BREADCRUMB_3" value1="${subscribedThread}" />
+		<execute function="AssertTextEquals#assertPartialText" locator1="MessageBoardsMySubscriptions#CATEGORY_TABLE_CATEGORY_BREADCRUMB_3" value1="${subscribedThread}">
+			<var name="key_subscribedThread" value="${subscribedThread}" />
+		</execute>
 	</command>
 
 	<command name="viewNoCP">

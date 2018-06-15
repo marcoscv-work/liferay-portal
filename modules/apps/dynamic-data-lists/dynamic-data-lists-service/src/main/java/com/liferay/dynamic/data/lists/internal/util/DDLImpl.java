@@ -390,11 +390,11 @@ public class DDLImpl implements DDL {
 	protected Object[] getFieldValues(Field field, Locale locale) {
 		Object fieldValue = field.getValue(locale);
 
-		if (Validator.isNull(fieldValue)) {
+		if (fieldValue == null) {
 			return new Object[0];
 		}
 
-		if (isArray(fieldValue)) {
+		if (Validator.isNull(fieldValue)) {
 			return (Object[])fieldValue;
 		}
 

@@ -24,11 +24,11 @@ public class LayoutAdminWebKeys {
 
 	public static final String ITEM_SELECTOR = "ITEM_SELECTOR";
 
-	public static final String LAYOUT_ADMIN_CONFIGURATION =
-		"LAYOUT_ADMIN_CONFIGURATION";
-
 	public static final String LAYOUT_PAGE_TEMPLATE_COLLECTION_SERVICE =
 		"LAYOUT_PAGE_TEMPLATE_COLLECTION_SERVICE";
+
+	public static final String LAYOUT_PAGE_TEMPLATE_DISPLAY_CONTEXT =
+		"LAYOUT_PAGE_TEMPLATE_DISPLAY_CONTEXT";
 
 	public static final String LAYOUT_PROTOTYPE = "LAYOUT_PROTOTYPE";
 

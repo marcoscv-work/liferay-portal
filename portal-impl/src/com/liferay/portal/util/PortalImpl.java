@@ -24,8 +24,6 @@ import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.petra.encryptor.Encryptor;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.comment.action.EditDiscussionStrutsAction;
-import com.liferay.portal.comment.action.GetCommentsStrutsAction;
 import com.liferay.portal.dao.orm.common.SQLTransformer;
 import com.liferay.portal.events.StartupHelperUtil;
 import com.liferay.portal.kernel.bean.BeanPropertiesUtil;
@@ -97,6 +95,9 @@ import com.liferay.portal.kernel.portlet.LiferayPortletMode;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.LiferayPortletURL;
+import com.liferay.portal.kernel.portlet.LiferayRenderRequest;
+import com.liferay.portal.kernel.portlet.LiferayRenderResponse;
+import com.liferay.portal.kernel.portlet.LiferayStateAwareResponse;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortletBag;
 import com.liferay.portal.kernel.portlet.PortletBagPool;
@@ -154,6 +155,7 @@ import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.filters.compoundsessionid.CompoundSessionIdSplitterUtil;
 import com.liferay.portal.kernel.servlet.taglib.ui.BreadcrumbEntry;
 import com.liferay.portal.kernel.servlet.taglib.ui.BreadcrumbUtil;
+import com.liferay.portal.kernel.struts.StrutsAction;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
@@ -210,13 +212,9 @@ import com.liferay.portal.struts.StrutsUtil;
 import com.liferay.portal.upload.UploadPortletRequestImpl;
 import com.liferay.portal.upload.UploadServletRequestImpl;
 import com.liferay.portal.webserver.WebServerServlet;
+import com.liferay.portlet.LiferayPortletUtil;
 import com.liferay.portlet.PortletPreferencesImpl;
 import com.liferay.portlet.PortletPreferencesWrapper;
-import com.liferay.portlet.PortletRequestImpl;
-import com.liferay.portlet.PortletResponseImpl;
-import com.liferay.portlet.RenderRequestImpl;
-import com.liferay.portlet.RenderResponseImpl;
-import com.liferay.portlet.StateAwareResponseImpl;
 import com.liferay.portlet.admin.util.OmniadminUtil;
 import com.liferay.portlet.social.util.FacebookUtil;
 import com.liferay.registry.Registry;
@@ -558,6 +556,13 @@ public class PortalImpl implements Portal {
 								new PortalInetSocketAddressEventListenerServiceTrackerCustomizer());
 
 			portalInetSocketAddressEventListenerServiceTracker.open();
+
+			ServiceTracker<StrutsAction, StrutsAction>
+				commentsStrutsActionServiceTracker = registry.trackServices(
+					StrutsAction.class,
+					new CommentsStrutsActionServiceTrackerCustomizer());
+
+			commentsStrutsActionServiceTracker.open();
 		}
 		catch (NullPointerException npe) {
 		}
@@ -857,10 +862,11 @@ public class PortalImpl implements Portal {
 
 	@Override
 	public void clearRequestParameters(RenderRequest renderRequest) {
-		RenderRequestImpl renderRequestImpl = (RenderRequestImpl)renderRequest;
+		LiferayRenderRequest liferayRenderRequest =
+			(LiferayRenderRequest)renderRequest;
 
-		if (renderRequestImpl.isTriggeredByActionURL()) {
-			renderRequestImpl.clearRenderParameters();
+		if (liferayRenderRequest.isTriggeredByActionURL()) {
+			liferayRenderRequest.clearRenderParameters();
 		}
 	}
 
@@ -868,15 +874,15 @@ public class PortalImpl implements Portal {
 	public void copyRequestParameters(
 		ActionRequest actionRequest, ActionResponse actionResponse) {
 
-		if (actionResponse instanceof StateAwareResponseImpl) {
-			StateAwareResponseImpl stateAwareResponseImpl =
-				(StateAwareResponseImpl)actionResponse;
+		if (actionResponse instanceof LiferayStateAwareResponse) {
+			LiferayStateAwareResponse liferayStateAwareResponse =
+				(LiferayStateAwareResponse)actionResponse;
 
-			if (stateAwareResponseImpl.getRedirectLocation() != null) {
+			if (liferayStateAwareResponse.getRedirectLocation() != null) {
 				if (_log.isDebugEnabled()) {
 					_log.debug(
 						"Cannot copy parameters on a redirected " +
-							"StateAwareResponseImpl");
+							"LiferayStateAwareResponse");
 				}
 
 				return;
@@ -2629,10 +2635,10 @@ public class PortalImpl implements Portal {
 			return liferayPortletRequest.getHttpServletRequest();
 		}
 
-		PortletRequestImpl portletRequestImpl =
-			PortletRequestImpl.getPortletRequestImpl(portletRequest);
+		LiferayPortletRequest liferayPortletRequest =
+			LiferayPortletUtil.getLiferayPortletRequest(portletRequest);
 
-		return portletRequestImpl.getHttpServletRequest();
+		return liferayPortletRequest.getHttpServletRequest();
 	}
 
 	@Override
@@ -2646,10 +2652,10 @@ public class PortalImpl implements Portal {
 			return liferayPortletResponse.getHttpServletResponse();
 		}
 
-		PortletResponseImpl portletResponseImpl =
-			PortletResponseImpl.getPortletResponseImpl(portletResponse);
+		LiferayPortletResponse liferayPortletResponse =
+			LiferayPortletUtil.getLiferayPortletResponse(portletResponse);
 
-		return portletResponseImpl.getHttpServletResponse();
+		return liferayPortletResponse.getHttpServletResponse();
 	}
 
 	@Override
@@ -3301,10 +3307,10 @@ public class PortalImpl implements Portal {
 			return (LiferayPortletRequest)portletRequest;
 		}
 
-		PortletRequestImpl portletRequestImpl =
-			PortletRequestImpl.getPortletRequestImpl(portletRequest);
+		LiferayPortletRequest liferayPortletRequest =
+			LiferayPortletUtil.getLiferayPortletRequest(portletRequest);
 
-		return DoPrivilegedUtil.wrapWhenActive(portletRequestImpl);
+		return DoPrivilegedUtil.wrapWhenActive(liferayPortletRequest);
 	}
 
 	@Override
@@ -3315,10 +3321,10 @@ public class PortalImpl implements Portal {
 			return (LiferayPortletResponse)portletResponse;
 		}
 
-		PortletResponseImpl portletResponseImpl =
-			PortletResponseImpl.getPortletResponseImpl(portletResponse);
+		LiferayPortletResponse liferayPortletResponse =
+			LiferayPortletUtil.getLiferayPortletResponse(portletResponse);
 
-		return DoPrivilegedUtil.wrapWhenActive(portletResponseImpl);
+		return DoPrivilegedUtil.wrapWhenActive(liferayPortletResponse);
 	}
 
 	@Override
@@ -4604,10 +4610,14 @@ public class PortalImpl implements Portal {
 
 	@Override
 	public String getPortletTitle(PortletResponse portletResponse) {
-		PortletResponseImpl portletResponseImpl =
-			PortletResponseImpl.getPortletResponseImpl(portletResponse);
+		LiferayPortletResponse liferayPortletResponse =
+			LiferayPortletUtil.getLiferayPortletResponse(portletResponse);
 
-		return ((RenderResponseImpl)portletResponseImpl).getTitle();
+		if (liferayPortletResponse instanceof LiferayRenderResponse) {
+			return ((LiferayRenderResponse)liferayPortletResponse).getTitle();
+		}
+
+		return null;
 	}
 
 	@Override
@@ -5511,11 +5521,12 @@ public class PortalImpl implements Portal {
 	public UploadPortletRequest getUploadPortletRequest(
 		PortletRequest portletRequest) {
 
-		PortletRequestImpl portletRequestImpl =
-			PortletRequestImpl.getPortletRequestImpl(portletRequest);
+		LiferayPortletRequest liferayPortletRequest =
+			LiferayPortletUtil.getLiferayPortletRequest(portletRequest);
 
 		DynamicServletRequest dynamicRequest =
-			(DynamicServletRequest)portletRequestImpl.getHttpServletRequest();
+			(DynamicServletRequest)
+				liferayPortletRequest.getHttpServletRequest();
 
 		HttpServletRequestWrapper requestWrapper =
 			(HttpServletRequestWrapper)dynamicRequest.getRequest();
@@ -5524,8 +5535,8 @@ public class PortalImpl implements Portal {
 			requestWrapper);
 
 		return new UploadPortletRequestImpl(
-			uploadServletRequest, portletRequestImpl,
-			getPortletNamespace(portletRequestImpl.getPortletName()));
+			uploadServletRequest, liferayPortletRequest,
+			getPortletNamespace(liferayPortletRequest.getPortletName()));
 	}
 
 	@Override
@@ -5582,7 +5593,7 @@ public class PortalImpl implements Portal {
 		}
 
 		for (int i = persistentHttpServletRequestWrappers.size() - 1; i >= 0;
-			i--) {
+				i--) {
 
 			HttpServletRequestWrapper httpServletRequestWrapper =
 				persistentHttpServletRequestWrappers.get(i);
@@ -6216,6 +6227,14 @@ public class PortalImpl implements Portal {
 			ActionResponse actionResponse)
 		throws Exception {
 
+		if (_editDiscussionStrutsAction == null) {
+			_log.error(
+				"Unable to find a Struts action component with property " +
+					"\"path=/portal/comment/discussion/edit\"");
+
+			return;
+		}
+
 		_editDiscussionStrutsAction.execute(
 			getHttpServletRequest(actionRequest),
 			getHttpServletResponse(actionResponse));
@@ -6230,6 +6249,14 @@ public class PortalImpl implements Portal {
 			PortletConfig portletConfig, ResourceRequest resourceRequest,
 			ResourceResponse resourceResponse)
 		throws IOException, PortletException {
+
+		if (_getCommentsStrutsAction == null) {
+			_log.error(
+				"Unable to find a Struts Action component with property " +
+					"\"path=/portal/comment/discussion/get_comments\"");
+
+			return;
+		}
 
 		try {
 			_getCommentsStrutsAction.execute(
@@ -8952,10 +8979,8 @@ public class PortalImpl implements Portal {
 	private final String _computerName;
 	private String[] _customSqlKeys;
 	private String[] _customSqlValues;
-	private final EditDiscussionStrutsAction _editDiscussionStrutsAction =
-		new EditDiscussionStrutsAction();
-	private final GetCommentsStrutsAction _getCommentsStrutsAction =
-		new GetCommentsStrutsAction();
+	private volatile StrutsAction _editDiscussionStrutsAction;
+	private volatile StrutsAction _getCommentsStrutsAction;
 	private final String _pathContext;
 	private final String _pathFriendlyURLPrivateGroup;
 	private final String _pathFriendlyURLPrivateUser;
@@ -9066,6 +9091,62 @@ public class PortalImpl implements Portal {
 					"There are " + _alwaysAllowDoAsUsers.size() +
 						" alway sallow do as user instances");
 			}
+		}
+
+	}
+
+	private class CommentsStrutsActionServiceTrackerCustomizer
+		implements ServiceTrackerCustomizer <StrutsAction, StrutsAction> {
+
+		@Override
+		public StrutsAction addingService(
+			ServiceReference<StrutsAction> serviceReference) {
+
+			Registry registry = RegistryUtil.getRegistry();
+
+			String path = GetterUtil.getString(
+				serviceReference.getProperty("path"));
+
+			StrutsAction strutsAction = registry.getService(serviceReference);
+
+			if ("/portal/comment/discussion/edit".equals(path)) {
+				_editDiscussionStrutsAction = strutsAction;
+			}
+			else if ("/portal/comment/discussion/get_comments".equals(path)) {
+				_getCommentsStrutsAction = strutsAction;
+			}
+
+			return strutsAction;
+		}
+
+		@Override
+		public void modifiedService(
+			ServiceReference<StrutsAction> serviceReference,
+			StrutsAction strutsAction) {
+
+			removedService(serviceReference, strutsAction);
+
+			addingService(serviceReference);
+		}
+
+		@Override
+		public void removedService(
+			ServiceReference<StrutsAction> serviceReference,
+			StrutsAction strutsAction) {
+
+			Registry registry = RegistryUtil.getRegistry();
+
+			String path = GetterUtil.getString(
+				serviceReference.getProperty("path"));
+
+			if ("/portal/comment/discussion/edit".equals(path)) {
+				_editDiscussionStrutsAction = null;
+			}
+			else if ("/portal/comment/discussion/get_comments".equals(path)) {
+				_getCommentsStrutsAction = null;
+			}
+
+			registry.ungetService(serviceReference);
 		}
 
 	}

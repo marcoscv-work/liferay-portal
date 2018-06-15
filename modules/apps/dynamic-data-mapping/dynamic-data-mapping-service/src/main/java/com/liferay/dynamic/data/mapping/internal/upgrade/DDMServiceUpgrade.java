@@ -18,6 +18,7 @@ import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.document.library.kernel.service.DLFileVersionLocalService;
 import com.liferay.document.library.kernel.service.DLFolderLocalService;
+import com.liferay.document.library.kernel.store.Store;
 import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderTracker;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionFactory;
 import com.liferay.dynamic.data.mapping.internal.upgrade.v1_0_0.UpgradeCompanyId;
@@ -74,7 +75,7 @@ public class DDMServiceUpgrade implements UpgradeStepRegistrator {
 					_dlFolderLocalService, _expandoRowLocalService,
 					_expandoTableLocalService, _expandoValueLocalService,
 					_resourceActions, _resourceLocalService,
-					_resourcePermissionLocalService),
+					_resourcePermissionLocalService, _store),
 			new UpgradeLastPublishDate());
 
 		registry.register(
@@ -127,6 +128,17 @@ public class DDMServiceUpgrade implements UpgradeStepRegistrator {
 			new com.liferay.dynamic.data.mapping.internal.upgrade.v2_0_1.
 				UpgradeAutocompleteDDMTextFieldSetting(
 					_ddmFormJSONDeserializer, _ddmFormJSONSerializer));
+
+		registry.register(
+			"2.0.1", "2.0.2",
+			new com.liferay.dynamic.data.mapping.internal.upgrade.v2_0_2.
+				UpgradeDDMFormInstanceStructureResourceAction(
+					_resourceActions));
+
+		registry.register(
+			"2.0.2", "2.0.3",
+			new com.liferay.dynamic.data.mapping.internal.upgrade.v2_0_3.
+				UpgradeDDMFormInstanceSettings(_jsonFactory));
 	}
 
 	@Reference
@@ -188,5 +200,8 @@ public class DDMServiceUpgrade implements UpgradeStepRegistrator {
 
 	@Reference
 	private ResourcePermissionLocalService _resourcePermissionLocalService;
+
+	@Reference(target = "(dl.store.upgrade=true)")
+	private Store _store;
 
 }

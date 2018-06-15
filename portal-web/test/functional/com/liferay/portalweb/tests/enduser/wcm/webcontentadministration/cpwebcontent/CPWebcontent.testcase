@@ -1592,25 +1592,6 @@
 			<var name="portlet" value="Web Content" />
 		</execute>
 
-		<execute macro="WebContentNavigator#gotoViewStatus">
-			<var name="webContentStatus" value="Expired" />
-			<var name="webContentTitle" value="WC WebContent Title" />
-		</execute>
-
-		<execute macro="WebContent#viewStatus">
-			<var name="webContentContent" value="WC WebContent Content" />
-			<var name="webContentStatus" value="Expired" />
-			<var name="webContentTitle" value="WC WebContent Title" />
-		</execute>
-
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
-			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Web Content" />
-		</execute>
-
 		<execute macro="WebContentNavigator#gotoEditCP">
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
@@ -1618,6 +1599,10 @@
 		<execute macro="Button#clickPublish" />
 
 		<execute macro="Alert#viewRequestFailedToComplete" />
+
+		<execute macro="Alert#closeMessage">
+			<var name="messageType" value="ERROR" />
+		</execute>
 
 		<execute macro="Alert#viewExpireContentFailedMessage" />
 	</command>
@@ -2342,12 +2327,8 @@
 			<var name="portlet" value="Web Content" />
 		</execute>
 
-		<execute macro="TestCase#getTestName">
-			<return from="testName" name="testName" />
-		</execute>
-
 		<execute macro="LAR#exportPortlet">
-			<var name="larFileName" value="${testName}_WebContent_portlet.lar" />
+			<var name="larFileName" value="WebContent_portlet.lar" />
 		</execute>
 	</command>
 
@@ -2438,12 +2419,8 @@
 			<var name="portlet" value="Web Content" />
 		</execute>
 
-		<execute macro="TestCase#getTestName">
-			<return from="testName" name="testName" />
-		</execute>
-
 		<execute macro="LAR#exportPortlet">
-			<var name="larFileName" value="${testName}_WebContent_portlet.lar" />
+			<var name="larFileName" value="WebContent_portlet.lar" />
 		</execute>
 
 		<execute macro="WebContent#tearDownCP" />
@@ -2476,12 +2453,8 @@
 			<var name="portlet" value="Web Content" />
 		</execute>
 
-		<execute macro="TestCase#getTestName">
-			<return from="testName" name="testName" />
-		</execute>
-
 		<execute macro="LAR#importPortlet">
-			<var name="larFileName" value="${testName}_WebContent_portlet.lar" />
+			<var name="larFileName" value="WebContent_portlet.lar" />
 		</execute>
 
 		<execute macro="Navigator#openURL" />
@@ -2625,12 +2598,8 @@
 			<var name="webContentTitle" value="WC Title" />
 		</execute>
 
-		<execute macro="TestCase#getTestName">
-			<return from="testName" name="testName" />
-		</execute>
-
 		<execute macro="LAR#exportPortlet">
-			<var name="larFileName" value="${testName}_WebContent_portlet.lar" />
+			<var name="larFileName" value="WebContent_portlet.lar" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
@@ -2651,7 +2620,7 @@
 
 		<execute macro="LAR#importPortlet">
 			<var name="importValidationMissingItem" value="Linked Page" />
-			<var name="larFileName" value="${testName}_WebContent_portlet.lar" />
+			<var name="larFileName" value="WebContent_portlet.lar" />
 			<var name="linkedPageName" value="Test Page" />
 			<var name="siteName" value="Site Name" />
 		</execute>

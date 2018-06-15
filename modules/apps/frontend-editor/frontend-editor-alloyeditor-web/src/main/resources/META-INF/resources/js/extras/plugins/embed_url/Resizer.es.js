@@ -72,8 +72,8 @@ class Resizer {
 
 		const keys = Object.keys(this.handles);
 
-		for (let key of keys) {
-			this.container.appendChild(this.handles[key]);
+		for (let i = 0; i < keys.length; i++) {
+			this.container.appendChild(this.handles[keys[i]]);
 		}
 	}
 
@@ -90,8 +90,8 @@ class Resizer {
 
 		let result = false;
 
-		for (let key of keys) {
-			if (this.handles[key] === el) {
+		for (let i = 0; i < keys.length; i++) {
+			if (this.handles[keys[i]] === el) {
 				result = true;
 			}
 		}
@@ -116,8 +116,8 @@ class Resizer {
 	hide() {
 		const elements = this.document.getElementsByClassName('ckimgrsz');
 
-		for (let element of elements) {
-			element.classList.remove('ckimgrsz');
+		for (let i = 0; i < elements.length; i++) {
+			elements[i].classList.remove('ckimgrsz');
 		}
 
 		this.hideHandles();
@@ -144,6 +144,12 @@ class Resizer {
 
 		drag.onDrag = () => {
 			this.calculateSize(drag);
+
+			const editorBounds = this.editor.element.$.getBoundingClientRect();
+
+			if (this.previewBox.width >= editorBounds.width) {
+				return;
+			}
 
 			this.updatePreview();
 
@@ -176,8 +182,8 @@ class Resizer {
 	updateHandles(box, left = 0, top = 0) {
 		const keys = Object.keys(this.handles);
 
-		for (let key of keys) {
-			POSITION_ELEMENT_FN[key](this.handles[key], left, top, box);
+		for (let i = 0; i < keys.length; i++) {
+			POSITION_ELEMENT_FN[keys[i]](this.handles[keys[i]], left, top, box);
 		}
 	}
 
@@ -186,16 +192,16 @@ class Resizer {
 
 		const keys = Object.keys(this.handles);
 
-		for (let key of keys) {
-			this.handles[key].style.display = 'block';
+		for (let i = 0; i < keys.length; i++) {
+			this.handles[keys[i]].style.display = 'block';
 		}
 	}
 
 	hideHandles() {
 		const keys = Object.keys(this.handles);
 
-		for (let key of keys) {
-			this.handles[key].style.display = 'none';
+		for (let i = 0; i < keys.length; i++) {
+			this.handles[keys[i]].style.display = 'none';
 		}
 	}
 
