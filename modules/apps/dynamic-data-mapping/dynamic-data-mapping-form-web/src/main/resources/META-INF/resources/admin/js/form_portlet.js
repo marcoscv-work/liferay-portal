@@ -291,7 +291,7 @@ AUI.add(
 
 						instance.layoutVisitor.set('pages', formBuilder.get('layouts'));
 
-						var translationManager = instance.get('translationManager');
+						var translationManager = instance.get(STR_TRANSLATION_MANAGER);
 
 						var state = {
 							availableLanguageIds: translationManager.get('availableLocales'),
@@ -726,6 +726,8 @@ AUI.add(
 
 						A.one('.ddm-form-builder-buttons').addClass('hide');
 
+						instance.get(STR_TRANSLATION_MANAGER).hide();
+
 						instance.one('#showForm').removeClass('active');
 					},
 
@@ -802,6 +804,12 @@ AUI.add(
 
 					_onFormButtonClick: function() {
 						var instance = this;
+
+						var ruleTab = instance.one('#showRules');
+
+						if (ruleTab.hasClass('disabled')) {
+							ruleTab.removeClass('disabled');
+						}
 
 						instance._hideRuleBuilder();
 
@@ -914,6 +922,12 @@ AUI.add(
 					_onRulesButtonClick: function() {
 						var instance = this;
 
+						var ruleTab = instance.one('#showRules');
+
+						if (ruleTab.hasClass('disabled')) {
+							return;
+						}
+
 						instance._hideFormBuilder();
 
 						instance._showRuleBuilder();
@@ -1018,6 +1032,8 @@ AUI.add(
 						A.one('.ddm-form-builder-buttons').removeClass('hide');
 
 						A.one('.lfr-ddm-plus-button').removeClass('hide');
+
+						instance.get(STR_TRANSLATION_MANAGER).show();
 
 						instance.one('#showForm').addClass('active');
 					},

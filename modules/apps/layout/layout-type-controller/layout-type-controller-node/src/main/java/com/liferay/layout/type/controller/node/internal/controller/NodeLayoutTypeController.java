@@ -53,6 +53,11 @@ public class NodeLayoutTypeController extends BaseLayoutTypeControllerImpl {
 	}
 
 	@Override
+	public boolean isInstanceable() {
+		return false;
+	}
+
+	@Override
 	public boolean isParentable() {
 		return true;
 	}
@@ -64,6 +69,11 @@ public class NodeLayoutTypeController extends BaseLayoutTypeControllerImpl {
 
 	@Override
 	public boolean isURLFriendliable() {
+		return false;
+	}
+
+	@Override
+	public boolean isWorkflowEnabled() {
 		return false;
 	}
 

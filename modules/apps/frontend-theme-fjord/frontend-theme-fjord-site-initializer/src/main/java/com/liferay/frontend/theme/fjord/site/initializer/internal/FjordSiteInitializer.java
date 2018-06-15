@@ -108,6 +108,7 @@ public class FjordSiteInitializer implements SiteInitializer {
 		try {
 			ServiceContext serviceContext = _createServiceContext(groupId);
 
+			_updateLogo(serviceContext);
 			_updateLookAndFeel(serviceContext);
 
 			Folder folder = _dlAppLocalService.addFolder(
@@ -231,21 +232,19 @@ public class FjordSiteInitializer implements SiteInitializer {
 		while (enumeration.hasMoreElements()) {
 			URL url = enumeration.nextElement();
 
+			String shortFileName = FileUtil.getShortFileName(url.getPath());
 			String html = StringUtil.replace(
 				StringUtil.read(url.openStream()), StringPool.DOLLAR,
 				StringPool.DOLLAR, fileEntriesMap);
-
-			String shortFileName = FileUtil.getShortFileName(url.getPath());
-
-			long previewFileEntryId = _getPreviewFileEntryId(
-				path, shortFileName, serviceContext);
 
 			FragmentEntry fragmentEntry =
 				_fragmentEntryLocalService.addFragmentEntry(
 					serviceContext.getUserId(),
 					serviceContext.getScopeGroupId(), fragmentCollectionId,
-					FileUtil.getShortFileName(url.getPath()), StringPool.BLANK,
-					html, StringPool.BLANK, previewFileEntryId,
+					StringUtil.upperCaseFirstLetter(
+						FileUtil.stripExtension(shortFileName)),
+					StringPool.BLANK, html, StringPool.BLANK,
+					_getPreviewFileEntryId(path, shortFileName, serviceContext),
 					WorkflowConstants.STATUS_APPROVED, serviceContext);
 
 			fragmentEntries.add(fragmentEntry);
@@ -387,6 +386,19 @@ public class FjordSiteInitializer implements SiteInitializer {
 			StringPool.BLANK, bytes, serviceContext);
 
 		return fileEntry.getFileEntryId();
+	}
+
+	private void _updateLogo(ServiceContext serviceContext) throws Exception {
+		URL url = _bundle.getEntry(_PATH + "/images/logo.png");
+
+		byte[] bytes = null;
+
+		try (InputStream is = url.openStream()) {
+			bytes = FileUtil.getBytes(is);
+		}
+
+		_layoutSetLocalService.updateLogo(
+			serviceContext.getScopeGroupId(), false, true, bytes);
 	}
 
 	private void _updateLookAndFeel(ServiceContext serviceContext)

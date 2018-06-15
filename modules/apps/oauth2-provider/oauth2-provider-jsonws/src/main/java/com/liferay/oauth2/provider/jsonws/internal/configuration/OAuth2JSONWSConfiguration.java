@@ -22,7 +22,7 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
  * @author Tomas Polesovsky
  */
 @ExtendedObjectClassDefinition(
-	category = "foundation", scope = ExtendedObjectClassDefinition.Scope.SYSTEM
+	category = "oauth2", scope = ExtendedObjectClassDefinition.Scope.SYSTEM
 )
 @Meta.OCD(
 	id = "com.liferay.oauth2.provider.jsonws.internal.configuration.OAuth2JSONWSConfiguration",
@@ -37,6 +37,15 @@ public interface OAuth2JSONWSConfiguration {
 		name = "oauth2-jsonws-application-description", required = false
 	)
 	public String applicationDescription();
+
+	@Meta.AD(
+		deflt = "true",
+		description = "oauth2-jsonws-create-oauth2-sap-entries-on-startup-description",
+		id = "oauth2.create.oauth2.sap.entries.on.startup",
+		name = "oauth2-jsonws-create-oauth2-sap-entries-on-startup",
+		required = false
+	)
+	public boolean createOAuth2SAPEntriesOnStartup();
 
 	@Meta.AD(
 		deflt = "true",

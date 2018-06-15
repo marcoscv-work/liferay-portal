@@ -116,6 +116,7 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 
 		jobProperties = portalTestClassJob.getJobProperties();
 
+		_setTestReleaseBundle();
 		_setTestRelevantChanges();
 	}
 
@@ -138,12 +139,22 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 	protected String getFirstMatchingPropertyName(
 		String basePropertyName, Properties properties, String testSuiteName) {
 
+		if (basePropertyName.contains("[") || basePropertyName.contains("]")) {
+			throw new RuntimeException(
+				"Invalid base property name " + basePropertyName);
+		}
+
+		Pattern pattern = Pattern.compile(
+			JenkinsResultsParserUtil.combine(
+				basePropertyName, "\\[(?<batchName>[^\\]]+)\\]",
+				"(\\[(?<testSuiteName>[^\\]]+)\\])?"));
+
 		for (String propertyName : properties.stringPropertyNames()) {
 			if (!propertyName.startsWith(basePropertyName)) {
 				continue;
 			}
 
-			Matcher matcher = _propertyNamePattern.matcher(propertyName);
+			Matcher matcher = pattern.matcher(propertyName);
 
 			if (matcher.find()) {
 				String batchNameRegex = matcher.group("batchName");
@@ -168,6 +179,11 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 	}
 
 	protected String getFirstPropertyValue(String basePropertyName) {
+		if (basePropertyName.contains("[") || basePropertyName.contains("]")) {
+			throw new RuntimeException(
+				"Invalid base property name " + basePropertyName);
+		}
+
 		List<String> propertyNames = new ArrayList<>();
 
 		if (testSuiteName != null) {
@@ -213,28 +229,22 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 	}
 
 	protected List<PathMatcher> getPathMatchers(
-		String propertyName, File workingDirectory) {
-
-		String pluginNamesRelativeGlobs = getFirstPropertyValue(propertyName);
-
-		if ((pluginNamesRelativeGlobs == null) ||
-			pluginNamesRelativeGlobs.isEmpty()) {
-
-			return new ArrayList<>();
-		}
+		String relativeGlobs, File workingDirectory) {
 
 		List<PathMatcher> pathMatchers = new ArrayList<>();
 
-		for (String pluginNamesRelativeGlob :
-				pluginNamesRelativeGlobs.split(",")) {
+		if ((relativeGlobs == null) || relativeGlobs.isEmpty()) {
+			return pathMatchers;
+		}
 
+		for (String relativeGlob : relativeGlobs.split(",")) {
 			FileSystem fileSystem = FileSystems.getDefault();
 
 			pathMatchers.add(
 				fileSystem.getPathMatcher(
 					JenkinsResultsParserUtil.combine(
 						"glob:", workingDirectory.getAbsolutePath(), "/",
-						pluginNamesRelativeGlob)));
+						relativeGlob)));
 		}
 
 		return pathMatchers;
@@ -276,8 +286,21 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 	protected final List<PathMatcher> includesPathMatchers = new ArrayList<>();
 	protected final Properties jobProperties;
 	protected final PortalGitWorkingDirectory portalGitWorkingDirectory;
+	protected boolean testReleaseBundle;
 	protected boolean testRelevantChanges;
 	protected final String testSuiteName;
+
+	private void _setTestReleaseBundle() {
+		String propertyValue = getFirstPropertyValue("test.release.bundle");
+
+		if (propertyValue != null) {
+			testReleaseBundle = Boolean.parseBoolean(propertyValue);
+
+			return;
+		}
+
+		testReleaseBundle = _DEFAULT_TEST_RELEASE_BUNDLE;
+	}
 
 	private void _setTestRelevantChanges() {
 		String propertyValue = getFirstPropertyValue("test.relevant.changes");
@@ -293,9 +316,8 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 
 	private static final int _DEFAULT_AXIS_MAX_SIZE = 5000;
 
-	private static final boolean _DEFAULT_TEST_RELEVANT_CHANGES = false;
+	private static final boolean _DEFAULT_TEST_RELEASE_BUNDLE = false;
 
-	private final Pattern _propertyNamePattern = Pattern.compile(
-		"[^\\]]+\\[(?<batchName>[^\\]]+)\\](\\[(?<testSuiteName>[^\\]]+)\\])?");
+	private static final boolean _DEFAULT_TEST_RELEVANT_CHANGES = false;
 
 }

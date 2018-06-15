@@ -4,8 +4,8 @@
 [subrepo]
 	autopull = true
 	cmdver = liferay
-	commit = 158759dfc826b7f6fcced2fbaf6d5eab83561e1d
+	commit = 62bc393e5d617259fda431491c904c7045827e2c
 	mergebuttonmergecommits = false
 	mode = pull
-	parent = d444e24131e8ebe0ab8cb89816246b03c9e47980
+	parent = 9c42f611be456a9eb5d375b496a4dae4d1b45ab4
 	remote = git@github.com:liferay/com-liferay-apio-architect.git

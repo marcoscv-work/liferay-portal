@@ -25,7 +25,6 @@ import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.ModelHintsUtil;
-import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -127,10 +126,6 @@ public class FragmentEntryLocalServiceImpl
 
 		fragmentEntryPersistence.update(fragmentEntry);
 
-		// Resources
-
-		resourceLocalService.addModelResources(fragmentEntry, serviceContext);
-
 		return fragmentEntry;
 	}
 
@@ -224,10 +219,6 @@ public class FragmentEntryLocalServiceImpl
 
 		fragmentEntryPersistence.update(fragmentEntry);
 
-		// Resources
-
-		resourceLocalService.addModelResources(fragmentEntry, serviceContext);
-
 		return fragmentEntry;
 	}
 
@@ -245,13 +236,6 @@ public class FragmentEntryLocalServiceImpl
 		}
 
 		fragmentEntryPersistence.remove(fragmentEntry);
-
-		// Resources
-
-		resourceLocalService.deleteResource(
-			fragmentEntry.getCompanyId(), FragmentEntry.class.getName(),
-			ResourceConstants.SCOPE_INDIVIDUAL,
-			fragmentEntry.getFragmentEntryId());
 
 		return fragmentEntry;
 	}
@@ -356,7 +340,21 @@ public class FragmentEntryLocalServiceImpl
 	@Override
 	public FragmentEntry updateFragmentEntry(
 			long userId, long fragmentEntryId, String name, String css,
-			String html, String js, int status, ServiceContext serviceContext)
+			String html, String js, int status)
+		throws PortalException {
+
+		FragmentEntry fragmentEntry = fragmentEntryPersistence.findByPrimaryKey(
+			fragmentEntryId);
+
+		return updateFragmentEntry(
+			userId, fragmentEntryId, name, css, html, js,
+			fragmentEntry.getPreviewFileEntryId(), status);
+	}
+
+	@Override
+	public FragmentEntry updateFragmentEntry(
+			long userId, long fragmentEntryId, String name, String css,
+			String html, String js, long previewFileEntryId, int status)
 		throws PortalException {
 
 		FragmentEntry fragmentEntry = fragmentEntryPersistence.findByPrimaryKey(
@@ -377,6 +375,7 @@ public class FragmentEntryLocalServiceImpl
 		fragmentEntry.setCss(css);
 		fragmentEntry.setHtml(html);
 		fragmentEntry.setJs(js);
+		fragmentEntry.setPreviewFileEntryId(previewFileEntryId);
 		fragmentEntry.setStatus(status);
 		fragmentEntry.setStatusByUserId(userId);
 		fragmentEntry.setStatusByUserName(user.getFullName());

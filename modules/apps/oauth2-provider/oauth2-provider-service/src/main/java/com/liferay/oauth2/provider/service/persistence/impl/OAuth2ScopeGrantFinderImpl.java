@@ -14,7 +14,9 @@
 
 package com.liferay.oauth2.provider.service.persistence.impl;
 
+import com.liferay.oauth2.provider.model.OAuth2Authorization;
 import com.liferay.oauth2.provider.model.OAuth2ScopeGrant;
+import com.liferay.oauth2.provider.model.impl.OAuth2AuthorizationImpl;
 import com.liferay.oauth2.provider.model.impl.OAuth2ScopeGrantImpl;
 import com.liferay.oauth2.provider.service.persistence.OAuth2ScopeGrantFinder;
 import com.liferay.portal.dao.orm.custom.sql.CustomSQL;
@@ -25,6 +27,7 @@ import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.spring.extender.service.ServiceReference;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -54,14 +57,30 @@ public class OAuth2ScopeGrantFinderImpl
 			QueryPos qPos = QueryPos.getInstance(q);
 
 			q.addEntity("OAuth2ScopeGrant", OAuth2ScopeGrantImpl.class);
+			q.addEntity("OAuth2Authorization", OAuth2AuthorizationImpl.class);
 
 			qPos.add(companyId);
 			qPos.add(applicationName);
 			qPos.add(bundleSymbolicName);
-			qPos.add(accessTokenContent);
+			qPos.add(accessTokenContent.hashCode());
 
-			return (List<OAuth2ScopeGrant>)QueryUtil.list(
+			List<Object[]> rows = (List<Object[]>)QueryUtil.list(
 				q, getDialect(), QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+
+			ArrayList<OAuth2ScopeGrant> oAuth2ScopeGrants = new ArrayList<>();
+
+			for (Object[] row : rows) {
+				OAuth2Authorization oAuth2Authorization =
+					(OAuth2Authorization)row[1];
+
+				if (accessTokenContent.equals(
+						oAuth2Authorization.getAccessTokenContent())) {
+
+					oAuth2ScopeGrants.add((OAuth2ScopeGrant)row[0]);
+				}
+			}
+
+			return oAuth2ScopeGrants;
 		}
 		catch (Exception e) {
 			throw new SystemException(e);

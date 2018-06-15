@@ -14,6 +14,8 @@
 
 package com.liferay.jenkins.results.parser;
 
+import com.google.common.collect.Lists;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -345,7 +347,7 @@ public class GitWorkingDirectory {
 			}
 		}
 
-		return getBranch(branchName, null);
+		return getBranch(branchName, null, true);
 	}
 
 	public String createPullRequest(
@@ -376,26 +378,7 @@ public class GitWorkingDirectory {
 	}
 
 	public void deleteBranch(Branch branch) {
-		if (!branchExists(branch.getName(), branch.getRemote())) {
-			return;
-		}
-
-		if (branch.getRemote() != null) {
-			pushToRemote(true, null, branch);
-
-			return;
-		}
-
-		ExecutionResult executionResult = executeBashCommands(
-			_MAX_RETRIES, _RETRY_DELAY, _TIMEOUT,
-			"git branch -f -D " + branch.getName());
-
-		if (executionResult.getExitValue() != 0) {
-			throw new RuntimeException(
-				JenkinsResultsParserUtil.combine(
-					"Unable to delete local branch ", branch.getName(), "\n",
-					executionResult.getStandardError()));
-		}
+		deleteBranches(Arrays.asList(branch));
 	}
 
 	public void deleteBranch(String branchName, Remote remote) {
@@ -405,6 +388,51 @@ public class GitWorkingDirectory {
 
 		if (branch != null) {
 			deleteBranch(branch);
+		}
+	}
+
+	public void deleteBranches(List<Branch> branches) {
+		Map<Remote, List<String>> remoteBranchNameMap = new HashMap<>();
+
+		for (Branch branch : branches) {
+			if (!remoteBranchNameMap.containsKey(branch.getRemote())) {
+				remoteBranchNameMap.put(
+					branch.getRemote(), new ArrayList<String>());
+			}
+
+			List<String> branchNames = remoteBranchNameMap.get(
+				branch.getRemote());
+
+			branchNames.add(branch.getName());
+		}
+
+		for (Map.Entry<Remote, List<String>> remoteBranchNamesEntry :
+				remoteBranchNameMap.entrySet()) {
+
+			Remote remote = remoteBranchNamesEntry.getKey();
+
+			if (remote != null) {
+				for (List<String> branchNames :
+						Lists.partition(
+							remoteBranchNamesEntry.getValue(),
+							_DELETE_BRANCHES_BATCH_SIZE)) {
+
+					_deleteRemoteBranches(
+						remote,
+						branchNames.toArray(new String[branchNames.size()]));
+				}
+
+				continue;
+			}
+
+			for (List<String> branchNames :
+					Lists.partition(
+						remoteBranchNamesEntry.getValue(),
+						_DELETE_BRANCHES_BATCH_SIZE)) {
+
+				_deleteLocalBranches(
+					branchNames.toArray(new String[branchNames.size()]));
+			}
 		}
 	}
 
@@ -522,12 +550,25 @@ public class GitWorkingDirectory {
 	}
 
 	public Branch getBranch(String branchName, Remote remote) {
+		return getBranch(branchName, remote, false);
+	}
+
+	public Branch getBranch(
+		String branchName, Remote remote, boolean required) {
+
 		if (branchName.equals("HEAD") && (remote == null)) {
 			ExecutionResult executionResult = executeBashCommands(
 				_MAX_RETRIES, _RETRY_DELAY, _TIMEOUT,
 				"git rev-parse --abbrev-ref " + branchName);
 
 			if (executionResult.getExitValue() != 0) {
+				if (required) {
+					throw new RuntimeException(
+						JenkinsResultsParserUtil.combine(
+							"Unable to find required local branch ",
+							branchName));
+				}
+
 				return null;
 			}
 
@@ -538,6 +579,13 @@ public class GitWorkingDirectory {
 			branchName = branchName.trim();
 
 			if (branchName.isEmpty()) {
+				if (required) {
+					throw new RuntimeException(
+						JenkinsResultsParserUtil.combine(
+							"Unable to find required local branch ",
+							branchName));
+				}
+
 				return null;
 			}
 
@@ -550,6 +598,13 @@ public class GitWorkingDirectory {
 			if (branchName.equals(branch.getName())) {
 				return branch;
 			}
+		}
+
+		if (required) {
+			throw new RuntimeException(
+				JenkinsResultsParserUtil.combine(
+					"Unable to find required branch ", branchName,
+					" from remote URL " + remote.getRemoteURL()));
 		}
 
 		return null;
@@ -837,7 +892,7 @@ public class GitWorkingDirectory {
 				pullRequest.getSenderRemoteURL());
 
 			Branch remoteSenderBranch = getBranch(
-				pullRequest.getSenderBranchName(), senderTempRemote);
+				pullRequest.getSenderBranchName(), senderTempRemote, true);
 
 			fetch(null, remoteSenderBranch);
 
@@ -848,7 +903,7 @@ public class GitWorkingDirectory {
 			Remote upstreamRemote = getRemote("upstream");
 
 			Branch remoteUpstreamBranch = getBranch(
-				pullRequest.getUpstreamBranchName(), upstreamRemote);
+				pullRequest.getUpstreamBranchName(), upstreamRemote, true);
 
 			if (!localSHAExists(remoteUpstreamBranch.getSHA())) {
 				fetch(null, remoteUpstreamBranch);
@@ -878,10 +933,20 @@ public class GitWorkingDirectory {
 	}
 
 	public List<File> getModifiedFilesList() {
-		return getModifiedFilesList(null);
+		return getModifiedFilesList(null, false);
+	}
+
+	public List<File> getModifiedFilesList(boolean checkUnstagedFiles) {
+		return getModifiedFilesList(null, checkUnstagedFiles);
 	}
 
 	public List<File> getModifiedFilesList(String grepPredicateString) {
+		return getModifiedFilesList(grepPredicateString, false);
+	}
+
+	public List<File> getModifiedFilesList(
+		String grepPredicateString, boolean checkUnstagedFiles) {
+
 		List<File> modifiedFiles = new ArrayList<>();
 
 		Branch currentBranch = getCurrentBranch();
@@ -891,19 +956,26 @@ public class GitWorkingDirectory {
 				"Unable to determine the current branch");
 		}
 
-		String bashCommand = JenkinsResultsParserUtil.combine(
-			"git diff --diff-filter=AM --name-only ",
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("git diff --diff-filter=AM --name-only ");
+
+		sb.append(
 			_getMergeBaseCommitSHA(
-				currentBranch, getBranch(_upstreamBranchName, null)),
-			" ", currentBranch.getSHA());
+				currentBranch, getBranch(_upstreamBranchName, null, true)));
+
+		if (!checkUnstagedFiles) {
+			sb.append(" ");
+			sb.append(currentBranch.getSHA());
+		}
 
 		if ((grepPredicateString != null) && !grepPredicateString.isEmpty()) {
-			bashCommand = JenkinsResultsParserUtil.combine(
-				bashCommand, " | grep ", grepPredicateString);
+			sb.append(" | grep ");
+			sb.append(grepPredicateString);
 		}
 
 		ExecutionResult executionResult = executeBashCommands(
-			_MAX_RETRIES, _RETRY_DELAY, _TIMEOUT, bashCommand);
+			_MAX_RETRIES, _RETRY_DELAY, _TIMEOUT, sb.toString());
 
 		if (executionResult.getExitValue() == 1) {
 			return modifiedFiles;
@@ -1828,6 +1900,90 @@ public class GitWorkingDirectory {
 		}
 	}
 
+	private boolean _deleteLocalBranches(String... branchNames) {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("git branch -D -f ");
+
+		String joinedBranchNames = JenkinsResultsParserUtil.join(
+			" ", branchNames);
+
+		sb.append(joinedBranchNames);
+
+		ExecutionResult executionResult = null;
+
+		boolean exceptionThrown = false;
+
+		try {
+			executionResult = executeBashCommands(
+				_MAX_RETRIES, _RETRY_DELAY, 1000 * 60 * 10, sb.toString());
+		}
+		catch (RuntimeException re) {
+			exceptionThrown = true;
+		}
+
+		if (exceptionThrown || (executionResult._exitValue != 0)) {
+			System.out.println(
+				JenkinsResultsParserUtil.combine(
+					"Unable to delete local branches:", "\n    ",
+					joinedBranchNames.replaceAll("\\s", "\n    "), "\n",
+					executionResult.getStandardError()));
+
+			return false;
+		}
+
+		System.out.println(
+			JenkinsResultsParserUtil.combine(
+				"Deleted local branches:", "\n    ",
+				joinedBranchNames.replaceAll("\\s", "\n    ")));
+
+		return true;
+	}
+
+	private boolean _deleteRemoteBranches(
+		Remote remote, String... branchNames) {
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("git push --delete ");
+		sb.append(remote.getName());
+		sb.append(" ");
+
+		String joinedBranchNames = JenkinsResultsParserUtil.join(
+			" ", branchNames);
+
+		sb.append(joinedBranchNames);
+
+		ExecutionResult executionResult = null;
+
+		boolean exceptionThrown = false;
+
+		try {
+			executionResult = executeBashCommands(
+				_MAX_RETRIES, _RETRY_DELAY, 1000 * 60 * 10, sb.toString());
+		}
+		catch (RuntimeException re) {
+			exceptionThrown = true;
+		}
+
+		if (exceptionThrown || (executionResult._exitValue != 0)) {
+			System.out.println(
+				JenkinsResultsParserUtil.combine(
+					"Unable to delete ", remote.getName(), " branches:",
+					"\n    ", joinedBranchNames.replaceAll("\\s", "\n    "),
+					"\n", executionResult.getStandardError()));
+
+			return false;
+		}
+
+		System.out.println(
+			JenkinsResultsParserUtil.combine(
+				"Deleted ", remote.getName(), " branches:", "\n    ",
+				joinedBranchNames.replaceAll("\\s", "\n    ")));
+
+		return true;
+	}
+
 	private String _getMergeBaseCommitSHA(Branch... branches) {
 		if (branches.length < 2) {
 			throw new IllegalArgumentException(
@@ -1896,6 +2052,8 @@ public class GitWorkingDirectory {
 
 		return result.getStandardOut();
 	}
+
+	private static final int _DELETE_BRANCHES_BATCH_SIZE = 5;
 
 	private static final int _MAX_RETRIES = 1;
 

@@ -119,6 +119,7 @@ import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
+import org.dom4j.DocumentType;
 import org.dom4j.Element;
 import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
@@ -597,6 +598,20 @@ public class ServiceBuilder {
 				new XMLSafeReader(
 					ToolsUtil.getContent(_normalize(inputFileName))));
 
+			DocumentType documentType = document.getDocType();
+
+			Matcher matcher = _dtdVersionPattern.matcher(
+				documentType.getSystemID());
+
+			if (matcher.matches()) {
+				_dtdVersion = Version.getInstance(
+					StringUtil.replace(matcher.group(1), '_', '.'));
+			}
+			else {
+				throw new IllegalArgumentException(
+					"Unable to parse DTD version for " + inputFileName);
+			}
+
 			Element rootElement = document.getRootElement();
 
 			String packagePath = rootElement.attributeValue("package-path");
@@ -878,7 +893,6 @@ public class ServiceBuilder {
 
 					_createUADBnd(uadApplicationName);
 					_createUADConstants(uadApplicationName);
-					_createUADLanguageProperties(uadApplicationName);
 					_createUADTestBnd(uadApplicationName);
 				}
 
@@ -1841,6 +1855,16 @@ public class ServiceBuilder {
 		}
 
 		if (txRequiredMethodNames.contains(javaMethod.getName())) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public boolean isVersionGTE_7_1_0() {
+		if (_dtdVersion.isSameVersionAs("7.1.0") ||
+			_dtdVersion.isLaterVersionThan("7.1.0")) {
+
 			return true;
 		}
 
@@ -3980,7 +4004,7 @@ public class ServiceBuilder {
 
 		String uadDirName = uadOutputPath.substring(0, index);
 
-		File file = new File(StringBundler.concat(uadDirName, "/bnd.bnd"));
+		File file = new File(uadDirName + "/bnd.bnd");
 
 		if (!file.exists()) {
 			ToolsUtil.writeFileRaw(file, content, _modifiedFileNames);
@@ -4099,39 +4123,6 @@ public class ServiceBuilder {
 		}
 	}
 
-	private void _createUADLanguageProperties(String uadApplicationName)
-		throws Exception {
-
-		Map<String, Object> context = _getContext();
-
-		List<Entity> entities = _uadApplicationEntities.get(uadApplicationName);
-
-		Entity entity = entities.get(0);
-
-		context.put("uadApplicationName", uadApplicationName);
-		context.put("uadPackagePath", entity.getUADPackagePath());
-
-		// Content
-
-		String content = _processTemplate(_tplUADLangugageProperties, context);
-
-		// Write file
-
-		String uadOutputPath = entity.getUADOutputPath();
-
-		int index = uadOutputPath.indexOf("/src/");
-
-		String uadDirName = uadOutputPath.substring(0, index);
-
-		File file = new File(
-			StringBundler.concat(
-				uadDirName, "/src/main/resources/content/Language.properties"));
-
-		if (!file.exists()) {
-			ToolsUtil.writeFileRaw(file, content, _modifiedFileNames);
-		}
-	}
-
 	private void _createUADTestBnd(String uadApplicationName) throws Exception {
 		Map<String, Object> context = _getContext();
 
@@ -4156,8 +4147,7 @@ public class ServiceBuilder {
 		String uadTestIntegrationDirName =
 			uadTestIntegrationOutputPath.substring(0, index);
 
-		File file = new File(
-			StringBundler.concat(uadTestIntegrationDirName, "/bnd.bnd"));
+		File file = new File(uadTestIntegrationDirName + "/bnd.bnd");
 
 		if (!file.exists()) {
 			ToolsUtil.writeFileRaw(file, content, _modifiedFileNames);
@@ -5487,6 +5477,8 @@ public class ServiceBuilder {
 			entityElement.attributeValue("uuid"));
 		boolean uuidAccessor = GetterUtil.getBoolean(
 			entityElement.attributeValue("uuid-accessor"));
+		boolean externalReferenceCode = GetterUtil.getBoolean(
+			entityElement.attributeValue("external-reference-code"));
 		boolean localService = GetterUtil.getBoolean(
 			entityElement.attributeValue("local-service"));
 		boolean remoteService = GetterUtil.getBoolean(
@@ -5607,14 +5599,7 @@ public class ServiceBuilder {
 
 		List<Element> columnElements = entityElement.elements("column");
 
-		if (uuid) {
-			Element columnElement = DocumentHelper.createElement("column");
-
-			columnElement.addAttribute("name", "uuid");
-			columnElement.addAttribute("type", "String");
-
-			columnElements.add(0, columnElement);
-		}
+		List<Element> derivedColumnElements = new ArrayList<>();
 
 		if (mvccEnabled && !columnElements.isEmpty()) {
 			Element columnElement = DocumentHelper.createElement("column");
@@ -5622,7 +5607,25 @@ public class ServiceBuilder {
 			columnElement.addAttribute("name", "mvccVersion");
 			columnElement.addAttribute("type", "long");
 
-			columnElements.add(0, columnElement);
+			derivedColumnElements.add(columnElement);
+		}
+
+		if (uuid) {
+			Element columnElement = DocumentHelper.createElement("column");
+
+			columnElement.addAttribute("name", "uuid");
+			columnElement.addAttribute("type", "String");
+
+			derivedColumnElements.add(columnElement);
+		}
+
+		if (externalReferenceCode) {
+			Element columnElement = DocumentHelper.createElement("column");
+
+			columnElement.addAttribute("name", "externalReferenceCode");
+			columnElement.addAttribute("type", "String");
+
+			derivedColumnElements.add(columnElement);
 		}
 
 		if (versioned) {
@@ -5631,7 +5634,7 @@ public class ServiceBuilder {
 			columnElement.addAttribute("name", "headId");
 			columnElement.addAttribute("type", "long");
 
-			columnElements.add(columnElement);
+			derivedColumnElements.add(columnElement);
 		}
 
 		Element localizedEntityElement = entityElement.element(
@@ -5643,8 +5646,10 @@ public class ServiceBuilder {
 			columnElement.addAttribute("name", "defaultLanguageId");
 			columnElement.addAttribute("type", "String");
 
-			columnElements.add(columnElement);
+			derivedColumnElements.add(columnElement);
 		}
+
+		columnElements.addAll(0, derivedColumnElements);
 
 		for (Element columnElement : columnElements) {
 			String columnName = columnElement.attributeValue("name");
@@ -5889,6 +5894,27 @@ public class ServiceBuilder {
 			finderElements.add(0, finderElement);
 		}
 
+		if (externalReferenceCode) {
+			if (entityColumns.contains(new EntityColumn("companyId"))) {
+				Element finderElement = DocumentHelper.createElement("finder");
+
+				finderElement.addAttribute("name", "C_ERC");
+				finderElement.addAttribute("return-type", entityName);
+
+				Element finderColumnElement = finderElement.addElement(
+					"finder-column");
+
+				finderColumnElement.addAttribute("name", "companyId");
+
+				finderColumnElement = finderElement.addElement("finder-column");
+
+				finderColumnElement.addAttribute(
+					"name", "externalReferenceCode");
+
+				finderElements.add(finderElement);
+			}
+		}
+
 		if (permissionedModel) {
 			Element finderElement = DocumentHelper.createElement("finder");
 
@@ -6063,15 +6089,16 @@ public class ServiceBuilder {
 
 		Entity entity = new Entity(
 			_packagePath, _apiPackagePath, _portletShortName, entityName,
-			humanName, tableName, alias, uuid, uuidAccessor, localService,
-			remoteService, persistenceClassName, finderClassName, dataSource,
-			sessionFactory, txManager, cacheEnabled, dynamicUpdateEnabled,
-			jsonEnabled, mvccEnabled, trashEnabled, uadApplicationName,
-			uadAutoDelete, uadOutputPath, uadPackagePath, deprecated,
-			pkEntityColumns, regularEntityColumns, blobEntityColumns,
-			collectionEntityColumns, entityColumns, entityOrder, entityFinders,
-			referenceEntities, unresolvedReferenceEntityNames,
-			txRequiredMethodNames, resourceActionModel);
+			humanName, tableName, alias, uuid, uuidAccessor,
+			externalReferenceCode, localService, remoteService,
+			persistenceClassName, finderClassName, dataSource, sessionFactory,
+			txManager, cacheEnabled, dynamicUpdateEnabled, jsonEnabled,
+			mvccEnabled, trashEnabled, uadApplicationName, uadAutoDelete,
+			uadOutputPath, uadPackagePath, deprecated, pkEntityColumns,
+			regularEntityColumns, blobEntityColumns, collectionEntityColumns,
+			entityColumns, entityOrder, entityFinders, referenceEntities,
+			unresolvedReferenceEntityNames, txRequiredMethodNames,
+			resourceActionModel);
 
 		_entities.add(entity);
 
@@ -7019,6 +7046,8 @@ public class ServiceBuilder {
 		"\\s+([^=]*)=\\s*\"([^\"]*)\"");
 	private static Pattern _beansPattern = Pattern.compile("<beans[^>]*>");
 	private static Configuration _configuration;
+	private static final Pattern _dtdVersionPattern = Pattern.compile(
+		".*service-builder_([^\\.]+)\\.dtd");
 	private static Pattern _getterPattern = Pattern.compile(
 		StringBundler.concat(
 			"public .* get.*", Pattern.quote("("), "|public boolean is.*",
@@ -7043,6 +7072,7 @@ public class ServiceBuilder {
 	private boolean _commercialPlugin;
 	private String _currentTplName;
 	private int _databaseNameMaxLength = 30;
+	private Version _dtdVersion;
 	private List<Entity> _entities;
 	private Map<String, EntityMapping> _entityMappings;
 	private Map<String, Entity> _entityPool = new HashMap<>();
@@ -7124,8 +7154,6 @@ public class ServiceBuilder {
 	private String _tplUADDisplayTest = _TPL_ROOT + "uad_display_test.ftl";
 	private String _tplUADExporter = _TPL_ROOT + "uad_exporter.ftl";
 	private String _tplUADExporterTest = _TPL_ROOT + "uad_exporter_test.ftl";
-	private String _tplUADLangugageProperties =
-		_TPL_ROOT + "uad_language_properties.ftl";
 	private String _tplUADTestBnd = _TPL_ROOT + "uad_test_bnd.ftl";
 	private String _tplUADTestHelper = _TPL_ROOT + "uad_test_helper.ftl";
 	private Map<String, List<Entity>> _uadApplicationEntities = new HashMap<>();

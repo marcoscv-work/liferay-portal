@@ -100,9 +100,9 @@ SelectLayoutPageTemplateEntryDisplayContext selectLayoutPageTemplateEntryDisplay
 
 								<div class="autofit-col autofit-col-expand autofit-col-gutters">
 									<section class="autofit-section">
-										<h3 class="card-title" title="ReallySuperInsanelyJustIncrediblyLongAndTotallyNotPossibleWordButWeAreReallyTryingToCoverAllOurBasesHereJustInCaseSomeoneIsNutsAsPerUsual">
+										<h3 class="card-title">
 											<span class="text-truncate-inline">
-												<a class="add-layout-action-option text-truncate" data-type="<%= type %>" href="javascript:;"><%= LanguageUtil.get(request, layoutTypeResourceBundle, "layout.types." + type) %></a>
+												<a class="add-layout-action-option text-truncate" data-type="<%= type %>" href="javascript:;" title="<%= LanguageUtil.get(request, layoutTypeResourceBundle, "layout.types." + type) %>"><%= LanguageUtil.get(request, layoutTypeResourceBundle, "layout.types." + type) %></a>
 											</span>
 										</h3>
 									</section>
@@ -122,7 +122,6 @@ SelectLayoutPageTemplateEntryDisplayContext selectLayoutPageTemplateEntryDisplay
 
 <portlet:actionURL name="/layout/add_simple_layout" var="addLayoutURL">
 	<portlet:param name="mvcPath" value="/select_layout_page_template_entry.jsp" />
-	<portlet:param name="redirect" value="<%= layoutsAdminDisplayContext.getRedirect() %>" />
 	<portlet:param name="portletResource" value="<%= layoutsAdminDisplayContext.getPortletResource() %>" />
 	<portlet:param name="groupId" value="<%= String.valueOf(layoutsAdminDisplayContext.getGroupId()) %>" />
 	<portlet:param name="liveGroupId" value="<%= String.valueOf(layoutsAdminDisplayContext.getLiveGroupId()) %>" />
