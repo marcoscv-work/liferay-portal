@@ -99,6 +99,12 @@
 		text-decoration: none;
 	}
 
+	.logo {
+		@include sm {
+			line-height: 76px;
+		}
+	}
+
 	.navbar-toggle {
 		margin: 12px 0;
 	}
@@ -245,7 +251,7 @@
 			width: 100%;
 		}
 
-		.portlet-content {
+		.portlet-content .input-container {
 			position: relative;
 		}
 
@@ -283,7 +289,7 @@
 			margin-bottom: 0;
 			position: absolute;
 			right: 0;
-			top: 2px;
+			top: 4px;
 		}
 	}
 }
