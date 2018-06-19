@@ -20,9 +20,12 @@ import com.liferay.document.library.kernel.util.DLUtil;
 import com.liferay.dynamic.data.mapping.util.DefaultDDMStructureHelper;
 import com.liferay.fragment.model.FragmentCollection;
 import com.liferay.fragment.model.FragmentEntry;
+import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.model.FragmentEntryModel;
 import com.liferay.fragment.service.FragmentCollectionLocalService;
+import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.fragment.service.FragmentEntryLocalService;
+import com.liferay.journal.constants.JournalContentPortletKeys;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
@@ -36,13 +39,17 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portlet.PortletIdCodec;
+import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
+import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutSetLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -51,6 +58,7 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -115,6 +123,7 @@ public class WesterosBankSiteInitializer implements SiteInitializer {
 		try {
 			ServiceContext serviceContext = _createServiceContext(groupId);
 
+			_updateLogo(serviceContext);
 			_updateLookAndFeel(serviceContext);
 
 			Folder folder = _dlAppLocalService.addFolder(
@@ -192,7 +201,6 @@ public class WesterosBankSiteInitializer implements SiteInitializer {
 				Collections.singletonMap(LocaleUtil.US, "Carousel"), null, content,
 				"CAROUSEL", "CAROUSEL", serviceContext);
 
-
 			LayoutPageTemplateEntry personalLayoutPageTemplate = _addLayoutPageTemplateEntry(
 				layoutPageTemplateCollection.
 					getLayoutPageTemplateCollectionId(),
@@ -204,16 +212,67 @@ public class WesterosBankSiteInitializer implements SiteInitializer {
 				personalLayoutPageTemplate.getLayoutPageTemplateEntryId(),
 				serviceContext);
 
-			_addLayout("Checking and Credit Cards", personalLayout.getLayoutId(), serviceContext);
-			_addLayout("Savings and Investments", personalLayout.getLayoutId(), serviceContext);
-			_addLayout("Loans and Mortgages", personalLayout.getLayoutId(), serviceContext);
-			_addLayout("Assurance", personalLayout.getLayoutId(), serviceContext);
+			List<FragmentEntryLink> fragmentEntryLinks =
+				_fragmentEntryLinkLocalService.getFragmentEntryLinks(
+					personalLayout.getGroupId(),
+					_portal.getClassNameId(Layout.class),
+					personalLayout.getPlid()
+				);
 
+			for (FragmentEntryLink fragmentEntryLink : fragmentEntryLinks) {
+				if (fragmentEntryLink.getFragmentEntryId() ==
+					carouselFragmentEntry.getFragmentEntryId()) {
+						AssetEntry assetEntry = _assetEntryLocalService.fetchEntry(
+							_portal.getClassNameId(JournalArticle.class),
+							article.getResourcePrimKey());
 
+						Map<String, String> preferencesMap = new HashMap<>();
 
+						preferencesMap.put("articleId", article.getArticleId());
+						preferencesMap.put("assetEntryId", String.valueOf(assetEntry.getEntryId()));
+						preferencesMap.put("groupId", String.valueOf(article.getGroupId()));
 
+						URL carouselPreferencesURL = _bundle.getEntry(_PATH + "/ddm/content/preferences.xml");
 
+						String defaultPreferences = StringUtil.replace(
+							StringUtil.read(carouselPreferencesURL.openStream()), StringPool.DOLLAR,
+							StringPool.DOLLAR, preferencesMap);
 
+						String portletId = PortletIdCodec.encode(
+							PortletIdCodec.decodePortletName(JournalContentPortletKeys.JOURNAL_CONTENT),
+							PortletIdCodec.decodeUserId(JournalContentPortletKeys.JOURNAL_CONTENT), fragmentEntryLink.getNamespace());
+
+						PortletPreferencesFactoryUtil.getLayoutPortletSetup(
+							personalLayout.getCompanyId(), 0, PortletKeys.PREFS_OWNER_TYPE_LAYOUT,
+							personalLayout.getPlid(), portletId, defaultPreferences);
+				}
+			}
+
+			Layout checkingLayout = _addLayout("Checking and Credit Cards", personalLayout.getLayoutId(), serviceContext);
+
+			_addLayout("All credit cards", checkingLayout.getLayoutId(), serviceContext);
+			_addLayout("Check your eligibility", checkingLayout.getLayoutId(), serviceContext);
+			_addLayout("Balance-transfer credit cards", checkingLayout.getLayoutId(), serviceContext);
+			_addLayout("Purchase credit card", checkingLayout.getLayoutId(), serviceContext);
+
+			Layout savingsLayout = _addLayout("Savings and Investments", personalLayout.getLayoutId(), serviceContext);
+
+			_addLayout("Compare Savings accounts", savingsLayout.getLayoutId(), serviceContext);
+			_addLayout("Everyday Saver", savingsLayout.getLayoutId(), serviceContext);
+			_addLayout("Children's Instant Saver", savingsLayout.getLayoutId(), serviceContext);
+			_addLayout("All interest rates", savingsLayout.getLayoutId(), serviceContext);
+
+			Layout loansLayout = _addLayout("Loans and Mortgages", personalLayout.getLayoutId(), serviceContext);
+
+			_addLayout("Mortgages", loansLayout.getLayoutId(), serviceContext);
+			_addLayout("All mortgage products", loansLayout.getLayoutId(), serviceContext);
+			_addLayout("Mortgate rates and charges", loansLayout.getLayoutId(), serviceContext);
+
+			Layout assuranceLayout = _addLayout("Assurance", personalLayout.getLayoutId(), serviceContext);
+
+			_addLayout("Travel Insurance", assuranceLayout.getLayoutId(), serviceContext);
+			_addLayout("Home insurance", assuranceLayout.getLayoutId(), serviceContext);
+			_addLayout("Life insurance", assuranceLayout.getLayoutId(), serviceContext);
 
 			List<FragmentEntry> businessFragmentEntries = new ArrayList<>();
 
@@ -461,6 +520,19 @@ public class WesterosBankSiteInitializer implements SiteInitializer {
 		return fileEntry.getFileEntryId();
 	}
 
+	private void _updateLogo(ServiceContext serviceContext) throws Exception {
+		URL url = _bundle.getEntry(_PATH + "/images/logo.png");
+
+		byte[] bytes = null;
+
+		try (InputStream is = url.openStream()) {
+			bytes = FileUtil.getBytes(is);
+		}
+
+		_layoutSetLocalService.updateLogo(
+			serviceContext.getScopeGroupId(), false, true, bytes);
+	}
+
 	private void _updateLookAndFeel(ServiceContext serviceContext)
 		throws PortalException {
 
@@ -495,6 +567,9 @@ public class WesterosBankSiteInitializer implements SiteInitializer {
 	private Bundle _bundle;
 
 	@Reference
+	private AssetEntryLocalService _assetEntryLocalService;
+
+	@Reference
 	private DefaultDDMStructureHelper _defaultDDMStructureHelper;
 
 	@Reference
@@ -502,6 +577,9 @@ public class WesterosBankSiteInitializer implements SiteInitializer {
 
 	@Reference
 	private FragmentCollectionLocalService _fragmentCollectionLocalService;
+
+	@Reference
+	private FragmentEntryLinkLocalService _fragmentEntryLinkLocalService;
 
 	@Reference
 	private FragmentEntryLocalService _fragmentEntryLocalService;
