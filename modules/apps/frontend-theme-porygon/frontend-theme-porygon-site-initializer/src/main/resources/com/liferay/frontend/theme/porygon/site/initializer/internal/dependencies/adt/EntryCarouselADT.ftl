@@ -1,0 +1,56 @@
+<#if entries?has_content>
+	${request.setAttribute("displayMode", 3)}
+
+	<section class="blog-carousel main-carousel-wrapper" id="<@portlet.namespace />">
+		<div class="carousel slide" data-ride="carousel" id="<@portlet.namespace />-main-carousel">
+			<ol class="carousel-indicators hidden-sm hidden-xs">
+				<#list entries as indiEntry>
+					<li class="${(indiEntry?counter == 1)?then('active', '')}" data-slide-to="${(indiEntry?counter == 1)?then(0, (indiEntry?counter - 1))}" data-target="<@portlet.namespace />-main-carousel"></li>
+				</#list>
+			</ol>
+
+			<div class="carousel-inner gallery-xxl" role="listbox">
+				<#list entries as curEntry>
+					<div class="${(curEntry?counter == 1)?then('active', '')} item">
+						<#assign
+							assetRenderer = curEntry.getAssetRenderer()
+							viewURL = !stringUtil.equals(assetLinkBehavior, "showFullContent")?then(assetPublisherHelper.getAssetViewURL(renderRequest, renderResponse, curEntry, true), assetPublisherHelper.getAssetViewURL(renderRequest, renderResponse, curEntry))
+						/>
+
+						${request.setAttribute("viewURL", viewURL )}
+						${request.setAttribute("author", portalUtil.getUserName(assetRenderer.getUserId(), assetRenderer.getUserName()) )}
+
+						<@liferay_ui["asset-display"]
+							assetEntry=curEntry
+							template="full_content"
+						/>
+					</div>
+				</#list>
+			</div>
+
+			<a class="carousel-control left" data-slide="prev" href="#<@portlet.namespace />-main-carousel" role="button">
+				<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+
+				<span class="sr-only">Previous</span>
+			</a>
+
+			<a class="carousel-control right" data-slide="next" href="#<@portlet.namespace />-main-carousel" role="button">
+				<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+
+				<span class="sr-only">Next</span>
+			</a>
+		</div>
+	</section>
+<#else>
+	<#if !themeDisplay.isSignedIn()>
+		${renderRequest.setAttribute("PORTLET_CONFIGURATOR_VISIBILITY", true)}
+	</#if>
+
+	<div class="alert alert-info">
+		<@liferay_ui["message"] key="there-are-no-results" />
+	</div>
+
+	${request.setAttribute("author", "" )}
+	${request.setAttribute("displayMode", 0)}
+	${request.setAttribute("viewURL", "" )}
+</#if>
