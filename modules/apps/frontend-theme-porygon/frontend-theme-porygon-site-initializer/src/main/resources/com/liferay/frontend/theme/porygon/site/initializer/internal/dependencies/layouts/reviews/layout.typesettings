@@ -1,0 +1,3 @@
+column-1=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_reviews1,com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_reviews2
+layout-template-id=1_column
+privateLayout=true

@@ -14,7 +14,7 @@
 					<div class="${(curEntry?counter == 1)?then('active', '')} item">
 						<#assign
 							assetRenderer = curEntry.getAssetRenderer()
-							viewURL = !stringUtil.equals(assetLinkBehavior, "showFullContent")?then(assetPublisherHelper.getAssetViewURL(renderRequest, renderResponse, curEntry, true), assetPublisherHelper.getAssetViewURL(renderRequest, renderResponse, curEntry))
+							viewURL = (!stringUtil.equals(assetLinkBehavior, "showFullContent"))?then(assetPublisherHelper.getAssetViewURL(renderRequest, renderResponse, curEntry, true), assetPublisherHelper.getAssetViewURL(renderRequest, renderResponse, curEntry))
 						/>
 
 						${request.setAttribute("viewURL", viewURL )}
