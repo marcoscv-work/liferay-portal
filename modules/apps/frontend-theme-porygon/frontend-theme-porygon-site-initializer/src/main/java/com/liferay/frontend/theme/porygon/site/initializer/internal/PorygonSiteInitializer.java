@@ -14,12 +14,17 @@
 
 package com.liferay.frontend.theme.porygon.site.initializer.internal;
 
+import com.liferay.asset.display.page.constants.AssetDisplayPageConstants;
 import com.liferay.asset.display.page.service.AssetDisplayPageEntryLocalService;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
+import com.liferay.asset.publisher.constants.AssetPublisherPortletKeys;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.document.library.kernel.util.DLUtil;
+import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
+import com.liferay.dynamic.data.mapping.kernel.DDMStructureManagerUtil;
+import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.model.DDMTemplateConstants;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
 import com.liferay.dynamic.data.mapping.util.DefaultDDMStructureHelper;
@@ -34,9 +39,7 @@ import com.liferay.journal.constants.JournalContentPortletKeys;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
-import com.liferay.layout.page.template.model.LayoutPageTemplateCollection;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
-import com.liferay.layout.page.template.service.LayoutPageTemplateCollectionLocalService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -142,18 +145,15 @@ public class PorygonSiteInitializer implements SiteInitializer {
 			Map<String, String> fileEntriesPathMap = _getFileEntriesPathMap(
 				fileEntries);
 
-			_addDDMStructures(serviceContext);
+			DDMStructure ddmStructure = _addDDMStructure(serviceContext);
 
-			_addDDMTemplates(serviceContext);
+			List<DDMTemplate> ddmTemplates = _addDDMTemplates(serviceContext);
 
 			_addJournalArticles(
 				_getFileEntriesMap(fileEntries), serviceContext);
 
 			FragmentCollection fragmentCollection = _addFragmentCollection(
 				serviceContext);
-
-			LayoutPageTemplateCollection layoutPageTemplateCollection =
-				_addLayoutPageTemplateCollection(serviceContext);
 
 			List<FragmentEntry> fragmentEntries = _addFragmentEntries(
 				fragmentCollection.getFragmentCollectionId(),
@@ -167,13 +167,29 @@ public class PorygonSiteInitializer implements SiteInitializer {
 			entryFragmentEntries.add(fragmentEntriesMap.get("entry"));
 
 			_addLayoutPageTemplateEntry(
-				layoutPageTemplateCollection, "Blog Entry",
-				entryFragmentEntries, _PATH + "/page_templates", "personal.jpg",
-				serviceContext);
+				"Blog Entry", entryFragmentEntries, _PATH + "/page_templates",
+				"personal.jpg", serviceContext);
+
+			Map<String, String> portletPreferencesMap = new HashMap<>();
+
+			portletPreferencesMap.put(
+				"classNameId",
+				String.valueOf(_portal.getClassNameId(JournalArticle.class)));
+
+			for (DDMTemplate ddmTemplate : ddmTemplates) {
+				portletPreferencesMap.put(
+					ddmTemplate.getName(LocaleUtil.getSiteDefault()),
+					"ddmTemplate_" + ddmTemplate.getTemplateKey());
+			}
+
+			portletPreferencesMap.put("groupId", String.valueOf(groupId));
+
+			portletPreferencesMap.put(
+				"classTypeId", String.valueOf(ddmStructure.getStructureId()));
 
 			_addLayouts(
 				LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, _LAYOUT_NAMES,
-				serviceContext);
+				portletPreferencesMap, serviceContext);
 		}
 		catch (Exception e) {
 			_log.error(e, e);
@@ -192,7 +208,7 @@ public class PorygonSiteInitializer implements SiteInitializer {
 		_bundle = bundleContext.getBundle();
 	}
 
-	private void _addDDMStructures(ServiceContext serviceContext)
+	private DDMStructure _addDDMStructure(ServiceContext serviceContext)
 		throws Exception {
 
 		Class<?> clazz = getClass();
@@ -204,12 +220,17 @@ public class PorygonSiteInitializer implements SiteInitializer {
 			"com/liferay/frontend/theme/porygon/site/initializer/internal" +
 				"/dependencies/ddm/porygon_entry.xml",
 			serviceContext);
+
+		return DDMStructureManagerUtil.getStructure(
+			serviceContext.getScopeGroupId(),
+			_portal.getClassNameId(JournalArticle.class),
+			"Porygon Entry");
 	}
 
-	private List<String> _addDDMTemplates(ServiceContext serviceContext)
+	private List<DDMTemplate> _addDDMTemplates(ServiceContext serviceContext)
 		throws Exception {
 
-		List<String> ddmTemplates = new ArrayList<>();
+		List<DDMTemplate> ddmTemplates = new ArrayList<>();
 
 		Enumeration<URL> urls = _bundle.findEntries(
 			_PATH + "/adt", "*.ftl", false);
@@ -225,7 +246,7 @@ public class PorygonSiteInitializer implements SiteInitializer {
 
 			nameMap.put(LocaleUtil.getSiteDefault(), fileName);
 
-			_ddmTemplateLocalService.addTemplate(
+			DDMTemplate ddmTemplate = _ddmTemplateLocalService.addTemplate(
 				serviceContext.getUserId(), serviceContext.getScopeGroupId(),
 				_portal.getClassNameId(AssetEntry.class.getName()), 0,
 				_portal.getClassNameId(_PORTLET_DISPLAY_TEMPLATE_CLASS_NAME),
@@ -233,6 +254,8 @@ public class PorygonSiteInitializer implements SiteInitializer {
 				DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY,
 				DDMTemplateConstants.TEMPLATE_MODE_EDIT,
 				TemplateConstants.LANG_TYPE_FTL, script, serviceContext);
+
+			ddmTemplates.add(ddmTemplate);
 		}
 
 		return ddmTemplates;
@@ -375,6 +398,13 @@ public class PorygonSiteInitializer implements SiteInitializer {
 				Collections.singletonMap(LocaleUtil.US, articleName), null,
 				content, "PORYGON ENTRY", "PORYGON ENTRY", serviceContext);
 
+			_assetDisplayPageEntryLocalService.addAssetDisplayPageEntry(
+				serviceContext.getUserId(), serviceContext.getScopeGroupId(),
+				_portal.getClassNameId(JournalArticle.class),
+				article.getResourcePrimKey(), 0,
+				AssetDisplayPageConstants.TYPE_DEFAULT, serviceContext
+			);
+
 			journalArticles.add(article);
 		}
 
@@ -383,34 +413,62 @@ public class PorygonSiteInitializer implements SiteInitializer {
 
 	private Layout _addLayout(
 			String name, long parentLayoutId,
-			UnicodeProperties typeSettingsProperties,
+			Map<String, String> portletPreferencesMap,
 			ServiceContext serviceContext)
 		throws Exception {
+
+		String layoutId = name.toLowerCase();
 
 		Map<Locale, String> nameMap = new HashMap<>();
 
 		nameMap.put(LocaleUtil.getSiteDefault(), name);
 
-		return _layoutLocalService.addLayout(
+		URL typeSettingsURL = _bundle.getEntry(
+			_PATH + "/layouts/" + layoutId + "/layout.typesettings");
+
+		UnicodeProperties typeSettingsProperties = new UnicodeProperties();
+
+		typeSettingsProperties.load(
+			StringUtil.read(typeSettingsURL.openStream()));
+
+		Layout layout = _layoutLocalService.addLayout(
 			serviceContext.getUserId(), serviceContext.getScopeGroupId(), false,
 			parentLayoutId, nameMap, new HashMap<>(), new HashMap<>(),
 			new HashMap<>(), new HashMap<>(), "portlet",
 			typeSettingsProperties.toString(), false, new HashMap<>(),
 			serviceContext);
-	}
 
-	private LayoutPageTemplateCollection _addLayoutPageTemplateCollection(
-			ServiceContext serviceContext)
-		throws PortalException {
+		Enumeration<URL> urls = _bundle.findEntries(
+			_PATH + "/layouts/" + layoutId + "/portlet_preferences", "*.xml",
+			false);
 
-		return _layoutPageTemplateCollectionLocalService.
-			addLayoutPageTemplateCollection(
-				serviceContext.getUserId(), serviceContext.getScopeGroupId(),
-				_THEME_NAME, _THEME_NAME, serviceContext);
+		while (urls.hasMoreElements()) {
+			URL url = urls.nextElement();
+
+			String defaultPreferences = StringUtil.replace(
+				StringUtil.read(url.openStream()), StringPool.DOLLAR,
+				StringPool.DOLLAR, portletPreferencesMap);
+
+			String instanceId = FileUtil.stripExtension(
+				FileUtil.getShortFileName(url.getPath()));
+
+			String portletId = PortletIdCodec.encode(
+				PortletIdCodec.decodePortletName(
+					AssetPublisherPortletKeys.ASSET_PUBLISHER),
+				PortletIdCodec.decodeUserId(
+					AssetPublisherPortletKeys.ASSET_PUBLISHER),
+				instanceId);
+
+			PortletPreferencesFactoryUtil.getLayoutPortletSetup(
+				layout.getCompanyId(), 0,
+				PortletKeys.PREFS_OWNER_TYPE_LAYOUT, layout.getPlid(),
+				portletId, defaultPreferences);
+		}
+
+		return layout;
 	}
 
 	private LayoutPageTemplateEntry _addLayoutPageTemplateEntry(
-			LayoutPageTemplateCollection layoutPageTemplateCollection,
 			String name, List<FragmentEntry> fragmentEntries,
 			String thumbnailPath, String thumbnailFileName,
 			ServiceContext serviceContext)
@@ -419,13 +477,10 @@ public class PorygonSiteInitializer implements SiteInitializer {
 		long previewFileEntryId = _getPreviewFileEntryId(
 			thumbnailPath, thumbnailFileName, serviceContext);
 
-		long layoutPageTemplateCollectionId =
-			layoutPageTemplateCollection.getLayoutPageTemplateCollectionId();
-
 		LayoutPageTemplateEntry layoutPageTemplateEntry =
 			_layoutPageTemplateEntryLocalService.addLayoutPageTemplateEntry(
 				serviceContext.getUserId(), serviceContext.getScopeGroupId(),
-				layoutPageTemplateCollectionId, name,
+				0, name,
 				LayoutPageTemplateEntryTypeConstants.TYPE_DISPLAY_PAGE, 0,
 				previewFileEntryId, WorkflowConstants.STATUS_APPROVED,
 				serviceContext);
@@ -441,6 +496,7 @@ public class PorygonSiteInitializer implements SiteInitializer {
 
 	private List<Layout> _addLayouts(
 			long parentLayoutId, String[] layoutNames,
+			Map<String, String> portletPreferencesMap,
 			ServiceContext serviceContext)
 		throws Exception {
 
@@ -448,7 +504,7 @@ public class PorygonSiteInitializer implements SiteInitializer {
 
 		for (String layoutName : layoutNames) {
 			Layout layout = _addLayout(
-				layoutName, parentLayoutId, new UnicodeProperties(),
+				layoutName, parentLayoutId, portletPreferencesMap,
 				serviceContext);
 
 			layouts.add(layout);
@@ -640,7 +696,7 @@ public class PorygonSiteInitializer implements SiteInitializer {
 	}
 
 	private static final String[] _LAYOUT_NAMES =
-		{"Home", "Photography", "Science", "Review"};
+		{"Home", "Photography", "Science", "Reviews"};
 
 	private static final String _PATH =
 		"com/liferay/frontend/theme/porygon/site/initializer/internal" +
@@ -688,10 +744,6 @@ public class PorygonSiteInitializer implements SiteInitializer {
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;
-
-	@Reference
-	private LayoutPageTemplateCollectionLocalService
-		_layoutPageTemplateCollectionLocalService;
 
 	@Reference
 	private LayoutPageTemplateEntryLocalService

@@ -6,8 +6,8 @@
 
 <#if displayMode == 1>
 	<#assign
-		aspectRatio = request.attributes.aspectRatio!""
-		pullTo = ((request.attributes.pullTo!"") == "right")?then("pull-sm-right", "")
+		aspectRatio = getterUtil.getString(request.getAttribute("aspectRatio"))
+	    pullTo = getterUtil.getString(request.getAttribute("pullTo"))
 	/>
 
 	<div class="blog-list-card col-sm-6 ${pullTo}">
@@ -32,7 +32,7 @@
 		</div>
 	</div>
 <#elseif displayMode == 2>
-	<#assign colMd = request.attributes.colMd!"" />
+	<#assign colMd = "" />
 
 	<div class="asset-abstract ${colMd}">
 		<#if coverImage.getData()?? && coverImage.getData() != "">
