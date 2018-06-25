@@ -75,7 +75,12 @@ public class ModulesSemVerBatchTestClassGroup
 							File buildFile = new File(
 								currentDirectory, "build.gradle");
 
-							if (buildFile.exists() && bndBndFile.exists()) {
+							File lfrRelengIgnoreFile = new File(
+								currentDirectory, ".lfrbuild-releng-ignore");
+
+							if (buildFile.exists() && bndBndFile.exists() &&
+								!lfrRelengIgnoreFile.exists()) {
+
 								modulesProjectDirs.add(currentDirectory);
 
 								return FileVisitResult.SKIP_SUBTREE;
@@ -109,16 +114,13 @@ public class ModulesSemVerBatchTestClassGroup
 		PortalGitWorkingDirectory portalGitWorkingDirectory =
 			getPortalGitWorkingDirectory();
 
-		List<File> moduleDirsList =
-			portalGitWorkingDirectory.getModifiedModuleDirsList(
-				excludesPathMatchers, includesPathMatchers);
-
 		File portalModulesBaseDir = new File(
 			portalGitWorkingDirectory.getWorkingDirectory(), "modules");
 
-		if (!testRelevantChanges) {
-			moduleDirsList = portalGitWorkingDirectory.getModuleDirsList(
-				excludesPathMatchers, includesPathMatchers);
+		if ((testSuiteName != null) && testSuiteName.equals("default")) {
+			moduleDirsList.addAll(
+				portalGitWorkingDirectory.getModuleDirsList(
+					excludesPathMatchers, includesPathMatchers));
 
 			List<File> semVerMarkerFiles = JenkinsResultsParserUtil.findFiles(
 				portalModulesBaseDir, "\\.lfrbuild-semantic-versioning");
@@ -126,6 +128,11 @@ public class ModulesSemVerBatchTestClassGroup
 			for (File semVerMarkerFile : semVerMarkerFiles) {
 				moduleDirsList.add(semVerMarkerFile.getParentFile());
 			}
+		}
+		else {
+			moduleDirsList.addAll(
+				portalGitWorkingDirectory.getModifiedModuleDirsList(
+					excludesPathMatchers, includesPathMatchers));
 		}
 
 		for (File moduleDir : moduleDirsList) {
