@@ -1,8 +1,8 @@
 <#if entries?has_content>
 	${request.setAttribute("aspectRatio", "aspect-ratio-16-to-9")}
-	${request.setAttribute("displayMode", 1)}
+	${request.setAttribute("displayMode", "")}
 
-	<div class="col-no-padding">
+	<div class="grid-container-fluid grid-3-columns">
 		<#list entries as curEntry>
 			<#assign
 				assetRenderer = curEntry.getAssetRenderer()
@@ -23,6 +23,5 @@
 
 	${request.setAttribute("aspectRatio", "")}
 	${request.setAttribute("author", "" )}
-	${request.setAttribute("displayMode", 0)}
 	${request.setAttribute("viewURL", "" )}
 </#if>

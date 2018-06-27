@@ -1,8 +1,7 @@
 <#if entries?has_content>
-	${request.setAttribute("displayMode", 4)}
+	${request.setAttribute("displayMode", "")}
 
-	<div class="blog-list">
-		<div class="row">
+	<div class="blog-list grid-container-fluid">
 			<#list entries as curEntry>
 				<#assign assetRenderer = curEntry.getAssetRenderer() />
 
@@ -17,5 +16,4 @@
 	</div>
 
 	${request.setAttribute("author", "" )}
-	${request.setAttribute("displayMode", 0)}
 </#if>
