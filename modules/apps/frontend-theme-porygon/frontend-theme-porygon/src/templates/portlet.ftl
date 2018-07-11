@@ -49,6 +49,14 @@
 			<@liferay_util["dynamic-include"] key="portlet_header_${portlet_display_root_portlet_id}" />
 		</@>
 
+		<#if stringUtil.equals(portlet_display.getPortletDecoratorId(), "trending")>
+			<div class="user-icon user-icon-porygon user-icon-xl">
+				<svg class="lexicon-icon">
+					<use xlink:href="${themeDisplay.getPathThemeImages()}/lexicon/icons.svg#star" />
+				</svg>
+			</div>
+		</#if>
+
 		<#assign show_portlet_decorator = validator.isNotNull(portlet_display.getPortletDecoratorId()) && !stringUtil.equals(portlet_display.getPortletDecoratorId(), "barebone") />
 
 		<#if portlet_display.isShowBackIcon() || show_portlet_decorator || portlet_header?has_content>
@@ -79,14 +87,6 @@
 						</div>
 					</div>
 				</#if>
-			</div>
-		</#if>
-
-		<#if stringUtil.equals(portlet_display.getPortletDecoratorId(), "trending")>
-			<div class="user-icon user-icon-porygon user-icon-xl">
-				<svg class="lexicon-icon">
-					<use xlink:href="${themeDisplay.getPathThemeImages()}/lexicon/icons.svg#star" />
-				</svg>
 			</div>
 		</#if>
 

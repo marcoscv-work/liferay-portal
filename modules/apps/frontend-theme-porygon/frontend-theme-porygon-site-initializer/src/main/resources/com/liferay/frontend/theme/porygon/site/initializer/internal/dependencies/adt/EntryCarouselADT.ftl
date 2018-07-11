@@ -1,6 +1,4 @@
 <#if entries?has_content>
-	${request.setAttribute("displayMode", 3)}
-
 	<section class="blog-carousel main-carousel-wrapper" id="<@portlet.namespace />">
 		<div class="carousel slide" data-ride="carousel" id="<@portlet.namespace />-main-carousel">
 			<ol class="carousel-indicators hidden-sm hidden-xs">
@@ -11,30 +9,32 @@
 
 			<div class="carousel-inner gallery-xxl" role="listbox">
 				<#list entries as curEntry>
-					<div class="${(curEntry?counter == 1)?then('active', '')} item">
+					<div class="${(curEntry?counter == 1)?then('active', '')} carousel-item">
 						<#assign
 							assetRenderer = curEntry.getAssetRenderer()
+							assetObject = assetRenderer.getAssetObject()
 							viewURL = (!stringUtil.equals(assetLinkBehavior, "showFullContent"))?then(assetPublisherHelper.getAssetViewURL(renderRequest, renderResponse, curEntry, true), assetPublisherHelper.getAssetViewURL(renderRequest, renderResponse, curEntry))
 						/>
 
 						${request.setAttribute("viewURL", viewURL )}
 						${request.setAttribute("author", portalUtil.getUserName(assetRenderer.getUserId(), assetRenderer.getUserName()) )}
 
-						<@liferay_ui["asset-display"]
-							assetEntry=curEntry
-							template="full_content"
+						<@liferay_journal["journal-article"]
+							groupId=assetObject.getGroupId()
+							articleId=assetObject.getArticleId()
+							ddmTemplateKey="Porygon_carousel"
 						/>
 					</div>
 				</#list>
 			</div>
 
-			<a class="carousel-control left" data-slide="prev" href="#<@portlet.namespace />-main-carousel" role="button">
+			<a class="carousel-control-prev" data-slide="prev" href="#<@portlet.namespace />-main-carousel" role="button">
 				<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
 
 				<span class="sr-only">Previous</span>
 			</a>
 
-			<a class="carousel-control right" data-slide="next" href="#<@portlet.namespace />-main-carousel" role="button">
+			<a class="carousel-control-next" data-slide="next" href="#<@portlet.namespace />-main-carousel" role="button">
 				<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
 
 				<span class="sr-only">Next</span>
@@ -49,8 +49,7 @@
 	<div class="alert alert-info">
 		<@liferay_ui["message"] key="there-are-no-results" />
 	</div>
-
-	${request.setAttribute("author", "" )}
-	${request.setAttribute("displayMode", 0)}
-	${request.setAttribute("viewURL", "" )}
 </#if>
+
+${request.setAttribute("author", "" )}
+${request.setAttribute("viewURL", "" )}

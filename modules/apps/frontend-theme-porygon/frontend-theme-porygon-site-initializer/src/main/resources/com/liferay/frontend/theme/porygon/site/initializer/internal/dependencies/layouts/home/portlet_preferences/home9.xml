@@ -1,5 +1,9 @@
 <portlet-preferences>
 	<preference>
+		<name>emailAssetEntryAddedEnabled</name>
+		<value>false</value>
+	</preference>
+	<preference>
 		<name>delta</name>
 		<value>16</value>
 	</preference>

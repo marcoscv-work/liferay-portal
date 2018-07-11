@@ -1,7 +1,5 @@
 <#if entries?has_content>
-	${request.setAttribute("displayMode", 1)}
-
-	<div class="col-no-padding">
+	<div class="grid-container-fluid grid-2-columns grid-display-1">
 		<#list entries as curEntry>
 			<#assign
 				assetRenderer = curEntry.getAssetRenderer()
@@ -15,16 +13,13 @@
 
 			<@liferay_ui["asset-display"]
 				assetEntry=curEntry
-				template="full_content"
+				template="Porygon_Entry"
 			/>
 		</#list>
 	</div>
 
 	<div class="clearfix"></div>
 
-	${request.setAttribute("aspectRatio", "")}
 	${request.setAttribute("author", "" )}
-	${request.setAttribute("displayMode", 0)}
-	${request.setAttribute("pullTo", "")}
 	${request.setAttribute("viewURL", "" )}
 </#if>

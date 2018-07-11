@@ -1,21 +1,21 @@
 <#if entries?has_content>
-	${request.setAttribute("displayMode", 4)}
-
-	<div class="blog-list">
-		<div class="row">
+	<div class="blog-list grid-container-fluid">
 			<#list entries as curEntry>
-				<#assign assetRenderer = curEntry.getAssetRenderer() />
+				<#assign
+					assetRenderer = curEntry.getAssetRenderer()
+					assetObject = assetRenderer.getAssetObject()
+				/>
 
 				${request.setAttribute("author", portalUtil.getUserName(assetRenderer.getUserId(), assetRenderer.getUserName()) )}
 
-				<@liferay_ui["asset-display"]
-					assetEntry=curEntry
-					template="full_content"
+				<@liferay_journal["journal-article"]
+					groupId=assetObject.getGroupId()
+					articleId=assetObject.getArticleId()
+					ddmTemplateKey="Porygon_Entry_16_9"
 				/>
 			</#list>
 		</div>
 	</div>
 
 	${request.setAttribute("author", "" )}
-	${request.setAttribute("displayMode", 0)}
 </#if>
