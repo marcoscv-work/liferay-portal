@@ -16,6 +16,8 @@ package com.liferay.person.apio.internal.architect.resource;
 
 import static com.liferay.portal.apio.idempotent.Idempotent.idempotent;
 
+import com.liferay.address.apio.architect.identifier.AddressIdentifier;
+import com.liferay.apio.architect.credentials.Credentials;
 import com.liferay.apio.architect.functional.Try;
 import com.liferay.apio.architect.pagination.PageItems;
 import com.liferay.apio.architect.pagination.Pagination;
@@ -23,28 +25,39 @@ import com.liferay.apio.architect.representor.Representor;
 import com.liferay.apio.architect.resource.CollectionResource;
 import com.liferay.apio.architect.routes.CollectionRoutes;
 import com.liferay.apio.architect.routes.ItemRoutes;
+import com.liferay.email.apio.architect.identifier.EmailIdentifier;
 import com.liferay.person.apio.architect.identifier.PersonIdentifier;
 import com.liferay.person.apio.internal.architect.form.PersonCreatorForm;
 import com.liferay.person.apio.internal.architect.form.PersonUpdaterForm;
 import com.liferay.person.apio.internal.model.UserWrapper;
+import com.liferay.person.apio.internal.query.FullNameQuery;
 import com.liferay.petra.string.StringPool;
+import com.liferay.phone.apio.architect.identifier.PhoneIdentifier;
 import com.liferay.portal.apio.permission.HasPermission;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Contact;
+import com.liferay.portal.kernel.model.ContactModel;
 import com.liferay.portal.kernel.model.ListType;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserConstants;
+import com.liferay.portal.kernel.security.auth.PrincipalException.MustBeCompanyAdmin;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.ListTypeLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.UserService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.comparator.UserLastNameComparator;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.role.apio.identifier.RoleIdentifier;
+import com.liferay.web.url.apio.architect.identifier.WebUrlIdentifier;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -73,7 +86,8 @@ public class PersonCollectionResource
 		CollectionRoutes.Builder<UserWrapper, Long> builder) {
 
 		return builder.addGetter(
-			this::_getPageItems, ThemeDisplay.class
+			this::_getPageItems, FullNameQuery.class, Credentials.class,
+			ThemeDisplay.class
 		).addCreator(
 			this::_addUser, ThemeDisplay.class, _hasPermission::forAdding,
 			PersonCreatorForm::buildForm
@@ -113,6 +127,27 @@ public class PersonCollectionResource
 			"honorificPrefix", _getContactField(Contact::getPrefixId)
 		).addLocalizedStringByLocale(
 			"honorificSuffix", _getContactField(Contact::getSuffixId)
+		).addNested(
+			"contactInformation", this::_getContact,
+			contactBuilder -> contactBuilder.types(
+				"ContactInformation"
+			).addString(
+				"facebookSn", ContactModel::getSmsSn
+			).addString(
+				"skypeSn", ContactModel::getSmsSn
+			).addString(
+				"twitterSn", ContactModel::getSmsSn
+			).build()
+		).addRelatedCollection(
+			"roles", RoleIdentifier.class
+		).addRelatedCollection(
+			"addresses", AddressIdentifier.class
+		).addRelatedCollection(
+			"emails", EmailIdentifier.class
+		).addRelatedCollection(
+			"phones", PhoneIdentifier.class
+		).addRelatedCollection(
+			"webUrls", WebUrlIdentifier.class
 		).addRelativeURL(
 			"image", UserWrapper::getPortraitURL
 		).addString(
@@ -161,9 +196,8 @@ public class PersonCollectionResource
 		throws PortalException {
 
 		User user = _userLocalService.addUser(
-			UserConstants.USER_ID_DEFAULT, themeDisplay.getCompanyId(), false,
-			personCreatorForm.getPassword1(), personCreatorForm.getPassword2(),
-			personCreatorForm.hasAlternateName(),
+			UserConstants.USER_ID_DEFAULT, themeDisplay.getCompanyId(), true,
+			null, null, personCreatorForm.needsAlternateName(),
 			personCreatorForm.getAlternateName(), personCreatorForm.getEmail(),
 			0, StringPool.BLANK, LocaleUtil.getDefault(),
 			personCreatorForm.getGivenName(), StringPool.BLANK,
@@ -175,6 +209,14 @@ public class PersonCollectionResource
 			new ServiceContext());
 
 		return new UserWrapper(user, themeDisplay);
+	}
+
+	private Contact _getContact(UserWrapper userWrapper) {
+		return Try.fromFallible(
+			userWrapper::getContact
+		).orElse(
+			null
+		);
 	}
 
 	private BiFunction<UserWrapper, Locale, String> _getContactField(
@@ -196,20 +238,43 @@ public class PersonCollectionResource
 	}
 
 	private PageItems<UserWrapper> _getPageItems(
-			Pagination pagination, ThemeDisplay themeDisplay)
+			Pagination pagination, FullNameQuery fullNameQuery,
+			Credentials credentials, ThemeDisplay themeDisplay)
 		throws PortalException {
 
-		List<UserWrapper> userWrappers = Stream.of(
-			_userService.getCompanyUsers(
-				themeDisplay.getCompanyId(), pagination.getStartPosition(),
-				pagination.getEndPosition())
-		).flatMap(
-			List::stream
-		).map(
-			user -> new UserWrapper(user, themeDisplay)
-		).collect(
-			Collectors.toList()
-		);
+		Optional<String> optional = fullNameQuery.getFullNameOptional();
+
+		if (optional.isPresent()) {
+			PermissionChecker permissionChecker =
+				(PermissionChecker)credentials.get();
+
+			if (!permissionChecker.isCompanyAdmin(
+					themeDisplay.getCompanyId())) {
+
+				throw new MustBeCompanyAdmin(permissionChecker);
+			}
+
+			List<User> users = _userLocalService.search(
+				themeDisplay.getCompanyId(), optional.get(),
+				WorkflowConstants.STATUS_ANY, null,
+				pagination.getStartPosition(), pagination.getEndPosition(),
+				new UserLastNameComparator());
+
+			List<UserWrapper> userWrappers = _toUserWrappers(
+				users, themeDisplay);
+
+			int count = _userLocalService.searchCount(
+				themeDisplay.getCompanyId(), optional.get(),
+				WorkflowConstants.STATUS_ANY, null);
+
+			return new PageItems<>(userWrappers, count);
+		}
+
+		List<User> users = _userService.getCompanyUsers(
+			themeDisplay.getCompanyId(), pagination.getStartPosition(),
+			pagination.getEndPosition());
+
+		List<UserWrapper> userWrappers = _toUserWrappers(users, themeDisplay);
 
 		int count = _userService.getCompanyUsersCount(
 			themeDisplay.getCompanyId());
@@ -227,6 +292,20 @@ public class PersonCollectionResource
 		User user = _userService.getUserById(userId);
 
 		return new UserWrapper(user, themeDisplay);
+	}
+
+	private List<UserWrapper> _toUserWrappers(
+		List<User> users, ThemeDisplay themeDisplay) {
+
+		return Stream.of(
+			users
+		).flatMap(
+			List::stream
+		).map(
+			user -> new UserWrapper(user, themeDisplay)
+		).collect(
+			Collectors.toList()
+		);
 	}
 
 	private UserWrapper _updateUser(

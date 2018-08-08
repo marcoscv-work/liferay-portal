@@ -14,7 +14,7 @@
 
 package com.liferay.portal.kernel.security.permission;
 
-import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
+import com.liferay.portal.kernel.util.ServiceProxyFactory;
 
 /**
  * @author Raymond Augé
@@ -23,8 +23,6 @@ import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermissio
 public class InlineSQLHelperUtil {
 
 	public static InlineSQLHelper getInlineSQLHelper() {
-		PortalRuntimePermission.checkGetBeanProperty(InlineSQLHelperUtil.class);
-
 		return _inlineSQLPermission;
 	}
 
@@ -137,12 +135,16 @@ public class InlineSQLHelperUtil {
 			bridgeJoin);
 	}
 
+	/**
+	 * @deprecated As of Judson (7.1.x), with no direct replacement
+	 */
+	@Deprecated
 	public void setInlineSQLHelper(InlineSQLHelper inlineSQLPermission) {
-		PortalRuntimePermission.checkSetBeanProperty(getClass());
-
-		_inlineSQLPermission = inlineSQLPermission;
 	}
 
-	private static InlineSQLHelper _inlineSQLPermission;
+	private static volatile InlineSQLHelper _inlineSQLPermission =
+		ServiceProxyFactory.newServiceTrackedInstance(
+			InlineSQLHelper.class, InlineSQLHelperUtil.class,
+			"_inlineSQLPermission", false);
 
 }

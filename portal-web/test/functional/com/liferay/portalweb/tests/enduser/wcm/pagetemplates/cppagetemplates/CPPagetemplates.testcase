@@ -43,7 +43,7 @@
 	</command>
 
 	<command name="AddSitePageTemplate" priority="5">
-		<property name="portal.acceptance" value="quarantine" />
+		<property name="portal.acceptance" value="true" />
 		<property name="testray.component.names" value="Training" />
 
 		<execute macro="ProductMenu#gotoSite">
@@ -167,7 +167,7 @@
 
 	<command name="DeactivateAndActivatePageTemplate" priority="4">
 		<execute macro="TestCase#getSiteName">
-			<return from="siteName" name="siteName" />
+			<return name="siteName" />
 			<var name="siteName" value="${siteName}" />
 		</execute>
 
@@ -206,11 +206,11 @@
 			<var name="portlet" value="Pages" />
 		</execute>
 
-		<execute macro="LexiconEntry#gotoAdd" />
-
-		<execute macro="Navigator#gotoNavItem">
-			<var name="navItem" value="Global Templates" />
+		<execute macro="LexiconEntry#gotoAddMenuItem">
+			<var name="menuItem" value="Public Page" />
 		</execute>
+
+		<execute macro="NavItem#gotoGlobalTemplates" />
 
 		<execute macro="Page#viewPageTemplateTypeNotPresent">
 			<var name="pageTemplateName" value="Page Template Name" />
@@ -246,11 +246,11 @@
 			<var name="portlet" value="Pages" />
 		</execute>
 
-		<execute macro="LexiconEntry#gotoAdd" />
-
-		<execute macro="Navigator#gotoNavItem">
-			<var name="navItem" value="Global Templates" />
+		<execute macro="LexiconEntry#gotoAddMenuItem">
+			<var name="menuItem" value="Public Page" />
 		</execute>
+
+		<execute macro="NavItem#gotoGlobalTemplates" />
 
 		<execute macro="Page#viewPageTemplateTypePresent">
 			<var name="pageTemplateName" value="Page Template Name" />
@@ -258,7 +258,7 @@
 	</command>
 
 	<command name="DeletePageTemplate" priority="5">
-		<property name="portal.acceptance" value="quarantine" />
+		<property name="portal.acceptance" value="true" />
 
 		<execute macro="ProductMenu#gotoSite">
 			<var name="site" value="Global" />
@@ -283,7 +283,7 @@
 	</command>
 
 	<command name="EditPageTemplate" priority="5">
-		<property name="portal.acceptance" value="quarantine" />
+		<property name="portal.acceptance" value="true" />
 
 		<execute macro="ProductMenu#gotoSite">
 			<var name="site" value="Global" />
@@ -360,7 +360,7 @@
 		</execute>
 
 		<execute macro="TestCase#getSiteName">
-			<return from="siteName" name="siteName" />
+			<return name="siteName" />
 			<var name="siteName" value="${siteName}" />
 		</execute>
 
@@ -515,7 +515,7 @@
 		</execute>
 
 		<execute macro="TestCase#getSiteName">
-			<return from="siteName" name="siteName" />
+			<return name="siteName" />
 			<var name="siteName" value="${siteName}" />
 		</execute>
 

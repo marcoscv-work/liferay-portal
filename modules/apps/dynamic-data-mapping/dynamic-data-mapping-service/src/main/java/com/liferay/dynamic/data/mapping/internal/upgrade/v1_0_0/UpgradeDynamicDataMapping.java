@@ -59,6 +59,7 @@ import com.liferay.expando.kernel.service.ExpandoRowLocalService;
 import com.liferay.expando.kernel.service.ExpandoTableLocalService;
 import com.liferay.expando.kernel.service.ExpandoValueLocalService;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -87,7 +88,6 @@ import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.SetUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TimeZoneUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -499,7 +499,7 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 		return templateModelResourceName;
 	}
 
-	protected long getTemplateResourceClassNameId(
+	protected Long getTemplateResourceClassNameId(
 		long classNameId, long classPK) {
 
 		if (classNameId != PortalUtil.getClassNameId(DDMStructure.class)) {
@@ -1322,7 +1322,8 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 			PreparedStatement ps3 =
 				AutoBatchPreparedStatementUtil.concurrentAutoBatch(
 					connection,
-					"update DDMTemplate set script = ? where templateId = ?");
+					"update DDMTemplate set language = ?, script = ? where " +
+						"templateId = ?");
 			PreparedStatement ps4 =
 				AutoBatchPreparedStatementUtil.concurrentAutoBatch(
 					connection, sb.toString());
@@ -1345,8 +1346,14 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 
 				// Template resource class name ID
 
-				long resourceClassNameId = getTemplateResourceClassNameId(
+				Long resourceClassNameId = getTemplateResourceClassNameId(
 					classNameId, classPK);
+
+				if (resourceClassNameId == null) {
+					_log.error("Orphaned DDM template " + templateId);
+
+					continue;
+				}
 
 				ps2.setLong(1, resourceClassNameId);
 
@@ -1369,11 +1376,14 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 					ddmForm = updateDDMFormFields(ddmForm);
 
 					updatedScript = toJSON(ddmForm);
+
+					language = "json";
 				}
 
 				if (!script.equals(updatedScript)) {
-					ps3.setString(1, updatedScript);
-					ps3.setLong(2, templateId);
+					ps3.setString(1, language);
+					ps3.setString(2, updatedScript);
+					ps3.setLong(3, templateId);
 
 					ps3.addBatch();
 				}
@@ -1539,6 +1549,12 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 			_CLASS_NAME_DDM_STRUCTURE);
 
 		_structureModelResourceNames.put(
+			"com.liferay.dynamic.data.lists.model.DDLRecordSet",
+			resourceActions.getCompositeModelName(
+				"com.liferay.dynamic.data.lists.model.DDLRecordSet",
+				_CLASS_NAME_DDM_STRUCTURE));
+
+		_structureModelResourceNames.put(
 			"com.liferay.portlet.dynamicdatalists.model.DDLRecordSet",
 			resourceActions.getCompositeModelName(
 				"com.liferay.dynamic.data.lists.model.DDLRecordSet",
@@ -1549,6 +1565,12 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 			resourceActions.getCompositeModelName(
 				"com.liferay.journal.model.JournalArticle",
 				_CLASS_NAME_DDM_STRUCTURE));
+
+		_templateModelResourceNames.put(
+			"com.liferay.dynamic.data.lists.model.DDLRecordSet",
+			resourceActions.getCompositeModelName(
+				"com.liferay.dynamic.data.lists.model.DDLRecordSet",
+				_CLASS_NAME_DDM_TEMPLATE));
 
 		_templateModelResourceNames.put(
 			"com.liferay.portlet.display.template.PortletDisplayTemplate",
@@ -1952,6 +1974,27 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 
 			List<Node> nodes = dynamicContentXPath.selectNodes(
 				dynamicElementElement);
+
+			if (nodes.isEmpty()) {
+				dynamicContentXPath = SAXReaderUtil.createXPath(
+					"dynamic-content");
+
+				nodes = dynamicContentXPath.selectNodes(dynamicElementElement);
+
+				Element element = null;
+
+				if (nodes.isEmpty()) {
+					element = dynamicElementElement.addElement(
+						"dynamic-content");
+				}
+				else {
+					element = (Element)nodes.get(index);
+				}
+
+				element.addAttribute("language-id", languageId);
+
+				return element;
+			}
 
 			return (Element)nodes.get(index);
 		}

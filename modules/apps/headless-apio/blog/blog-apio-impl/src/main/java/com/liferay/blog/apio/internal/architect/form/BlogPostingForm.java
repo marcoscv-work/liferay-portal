@@ -18,6 +18,8 @@ import com.liferay.apio.architect.form.Form;
 import com.liferay.apio.architect.form.Form.Builder;
 import com.liferay.apio.architect.function.throwable.ThrowableFunction;
 import com.liferay.apio.architect.functional.Try;
+import com.liferay.media.object.apio.architect.identifier.MediaObjectIdentifier;
+import com.liferay.person.apio.architect.identifier.PersonIdentifier;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector;
@@ -63,10 +65,10 @@ public class BlogPostingForm {
 			"dateCreated", BlogPostingForm::_setCreateDate
 		).addOptionalDate(
 			"dateModified", BlogPostingForm::_setModifiedDate
-		).addOptionalLong(
-			"author", BlogPostingForm::_setAuthorId
-		).addOptionalLong(
-			"image", BlogPostingForm::_setImageId
+		).addOptionalLinkedModel(
+			"creator", PersonIdentifier.class, BlogPostingForm::_setCreatorId
+		).addOptionalLinkedModel(
+			"image", MediaObjectIdentifier.class, BlogPostingForm::_setImageId
 		).addOptionalString(
 			"alternativeHeadline", BlogPostingForm::_setAlternativeHeadline
 		).addOptionalString(
@@ -74,7 +76,7 @@ public class BlogPostingForm {
 		).addOptionalString(
 			"description", BlogPostingForm::_setDescription
 		).addOptionalString(
-			"semanticUrl", BlogPostingForm::_setSemanticUrl
+			"friendlyUrlPath", BlogPostingForm::_setFriendlyURLPath
 		).addOptionalStringList(
 			"keywords", BlogPostingForm::_setKeywords
 		).addRequiredString(
@@ -111,19 +113,19 @@ public class BlogPostingForm {
 	}
 
 	/**
-	 * Returns the blog posting's author ID if present. Returns the provided
+	 * Returns the blog posting's creator ID if present. Returns the provided
 	 * default ID otherwise.
 	 *
-	 * @param  defaultAuthorId the default author ID
-	 * @return the blog posting's author ID, if present; the provided default ID
-	 *         otherwise.
+	 * @param  defaultCreatorId the default creator ID
+	 * @return the blog posting's creator ID, if present; the provided default
+	 *         ID otherwise.
 	 * @review
 	 */
-	public long getAuthorId(long defaultAuthorId) {
+	public long getCreatorId(long defaultCreatorId) {
 		return Optional.ofNullable(
-			_authorId
+			_creatorId
 		).orElse(
-			defaultAuthorId
+			defaultCreatorId
 		);
 	}
 
@@ -156,6 +158,22 @@ public class BlogPostingForm {
 			_displayDate
 		).orElseGet(
 			Date::new
+		);
+	}
+
+	/**
+	 * Returns the blog posting's friendly URL if present. Returns an empty
+	 * {@code String} otherwise.
+	 *
+	 * @return the blog posting's friendly URL if present; an empty {@code
+	 *         String} otherwise
+	 * @review
+	 */
+	public String getFriendlyURLPath() {
+		return Optional.ofNullable(
+			_friendlyURLPath
+		).orElse(
+			""
 		);
 	}
 
@@ -216,22 +234,6 @@ public class BlogPostingForm {
 	}
 
 	/**
-	 * Returns the blog posting's semantic URL if present. Returns an empty
-	 * {@code String} otherwise.
-	 *
-	 * @return the blog posting's semantic URL if present; an empty {@code
-	 *         String} otherwise
-	 * @review
-	 */
-	public String getSemanticUrl() {
-		return Optional.ofNullable(
-			_semanticUrl
-		).orElse(
-			""
-		);
-	}
-
-	/**
 	 * Returns the service context related with this form
 	 *
 	 * @param  groupId the group ID
@@ -268,12 +270,12 @@ public class BlogPostingForm {
 		_articleBody = articleBody;
 	}
 
-	private void _setAuthorId(long authorId) {
-		_authorId = authorId;
-	}
-
 	private void _setCreateDate(Date createDate) {
 		_createDate = createDate;
+	}
+
+	private void _setCreatorId(long creatorId) {
+		_creatorId = creatorId;
 	}
 
 	private void _setDescription(String description) {
@@ -282,6 +284,10 @@ public class BlogPostingForm {
 
 	private void _setDisplayDate(Date displayDate) {
 		_displayDate = displayDate;
+	}
+
+	private void _setFriendlyURLPath(String friendlyURLPath) {
+		_friendlyURLPath = friendlyURLPath;
 	}
 
 	private void _setHeadline(String headline) {
@@ -304,21 +310,17 @@ public class BlogPostingForm {
 		_modifiedDate = modifiedDate;
 	}
 
-	private void _setSemanticUrl(String semanticUrl) {
-		_semanticUrl = semanticUrl;
-	}
-
 	private String _alternativeHeadline;
 	private String _articleBody;
-	private Long _authorId;
 	private Date _createDate;
+	private Long _creatorId;
 	private String _description;
 	private Date _displayDate;
+	private String _friendlyURLPath;
 	private String _headline;
 	private String _imageCaption;
 	private Long _imageId;
 	private List<String> _keywords;
 	private Date _modifiedDate;
-	private String _semanticUrl;
 
 }

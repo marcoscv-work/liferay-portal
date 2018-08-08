@@ -132,13 +132,6 @@
 		</execute>
 
 		<execute macro="LanguagePortlet#selectLanguagePG">
-			<var name="locale" value="en_US" />
-			<var name="textIcon" value="English-United States" />
-		</execute>
-
-		<execute function="AssertLocation" value1="${portalURL}/web/guest/language-test-page" />
-
-		<execute macro="LanguagePortlet#selectLanguagePG">
 			<var name="locale" value="es_ES" />
 			<var name="textIcon" value="español-España" />
 		</execute>
@@ -192,13 +185,6 @@
 		</execute>
 
 		<execute macro="LanguagePortlet#selectLanguagePG">
-			<var name="locale" value="en_US" />
-			<var name="textIcon" value="English-United States" />
-		</execute>
-
-		<execute function="AssertLocation" value1="${portalURL}/web/guest/language-test-page" />
-
-		<execute macro="LanguagePortlet#selectLanguagePG">
 			<var name="locale" value="es_ES" />
 			<var name="textIcon" value="español-España" />
 		</execute>
@@ -250,13 +236,6 @@
 		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Language Test Page" />
 		</execute>
-
-		<execute macro="LanguagePortlet#selectLanguagePG">
-			<var name="locale" value="en_US" />
-			<var name="textIcon" value="English-United States" />
-		</execute>
-
-		<execute function="AssertLocation" value1="${portalURL}/en/web/guest/language-test-page" />
 
 		<execute macro="LanguagePortlet#selectLanguagePG">
 			<var name="locale" value="es_ES" />
@@ -339,7 +318,7 @@
 		<execute macro="ProductMenu#gotoPortlet">
 			<var name="category" value="Usuarios" />
 			<var name="panel" value="Control Panel" />
-			<var name="portlet" value="Usuarios y Organizaciones" />
+			<var name="portlet" value="Usuarios y organizaciones" />
 		</execute>
 
 		<execute macro="Organization#addWithLocalizedCountryCP">
@@ -358,7 +337,7 @@
 		<execute macro="ProductMenu#gotoPortlet">
 			<var name="category" value="Usuarios" />
 			<var name="panel" value="Control Panel" />
-			<var name="portlet" value="Usuarios y Organizaciones" />
+			<var name="portlet" value="Usuarios y organizaciones" />
 		</execute>
 
 		<execute macro="Organization#viewLocalizedCountryCP">
@@ -768,6 +747,10 @@
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
+			<var name="pageName" value="Dummy Page" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
 			<var name="hideFromNavMenu" value="true" />
 			<var name="pageName" value="Language Page" />
 		</execute>
@@ -801,7 +784,7 @@
 	</command>
 
 	<command name="SiteTemplateLocalization" priority="5">
-		<property name="portal.acceptance" value="quarantine" />
+		<property name="portal.acceptance" value="true" />
 		<property name="test.name.skip.portal.instance" value="SitelocalizationUsecase#SiteTemplateLocalization" />
 		<property name="testray.component.names" value="Site and Page Templates,Site Localization" />
 
@@ -953,11 +936,12 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute function="AssertTextEquals" locator1="Message#PORTAL_LOCALIZATION" value1="× Esta página se muestra en inglés (Estados Unidos). Mostrar la página en español (España). Establecer inglés (Estados Unidos) como su idioma preferido." />
+		<execute macro="Alert#viewLocalizationMessage">
+			<var name="defaultLanguageLocalizationMessage" value="Mostrar la página en español (España)." />
+			<var name="preferredLanguageLocalizationMessage" value="Set English (United States) as your preferred language." />
+			<var name="translationLanguageLocalizationMessage" value="Esta página se muestra en inglés (Estados Unidos)." />
+		</execute>
 
-		<execute function="AssertTextEquals" locator1="Home#PORTAL_LOCALIZATION_CONFIRMATION_MESSAGE" value1="Mostrar la página en español (España)." />
-
-		<execute function="AssertTextEquals" locator1="Home#PORTAL_LOCALIZATION_PREFERRED_MESSAGE" value1="Establecer inglés (Estados Unidos) como su idioma preferido." />
 		<execute macro="User#logoutPG" />
 
 		<execute macro="User#loginPG" />
@@ -1065,7 +1049,7 @@
 	</command>
 
 	<command name="ViewSiteLocalizationAfterDeletingOriginalLocale" priority="5">
-		<property name="portal.acceptance" value="quarantine" />
+		<property name="portal.acceptance" value="true" />
 		<property name="test.name.skip.portal.instance" value="SitelocalizationUsecase#ViewSiteLocalizationAfterDeletingOriginalLocale" />
 		<property name="testray.component.names" value="Site Localization" />
 

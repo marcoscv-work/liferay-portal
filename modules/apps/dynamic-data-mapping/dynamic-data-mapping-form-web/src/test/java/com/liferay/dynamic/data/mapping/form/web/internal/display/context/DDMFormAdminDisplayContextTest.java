@@ -20,14 +20,14 @@ import com.liferay.dynamic.data.mapping.form.values.factory.DDMFormValuesFactory
 import com.liferay.dynamic.data.mapping.form.web.internal.configuration.DDMFormWebConfiguration;
 import com.liferay.dynamic.data.mapping.form.web.internal.instance.lifecycle.AddDefaultSharedFormLayoutPortalInstanceLifecycleListener;
 import com.liferay.dynamic.data.mapping.io.DDMFormFieldTypesJSONSerializer;
-import com.liferay.dynamic.data.mapping.io.exporter.DDMExporterFactory;
+import com.liferay.dynamic.data.mapping.io.exporter.DDMFormInstanceRecordWriterTracker;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceSettings;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceService;
+import com.liferay.dynamic.data.mapping.service.DDMFormInstanceVersionLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureService;
-import com.liferay.dynamic.data.mapping.storage.StorageEngine;
 import com.liferay.dynamic.data.mapping.util.DDMFormValuesMerger;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
@@ -278,16 +278,17 @@ public class DDMFormAdminDisplayContextTest extends PowerMockito {
 		_ddmFormAdminDisplayContext = new DDMFormAdminDisplayContext(
 			_renderRequest, mock(RenderResponse.class),
 			new AddDefaultSharedFormLayoutPortalInstanceLifecycleListener(),
-			mock(DDMExporterFactory.class), mock(DDMFormWebConfiguration.class),
+			mock(DDMFormWebConfiguration.class),
 			mock(DDMFormInstanceRecordLocalService.class),
+			mock(DDMFormInstanceRecordWriterTracker.class),
 			mockDDMFormInstanceService(),
+			mock(DDMFormInstanceVersionLocalService.class),
 			mock(DDMFormFieldTypeServicesTracker.class),
 			mock(DDMFormFieldTypesJSONSerializer.class),
 			mock(DDMFormRenderer.class), mock(DDMFormValuesFactory.class),
 			mock(DDMFormValuesMerger.class),
 			mock(DDMStructureLocalService.class),
-			mock(DDMStructureService.class), mock(JSONFactory.class),
-			mock(StorageEngine.class));
+			mock(DDMStructureService.class), mock(JSONFactory.class));
 	}
 
 	protected void setUpLanguageUtil() {

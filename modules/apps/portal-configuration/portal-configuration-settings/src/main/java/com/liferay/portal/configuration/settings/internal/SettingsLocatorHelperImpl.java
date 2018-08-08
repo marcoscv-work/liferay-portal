@@ -27,7 +27,6 @@ import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactory;
 import com.liferay.portal.kernel.resource.manager.ClassLoaderResourceManager;
-import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.PortletLocalService;
@@ -68,7 +67,6 @@ import org.osgi.util.tracker.ServiceTracker;
  * @author Shuyang Zhou
  */
 @Component(immediate = true, service = SettingsLocatorHelper.class)
-@DoPrivileged
 public class SettingsLocatorHelperImpl implements SettingsLocatorHelper {
 
 	@Override
@@ -117,7 +115,7 @@ public class SettingsLocatorHelperImpl implements SettingsLocatorHelper {
 	}
 
 	/**
-	 * @deprecated As of 2.0.0, replaced by {@link
+	 * @deprecated As of Judson (7.1.x), replaced by {@link
 	 *             #getConfigurationBeanSettings(String)}
 	 */
 	@Deprecated
@@ -169,7 +167,7 @@ public class SettingsLocatorHelperImpl implements SettingsLocatorHelper {
 	}
 
 	/**
-	 * @deprecated As of 2.0.0, with no direct replacement
+	 * @deprecated As of Judson (7.1.x), with no direct replacement
 	 */
 	@Deprecated
 	@Override
@@ -425,8 +423,7 @@ public class SettingsLocatorHelperImpl implements SettingsLocatorHelper {
 			_configurationBeanLocationVariableResolvers.remove(
 				configurationBeanClass);
 
-			_configurationBeanSettings.remove(
-				configurationBeanManagedService.getConfigurationPid());
+			_configurationBeanSettings.remove(configurationBeanClass);
 		}
 
 		private ConfigurationBeanDeclarationServiceTracker(

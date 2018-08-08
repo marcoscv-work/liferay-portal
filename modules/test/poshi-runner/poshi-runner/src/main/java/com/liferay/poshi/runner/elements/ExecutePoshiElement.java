@@ -20,6 +20,9 @@ import com.liferay.poshi.runner.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
@@ -54,7 +57,7 @@ public class ExecutePoshiElement extends PoshiElement {
 	public void parsePoshiScript(String poshiScript) {
 		String executeType = "macro";
 
-		if (isValidUtilClassName(poshiScript)) {
+		if (isValidUtilityClassName(poshiScript)) {
 			executeType = "class";
 		}
 		else if (isValidFunctionFileName(poshiScript)) {
@@ -62,20 +65,9 @@ public class ExecutePoshiElement extends PoshiElement {
 		}
 
 		if (executeType.equals("class")) {
-			int index = poshiScript.indexOf("(");
-
-			String methodName = poshiScript.substring(0, index);
-
-			for (String utilClassName : utilClassNames) {
-				if (poshiScript.startsWith(utilClassName)) {
-					addAttribute("class", utilClassName);
-
-					methodName = methodName.replace(utilClassName + ".", "");
-
-					addAttribute("method", methodName);
-
-					break;
-				}
+			if (isValidUtilityClassName(poshiScript)) {
+				addAttribute("class", getClassName(poshiScript));
+				addAttribute("method", getCommandName(poshiScript));
 			}
 
 			String parentheticalContent = getParentheticalContent(poshiScript);
@@ -125,7 +117,10 @@ public class ExecutePoshiElement extends PoshiElement {
 			for (String functionAttributeName : _FUNCTION_ATTRIBUTE_NAMES) {
 				if (assignment.startsWith(functionAttributeName)) {
 					String name = getNameFromAssignment(assignment);
+
 					String value = getQuotedContent(assignment);
+
+					value = StringEscapeUtils.unescapeXml(value);
 
 					addAttribute(name, value);
 
@@ -353,44 +348,32 @@ public class ExecutePoshiElement extends PoshiElement {
 	private boolean _isElementType(
 		PoshiElement parentPoshiElement, String poshiScript) {
 
-		poshiScript = poshiScript.trim();
-
 		if (parentPoshiElement instanceof ExecutePoshiElement) {
 			return false;
 		}
 
-		if (!isBalancedPoshiScript(poshiScript)) {
-			return false;
-		}
+		if ((isVarAssignedToMacroInvocation(poshiScript) ||
+			 isValidPoshiScriptStatement(_statementPattern, poshiScript)) &&
+			!isValidPoshiScriptStatement(
+				_utilityInvocationStatementPattern, poshiScript)) {
 
-		if (poshiScript.startsWith("echo(") ||
-			poshiScript.startsWith("fail(") ||
-			poshiScript.startsWith("property ") ||
-			poshiScript.startsWith("takeScreenshot")) {
-
-			return false;
-		}
-
-		if (isMacroReturnVar(poshiScript) && poshiScript.startsWith("var ")) {
 			return true;
 		}
 
-		if (poshiScript.startsWith("static var ") ||
-			poshiScript.startsWith("var")) {
-
-			return false;
-		}
-
-		if (!poshiScript.endsWith(");")) {
-			return false;
-		}
-
-		return true;
+		return false;
 	}
 
 	private static final String _ELEMENT_NAME = "execute";
 
 	private static final String[] _FUNCTION_ATTRIBUTE_NAMES =
 		{"locator1", "locator2", "value1", "value2"};
+
+	private static final String _UTILITY_INVOCATION_REGEX =
+		"(echo|fail|takeScreenshot)\\(.*?\\)";
+
+	private static final Pattern _statementPattern = Pattern.compile(
+		"^" + INVOCATION_REGEX + STATEMENT_END_REGEX, Pattern.DOTALL);
+	private static final Pattern _utilityInvocationStatementPattern =
+		Pattern.compile("^" + _UTILITY_INVOCATION_REGEX + STATEMENT_END_REGEX);
 
 }

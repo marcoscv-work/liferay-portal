@@ -249,6 +249,9 @@ public class DDMStructureStagedModelDataHandlerTest
 				"username", "test@liferay.com"));
 		ddmFormValues.addDDMFormFieldValue(
 			DDMFormValuesTestUtil.createUnlocalizedDDMFormFieldValue(
+				"timeout", "1000"));
+		ddmFormValues.addDDMFormFieldValue(
+			DDMFormValuesTestUtil.createUnlocalizedDDMFormFieldValue(
 				"value", "nameCurrentValue"));
 
 		return ddmFormValues;
@@ -372,6 +375,13 @@ public class DDMStructureStagedModelDataHandlerTest
 		Assert.assertEquals(
 			structure.getStorageType(), importedStructure.getStorageType());
 		Assert.assertEquals(structure.getType(), importedStructure.getType());
+
+		structure = DDMStructureLocalServiceUtil.fetchDDMStructure(
+			structure.getStructureId());
+
+		if (structure == null) {
+			return;
+		}
 
 		// Data provider instance
 

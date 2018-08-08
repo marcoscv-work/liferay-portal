@@ -2576,18 +2576,6 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>com.liferay.portal.security.pacl.jar!jsqlparser.jar</file-name>
-				<version>0.9.3</version>
-				<project-name>JSQLParser library</project-name>
-				<project-url>https://github.com/JSQLParser/JSqlParser</project-url>
-				<licenses>
-					<license>
-						<license-name>GNU Library or Lesser General Public License (LGPL) V2.1</license-name>
-						<license-url>http://www.gnu.org/licenses/lgpl-2.1.html</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
 				<file-name>com.liferay.portal.security.sso.cas.impl.jar!cas-client-core.jar</file-name>
 				<version>3.1.12</version>
 				<project-name>JA-SIG CAS Client for Java - Core</project-name>
@@ -4268,7 +4256,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/com.liferay.ant.bnd.jar</file-name>
-				<version>2.0.51</version>
+				<version>2.0.52</version>
 				<project-name>Liferay Ant BND</project-name>
 				<licenses>
 					<license>
@@ -5219,30 +5207,6 @@
 					</license>
 				</licenses>
 				<comments>Older versions required removing testdata.* because it conflicted with JBoss 5.1.</comments>
-			</library>
-			<library>
-				<file-name>lib/portal/axiom-api.jar</file-name>
-				<version>1.2.10</version>
-				<project-name>Axiom</project-name>
-				<project-url>http://ws.apache.org/commons/axiom</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/axiom-impl.jar</file-name>
-				<version>1.2.10</version>
-				<project-name>Axiom</project-name>
-				<project-url>http://ws.apache.org/commons/axiom</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
 			</library>
 			<library>
 				<file-name>lib/portal/axis-ant.jar</file-name>

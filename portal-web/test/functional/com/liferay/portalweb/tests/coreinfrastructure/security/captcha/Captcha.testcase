@@ -1,7 +1,8 @@
 <definition component-name="portal-security">
+	<property name="portal.release" value="true" />
 	<property name="portal.upstream" value="true" />
 	<property name="test.assert.warning.exceptions" value="true" />
-	<property name="testray.main.component.name" value="Security" />
+	<property name="testray.main.component.name" value="CAPTCHA" />
 
 	<set-up>
 		<execute macro="TestCase#setUpPortalInstance" />
@@ -40,6 +41,8 @@
 		<var method="TestPropsUtil#get('recaptcha.private.key')" name="recaptchaPrivateKey" />
 		<var method="TestPropsUtil#get('recaptcha.public.key')" name="recaptchaPublicKey" />
 
+		<!-- LRQA-42641 -->
+
 		<execute macro="User#firstLoginPG" />
 
 		<execute macro="ProductMenu#gotoPortlet">
@@ -49,28 +52,28 @@
 		</execute>
 
 		<execute macro="SystemSettings#gotoConfiguration">
-			<var name="configurationCategory" value="CAPTCHA" />
+			<var name="configurationCategory" value="Security Tools" />
 			<var name="configurationName" value="CAPTCHA" />
 			<var name="configurationScope" value="System Scope" />
 		</execute>
 
 		<execute macro="SystemSettings#editTextSetting">
-			<var name="settingName" value="maxChallenges" />
+			<var name="settingName" value="Maximum Challenges" />
 			<var name="settingValue" value="0" />
 		</execute>
 
-		<execute macro="FormFields#selectSelectOption">
-			<var name="fieldName" value="captchaEngine" />
+		<execute macro="SystemSettings#selectOptionSetting">
+			<var name="fieldName" value="CAPTCHA Engine" />
 			<var name="selectOption" value="reCAPTCHA" />
 		</execute>
 
 		<execute macro="SystemSettings#editTextAreaSetting">
-			<var name="settingName" value="reCaptchaPrivateKey" />
+			<var name="settingName" value="reCAPTCHA Private Key" />
 			<var name="settingValue" value="${recaptchaPrivateKey}" />
 		</execute>
 
 		<execute macro="SystemSettings#editTextAreaSetting">
-			<var name="settingName" value="reCaptchaPublicKey" />
+			<var name="settingName" value="reCAPTCHA Public Key" />
 			<var name="settingValue" value="${recaptchaPublicKey}" />
 		</execute>
 

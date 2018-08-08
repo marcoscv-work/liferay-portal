@@ -89,7 +89,8 @@ public class LayoutSiteNavigationMenuItemType
 			layout);
 
 		if ((layoutRevision != null) &&
-			(layoutRevision.getStatus() == WorkflowConstants.STATUS_DRAFT)) {
+			((layoutRevision.getStatus() == WorkflowConstants.STATUS_DRAFT) ||
+			 layoutRevision.isIncomplete())) {
 
 			return false;
 		}
@@ -160,6 +161,19 @@ public class LayoutSiteNavigationMenuItemType
 		Layout layout = _getLayout(siteNavigationMenuItem);
 
 		return layout.getResetMaxStateURL(request);
+	}
+
+	@Override
+	public String getSubtitle(
+		SiteNavigationMenuItem siteNavigationMenuItem, Locale locale) {
+
+		Layout layout = _getLayout(siteNavigationMenuItem);
+
+		if (layout.isPublicLayout()) {
+			return LanguageUtil.get(locale, "public-pages");
+		}
+
+		return LanguageUtil.get(locale, "private-pages");
 	}
 
 	@Override

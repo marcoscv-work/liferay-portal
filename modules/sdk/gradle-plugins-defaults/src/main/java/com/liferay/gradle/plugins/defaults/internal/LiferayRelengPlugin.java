@@ -47,6 +47,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.gradle.StartParameter;
 import org.gradle.api.Action;
@@ -160,6 +162,7 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 
 		_addTaskPrintDependentArtifact(project);
 
+		_configureLiferayRelengProperties(project);
 		_configureTaskBuildChangeLog(buildChangeLogTask, relengDir);
 		_configureTaskUploadArchives(project, recordArtifactTask);
 
@@ -619,8 +622,61 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 		return writeArtifactPublishCommandsTask;
 	}
 
+	private void _configureLiferayRelengProperties(Project project) {
+		boolean privateModule = false;
+
+		String projectPath = project.getPath();
+
+		if (projectPath.startsWith(":private:")) {
+			privateModule = true;
+		}
+
+		String liferayRelengAppTitlePrefix = GradleUtil.getProperty(
+			project, _LIFERAY_RELENG_APP_TITLE_PREFIX, (String)null);
+
+		if (Validator.isNull(liferayRelengAppTitlePrefix)) {
+			if (privateModule) {
+				liferayRelengAppTitlePrefix = "Liferay";
+			}
+			else {
+				liferayRelengAppTitlePrefix = "Liferay CE";
+			}
+
+			GradleUtil.setProperty(
+				project, _LIFERAY_RELENG_APP_TITLE_PREFIX,
+				liferayRelengAppTitlePrefix);
+		}
+
+		String liferayRelengPublic = GradleUtil.getProperty(
+			project, _LIFERAY_RELENG_PUBLIC, (String)null);
+
+		if (Validator.isNull(liferayRelengPublic)) {
+			liferayRelengPublic = String.valueOf(!privateModule);
+
+			GradleUtil.setProperty(
+				project, _LIFERAY_RELENG_PUBLIC, liferayRelengPublic);
+		}
+
+		String liferayRelengSupported = GradleUtil.getProperty(
+			project, _LIFERAY_RELENG_SUPPORTED, (String)null);
+
+		if (Validator.isNull(liferayRelengSupported)) {
+			liferayRelengSupported = String.valueOf(privateModule);
+
+			GradleUtil.setProperty(
+				project, _LIFERAY_RELENG_SUPPORTED, liferayRelengSupported);
+		}
+	}
+
 	private void _configureTaskBuildChangeLog(
 		BuildChangeLogTask buildChangeLogTask, File destinationDir) {
+
+		String ticketIdPrefixes = GradleUtil.getProperty(
+			buildChangeLogTask.getProject(), "jira.project.keys", (String)null);
+
+		if (Validator.isNotNull(ticketIdPrefixes)) {
+			buildChangeLogTask.ticketIdPrefixes(ticketIdPrefixes.split(","));
+		}
 
 		buildChangeLogTask.setChangeLogFile(
 			new File(destinationDir, "liferay-releng.changelog"));
@@ -681,6 +737,58 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 		if (Boolean.parseBoolean(force)) {
 			return;
 		}
+
+		task.onlyIf(
+			new Spec<Task>() {
+
+				@Override
+				public boolean isSatisfiedBy(Task task) {
+					Project project = task.getProject();
+
+					File projectDir = project.getProjectDir();
+
+					String result = GitUtil.getGitResult(
+						project, "ls-files",
+						FileUtil.getAbsolutePath(projectDir));
+
+					if (Validator.isNotNull(result)) {
+						return true;
+					}
+
+					return false;
+				}
+
+			});
+
+		task.onlyIf(
+			new Spec<Task>() {
+
+				@Override
+				public boolean isSatisfiedBy(Task task) {
+					String ignoreProjectRegex =
+						GradleUtil.getTaskPrefixedProperty(
+							task, "ignore.project.regex");
+
+					if (Validator.isNull(ignoreProjectRegex)) {
+						return true;
+					}
+
+					Project project = task.getProject();
+
+					String projectName = project.getName();
+
+					Pattern pattern = Pattern.compile(ignoreProjectRegex);
+
+					Matcher matcher = pattern.matcher(projectName);
+
+					if (!matcher.find()) {
+						return true;
+					}
+
+					return false;
+				}
+
+			});
 
 		task.onlyIf(
 			new Spec<Task>() {
@@ -867,6 +975,12 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 				if (dependency instanceof ProjectDependency) {
 					return true;
 				}
+
+				String version = dependency.getVersion();
+
+				if ((version != null) && version.equals("default")) {
+					return true;
+				}
 			}
 		}
 
@@ -933,6 +1047,15 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 
 		return false;
 	}
+
+	private static final String _LIFERAY_RELENG_APP_TITLE_PREFIX =
+		"liferay.releng.app.title.prefix";
+
+	private static final String _LIFERAY_RELENG_PUBLIC =
+		"liferay.releng.public";
+
+	private static final String _LIFERAY_RELENG_SUPPORTED =
+		"liferay.releng.supported";
 
 	private static final String _RELENG_DIR_NAME = ".releng";
 
