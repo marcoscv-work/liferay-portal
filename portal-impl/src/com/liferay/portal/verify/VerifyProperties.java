@@ -1445,6 +1445,13 @@ public class VerifyProperties extends VerifyProcess {
 			"com.liferay.portal.security.sso.opensso"
 		},
 
+		// Permissions
+
+		new String[] {
+			"permissions.inline.sql.check.enabled", "sqlCheckEnabled",
+			"com.liferay.portal.security.permission.impl"
+		},
+
 		// Polls
 
 		new String[] {
@@ -1692,7 +1699,7 @@ public class VerifyProperties extends VerifyProcess {
 		"default.user.public.layout.wap.color.scheme.id",
 		"default.user.public.layout.wap.theme.id",
 		"default.wap.color.scheme.id", "default.wap.theme.id",
-		"discussion.thread.view",
+		"discussion.subscribe.by.default", "discussion.thread.view",
 		"dl.file.entry.image.exif.metadata.rotation.enabled",
 		"dl.file.entry.previewable.processor.max.size",
 		"dl.file.entry.read.count.enabled", "dl.file.extensions",
@@ -1797,7 +1804,8 @@ public class VerifyProperties extends VerifyProcess {
 		"microsoft.translator.client.id", "microsoft.translator.client.secret",
 		"minifier.inline.content.cache.size",
 		"mobile.device.styling.wap.enabled", "module.framework.initial.bundles",
-		"msn.login", "msn.password", "multicast.group.address[\"hibernate\"]",
+		"module.framework.register.liferay.services", "msn.login",
+		"msn.password", "multicast.group.address[\"hibernate\"]",
 		"multicast.group.port[\"hibernate\"]",
 		"net.sf.ehcache.configurationResourceName",
 		"net.sf.ehcache.configurationResourceName.peerProviderProperties",
@@ -1813,8 +1821,9 @@ public class VerifyProperties extends VerifyProcess {
 		"organizations.indexer.enabled", "organizations.rootable",
 		"organizations.types", "portal.cache.manager.type.multi.vm",
 		"portal.cache.manager.type.single.vm", "portal.ctx",
-		"portal.security.manager.enable", "permissions.list.filter",
-		"permissions.thread.local.cache.max.size",
+		"portal.security.manager.enable",
+		"permissions.inline.sql.resource.block.query.threshold",
+		"permissions.list.filter", "permissions.thread.local.cache.max.size",
 		"permissions.user.check.algorithm", "persistence.provider",
 		"ratings.max.score", "ratings.min.score", "sandbox.deploy.dir",
 		"sandbox.deploy.enabled", "sandbox.deploy.interval",

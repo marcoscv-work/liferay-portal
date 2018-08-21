@@ -25,8 +25,6 @@ import com.liferay.layout.page.template.exception.RequiredLayoutPageTemplateEntr
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.base.LayoutPageTemplateEntryLocalServiceBaseImpl;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.LayoutPrototype;
 import com.liferay.portal.kernel.model.ModelHintsUtil;
@@ -86,6 +84,59 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 	@Override
 	public LayoutPageTemplateEntry addLayoutPageTemplateEntry(
 			long userId, long groupId, long layoutPageTemplateCollectionId,
+			long classNameId, long classTypeId, String name, int type,
+			boolean defaultTemplate, long layoutPrototypeId,
+			long previewFileEntryId, int status, ServiceContext serviceContext)
+		throws PortalException {
+
+		// Layout page template entry
+
+		User user = userLocalService.getUser(userId);
+
+		validate(groupId, name);
+
+		long layoutPageTemplateEntryId = counterLocalService.increment();
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			layoutPageTemplateEntryPersistence.create(
+				layoutPageTemplateEntryId);
+
+		layoutPageTemplateEntry.setUuid(serviceContext.getUuid());
+		layoutPageTemplateEntry.setGroupId(groupId);
+		layoutPageTemplateEntry.setCompanyId(user.getCompanyId());
+		layoutPageTemplateEntry.setUserId(user.getUserId());
+		layoutPageTemplateEntry.setUserName(user.getFullName());
+		layoutPageTemplateEntry.setCreateDate(
+			serviceContext.getCreateDate(new Date()));
+		layoutPageTemplateEntry.setModifiedDate(
+			serviceContext.getModifiedDate(new Date()));
+		layoutPageTemplateEntry.setLayoutPageTemplateCollectionId(
+			layoutPageTemplateCollectionId);
+		layoutPageTemplateEntry.setClassNameId(classNameId);
+		layoutPageTemplateEntry.setClassTypeId(classTypeId);
+		layoutPageTemplateEntry.setName(name);
+		layoutPageTemplateEntry.setType(type);
+		layoutPageTemplateEntry.setPreviewFileEntryId(previewFileEntryId);
+		layoutPageTemplateEntry.setDefaultTemplate(defaultTemplate);
+		layoutPageTemplateEntry.setLayoutPrototypeId(layoutPrototypeId);
+		layoutPageTemplateEntry.setStatus(status);
+		layoutPageTemplateEntry.setStatusByUserId(userId);
+		layoutPageTemplateEntry.setStatusByUserName(user.getFullName());
+		layoutPageTemplateEntry.setStatusDate(new Date());
+
+		layoutPageTemplateEntryPersistence.update(layoutPageTemplateEntry);
+
+		// Resources
+
+		resourceLocalService.addModelResources(
+			layoutPageTemplateEntry, serviceContext);
+
+		return layoutPageTemplateEntry;
+	}
+
+	@Override
+	public LayoutPageTemplateEntry addLayoutPageTemplateEntry(
+			long userId, long groupId, long layoutPageTemplateCollectionId,
 			String name, int type, int status, ServiceContext serviceContext)
 		throws PortalException {
 
@@ -113,46 +164,10 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 			long previewFileEntryId, int status, ServiceContext serviceContext)
 		throws PortalException {
 
-		// Layout page template entry
-
-		User user = userLocalService.getUser(userId);
-
-		validate(groupId, name);
-
-		long layoutPageTemplateEntryId = counterLocalService.increment();
-
-		LayoutPageTemplateEntry layoutPageTemplateEntry =
-			layoutPageTemplateEntryPersistence.create(
-				layoutPageTemplateEntryId);
-
-		layoutPageTemplateEntry.setGroupId(groupId);
-		layoutPageTemplateEntry.setCompanyId(user.getCompanyId());
-		layoutPageTemplateEntry.setUserId(user.getUserId());
-		layoutPageTemplateEntry.setUserName(user.getFullName());
-		layoutPageTemplateEntry.setCreateDate(
-			serviceContext.getCreateDate(new Date()));
-		layoutPageTemplateEntry.setModifiedDate(
-			serviceContext.getModifiedDate(new Date()));
-		layoutPageTemplateEntry.setLayoutPageTemplateCollectionId(
-			layoutPageTemplateCollectionId);
-		layoutPageTemplateEntry.setName(name);
-		layoutPageTemplateEntry.setType(type);
-		layoutPageTemplateEntry.setPreviewFileEntryId(previewFileEntryId);
-		layoutPageTemplateEntry.setDefaultTemplate(false);
-		layoutPageTemplateEntry.setLayoutPrototypeId(layoutPrototypeId);
-		layoutPageTemplateEntry.setStatus(status);
-		layoutPageTemplateEntry.setStatusByUserId(userId);
-		layoutPageTemplateEntry.setStatusByUserName(user.getFullName());
-		layoutPageTemplateEntry.setStatusDate(new Date());
-
-		layoutPageTemplateEntryPersistence.update(layoutPageTemplateEntry);
-
-		// Resources
-
-		resourceLocalService.addModelResources(
-			layoutPageTemplateEntry, serviceContext);
-
-		return layoutPageTemplateEntry;
+		return addLayoutPageTemplateEntry(
+			userId, groupId, layoutPageTemplateCollectionId, 0, 0, name, type,
+			false, layoutPrototypeId, previewFileEntryId, status,
+			serviceContext);
 	}
 
 	@Override
@@ -393,12 +408,14 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 			(defaultLayoutPageTemplateEntry.getLayoutPageTemplateEntryId() !=
 				layoutPageTemplateEntryId)) {
 
+			layoutPageTemplateEntry.setModifiedDate(new Date());
 			defaultLayoutPageTemplateEntry.setDefaultTemplate(false);
 
 			layoutPageTemplateEntryLocalService.updateLayoutPageTemplateEntry(
 				defaultLayoutPageTemplateEntry);
 		}
 
+		layoutPageTemplateEntry.setModifiedDate(new Date());
 		layoutPageTemplateEntry.setDefaultTemplate(defaultTemplate);
 
 		layoutPageTemplateEntryLocalService.updateLayoutPageTemplateEntry(
@@ -416,6 +433,7 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 			layoutPageTemplateEntryPersistence.findByPrimaryKey(
 				layoutPageTemplateEntryId);
 
+		layoutPageTemplateEntry.setModifiedDate(new Date());
 		layoutPageTemplateEntry.setPreviewFileEntryId(previewFileEntryId);
 
 		return layoutPageTemplateEntryLocalService.
@@ -433,6 +451,7 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 			layoutPageTemplateEntryPersistence.findByPrimaryKey(
 				layoutPageTemplateEntryId);
 
+		layoutPageTemplateEntry.setModifiedDate(new Date());
 		layoutPageTemplateEntry.setStatus(status);
 		layoutPageTemplateEntry.setStatusByUserId(userId);
 		layoutPageTemplateEntry.setStatusByUserName(user.getScreenName());
@@ -453,6 +472,7 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 			layoutPageTemplateEntryPersistence.findByPrimaryKey(
 				layoutPageTemplateEntryId);
 
+		layoutPageTemplateEntry.setModifiedDate(new Date());
 		layoutPageTemplateEntry.setClassNameId(classNameId);
 		layoutPageTemplateEntry.setClassTypeId(classTypeId);
 
@@ -482,6 +502,7 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 
 		validate(layoutPageTemplateEntry.getGroupId(), name);
 
+		layoutPageTemplateEntry.setModifiedDate(new Date());
 		layoutPageTemplateEntry.setName(name);
 
 		return layoutPageTemplateEntryLocalService.
@@ -543,9 +564,6 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 			throw new DuplicateLayoutPageTemplateEntryException(name);
 		}
 	}
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		LayoutPageTemplateEntryLocalServiceImpl.class);
 
 	@ServiceReference(type = AssetDisplayPageEntryLocalService.class)
 	private AssetDisplayPageEntryLocalService
