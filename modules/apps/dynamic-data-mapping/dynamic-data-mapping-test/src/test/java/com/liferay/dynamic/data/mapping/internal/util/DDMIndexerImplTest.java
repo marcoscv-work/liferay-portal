@@ -63,7 +63,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 /**
  * @author Lino Alves
  * @author André de Oliveira
-*/
+ */
 @PrepareOnlyThisForTest(
 	{DDMStructureLocalServiceUtil.class, ResourceBundleUtil.class}
 )
@@ -129,7 +129,7 @@ public class DDMIndexerImplTest {
 	}
 
 	@Test
-	public void testFormWithTwoAvailableLocalesAndFieldWithNonDefaultLocale() {
+	public void testFormWithTwoAvailableLocalesAndFieldWithNondefaultLocale() {
 		Locale defaultLocale = LocaleUtil.US;
 		Locale translationLocale = LocaleUtil.JAPAN;
 

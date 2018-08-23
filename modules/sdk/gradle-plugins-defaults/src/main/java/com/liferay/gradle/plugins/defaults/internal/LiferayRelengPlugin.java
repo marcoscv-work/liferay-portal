@@ -39,7 +39,6 @@ import com.liferay.gradle.util.Validator;
 import groovy.lang.Closure;
 
 import java.io.File;
-import java.io.IOException;
 
 import java.lang.reflect.Method;
 
@@ -47,6 +46,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.gradle.StartParameter;
 import org.gradle.api.Action;
@@ -54,7 +55,6 @@ import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.UncheckedIOException;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ProjectDependency;
@@ -160,6 +160,7 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 
 		_addTaskPrintDependentArtifact(project);
 
+		_configureLiferayRelengProperties(project);
 		_configureTaskBuildChangeLog(buildChangeLogTask, relengDir);
 		_configureTaskUploadArchives(project, recordArtifactTask);
 
@@ -548,9 +549,6 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 					}
 
 				});
-
-			_configureTaskEnabledIfDependenciesArePublished(
-				writeArtifactPublishCommandsTask);
 		}
 
 		GradleUtil.withPlugin(
@@ -619,37 +617,64 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 		return writeArtifactPublishCommandsTask;
 	}
 
+	private void _configureLiferayRelengProperties(Project project) {
+		boolean privateModule = false;
+
+		String projectPath = project.getPath();
+
+		if (projectPath.startsWith(":private:")) {
+			privateModule = true;
+		}
+
+		String liferayRelengAppTitlePrefix = GradleUtil.getProperty(
+			project, _LIFERAY_RELENG_APP_TITLE_PREFIX, (String)null);
+
+		if (Validator.isNull(liferayRelengAppTitlePrefix)) {
+			if (privateModule) {
+				liferayRelengAppTitlePrefix = "Liferay";
+			}
+			else {
+				liferayRelengAppTitlePrefix = "Liferay CE";
+			}
+
+			GradleUtil.setProperty(
+				project, _LIFERAY_RELENG_APP_TITLE_PREFIX,
+				liferayRelengAppTitlePrefix);
+		}
+
+		String liferayRelengPublic = GradleUtil.getProperty(
+			project, _LIFERAY_RELENG_PUBLIC, (String)null);
+
+		if (Validator.isNull(liferayRelengPublic)) {
+			liferayRelengPublic = String.valueOf(!privateModule);
+
+			GradleUtil.setProperty(
+				project, _LIFERAY_RELENG_PUBLIC, liferayRelengPublic);
+		}
+
+		String liferayRelengSupported = GradleUtil.getProperty(
+			project, _LIFERAY_RELENG_SUPPORTED, (String)null);
+
+		if (Validator.isNull(liferayRelengSupported)) {
+			liferayRelengSupported = String.valueOf(privateModule);
+
+			GradleUtil.setProperty(
+				project, _LIFERAY_RELENG_SUPPORTED, liferayRelengSupported);
+		}
+	}
+
 	private void _configureTaskBuildChangeLog(
 		BuildChangeLogTask buildChangeLogTask, File destinationDir) {
 
+		String ticketIdPrefixes = GradleUtil.getProperty(
+			buildChangeLogTask.getProject(), "jira.project.keys", (String)null);
+
+		if (Validator.isNotNull(ticketIdPrefixes)) {
+			buildChangeLogTask.ticketIdPrefixes(ticketIdPrefixes.split(","));
+		}
+
 		buildChangeLogTask.setChangeLogFile(
 			new File(destinationDir, "liferay-releng.changelog"));
-	}
-
-	private void _configureTaskEnabledIfDependenciesArePublished(Task task) {
-		task.onlyIf(
-			new Spec<Task>() {
-
-				@Override
-				public boolean isSatisfiedBy(Task task) {
-					try {
-						Project project = task.getProject();
-
-						if (FileUtil.contains(
-								project.getBuildFile(),
-								"version: \"default\"")) {
-
-							return false;
-						}
-
-						return true;
-					}
-					catch (IOException ioe) {
-						throw new UncheckedIOException(ioe);
-					}
-				}
-
-			});
 	}
 
 	private void _configureTaskEnabledIfRelease(Task task) {
@@ -681,6 +706,58 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 		if (Boolean.parseBoolean(force)) {
 			return;
 		}
+
+		task.onlyIf(
+			new Spec<Task>() {
+
+				@Override
+				public boolean isSatisfiedBy(Task task) {
+					Project project = task.getProject();
+
+					File projectDir = project.getProjectDir();
+
+					String result = GitUtil.getGitResult(
+						project, "ls-files",
+						FileUtil.getAbsolutePath(projectDir));
+
+					if (Validator.isNotNull(result)) {
+						return true;
+					}
+
+					return false;
+				}
+
+			});
+
+		task.onlyIf(
+			new Spec<Task>() {
+
+				@Override
+				public boolean isSatisfiedBy(Task task) {
+					String ignoreProjectRegex =
+						GradleUtil.getTaskPrefixedProperty(
+							task, "ignore.project.regex");
+
+					if (Validator.isNull(ignoreProjectRegex)) {
+						return true;
+					}
+
+					Project project = task.getProject();
+
+					String projectName = project.getName();
+
+					Pattern pattern = Pattern.compile(ignoreProjectRegex);
+
+					Matcher matcher = pattern.matcher(projectName);
+
+					if (!matcher.find()) {
+						return true;
+					}
+
+					return false;
+				}
+
+			});
 
 		task.onlyIf(
 			new Spec<Task>() {
@@ -853,6 +930,8 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 	}
 
 	private boolean _hasProjectDependencies(Project project) {
+		Logger logger = project.getLogger();
+
 		for (Configuration configuration : project.getConfigurations()) {
 			String name = configuration.getName();
 
@@ -865,6 +944,22 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 
 			for (Dependency dependency : configuration.getDependencies()) {
 				if (dependency instanceof ProjectDependency) {
+					return true;
+				}
+
+				if (!name.startsWith("compile")) {
+					continue;
+				}
+
+				String version = dependency.getVersion();
+
+				if ((version != null) && version.equals("default")) {
+					if (logger.isQuietEnabled()) {
+						logger.quiet(
+							"{} has version \"default\" in {}.", project,
+							dependency);
+					}
+
 					return true;
 				}
 			}
@@ -933,6 +1028,15 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 
 		return false;
 	}
+
+	private static final String _LIFERAY_RELENG_APP_TITLE_PREFIX =
+		"liferay.releng.app.title.prefix";
+
+	private static final String _LIFERAY_RELENG_PUBLIC =
+		"liferay.releng.public";
+
+	private static final String _LIFERAY_RELENG_SUPPORTED =
+		"liferay.releng.supported";
 
 	private static final String _RELENG_DIR_NAME = ".releng";
 

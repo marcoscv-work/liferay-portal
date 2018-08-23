@@ -164,11 +164,6 @@
 	<td></td>
 </tr>
 <tr>
-	<td>BROWSE</td>
-	<td>//fieldset[contains(@class,'fieldset')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>BROWSE_IMAGE</td>
 	<td>//button[contains(@class,'browse-image')]</td>
 	<td></td>
@@ -460,7 +455,7 @@
 </tr>
 <tr>
 	<td>LOCALIZATION</td>
-	<td>//div[label[contains(.,'${key_fieldName}')]]//div[contains(@class,'localized')]//button[contains(@class,'localized')]</td>
+	<td>//div[label[contains(.,'${key_fieldName}')]]//div[contains(@class,'localized')]//button[contains(@class,'localized')] | //div[contains(@class,'ddm-container')]//div[contains(@class,'localized')]//button[contains(@class,'localized')]</td>
 	<td></td>
 </tr>
 <tr>

@@ -212,6 +212,7 @@ page import="java.util.TimeZone" %><%@
 page import="java.util.TreeSet" %>
 
 <%@ page import="javax.portlet.MimeResponse" %><%@
+page import="javax.portlet.MutableRenderParameters" %><%@
 page import="javax.portlet.PortletConfig" %><%@
 page import="javax.portlet.PortletContext" %><%@
 page import="javax.portlet.PortletException" %><%@
@@ -227,5 +228,3 @@ page import="javax.portlet.WindowState" %>
 <liferay-theme:defineObjects />
 
 <%@ include file="/html/common/init-ext.jsp" %>
-
-<%@ include file="/html/common/init-compat.jsp" %>

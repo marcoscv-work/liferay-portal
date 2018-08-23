@@ -21,8 +21,6 @@ import com.liferay.portal.cache.ehcache.internal.EhcacheConstants;
 import com.liferay.portal.cache.ehcache.internal.EhcachePortalCacheConfiguration;
 import com.liferay.portal.kernel.cache.PortalCacheListenerScope;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.Props;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -301,19 +299,21 @@ public abstract class BaseEhcachePortalCacheManagerConfigurator {
 
 	protected Props props;
 
-	private static final Log _log = LogFactoryUtil.getLog(
-		BaseEhcachePortalCacheManagerConfigurator.class);
-
 	private static final Map<NotificationScope, PortalCacheListenerScope>
-		_portalCacheListenerScopes = new EnumMap<>(NotificationScope.class);
+		_portalCacheListenerScopes =
+			new EnumMap<NotificationScope, PortalCacheListenerScope>(
+				NotificationScope.class) {
 
-	static {
-		_portalCacheListenerScopes.put(
-			NotificationScope.ALL, PortalCacheListenerScope.ALL);
-		_portalCacheListenerScopes.put(
-			NotificationScope.LOCAL, PortalCacheListenerScope.LOCAL);
-		_portalCacheListenerScopes.put(
-			NotificationScope.REMOTE, PortalCacheListenerScope.REMOTE);
-	}
+				{
+					put(NotificationScope.ALL, PortalCacheListenerScope.ALL);
+					put(
+						NotificationScope.LOCAL,
+						PortalCacheListenerScope.LOCAL);
+					put(
+						NotificationScope.REMOTE,
+						PortalCacheListenerScope.REMOTE);
+				}
+
+			};
 
 }

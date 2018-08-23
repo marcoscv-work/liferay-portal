@@ -70,36 +70,41 @@ public class CentralSubrepository {
 
 		String tempBranchName = "temp-" + System.currentTimeMillis();
 
-		GitWorkingDirectory gitWorkingDirectory = new GitWorkingDirectory(
-			_subrepositoryUpstreamBranchName, _subrepositoryDirectory,
-			_subrepositoryName);
+		GitWorkingDirectory gitWorkingDirectory =
+			GitWorkingDirectoryFactory.newGitWorkingDirectory(
+				_subrepositoryUpstreamBranchName, _subrepositoryDirectory,
+				_subrepositoryName);
 
-		GitWorkingDirectory.Branch localUpstreamBranch = null;
-		GitWorkingDirectory.Branch tempBranch = null;
+		LocalGitBranch upstreamLocalGitBranch = null;
+		LocalGitBranch tempLocalGitBranch = null;
 
 		try {
-			tempBranch = gitWorkingDirectory.createLocalBranch(tempBranchName);
+			tempLocalGitBranch = gitWorkingDirectory.createLocalGitBranch(
+				tempBranchName);
 
-			gitWorkingDirectory.checkoutBranch(tempBranch);
+			gitWorkingDirectory.checkoutLocalGitBranch(tempLocalGitBranch);
 
 			GitWorkingDirectory.Remote upstreamRemote =
 				gitWorkingDirectory.getRemote("upstream");
 
-			localUpstreamBranch = gitWorkingDirectory.getBranch(
-				_subrepositoryUpstreamBranchName, null, true);
+			upstreamLocalGitBranch = gitWorkingDirectory.getLocalGitBranch(
+				_subrepositoryUpstreamBranchName, true);
 
 			gitWorkingDirectory.fetch(
-				localUpstreamBranch,
-				gitWorkingDirectory.getBranch(
+				upstreamLocalGitBranch,
+				gitWorkingDirectory.getRemoteGitBranch(
 					_subrepositoryUpstreamBranchName, upstreamRemote, true));
 		}
 		finally {
-			if ((localUpstreamBranch != null) && (tempBranch != null) &&
-				gitWorkingDirectory.branchExists(tempBranch.getName(), null)) {
+			if ((upstreamLocalGitBranch != null) &&
+				(tempLocalGitBranch != null) &&
+				gitWorkingDirectory.localGitBranchExists(
+					tempLocalGitBranch.getName())) {
 
-				gitWorkingDirectory.checkoutBranch(localUpstreamBranch);
+				gitWorkingDirectory.checkoutLocalGitBranch(
+					upstreamLocalGitBranch);
 
-				gitWorkingDirectory.deleteBranch(tempBranch);
+				gitWorkingDirectory.deleteLocalGitBranch(tempLocalGitBranch);
 			}
 		}
 
@@ -166,10 +171,11 @@ public class CentralSubrepository {
 	private String _getMergePullRequestURL() throws IOException {
 		String subrepositoryUpstreamCommit = getSubrepositoryUpstreamCommit();
 
-		String url = JenkinsResultsParserUtil.combine(
-			"https://api.github.com/repos/", _subrepositoryUsername, "/",
-			_subrepositoryName, "/commits/", subrepositoryUpstreamCommit,
-			"/statuses");
+		String path = JenkinsResultsParserUtil.combine(
+			"commits/", subrepositoryUpstreamCommit, "/statuses");
+
+		String url = JenkinsResultsParserUtil.getGitHubApiUrl(
+			_subrepositoryName, _subrepositoryUsername, path);
 
 		for (int i = 0; i < 15; i++) {
 			JSONArray statusesJSONArray = new JSONArray(
@@ -228,10 +234,11 @@ public class CentralSubrepository {
 	}
 
 	private String _getSubrepositoryUpstreamCommit() throws IOException {
-		String url = JenkinsResultsParserUtil.combine(
-			"https://api.github.com/repos/", _subrepositoryUsername, "/",
-			_subrepositoryName, "/git/refs/heads/",
-			_subrepositoryUpstreamBranchName);
+		String path = JenkinsResultsParserUtil.combine(
+			"git/refs/heads/", _subrepositoryUpstreamBranchName);
+
+		String url = JenkinsResultsParserUtil.getGitHubApiUrl(
+			_subrepositoryName, _subrepositoryUsername, path);
 
 		JSONObject branchJSONObject = JenkinsResultsParserUtil.toJSONObject(
 			url, false);

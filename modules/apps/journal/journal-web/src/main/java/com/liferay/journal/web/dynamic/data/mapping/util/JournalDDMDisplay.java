@@ -30,6 +30,7 @@ import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProviderUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
@@ -185,6 +186,11 @@ public class JournalDDMDisplay extends BaseDDMDisplay {
 	}
 
 	@Override
+	public boolean isShowBackURLInTitleBar() {
+		return true;
+	}
+
+	@Override
 	public boolean isShowConfirmSelectStructure() {
 		return true;
 	}
@@ -276,6 +282,21 @@ public class JournalDDMDisplay extends BaseDDMDisplay {
 				portletURL.setParameter("showHeader", Boolean.FALSE.toString());
 
 				return portletURL.toString();
+			}
+
+			@Override
+			public boolean isShow(LiferayPortletRequest liferayPortletRequest) {
+				ThemeDisplay themeDisplay =
+					(ThemeDisplay)liferayPortletRequest.getAttribute(
+						WebKeys.THEME_DISPLAY);
+
+				Group group = themeDisplay.getScopeGroup();
+
+				if (group.isLayout()) {
+					return false;
+				}
+
+				return true;
 			}
 
 		};
@@ -385,6 +406,21 @@ public class JournalDDMDisplay extends BaseDDMDisplay {
 					"showManageTemplates", Boolean.TRUE.toString());
 
 				return portletURL.toString();
+			}
+
+			@Override
+			public boolean isShow(LiferayPortletRequest liferayPortletRequest) {
+				ThemeDisplay themeDisplay =
+					(ThemeDisplay)liferayPortletRequest.getAttribute(
+						WebKeys.THEME_DISPLAY);
+
+				Group group = themeDisplay.getScopeGroup();
+
+				if (group.isLayout()) {
+					return false;
+				}
+
+				return true;
 			}
 
 		};
