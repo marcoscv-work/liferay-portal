@@ -74,8 +74,9 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
-import org.apache.struts.util.RequestUtils;
+import org.apache.struts.Globals;
 
 /**
  * @author Brian Wing Shun Chan
@@ -879,7 +880,7 @@ public class ResourceActionsImpl implements ResourceActions {
 						actions.add(ActionKeys.PREFERENCES);
 					}
 					else if (StringUtil.equalsIgnoreCase(
-								 actionId, "edit_guest")) {
+								actionId, "edit_guest")) {
 
 						actions.add(ActionKeys.GUEST_PREFERENCES);
 					}
@@ -969,7 +970,17 @@ public class ResourceActionsImpl implements ResourceActions {
 	private String _getResourceBundlesString(
 		HttpServletRequest request, String key) {
 
-		Locale locale = RequestUtils.getUserLocale(request, null);
+		Locale locale = null;
+
+		HttpSession session = request.getSession(false);
+
+		if (session != null) {
+			locale = (Locale)session.getAttribute(Globals.LOCALE_KEY);
+		}
+
+		if (locale == null) {
+			locale = request.getLocale();
+		}
 
 		return _getResourceBundlesString(locale, key);
 	}

@@ -40,6 +40,7 @@
 								}
 							}
 						],
+						"newline-after-var": 2,
 						"no-console": 0,
 						"no-unknown-property": 0,
 						"react/jsx-uses-react": 0,
@@ -72,6 +73,7 @@
 	"dependencies": {
 		"autobind-decorator": "^2.1.0",
 		"classnames": "^2.2.6",
+		"clay-alert": "^2.3.2",
 		"clay-checkbox": "^2.3.2",
 		"clay-icon": "^2.3.2",
 		"clay-management-toolbar": "^2.3.2",
@@ -89,6 +91,7 @@
 	},
 	"devDependencies": {
 		"babel-cli": "^6.26.0",
+		"babel-core": "^6.26.3",
 		"babel-eslint": "^8.2.6",
 		"babel-plugin-module-resolver": "^3.1.1",
 		"babel-plugin-transform-class-properties": "^6.24.1",
@@ -123,6 +126,7 @@
 			}
 		},
 		"moduleNameMapper": {
+			"(.*)\\.soy$": "$1.soy.js",
 			"clay-(.*)$": "<rootDir>/node_modules/clay-$1"
 		},
 		"modulePathIgnorePatterns": [
@@ -149,7 +153,7 @@
 	"scripts": {
 		"build": "npm run build-soy && npm run build-js && npm run bundler && npm run clean",
 		"build-js": "babel --ignore '**/__tests__/*.js,**/__tests__/*/*.js' --source-maps -d classes/META-INF/resources src/main/resources/META-INF/resources",
-		"build-soy": "metalsoy --soyDeps './node_modules/com.liferay.frontend.taglib.clay/META-INF/resources/node_modules/*/src/*.soy'",
+		"build-soy": "metalsoy --soyDeps \"./node_modules/com.liferay.frontend.taglib.clay/META-INF/resources/node_modules/*/src/*.soy\"",
 		"bundler": "liferay-npm-bundler",
 		"checkFormat": "npm run csf",
 		"clean": "npm run clean-soy",

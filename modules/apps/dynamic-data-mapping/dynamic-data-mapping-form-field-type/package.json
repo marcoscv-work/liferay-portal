@@ -30,6 +30,7 @@
 						"./node_modules/eslint-plugin-react"
 					],
 					"rules": {
+						"newline-after-var": 2,
 						"no-console": 0,
 						"no-unknown-property": 0,
 						"react/jsx-uses-react": 0,
@@ -104,7 +105,7 @@
 		"csf": "csf src/**/metal/**/*.es.js src/**/metal/**/*.soy",
 		"format": "npm run csf -- -i",
 		"lint": "eslint src/main/resources/META-INF/resources/metal/",
-		"soy": "metalsoy --soyDeps './node_modules/com.liferay.frontend.taglib.clay/META-INF/resources/node_modules/*/src/*.soy'",
+		"soy": "metalsoy --soyDeps \"./node_modules/com.liferay.frontend.taglib.clay/META-INF/resources/node_modules/*/src/*.soy\"",
 		"test": "npm run soy && NODE_ENV=test jest --coverage && npm run clean",
 		"test:snapshots": "npm run soy && NODE_ENV=test jest --coverage -u && npm run clean"
 	},

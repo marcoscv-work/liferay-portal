@@ -1,12 +1,33 @@
 window.Liferay = {
 	component: (name) => {
 		let component;
-		if (name.endsWith('translationManager')) {
+
+		if (name.endsWith('settingsDDMForm')) {
+			component = {
+				getField: () => {
+					return {
+						getValue: () => true
+					}
+				}
+			};
+		}
+		else if (name.endsWith('translationManager')) {
 			component = {
 				get: (arg) => 'en_US'
 			};
 		}
+
 		return component;
+	},
+	DDM: {
+		FormSettings: {
+			spritemap: '/lexicon/icons.svg',
+			strings: {
+				'publish-form': 'Publish Form',
+				'the-form-was-published-successfully-access-it-with-this-url-x': 'the-form-was-published-successfully-access-it-with-this-url-x',
+				'unpublish-form': 'Unpublish Form'
+			}
+		}
 	},
 	Language: {
 		get: key => key

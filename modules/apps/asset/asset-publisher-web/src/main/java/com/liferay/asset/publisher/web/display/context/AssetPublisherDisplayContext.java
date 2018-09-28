@@ -153,7 +153,7 @@ public class AssetPublisherDisplayContext {
 	/**
 	 * @deprecated As of Judson (7.1.x), replaced by {@link
 	 *             #AssetPublisherDisplayContext(AssetPublisherCustomizer,
-	 *             PortletRequest,PortletResponse, PortletPreferences)}
+	 *             PortletRequest, PortletResponse, PortletPreferences)}
 	 */
 	@Deprecated
 	public AssetPublisherDisplayContext(
@@ -286,12 +286,7 @@ public class AssetPublisherDisplayContext {
 			WebKeys.THEME_DISPLAY);
 
 		if (isSelectionStyleAssetList() && (assetListEntry != null)) {
-			long[] groupIds = AssetPublisherUtil.getGroupIds(
-				_portletPreferences, themeDisplay.getScopeGroupId(),
-				themeDisplay.getLayout());
-
-			_assetEntryQuery = assetListEntry.getAssetEntryQuery(
-				groupIds, themeDisplay.getLayout());
+			_assetEntryQuery = assetListEntry.getAssetEntryQuery();
 		}
 		else {
 			_assetEntryQuery = AssetPublisherUtil.getAssetEntryQuery(

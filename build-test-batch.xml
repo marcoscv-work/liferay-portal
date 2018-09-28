@@ -703,26 +703,40 @@ app.server.type=@{app.server.type}]]></echo>
 			<if>
 				<contains string="@{app.server.type}" substring="tomcat" />
 				<then>
-					<zip
+					<tar
 						basedir="${project.dir}"
-						destfile="liferay-portal-source.zip"
+						compression="gzip"
+						destfile="liferay-portal-source.tar.gz"
 						excludes="${test.batch.dist.source.excludes}"
 						includes="${test.batch.dist.source.includes}"
+						longfile="posix"
 					/>
 
 					<prepare-liferay-classes if:true="${test.batch.code.coverage}" merged.jar="${project.dir}/jacoco/merged.jar" portal.bundle.dir="bundles" />
 				</then>
 			</if>
 
-			<zip
+			<chmod
+				perm="a+x"
+				type="file"
+			>
+				<fileset
+					dir="bundles"
+					includes="**/*.sh"
+				/>
+			</chmod>
+
+			<tar
 				basedir="."
-				destfile="liferay-portal-bundle-@{app.server.type}.zip"
+				compression="gzip"
+				destfile="liferay-portal-bundle-@{app.server.type}.tar.gz"
 				includes="bundles/**"
+				longfile="posix"
 			/>
 
 			<execute>
 				<![CDATA[
-					jar -ftv liferay-portal-bundle-@{app.server.type}.zip
+					tar --file=liferay-portal-bundle-@{app.server.type}.tar.gz --gzip --list --verbose
 				]]>
 			</execute>
 		</sequential>
@@ -753,18 +767,27 @@ app.server.type=@{app.server.type}]]></echo>
 
 			<antcall inheritAll="false" target="setup-sdk" />
 
-			<unzip
+			<untar
+				compression="gzip"
 				dest="."
-				src="liferay-portal-source.zip"
+				src="liferay-portal-source.tar.gz"
 			/>
 
-			<execute>
-				<![CDATA[
-					unzip -oq liferay-portal-bundle-@{app.server.type}.zip
+			<untar
+				compression="gzip"
+				dest="."
+				src="liferay-portal-bundle-@{app.server.type}.tar.gz"
+			/>
 
-					chmod -R a+x bundles
-				]]>
-			</execute>
+			<chmod
+				perm="a+x"
+				type="file"
+			>
+				<fileset
+					dir="bundles"
+					includes="**/*.sh"
+				/>
+			</chmod>
 
 			<setup-libs />
 
@@ -1223,8 +1246,8 @@ app.server.type=@{app.server.type}]]></echo>
 						</then>
 						<elseif>
 							<and>
-								<available file="liferay-portal-bundle-${app.server.type}.zip" />
-								<available file="liferay-portal-source.zip" />
+								<available file="liferay-portal-bundle-${app.server.type}.tar.gz" />
+								<available file="liferay-portal-source.tar.gz" />
 							</and>
 							<then>
 								<prepare-test-environment app.server.type="${app.server.type}" />
@@ -3834,12 +3857,12 @@ log.sanitizer.enabled=false</echo>
 
 						<setup-testable-tomcat />
 
-						<setup-test-batch-testable-tomcat />
+						<setup-test-batch-testable-tomcat test.portal.bundle.version="${test.portal.bundle.version}" />
 					</then>
 					<elseif>
 						<and>
-							<available file="liferay-portal-bundle-${app.server.type}.zip" />
-							<available file="liferay-portal-source.zip" />
+							<available file="liferay-portal-bundle-${app.server.type}.tar.gz" />
+							<available file="liferay-portal-source.tar.gz" />
 						</and>
 						<then>
 							<prepare-test-environment app.server.type="${app.server.type}" />
@@ -3962,13 +3985,13 @@ log.sanitizer.enabled=false</echo>
 					</else>
 				</if>
 
-				<echo>unzip -p liferay-portal-source.zip modules/core/portal-bootstrap/build/system.packages.extra.mf > modules/core/portal-bootstrap/system.packages.extra.mf</echo>
+				<echo>tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/build/system.packages.extra.mf --gzip --to-stdout--verbose  > modules/core/portal-bootstrap/system.packages.extra.mf</echo>
 
 				<execute>
 					<![CDATA[
 						mkdir -p modules/core/portal-bootstrap
 
-						unzip -p liferay-portal-source.zip modules/core/portal-bootstrap/build/system.packages.extra.mf > modules/core/portal-bootstrap/system.packages.extra.mf
+						tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/build/system.packages.extra.mf --gzip --to-stdout --verbose > modules/core/portal-bootstrap/system.packages.extra.mf
 					]]>
 				</execute>
 			</test-set-up>
@@ -4209,13 +4232,13 @@ log.sanitizer.enabled=false</echo>
 
 						<antcall inheritAll="false" target="install-portal-snapshots" />
 
-						<echo>unzip -p liferay-portal-source.zip modules/core/portal-bootstrap/build/system.packages.extra.mf > modules/core/portal-bootstrap/system.packages.extra.mf</echo>
+						<echo>tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/build/system.packages.extra.mf --gzip --to-stdout --verbose > modules/core/portal-bootstrap/system.packages.extra.mf</echo>
 
 						<execute>
 							<![CDATA[
 								mkdir -p modules/core/portal-bootstrap
 
-								unzip -p liferay-portal-source.zip modules/core/portal-bootstrap/build/system.packages.extra.mf > modules/core/portal-bootstrap/system.packages.extra.mf
+								tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/build/system.packages.extra.mf --gzip --to-stdout --verbose > modules/core/portal-bootstrap/system.packages.extra.mf
 							]]>
 						</execute>
 					</then>
@@ -4433,6 +4456,58 @@ ${output.content}</echo>
 				<generate-gulp-user-config-json portlet.name="${portlet.name}" />
 			</test-set-up>
 		</run-batch-test>
+	</target>
+
+	<target name="pmd-jdk8">
+		<local name="count" />
+
+		<antcall inheritAll="false" target="setup-sdk" />
+
+		<antcall inheritAll="false" target="run-pmd" />
+
+		<var name="pmd.violations" value="" />
+
+		<xmltask source="pmd-reports/pmd-report.xml">
+			<call path="/pmd/file/violation">
+				<param name="beginline" path="@beginline" />
+				<param default="" name="externalInfoURL" path="@externalInfoUrl" />
+				<param name="fileName" path="../@name" />
+				<param name="message" path="text()" />
+				<param name="rule" path="@rule" />
+				<actions>
+					<antelope:stringutil property="message" string="@{message}">
+						<antelope:trim />
+					</antelope:stringutil>
+
+					<var name="pmd.violations" value="${pmd.violations}${line.separator}PMD VIOLATION: ${basedir}/@{fileName}:@{beginline} > ${message} (PMD Rule: @{rule})${line.separator}" />
+
+					<if>
+						<not>
+							<equals arg1="@{externalInfoURL}" arg2="" />
+						</not>
+						<then>
+							<var name="pmd.violations" value="${pmd.violations}For more information, please see @{externalInfoURL}.${line.separator}" />
+						</then>
+					</if>
+				</actions>
+			</call>
+			<copy
+				path="count(/pmd/file/violation)"
+				property="count"
+			/>
+		</xmltask>
+
+		<if>
+			<and>
+				<isset property="count" />
+				<not>
+					<equals arg1="${count}" arg2="0" />
+				</not>
+			</and>
+			<then>
+				<fail message="${count} PMD violation(s) were found.${line.separator}${pmd.violations}" />
+			</then>
+		</if>
 	</target>
 
 	<target name="portal-frontend-js-jdk8">
@@ -4797,13 +4872,13 @@ ${output.content}</echo>
 			</test-action>
 
 			<test-set-up>
-				<echo>unzip -p liferay-portal-source.zip modules/core/portal-bootstrap/build/system.packages.extra.mf > modules/core/portal-bootstrap/system.packages.extra.mf</echo>
+				<echo>tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/build/system.packages.extra.mf --gzip --to-stdout --verbose > modules/core/portal-bootstrap/system.packages.extra.mf</echo>
 
 				<execute>
 					<![CDATA[
 						mkdir -p modules/core/portal-bootstrap
 
-						unzip -p liferay-portal-source.zip modules/core/portal-bootstrap/build/system.packages.extra.mf > modules/core/portal-bootstrap/system.packages.extra.mf
+						tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/build/system.packages.extra.mf --gzip --to-stdout --verbose > modules/core/portal-bootstrap/system.packages.extra.mf
 					]]>
 				</execute>
 
@@ -4954,7 +5029,7 @@ information. Make sure to commit in all build services results.
 	</target>
 
 	<target name="setup-testable-tomcat-gc">
-		<setup-testable-tomcat-gc test.portal.bundle.version="@{test.portal.bundle.version}" />
+		<setup-testable-tomcat-gc test.portal.bundle.version="${test.portal.bundle.version}" />
 	</target>
 
 	<target name="slim-profile-jdk8">
@@ -5267,7 +5342,26 @@ information. Make sure to commit in all build services results.
 		<get-database-property property.name="database.schema" />
 		<get-database-property property.name="database.username" />
 
-		<clean-restart-sybase />
+		<condition else="false" property="rebuild.sybase" value="true">
+			<length length="25000000000" mode="all" when="lt">
+				<fileset
+					dir="/opt/sybase/data"
+					includes="*"
+				/>
+			</length>
+		</condition>
+
+		<if>
+			<not>
+				<equals arg1="${rebuild.sybase}" arg2="true" />
+			</not>
+			<then>
+				<clean-restart-sybase retry="true" />
+			</then>
+			<else>
+				<clean-restart-sybase />
+			</else>
+		</if>
 
 		<echo file="create-header.sql">use master
 dump transaction master with no_log

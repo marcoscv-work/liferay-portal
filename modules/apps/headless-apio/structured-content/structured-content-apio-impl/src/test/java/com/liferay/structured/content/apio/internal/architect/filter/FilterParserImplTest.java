@@ -14,10 +14,16 @@
 
 package com.liferay.structured.content.apio.internal.architect.filter;
 
+import com.liferay.structured.content.apio.architect.entity.EntityField;
 import com.liferay.structured.content.apio.architect.filter.InvalidFilterException;
 import com.liferay.structured.content.apio.architect.filter.expression.BinaryExpression;
 import com.liferay.structured.content.apio.architect.filter.expression.Expression;
 import com.liferay.structured.content.apio.architect.filter.expression.ExpressionVisitException;
+
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.assertj.core.api.AbstractThrowableAssert;
 import org.assertj.core.api.Assertions;
@@ -34,6 +40,10 @@ public class FilterParserImplTest {
 	@Before
 	public void setUp() {
 		_filterParserImpl = new FilterParserImpl();
+
+		_filterParserImpl.
+			setStructuredContentSingleEntitySchemaBasedEdmProvider(
+				_structuredContentSingleEntitySchemaBasedEdmProvider);
 
 		_filterParserImpl.activate();
 	}
@@ -66,8 +76,40 @@ public class FilterParserImplTest {
 	}
 
 	@Test
+	public void testParseWithEqBinaryExpressionWithDate() {
+		AbstractThrowableAssert exception = Assertions.assertThatThrownBy(
+			() -> _filterParserImpl.parse("dateExternal ge 2012-05-29")
+		).isInstanceOf(
+			InvalidFilterException.class
+		);
+
+		exception.hasMessageContaining("Incompatible types");
+	}
+
+	@Test
+	public void testParseWithEqBinaryExpressionWithDateTimeOffset()
+		throws ExpressionVisitException {
+
+		Expression expression = _filterParserImpl.parse(
+			"dateExternal ge 2012-05-29T09:13:28Z");
+
+		Assert.assertNotNull(expression);
+
+		BinaryExpression binaryExpression = (BinaryExpression)expression;
+
+		Assert.assertEquals(
+			BinaryExpression.Operation.GE, binaryExpression.getOperation());
+		Assert.assertEquals(
+			"[dateExternal]",
+			binaryExpression.getLeftOperationExpression().toString());
+		Assert.assertEquals(
+			"2012-05-29T09:13:28Z",
+			binaryExpression.getRightOperationExpression().toString());
+	}
+
+	@Test
 	public void testParseWithEqBinaryExpressionWithNoSingleQuotes() {
-		String filterString = "(title eq title1)";
+		String filterString = "(fieldExternal eq value)";
 
 		AbstractThrowableAssert exception = Assertions.assertThatThrownBy(
 			() -> _filterParserImpl.parse(filterString)
@@ -85,7 +127,8 @@ public class FilterParserImplTest {
 	public void testParseWithEqBinaryExpressionWithSingleQuotes()
 		throws ExpressionVisitException {
 
-		Expression expression = _filterParserImpl.parse("title eq 'title1'");
+		Expression expression = _filterParserImpl.parse(
+			"fieldExternal eq 'value'");
 
 		Assert.assertNotNull(expression);
 
@@ -94,10 +137,10 @@ public class FilterParserImplTest {
 		Assert.assertEquals(
 			BinaryExpression.Operation.EQ, binaryExpression.getOperation());
 		Assert.assertEquals(
-			"[title]",
+			"[fieldExternal]",
 			binaryExpression.getLeftOperationExpression().toString());
 		Assert.assertEquals(
-			"'title1'",
+			"'value'",
 			binaryExpression.getRightOperationExpression().toString());
 	}
 
@@ -105,7 +148,8 @@ public class FilterParserImplTest {
 	public void testParseWithEqBinaryExpressionWithSingleQuotesAndParentheses()
 		throws ExpressionVisitException {
 
-		Expression expression = _filterParserImpl.parse("(title eq 'title1')");
+		Expression expression = _filterParserImpl.parse(
+			"(fieldExternal eq 'value')");
 
 		Assert.assertNotNull(expression);
 
@@ -114,10 +158,10 @@ public class FilterParserImplTest {
 		Assert.assertEquals(
 			BinaryExpression.Operation.EQ, binaryExpression.getOperation());
 		Assert.assertEquals(
-			"[title]",
+			"[fieldExternal]",
 			binaryExpression.getLeftOperationExpression().toString());
 		Assert.assertEquals(
-			"'title1'",
+			"'value'",
 			binaryExpression.getRightOperationExpression().toString());
 	}
 
@@ -125,7 +169,8 @@ public class FilterParserImplTest {
 	public void testParseWithGeBinaryExpression()
 		throws ExpressionVisitException {
 
-		Expression expression = _filterParserImpl.parse("title ge 'title1'");
+		Expression expression = _filterParserImpl.parse(
+			"fieldExternal ge 'value'");
 
 		Assert.assertNotNull(expression);
 
@@ -134,10 +179,10 @@ public class FilterParserImplTest {
 		Assert.assertEquals(
 			BinaryExpression.Operation.GE, binaryExpression.getOperation());
 		Assert.assertEquals(
-			"[title]",
+			"[fieldExternal]",
 			binaryExpression.getLeftOperationExpression().toString());
 		Assert.assertEquals(
-			"'title1'",
+			"'value'",
 			binaryExpression.getRightOperationExpression().toString());
 	}
 
@@ -145,7 +190,8 @@ public class FilterParserImplTest {
 	public void testParseWithLeBinaryExpression()
 		throws ExpressionVisitException {
 
-		Expression expression = _filterParserImpl.parse("title le 'title1'");
+		Expression expression = _filterParserImpl.parse(
+			"fieldExternal le 'value'");
 
 		Assert.assertNotNull(expression);
 
@@ -154,10 +200,10 @@ public class FilterParserImplTest {
 		Assert.assertEquals(
 			BinaryExpression.Operation.LE, binaryExpression.getOperation());
 		Assert.assertEquals(
-			"[title]",
+			"[fieldExternal]",
 			binaryExpression.getLeftOperationExpression().toString());
 		Assert.assertEquals(
-			"'title1'",
+			"'value'",
 			binaryExpression.getRightOperationExpression().toString());
 	}
 
@@ -171,6 +217,32 @@ public class FilterParserImplTest {
 
 		exception.hasMessage("Filter is null");
 	}
+
+	private static final StructuredContentSingleEntitySchemaBasedEdmProvider
+		_structuredContentSingleEntitySchemaBasedEdmProvider =
+			new StructuredContentSingleEntitySchemaBasedEdmProvider() {
+
+				@Override
+				public Map<String, EntityField> getEntityFieldsMap() {
+					return Stream.of(
+						new EntityField(
+							"fieldExternal", EntityField.Type.STRING,
+							locale -> "fieldInternal"),
+						new EntityField(
+							"dateExternal", EntityField.Type.DATE,
+							locale -> "dateInternal")
+					).collect(
+						Collectors.toMap(
+							EntityField::getName, Function.identity())
+					);
+				}
+
+				@Override
+				public String getName() {
+					return "SomeEntityName";
+				}
+
+			};
 
 	private FilterParserImpl _filterParserImpl;
 

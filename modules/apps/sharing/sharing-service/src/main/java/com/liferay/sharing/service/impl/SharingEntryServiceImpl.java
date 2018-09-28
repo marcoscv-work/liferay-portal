@@ -21,12 +21,13 @@ import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebServiceMode;
 import com.liferay.portal.kernel.model.ClassName;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.spring.extender.service.ServiceReference;
-import com.liferay.sharing.constants.SharingEntryActionKey;
 import com.liferay.sharing.model.SharingEntry;
+import com.liferay.sharing.security.permission.SharingEntryAction;
 import com.liferay.sharing.security.permission.SharingPermissionChecker;
 import com.liferay.sharing.service.base.SharingEntryServiceBaseImpl;
 
@@ -39,40 +40,92 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
 /**
+ * Provides the remove service for adding and updating sharing entries.
+ *
+ * <p>
+ * This service is responsible of checking the permissions to ensure that a user
+ * can share a resource with other users. If the permission check is successful
+ * it invokes the local service {@link SharingEntryLocalServiceImpl} to perform
+ * the operation in the database. The permission check is done using the
+ * interface {@link SharingPermissionChecker} for the respective class name id.
+ * </p>
+ *
  * @author Sergio González
+ * @review
  */
 public class SharingEntryServiceImpl extends SharingEntryServiceBaseImpl {
 
+	/**
+	 * Adds a sharing entry in the database if it does not exist or it updates
+	 * it if it exists.
+	 *
+	 * @param  toUserId the user id whose resource was shared
+	 * @param  classNameId the class name ID of the resource being shared
+	 * @param  classPK the primary key of the resource being shared
+	 * @param  groupId the primary key of the group containing the resource
+	 *         being shared
+	 * @param  shareable whether the to user id can share the resource as well
+	 * @param  sharingEntryActions the sharing entry actions
+	 * @param  expirationDate the date when the sharing entry expires
+	 * @return the sharing entry
+	 * @param  serviceContext the service context to be applied
+	 * @throws PortalException if the user does not have permission to share the
+	 *         resource or sharing entry actions are invalid (it is empty, it
+	 *         doesn't contain {@link SharingEntryAction#VIEW,} or it
+	 *         contains a <code>null</code> value) or from user id and to user
+	 *         id are the same or the expiration date is a value in the past.
+	 */
 	@Override
 	public SharingEntry addOrUpdateSharingEntry(
 			long toUserId, long classNameId, long classPK, long groupId,
 			boolean shareable,
-			Collection<SharingEntryActionKey> sharingEntryActionKeys,
+			Collection<SharingEntryAction> sharingEntryActions,
 			Date expirationDate, ServiceContext serviceContext)
 		throws PortalException {
 
 		_checkSharingPermission(
-			getUserId(), classNameId, classPK, groupId, sharingEntryActionKeys);
+			getUserId(), classNameId, classPK, groupId, sharingEntryActions);
 
 		return sharingEntryLocalService.addOrUpdateSharingEntry(
 			getUserId(), toUserId, classNameId, classPK, groupId, shareable,
-			sharingEntryActionKeys, expirationDate, serviceContext);
+			sharingEntryActions, expirationDate, serviceContext);
 	}
 
+	/**
+	 * Adds a sharing entry in the database.
+	 *
+	 * @param  toUserId the user id whose resource was shared
+	 * @param  classNameId the class name ID of the resource being shared
+	 * @param  classPK the primary key of the resource being shared
+	 * @param  groupId the primary key of the group containing the resource
+	 *         being shared
+	 * @param  shareable whether the to user id can share the resource as well
+	 * @param  sharingEntryActions the sharing entry actions
+	 * @param  expirationDate the date when the sharing entry expires
+	 * @return the sharing entry
+	 * @param  serviceContext the service context to be applied
+	 * @throws PortalException if the user does not have permission to share the
+	 *         resource or there is already a sharing entry for the same from
+	 *         user id, to user id and resource or the sharing entry actions are
+	 *         invalid (it is empty, it doesn't contain
+	 *         {@link SharingEntryAction#VIEW,} or it contains a
+	 *         <code>null</code> value) or from user id and to user id are the
+	 *         same or the expiration date is a value in the past.
+	 */
 	@Override
 	public SharingEntry addSharingEntry(
 			long toUserId, long classNameId, long classPK, long groupId,
 			boolean shareable,
-			Collection<SharingEntryActionKey> sharingEntryActionKeys,
+			Collection<SharingEntryAction> sharingEntryActions,
 			Date expirationDate, ServiceContext serviceContext)
 		throws PortalException {
 
 		_checkSharingPermission(
-			getUserId(), classNameId, classPK, groupId, sharingEntryActionKeys);
+			getUserId(), classNameId, classPK, groupId, sharingEntryActions);
 
 		return sharingEntryLocalService.addSharingEntry(
 			getUserId(), toUserId, classNameId, classPK, groupId, shareable,
-			sharingEntryActionKeys, expirationDate, serviceContext);
+			sharingEntryActions, expirationDate, serviceContext);
 	}
 
 	@JSONWebService(mode = JSONWebServiceMode.IGNORE)
@@ -95,6 +148,23 @@ public class SharingEntryServiceImpl extends SharingEntryServiceBaseImpl {
 			});
 	}
 
+	@Override
+	public SharingEntry deleteSharingEntry(
+			long sharingEntryId, ServiceContext serviceContext)
+		throws PortalException {
+
+		SharingEntry sharingEntry = sharingEntryLocalService.getSharingEntry(
+			sharingEntryId);
+
+		if (getUserId() != sharingEntry.getFromUserId()) {
+			throw new PrincipalException.MustHavePermission(
+				getUserId(), sharingEntry.getModelClassName(), sharingEntryId,
+				ActionKeys.DELETE);
+		}
+
+		return sharingEntryLocalService.deleteSharingEntry(sharingEntry);
+	}
+
 	@JSONWebService(mode = JSONWebServiceMode.IGNORE)
 	@Override
 	public void destroy() {
@@ -103,11 +173,27 @@ public class SharingEntryServiceImpl extends SharingEntryServiceBaseImpl {
 		_serviceTrackerMap.close();
 	}
 
+	/**
+	 * Updates a sharing entry in the database.
+	 *
+	 * @param  sharingEntryId the primary key of the sharing entry
+	 * @param  sharingEntryActions the sharing entry actions
+	 * @param  shareable whether the to user id can share the resource as well
+	 * @param  expirationDate the date when the sharing entry expires
+	 * @return the sharing entry
+	 * @param  serviceContext the service context to be applied
+	 * @throws PortalException if the sharing entry does not exist or sharing
+	 *         entry actions are invalid (it is empty, it doesn't contain
+	 *         {@link SharingEntryAction#VIEW,} or it contains a
+	 *         <code>null</code> value) or the expiration date is a value in the
+	 *         past.
+	 */
 	@Override
 	public SharingEntry updateSharingEntry(
 			long sharingEntryId,
-			Collection<SharingEntryActionKey> sharingEntryActionKeys,
-			boolean shareable, Date expirationDate)
+			Collection<SharingEntryAction> sharingEntryActions,
+			boolean shareable, Date expirationDate,
+			ServiceContext serviceContext)
 		throws PortalException {
 
 		SharingEntry sharingEntry = sharingEntryPersistence.findByPrimaryKey(
@@ -116,10 +202,11 @@ public class SharingEntryServiceImpl extends SharingEntryServiceBaseImpl {
 		_checkSharingPermission(
 			getUserId(), sharingEntry.getClassNameId(),
 			sharingEntry.getClassPK(), sharingEntry.getGroupId(),
-			sharingEntryActionKeys);
+			sharingEntryActions);
 
 		return sharingEntryLocalService.updateSharingEntry(
-			sharingEntryId, sharingEntryActionKeys, shareable, expirationDate);
+			sharingEntryId, sharingEntryActions, shareable, expirationDate,
+			serviceContext);
 	}
 
 	@ServiceReference(type = ClassNameLocalService.class)
@@ -127,7 +214,7 @@ public class SharingEntryServiceImpl extends SharingEntryServiceBaseImpl {
 
 	private void _checkSharingPermission(
 			long fromUserId, long classNameId, long classPK, long groupId,
-			Collection<SharingEntryActionKey> sharingEntryActionKeys)
+			Collection<SharingEntryAction> sharingEntryActions)
 		throws PortalException {
 
 		SharingPermissionChecker sharingPermissionChecker =
@@ -135,26 +222,26 @@ public class SharingEntryServiceImpl extends SharingEntryServiceBaseImpl {
 
 		if (sharingPermissionChecker == null) {
 			throw new PrincipalException(
-				"sharing permission checker is null for class name id " +
+				"sharing permission checker is null for class name ID " +
 					classNameId);
 		}
 
 		PermissionChecker permissionChecker = getPermissionChecker();
 
 		if (sharingPermissionChecker.hasPermission(
-				permissionChecker, classPK, groupId, sharingEntryActionKeys)) {
+				permissionChecker, classPK, groupId, sharingEntryActions)) {
 
 			return;
 		}
 
-		Stream<SharingEntryActionKey> sharingEntryActionKeyStream =
-			sharingEntryActionKeys.stream();
+		Stream<SharingEntryAction> sharingEntryActionStream =
+			sharingEntryActions.stream();
 
-		if (sharingEntryActionKeyStream.allMatch(
-				sharingEntryActionKey ->
+		if (sharingEntryActionStream.allMatch(
+				sharingEntryAction ->
 					sharingEntryLocalService.hasShareableSharingPermission(
 						permissionChecker.getUserId(), classNameId, classPK,
-						sharingEntryActionKey))) {
+						sharingEntryAction))) {
 
 			return;
 		}
@@ -168,10 +255,10 @@ public class SharingEntryServiceImpl extends SharingEntryServiceBaseImpl {
 			resourceName = className.getClassName();
 		}
 
-		sharingEntryActionKeyStream = sharingEntryActionKeys.stream();
+		sharingEntryActionStream = sharingEntryActions.stream();
 
-		String[] actionIds = sharingEntryActionKeyStream.map(
-			SharingEntryActionKey::getActionId
+		String[] actionIds = sharingEntryActionStream.map(
+			SharingEntryAction::getActionId
 		).toArray(
 			String[]::new
 		);

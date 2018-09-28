@@ -27,9 +27,9 @@ import com.liferay.layout.page.template.service.LayoutPageTemplateEntryService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
 import com.liferay.layout.type.controller.asset.display.internal.constants.AssetDisplayLayoutTypeControllerConstants;
 import com.liferay.layout.type.controller.asset.display.internal.constants.AssetDisplayLayoutTypeControllerWebKeys;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.Layout;
@@ -40,6 +40,7 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.taglib.servlet.PipingServletResponse;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -156,7 +157,7 @@ public class AssetDisplayLayoutTypeController
 
 	private List<FragmentEntryLink> _getFragmentEntryLinks(
 			Layout layout, long layoutPageTemplateEntryId)
-		throws JSONException {
+		throws PortalException {
 
 		LayoutPageTemplateStructure layoutPageTemplateStructure =
 			_layoutPageTemplateStructureLocalService.
@@ -164,11 +165,7 @@ public class AssetDisplayLayoutTypeController
 					layout.getGroupId(),
 					_portal.getClassNameId(
 						LayoutPageTemplateEntry.class.getName()),
-					layoutPageTemplateEntryId);
-
-		if (layoutPageTemplateStructure == null) {
-			return Collections.emptyList();
-		}
+					layoutPageTemplateEntryId, true);
 
 		String data = layoutPageTemplateStructure.getData();
 
@@ -184,11 +181,13 @@ public class AssetDisplayLayoutTypeController
 			return Collections.emptyList();
 		}
 
+		List<FragmentEntryLink> fragmentEntryLinksList = new ArrayList<>();
+
 		List<FragmentEntryLink> fragmentEntryLinks =
 			_fragmentEntryLinkLocalService.getFragmentEntryLinks(
 				layout.getGroupId(),
-				_portal.getClassNameId(Layout.class.getName()),
-				layout.getPlid());
+				_portal.getClassNameId(LayoutPageTemplateEntry.class.getName()),
+				layoutPageTemplateEntryId);
 
 		Stream<FragmentEntryLink> stream = fragmentEntryLinks.stream();
 
@@ -202,11 +201,11 @@ public class AssetDisplayLayoutTypeController
 				structureJSONArray.getLong(i));
 
 			if (fragmentEntryLink != null) {
-				fragmentEntryLinks.add(fragmentEntryLink);
+				fragmentEntryLinksList.add(fragmentEntryLink);
 			}
 		}
 
-		return fragmentEntryLinks;
+		return fragmentEntryLinksList;
 	}
 
 	private long _getLayoutPageTemplateEntryId(

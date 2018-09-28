@@ -119,6 +119,11 @@
 		<check name="JavaBooleanUsageCheck" />
 		<check name="JavaCollatorUtilCheck" />
 		<check name="JavaCombineLinesCheck" />
+		<check name="JavaComponentAnnotationsCheck">
+			<property name="checkMismatchedServiceAttribute" value="false" />
+			<property name="checkSelfRegistration" value="false" />
+			<property name="enabled" value="false" />
+		</check>
 		<check name="JavaConfigurationAdminCheck" />
 		<check name="JavaConfigurationCategoryCheck" />
 		<check name="JavaConstructorParametersCheck" />
@@ -154,7 +159,7 @@
 		<check name="JavaLineBreakCheck" />
 		<check name="JavaLocalSensitiveComparisonCheck" />
 		<check name="JavaLongLinesCheck" />
-		<check name="JavaMetaOCDIdCheck" />
+		<check name="JavaMetaAnnotationsCheck" />
 		<check name="JavaModifiedServiceMethodCheck" />
 		<check name="JavaPackagePathCheck" />
 		<check name="JavaParameterAnnotationsCheck" />
@@ -340,6 +345,7 @@
 	<source-processor name="LFRBuildSourceProcessor">
 		<check name="LFRBuildContentCheck">
 			<property name="nonemptyMarkerFileNames" value=".lfrbuild-lowest-major-version" />
+			<property name="nonemptyMarkerFileNames" value=".lfrbuild-packageinfo" />
 		</check>
 		<check name="LFRBuildReadmeCheck" />
 	</source-processor>
@@ -348,6 +354,7 @@
 		<check name="MarkdownStylingCheck" />
 		<check name="WhitespaceCheck">
 			<property name="allowLeadingSpaces" value="true" />
+			<property name="allowTrailingDoubleSpace" value="true" />
 		</check>
 	</source-processor>
 	<source-processor name="PackageinfoSourceProcessor">

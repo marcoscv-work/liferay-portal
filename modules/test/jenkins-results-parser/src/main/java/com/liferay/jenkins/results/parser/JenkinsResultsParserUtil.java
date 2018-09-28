@@ -767,11 +767,13 @@ public class JenkinsResultsParserUtil {
 	}
 
 	public static GitWorkingDirectory getJenkinsGitWorkingDirectory() {
-		LocalGitRepository localGitRepository =
-			GitRepositoryFactory.getLocalGitRepository(
-				"liferay-jenkins-ee", "master");
+		String gitRepositoryName = "liferay-jenkins-ee";
 
-		return localGitRepository.getGitWorkingDirectory();
+		File gitRepositoryDir = new File(
+			getBaseGitRepositoryDir(), gitRepositoryName);
+
+		return GitWorkingDirectoryFactory.newGitWorkingDirectory(
+			"master", gitRepositoryDir, gitRepositoryName);
 	}
 
 	public static List<JenkinsMaster> getJenkinsMasters(
@@ -983,20 +985,26 @@ public class JenkinsResultsParserUtil {
 	}
 
 	public static PortalGitWorkingDirectory getPortalGitWorkingDirectory(
-		String portalBranchName) {
+		String upstreamBranchName) {
 
-		String portalGitRepositoryName = "liferay-portal";
+		String gitRepositoryDirName = "liferay-portal";
+		String gitRepositoryName = "liferay-portal";
 
-		if (!portalBranchName.equals("master")) {
-			portalGitRepositoryName += "-ee";
+		if (!upstreamBranchName.equals("master")) {
+			gitRepositoryDirName += "-" + upstreamBranchName;
+			gitRepositoryName += "-ee";
 		}
 
-		LocalGitRepository localGitRepository =
-			GitRepositoryFactory.getLocalGitRepository(
-				portalGitRepositoryName, portalBranchName);
+		File gitRepositoryDir = new File(
+			getBaseGitRepositoryDir(), gitRepositoryDirName);
 
 		GitWorkingDirectory gitWorkingDirectory =
-			localGitRepository.getGitWorkingDirectory();
+			GitWorkingDirectoryFactory.newGitWorkingDirectory(
+				upstreamBranchName, gitRepositoryDir, gitRepositoryName);
+
+		if (!(gitWorkingDirectory instanceof PortalGitWorkingDirectory)) {
+			throw new RuntimeException("Invalid Git working directory");
+		}
 
 		return (PortalGitWorkingDirectory)gitWorkingDirectory;
 	}
@@ -1025,11 +1033,41 @@ public class JenkinsResultsParserUtil {
 		String newValue = value;
 
 		while (matcher.find()) {
-			newValue = newValue.replace(
-				matcher.group(0), getProperty(properties, matcher.group(1)));
+			if (properties.containsKey(matcher.group(1))) {
+				newValue = newValue.replace(
+					matcher.group(0),
+					getProperty(properties, matcher.group(1)));
+			}
 		}
 
 		return newValue;
+	}
+
+	public static String getProperty(
+		Properties properties, String name, String... opts) {
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append(name);
+
+		if (opts != null) {
+			for (String opt : opts) {
+				sb.append("[");
+				sb.append(opt);
+				sb.append("]");
+			}
+		}
+
+		if (properties.containsKey(sb.toString())) {
+			return getProperty(properties, sb.toString());
+		}
+
+		if ((opts != null) && (opts.length > 0)) {
+			return getProperty(
+				properties, name, Arrays.copyOf(opts, opts.length - 1));
+		}
+
+		return null;
 	}
 
 	public static List<String> getRandomList(List<String> list, int size) {
@@ -2013,6 +2051,11 @@ public class JenkinsResultsParserUtil {
 				"Unable to load properties file " +
 					basePropertiesFile.getPath(),
 				ioe);
+		}
+
+		for (String propertyName : properties.stringPropertyNames()) {
+			properties.setProperty(
+				propertyName, getProperty(properties, propertyName));
 		}
 
 		return properties;

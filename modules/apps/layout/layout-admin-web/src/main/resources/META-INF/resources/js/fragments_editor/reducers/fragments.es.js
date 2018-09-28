@@ -1,8 +1,11 @@
-import {DRAG_POSITIONS} from './placeholders.es';
 import {
 	ADD_FRAGMENT_ENTRY_LINK,
-	REMOVE_FRAGMENT_ENTRY_LINK
+	MOVE_FRAGMENT_ENTRY_LINK,
+	REMOVE_FRAGMENT_ENTRY_LINK,
+	UPDATE_EDITABLE_VALUE
 } from '../actions/actions.es';
+import {DRAG_POSITIONS} from './placeholders.es';
+import {EDITABLE_FRAGMENT_ENTRY_PROCESSOR} from '../components/fragment_entry_link/FragmentEntryLink.es';
 
 /**
  * @param {!object} state
@@ -88,7 +91,7 @@ function addFragmentEntryLinkReducer(state, actionType, payload) {
 
 							resolve(nextState);
 						}
-					).catch (
+					).catch(
 						() => {
 							resolve(nextState);
 						}
@@ -96,6 +99,80 @@ function addFragmentEntryLinkReducer(state, actionType, payload) {
 			}
 			else {
 				resolve(nextState);
+			}
+		}
+	);
+}
+
+/**
+ * @param {!object} state
+ * @param {!string} actionType
+ * @param {!object} payload
+ * @param {!string} payload.placeholderId
+ * @param {!string} payload.placeholderId
+ * @param {!string} payload.placeholderId
+ * @return {object}
+ * @review
+ */
+
+function moveFragmentEntryLinkReducer(state, actionType, payload) {
+	return new Promise(
+		(resolve, reject) => {
+			if (actionType === MOVE_FRAGMENT_ENTRY_LINK) {
+				let nextState = Object.assign({}, state);
+
+				const nextData = Object.assign(
+					{},
+					state.layoutData,
+					{
+						structure: [
+							...(state.layoutData.structure || [])
+						]
+					}
+				);
+
+				if (payload.targetId && (payload.placeholderId != payload.targetId)) {
+					const placeholderIndex = nextData.structure.indexOf(
+						payload.placeholderId
+					);
+
+					nextData.structure.splice(placeholderIndex, 1);
+
+					const targetIndex = nextData.structure.indexOf(
+						payload.targetId
+					);
+
+					if (payload.targetBorder === DRAG_POSITIONS.top) {
+						nextData.structure.splice(targetIndex, 0, payload.placeholderId);
+					}
+					else {
+						nextData.structure.splice(targetIndex + 1, 0, payload.placeholderId);
+					}
+				}
+
+				_moveFragmentEntryLink(
+					state.updateLayoutPageTemplateDataURL,
+					state.portletNamespace,
+					state.classNameId,
+					state.classPK,
+					nextData
+				).then(
+					(response) => {
+						if (response.error) {
+							throw response.error;
+						}
+
+						nextState.layoutData = nextData;
+						resolve(nextState);
+					}
+				).catch(
+					() => {
+						resolve(state);
+					}
+				);
+			}
+			else {
+				resolve(state);
 			}
 		}
 	);
@@ -148,7 +225,7 @@ function removeFragmentEntryLinkReducer(state, actionType, payload) {
 
 						resolve(nextState);
 					}
-				).catch (
+				).catch(
 					() => {
 						resolve(nextState);
 					}
@@ -156,6 +233,81 @@ function removeFragmentEntryLinkReducer(state, actionType, payload) {
 			}
 			else {
 				resolve(state);
+			}
+		}
+	);
+}
+
+/**
+ * @param {!object} state
+ * @param {!string} actionType
+ * @param {object} payload
+ * @param {string} payload.fragmentEntryLinkId
+ * @param {string} payload.editableId
+ * @param {string} payload.editableValue
+ * @param {string} payload.editableValueId
+ * @return {object}
+ * @review
+ */
+
+function updateEditableValueReducer(state, actionType, payload) {
+	let nextState = state;
+
+	return new Promise(
+		resolve => {
+			if (actionType === UPDATE_EDITABLE_VALUE) {
+				const editableId = payload.editableId;
+				const editableValue = payload.editableValue;
+				const editableValueId = payload.editableValueId;
+				const editableValues = state.fragmentEntryLinks[payload.fragmentEntryLinkId].editableValues;
+
+				const nextEditableValues = _setIn(
+					editableValues,
+					[
+						EDITABLE_FRAGMENT_ENTRY_PROCESSOR,
+						editableId,
+						editableValueId
+					],
+					editableValue
+				);
+
+				const formData = new FormData();
+
+				formData.append(
+					`${state.portletNamespace}fragmentEntryLinkId`,
+					payload.fragmentEntryLinkId
+				);
+
+				formData.append(
+					`${state.portletNamespace}editableValues`,
+					JSON.stringify(nextEditableValues)
+				);
+
+				fetch(
+					state.editFragmentEntryLinkURL,
+					{
+						body: formData,
+						credentials: 'include',
+						method: 'POST'
+					}
+				).then(
+					() => {
+						nextState = _setIn(
+							nextState,
+							[
+								'fragmentEntryLinks',
+								payload.fragmentEntryLinkId,
+								'editableValues'
+							],
+							nextEditableValues
+						);
+
+						resolve(nextState);
+					}
+				);
+			}
+			else {
+				resolve(nextState);
 			}
 		}
 	);
@@ -260,6 +412,29 @@ function _getFragmentEntryLinkContent(
 	);
 }
 
+function _moveFragmentEntryLink(
+	moveFragmentEntryLinkURL,
+	portletNamespace,
+	classNameId,
+	classPK,
+	layoutData
+) {
+	const formData = new FormData();
+
+	formData.append(`${portletNamespace}classNameId`, classNameId);
+	formData.append(`${portletNamespace}classPK`, classPK);
+	formData.append(`${portletNamespace}data`, JSON.stringify(layoutData));
+
+	return fetch(
+		moveFragmentEntryLinkURL,
+		{
+			body: formData,
+			credentials: 'include',
+			method: 'POST'
+		}
+	);
+}
+
 function _removeFragmentEntryLink(
 	deleteFragmentEntryLinkURL,
 	portletNamespace,
@@ -287,6 +462,35 @@ function _removeFragmentEntryLink(
 			method: 'POST'
 		}
 	);
+}
+
+/**
+ * Recursively inserts a value inside an object creating
+ * a copy of the original target.
+ * @param {!object} Original object that will be copied
+ * @param {!string[]} Array of strings used for reaching the deep property
+ * @param {*} value Value to be inserted
+ * @return {!object} Copy of the original object with the new value
+ * @review
+ */
+
+function _setIn(object, keyPath, value) {
+	const nextKey = keyPath[0];
+	const target = Object.assign({}, object);
+
+	let nextValue = value;
+
+	if (keyPath.length > 1) {
+		nextValue = _setIn(
+			object[nextKey] || {},
+			keyPath.slice(1),
+			value
+		);
+	}
+
+	target[nextKey] = nextValue;
+
+	return target;
 }
 
 /**
@@ -330,5 +534,7 @@ function _updateData(
 
 export {
 	addFragmentEntryLinkReducer,
-	removeFragmentEntryLinkReducer
+	moveFragmentEntryLinkReducer,
+	removeFragmentEntryLinkReducer,
+	updateEditableValueReducer
 };

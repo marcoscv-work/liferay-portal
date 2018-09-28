@@ -16,8 +16,6 @@ package com.liferay.asset.list.web.internal.display.context;
 
 import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
 import com.liferay.asset.kernel.model.AssetCategory;
-import com.liferay.asset.kernel.model.AssetEntry;
-import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.asset.kernel.model.AssetVocabulary;
@@ -25,33 +23,24 @@ import com.liferay.asset.kernel.model.ClassType;
 import com.liferay.asset.kernel.model.ClassTypeField;
 import com.liferay.asset.kernel.model.ClassTypeReader;
 import com.liferay.asset.kernel.service.AssetCategoryLocalServiceUtil;
-import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
 import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
 import com.liferay.asset.kernel.service.AssetVocabularyServiceUtil;
-import com.liferay.asset.list.constants.AssetListWebKeys;
-import com.liferay.asset.list.model.AssetListEntry;
-import com.liferay.asset.list.service.AssetListEntryServiceUtil;
-import com.liferay.dynamic.data.mapping.util.DDMIndexer;
+import com.liferay.asset.list.constants.AssetListFormConstants;
+import com.liferay.asset.list.constants.AssetListPortletKeys;
+import com.liferay.asset.list.service.AssetListEntryAssetEntryRelLocalServiceUtil;
+import com.liferay.asset.util.comparator.AssetRendererFactoryTypeNameComparator;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.model.GroupConstants;
-import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.portlet.PortletProviderUtil;
-import com.liferay.portal.kernel.security.auth.PrincipalException;
-import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
-import com.liferay.portal.kernel.security.permission.PermissionChecker;
-import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
-import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
-import com.liferay.portal.kernel.servlet.SessionMessages;
+import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -63,19 +52,14 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.kernel.xml.Document;
-import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
-import com.liferay.sites.kernel.util.SitesUtil;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
+import javax.portlet.PortletMode;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.PortletURL;
@@ -87,321 +71,9 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class EditAssetListDisplayContext {
 
-	public static final String SCOPE_ID_CHILD_GROUP_PREFIX = "ChildGroup_";
-
-	public static final String SCOPE_ID_GROUP_PREFIX = "Group_";
-
-	public static final String SCOPE_ID_LAYOUT_PREFIX = "Layout_";
-
-	public static final String SCOPE_ID_LAYOUT_UUID_PREFIX = "LayoutUuid_";
-
-	public static final String SCOPE_ID_PARENT_GROUP_PREFIX = "ParentGroup_";
-
-	public static List<AssetEntry> getAssetEntries(
-			PortletRequest portletRequest, AssetListEntry assetListEntry,
-			PermissionChecker permissionChecker, long[] groupIds,
-			boolean deleteMissingAssetEntries, boolean checkPermission,
-			boolean includeNonVisibleAssets, int type)
-		throws Exception {
-
-		List<AssetEntry> assetEntries = new ArrayList<>();
-
-		List<String> missingAssetEntryUuids = new ArrayList<>();
-
-		UnicodeProperties typeSettingsProperties = new UnicodeProperties(true);
-
-		typeSettingsProperties.fastLoad(assetListEntry.getTypeSettings());
-
-		String assetEntryXmlProperty = typeSettingsProperties.getProperty(
-			"assetEntryXml");
-
-		String[] assetEntryXmls = StringUtil.split(assetEntryXmlProperty);
-
-		for (String assetEntryXml : assetEntryXmls) {
-			Document document = SAXReaderUtil.read(assetEntryXml);
-
-			Element rootElement = document.getRootElement();
-
-			long groupId = GetterUtil.getLong(
-				rootElement.elementText("asset-entry-group-id"));
-
-			String assetEntryUuid = rootElement.elementText("asset-entry-uuid");
-
-			String assetEntryType = rootElement.elementText("asset-entry-type");
-
-			AssetRendererFactory<?> assetRendererFactory =
-				AssetRendererFactoryRegistryUtil.
-					getAssetRendererFactoryByClassName(assetEntryType);
-
-			AssetEntry assetEntry = AssetEntryLocalServiceUtil.fetchEntry(
-				groupId, assetEntryUuid);
-
-			if (assetEntry == null) {
-				if (deleteMissingAssetEntries) {
-					missingAssetEntryUuids.add(assetEntryUuid);
-				}
-
-				continue;
-			}
-
-			if (!assetEntry.isVisible() && !includeNonVisibleAssets) {
-				continue;
-			}
-
-			assetRendererFactory =
-				AssetRendererFactoryRegistryUtil.
-					getAssetRendererFactoryByClassName(
-						assetEntry.getClassName());
-
-			if (assetRendererFactory == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(
-						"No asset renderer factory associated with " +
-							assetEntry.getClassName());
-				}
-
-				continue;
-			}
-
-			AssetRenderer<?> assetRenderer =
-				assetRendererFactory.getAssetRenderer(
-					assetEntry.getClassPK(), type);
-
-			if (!assetRendererFactory.isActive(
-					permissionChecker.getCompanyId())) {
-
-				if (deleteMissingAssetEntries) {
-					missingAssetEntryUuids.add(assetEntryUuid);
-				}
-
-				continue;
-			}
-
-			if (checkPermission) {
-				if (!assetRenderer.isDisplayable() &&
-					!includeNonVisibleAssets) {
-
-					continue;
-				}
-				else if (!assetRenderer.hasViewPermission(permissionChecker)) {
-					assetRenderer = assetRendererFactory.getAssetRenderer(
-						assetEntry.getClassPK(),
-						AssetRendererFactory.TYPE_LATEST_APPROVED);
-
-					if (!assetRenderer.hasViewPermission(permissionChecker)) {
-						continue;
-					}
-				}
-			}
-
-			assetEntries.add(assetEntry);
-		}
-
-		if (deleteMissingAssetEntries) {
-			removeAndStoreSelection(assetListEntry, missingAssetEntryUuids);
-
-			if (!missingAssetEntryUuids.isEmpty()) {
-				SessionMessages.add(
-					portletRequest, "deletedMissingAssetEntries",
-					missingAssetEntryUuids);
-			}
-		}
-
-		return assetEntries;
-	}
-
-	public static long[] getClassNameIds(
-		UnicodeProperties properties, long[] availableClassNameIds) {
-
-		boolean anyAssetType = GetterUtil.getBoolean(
-			properties.getProperty("anyAssetType", Boolean.TRUE.toString()));
-		String selectionStyle = properties.getProperty(
-			"selectionStyle", "dynamic");
-
-		if (anyAssetType || selectionStyle.equals("manual")) {
-			return availableClassNameIds;
-		}
-
-		long defaultClassNameId = GetterUtil.getLong(
-			properties.getProperty("anyAssetType", null));
-
-		if (defaultClassNameId > 0) {
-			return new long[] {defaultClassNameId};
-		}
-
-		long[] classNameIds = GetterUtil.getLongValues(
-			StringUtil.split(
-				properties.getProperty("classNameIds", StringPool.BLANK)));
-
-		if (ArrayUtil.isNotEmpty(classNameIds)) {
-			return classNameIds;
-		}
-
-		return availableClassNameIds;
-	}
-
-	public static long getGroupIdFromScopeId(
-			String scopeId, long siteGroupId, boolean privateLayout)
-		throws PortalException {
-
-		if (scopeId.startsWith(SCOPE_ID_CHILD_GROUP_PREFIX)) {
-			String scopeIdSuffix = scopeId.substring(
-				SCOPE_ID_CHILD_GROUP_PREFIX.length());
-
-			long childGroupId = GetterUtil.getLong(scopeIdSuffix);
-
-			Group childGroup = GroupLocalServiceUtil.getGroup(childGroupId);
-
-			if (!childGroup.hasAncestor(siteGroupId)) {
-				throw new PrincipalException();
-			}
-
-			return childGroupId;
-		}
-		else if (scopeId.startsWith(SCOPE_ID_GROUP_PREFIX)) {
-			String scopeIdSuffix = scopeId.substring(
-				SCOPE_ID_GROUP_PREFIX.length());
-
-			if (scopeIdSuffix.equals(GroupConstants.DEFAULT)) {
-				return siteGroupId;
-			}
-
-			long scopeGroupId = GetterUtil.getLong(scopeIdSuffix);
-
-			Group scopeGroup = GroupLocalServiceUtil.getGroup(scopeGroupId);
-
-			return scopeGroup.getGroupId();
-		}
-		else if (scopeId.startsWith(SCOPE_ID_LAYOUT_UUID_PREFIX)) {
-			String layoutUuid = scopeId.substring(
-				SCOPE_ID_LAYOUT_UUID_PREFIX.length());
-
-			Layout scopeIdLayout =
-				LayoutLocalServiceUtil.getLayoutByUuidAndGroupId(
-					layoutUuid, siteGroupId, privateLayout);
-
-			Group scopeIdGroup = GroupLocalServiceUtil.checkScopeGroup(
-				scopeIdLayout, PrincipalThreadLocal.getUserId());
-
-			return scopeIdGroup.getGroupId();
-		}
-		else if (scopeId.startsWith(SCOPE_ID_LAYOUT_PREFIX)) {
-
-			// Legacy portlet preferences
-
-			String scopeIdSuffix = scopeId.substring(
-				SCOPE_ID_LAYOUT_PREFIX.length());
-
-			long scopeIdLayoutId = GetterUtil.getLong(scopeIdSuffix);
-
-			Layout scopeIdLayout = LayoutLocalServiceUtil.getLayout(
-				siteGroupId, privateLayout, scopeIdLayoutId);
-
-			Group scopeIdGroup = scopeIdLayout.getScopeGroup();
-
-			return scopeIdGroup.getGroupId();
-		}
-		else if (scopeId.startsWith(SCOPE_ID_PARENT_GROUP_PREFIX)) {
-			String scopeIdSuffix = scopeId.substring(
-				SCOPE_ID_PARENT_GROUP_PREFIX.length());
-
-			long parentGroupId = GetterUtil.getLong(scopeIdSuffix);
-
-			Group parentGroup = GroupLocalServiceUtil.getGroup(parentGroupId);
-
-			if (!SitesUtil.isContentSharingWithChildrenEnabled(parentGroup)) {
-				throw new PrincipalException();
-			}
-
-			Group group = GroupLocalServiceUtil.getGroup(siteGroupId);
-
-			if (!group.hasAncestor(parentGroupId)) {
-				throw new PrincipalException();
-			}
-
-			return parentGroupId;
-		}
-		else {
-			throw new IllegalArgumentException("Invalid scope ID " + scopeId);
-		}
-	}
-
-	public static long[] getGroupIds(
-		UnicodeProperties properties, long scopeGroupId, Layout layout) {
-
-		String[] scopeIds = StringUtil.split(
-			properties.getProperty(
-				"scopeIds", SCOPE_ID_GROUP_PREFIX + scopeGroupId));
-
-		Set<Long> groupIds = new LinkedHashSet<>();
-
-		for (String scopeId : scopeIds) {
-			try {
-				long groupId = getGroupIdFromScopeId(
-					scopeId, scopeGroupId, layout.isPrivateLayout());
-
-				groupIds.add(groupId);
-			}
-			catch (Exception e) {
-				continue;
-			}
-		}
-
-		return ArrayUtil.toLongArray(groupIds);
-	}
-
-	public static void removeAndStoreSelection(
-			AssetListEntry assetListEntry, List<String> assetEntryUuids)
-		throws Exception {
-
-		if (assetEntryUuids.isEmpty()) {
-			return;
-		}
-
-		UnicodeProperties typeSettingsProperties = new UnicodeProperties(true);
-
-		typeSettingsProperties.fastLoad(assetListEntry.getTypeSettings());
-
-		String assetEntryXmlProperty = typeSettingsProperties.getProperty(
-			"assetEntryXml");
-
-		String[] assetEntryXmls = StringUtil.split(assetEntryXmlProperty);
-
-		List<String> assetEntryXmlsList = ListUtil.fromArray(assetEntryXmls);
-
-		Iterator<String> itr = assetEntryXmlsList.iterator();
-
-		while (itr.hasNext()) {
-			String assetEntryXml = itr.next();
-
-			Document document = SAXReaderUtil.read(assetEntryXml);
-
-			Element rootElement = document.getRootElement();
-
-			String assetEntryUuid = rootElement.elementText("asset-entry-uuid");
-
-			if (assetEntryUuids.contains(assetEntryUuid)) {
-				itr.remove();
-			}
-		}
-
-		assetEntryXmls = assetEntryXmlsList.toArray(
-			new String[assetEntryXmlsList.size()]);
-
-		typeSettingsProperties.put(
-			"assetEntryXml", String.join(StringPool.COMMA, assetEntryXmls));
-
-		AssetListEntryServiceUtil.updateAssetListEntrySettings(
-			assetListEntry.getAssetListEntryId(),
-			typeSettingsProperties.toString());
-	}
-
 	public EditAssetListDisplayContext(
 		PortletRequest portletRequest, PortletResponse portletResponse,
 		UnicodeProperties properties) {
-
-		_ddmIndexer = (DDMIndexer)portletRequest.getAttribute(
-			AssetListWebKeys.DDM_INDEXER);
 
 		_portletRequest = portletRequest;
 		_portletResponse = portletResponse;
@@ -409,10 +81,14 @@ public class EditAssetListDisplayContext {
 		_request = PortalUtil.getHttpServletRequest(portletRequest);
 	}
 
-	public String encodeName(
-		long ddmStructureId, String fieldName, Locale locale) {
+	public long getAssetListEntryId() {
+		if (_assetListEntryId != null) {
+			return _assetListEntryId;
+		}
 
-		return _ddmIndexer.encodeName(ddmStructureId, fieldName, locale);
+		_assetListEntryId = ParamUtil.getLong(_request, "assetListEntryId");
+
+		return _assetListEntryId;
 	}
 
 	public JSONArray getAutoFieldRulesJSONArray() {
@@ -575,6 +251,36 @@ public class EditAssetListDisplayContext {
 		return _classNameIds;
 	}
 
+	public long[] getClassNameIds(
+		UnicodeProperties properties, long[] availableClassNameIds) {
+
+		boolean anyAssetType = GetterUtil.getBoolean(
+			properties.getProperty("anyAssetType", Boolean.TRUE.toString()));
+		String selectionStyle = properties.getProperty(
+			"selectionStyle", "dynamic");
+
+		if (anyAssetType || selectionStyle.equals("manual")) {
+			return availableClassNameIds;
+		}
+
+		long defaultClassNameId = GetterUtil.getLong(
+			properties.getProperty("anyAssetType", null));
+
+		if (defaultClassNameId > 0) {
+			return new long[] {defaultClassNameId};
+		}
+
+		long[] classNameIds = GetterUtil.getLongValues(
+			StringUtil.split(
+				properties.getProperty("classNameIds", StringPool.BLANK)));
+
+		if (ArrayUtil.isNotEmpty(classNameIds)) {
+			return classNameIds;
+		}
+
+		return availableClassNameIds;
+	}
+
 	public long[] getClassTypeIds() {
 		if (_classTypeIds != null) {
 			return _classTypeIds;
@@ -642,19 +348,108 @@ public class EditAssetListDisplayContext {
 		return _ddmStructureFieldValue;
 	}
 
-	public long[] getGroupIds() {
-		if (_groupIds != null) {
-			return _groupIds;
-		}
+	public Map<String, Map<String, Object>> getManualAddIconDataMap()
+		throws Exception {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		_groupIds = getGroupIds(
-			_properties, themeDisplay.getScopeGroupId(),
-			themeDisplay.getLayout());
+		Map<String, Map<String, Object>> manualAddIconDataMap = new HashMap<>();
 
-		return _groupIds;
+		List<AssetRendererFactory<?>> assetRendererFactories = ListUtil.sort(
+			AssetRendererFactoryRegistryUtil.getAssetRendererFactories(
+				themeDisplay.getCompanyId()),
+			new AssetRendererFactoryTypeNameComparator(
+				themeDisplay.getLocale()));
+
+		for (AssetRendererFactory<?> curRendererFactory :
+				assetRendererFactories) {
+
+			if (!curRendererFactory.isSelectable()) {
+				continue;
+			}
+
+			PortletURL assetBrowserURL = PortletProviderUtil.getPortletURL(
+				_request, curRendererFactory.getClassName(),
+				PortletProvider.Action.BROWSE);
+
+			if (assetBrowserURL == null) {
+				continue;
+			}
+
+			assetBrowserURL.setParameter(
+				"groupId", String.valueOf(themeDisplay.getScopeGroupId()));
+			assetBrowserURL.setParameter(
+				"multipleSelection", String.valueOf(Boolean.TRUE));
+			assetBrowserURL.setParameter(
+				"selectedGroupIds",
+				String.valueOf(themeDisplay.getScopeGroupId()));
+			assetBrowserURL.setParameter(
+				"typeSelection", curRendererFactory.getClassName());
+			assetBrowserURL.setParameter(
+				"showNonindexable", String.valueOf(Boolean.TRUE));
+			assetBrowserURL.setParameter(
+				"showScheduled", String.valueOf(Boolean.TRUE));
+			assetBrowserURL.setParameter(
+				"eventName", _portletResponse.getNamespace() + "selectAsset");
+			assetBrowserURL.setPortletMode(PortletMode.VIEW);
+			assetBrowserURL.setWindowState(LiferayWindowState.POP_UP);
+
+			if (!curRendererFactory.isSupportsClassTypes()) {
+				Map<String, Object> data = new HashMap<>();
+
+				data.put("destroyOnHide", true);
+				data.put(
+					"groupid", String.valueOf(themeDisplay.getScopeGroupId()));
+				data.put("href", assetBrowserURL.toString());
+
+				String type = curRendererFactory.getTypeName(
+					themeDisplay.getLocale());
+
+				data.put(
+					"title",
+					LanguageUtil.format(_request, "select-x", type, false));
+				data.put("type", type);
+
+				manualAddIconDataMap.put(type, data);
+
+				continue;
+			}
+
+			ClassTypeReader classTypeReader =
+				curRendererFactory.getClassTypeReader();
+
+			List<ClassType> assetAvailableClassTypes =
+				classTypeReader.getAvailableClassTypes(
+					PortalUtil.getCurrentAndAncestorSiteGroupIds(
+						themeDisplay.getScopeGroupId()),
+					themeDisplay.getLocale());
+
+			for (ClassType assetAvailableClassType : assetAvailableClassTypes) {
+				Map<String, Object> data = new HashMap<>();
+
+				data.put("destroyOnHide", true);
+				data.put(
+					"groupid", String.valueOf(themeDisplay.getScopeGroupId()));
+
+				assetBrowserURL.setParameter(
+					"subtypeSelectionId",
+					String.valueOf(assetAvailableClassType.getClassTypeId()));
+
+				data.put("href", assetBrowserURL.toString());
+
+				String type = assetAvailableClassType.getName();
+
+				data.put(
+					"title",
+					LanguageUtil.format(_request, "select-x", type, false));
+				data.put("type", type);
+
+				manualAddIconDataMap.put(type, data);
+			}
+		}
+
+		return manualAddIconDataMap;
 	}
 
 	public String getOrderByColumn1() {
@@ -701,16 +496,6 @@ public class EditAssetListDisplayContext {
 		return _orderByType2;
 	}
 
-	public String getPortletResource() {
-		if (_portletResource != null) {
-			return _portletResource;
-		}
-
-		_portletResource = ParamUtil.getString(_request, "portletResource");
-
-		return _portletResource;
-	}
-
 	public String getRedirectURL() {
 		if (Validator.isNotNull(_redirect)) {
 			return _redirect;
@@ -742,10 +527,38 @@ public class EditAssetListDisplayContext {
 			return _referencedModelsGroupIds;
 		}
 
+		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
 		_referencedModelsGroupIds =
-			PortalUtil.getCurrentAndAncestorSiteGroupIds(getGroupIds(), true);
+			PortalUtil.getCurrentAndAncestorSiteGroupIds(
+				themeDisplay.getScopeGroupId(), true);
 
 		return _referencedModelsGroupIds;
+	}
+
+	public SearchContainer getSearchContainer() {
+		if (_searchContainer != null) {
+			return _searchContainer;
+		}
+
+		SearchContainer searchContainer = new SearchContainer(
+			_portletRequest, _getPortletURL(), null,
+			"there-are-no-asset-entries");
+
+		searchContainer.setTotal(
+			AssetListEntryAssetEntryRelLocalServiceUtil.
+				getAssetListEntryAssetEntryRelsCount(getAssetListEntryId()));
+
+		searchContainer.setResults(
+			AssetListEntryAssetEntryRelLocalServiceUtil.
+				getAssetListEntryAssetEntryRels(
+					getAssetListEntryId(), searchContainer.getStart(),
+					searchContainer.getEnd()));
+
+		_searchContainer = searchContainer;
+
+		return _searchContainer;
 	}
 
 	public String getTagSelectorURL() {
@@ -758,10 +571,14 @@ public class EditAssetListDisplayContext {
 				return null;
 			}
 
+			ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+			portletURL.setParameter(
+				"groupIds", String.valueOf(themeDisplay.getScopeGroupId()));
+
 			portletURL.setParameter(
 				"eventName", _portletResponse.getNamespace() + "selectTag");
-			portletURL.setParameter(
-				"groupIds", StringUtil.merge(getGroupIds()));
 			portletURL.setParameter("selectedTagNames", "{selectedTagNames}");
 			portletURL.setWindowState(LiferayWindowState.POP_UP);
 
@@ -773,9 +590,13 @@ public class EditAssetListDisplayContext {
 		return null;
 	}
 
-	public String getVocabularyIds() throws Exception {
+	public String getVocabularyIds() {
+		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
 		List<AssetVocabulary> vocabularies =
-			AssetVocabularyServiceUtil.getGroupsVocabularies(getGroupIds());
+			AssetVocabularyServiceUtil.getGroupsVocabularies(
+				new long[] {themeDisplay.getScopeGroupId()});
 
 		return ListUtil.toString(
 			vocabularies, AssetVocabulary.VOCABULARY_ID_ACCESSOR);
@@ -790,28 +611,6 @@ public class EditAssetListDisplayContext {
 			_properties.getProperty("anyAssetType", null), true);
 
 		return _anyAssetType;
-	}
-
-	public boolean isMergeURLTags() {
-		if (_mergeURLTags != null) {
-			return _mergeURLTags;
-		}
-
-		_mergeURLTags = GetterUtil.getBoolean(
-			_properties.getProperty("mergeUrlTags", null), true);
-
-		return _mergeURLTags;
-	}
-
-	public boolean isShowOnlyLayoutAssets() {
-		if (_showOnlyLayoutAssets != null) {
-			return _showOnlyLayoutAssets;
-		}
-
-		_showOnlyLayoutAssets = GetterUtil.getBoolean(
-			_properties.getProperty("showOnlyLayoutAssets", null));
-
-		return _showOnlyLayoutAssets;
 	}
 
 	public boolean isShowSubtypeFieldsFilter() {
@@ -947,32 +746,44 @@ public class EditAssetListDisplayContext {
 		return availableClassTypeIds;
 	}
 
-	private static final Log _log = LogFactoryUtil.getLog(
-		EditAssetListDisplayContext.class);
+	private PortletURL _getPortletURL() {
+		PortletURL portletURL = PortletURLFactoryUtil.create(
+			_portletRequest, AssetListPortletKeys.ASSET_LIST,
+			PortletRequest.RENDER_PHASE);
+
+		portletURL.setParameter("mvcPath", "/edit_asset_list_entry.jsp");
+		portletURL.setParameter(
+			"assetListEntryId", String.valueOf(getAssetListEntryId()));
+		portletURL.setParameter(
+			"screenNavigationCategoryKey",
+			AssetListFormConstants.CATEGORY_KEY_GENERAL);
+		portletURL.setParameter(
+			"screenNavigationEntryKey",
+			AssetListFormConstants.ENTRY_KEY_ASSET_ENTRIES);
+
+		return portletURL;
+	}
 
 	private Boolean _anyAssetType;
+	private Long _assetListEntryId;
 	private long[] _availableClassNameIds;
 	private long[] _classNameIds;
 	private long[] _classTypeIds;
-	private final DDMIndexer _ddmIndexer;
 	private String _ddmStructureDisplayFieldValue;
 	private String _ddmStructureFieldLabel;
 	private String _ddmStructureFieldName;
 	private String _ddmStructureFieldValue;
-	private long[] _groupIds;
-	private Boolean _mergeURLTags;
 	private String _orderByColumn1;
 	private String _orderByColumn2;
 	private String _orderByType1;
 	private String _orderByType2;
 	private final PortletRequest _portletRequest;
-	private String _portletResource;
 	private final PortletResponse _portletResponse;
 	private final UnicodeProperties _properties;
 	private String _redirect;
 	private long[] _referencedModelsGroupIds;
 	private final HttpServletRequest _request;
-	private Boolean _showOnlyLayoutAssets;
+	private SearchContainer _searchContainer;
 	private Boolean _subtypeFieldsFilterEnabled;
 
 }

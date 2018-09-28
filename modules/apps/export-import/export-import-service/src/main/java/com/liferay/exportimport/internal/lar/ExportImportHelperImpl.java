@@ -126,7 +126,7 @@ import org.xml.sax.XMLReader;
  * @author Julio Camarero
  * @author Mate Thurzo
  */
-@Component(immediate = true)
+@Component(immediate = true, service = ExportImportHelper.class)
 @ProviderType
 public class ExportImportHelperImpl implements ExportImportHelper {
 
@@ -1489,7 +1489,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 					stagedModelType.getReferrerClassNameId()));
 		}
 		else if (referrerClassNameId ==
-					 StagedModelType.REFERRER_CLASS_NAME_ID_ANY) {
+					StagedModelType.REFERRER_CLASS_NAME_ID_ANY) {
 
 			dynamicQuery.add(referrerClassNameIdProperty.isNotNull());
 		}

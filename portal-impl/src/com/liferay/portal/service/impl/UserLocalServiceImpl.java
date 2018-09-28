@@ -1200,16 +1200,28 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			workflowUserId = defaultUser.getUserId();
 		}
 
-		Map<String, Serializable> workflowServiceContext = new HashMap<>();
+		ServiceContext workflowServiceContext = new ServiceContext();
 
-		workflowServiceContext.put("autoPassword", autoPassword);
-		workflowServiceContext.put("passwordUnencrypted", password1);
-		workflowServiceContext.put("sendEmail", sendEmail);
+		if (serviceContext != null) {
+			workflowServiceContext = (ServiceContext)serviceContext.clone();
+		}
+
+		workflowServiceContext.setAttribute("autoPassword", autoPassword);
+		workflowServiceContext.setAttribute("passwordUnencrypted", password1);
+		workflowServiceContext.setAttribute("sendEmail", sendEmail);
+
+		Map<String, Serializable> workflowContext =
+			(Map<String, Serializable>)workflowServiceContext.removeAttribute(
+				"workflowContext");
+
+		if (workflowContext == null) {
+			workflowContext = Collections.emptyMap();
+		}
 
 		user = WorkflowHandlerRegistryUtil.startWorkflowInstance(
 			companyId, WorkflowConstants.DEFAULT_GROUP_ID, workflowUserId,
-			User.class.getName(), userId, user, serviceContext,
-			workflowServiceContext);
+			User.class.getName(), userId, user, workflowServiceContext,
+			workflowContext);
 
 		if (serviceContext != null) {
 			String passwordUnencrypted = (String)serviceContext.getAttribute(
@@ -2321,6 +2333,14 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	@Override
 	public List<User> getNoGroups() {
 		return userFinder.findByNoGroups();
+	}
+
+	@Override
+	public int getOrganizationsAndUserGroupsUsersCount(
+		long[] organizationIds, long[] userGroupIds) {
+
+		return userFinder.countByOrganizationsAndUserGroups(
+			organizationIds, userGroupIds);
 	}
 
 	/**

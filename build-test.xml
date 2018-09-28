@@ -1028,13 +1028,6 @@ jdbc.counter.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 				src="@{patch.file.zip.url}"
 			/>
 
-			<if>
-				<contains string="${patch.file.name}" substring="hotfix" />
-				<then>
-					<install-patch-dependencies hotfix.file.zip.url="@{patch.file.zip.url}" />
-				</then>
-			</if>
-
 			<delete file="@{patching.tool.dir}/default.properties" />
 
 			<if>
@@ -1058,43 +1051,6 @@ war.path=${app.server.portal.dir}/</echo>
 					</execute>
 				</else>
 			</if>
-
-			<delete file="@{patching.tool.dir}/logs/patching-tool.log" />
-
-			<execute dir="@{patching.tool.dir}">
-				patching-tool${file.suffix.bat} info
-			</execute>
-
-			<for param="patch.file.path">
-				<fileset
-					dir="@{patching.tool.dir}/patches"
-					erroronmissingdir="false"
-					id="fileset.id"
-				>
-					<include name="*.zip" />
-				</fileset>
-				<sequential>
-					<local name="patch.name" />
-
-					<propertyregex
-						input="@{patch.file.path}"
-						property="patch.name"
-						regexp=".*liferay-(fix-pack-)?(.*-\d{4})(-build\d*)?(-src)?.zip"
-						replace="\2"
-					/>
-
-					<fail message="${patch.name} was not installed.">
-						<condition>
-							<not>
-								<resourcecontains
-									resource="@{patching.tool.dir}/logs/patching-tool.log"
-									substring="[*I] ${patch.name} :: Installed"
-								/>
-							</not>
-						</condition>
-					</fail>
-				</sequential>
-			</for>
 		</sequential>
 	</macrodef>
 
@@ -1570,11 +1526,7 @@ sendPasswordCaptchaEnabled=&quot;false&quot;</echo>
 
 	<macrodef name="prepare-elasticsearch-configuration">
 		<sequential>
-			<echo file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch.configuration.ElasticsearchConfiguration.config">additionalConfigurations=&quot;cluster.routing.allocation.disk.threshold_enabled:\ false&#xa;cluster.service.slow_task_logging_threshold:\ 1800s&#xa;index.indexing.slowlog.threshold.index.warn:\ 1800s&#xa;index.search.slowlog.threshold.fetch.warn:\ 1800s&#xa;index.search.slowlog.threshold.query.warn:\ 1800s&#xa;monitor.jvm.gc.old.warn:\ 1800s&#xa;monitor.jvm.gc.young.warn:\ 1800s&#xa;threadpool.bulk.size:\ 1&#xa;threadpool.fetch_shard_started.size:\ 1&#xa;threadpool.fetch_shard_store.size:\ 1&#xa;threadpool.flush.size:\ 1&#xa;threadpool.force_merge.size:\ 1&#xa;threadpool.generic.size:\ 1&#xa;threadpool.get.size:\ 1&#xa;threadpool.index.size:\ 1&#xa;threadpool.listener.size:\ 1&#xa;threadpool.management.size:\ 1&#xa;threadpool.percolate.size:\ 1&#xa;threadpool.refresh.size:\ 1&#xa;threadpool.search.size:\ 1&#xa;threadpool.snapshot.size:\ 1&#xa;threadpool.suggest.size:\ 1&#xa;threadpool.warmer.size:\ 1&#xa;transport.local.workers:\ 1&quot;
-httpEnabled=B&quot;false&quot;
-logExceptionsOnly=B&quot;false&quot;</echo>
-
-			<echo file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch6.configuration.ElasticsearchConfiguration.config">additionalConfigurations=&quot;cluster.routing.allocation.disk.threshold_enabled:\ false&#xa;cluster.service.slow_task_logging_threshold:\ 1800s&#xa;monitor.jvm.gc.overhead.warn:\ 90&quot;
+			<echo file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch6.configuration.ElasticsearchConfiguration.config">
 httpEnabled=B&quot;false&quot;
 logExceptionsOnly=B&quot;false&quot;</echo>
 		</sequential>
@@ -2504,6 +2456,44 @@ ${tomcat-gc-log}
 			<echo file="test.class.file.names.properties">${test.class.file.names.properties.content}</echo>
 
 			<print-file file.name="test.class.file.names.properties" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="record-test-junit-csv-report">
+		<sequential>
+			<local name="test.batch.name" />
+
+			<condition else="junit-test-csv-report-jdk8" property="test.batch.name" value="${test.batch.name}">
+				<isset property="test.batch.name" />
+			</condition>
+
+			<local name="top.level.job.name" />
+
+			<condition else="junit-test-csv-report" property="top.level.job.name" value="${env.TOP_LEVEL_JOB_NAME}">
+				<isset property="env.TOP_LEVEL_JOB_NAME" />
+			</condition>
+
+			<beanshell>
+				<![CDATA[
+					import com.liferay.jenkins.results.parser.Job;
+					import com.liferay.jenkins.results.parser.JobFactory;
+					import com.liferay.jenkins.results.parser.test.clazz.group.JUnitBatchTestClassGroup;
+					import com.liferay.jenkins.results.parser.test.clazz.group.TestClassGroupFactory;
+
+					Job job = JobFactory.newJob(project.getProperty("top.level.job.name"));
+
+					JUnitBatchTestClassGroup jUnitbatchTestClassGroup = (JUnitBatchTestClassGroup)TestClassGroupFactory.newBatchTestClassGroup(project.getProperty("test.batch.name"), job);
+
+					try {
+						jUnitbatchTestClassGroup.writeTestCSVReportFile();
+					}
+					catch (Exception e) {
+						e.printStackTrace;
+
+						throw e;
+					}
+				]]>
+			</beanshell>
 		</sequential>
 	</macrodef>
 
@@ -4105,7 +4095,7 @@ war.path=${app.server.weblogic.portal.dir}/</echo>
 					<propertyregex
 						input="@{patch.file.path}"
 						property="patch.name"
-						regexp=".*liferay-(fix-pack-)?(.*).zip"
+						regexp=".*liferay-(fix-pack-)?(.*-\d{4})(-build\d*)?(-src)?.zip"
 						replace="\2"
 					/>
 
@@ -4125,6 +4115,82 @@ war.path=${app.server.weblogic.portal.dir}/</echo>
 			<delete dir="@{patching.tool.dir}/patches" />
 
 			<mkdir dir="@{patching.tool.dir}/patches" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="validate-installed-patch">
+		<attribute name="patch.file.zip.url" />
+		<attribute default="${app.server.parent.dir}/patching-tool" name="patching.tool.dir" />
+
+		<sequential>
+			<delete file="@{patching.tool.dir}/logs/patching-tool.log" />
+
+			<execute dir="@{patching.tool.dir}">
+				patching-tool${file.suffix.bat} info
+			</execute>
+
+			<local name="patch.name" />
+
+			<propertyregex
+				input="@{patch.file.zip.url}"
+				property="patch.name"
+				regexp=".*liferay-(fix-pack-)?(.*-\d{4})(-build\d*)?(-src)?.zip"
+				replace="\2"
+			/>
+
+			<fail message="${patch.name} was not installed.">
+				<condition>
+					<not>
+						<resourcecontains
+							resource="@{patching.tool.dir}/logs/patching-tool.log"
+							substring="[*I] ${patch.name} :: Installed"
+						/>
+					</not>
+				</condition>
+			</fail>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="validate-installed-patches">
+		<attribute default="${app.server.parent.dir}/patching-tool" name="patching.tool.dir" />
+
+		<sequential>
+			<delete file="@{patching.tool.dir}/logs/patching-tool.log" />
+
+			<execute dir="@{patching.tool.dir}">
+				patching-tool${file.suffix.bat} info
+			</execute>
+
+			<for param="patch.file.path">
+				<fileset
+					dir="@{patching.tool.dir}/patches"
+					erroronmissingdir="false"
+					id="fileset.id"
+				>
+					<include name="*.zip" />
+				</fileset>
+				<sequential>
+					<local name="patch.name" />
+
+					<propertyregex
+						input="@{patch.file.path}"
+						property="patch.name"
+						regexp=".*liferay-(fix-pack-)?(.*-\d{4})(-build\d*)?(-src)?.zip"
+						replace="\2"
+					/>
+
+					<fail message="${patch.name} was not installed.">
+						<condition>
+							<not>
+								<resourcecontains
+									resource="@{patching.tool.dir}/logs/patching-tool.log"
+									substring="[*I] ${patch.name} :: Installed"
+								/>
+							</not>
+						</condition>
+					</fail>
+				</sequential>
+			</for>
 		</sequential>
 	</macrodef>
 
@@ -5884,20 +5950,46 @@ go]]></replacevalue>
 	<target name="install-patch">
 		<fail message="Please set the property ${patch.file.zip.url}." unless="patch.file.zip.url" />
 
-		<if>
+		<local name="patching.tool.dir" />
+
+		<condition else="${app.server.parent.dir}-${install.patch.cluster.node.index}/patching-tool" property="patching.tool.dir" value="${app.server.parent.dir}/patching-tool">
 			<or>
 				<not>
 					<isset property="install.patch.cluster.node.index" />
 				</not>
 				<equals arg1="${install.patch.cluster.node.index}" arg2="0" />
 			</or>
+		</condition>
+
+		<install-patch patching.tool.dir="${patching.tool.dir}" patch.file.zip.url="${patch.file.zip.url}" />
+
+		<validate-installed-patch patching.tool.dir="${patching.tool.dir}" patch.file.zip.url="${patch.file.zip.url}" />
+	</target>
+
+	<target name="install-patches">
+		<fail message="Please set the property ${patch.file.zip.url}." unless="patch.file.zip.url" />
+
+		<local name="patching.tool.dir" />
+
+		<condition else="${app.server.parent.dir}-${install.patch.cluster.node.index}/patching-tool" property="patching.tool.dir" value="${app.server.parent.dir}/patching-tool">
+			<or>
+				<not>
+					<isset property="install.patch.cluster.node.index" />
+				</not>
+				<equals arg1="${install.patch.cluster.node.index}" arg2="0" />
+			</or>
+		</condition>
+
+		<if>
+			<contains string="${patch.file.zip.url}" substring="hotfix" />
 			<then>
-				<install-patch patching.tool.dir="${app.server.parent.dir}/patching-tool" patch.file.zip.url="${patch.file.zip.url}" />
+				<install-patch-dependencies hotfix.file.zip.url="${patch.file.zip.url}" />
 			</then>
-			<else>
-				<install-patch patching.tool.dir="${app.server.parent.dir}-${install.patch.cluster.node.index}/patching-tool" patch.file.zip.url="${patch.file.zip.url}" />
-			</else>
 		</if>
+
+		<install-patch patching.tool.dir="${patching.tool.dir}" patch.file.zip.url="${patch.file.zip.url}" />
+
+		<validate-installed-patches patching.tool.dir="${patching.tool.dir}" />
 	</target>
 
 	<target name="kill-spi">
@@ -6901,6 +6993,7 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 			test.case.available.property.names=${test.case.available.property.names}
 			test.console.log.file.name=${liferay.home}/logs/liferay.*.xml
 			test.console.shut.down.file.name=${project.dir}/console-shut-down
+			test.csv.report.property.names=${test.csv.report.property.names}
 			test.dependencies.dir.name=dependencies
 			test.poshi.warnings.file.name=${project.dir}/poshi-warnings.xml
 			test.retry.command.wait.time=${test.retry.command.wait.time}
@@ -8444,46 +8537,35 @@ ANT_OPTS=${env.ANT_OPTS}</echo>
 			</then>
 			<else>
 				<if>
-					<equals arg1="${app.server.type}" arg2="jboss" />
+					<equals arg1="${app.server.type}" arg2="weblogic" />
 					<then>
-						<ant antfile="build-dist.xml" inheritAll="false" target="unzip-jboss" />
+						<ant antfile="build-dist.xml" inheritAll="false" target="unzip-weblogic-custom" />
+
+						<chmod
+							perm="a+x"
+						>
+							<fileset
+								dir="${app.server.weblogic.bin.dir}"
+							>
+								<include name="**/*.sh" />
+							</fileset>
+						</chmod>
+
+						<chmod
+							perm="a+x"
+						>
+							<fileset
+								dir="${app.server.weblogic.instance.dir}"
+							>
+								<include name="**/*.sh" />
+							</fileset>
+						</chmod>
+					</then>
+					<else>
+						<ant antfile="build-dist.xml" inheritAll="false" target="unzip-${app.server.type}" />
 
 						<ant antfile="build.xml" inheritAll="false" target="deploy-additional-jars" />
-					</then>
-					<elseif>
-						<equals arg1="${app.server.type}" arg2="tcserver" />
-						<then>
-							<ant antfile="build-dist.xml" inheritAll="false" target="unzip-tcserver" />
-
-							<ant antfile="build.xml" inheritAll="false" target="deploy-additional-jars" />
-						</then>
-					</elseif>
-					<elseif>
-						<equals arg1="${app.server.type}" arg2="weblogic" />
-						<then>
-							<ant antfile="build-dist.xml" inheritAll="false" target="unzip-weblogic-custom" />
-
-							<chmod
-								perm="a+x"
-							>
-								<fileset
-									dir="${app.server.weblogic.bin.dir}"
-								>
-									<include name="**/*.sh" />
-								</fileset>
-							</chmod>
-
-							<chmod
-								perm="a+x"
-							>
-								<fileset
-									dir="${app.server.weblogic.instance.dir}"
-								>
-									<include name="**/*.sh" />
-								</fileset>
-							</chmod>
-						</then>
-					</elseif>
+					</else>
 				</if>
 
 				<mkdir dir="dist" />
@@ -8556,7 +8638,12 @@ ANT_OPTS=${env.ANT_OPTS}</echo>
 
 				<delete file="liferay-portal-tools.zip" />
 
-				<prepare-jboss-module-configuration />
+				<if>
+					<equals arg1="${app.server.type}" arg2="jboss" />
+					<then>
+						<prepare-jboss-module-configuration />
+					</then>
+				</if>
 			</else>
 		</if>
 
@@ -8629,14 +8716,14 @@ ANT_OPTS=${env.ANT_OPTS}</echo>
 								<if>
 									<matches pattern="https?://" string="${test.build.fix.pack.zip.url.previous}" />
 									<then>
-										<antcall target="install-patch">
+										<antcall target="install-patches">
 											<param name="patch.file.zip.url" value="${test.build.fix.pack.zip.url.previous}" />
 										</antcall>
 									</then>
 								</if>
 							</then>
 							<else>
-								<antcall target="install-patch">
+								<antcall target="install-patches">
 									<param name="patch.file.zip.url" value="${test.build.fix.pack.zip.url}" />
 								</antcall>
 							</else>
@@ -9398,6 +9485,10 @@ if (ppstate.equals("normal")) {
 		</if>
 	</target>
 
+	<target name="record-test-junit-csv-report">
+		<record-test-junit-csv-report />
+	</target>
+
 	<target name="record-test-plugin-names">
 		<condition else="plugins-compile-jdk8" property="test.batch.name" value="${test.batch.name}">
 			<isset property="test.batch.name" />
@@ -9470,6 +9561,72 @@ if (ppstate.equals("normal")) {
 		<echo file="test.plugin.names.properties">${test.plugin.names.properties.content}</echo>
 
 		<print-file file.name="test.plugin.names.properties" />
+	</target>
+
+	<target name="record-test-poshi-csv-report">
+		<delete failonerror="false" file="${test.ext.properties.file}" />
+
+		<if>
+			<isset property="test.base.dir.name" />
+			<then>
+				<antcall inheritAll="false" target="prepare-poshi-runner-properties">
+					<param name="test.base.dir.name" value="${test.base.dir.name}" />
+				</antcall>
+			</then>
+			<else>
+				<antcall inheritAll="false" target="prepare-poshi-runner-properties" />
+			</else>
+		</if>
+
+		<poshi-execute task="validatePoshi" />
+
+		<setup-libs />
+
+		<delete failonerror="false" file="${test.ext.properties.file}" />
+
+		<if>
+			<isset property="test.base.dir.name" />
+			<then>
+				<antcall inheritAll="false" target="prepare-poshi-runner-properties">
+					<param name="test.base.dir.name" value="${test.base.dir.name}" />
+					<param name="test.batch.run.type" value="${test.batch.run.type}" />
+					<param name="test.portal.instance" value="${test.portal.instance}" />
+				</antcall>
+			</then>
+			<else>
+				<antcall inheritAll="false" target="prepare-poshi-runner-properties">
+					<param name="test.batch.run.type" value="${test.batch.run.type}" />
+					<param name="test.portal.instance" value="${test.portal.instance}" />
+				</antcall>
+			</else>
+		</if>
+
+		<poshi-execute task="writePoshiProperties" />
+
+		<local name="report.csv.file" />
+		<local name="report.csv.file.name" />
+
+		<first id="report.csv.file">
+			<fileset
+				dir="portal-web/"
+				includes="Report*.csv"
+			/>
+		</first>
+
+		<propertyregex
+			input="${toString:report.csv.file}"
+			override="true"
+			property="report.csv.file.name"
+			regexp=".*/([^/]+.csv)"
+			replace="\1"
+		/>
+
+		<move
+			file="portal-web/${report.csv.file.name}"
+			tofile="${report.csv.file.name}"
+		/>
+
+		<echo>Writing ${project.dir}/${report.csv.file.name}</echo>
 	</target>
 
 	<target name="remove-plugin">

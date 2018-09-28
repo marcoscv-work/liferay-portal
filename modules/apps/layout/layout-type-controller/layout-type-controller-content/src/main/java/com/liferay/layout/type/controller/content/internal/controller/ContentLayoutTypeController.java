@@ -22,9 +22,9 @@ import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocal
 import com.liferay.layout.type.controller.content.internal.constants.ContentLayoutTypeControllerConstants;
 import com.liferay.layout.type.controller.content.internal.constants.ContentLayoutTypeControllerWebKeys;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.Layout;
@@ -39,6 +39,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.taglib.servlet.PipingServletResponse;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -208,18 +209,14 @@ public class ContentLayoutTypeController extends BaseLayoutTypeControllerImpl {
 	}
 
 	private List<FragmentEntryLink> _getFragmentEntryLinks(Layout layout)
-		throws JSONException {
+		throws PortalException {
 
 		LayoutPageTemplateStructure layoutPageTemplateStructure =
 			_layoutPageTemplateStructureLocalService.
 				fetchLayoutPageTemplateStructure(
 					layout.getGroupId(),
 					_portal.getClassNameId(Layout.class.getName()),
-					layout.getPlid());
-
-		if (layoutPageTemplateStructure == null) {
-			return Collections.emptyList();
-		}
+					layout.getPlid(), true);
 
 		String data = layoutPageTemplateStructure.getData();
 
@@ -235,6 +232,8 @@ public class ContentLayoutTypeController extends BaseLayoutTypeControllerImpl {
 		if (structureJSONArray == null) {
 			return Collections.emptyList();
 		}
+
+		List<FragmentEntryLink> filteredFragmentEntryLinks = new ArrayList<>();
 
 		List<FragmentEntryLink> fragmentEntryLinks =
 			_fragmentEntryLinkLocalService.getFragmentEntryLinks(
@@ -254,11 +253,11 @@ public class ContentLayoutTypeController extends BaseLayoutTypeControllerImpl {
 				structureJSONArray.getLong(i));
 
 			if (fragmentEntryLink != null) {
-				fragmentEntryLinks.add(fragmentEntryLink);
+				filteredFragmentEntryLinks.add(fragmentEntryLink);
 			}
 		}
 
-		return fragmentEntryLinks;
+		return filteredFragmentEntryLinks;
 	}
 
 	private static final String _EDIT_LAYOUT_PAGE =

@@ -27,14 +27,13 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
-import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerTestRule;
-import com.liferay.sharing.constants.SharingEntryActionKey;
 import com.liferay.sharing.model.SharingEntry;
+import com.liferay.sharing.security.permission.SharingEntryAction;
 import com.liferay.sharing.service.SharingEntryLocalService;
 
 import java.util.Arrays;
@@ -77,8 +76,8 @@ public class UserModelListenerTest {
 	@Test
 	public void testDeletingUserSharedDeletesSharingEntries() throws Exception {
 		long classNameId = _classNameLocalService.getClassNameId(
-			User.class.getName());
-		long classPK = RandomTestUtil.randomLong();
+			Group.class.getName());
+		long classPK = _group.getGroupId();
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -86,8 +85,8 @@ public class UserModelListenerTest {
 
 		_sharingEntryLocalService.addSharingEntry(
 			_user.getUserId(), _groupUser.getUserId(), classNameId, classPK,
-			_group.getGroupId(), true,
-			Arrays.asList(SharingEntryActionKey.VIEW), null, serviceContext);
+			_group.getGroupId(), true, Arrays.asList(SharingEntryAction.VIEW),
+			null, serviceContext);
 
 		List<SharingEntry> toUserSharingEntries =
 			_sharingEntryLocalService.getToUserSharingEntries(
@@ -111,8 +110,8 @@ public class UserModelListenerTest {
 		throws Exception {
 
 		long classNameId = _classNameLocalService.getClassNameId(
-			User.class.getName());
-		long classPK = RandomTestUtil.randomLong();
+			Group.class.getName());
+		long classPK = _group.getGroupId();
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -120,8 +119,8 @@ public class UserModelListenerTest {
 
 		_sharingEntryLocalService.addSharingEntry(
 			_user.getUserId(), _groupUser.getUserId(), classNameId, classPK,
-			_group.getGroupId(), true,
-			Arrays.asList(SharingEntryActionKey.VIEW), null, serviceContext);
+			_group.getGroupId(), true, Arrays.asList(SharingEntryAction.VIEW),
+			null, serviceContext);
 
 		List<SharingEntry> toUserSharingEntries =
 			_sharingEntryLocalService.getToUserSharingEntries(

@@ -48,7 +48,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Sarai Díaz
  * @review
  */
-@Component(immediate = true)
+@Component(immediate = true, service = ItemResource.class)
 public class WorkflowTaskItemResource
 	implements ItemResource<WorkflowTask, Long, WorkflowTaskIdentifier> {
 
@@ -90,7 +90,7 @@ public class WorkflowTaskItemResource
 		).addLinkedModel(
 			"comment", CommentIdentifier.class, this::_getLinkedModelId
 		).addLinkedModel(
-			"mediaObject", MediaObjectIdentifier.class, this::_getLinkedModelId
+			"document", MediaObjectIdentifier.class, this::_getLinkedModelId
 		).addRelatedCollection(
 			"logs", WorkflowLogIdentifier.class
 		).addString(

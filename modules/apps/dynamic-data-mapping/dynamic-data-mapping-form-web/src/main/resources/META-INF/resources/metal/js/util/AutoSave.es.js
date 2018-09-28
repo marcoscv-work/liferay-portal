@@ -22,6 +22,8 @@ class AutoSave extends URLEncodedFetcher {
 	}
 
 	disposeInternal() {
+		super.disposeInternal();
+
 		this.stop();
 	}
 
@@ -104,10 +106,11 @@ class AutoSave extends URLEncodedFetcher {
 
 					return responseData;
 				}
-			)
-			.catch (
-				() => {
+			).catch(
+				reason => {
 					this._pendingRequest = null;
+
+					throw reason;
 				}
 			);
 

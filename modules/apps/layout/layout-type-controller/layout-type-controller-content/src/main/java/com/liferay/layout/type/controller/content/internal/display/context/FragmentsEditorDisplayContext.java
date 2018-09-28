@@ -165,6 +165,52 @@ public class FragmentsEditorDisplayContext {
 		return soyContext;
 	}
 
+	public SoyContext getFragmentEntryLinkListContext() throws PortalException {
+		SoyContext soyContext = SoyContextFactoryUtil.createSoyContext();
+
+		soyContext.put(
+			"defaultEditorConfigurations", _getDefaultConfigurations());
+		soyContext.put("defaultLanguageId", _themeDisplay.getLanguageId());
+		soyContext.put(
+			"fragmentEntryLinks", _getSoyContextFragmentEntryLinks());
+
+		PortletURL itemSelectorURL = _itemSelector.getItemSelectorURL(
+			RequestBackedPortletURLFactoryUtil.create(_request),
+			_renderResponse.getNamespace() + "selectImage",
+			_getImageItemSelectorCriterion(), _getURLItemSelectorCriterion());
+
+		soyContext.put("imageSelectorURL", itemSelectorURL.toString());
+
+		soyContext.put("languageId", _themeDisplay.getLanguageId());
+		soyContext.put(
+			"layoutData", JSONFactoryUtil.createJSONObject(_getLayoutData()));
+		soyContext.put("portletNamespace", _renderResponse.getNamespace());
+		soyContext.put(
+			"spritemap",
+			_themeDisplay.getPathThemeImages() + "/lexicon/icons.svg");
+
+		return soyContext;
+	}
+
+	public SoyContext getFragmentsEditorSidebarContext()
+		throws PortalException {
+
+		SoyContext soyContext = SoyContextFactoryUtil.createSoyContext();
+
+		soyContext.put(
+			"fragmentCollections", _getSoyContextFragmentCollections());
+		soyContext.put(
+			"fragmentEntryLinks", _getSoyContextFragmentEntryLinks());
+		soyContext.put("sidebarTabs", _getSidebarTabs());
+		soyContext.put(
+			"layoutData", JSONFactoryUtil.createJSONObject(_getLayoutData()));
+		soyContext.put(
+			"spritemap",
+			_themeDisplay.getPathThemeImages() + "/lexicon/icons.svg");
+
+		return soyContext;
+	}
+
 	private Map<String, Object> _getDefaultConfigurations() {
 		Map<String, Object> configurations = new HashMap<>();
 
@@ -236,19 +282,15 @@ public class FragmentsEditorDisplayContext {
 		return imageItemSelectorCriterion;
 	}
 
-	private String _getLayoutData() {
+	private String _getLayoutData() throws PortalException {
 		LayoutPageTemplateStructure layoutPageTemplateStructure =
 			LayoutPageTemplateStructureLocalServiceUtil.
 				fetchLayoutPageTemplateStructure(
 					_themeDisplay.getScopeGroupId(),
 					PortalUtil.getClassNameId(Layout.class.getName()),
-					_themeDisplay.getPlid());
+					_themeDisplay.getPlid(), true);
 
-		if (layoutPageTemplateStructure != null) {
-			return layoutPageTemplateStructure.getData();
-		}
-
-		return StringPool.BLANK;
+		return layoutPageTemplateStructure.getData();
 	}
 
 	private List<SoyContext> _getSidebarTabs() {
@@ -356,6 +398,7 @@ public class FragmentsEditorDisplayContext {
 					"fragmentEntryLinkId",
 					String.valueOf(fragmentEntryLink.getFragmentEntryLinkId()));
 				soyContext.put("name", fragmentEntry.getName());
+
 				soyContexts.put(
 					String.valueOf(fragmentEntryLink.getFragmentEntryLinkId()),
 					soyContext);
