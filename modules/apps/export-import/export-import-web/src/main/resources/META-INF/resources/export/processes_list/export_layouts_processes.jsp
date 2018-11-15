@@ -139,6 +139,7 @@ OrderByComparator<BackgroundTask> orderByComparator = BackgroundTaskComparatorFa
 
 								<liferay-ui:icon
 									icon="download"
+									linkCssClass="btn btn-sm btn-monospaced"
 									markupView="lexicon"
 									method="get"
 									url="<%= PortletFileRepositoryUtil.getDownloadPortletFileEntryURL(themeDisplay, fileEntry, StringPool.BLANK) %>"
