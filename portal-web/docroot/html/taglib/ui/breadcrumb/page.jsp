@@ -16,7 +16,7 @@
 
 <%@ include file="/html/taglib/ui/breadcrumb/init.jsp" %>
 
-<div id="<portlet:namespace />breadcrumbs-defaultScreen">
+<div id="<portlet:namespace />breadcrumbs-defaultScreen" role="navigation">
 	<c:if test="<%= !breadcrumbEntries.isEmpty() %>">
 
 		<%
