@@ -20,7 +20,7 @@
 
 <%
 if (searchResultCssClass == null) {
-	searchResultCssClass = "display-style-icon list-unstyled row";
+	searchResultCssClass = "entry-card lfr-asset-item";
 }
 
 request.setAttribute(WebKeys.SEARCH_CONTAINER_RESULT_ROW_CHECKER, rowChecker);
