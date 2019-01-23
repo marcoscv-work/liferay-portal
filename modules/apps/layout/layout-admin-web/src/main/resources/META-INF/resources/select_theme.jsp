@@ -93,7 +93,7 @@ SelectThemeDisplayContext selectThemeDisplayContext = new SelectThemeDisplayCont
 						author = LanguageUtil.format(request, "by-x", selPluginPackage.getAuthor());
 					}
 
-					row.setCssClass("entry-card lfr-asset-item");
+					row.setCssClass("card-page lfr-asset-item");
 					%>
 
 					<liferay-ui:search-container-column-text>

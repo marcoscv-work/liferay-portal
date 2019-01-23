@@ -65,7 +65,7 @@ EditSiteTeamAssignmentsUsersDisplayContext editSiteTeamAssignmentsUsersDisplayCo
 				<c:when test='<%= Objects.equals(editSiteTeamAssignmentsUsersDisplayContext.getDisplayStyle(), "icon") %>'>
 
 					<%
-					row.setCssClass("entry-card lfr-asset-item selectable");
+					row.setCssClass("card-page lfr-asset-item selectable");
 					%>
 
 					<liferay-ui:search-container-column-text>

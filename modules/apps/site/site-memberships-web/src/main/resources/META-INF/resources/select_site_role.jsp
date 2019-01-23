@@ -58,7 +58,7 @@ SelectSiteRolesDisplayContext selectSiteRolesDisplayContext = new SelectSiteRole
 				<c:when test='<%= Objects.equals(selectSiteRolesDisplayContext.getDisplayStyle(), "icon") %>'>
 
 					<%
-					row.setCssClass("entry-card lfr-asset-item");
+					row.setCssClass("card-page lfr-asset-item");
 					%>
 
 					<liferay-ui:search-container-column-text>

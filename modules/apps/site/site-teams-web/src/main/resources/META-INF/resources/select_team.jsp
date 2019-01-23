@@ -93,7 +93,7 @@ SelectTeamDisplayContext selectTeamDisplayContext = new SelectTeamDisplayContext
 				<c:when test='<%= Objects.equals(selectTeamDisplayContext.getDisplayStyle(), "icon") %>'>
 
 					<%
-					row.setCssClass("entry-card lfr-asset-item");
+					row.setCssClass("card-page lfr-asset-item");
 					%>
 
 					<liferay-ui:search-container-column-text>

@@ -98,7 +98,7 @@ boolean showSearch = GetterUtil.getBoolean(request.getAttribute("liferay-site:si
 				<c:when test='<%= Objects.equals(siteBrowserDisplayContext.getDisplayStyle(), "icon") %>'>
 
 					<%
-					row.setCssClass("entry-card lfr-asset-item " + row.getCssClass());
+					row.setCssClass("card-page lfr-asset-item " + row.getCssClass());
 
 					Map<String, Object> linkData = new HashMap<String, Object>();
 

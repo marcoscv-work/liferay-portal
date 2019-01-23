@@ -145,7 +145,7 @@ String searchContainerId = ParamUtil.getString(request, "searchContainerId");
 					<c:when test='<%= displayStyle.equals("icon") %>'>
 
 						<%
-						row.setCssClass("card-page-item-directory " + row.getCssClass());
+						row.setCssClass("card-page-item-asset " + row.getCssClass());
 						%>
 
 						<liferay-ui:search-container-column-text>

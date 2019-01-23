@@ -43,7 +43,7 @@ FragmentManagementToolbarDisplayContext fragmentManagementToolbarDisplayContext 
 			</portlet:renderURL>
 
 			<%
-			row.setCssClass("entry-card lfr-asset-item " + row.getCssClass());
+			row.setCssClass("card-page lfr-asset-item " + row.getCssClass());
 
 			String imagePreviewURL = fragmentEntry.getImagePreviewURL(themeDisplay);
 			%>

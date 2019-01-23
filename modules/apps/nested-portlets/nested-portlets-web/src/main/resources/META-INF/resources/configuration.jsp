@@ -42,7 +42,7 @@
 				for (LayoutTemplate layoutTemplate : nestedPortletsDisplayContext.getLayoutTemplates()) {
 				%>
 
-					<div class="entry-card lfr-asset-item">
+					<div class="card-page lfr-asset-item">
 						<div class="radio radio-card radio-top-left">
 							<label>
 								<aui:input checked="<%= layoutTemplateId.equals(layoutTemplate.getLayoutTemplateId()) %>" label="" name="preferences--layoutTemplateId--" type="radio" value="<%= layoutTemplate.getLayoutTemplateId() %>" />

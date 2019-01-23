@@ -113,7 +113,7 @@ JournalArticle article = journalDisplayContext.getArticle();
 						<c:when test='<%= Objects.equals(journalHistoryDisplayContext.getDisplayStyle(), "icon") %>'>
 
 							<%
-							row.setCssClass("entry-card lfr-asset-item");
+							row.setCssClass("card-page lfr-asset-item");
 							%>
 
 							<liferay-ui:search-container-column-text>

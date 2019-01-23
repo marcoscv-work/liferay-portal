@@ -34,7 +34,7 @@ SelectLayoutPageTemplateEntryDisplayContext selectLayoutPageTemplateEntryDisplay
 		>
 
 			<%
-			row.setCssClass("entry-card lfr-asset-item " + row.getCssClass());
+			row.setCssClass("card-page lfr-asset-item " + row.getCssClass());
 			%>
 
 			<portlet:renderURL var="addLayoutURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">

@@ -57,7 +57,7 @@
 
 			Group layoutPrototypeGroup = layoutPrototype.getGroup();
 
-			row.setCssClass("entry-card lfr-asset-item");
+			row.setCssClass("card-page lfr-asset-item");
 
 			request.setAttribute(LayoutAdminWebKeys.LAYOUT_PROTOTYPE, layoutPrototype);
 			%>

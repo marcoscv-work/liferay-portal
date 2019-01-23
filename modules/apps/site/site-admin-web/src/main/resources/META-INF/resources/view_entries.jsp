@@ -113,7 +113,7 @@ siteChecker.setRememberCheckBoxStateURLRegex("^(?!.*" + liferayPortletResponse.g
 			<c:when test='<%= displayStyle.equals("icon") %>'>
 
 				<%
-				row.setCssClass("entry-card lfr-asset-item " + row.getCssClass());
+				row.setCssClass("card-page lfr-asset-item " + row.getCssClass());
 				%>
 
 				<liferay-ui:search-container-column-text>

@@ -57,7 +57,7 @@ request.setAttribute(LayoutAdminWebKeys.LAYOUT_PAGE_TEMPLATE_DISPLAY_CONTEXT, la
 		>
 
 			<%
-			row.setCssClass("entry-card lfr-asset-item " + row.getCssClass());
+			row.setCssClass("card-page lfr-asset-item " + row.getCssClass());
 
 			String editLayoutPageTemplateURL = layoutPageTemplateDisplayContext.getEditLayoutPageTemplateEntryURL(layoutPageTemplateEntry);
 			String imagePreviewURL = layoutPageTemplateEntry.getImagePreviewURL(themeDisplay);
