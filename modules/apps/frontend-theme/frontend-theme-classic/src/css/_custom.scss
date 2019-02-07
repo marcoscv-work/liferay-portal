@@ -9,6 +9,7 @@
 @import "portlet/portlet";
 @import "portlet/portlet_decorators";
 @import "portlet/portlet_hello_world";
+@import "variables";
 
 header {
 	.portlet, .field-wrapper, .form-group {
@@ -76,6 +77,30 @@ header {
 .btn-group + .info-panel {
 	@include md {
 		top: auto;
+	}
+}
+
+#content {
+	min-height: calc(100vh - #{$headerHeight} - #{$headerMargin} - #{$footerHeight} - #{$footerMargin});
+
+	@media (min-width: 768px) {
+		min-height: calc(100vh - #{$headerHeightDesktop} - #{$headerMarginDesktop} - #{$footerHeightDesktop} - #{$footerMarginDesktop});
+	}
+
+	.has-control-menu & {
+		min-height: calc(100vh - #{$headerHeightControl} - #{$headerMargin} - #{$footerHeight} - #{$footerMargin} - #{$controlMenuHeight});
+
+		@media (min-width: 768px) {
+			min-height: calc(100vh - #{$headerHeightControlDesktop} - #{$headerMarginDesktop} - #{$footerHeightDesktop} - #{$footerMarginDesktop} - #{$controlMenuHeightDesktop});
+		}
+	}
+
+	.has-edit-mode-menu & {
+		min-height: calc(100vh - #{$headerHeightControl} - #{$headerMargin} - #{$footerHeight} - #{$footerMargin} - #{$controlMenuHeight} - #{$managementBarHeight});
+
+		@media (min-width: 768px) {
+			min-height: calc(100vh - #{$headerHeightControlDesktop} - #{$headerMarginDesktop} - #{$footerHeightDesktop} - #{$footerMarginDesktop} - #{$controlMenuHeightDesktop} - #{$managementBarHeightDesktop});
+		}
 	}
 }
 
