@@ -79,6 +79,62 @@ header {
 	}
 }
 
+$headerHeight: 145px;
+$headerHeightDesktop: 147px;
+
+// these are the margin-bottom of the header (we should remove this margin from the header and add a padding to the content)
+
+$headerMargin: 24px;
+$headerMarginDesktop: 24px;
+
+// when the controlMenu is active, the header has a different height
+
+$headerHeightControl: 173px;
+$headerHeightControlDesktop: 147px;
+$footerHeight: 120px;
+$footerHeightDesktop: 120px;
+
+// these are the margin-top of the footer (we should remove this margin fromt the footer and add a padding to the content)
+
+$footerMargin: 16px;
+$footerMarginDesktop: 16px;
+
+// I tried to used the variables already inserted in
+// /modules/apps/layout/layout-content-page-editor-web/src/main/resources/META-INF/resources/css/_variables.scss
+// but it looks like the frontend-theme-classic is separated from the Layout directory
+
+$controlMenuHeight: 49px;
+$controlMenuHeightDesktop: 56px;
+
+// the same as above /modules/apps/fragment/fragment-web/src/main/resources/META-INF/resources/css/variables.scss
+
+$managementBarHeight: 50px;
+$managementBarHeightDesktop: 50px;
+
+#content {
+	min-height: calc(100vh - #{$headerHeight} - #{$headerMargin} - #{$footerHeight} - #{$footerMargin});
+
+	@media (min-width: 768px) {
+		min-height: calc(100vh - #{$headerHeightDesktop} - #{$headerMarginDesktop} - #{$footerHeightDesktop} - #{$footerMarginDesktop});
+	}
+
+	.has-control-menu & {
+		min-height: calc(100vh - #{$headerHeightControl} - #{$headerMargin} - #{$footerHeight} - #{$footerMargin} - #{$controlMenuHeight});
+
+		@media (min-width: 768px) {
+			min-height: calc(100vh - #{$headerHeightControlDesktop} - #{$headerMarginDesktop} - #{$footerHeightDesktop} - #{$footerMarginDesktop} - #{$controlMenuHeightDesktop});
+		}
+	}
+
+	.has-edit-mode-menu & {
+		min-height: calc(100vh - #{$headerHeightControl} - #{$headerMargin} - #{$footerHeight} - #{$footerMargin} - #{$controlMenuHeight} - #{$managementBarHeight});
+
+		@media (min-width: 768px) {
+			min-height: calc(100vh - #{$headerHeightControlDesktop} - #{$headerMarginDesktop} - #{$footerHeightDesktop} - #{$footerMarginDesktop} - #{$controlMenuHeightDesktop} - #{$managementBarHeightDesktop});
+		}
+	}
+}
+
 #footer {
 	background-color: $complementary-color;
 	color: #FFF;
