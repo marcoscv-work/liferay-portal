@@ -98,10 +98,21 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 		<liferay-util:buffer
 			var="selectFileHTML"
 		>
-			<label class="btn btn-default" for="<%= randomNamespace %>InputFile"><liferay-ui:message key="select-file" /></label>
+			<label class="btn btn-default" for="<%= randomNamespace %>InputFile" tabindex="0"><liferay-ui:message key="select-file" /></label>
 
 			<input accept="<%= ListUtil.isEmpty(extensions) ? "*" : StringUtil.merge(extensions) %>" class="hide" id="<%= randomNamespace %>InputFile" type="file" />
 		</liferay-util:buffer>
+		
+		<aui:script>
+			$("label[for='<%= randomNamespace %>InputFile']").on('keypress keydown',
+				function(e) {
+					if(e.which === 32 || e.which === 13){
+						e.preventDefault();
+						this.click();
+					} 
+				}
+			};
+		</aui:script>
 
 		<div class="drop-enabled drop-zone no-border">
 			<c:choose>
