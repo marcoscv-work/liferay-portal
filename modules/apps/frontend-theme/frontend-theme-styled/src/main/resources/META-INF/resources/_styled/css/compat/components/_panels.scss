@@ -59,6 +59,15 @@
 		}
 	}
 
+	.product-menu a {
+		outline-offset: -2px;
+	
+		&:focus {
+			outline-style: solid;
+			outline-width: 2px;
+		}
+	}
+
 	.main-content-card .panel-group {
 		@extend .panel-group-fluid;
 	}
