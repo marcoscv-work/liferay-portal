@@ -58,7 +58,9 @@ class TopSearch extends State {
 	onSearchInputBlur_(event) {
 		async.nextTick(
 			() => {
-				let stateActiveElementBlur = document.activeElement !== this.searchIcon_ && document.activeElement !== this.searchInput_ && document.activeElement !== this.searchOptions_;
+				let stateActiveElementBlur = (document.activeElement !== this.searchIcon_) &&
+					(document.activeElement !== this.searchInput_) &&
+					(document.activeElement !== this.searchOptions_);
 
 				if (stateActiveElementBlur && (!this.searchInput_.value || this.searchInput_.value === '')) {
 					this.visible = false;
