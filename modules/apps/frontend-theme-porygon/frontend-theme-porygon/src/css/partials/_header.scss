@@ -105,6 +105,7 @@ header {
 
 		overflow: hidden;
 		position: relative;
+		z-index: 1060;
 
 		&:hover, &:focus {
 			.lexicon-icon {
