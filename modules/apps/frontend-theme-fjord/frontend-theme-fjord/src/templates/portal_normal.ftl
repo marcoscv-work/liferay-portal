@@ -48,4 +48,6 @@
 
 		<@liferay_util["include"] page=bottom_include />
 	</body>
+
+	<link rel="stylesheet" type="text/css" href="${css_folder}/clay_lazzy.css">
 </html>

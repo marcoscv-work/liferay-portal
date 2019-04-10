@@ -9,8 +9,9 @@
 	}
 
 	.fjord-social {
-		@include size(64px);
+		height: 64px;
 		line-height: 64px;
+		width: 64px;
 
 		&:hover,
 		&:focus {
