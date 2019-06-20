@@ -33,11 +33,11 @@ if (Validator.isNull(icon)) {
 }
 %>
 
-<div class="dropdown lfr-icon-menu <%= cssClass %>" <%= AUIUtil.buildData(data) %>>
+<div class="dropdown dropdown-action <%= cssClass %>" <%= AUIUtil.buildData(data) %>>
 	<c:choose>
 		<c:when test="<%= triggerType.equals(\"button\") %>">
-			<button aria-expanded="false" aria-haspopup="true" class="btn btn-monospaced btn-secondary dropdown-toggle <%= triggerCssClass %>" id="<%= id %>" title="<%= message %>" type="button">
-				<aui:icon cssClass="inline-item" image="<%= icon %>" markupView="lexicon" />
+			<button aria-expanded="false" aria-haspopup="true" class="component-action dropdown-toggle <%= triggerCssClass %>" id="<%= id %>" title="<%= message %>" type="button">
+				<aui:icon cssClass="inline-item" image="<%= icon %>" markupView="lexicon"  />
 
 				<c:if test="<%= Validator.isNotNull(triggerLabel) %>">
 					<span class="btn-section"><%= triggerLabel %></span>
@@ -45,8 +45,8 @@ if (Validator.isNull(icon)) {
 			</button>
 		</c:when>
 		<c:otherwise>
-			<a class="direction-<%= direction %> dropdown-toggle icon-monospaced <%= triggerCssClass %>" href="javascript:;" id="<%= id %>" title="<%= message %>">
-				<aui:icon image="<%= icon %>" markupView="lexicon" />
+			<a class="direction-<%= direction %> component-action dropdown-toggle <%= triggerCssClass %>" href="javascript:;" id="<%= id %>" title="<%= message %>">
+				<aui:icon cssClass="inline-item" image="<%= icon %>" markupView="lexicon" />
 			</a>
 		</c:otherwise>
 	</c:choose>
