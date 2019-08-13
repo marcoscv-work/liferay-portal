@@ -134,7 +134,7 @@
 			width: 50%;
 		}
 
-		@include lg {
+		@include media-breakpoint-up(lg) {
 			width: 25%;
 		}
 	}
@@ -146,7 +146,7 @@
 			width: 25%;
 		}
 
-		@include lg {
+		@include media-breakpoint-up(lg) {
 			width: 20%;
 		}
 	}

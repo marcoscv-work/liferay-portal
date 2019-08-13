@@ -957,7 +957,7 @@
 	}
 }
 
-@include lg {
+@include media-breakpoint-up(lg) {
 	.col-md-4 {
 		@include col-md-4;
 	}
