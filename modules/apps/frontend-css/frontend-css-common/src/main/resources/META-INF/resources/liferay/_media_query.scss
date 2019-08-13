@@ -1,3 +1,5 @@
+// The following features have been deprecated and will be removed in the next MAJOR version release
+
 @mixin media-query($min, $max: null) {
 	$maxWidth: -1;
 	$minWidth: -1;
