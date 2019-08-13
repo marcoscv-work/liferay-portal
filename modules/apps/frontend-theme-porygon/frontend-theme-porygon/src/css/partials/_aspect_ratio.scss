@@ -9,7 +9,7 @@
 .aspect-ratio-21-to-9 {
 	padding-bottom: 56.25%;
 
-	@include media-query($breakpoint_tablet, null) {
+	@include media-breakpoint-up($breakpoint_tablet) {
 		padding-bottom: 23.33%;
 	}
 }

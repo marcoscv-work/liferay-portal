@@ -213,7 +213,7 @@
 
 	.entry-card {
 		.aspect-ratio.aspect-ratio-bg-cover {
-			@include media-query(null, $screen-xs-max) {
+			@include media-breakpoint-down($screen-xs-max) {
 				padding-bottom: 50%;
 			}
 		}

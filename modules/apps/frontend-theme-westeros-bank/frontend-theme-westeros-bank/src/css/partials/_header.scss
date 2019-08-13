@@ -218,7 +218,7 @@
 			margin-left: 30px;
 		}
 
-		@include media-query($breakpoint_tablet, null) {
+		@include media-breakpoint-up($breakpoint_tablet) {
 			margin-left: 60px;
 		}
 
@@ -249,7 +249,7 @@
 	.navbar-form {
 		padding: 10px 20px;
 
-		@include media-query(null, $screen-xs-max) {
+		@include media-breakpoint-down($screen-xs-max) {
 			padding: 4px;
 		}
 
@@ -271,7 +271,7 @@
 		}
 
 		.form-group-inline {
-			@include media-query(null, $screen-xs-max) {
+			@include media-breakpoint-down($screen-xs-max) {
 				display: block;
 			}
 		}
@@ -281,11 +281,11 @@
 			height: auto;
 			padding-right: 40px;
 
-			@include media-query($breakpoint_tablet, null) {
+			@include media-breakpoint-up($breakpoint_tablet) {
 				max-width: 290px;
 			}
 
-			@include media-query(sm, $screen-sm-max) {
+			@include media-breakpoint-between(sm, $screen-sm-max) {
 				max-width: 200px;
 			}
 		}

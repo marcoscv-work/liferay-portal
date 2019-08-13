@@ -97,7 +97,7 @@
 	.image-viewer-footer-content {
 		padding: 0 20px;
 
-		@include media-query(null, $screen-xs-max) {
+		@include media-breakpoint-down($screen-xs-max) {
 			@include display(flex);
 			@include flex-wrap(wrap);
 		}
@@ -121,7 +121,7 @@
 		display: inline-block;
 		white-space: nowrap;
 
-		@include media-query(null, $screen-xs-max) {
+		@include media-breakpoint-down($screen-xs-max) {
 			@include flex(0 1 100%);
 			@include order(1);
 		}
@@ -133,7 +133,7 @@
 		text-align: left;
 		width: 33%;
 
-		@include media-query(null, $screen-xs-max) {
+		@include media-breakpoint-down($screen-xs-max) {
 			@include flex(0 1 100%);
 			@include order(2);
 
@@ -144,7 +144,7 @@
 	}
 
 	.lfr-item-viewer-icon-info-link {
-		@include media-query(null, $screen-xs-max) {
+		@include media-breakpoint-down($screen-xs-max) {
 			bottom: 10px;
 
 			@include flex(0 1 auto);

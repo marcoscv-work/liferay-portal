@@ -33,7 +33,7 @@
 	.blog-list-card-content {
 		@include position(absolute, null null 10px null);
 
-		@include media-query($breakpoint_tablet, null) {
+		@include media-breakpoint-up($breakpoint_tablet) {
 			padding: 10px 30px;
 		}
 	}

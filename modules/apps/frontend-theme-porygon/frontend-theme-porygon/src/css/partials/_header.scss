@@ -129,7 +129,7 @@ header {
 	}
 
 	.lfr-nav-child-toggle {
-		@include media-query(null, $screen-xs-max) {
+		@include media-breakpoint-down($screen-xs-max) {
 			float: left;
 			padding: 0 10px;
 		}

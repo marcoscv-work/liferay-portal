@@ -1,4 +1,4 @@
-@include media-query(null, $screen-sm-max) {
+@include media-breakpoint-down($screen-sm-max) {
 	.responsive-table-horizontal {
 		display: block;
 		position: relative;

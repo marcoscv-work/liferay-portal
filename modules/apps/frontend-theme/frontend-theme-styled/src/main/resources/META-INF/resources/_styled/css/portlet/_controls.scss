@@ -80,7 +80,7 @@ body.portlet {
 }
 
 .controls-hidden .portlet .visible-interaction {
-	@include media-query(null, $screen-xs-max) {
+	@include media-breakpoint-down($screen-xs-max) {
 		display: none;
 	}
 }

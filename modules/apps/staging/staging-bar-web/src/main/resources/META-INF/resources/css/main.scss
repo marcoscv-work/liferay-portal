@@ -42,7 +42,7 @@
 	}
 
 	.btn {
-		@include media-query(null, $screen-xs-max) {
+		@include media-breakpoint-down($screen-xs-max) {
 			font-size: 1em;
 			padding: 13px 15px;
 
@@ -55,7 +55,7 @@
 	}
 
 	.dropdown-toggle {
-		@include media-query(null, $screen-xs-max) {
+		@include media-breakpoint-down($screen-xs-max) {
 			border-bottom-left-radius: 0;
 			border-top-left-radius: 0;
 			position: absolute;
