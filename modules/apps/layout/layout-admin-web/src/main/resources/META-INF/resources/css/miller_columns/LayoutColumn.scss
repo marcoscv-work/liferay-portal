@@ -31,7 +31,7 @@
 		position: static;
 	}
 
-	@include md {
+	@include media-breakpoint-up(md) {
 		height: calc(100vh - 384px);
 		min-height: 10rem;
 		overflow-y: scroll;
