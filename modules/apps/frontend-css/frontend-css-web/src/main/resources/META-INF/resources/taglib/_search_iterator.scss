@@ -142,7 +142,7 @@
 	.lfr-asset-item {
 		width: 50%;
 
-		@include sm {
+		@include media-breakpoint-up(sm) {
 			width: 25%;
 		}
 

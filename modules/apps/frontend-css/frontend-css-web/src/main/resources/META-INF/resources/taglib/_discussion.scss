@@ -45,7 +45,7 @@ $light-color: #e7e7ed;
 				padding-left: 0;
 			}
 
-			@include sm {
+			@include media-breakpoint-up(sm) {
 				padding-left: $discussion-indent-sm;
 			}
 		}
@@ -58,7 +58,7 @@ $light-color: #e7e7ed;
 	.lfr-discussion-body {
 		font-size: 1rem;
 
-		@include sm {
+		@include media-breakpoint-up(sm) {
 			padding-left: $discussion-indent-sm;
 		}
 	}
@@ -76,7 +76,7 @@ $light-color: #e7e7ed;
 		text-transform: uppercase;
 	}
 
-	@include sm {
+	@include media-breakpoint-up(sm) {
 		.dropdown {
 			display: none;
 		}

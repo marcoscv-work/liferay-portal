@@ -22,7 +22,7 @@
 	.staging-bar {
 		position: absolute;
 
-		@include sm() {
+		@include media-breakpoint-up(sm) {
 			position: static;
 		}
 	}
@@ -36,7 +36,7 @@
 .publish-btn-group {
 	vertical-align: middle;
 
-	@include sm() {
+	@include media-breakpoint-up(sm) {
 		border-radius: 3px;
 		overflow: hidden;
 	}
@@ -93,7 +93,7 @@
 			margin-bottom: 0;
 			min-width: 210px;
 
-			@include sm() {
+			@include media-breakpoint-up(sm) {
 				float: left;
 			}
 
@@ -137,7 +137,7 @@
 		text-decoration: none;
 	}
 
-	@include sm() {
+	@include media-breakpoint-up(sm) {
 		font-size: 14px;
 	}
 }
@@ -164,7 +164,7 @@
 	white-space: nowrap;
 	width: 100%;
 
-	@include sm() {
+	@include media-breakpoint-up(sm) {
 		font-size: 14px;
 	}
 

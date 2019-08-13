@@ -163,7 +163,7 @@
 		}
 	}
 
-	@include sm {
+	@include media-breakpoint-up(sm) {
 		.message-user-display {
 			width: 50%;
 		}

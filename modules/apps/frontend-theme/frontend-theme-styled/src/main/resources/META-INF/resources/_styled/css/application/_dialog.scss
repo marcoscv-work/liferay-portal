@@ -75,7 +75,7 @@
 		height: calc(100% - #{$dialog-navbar-height});
 		position: relative;
 
-		@include sm {
+		@include media-breakpoint-up(sm) {
 			height: calc(100% - #{$dialog-desktop-navbar-height});
 		}
 	}
@@ -110,7 +110,7 @@
 			padding-left: 3px;
 			padding-right: 3px;
 
-			@include sm {
+			@include media-breakpoint-up(sm) {
 				padding-left: 8px;
 				padding-right: 8px;
 			}
@@ -128,7 +128,7 @@
 		top: $dialog-navbar-height;
 		-webkit-overflow-scrolling: touch;
 
-		@include sm {
+		@include media-breakpoint-up(sm) {
 			top: $dialog-desktop-navbar-height;
 		}
 	}

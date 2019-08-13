@@ -15,7 +15,7 @@ body.open .site-navigation-management-bar {
 	width: calc(100vw - #{$productMenuWidth});
 }
 
-@include sm {
+@include media-breakpoint-up(sm) {
 	body.has-control-menu .contextual-sidebar {
 		height: calc(100vh - #{$controlBarDesktopHeight});
 		top: $controlBarDesktopHeight;

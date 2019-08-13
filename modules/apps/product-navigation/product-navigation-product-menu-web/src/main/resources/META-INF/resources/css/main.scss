@@ -8,7 +8,7 @@
 		padding-right: 9px;
 		padding-top: 8px;
 
-		@include sm() {
+		@include media-breakpoint-up(sm) {
 			padding-bottom: 12px;
 			padding-left: 24px;
 			padding-top: 12px;
@@ -32,7 +32,7 @@
 		right: 0;
 		top: 55px;
 
-		@include sm() {
+		@include media-breakpoint-up(sm) {
 			top: 64px;
 		}
 

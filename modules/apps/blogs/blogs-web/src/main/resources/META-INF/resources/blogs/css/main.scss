@@ -254,7 +254,7 @@
 	.info-bar-container.affix + .entry-body {
 		margin-top: 47px;
 
-		@include sm() {
+		@include media-breakpoint-up(sm) {
 			margin-top: 59px;
 		}
 	}

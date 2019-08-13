@@ -48,7 +48,7 @@ $upper-tbar-height: 4rem;
 		top: $control-menu-height;
 		z-index: 1;
 
-		@include sm {
+		@include media-breakpoint-up(sm) {
 			top: $control-menu-height-desktop;
 
 			body.open & {

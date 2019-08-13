@@ -17,7 +17,7 @@
 			margin-top: -$has-control-menu-margin-top-mobile;
 		}
 
-		@include sm() {
+		@include media-breakpoint-up(sm) {
 			margin-top: $has-control-menu-margin-top-desktop;
 
 			.portlet-boundary > span:first-child {
@@ -57,7 +57,7 @@
 						$has-customization-menu-margin-top-mobile);
 		}
 
-		@include sm() {
+		@include media-breakpoint-up(sm) {
 			margin-top: (
 				$has-control-menu-margin-top-desktop +
 					$has-customization-menu-margin-top-desktop
@@ -111,7 +111,7 @@ a.control-menu-icon,
 	> .container-fluid {
 		padding: 8px;
 
-		@include sm() {
+		@include media-breakpoint-up(sm) {
 			padding: 12px;
 		}
 	}
@@ -155,7 +155,7 @@ a.control-menu-icon,
 			margin-right: 4px;
 		}
 
-		@include sm {
+		@include media-breakpoint-up(sm) {
 			margin-left: 8px;
 			margin-right: 8px;
 		}
@@ -192,7 +192,7 @@ a.control-menu-icon,
 		text-transform: none;
 	}
 
-	@include sm() {
+	@include media-breakpoint-up(sm) {
 		left: 0;
 		position: absolute;
 		right: 0;

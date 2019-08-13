@@ -14,7 +14,7 @@
 	position: relative;
 	width: 100%;
 
-	@include sm {
+	@include media-breakpoint-up(sm) {
 		float: left;
 		height: 50%;
 		width: 50%;

@@ -20,7 +20,7 @@
 		}
 	}
 
-	@include sm {
+	@include media-breakpoint-up(sm) {
 		.home-button {
 			height: auto;
 			width: auto;

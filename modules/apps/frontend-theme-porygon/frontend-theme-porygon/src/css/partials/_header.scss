@@ -5,7 +5,7 @@ header {
 	}
 
 	.logo {
-		@include sm {
+		@include media-breakpoint-up(sm) {
 			margin: 4px 0;
 		}
 	}
@@ -147,7 +147,7 @@ header {
 .search-opened {
 	header {
 		#search {
-			@include sm {
+			@include media-breakpoint-up(sm) {
 				height: 60px;
 			}
 		}
