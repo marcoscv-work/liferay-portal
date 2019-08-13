@@ -150,7 +150,7 @@ a.control-menu-icon,
 	@include justify-content(space-between);
 
 	> li > .control-menu-nav > .control-menu-nav-item {
-		@include xs {
+		@include media-breakpoint-up(xs) {
 			margin-left: 4px;
 			margin-right: 4px;
 		}

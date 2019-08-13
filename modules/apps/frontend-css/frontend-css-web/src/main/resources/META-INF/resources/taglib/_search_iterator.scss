@@ -130,7 +130,7 @@
 	.lfr-asset-folder {
 		width: 100%;
 
-		@include xs {
+		@include media-breakpoint-up(xs) {
 			width: 50%;
 		}
 
