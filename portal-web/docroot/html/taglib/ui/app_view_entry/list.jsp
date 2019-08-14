@@ -20,10 +20,11 @@
 	<liferay-ui:icon
 		cssClass='<%= showCheckbox ? "pull-left app-view-entry app-view-entry-taglib entry-display-style selectable" : "pull-left app-view-entry app-view-entry-taglib entry-display-style" %>'
 		data="<%= data %>"
-		iconCssClass="<%= iconCssClass %>"
+		icon="<%= iconCssClass %>"
 		label="<%= true %>"
 		linkCssClass="entry-link"
 		localizeMessage="<%= false %>"
+		markupView="lexicon"
 		message="<%= HtmlUtil.escape(title) %>"
 		method="get"
 		src="<%= HtmlUtil.escapeAttribute(thumbnailSrc) %>"

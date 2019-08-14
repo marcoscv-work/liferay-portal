@@ -175,8 +175,9 @@ summary.setQueryTerms(queryTerms);
 
 					<span class="title">
 						<liferay-ui:icon
-							iconCssClass="icon-comment"
+							icon="comments"
 							label="<%= true %>"
+							markupView="lexicon"
 							message='<%= LanguageUtil.format(locale, "comment-by-x", HtmlUtil.escape(userDisplay.getFullName()), false) %>'
 						/>
 					</span>
