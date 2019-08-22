@@ -1,5 +1,5 @@
-@import 'bourbon';
-@import 'mixins';
+@import 'atlas/variables';
+@import 'bootstrap/mixins';
 
 .portlet-asset-publisher,
 .portlet-message-boards,
@@ -163,7 +163,7 @@
 		}
 	}
 
-	@include sm {
+	@include media-breakpoint-up(sm) {
 		.message-user-display {
 			width: 50%;
 		}
@@ -304,13 +304,15 @@
 	}
 
 	.category-description {
-		@include hyphens;
+		-ms-hyphens: none;
+		-webkit-hyphens: none;
+		hyphens: none;
 	}
 
 	.category-title {
-		@include ellipsis;
-
 		font-weight: bold;
+
+		@include text-truncate();
 	}
 
 	.subcategories {
