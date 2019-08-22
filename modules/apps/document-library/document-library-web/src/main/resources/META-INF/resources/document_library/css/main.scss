@@ -1,7 +1,4 @@
-@import 'bootstrap/functions';
-@import 'bootstrap/variables';
-@import 'atlas/variables';
-@import 'bootstrap/mixins';
+@import 'atlas-variables';
 
 @mixin file-icon($colorIndex, $color) {
 	[data-file-icon-color='#{$colorIndex}'] .lexicon-icon {
