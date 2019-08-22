@@ -1,6 +1,3 @@
-@import 'bourbon';
-@import 'mixins';
-
 .form-group-inline {
 	display: inline-block;
 	vertical-align: bottom;
@@ -37,7 +34,7 @@
 		}
 	}
 
-	@include respond-to(phone, tablet) {
+	@include media-breakpoint-down(lg) {
 		width: 100%;
 
 		.btn {
@@ -72,13 +69,14 @@
 	.input-group-addon {
 		float: left;
 		margin-top: -1px;
+		overflow-wrap: break-all;
 		padding: 9px;
 		white-space: normal;
 		width: auto;
+		word-break: break-all;
+		word-wrap: break-all;
 
-		@include word-wrap(break-all);
-
-		@include respond-to(phone, tablet) {
+		@include media-breakpoint-down(lg) {
 			font-size: 18px;
 			padding: 8px;
 		}
