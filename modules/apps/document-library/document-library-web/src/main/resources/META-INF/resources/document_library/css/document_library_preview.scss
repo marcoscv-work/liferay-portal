@@ -1,4 +1,5 @@
-@import 'mixins';
+@import 'atlas/variables';
+@import 'bootstrap/mixins';
 
 @import 'upper_tbar';
 
@@ -39,7 +40,7 @@
 		background-color: #fff;
 	}
 
-	@include sm {
+	@include media-breakpoint-up(sm) {
 		.panel {
 			border-color: transparent;
 		}
@@ -58,7 +59,7 @@
 		top: $top;
 		z-index: 1;
 
-		@include sm {
+		@include media-breakpoint-up(sm) {
 			$top-sm: $control-menu-height-sm + $upper-tbar-height;
 
 			height: calc(100vh - #{$top-sm});

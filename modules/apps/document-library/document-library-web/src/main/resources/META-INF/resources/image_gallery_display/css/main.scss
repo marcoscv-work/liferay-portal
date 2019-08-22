@@ -1,4 +1,5 @@
-@import 'bourbon';
+@import 'atlas/variables';
+@import 'bootstrap/mixins';
 
 .portlet-image-gallery-display {
 	.lfr-asset-attributes {
@@ -94,7 +95,7 @@
 		clear: both;
 		display: block;
 
-		@include ellipsis;
+		@include text-truncate();
 	}
 }
 
