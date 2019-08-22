@@ -1,14 +1,15 @@
-@import 'bourbon';
-@import 'mixins';
+@import 'atlas/variables';
+@import 'bootstrap/mixins';
 
 .portlet-wiki {
 	.wiki-body {
-		@include hyphens;
-
+		-ms-hyphens: none;
+		-webkit-hyphens: none;
+		hyphens: none;
 		overflow: auto;
 		word-wrap: break-word;
 
-		@include respond-to(phone, tablet) {
+		@include media-breakpoint-down(lg) {
 			-webkit-overflow-scrolling: touch;
 		}
 
@@ -293,8 +294,9 @@
 		pre {
 			margin-bottom: 1em;
 			margin-left: 1em;
-
-			@include word-wrap(normal);
+			overflow-wrap: normal;
+			word-break: normal;
+			word-wrap: normal;
 		}
 	}
 
