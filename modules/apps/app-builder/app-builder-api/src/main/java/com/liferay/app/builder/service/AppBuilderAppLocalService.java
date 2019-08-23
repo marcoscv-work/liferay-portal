@@ -36,6 +36,8 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import java.io.Serializable;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -71,6 +73,13 @@ public interface AppBuilderAppLocalService
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	public AppBuilderApp addAppBuilderApp(AppBuilderApp appBuilderApp);
+
+	@Indexable(type = IndexableType.REINDEX)
+	public AppBuilderApp addAppBuilderApp(
+			long groupId, long companyId, long userId, long ddmStructureId,
+			long ddmStructureLayoutId, long deDataListViewId,
+			Map<Locale, String> nameMap, String settings, int status)
+		throws PortalException;
 
 	/**
 	 * Creates a new app builder app with the primary key. Does not add the app builder app to the database.
@@ -229,6 +238,16 @@ public interface AppBuilderAppLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<AppBuilderApp> getAppBuilderApps(int start, int end);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AppBuilderApp> getAppBuilderApps(
+		long groupId, int start, int end,
+		OrderByComparator<AppBuilderApp> orderByComparator);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AppBuilderApp> getAppBuilderApps(
+		long groupId, long companyId, long ddmStructureId, int start, int end,
+		OrderByComparator<AppBuilderApp> orderByComparator);
+
 	/**
 	 * Returns all the app builder apps matching the UUID and company.
 	 *
@@ -264,6 +283,13 @@ public interface AppBuilderAppLocalService
 	public int getAppBuilderAppsCount();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getAppBuilderAppsCount(long groupId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getAppBuilderAppsCount(
+		long groupId, long companyId, long ddmStructureId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
 		PortletDataContext portletDataContext);
 
@@ -290,5 +316,12 @@ public interface AppBuilderAppLocalService
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	public AppBuilderApp updateAppBuilderApp(AppBuilderApp appBuilderApp);
+
+	@Indexable(type = IndexableType.REINDEX)
+	public AppBuilderApp updateAppBuilderApp(
+			long userId, long appBuilderAppId, long ddmStructureId,
+			long ddmStructureLayoutId, long deDataListViewId,
+			Map<Locale, String> nameMap, String settings, int status)
+		throws PortalException;
 
 }

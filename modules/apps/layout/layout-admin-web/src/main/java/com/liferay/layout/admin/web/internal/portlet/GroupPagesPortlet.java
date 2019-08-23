@@ -29,6 +29,7 @@ import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateCollectionService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.layout.util.LayoutCopyHelper;
+import com.liferay.layout.util.template.LayoutConverterRegistry;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.GroupInheritContentException;
@@ -98,8 +99,7 @@ import org.osgi.service.component.annotations.Reference;
 		"javax.portlet.init-param.view-template=/view.jsp",
 		"javax.portlet.name=" + LayoutAdminPortletKeys.GROUP_PAGES,
 		"javax.portlet.resource-bundle=content.Language",
-		"javax.portlet.supported-public-render-parameter=layoutSetBranchId",
-		"javax.portlet.supports.mime-type=text/html"
+		"javax.portlet.supported-public-render-parameter=layoutSetBranchId"
 	},
 	service = Portlet.class
 )
@@ -170,6 +170,9 @@ public class GroupPagesPortlet extends MVCPortlet {
 				LayoutAdminWebKeys.ITEM_SELECTOR, _itemSelector);
 			renderRequest.setAttribute(
 				LayoutAdminWebKeys.LAYOUT_COPY_HELPER, _layoutCopyHelper);
+			renderRequest.setAttribute(
+				LayoutAdminWebKeys.LAYOUT_TEMPLATE_CONVERTER_REGISTRY,
+				_layoutConverterRegistry);
 
 			super.doDispatch(renderRequest, renderResponse);
 		}
@@ -221,6 +224,9 @@ public class GroupPagesPortlet extends MVCPortlet {
 	private ItemSelector _itemSelector;
 
 	private volatile LayoutAdminWebConfiguration _layoutAdminWebConfiguration;
+
+	@Reference
+	private LayoutConverterRegistry _layoutConverterRegistry;
 
 	@Reference
 	private LayoutCopyHelper _layoutCopyHelper;

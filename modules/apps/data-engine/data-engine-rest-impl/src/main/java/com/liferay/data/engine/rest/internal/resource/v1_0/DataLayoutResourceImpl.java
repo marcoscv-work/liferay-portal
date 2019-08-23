@@ -31,6 +31,9 @@ import com.liferay.dynamic.data.mapping.model.DDMStructureVersion;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureVersionLocalService;
+import com.liferay.dynamic.data.mapping.util.comparator.StructureLayoutCreateDateComparator;
+import com.liferay.dynamic.data.mapping.util.comparator.StructureLayoutModifiedDateComparator;
+import com.liferay.dynamic.data.mapping.util.comparator.StructureLayoutNameComparator;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
@@ -46,7 +49,10 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
@@ -96,15 +102,34 @@ public class DataLayoutResourceImpl
 					"page-size-is-greater-than-x", 250));
 		}
 
-		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
-			dataDefinitionId);
-
 		if (ArrayUtil.isEmpty(sorts)) {
 			sorts = new Sort[] {
 				new Sort(
 					Field.getSortableFieldName(Field.MODIFIED_DATE),
 					Sort.STRING_TYPE, true)
 			};
+		}
+
+		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
+			dataDefinitionId);
+
+		if (Validator.isNull(keywords)) {
+			return Page.of(
+				transform(
+					_ddmStructureLayoutLocalService.getStructureLayouts(
+						ddmStructure.getGroupId(),
+						_portal.getClassNameId(InternalDataLayout.class),
+						_getDDMStructureVersionId(dataDefinitionId),
+						pagination.getStartPosition(),
+						pagination.getEndPosition(),
+						_toOrderByComparator(
+							(Sort)ArrayUtil.getValue(sorts, 0))),
+					this::_toDataLayout),
+				pagination,
+				_ddmStructureLayoutLocalService.getStructureLayoutsCount(
+					ddmStructure.getGroupId(),
+					_portal.getClassNameId(InternalDataLayout.class),
+					_getDDMStructureVersionId(dataDefinitionId)));
 		}
 
 		return SearchUtil.search(
@@ -160,7 +185,7 @@ public class DataLayoutResourceImpl
 	}
 
 	@Override
-	public Page<DataLayout> getSiteDataLayoutPage(
+	public Page<DataLayout> getSiteDataLayoutsPage(
 			Long siteId, String keywords, Pagination pagination, Sort[] sorts)
 		throws Exception {
 
@@ -177,6 +202,23 @@ public class DataLayoutResourceImpl
 					Field.getSortableFieldName(Field.MODIFIED_DATE),
 					Sort.STRING_TYPE, true)
 			};
+		}
+
+		if (Validator.isNull(keywords)) {
+			return Page.of(
+				transform(
+					_ddmStructureLayoutLocalService.getStructureLayouts(
+						siteId,
+						_portal.getClassNameId(InternalDataLayout.class),
+						pagination.getStartPosition(),
+						pagination.getEndPosition(),
+						_toOrderByComparator(
+							(Sort)ArrayUtil.getValue(sorts, 0))),
+					this::_toDataLayout),
+				pagination,
+				_ddmStructureLayoutLocalService.getStructureLayoutsCount(
+					siteId, _portal.getClassNameId(InternalDataLayout.class),
+					_portal.getClassNameId(InternalDataLayout.class)));
 		}
 
 		return SearchUtil.search(
@@ -384,6 +426,23 @@ public class DataLayoutResourceImpl
 		dataLayout.setUserId(ddmStructureLayout.getUserId());
 
 		return dataLayout;
+	}
+
+	private OrderByComparator<DDMStructureLayout> _toOrderByComparator(
+		Sort sort) {
+
+		boolean ascending = !sort.isReverse();
+
+		String sortFieldName = sort.getFieldName();
+
+		if (StringUtil.startsWith(sortFieldName, "createDate")) {
+			return new StructureLayoutCreateDateComparator(ascending);
+		}
+		else if (StringUtil.startsWith(sortFieldName, "localized_name")) {
+			return new StructureLayoutNameComparator(ascending);
+		}
+
+		return new StructureLayoutModifiedDateComparator(ascending);
 	}
 
 	private static final EntityModel _entityModel = new DataLayoutEntityModel();

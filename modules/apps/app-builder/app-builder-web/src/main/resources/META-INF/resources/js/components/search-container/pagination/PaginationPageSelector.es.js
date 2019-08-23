@@ -13,20 +13,23 @@
  */
 
 import ClayPagination from '@clayui/pagination';
-import React from 'react';
+import React, {useContext} from 'react';
+import {SearchContext} from '../SearchContext.es';
 
-export default function PaginationPageSelector({
-	onPageChange,
-	page,
-	totalPages
-}) {
+export default ({totalPages}) => {
+	const {
+		dispatch,
+		state: {
+			query: {page}
+		}
+	} = useContext(SearchContext);
+
 	return (
 		<ClayPagination
 			activePage={page}
 			ellipsisBuffer={0}
-			onPageChange={onPageChange}
-			spritemap={`${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`}
+			onPageChange={page => dispatch({page, type: 'CHANGE_PAGE'})}
 			totalPages={totalPages}
 		/>
 	);
-}
+};

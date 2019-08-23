@@ -15,9 +15,17 @@
 package com.liferay.portal.upgrade.util.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.test.util.DBAssertionUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeMVCCVersion;
+import com.liferay.portal.kernel.xml.Document;
+import com.liferay.portal.kernel.xml.Element;
+import com.liferay.portal.kernel.xml.UnsecureSAXReaderUtil;
+
+import java.io.InputStream;
+
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -70,6 +78,22 @@ public class UpgradeMVCCVersionTest extends UpgradeMVCCVersion {
 	}
 
 	@Override
+	protected List<Element> getClassElements() throws Exception {
+		Thread currentThread = Thread.currentThread();
+
+		ClassLoader classLoader = currentThread.getContextClassLoader();
+
+		InputStream inputStream = classLoader.getResourceAsStream(
+			"META-INF/test-portal-hbm.xml");
+
+		Document document = UnsecureSAXReaderUtil.read(inputStream);
+
+		Element rootElement = document.getRootElement();
+
+		return rootElement.elements("class");
+	}
+
+	@Override
 	protected String[] getExcludedTableNames() {
 		return _excludedTableNames;
 	}
@@ -81,8 +105,9 @@ public class UpgradeMVCCVersionTest extends UpgradeMVCCVersion {
 
 	private void _createTable(String tableName) throws Exception {
 		runSQL(
-			"create table " + tableName + "(id LONG not null primary key, " +
-				"userId LONG)");
+			StringBundler.concat(
+				"create table ", tableName, "(id LONG not null primary key, ",
+				"userId LONG)"));
 	}
 
 	private void _dropTable(String tableName) throws Exception {

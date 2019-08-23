@@ -20,7 +20,9 @@
 	{@param? publishURL: string}
 	{@param? redirectURL: string}
 	{@param? savingChanges: bool}
+	{@param? selectedSegmentsEntryId: string}
 	{@param? selectedSidebarPanelId: string}
+	{@param? singleSegmentsExperienceMode: bool}
 	{@param? spritemap: string}
 	{@param? store: ?}
 
@@ -38,13 +40,14 @@
 	<div class="{$toolbarClasses}">
 		<div class="container-fluid container-fluid-max-xl">
 			<ul class="navbar-nav">
-				{if $defaultSegmentsExperienceId }
+				{if $defaultSegmentsExperienceId and not $singleSegmentsExperienceMode }
 					<li class="nav-item">
 						{call com.liferay.layout.content.page.editor.web.SegmentsExperienceSelector.render}
 							{param availableSegmentsEntries: $availableSegmentsEntries /}
 							{param defaultSegmentsExperienceId: $defaultSegmentsExperienceId /}
 							{param editSegmentsEntryURL: $editSegmentsEntryURL /}
 							{param hasEditSegmentsEntryPermission: $hasEditSegmentsEntryPermission /}
+							{param selectedSegmentsEntryId: $selectedSegmentsEntryId /}
 							{param spritemap: $spritemap ?: '' /}
 							{param store: $store /}
 						{/call}
@@ -78,6 +81,13 @@
 				</li>
 
 				{if $discardDraftURL}
+					{let $discardLabel kind="text"}
+						{if $singleSegmentsExperienceMode}
+							{msg desc=""}discard-variant{/msg}
+						{else}
+							{msg desc=""}discard-draft{/msg}
+						{/if}
+					{/let}
 					<li class="nav-item">
 						<form
 							action="{$discardDraftURL}"
@@ -106,13 +116,20 @@
 							{/let}
 
 							<button {$discardButtonAttributes}>
-								{msg desc=""}discard-draft{/msg}
+								{$discardLabel}
 							</button>
 						</form>
 					</li>
 				{/if}
 
 				{if $publishURL}
+					{let $publishLabel kind="text"}
+						{if $singleSegmentsExperienceMode}
+							{msg desc=""}save-variant{/msg}
+						{else}
+							{msg desc=""}publish{/msg}
+						{/if}
+					{/let}
 					<li class="nav-item">
 						<form action="{$publishURL}" method="POST">
 							<input
@@ -137,7 +154,7 @@
 							{/let}
 
 							<button {$publishButtonAttributes}>
-								{msg desc=""}publish{/msg}
+								{$publishLabel}
 							</button>
 						</form>
 					</li>

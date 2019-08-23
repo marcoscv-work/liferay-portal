@@ -103,6 +103,21 @@ const INITIAL_STATE = {
 		})
 	).value([]),
 
+	availableAssets: Config.arrayOf(
+		Config.shapeOf({
+			availableTemplates: Config.arrayOf(
+				Config.shapeOf({
+					key: Config.string(),
+					label: Config.string()
+				})
+			),
+			className: Config.string(),
+			classNameId: Config.string(),
+			href: Config.string(),
+			name: Config.string()
+		})
+	).value([]),
+
 	/**
 	 * Object of available languages.
 	 * @default {}
@@ -115,15 +130,6 @@ const INITIAL_STATE = {
 			languageLabel: Config.string()
 		})
 	).value({}),
-
-	availableAssets: Config.arrayOf(
-		Config.shapeOf({
-			assetBrowserURL: Config.string(),
-			className: Config.string(),
-			classNameId: Config.string(),
-			name: Config.string()
-		})
-	).value([]),
 
 	/**
 	 * List of available segments
@@ -169,6 +175,14 @@ const INITIAL_STATE = {
 	 * @type {string}
 	 */
 	classPK: Config.string().value(''),
+
+	/**
+	 * Flag indicating if the Create Content dialog should be shown
+	 * @default false
+	 * @review
+	 * @type {boolean}
+	 */
+	createContentDialogVisible: Config.bool().value(false),
 
 	/**
 	 * Default configurations for AlloyEditor instances.
@@ -263,17 +277,12 @@ const INITIAL_STATE = {
 	dropTargetItemType: Config.string().value(''),
 
 	/**
-	 * List of layoutData related to segmentsExperiences
+	 * URL for editing a comment to a FragmentEntryLink
 	 * @default ''
 	 * @review
-	 * @type {!Array}
+	 * @type {string}
 	 */
-	layoutDataList: Config.arrayOf(
-		Config.shapeOf({
-			layoutData: LayoutDataShape.required(),
-			segmentsExperienceId: Config.string().required()
-		})
-	).value([]),
+	editFragmentEntryLinkCommentURL: Config.string().value(''),
 
 	/**
 	 * URL for updating a distinct fragment entries of the editor.
@@ -285,12 +294,13 @@ const INITIAL_STATE = {
 	editFragmentEntryLinkURL: Config.string().value(''),
 
 	/**
-	 * URL for editing a comment to a FragmentEntryLink
+	 * URL for updating a distinct fragment entries of the editor.
 	 * @default ''
+	 * @instance
 	 * @review
 	 * @type {string}
 	 */
-	editFragmentEntryLinkCommentURL: Config.string().value(''),
+	editFragmentEntryLinksURL: Config.string().value(''),
 
 	/**
 	 * Available elements that can be dragged inside the existing Page Template,
@@ -302,6 +312,7 @@ const INITIAL_STATE = {
 	 *   fragmentEntries: Array<{
 	 *     fragmentEntryKey: !string,
 	 *     imagePreviewURL: string,
+	 *     groupId: string,
 	 *     name: !string
 	 *   }>,
 	 *   name: !string
@@ -313,6 +324,7 @@ const INITIAL_STATE = {
 			fragmentEntries: Config.arrayOf(
 				Config.shapeOf({
 					fragmentEntryKey: Config.string().required(),
+					groupId: Config.string().value(''),
 					imagePreviewURL: Config.string(),
 					name: Config.string().required()
 				})
@@ -320,6 +332,13 @@ const INITIAL_STATE = {
 			name: Config.string().required()
 		})
 	).value([]),
+
+	/**
+	 * When true, it indicates that configuration is enabled
+	 * @review
+	 * @type {boolean}
+	 */
+	enableConfiguration: Config.bool().value(false),
 
 	/**
 	 * Fragment id to indicate if that fragment editor has to be cleared.
@@ -387,6 +406,15 @@ const INITIAL_STATE = {
 	getAssetMappingFieldsURL: Config.string().value(''),
 
 	/**
+	 * URL for obtaining the content structures
+	 * created.
+	 * @default '''
+	 * @review
+	 * @type {string}
+	 */
+	getContentStructuresURL: Config.string().value(''),
+
+	/**
 	 * Get portlets used in a particular experience
 	 * @default undefined
 	 * @review
@@ -411,6 +439,14 @@ const INITIAL_STATE = {
 	 * @type {string}
 	 */
 	getInfoDisplayContributorsURL: Config.string().value(''),
+
+	/**
+	 * Get mapped content url
+	 * @default undefined
+	 * @review
+	 * @type {string}
+	 */
+	getMappedContentsURL: Config.string().value(''),
 
 	/**
 	 * Id of the last element that was hovered
@@ -461,6 +497,19 @@ const INITIAL_STATE = {
 	layoutData: LayoutDataShape.value(getEmptyLayoutData()),
 
 	/**
+	 * List of layoutData related to segmentsExperiences
+	 * @default ''
+	 * @review
+	 * @type {!Array}
+	 */
+	layoutDataList: Config.arrayOf(
+		Config.shapeOf({
+			layoutData: LayoutDataShape.required(),
+			segmentsExperienceId: Config.string().required()
+		})
+	).value([]),
+
+	/**
 	 * Current layout look&feel url
 	 * @default undefined
 	 * @review
@@ -474,6 +523,23 @@ const INITIAL_STATE = {
 	 * @type {object[]}
 	 */
 	mappedAssetEntries: Config.array().value([]),
+
+	/**
+	 * @default []
+	 * @review
+	 * @type {Array<{name: string, status: { label: string, style: string }, title: string, usagesCount: number}>}
+	 */
+	mappedContents: Config.arrayOf(
+		Config.shapeOf({
+			name: Config.string(),
+			status: Config.shapeOf({
+				label: Config.string(),
+				style: Config.string()
+			}),
+			title: Config.string(),
+			usagesCount: Config.number()
+		})
+	).value([]),
 
 	/**
 	 * URL for getting the list of mapping fields
@@ -531,6 +597,7 @@ const INITIAL_STATE = {
 	 *   fragmentEntries: Array<{
 	 *     fragmentEntryKey: !string,
 	 *     imagePreviewURL: string,
+	 *     groupId: string,
 	 *     name: !string
 	 *   }>,
 	 *   name: !string
@@ -542,6 +609,7 @@ const INITIAL_STATE = {
 			fragmentEntries: Config.arrayOf(
 				Config.shapeOf({
 					fragmentEntryKey: Config.string().required(),
+					groupId: Config.string().value(''),
 					imagePreviewURL: Config.string(),
 					name: Config.string().required()
 				}).required()
@@ -607,6 +675,19 @@ const INITIAL_STATE = {
 	selectMappingTypeDialogVisible: Config.bool().value(false),
 
 	/**
+	 * Selected items
+	 * @default []
+	 * @review
+	 * @type {Array<string>}
+	 */
+	selectedItems: Config.arrayOf(
+		Config.shapeOf({
+			itemId: Config.string(),
+			itemType: Config.string()
+		})
+	).value([]),
+
+	/**
 	 * Selected mapping type label
 	 * @default {}
 	 * @review
@@ -642,6 +723,14 @@ const INITIAL_STATE = {
 	selectedSidebarPanelId: Config.string().value('sections'),
 
 	/**
+	 * Flag indicating if resolved comments should be shown
+	 * @default false
+	 * @review
+	 * @type {boolean}
+	 */
+	showResolvedComments: Config.bool().value(false),
+
+	/**
 	 * List of sidebar panels
 	 * @default []
 	 * @review
@@ -649,10 +738,10 @@ const INITIAL_STATE = {
 	 */
 	sidebarPanels: Config.arrayOf(
 		Config.shapeOf({
-			type: Config.oneOf(['button', 'separator']),
 			icon: Config.string(),
 			label: Config.string(),
-			sidebarPanelId: Config.string()
+			sidebarPanelId: Config.string(),
+			type: Config.oneOf(['button', 'separator'])
 		})
 	).value([]),
 

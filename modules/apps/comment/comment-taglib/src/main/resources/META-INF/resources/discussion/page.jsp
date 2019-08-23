@@ -158,8 +158,9 @@ StagingGroupHelper stagingGroupHelper = StagingGroupHelperUtil.getStagingGroupHe
 										</c:when>
 										<c:otherwise>
 											<liferay-ui:icon
-												iconCssClass="icon-reply"
+												icon="reply"
 												label="<%= true %>"
+												markupView="lexicon"
 												message="please-sign-in-to-comment"
 												url="<%= themeDisplay.getURLSignIn() %>"
 											/>
@@ -365,11 +366,10 @@ StagingGroupHelper stagingGroupHelper = StagingGroupHelperUtil.getStagingGroupHe
 
 					formData.append('doAsUserId', themeDisplay.getDoAsUserIdEncoded());
 
-					fetch(
+					Liferay.Util.fetch(
 						form.action,
 						{
 							body: formData,
-							credentials: 'include',
 							method: 'POST'
 						}
 					).then(
@@ -473,11 +473,10 @@ StagingGroupHelper stagingGroupHelper = StagingGroupHelperUtil.getStagingGroupHe
 						editorURL = HttpUtil.addParameter(editorURL, "namespace", namespace);
 						%>
 
-						fetch(
+						Liferay.Util.fetch(
 							'<%= editorURL %>',
 							{
 								body: Util.objectToFormData(Util.ns('<%= namespace %>', options)),
-								credentials: 'include',
 								method: 'POST'
 							}
 						).then(
@@ -657,11 +656,10 @@ StagingGroupHelper stagingGroupHelper = StagingGroupHelperUtil.getStagingGroupHe
 						paginationURL = HttpUtil.addParameter(paginationURL, "skipEditorLoading", "true");
 						%>
 
-						fetch(
+						Liferay.Util.fetch(
 							'<%= paginationURL %>',
 							{
 								body: Util.objectToFormData(data),
-								credentials: 'include',
 								method: 'POST'
 							}
 						).then(
@@ -795,6 +793,7 @@ StagingGroupHelper stagingGroupHelper = StagingGroupHelperUtil.getStagingGroupHe
 			discussionContainer.delegate(
 				'click',
 				function(event) {
+					event.preventDefault();
 					event.stopPropagation();
 
 					if (handle) {

@@ -14,7 +14,8 @@
 
 import {
 	FRAGMENTS_EDITOR_ITEM_BORDERS,
-	FRAGMENTS_EDITOR_ITEM_TYPES
+	FRAGMENTS_EDITOR_ITEM_TYPES,
+	MAPPING_SOURCE_TYPE_IDS
 } from '../utils/constants';
 
 const ARROW_DOWN_KEYCODE = 40;
@@ -46,6 +47,70 @@ function deepClone(objectToClone) {
 	}
 
 	return cloned;
+}
+
+/**
+ * Checks if the given editable is mapped
+ * @param {object} editableValues
+ * @private
+ * @return {boolean}
+ * @review
+ */
+function editableIsMapped(editableValues) {
+	return Boolean(
+		editableValues.mappedField ||
+			editableIsMappedToAssetEntry(editableValues)
+	);
+}
+
+/**
+ * Checks if the given editable is mapped to an asset entry
+ * @param {object} editableValues
+ * @private
+ * @return {boolean}
+ * @review
+ */
+function editableIsMappedToAssetEntry(editableValues) {
+	return Boolean(
+		editableValues.classNameId &&
+			editableValues.classPK &&
+			editableValues.fieldId
+	);
+}
+
+/**
+ * Checks if the given editable should be highlighted
+ * @param {string} activeItemId
+ * @param {string} activeItemType
+ * @param {string} hoveredItemId
+ * @param {string} hoveredItemType
+ * @param {object} structure
+ * @private
+ * @return {boolean}
+ * @review
+ */
+function editableShouldBeHighlighted(
+	activeItemId,
+	activeItemType,
+	fragmentEntryLinkId,
+	hoveredItemId,
+	hoveredItemType,
+	structure
+) {
+	const fragmentInActivePath =
+		itemIsInPath(
+			getItemPath(activeItemId, activeItemType, structure),
+			fragmentEntryLinkId,
+			FRAGMENTS_EDITOR_ITEM_TYPES.fragment
+		) && activeItemType !== FRAGMENTS_EDITOR_ITEM_TYPES.editable;
+
+	const fragmentInHoveredPath = itemIsInPath(
+		getItemPath(hoveredItemId, hoveredItemType, structure),
+		fragmentEntryLinkId,
+		FRAGMENTS_EDITOR_ITEM_TYPES.fragment
+	);
+
+	return fragmentInActivePath || fragmentInHoveredPath;
 }
 
 /**
@@ -162,7 +227,10 @@ function getItemPath(itemId, itemType, structure) {
 			}
 		];
 
-		if (itemType === FRAGMENTS_EDITOR_ITEM_TYPES.editable) {
+		if (
+			itemType === FRAGMENTS_EDITOR_ITEM_TYPES.editable ||
+			itemType === FRAGMENTS_EDITOR_ITEM_TYPES.backgroundImageEditable
+		) {
 			const [fragmentEntryLinkId] = itemId.split('-');
 
 			if (fragmentEntryLinkId) {
@@ -212,6 +280,28 @@ function getItemPath(itemId, itemType, structure) {
 	}
 
 	return itemPath;
+}
+
+/**
+ * @param {string} subtypeLabel
+ * @return {Array<{id: string, label: string}>} Source types
+ * @private
+ * @review
+ */
+function getMappingSourceTypes(subtypeLabel) {
+	return [
+		{
+			id: MAPPING_SOURCE_TYPE_IDS.structure,
+			label: Liferay.Util.sub(
+				Liferay.Language.get('x-default'),
+				subtypeLabel
+			)
+		},
+		{
+			id: MAPPING_SOURCE_TYPE_IDS.content,
+			label: Liferay.Language.get('specific-content')
+		}
+	];
 }
 
 /**
@@ -351,12 +441,16 @@ function itemIsInPath(path, itemId, itemType) {
 
 export {
 	deepClone,
+	editableIsMapped,
+	editableIsMappedToAssetEntry,
+	editableShouldBeHighlighted,
 	getColumn,
 	getDropRowPosition,
 	getItemPath,
 	getFragmentColumn,
 	getFragmentRowIndex,
 	getItemMoveDirection,
+	getMappingSourceTypes,
 	getRowFragmentEntryLinkIds,
 	getRowIndex,
 	getTargetBorder,

@@ -12,142 +12,28 @@
  * details.
  */
 
-import {useResource} from '@clayui/data-provider';
-import ClayLoadingIndicator from '@clayui/loading-indicator';
-import React, {Fragment, useState} from 'react';
+import React from 'react';
+import {withLoading} from '../loading/Loading.es';
 import PaginationBar from './pagination/PaginationBar.es';
-import SearchBar from './search/SearchBar.es';
-import EmptyState from './table/EmptyState.es';
+import {withEmpty} from './table/EmptyState.es';
 import Table from './table/Table.es';
-import {getURL} from '../../utils/client.es';
 
-export default function SearchContainer({
-	actions,
-	columns,
-	emptyState,
-	endpoint,
-	formatter
-}) {
-	const [loading, setLoading] = useState(true);
-
-	const [state, setState] = useState({
-		keywords: '',
-		page: 1,
-		pageSize: 20
-	});
-
-	const {resource, refetch} = useResource({
-		link: getURL(endpoint),
-		onNetworkStatusChange: status => setLoading(status < 4),
-		variables: {
-			...state
-		}
-	});
-
-	let items = [];
-	let totalCount = 0;
-	let totalPages = 1;
-
-	if (resource) {
-		({items, totalCount, lastPage: totalPages} = resource);
-	}
-
-	let LoadingIndicator;
-
-	if (!items || items.length === 0) {
-		LoadingIndicator = <EmptyState {...emptyState} />;
-	}
-
-	if (loading) {
-		LoadingIndicator = <ClayLoadingIndicator />;
-	}
-
-	const fetchItems = nextState => {
-		setLoading(true);
-		setState(prevState => ({
-			...prevState,
-			...nextState
-		}));
-	};
-
-	const onSearch = keywords => {
-		fetchItems({keywords, page: 1});
-	};
-
-	const onPageChange = page => {
-		if (state.page === page) {
-			return;
-		}
-
-		fetchItems({page});
-	};
-
-	const onPageSizeChange = pageSize => {
-		if (state.pageSize === pageSize) {
-			return;
-		}
-
-		fetchItems({page: 1, pageSize});
-	};
-
-	const refetchOnDelete = actions =>
-		actions.map(action => {
-			if (!action.callback) {
-				return action;
-			}
-
-			return {
-				...action,
-				callback: item => {
-					action.callback(item).then(confirmed => {
-						if (!confirmed) {
-							return;
-						}
-
-						if (state.page > 1 && items.length === 1) {
-							onPageChange(state.page - 1);
-							return;
-						}
-
-						refetch();
-					});
-				}
-			};
-		});
-
-	const {keywords, page, pageSize} = state;
+const SearchContainer = ({actions, columns, items, totalCount, totalPages}) => {
+	const {length: itemsCount} = items || [];
 
 	return (
-		<Fragment>
-			<SearchBar
-				keywords={keywords}
-				onSearch={onSearch}
-				totalCount={totalCount}
-			/>
+		<div className="container-fluid container-fluid-max-xl">
+			<Table actions={actions} columns={columns} items={items} />
 
-			<div className="container-fluid container-fluid-max-xl">
-				{LoadingIndicator || (
-					<Fragment>
-						<Table
-							actions={refetchOnDelete(actions)}
-							columns={columns}
-							items={formatter(items)}
-						/>
-
-						<div className="taglib-search-iterator-page-iterator-bottom">
-							<PaginationBar
-								itemsCount={items.length}
-								onPageChange={onPageChange}
-								onPageSizeChange={onPageSizeChange}
-								page={page}
-								pageSize={pageSize}
-								totalCount={totalCount}
-								totalPages={totalPages}
-							/>
-						</div>
-					</Fragment>
-				)}
+			<div className="taglib-search-iterator-page-iterator-bottom">
+				<PaginationBar
+					itemsCount={itemsCount}
+					totalCount={totalCount}
+					totalPages={totalPages}
+				/>
 			</div>
-		</Fragment>
+		</div>
 	);
-}
+};
+
+export default withLoading(withEmpty(SearchContainer));

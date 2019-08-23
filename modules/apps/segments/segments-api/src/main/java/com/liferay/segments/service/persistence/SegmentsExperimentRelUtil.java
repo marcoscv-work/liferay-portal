@@ -192,17 +192,17 @@ public class SegmentsExperimentRelUtil {
 	 * @param start the lower bound of the range of segments experiment rels
 	 * @param end the upper bound of the range of segments experiment rels (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching segments experiment rels
 	 */
 	public static List<SegmentsExperimentRel> findBySegmentsExperimentId(
 		long segmentsExperimentId, int start, int end,
 		OrderByComparator<SegmentsExperimentRel> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		return getPersistence().findBySegmentsExperimentId(
 			segmentsExperimentId, start, end, orderByComparator,
-			retrieveFromCache);
+			useFinderCache);
 	}
 
 	/**
@@ -306,6 +306,81 @@ public class SegmentsExperimentRelUtil {
 	public static int countBySegmentsExperimentId(long segmentsExperimentId) {
 		return getPersistence().countBySegmentsExperimentId(
 			segmentsExperimentId);
+	}
+
+	/**
+	 * Returns the segments experiment rel where segmentsExperimentId = &#63; and segmentsExperienceId = &#63; or throws a <code>NoSuchExperimentRelException</code> if it could not be found.
+	 *
+	 * @param segmentsExperimentId the segments experiment ID
+	 * @param segmentsExperienceId the segments experience ID
+	 * @return the matching segments experiment rel
+	 * @throws NoSuchExperimentRelException if a matching segments experiment rel could not be found
+	 */
+	public static SegmentsExperimentRel findByS_S(
+			long segmentsExperimentId, long segmentsExperienceId)
+		throws com.liferay.segments.exception.NoSuchExperimentRelException {
+
+		return getPersistence().findByS_S(
+			segmentsExperimentId, segmentsExperienceId);
+	}
+
+	/**
+	 * Returns the segments experiment rel where segmentsExperimentId = &#63; and segmentsExperienceId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 *
+	 * @param segmentsExperimentId the segments experiment ID
+	 * @param segmentsExperienceId the segments experience ID
+	 * @return the matching segments experiment rel, or <code>null</code> if a matching segments experiment rel could not be found
+	 */
+	public static SegmentsExperimentRel fetchByS_S(
+		long segmentsExperimentId, long segmentsExperienceId) {
+
+		return getPersistence().fetchByS_S(
+			segmentsExperimentId, segmentsExperienceId);
+	}
+
+	/**
+	 * Returns the segments experiment rel where segmentsExperimentId = &#63; and segmentsExperienceId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 *
+	 * @param segmentsExperimentId the segments experiment ID
+	 * @param segmentsExperienceId the segments experience ID
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the matching segments experiment rel, or <code>null</code> if a matching segments experiment rel could not be found
+	 */
+	public static SegmentsExperimentRel fetchByS_S(
+		long segmentsExperimentId, long segmentsExperienceId,
+		boolean useFinderCache) {
+
+		return getPersistence().fetchByS_S(
+			segmentsExperimentId, segmentsExperienceId, useFinderCache);
+	}
+
+	/**
+	 * Removes the segments experiment rel where segmentsExperimentId = &#63; and segmentsExperienceId = &#63; from the database.
+	 *
+	 * @param segmentsExperimentId the segments experiment ID
+	 * @param segmentsExperienceId the segments experience ID
+	 * @return the segments experiment rel that was removed
+	 */
+	public static SegmentsExperimentRel removeByS_S(
+			long segmentsExperimentId, long segmentsExperienceId)
+		throws com.liferay.segments.exception.NoSuchExperimentRelException {
+
+		return getPersistence().removeByS_S(
+			segmentsExperimentId, segmentsExperienceId);
+	}
+
+	/**
+	 * Returns the number of segments experiment rels where segmentsExperimentId = &#63; and segmentsExperienceId = &#63;.
+	 *
+	 * @param segmentsExperimentId the segments experiment ID
+	 * @param segmentsExperienceId the segments experience ID
+	 * @return the number of matching segments experiment rels
+	 */
+	public static int countByS_S(
+		long segmentsExperimentId, long segmentsExperienceId) {
+
+		return getPersistence().countByS_S(
+			segmentsExperimentId, segmentsExperienceId);
 	}
 
 	/**
@@ -438,16 +513,16 @@ public class SegmentsExperimentRelUtil {
 	 * @param start the lower bound of the range of segments experiment rels
 	 * @param end the upper bound of the range of segments experiment rels (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of segments experiment rels
 	 */
 	public static List<SegmentsExperimentRel> findAll(
 		int start, int end,
 		OrderByComparator<SegmentsExperimentRel> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		return getPersistence().findAll(
-			start, end, orderByComparator, retrieveFromCache);
+			start, end, orderByComparator, useFinderCache);
 	}
 
 	/**

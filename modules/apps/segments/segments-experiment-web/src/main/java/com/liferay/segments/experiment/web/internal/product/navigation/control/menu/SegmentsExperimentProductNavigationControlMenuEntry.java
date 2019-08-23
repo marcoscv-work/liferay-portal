@@ -22,12 +22,13 @@ import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortletURLFactory;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.Html;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.SessionClicks;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -37,9 +38,10 @@ import com.liferay.product.navigation.control.menu.BaseProductNavigationControlM
 import com.liferay.product.navigation.control.menu.ProductNavigationControlMenuEntry;
 import com.liferay.product.navigation.control.menu.constants.ProductNavigationControlMenuCategoryKeys;
 import com.liferay.segments.constants.SegmentsPortletKeys;
+import com.liferay.segments.experiment.web.internal.util.SegmentsExperimentUtil;
 import com.liferay.taglib.aui.IconTag;
 import com.liferay.taglib.portletext.RuntimeTag;
-import com.liferay.taglib.servlet.PageContextFactoryUtil;
+import com.liferay.taglib.util.BodyBottomTag;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -73,7 +75,10 @@ import org.osgi.service.component.annotations.Reference;
 		"product.navigation.control.menu.category.key=" + ProductNavigationControlMenuCategoryKeys.USER,
 		"product.navigation.control.menu.entry.order:Integer=500"
 	},
-	service = ProductNavigationControlMenuEntry.class
+	service = {
+		ProductNavigationControlMenuEntry.class,
+		SegmentsExperimentProductNavigationControlMenuEntry.class
+	}
 )
 public class SegmentsExperimentProductNavigationControlMenuEntry
 	extends BaseProductNavigationControlMenuEntry {
@@ -100,9 +105,18 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 			HttpServletResponse httpServletResponse)
 		throws IOException {
 
-		_processBodyBottomContent(
-			PageContextFactoryUtil.create(
-				httpServletRequest, httpServletResponse));
+		BodyBottomTag bodyBottomTag = new BodyBottomTag();
+
+		bodyBottomTag.setOutputKey("segmentsExperimentPanel");
+
+		try {
+			bodyBottomTag.doBodyTag(
+				httpServletRequest, httpServletResponse,
+				this::_processBodyBottomTagBody);
+		}
+		catch (JspException je) {
+			throw new IOException(je);
+		}
 
 		return true;
 	}
@@ -115,11 +129,7 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 
 		Map<String, String> values = new HashMap<>();
 
-		String segmentsExperimentPanelState = SessionClicks.get(
-			httpServletRequest,
-			"com.liferay.segments.experiment.web_panelState", "closed");
-
-		if (Objects.equals(segmentsExperimentPanelState, "open")) {
+		if (isPanelStateOpen(httpServletRequest)) {
 			values.put("cssClass", "active");
 			values.put("dataURL", StringPool.BLANK);
 		}
@@ -141,12 +151,19 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 			}
 
 			values.put("dataURL", "data-url='" + portletURL.toString() + "'");
+
+			ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
+				_portal.getLocale(httpServletRequest), getClass());
+
+			values.put(
+				"title",
+				_html.escape(_language.get(resourceBundle, "ab-test")));
 		}
 
 		IconTag iconTag = new IconTag();
 
 		iconTag.setCssClass("icon-monospaced");
-		iconTag.setImage("star-half");
+		iconTag.setImage("test");
 		iconTag.setMarkupView("lexicon");
 
 		try {
@@ -167,6 +184,28 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 		return true;
 	}
 
+	public boolean isPanelStateOpen(HttpServletRequest httpServletRequest) {
+		String segmentsExperimentPanelState = SessionClicks.get(
+			httpServletRequest,
+			"com.liferay.segments.experiment.web_panelState", "closed");
+
+		if (Objects.equals(segmentsExperimentPanelState, "open")) {
+			return true;
+		}
+
+		HttpServletRequest originalHttpServletRequest =
+			_portal.getOriginalServletRequest(httpServletRequest);
+
+		String segmentsExperimentKey = ParamUtil.getString(
+			originalHttpServletRequest, "segmentsExperimentKey");
+
+		if (Validator.isNotNull(segmentsExperimentKey)) {
+			return true;
+		}
+
+		return false;
+	}
+
 	@Override
 	public boolean isShow(HttpServletRequest httpServletRequest)
 		throws PortalException {
@@ -179,18 +218,8 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 			return false;
 		}
 
-		if (Validator.isNull(
-				PrefsPropsUtil.getString(
-					themeDisplay.getCompanyId(),
-					"liferayAnalyticsDataSourceId")) ||
-			Validator.isNull(
-				PrefsPropsUtil.getString(
-					themeDisplay.getCompanyId(),
-					"liferayAnalyticsFaroBackendSecuritySignature")) ||
-			Validator.isNull(
-				PrefsPropsUtil.getString(
-					themeDisplay.getCompanyId(),
-					"liferayAnalyticsFaroBackendURL"))) {
+		if (!SegmentsExperimentUtil.isAnalyticsEnabled(
+				themeDisplay.getCompanyId())) {
 
 			return false;
 		}
@@ -205,6 +234,13 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 			return false;
 		}
 
+		if (!LayoutPermissionUtil.contains(
+				themeDisplay.getPermissionChecker(), layout,
+				ActionKeys.UPDATE)) {
+
+			return false;
+		}
+
 		String layoutMode = ParamUtil.getString(
 			httpServletRequest, "p_l_mode", Constants.VIEW);
 
@@ -215,7 +251,7 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 		return super.isShow(httpServletRequest);
 	}
 
-	private void _processBodyBottomContent(PageContext pageContext) {
+	private void _processBodyBottomTagBody(PageContext pageContext) {
 		try {
 			HttpServletRequest httpServletRequest =
 				(HttpServletRequest)pageContext.getRequest();
@@ -229,11 +265,7 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 
 			jspWriter.write("<div class=\"");
 
-			String segmentsExperimentPanelState = SessionClicks.get(
-				httpServletRequest,
-				"com.liferay.segments.experiment.web_panelState", "closed");
-
-			if (Objects.equals(segmentsExperimentPanelState, "open")) {
+			if (isPanelStateOpen(httpServletRequest)) {
 				jspWriter.write(
 					"lfr-has-segments-experiment-panel open-admin-panel ");
 			}

@@ -241,9 +241,13 @@ public class TopHeadDynamicInclude implements DynamicInclude {
 			httpServletRequest, "/combo", "minifierType=js", jsLastModified);
 
 		for (String url : urls) {
-			if (sb.length() == 0) {
-				sb.append("<script data-senna-track=\"permanent\" src=\"");
+			if ((sb.length() + url.length() + 1) >= 2000) {
+				_renderScriptURL(printWriter, sb.toString());
 
+				sb = new StringBundler();
+			}
+
+			if (sb.length() == 0) {
 				AbsolutePortalURLBuilder absolutePortalURLBuilder =
 					_absolutePortalURLBuilderFactory.
 						getAbsolutePortalURLBuilder(httpServletRequest);
@@ -256,20 +260,10 @@ public class TopHeadDynamicInclude implements DynamicInclude {
 
 			sb.append(StringPool.AMPERSAND);
 			sb.append(url);
-
-			if (sb.length() >= 2048) {
-				sb.append("\" type = \"text/javascript\"></script>");
-
-				printWriter.println(sb.toString());
-
-				sb = new StringBundler();
-			}
 		}
 
 		if (sb.length() > 0) {
-			sb.append("\" type = \"text/javascript\"></script>");
-
-			printWriter.println(sb.toString());
+			_renderScriptURL(printWriter, sb.toString());
 		}
 	}
 
@@ -281,19 +275,22 @@ public class TopHeadDynamicInclude implements DynamicInclude {
 		PrintWriter printWriter = httpServletResponse.getWriter();
 
 		for (String url : urls) {
-			printWriter.print("<script data-senna-track=\"permanent\" src=\"");
-
 			AbsolutePortalURLBuilder absolutePortalURLBuilder =
 				_absolutePortalURLBuilderFactory.getAbsolutePortalURLBuilder(
 					httpServletRequest);
 
-			printWriter.print(
-				absolutePortalURLBuilder.forResource(
-					url
-				).build());
+			url = absolutePortalURLBuilder.forResource(
+				url
+			).build();
 
-			printWriter.println("\" type=\"text/javascript\"></script>");
+			_renderScriptURL(printWriter, url);
 		}
+	}
+
+	private void _renderScriptURL(PrintWriter printWriter, String url) {
+		printWriter.print("<script data-senna-track=\"permanent\" src=\"");
+		printWriter.print(url);
+		printWriter.println("\" type=\"text/javascript\"></script>");
 	}
 
 	@Reference

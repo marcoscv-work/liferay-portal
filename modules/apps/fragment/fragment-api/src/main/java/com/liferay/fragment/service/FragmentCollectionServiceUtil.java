@@ -114,6 +114,12 @@ public class FragmentCollectionServiceUtil {
 			groupId, name, start, end, orderByComparator);
 	}
 
+	public static java.util.List<com.liferay.fragment.model.FragmentCollection>
+		getFragmentCollections(long[] groupIds) {
+
+		return getService().getFragmentCollections(groupIds);
+	}
+
 	public static int getFragmentCollectionsCount(long groupId) {
 		return getService().getFragmentCollectionsCount(groupId);
 	}

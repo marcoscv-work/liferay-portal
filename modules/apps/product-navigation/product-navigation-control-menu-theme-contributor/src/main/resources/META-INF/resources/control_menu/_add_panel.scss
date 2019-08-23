@@ -1,17 +1,14 @@
-@import 'bourbon';
-@import 'mixins';
-
 body.open-admin-panel {
 	&,
 	.control-menu,
 	.affix {
-		@include sm() {
+		@include media-breakpoint-up(sm) {
 			padding-right: $admin-panel-width;
 		}
 	}
 
 	.control-menu-level-2 {
-		@include sm() {
+		@include media-breakpoint-up(sm) {
 			right: $admin-panel-width;
 		}
 	}
@@ -19,7 +16,7 @@ body.open-admin-panel {
 
 body.open-admin-panel,
 body.sidenav-transition {
-	@include sm() {
+	@include media-breakpoint-up(sm) {
 		overflow-x: hidden;
 	}
 }
@@ -107,8 +104,8 @@ body.sidenav-transition {
 			padding-right: 4px;
 			text-decoration: none;
 
-			.icon-sort {
-				margin-left: 8px;
+			.lexicon-icon-caret-double {
+				margin-left: 0.3rem;
 			}
 		}
 	}
@@ -125,8 +122,8 @@ body.sidenav-transition {
 			line-height: 1;
 			padding: 0 4px;
 
-			.icon-caret-down {
-				margin-left: 8px;
+			.lexicon-icon-caret-bottom {
+				margin-left: 0.3rem;
 			}
 		}
 	}

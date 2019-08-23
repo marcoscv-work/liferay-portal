@@ -15,7 +15,7 @@
 import 'clay-label';
 import 'clay-progress-bar';
 import 'clay-sticker';
-import {PortletBase, openToast} from 'frontend-js-web';
+import {PortletBase, fetch, openToast} from 'frontend-js-web';
 import Soy from 'metal-soy';
 import {Config} from 'metal-state';
 
@@ -32,31 +32,20 @@ const USER_FILTER_ALL = -1;
  */
 class ChangeListsHistory extends PortletBase {
 	created() {
-		const headers = new Headers();
-		headers.append('Content-Type', 'application/json');
-		headers.append('X-CSRF-Token', Liferay.authToken);
-
-		const init = {
-			credentials: 'include',
-			headers,
-			method: 'GET'
-		};
-
 		let beforeNavigateHandler = null;
 
 		let beforeUnloadHandler = null;
 
 		const urlProcesses = this._getUrlProcesses();
 
-		this._fetchProcesses(urlProcesses, init);
+		this._fetchProcesses(urlProcesses);
 
 		const instance = this;
 
 		this.timeoutId = setTimeout(
-			() => instance._fetchProcesses(urlProcesses, init),
+			() => instance._fetchProcesses(urlProcesses),
 			TIMEOUT_FIRST,
-			urlProcesses,
-			init
+			urlProcesses
 		);
 
 		const handleBeforeNavigate = () => {
@@ -75,7 +64,7 @@ class ChangeListsHistory extends PortletBase {
 			Liferay.detach('beforeunload', beforeUnloadHandler);
 		};
 
-		this._startProgress(urlProcesses, init);
+		this._startProgress(urlProcesses);
 
 		beforeNavigateHandler = Liferay.on(
 			'beforeNavigate',
@@ -85,9 +74,9 @@ class ChangeListsHistory extends PortletBase {
 		beforeUnloadHandler = Liferay.on('beforeunload', handleBeforeNavigate);
 	}
 
-	_callFetchProcesses(urlProcesses, init) {
+	_callFetchProcesses(urlProcesses) {
 		try {
-			this._fetchProcesses(urlProcesses, init);
+			this._fetchProcesses(urlProcesses);
 		} catch (e) {
 			this._clearInterval(this.intervalId);
 		}
@@ -109,8 +98,8 @@ class ChangeListsHistory extends PortletBase {
 		return statusText;
 	}
 
-	_fetchProcesses(urlProcesses, init) {
-		fetch(urlProcesses, init)
+	_fetchProcesses(urlProcesses) {
+		fetch(urlProcesses)
 			.then(r => r.json())
 			.then(response => this._populateProcessEntries(response))
 			.catch(error => {
@@ -141,7 +130,7 @@ class ChangeListsHistory extends PortletBase {
 			urlProcessUsers = urlProcessUsers + '&keywords=' + this.keywords;
 		}
 
-		fetch(urlProcessUsers, init)
+		fetch(urlProcessUsers)
 			.then(r => r.json())
 			.then(response => this._populateProcessUsers(response))
 			.catch(error => {
@@ -286,11 +275,11 @@ class ChangeListsHistory extends PortletBase {
 		this.loaded = true;
 	}
 
-	_startProgress(urlProcesses, init) {
+	_startProgress(urlProcesses) {
 		this._clearInterval();
 
 		this.intervalId = setInterval(
-			this._callFetchProcesses.bind(this, urlProcesses, init),
+			this._callFetchProcesses.bind(this, urlProcesses),
 			TIMEOUT_INTERVAL
 		);
 	}
@@ -312,13 +301,11 @@ ChangeListsHistory.STATE = {
 
 	keywords: Config.string(),
 
+	loaded: Config.bool().value(false),
+
 	orderByCol: Config.string(),
 
 	orderByType: Config.string(),
-
-	urlProcesses: Config.string(),
-
-	urlProcessUsers: Config.string(),
 
 	processEntries: Config.arrayOf(
 		Config.shapeOf({
@@ -333,8 +320,6 @@ ChangeListsHistory.STATE = {
 		})
 	),
 
-	loaded: Config.bool().value(false),
-
 	/**
 	 * Path to images.
 	 *
@@ -343,7 +328,11 @@ ChangeListsHistory.STATE = {
 	 * @review
 	 * @type {String}
 	 */
-	spritemap: Config.string().required()
+	spritemap: Config.string().required(),
+
+	urlProcessUsers: Config.string(),
+
+	urlProcesses: Config.string()
 };
 
 // Register component

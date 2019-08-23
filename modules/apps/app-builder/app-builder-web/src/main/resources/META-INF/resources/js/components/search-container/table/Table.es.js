@@ -19,7 +19,7 @@ import DropDown from './DropDown.es';
 
 const {Body, Cell, Head, Row} = ClayTable;
 
-export default function Table({actions, columns, items}) {
+export default ({actions, columns, items}) => {
 	return (
 		<ClayTable hover={false}>
 			<Head>
@@ -31,7 +31,7 @@ export default function Table({actions, columns, items}) {
 							headingCell
 							key={index}
 						>
-							{Object.values(column)[0]}
+							{column.value}
 						</Cell>
 					))}
 					{actions.length > 0 && <Cell>{''}</Cell>}
@@ -41,13 +41,11 @@ export default function Table({actions, columns, items}) {
 				{items.map(item => (
 					<Row data-testid="item" key={item.id}>
 						{columns.map((column, index) => {
-							let content = item[Object.keys(column)[0]];
+							let cell = item[column.key];
 
-							if (typeof content === 'object' && content.link) {
-								content = (
-									<Link to={content.link(item)}>
-										{content.name}
-									</Link>
+							if (Object.hasOwnProperty.call(column, 'link')) {
+								cell = (
+									<Link to={column.link(item)}>{cell}</Link>
 								);
 							}
 
@@ -60,7 +58,7 @@ export default function Table({actions, columns, items}) {
 									headingTitle={index === 0}
 									key={index}
 								>
-									{content}
+									{cell}
 								</Cell>
 							);
 						})}
@@ -72,4 +70,4 @@ export default function Table({actions, columns, items}) {
 			</Body>
 		</ClayTable>
 	);
-}
+};

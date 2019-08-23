@@ -17,6 +17,8 @@ package com.liferay.change.tracking.rest.graphql.v1_0.test;
 import com.liferay.change.tracking.rest.client.dto.v1_0.Entry;
 import com.liferay.change.tracking.rest.client.dto.v1_0.ProcessUser;
 import com.liferay.change.tracking.rest.client.http.HttpInvoker;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Company;
@@ -36,9 +38,11 @@ import java.util.Objects;
 import javax.annotation.Generated;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
+import org.junit.Test;
 
 /**
  * @author Máté Thurzó
@@ -65,13 +69,79 @@ public abstract class BaseProcessUserGraphQLTestCase {
 		GroupTestUtil.deleteGroup(testGroup);
 	}
 
+	@Test
+	public void testGetProcessUsersPage() throws Exception {
+		List<GraphQLField> graphQLFields = new ArrayList<>();
+
+		List<GraphQLField> itemsGraphQLFields = getGraphQLFields();
+
+		graphQLFields.add(
+			new GraphQLField(
+				"items", itemsGraphQLFields.toArray(new GraphQLField[0])));
+
+		graphQLFields.add(new GraphQLField("page"));
+		graphQLFields.add(new GraphQLField("totalCount"));
+
+		GraphQLField graphQLField = new GraphQLField(
+			"query",
+			new GraphQLField(
+				"processUsers",
+				new HashMap<String, Object>() {
+					{
+						put("page", 1);
+						put("pageSize", 2);
+					}
+				},
+				graphQLFields.toArray(new GraphQLField[0])));
+
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			invoke(graphQLField.toString()));
+
+		JSONObject dataJSONObject = jsonObject.getJSONObject("data");
+
+		JSONObject processUsersJSONObject = dataJSONObject.getJSONObject(
+			"processUsers");
+
+		Assert.assertEquals(0, processUsersJSONObject.get("totalCount"));
+
+		ProcessUser processUser1 = testProcessUser_addProcessUser();
+		ProcessUser processUser2 = testProcessUser_addProcessUser();
+
+		jsonObject = JSONFactoryUtil.createJSONObject(
+			invoke(graphQLField.toString()));
+
+		dataJSONObject = jsonObject.getJSONObject("data");
+
+		processUsersJSONObject = dataJSONObject.getJSONObject("processUsers");
+
+		Assert.assertEquals(2, processUsersJSONObject.get("totalCount"));
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(processUser1, processUser2),
+			processUsersJSONObject.getJSONArray("items"));
+	}
+
+	protected void assertEqualsIgnoringOrder(
+		List<ProcessUser> processUsers, JSONArray jsonArray) {
+
+		for (ProcessUser processUser : processUsers) {
+			boolean contains = false;
+
+			for (Object object : jsonArray) {
+				if (equals(processUser, (JSONObject)object)) {
+					contains = true;
+
+					break;
+				}
+			}
+
+			Assert.assertTrue(
+				jsonArray + " does not contain " + processUser, contains);
+		}
+	}
+
 	protected boolean equals(ProcessUser processUser, JSONObject jsonObject) {
-		List<String> fieldNames = new ArrayList(
-			Arrays.asList(getAdditionalAssertFieldNames()));
-
-		fieldNames.add("id");
-
-		for (String fieldName : fieldNames) {
+		for (String fieldName : getAdditionalAssertFieldNames()) {
 			if (Objects.equals("userId", fieldName)) {
 				if (!Objects.equals(
 						processUser.getUserId(),
@@ -127,6 +197,37 @@ public abstract class BaseProcessUserGraphQLTestCase {
 		return new String[0];
 	}
 
+	protected List<GraphQLField> getGraphQLFields() {
+		List<GraphQLField> graphQLFields = new ArrayList<>();
+
+		graphQLFields.add(new GraphQLField("id"));
+
+		for (String additionalAssertFieldName :
+				getAdditionalAssertFieldNames()) {
+
+			graphQLFields.add(new GraphQLField(additionalAssertFieldName));
+		}
+
+		return graphQLFields;
+	}
+
+	protected String invoke(String query) throws Exception {
+		HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+		httpInvoker.body(
+			JSONUtil.put(
+				"query", query
+			).toString(),
+			"application/json");
+		httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
+		httpInvoker.path("http://localhost:8080/o/graphql");
+		httpInvoker.userNameAndPassword("test@liferay.com:test");
+
+		HttpInvoker.HttpResponse httpResponse = httpInvoker.invoke();
+
+		return httpResponse.getContent();
+	}
+
 	protected ProcessUser randomProcessUser() throws Exception {
 		return new ProcessUser() {
 			{
@@ -138,26 +239,15 @@ public abstract class BaseProcessUserGraphQLTestCase {
 		};
 	}
 
+	protected ProcessUser testProcessUser_addProcessUser() throws Exception {
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
 	protected Company testCompany;
 	protected Group testGroup;
 
-	private String _invoke(String query) throws Exception {
-		HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
-
-		JSONObject jsonObject = JSONUtil.put("query", query);
-
-		httpInvoker.body(jsonObject.toString(), "application/json");
-
-		httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
-		httpInvoker.path("http://localhost:8080/o/graphql");
-		httpInvoker.userNameAndPassword("test@liferay.com:test");
-
-		HttpInvoker.HttpResponse httpResponse = httpInvoker.invoke();
-
-		return httpResponse.getContent();
-	}
-
-	private class GraphQLField {
+	protected class GraphQLField {
 
 		public GraphQLField(String key, GraphQLField... graphQLFields) {
 			this(key, new HashMap<>(), graphQLFields);

@@ -14,7 +14,7 @@
 
 import Component from 'metal-component';
 import {Config} from 'metal-state';
-import {navigate} from 'frontend-js-web';
+import {fetch, navigate} from 'frontend-js-web';
 import Soy from 'metal-soy';
 
 import './LayoutBreadcrumbs.es';
@@ -180,7 +180,6 @@ class Layout extends Component {
 
 		return fetch(this.getItemChildrenURL, {
 			body: formData,
-			credentials: 'include',
 			method: 'POST'
 		}).then(response => response.json());
 	}
@@ -507,7 +506,6 @@ class Layout extends Component {
 
 		return fetch(this.moveLayoutColumnItemURL, {
 			body: formData,
-			credentials: 'include',
 			method: 'POST'
 		}).catch(() => {
 			this._resetHoveredData();
@@ -763,90 +761,6 @@ class Layout extends Component {
 
 Layout.STATE = {
 	/**
-	 * Breadcrumb Entries
-	 * @instance
-	 * @memberof Layout
-	 * @type {!Array}
-	 */
-
-	breadcrumbEntries: Config.arrayOf(
-		Config.shapeOf({
-			title: Config.string().required(),
-			url: Config.string().required()
-		})
-	).required(),
-
-	/**
-	 * URL for get the children of an item
-	 * @default undefined
-	 * @instance
-	 * @review
-	 * @type {!string}
-	 */
-
-	getItemChildrenURL: Config.string().required(),
-
-	/**
-	 * Layout blocks
-	 * @instance
-	 * @memberof Layout
-	 * @type {!Array}
-	 */
-
-	layoutColumns: Config.arrayOf(
-		Config.arrayOf(
-			Config.shapeOf({
-				actions: Config.string().required(),
-				actionURLs: Config.object().required(),
-				active: Config.bool().required(),
-				checked: Config.bool().required(),
-				hasChild: Config.bool().required(),
-				parentable: Config.bool().required(),
-				plid: Config.string().required(),
-				title: Config.string().required(),
-				url: Config.string().required()
-			})
-		)
-	).required(),
-
-	/**
-	 * URL for moving a layout column item through its column.
-	 * @default undefined
-	 * @instance
-	 * @review
-	 * @type {!string}
-	 */
-
-	moveLayoutColumnItemURL: Config.string().required(),
-
-	/**
-	 * URL for using icons
-	 * @instance
-	 * @memberof Layout
-	 * @type {!string}
-	 */
-
-	pathThemeImages: Config.string().required(),
-
-	/**
-	 * Namespace of portlet to prefix parameters names
-	 * @instance
-	 * @memberof Layout
-	 * @type {!string}
-	 */
-
-	portletNamespace: Config.string().required(),
-
-	/**
-	 * Site navigation menu names, to add layouts by default
-	 * @instance
-	 * @memberof Layout
-	 * @type {!string}
-	 */
-
-	siteNavigationMenuNames: Config.string().required(),
-
-	/**
 	 * Wether the path is refreshing or not
 	 * @default null
 	 * @instance
@@ -950,7 +864,91 @@ Layout.STATE = {
 	 * @type {number}
 	 */
 
-	_updatePathTimeout: Config.number().internal()
+	_updatePathTimeout: Config.number().internal(),
+
+	/**
+	 * Breadcrumb Entries
+	 * @instance
+	 * @memberof Layout
+	 * @type {!Array}
+	 */
+
+	breadcrumbEntries: Config.arrayOf(
+		Config.shapeOf({
+			title: Config.string().required(),
+			url: Config.string().required()
+		})
+	).required(),
+
+	/**
+	 * URL for get the children of an item
+	 * @default undefined
+	 * @instance
+	 * @review
+	 * @type {!string}
+	 */
+
+	getItemChildrenURL: Config.string().required(),
+
+	/**
+	 * Layout blocks
+	 * @instance
+	 * @memberof Layout
+	 * @type {!Array}
+	 */
+
+	layoutColumns: Config.arrayOf(
+		Config.arrayOf(
+			Config.shapeOf({
+				actionURLs: Config.object().required(),
+				actions: Config.string().required(),
+				active: Config.bool().required(),
+				checked: Config.bool().required(),
+				hasChild: Config.bool().required(),
+				parentable: Config.bool().required(),
+				plid: Config.string().required(),
+				title: Config.string().required(),
+				url: Config.string().required()
+			})
+		)
+	).required(),
+
+	/**
+	 * URL for moving a layout column item through its column.
+	 * @default undefined
+	 * @instance
+	 * @review
+	 * @type {!string}
+	 */
+
+	moveLayoutColumnItemURL: Config.string().required(),
+
+	/**
+	 * URL for using icons
+	 * @instance
+	 * @memberof Layout
+	 * @type {!string}
+	 */
+
+	pathThemeImages: Config.string().required(),
+
+	/**
+	 * Namespace of portlet to prefix parameters names
+	 * @instance
+	 * @memberof Layout
+	 * @type {!string}
+	 */
+
+	portletNamespace: Config.string().required(),
+
+	/**
+	 * Site navigation menu names, to add layouts by default
+	 * @instance
+	 * @memberof Layout
+	 * @type {!string}
+	 */
+
+	siteNavigationMenuNames: Config.string().required()
 };
 
 Soy.register(Layout, templates);

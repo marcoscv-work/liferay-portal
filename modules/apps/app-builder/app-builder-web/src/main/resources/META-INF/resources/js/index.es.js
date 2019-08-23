@@ -12,10 +12,15 @@
  * details.
  */
 
+import {render} from 'frontend-js-react-web';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './components/App.es';
+import App from './App.es';
 
-export default function(id) {
-	ReactDOM.render(<App />, document.getElementById(id));
-}
+export default (id, constants) => {
+	render(
+		<div className="app-builder-root">
+			<App {...constants} />
+		</div>,
+		document.getElementById(id)
+	);
+};

@@ -19,11 +19,7 @@ import Component from 'metal-jsx';
 import dom from 'metal-dom';
 import {Config} from 'metal-state';
 import {EventHandler} from 'metal-events';
-import {
-	focusedFieldStructure,
-	pageStructure,
-	ruleStructure
-} from '../../util/config.es';
+import {focusedFieldStructure, pageStructure} from '../../util/config.es';
 
 class Actions extends Component {
 	render() {
@@ -76,6 +72,17 @@ class Actions extends Component {
 		});
 	}
 }
+
+Actions.PROPS = {
+	/**
+	 * @default undefined
+	 * @instance
+	 * @memberof Actions
+	 * @type {!string}
+	 */
+
+	spritemap: Config.string().required()
+};
 
 const withActionableFields = ChildComponent => {
 	class ActionableFields extends Component {
@@ -246,9 +253,27 @@ const withActionableFields = ChildComponent => {
 		editingLanguageId: Config.string(),
 
 		/**
+		 * @default undefined
+		 * @instance
+		 * @memberof FormBuilder
+		 * @type {?string}
+		 */
+
+		fieldSetDefinitionURL: Config.string(),
+
+		/**
 		 * @default []
 		 * @instance
-		 * @memberof Sidebar
+		 * @memberof FormBuilder
+		 * @type {?(array|undefined)}
+		 */
+
+		fieldSets: Config.array().value([]),
+
+		/**
+		 * @default []
+		 * @instance
+		 * @memberof FormBuilder
 		 * @type {?(array|undefined)}
 		 */
 
@@ -289,21 +314,34 @@ const withActionableFields = ChildComponent => {
 		portletNamespace: Config.string().required(),
 
 		/**
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {string}
-		 */
-
-		rules: Config.arrayOf(ruleStructure).required(),
-
-		/**
 		 * @default undefined
 		 * @instance
 		 * @memberof FormRenderer
 		 * @type {!string}
 		 */
 
-		spritemap: Config.string().required()
+		spritemap: Config.string().required(),
+
+		/**
+		 * @instance
+		 * @memberof FormBuilder
+		 * @type {object}
+		 */
+
+		successPageSettings: Config.shapeOf({
+			body: Config.object(),
+			enabled: Config.bool(),
+			title: Config.object()
+		}).value({}),
+
+		/**
+		 * @default undefined
+		 * @instance
+		 * @memberof FormBuilder
+		 * @type {?string}
+		 */
+
+		view: Config.string()
 	};
 
 	return ActionableFields;

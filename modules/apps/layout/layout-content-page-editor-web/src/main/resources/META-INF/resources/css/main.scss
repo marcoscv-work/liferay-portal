@@ -2,7 +2,11 @@
 
 @import './common/Button';
 
+@import './common/Editor';
+
 @import './common/Textarea';
+
+@import './CreateContentDialog';
 
 @import './DragDrop';
 
@@ -13,6 +17,8 @@
 @import './FragmentComment';
 
 @import './FragmentEntryLink';
+
+@import './FragmentEntryLinkBackgroundImageEditables';
 
 @import './FragmentEntryLinkList';
 
@@ -25,6 +31,8 @@
 @import './FragmentsEditorToolbar';
 
 @import './InlineConfirm';
+
+@import './MappedContent';
 
 @import './SegmentsExperienceSelector';
 

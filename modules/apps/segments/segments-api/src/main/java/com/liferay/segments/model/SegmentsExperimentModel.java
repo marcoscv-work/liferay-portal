@@ -321,20 +321,6 @@ public interface SegmentsExperimentModel
 	public void setDescription(String description);
 
 	/**
-	 * Returns the status of this segments experiment.
-	 *
-	 * @return the status of this segments experiment
-	 */
-	public int getStatus();
-
-	/**
-	 * Sets the status of this segments experiment.
-	 *
-	 * @param status the status of this segments experiment
-	 */
-	public void setStatus(int status);
-
-	/**
 	 * Returns the type settings of this segments experiment.
 	 *
 	 * @return the type settings of this segments experiment
@@ -348,5 +334,19 @@ public interface SegmentsExperimentModel
 	 * @param typeSettings the type settings of this segments experiment
 	 */
 	public void setTypeSettings(String typeSettings);
+
+	/**
+	 * Returns the status of this segments experiment.
+	 *
+	 * @return the status of this segments experiment
+	 */
+	public int getStatus();
+
+	/**
+	 * Sets the status of this segments experiment.
+	 *
+	 * @param status the status of this segments experiment
+	 */
+	public void setStatus(int status);
 
 }

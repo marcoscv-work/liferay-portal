@@ -14,52 +14,54 @@
 
 import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
-import React, {Fragment, useState} from 'react';
+import React, {useContext, useState} from 'react';
+import {SearchContext} from '../SearchContext.es';
+import Button from '../../button/Button.es';
 import lang from '../../../utils/lang.es';
 
 const {Item, ItemList} = ClayDropDown;
 
-export default function PaginationPageSizeSelector({
-	itemsCount,
-	onPageSizeChange,
-	page,
-	pageSize,
-	totalCount
-}) {
+export default ({itemsCount, totalCount}) => {
+	const {
+		dispatch,
+		state: {
+			query: {page, pageSize}
+		}
+	} = useContext(SearchContext);
+
 	const [active, setActive] = useState(false);
-
 	const options = [5, 10, 20, 30, 50, 75];
-
 	const firstEntry = pageSize * (page - 1) + 1;
 	const lastEntry = firstEntry + itemsCount - 1;
 
 	return (
-		<Fragment>
+		<>
 			<ClayDropDown
 				active={active}
 				alignmentPosition={Align.RightCenter}
 				className="pagination-items-per-page"
 				onActiveChange={newVal => setActive(newVal)}
 				trigger={
-					<button className="page-link" type="button">
-						{`${pageSize} Entries`}
-						<ClayIcon
-							spritemap={`${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`}
-							symbol="caret-double-l"
-						/>
-					</button>
+					<Button className="page-link" displayType="unstyled">
+						{`${pageSize} Entries`}s
+						<ClayIcon symbol="caret-double-l" />
+					</Button>
 				}
 			>
 				<ItemList>
-					{options.map((option, index) => (
+					{options.map((size, index) => (
 						<Item
+							active={pageSize === size}
 							key={index}
 							onClick={() => {
 								setActive(false);
-								onPageSizeChange(option);
+								dispatch({
+									pageSize: size,
+									type: 'CHANGE_PAGE_SIZE'
+								});
 							}}
 						>
-							{option}
+							{size}
 						</Item>
 					))}
 				</ItemList>
@@ -72,6 +74,6 @@ export default function PaginationPageSizeSelector({
 					totalCount
 				])}
 			</p>
-		</Fragment>
+		</>
 	);
-}
+};

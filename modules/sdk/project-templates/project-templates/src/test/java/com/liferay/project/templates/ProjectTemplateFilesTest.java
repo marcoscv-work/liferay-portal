@@ -17,7 +17,6 @@ package com.liferay.project.templates;
 import aQute.bnd.osgi.Constants;
 import aQute.bnd.version.VersionRange;
 
-import com.liferay.project.templates.internal.util.FileUtil;
 import com.liferay.project.templates.internal.util.Validator;
 import com.liferay.project.templates.util.FileTestUtil;
 import com.liferay.project.templates.util.StringTestUtil;
@@ -546,9 +545,6 @@ public class ProjectTemplateFilesTest {
 			String line = null;
 
 			while ((line = bufferedReader.readLine()) != null) {
-				Assert.assertFalse(
-					"Forbidden empty line in " + path, line.isEmpty());
-
 				if (line.startsWith("#set")) {
 					continue;
 				}
@@ -709,12 +705,6 @@ public class ProjectTemplateFilesTest {
 					pomXmlPath, dependencyElementString,
 					dependencyChildElements, 3, "scope", "provided");
 			}
-			else {
-				Assert.assertEquals(
-					"Incorrect number of child nodes of " +
-						dependencyElementString + " in " + pomXmlPath,
-					dependencyChildElements.size(), 3);
-			}
 		}
 
 		_testPomXmlVersions(pomXmlPath, projectElement, "dependency");
@@ -825,7 +815,7 @@ public class ProjectTemplateFilesTest {
 
 		String pathString = archetypeResourcesDirPath.toString();
 
-		if (!pathString.contains("ext")) {
+		if (!pathString.contains("ext") & !pathString.contains("spring-mvc")) {
 			_testPomXml(archetypeResourcesDirPath, documentBuilder);
 		}
 
@@ -967,7 +957,12 @@ public class ProjectTemplateFilesTest {
 				text.contains("* @author ${author}"));
 		}
 
-		if (extension.equals("xml") && Validator.isNotNull(text)) {
+		String pathString = path.toString();
+
+		if (!pathString.contains("spring-mvc-portlet") &&
+			!fileName.equals("portlet") && extension.equals("xml") &&
+			Validator.isNotNull(text)) {
+
 			String xmlDeclaration = _xmlDeclarations.get(fileName);
 
 			if (xmlDeclaration == null) {

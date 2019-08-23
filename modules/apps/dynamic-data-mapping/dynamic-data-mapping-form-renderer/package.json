@@ -1,35 +1,4 @@
 {
-	"csfConfig": {
-		"path:**/*.js": {
-			"js": {
-				"lint": {
-					"env": {
-						"browser": true,
-						"jest": true
-					},
-					"extends": "liferay",
-					"globals": {
-						"AlloyEditor": true
-					},
-					"parser": "babel-eslint",
-					"parserOptions": {
-						"ecmaVersion": 7
-					},
-					"rules": {
-						"no-unknown-property": [
-							2,
-							{
-								"ignore": [
-									"class",
-									"xlink:href"
-								]
-							}
-						]
-					}
-				}
-			}
-		}
-	},
 	"dependencies": {
 		"frontend-js-web": "^4.0.0",
 		"incremental-dom-string": "0.0.2",

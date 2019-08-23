@@ -69,10 +69,10 @@
 		<field name="classPK" type="long" />
 		<field name="name" type="String" />
 		<field name="description" type="String" />
-		<field name="status" type="int" />
 		<field name="typeSettings" type="String">
 			<hint-collection name="CLOB" />
 		</field>
+		<field name="status" type="int" />
 	</model>
 	<model name="com.liferay.segments.model.SegmentsExperimentRel">
 		<field name="segmentsExperimentRelId" type="long" />

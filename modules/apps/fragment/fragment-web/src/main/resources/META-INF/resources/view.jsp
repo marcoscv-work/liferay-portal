@@ -18,6 +18,8 @@
 
 <%
 List<FragmentCollection> fragmentCollections = (List<FragmentCollection>)request.getAttribute(FragmentWebKeys.FRAGMENT_COLLECTIONS);
+
+List<FragmentCollectionContributor> fragmentCollectionContributors = fragmentDisplayContext.getFragmentCollectionContributors();
 %>
 
 <div class="container-fluid container-fluid-max-xl container-view">
@@ -32,7 +34,7 @@ List<FragmentCollection> fragmentCollections = (List<FragmentCollection>)request
 						</portlet:renderURL>
 
 						<c:choose>
-							<c:when test="<%= ListUtil.isNotEmpty(fragmentCollections) %>">
+							<c:when test="<%= ListUtil.isNotEmpty(fragmentCollections) || ListUtil.isNotEmpty(fragmentCollectionContributors) %>">
 								<div class="autofit-row autofit-row-center">
 									<div class="autofit-col autofit-col-expand">
 										<strong class="text-uppercase">
@@ -79,6 +81,38 @@ List<FragmentCollection> fragmentCollections = (List<FragmentCollection>)request
 
 											<a class="nav-link truncate-text <%= (fragmentCollection.getFragmentCollectionId() == fragmentDisplayContext.getFragmentCollectionId()) ? "active" : StringPool.BLANK %>" href="<%= fragmentCollectionURL.toString() %>">
 												<%= HtmlUtil.escape(fragmentCollection.getName()) %>
+
+												<c:if test="<%= fragmentCollection.getGroupId() != scopeGroupId %>">
+													<liferay-ui:icon
+														icon="lock"
+														markupView="lexicon"
+													/>
+												</c:if>
+											</a>
+										</li>
+
+									<%
+									}
+
+									for (FragmentCollectionContributor fragmentCollectionContributor : fragmentCollectionContributors) {
+									%>
+
+										<li class="nav-item">
+
+											<%
+											PortletURL fragmentCollectionURL = renderResponse.createRenderURL();
+
+											fragmentCollectionURL.setParameter("mvcRenderCommandName", "/fragment/view");
+											fragmentCollectionURL.setParameter("fragmentCollectionKey", String.valueOf(fragmentCollectionContributor.getFragmentCollectionKey()));
+											%>
+
+											<a class="nav-link truncate-text <%= Objects.equals(fragmentCollectionContributor.getFragmentCollectionKey(), fragmentDisplayContext.getFragmentCollectionKey()) ? "active" : StringPool.BLANK %>" href="<%= fragmentCollectionURL.toString() %>">
+												<%= HtmlUtil.escape(fragmentCollectionContributor.getName(locale)) %>
+
+												<liferay-ui:icon
+													icon="lock"
+													markupView="lexicon"
+												/>
 											</a>
 										</li>
 
@@ -108,22 +142,19 @@ List<FragmentCollection> fragmentCollections = (List<FragmentCollection>)request
 		</div>
 
 		<div class="col-lg-9">
-
-			<%
-			FragmentCollection fragmentCollection = fragmentDisplayContext.getFragmentCollection();
-			%>
-
-			<c:if test="<%= fragmentCollection != null %>">
+			<c:if test="<%= (fragmentDisplayContext.getFragmentCollection() != null) || (fragmentDisplayContext.getFragmentCollectionContributor() != null) %>">
 				<div class="sheet">
 					<h2 class="sheet-title">
 						<div class="autofit-row autofit-row-center">
 							<div class="autofit-col">
-								<%= HtmlUtil.escape(fragmentCollection.getName()) %>
+								<%= fragmentDisplayContext.getFragmentCollectionName() %>
 							</div>
 
-							<div class="autofit-col autofit-col-end inline-item-after">
-								<liferay-util:include page="/fragment_collection_action.jsp" servletContext="<%= application %>" />
-							</div>
+							<c:if test="<%= fragmentDisplayContext.showFragmentCollectionActions() %>">
+								<div class="autofit-col autofit-col-end inline-item-after">
+									<liferay-util:include page="/fragment_collection_action.jsp" servletContext="<%= application %>" />
+								</div>
+							</c:if>
 						</div>
 					</h2>
 
@@ -133,11 +164,18 @@ List<FragmentCollection> fragmentCollections = (List<FragmentCollection>)request
 						/>
 
 						<c:choose>
-							<c:when test="<%= fragmentDisplayContext.isViewResources() %>">
-								<liferay-util:include page="/view_resources.jsp" servletContext="<%= application %>" />
+							<c:when test="<%= fragmentDisplayContext.isSelectedFragmentCollectionContributor() %>">
+								<liferay-util:include page="/view_contributed_fragment_entries.jsp" servletContext="<%= application %>" />
 							</c:when>
 							<c:otherwise>
-								<liferay-util:include page="/view_fragment_entries.jsp" servletContext="<%= application %>" />
+								<c:choose>
+									<c:when test="<%= fragmentDisplayContext.isViewResources() %>">
+										<liferay-util:include page="/view_resources.jsp" servletContext="<%= application %>" />
+									</c:when>
+									<c:otherwise>
+										<liferay-util:include page="/view_fragment_entries.jsp" servletContext="<%= application %>" />
+									</c:otherwise>
+								</c:choose>
 							</c:otherwise>
 						</c:choose>
 					</div>
@@ -150,24 +188,7 @@ List<FragmentCollection> fragmentCollections = (List<FragmentCollection>)request
 <aui:form cssClass="hide" name="fragmentCollectionsFm">
 </aui:form>
 
-<liferay-portlet:actionURL copyCurrentRenderParameters="<%= false %>" name="/fragment/delete_fragment_collection" var="deleteFragmentCollectionURL" />
-
-<liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" id="/fragment/export_fragment_collections" var="exportFragmentCollectionsURL" />
-
-<portlet:renderURL var="viewFragmentCollectionsURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="mvcRenderCommandName" value="/fragment/view_fragment_collections" /></portlet:renderURL>
-
-<portlet:renderURL var="viewImportURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="mvcRenderCommandName" value="/fragment/view_import" /></portlet:renderURL>
-
-<%
-Map<String, Object> context = new HashMap<>();
-
-context.put("deleteFragmentCollectionURL", deleteFragmentCollectionURL);
-context.put("exportFragmentCollectionsURL", exportFragmentCollectionsURL);
-context.put("viewFragmentCollectionsURL", viewFragmentCollectionsURL);
-context.put("viewImportURL", viewImportURL);
-%>
-
 <liferay-frontend:component
-	context="<%= context %>"
+	context="<%= fragmentDisplayContext.getFragmentCollectionsViewContext() %>"
 	module="js/FragmentCollectionsView.es"
 />

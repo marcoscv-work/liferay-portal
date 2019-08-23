@@ -167,8 +167,6 @@ definition {
 
 	@priority = "3"
 	test AddAllDayWithUserInviteAccept {
-		var siteName = TestCase.getSiteName(siteName = "${siteName}");
-
 		ProductMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
@@ -189,7 +187,7 @@ definition {
 			userEmailAddress = "userea@liferay.com",
 			userScreenName = "usersn");
 
-		ProductMenu.gotoSite(site = "${siteName}");
+		SitePages.openPagesAdmin(siteURLKey = "guest");
 
 		ProductMenu.gotoPortlet(
 			category = "People",
@@ -422,8 +420,6 @@ definition {
 
 	@priority = "4"
 	test AddRegularWithUserInviteAccept {
-		var siteName = TestCase.getSiteName(siteName = "${siteName}");
-
 		ProductMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
@@ -443,8 +439,6 @@ definition {
 		User.editPasswordCP(
 			userEmailAddress = "userea@liferay.com",
 			userScreenName = "usersn");
-
-		ProductMenu.gotoSite(site = "${siteName}");
 
 		ProductMenu.gotoPortlet(
 			category = "People",
@@ -661,8 +655,6 @@ definition {
 
 	@priority = "3"
 	test AddRepeatingWithUserInviteAccept {
-		var siteName = TestCase.getSiteName(siteName = "${siteName}");
-
 		ProductMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
@@ -682,8 +674,6 @@ definition {
 		User.editPasswordCP(
 			userEmailAddress = "userea@liferay.com",
 			userScreenName = "usersn");
-
-		ProductMenu.gotoSite(site = "${siteName}");
 
 		ProductMenu.gotoPortlet(
 			category = "People",

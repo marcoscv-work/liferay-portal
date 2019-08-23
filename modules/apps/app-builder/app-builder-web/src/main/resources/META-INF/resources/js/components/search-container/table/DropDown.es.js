@@ -16,10 +16,11 @@ import ClayDropDown, {Align} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import React, {useState} from 'react';
 import DropDownAction from './DropDownAction.es';
+import Button from '../../button/Button.es';
 
 const {ItemList} = ClayDropDown;
 
-export default function DropDown({actions, item}) {
+export default ({actions, item}) => {
 	const [active, setActive] = useState(false);
 
 	return (
@@ -29,12 +30,9 @@ export default function DropDown({actions, item}) {
 			className="dropdown-action"
 			onActiveChange={newVal => setActive(newVal)}
 			trigger={
-				<button className="page-link" type="button">
-					<ClayIcon
-						spritemap={`${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`}
-						symbol="ellipsis-v"
-					/>
-				</button>
+				<Button className="page-link" displayType="unstyled">
+					<ClayIcon symbol="ellipsis-v" />
+				</Button>
 			}
 		>
 			<ItemList>
@@ -49,4 +47,4 @@ export default function DropDown({actions, item}) {
 			</ItemList>
 		</ClayDropDown>
 	);
-}
+};

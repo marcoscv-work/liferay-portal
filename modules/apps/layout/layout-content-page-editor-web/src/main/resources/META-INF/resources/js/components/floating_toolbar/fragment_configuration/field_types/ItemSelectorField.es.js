@@ -38,14 +38,42 @@ class ItemSelectorField extends Component {
 		const {typeOptions} = this.field;
 
 		if (typeOptions) {
-			const {className} = typeOptions;
+			const {className, enableSelectTemplate = false} = typeOptions;
 
 			if (className) {
 				nextState = setIn(nextState, ['selectedClassName'], className);
 			}
+
+			nextState = setIn(
+				nextState,
+				['enableSelectTemplate'],
+				enableSelectTemplate
+			);
 		}
 
 		return nextState;
+	}
+
+	/**
+	 * @inheritDoc
+	 * @review
+	 */
+	syncConfigurationValues() {
+		if (
+			this.configurationValues &&
+			this.configurationValues[this.field.name] &&
+			this.configurationValues[this.field.name].className
+		) {
+			const {className} = this.configurationValues[this.field.name];
+
+			const itemType = this.availableAssets.find(
+				availableAsset => availableAsset.className === className
+			);
+
+			this.availableTemplates = itemType.availableTemplates;
+		} else {
+			this.availableTemplates = [];
+		}
 	}
 
 	/**
@@ -62,6 +90,24 @@ class ItemSelectorField extends Component {
 		if (itemType) {
 			this._openAssetBrowser(itemType.href, itemType.typeName);
 		}
+	}
+
+	/**
+	 *
+	 * @review
+	 */
+	_handleSelectTemplateValueChanged() {
+		const targetElement = event.delegateTarget;
+
+		const selectedItem = this.configurationValues[this.field.name];
+
+		selectedItem.template =
+			targetElement.options[targetElement.selectedIndex].value;
+
+		this.emit('fieldValueChanged', {
+			name: this.field.name,
+			value: selectedItem
+		});
 	}
 
 	/**
@@ -98,13 +144,37 @@ class ItemSelectorField extends Component {
 					}
 				});
 			},
-			modalTitle: assetBrowserWindowTitle,
-			portletNamespace: this.portletNamespace
+			eventName: `${this.portletNamespace}selectAsset`,
+			modalTitle: assetBrowserWindowTitle
 		});
 	}
 }
 
 ItemSelectorField.STATE = {
+	/**
+	 * Available templates of the current className
+	 * @default []
+	 * @instance
+	 * @memberOf ItemSelectorField
+	 * @type {array}
+	 */
+	availableTemplates: Config.arrayOf(
+		Config.shapeOf({
+			key: Config.string(),
+			label: Config.string()
+		})
+	)
+		.internal()
+		.value([]),
+
+	/**
+	 * Fragment Entry Link Configuration values
+	 * @instance
+	 * @memberOf ItemSelectorField
+	 * @type {object}
+	 */
+	configurationValues: Config.object(),
+
 	/**
 	 * The configuration field
 	 * @review

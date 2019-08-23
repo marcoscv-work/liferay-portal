@@ -40,6 +40,42 @@ class ManagementToolbarDefaultEventHandler extends DefaultEventHandler {
 		submitForm(this.one('#fragmentEntryFm'), this.copyFragmentEntryURL);
 	}
 
+	copyToSelectedFragmentEntries() {
+		this._selectFragmentCollection(this.copyFragmentEntryURL);
+	}
+
+	copyToSelectedContributedFragmentEntries() {
+		const fragmentEntryKeys = Liferay.Util.listCheckedExcept(
+			this.one('#fm'),
+			this.ns('allRowIds')
+		);
+
+		Liferay.Util.selectEntity(
+			{
+				dialog: {
+					constrain: true,
+					destroyOnHide: true,
+					modal: true
+				},
+				eventName: this.ns('selectFragmentCollection'),
+				id: this.ns('selectFragmentCollection'),
+				title: Liferay.Language.get('select-collection'),
+				uri: this.selectFragmentCollectionURL
+			},
+			function(selectedItem) {
+				if (selectedItem) {
+					this.one('#fragmentCollectionId').value = selectedItem.id;
+					this.one('#fragmentEntryKeys').value = fragmentEntryKeys;
+
+					submitForm(
+						this.one('#fragmentEntryFm'),
+						this.copyContributedFragmentEntryURL
+					);
+				}
+			}.bind(this)
+		);
+	}
+
 	deleteSelectedFragmentEntries() {
 		if (
 			confirm(
@@ -55,6 +91,10 @@ class ManagementToolbarDefaultEventHandler extends DefaultEventHandler {
 	}
 
 	moveSelectedFragmentEntries() {
+		this._selectFragmentCollection(this.moveFragmentEntryURL);
+	}
+
+	_selectFragmentCollection(targetFragmentEntryURL) {
 		const fragmentEntryIds = Liferay.Util.listCheckedExcept(
 			this.one('#fm'),
 			this.ns('allRowIds')
@@ -79,7 +119,7 @@ class ManagementToolbarDefaultEventHandler extends DefaultEventHandler {
 
 					submitForm(
 						this.one('#fragmentEntryFm'),
-						this.moveFragmentEntryURL
+						targetFragmentEntryURL
 					);
 				}
 			}.bind(this)
@@ -88,6 +128,7 @@ class ManagementToolbarDefaultEventHandler extends DefaultEventHandler {
 }
 
 ManagementToolbarDefaultEventHandler.STATE = {
+	copyContributedFragmentEntryURL: Config.string(),
 	copyFragmentEntryURL: Config.string(),
 	deleteFragmentEntriesURL: Config.string(),
 	exportFragmentEntriesURL: Config.string(),

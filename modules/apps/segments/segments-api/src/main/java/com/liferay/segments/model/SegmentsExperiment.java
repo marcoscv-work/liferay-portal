@@ -60,4 +60,18 @@ public interface SegmentsExperiment
 
 			};
 
+	public String getGoal();
+
+	public String getGoalTarget();
+
+	public String getSegmentsEntryName(java.util.Locale locale)
+		throws com.liferay.portal.kernel.exception.PortalException;
+
+	public String getSegmentsExperienceKey();
+
+	public java.util.List<SegmentsExperimentRel> getSegmentsExperimentRels();
+
+	public com.liferay.portal.kernel.util.UnicodeProperties
+		getTypeSettingsProperties();
+
 }

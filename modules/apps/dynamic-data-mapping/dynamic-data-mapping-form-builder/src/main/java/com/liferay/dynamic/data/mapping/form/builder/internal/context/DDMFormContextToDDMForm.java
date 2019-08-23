@@ -203,7 +203,8 @@ public class DDMFormContextToDDMForm
 			return getBooleanValue(type, serializedValue, defaultLocale);
 		}
 		else if (Objects.equals(type, "validation")) {
-			return getDDMFormFieldValidation(serializedValue);
+			return getDDMFormFieldValidation(
+				availableLocales, defaultLocale, serializedValue);
 		}
 		else if (localizable) {
 			return getLocalizedValue(
@@ -217,6 +218,7 @@ public class DDMFormContextToDDMForm
 	}
 
 	protected DDMFormFieldValidation getDDMFormFieldValidation(
+			Set<Locale> availableLocales, Locale defaultLocale,
 			String serializedValue)
 		throws PortalException {
 
@@ -227,10 +229,27 @@ public class DDMFormContextToDDMForm
 			return ddmFormFieldValidation;
 		}
 
+		LocalizedValue errorMessageLocalizedValue = null;
+
 		JSONObject jsonObject = jsonFactory.createJSONObject(serializedValue);
 
-		ddmFormFieldValidation.setErrorMessage(
-			jsonObject.getString("errorMessage"));
+		JSONObject errorMessageJSONObject = jsonObject.getJSONObject(
+			"errorMessage");
+
+		if (errorMessageJSONObject == null) {
+			errorMessageLocalizedValue = new LocalizedValue();
+
+			errorMessageLocalizedValue.addString(
+				defaultLocale, jsonObject.getString("errorMessage"));
+		}
+		else {
+			errorMessageLocalizedValue = getLocalizedValue(
+				errorMessageJSONObject, availableLocales);
+		}
+
+		ddmFormFieldValidation.setErrorMessageLocalizedValue(
+			errorMessageLocalizedValue);
+
 		ddmFormFieldValidation.setExpression(
 			jsonObject.getString("expression"));
 
@@ -252,6 +271,27 @@ public class DDMFormContextToDDMForm
 
 		return ddmFormRuleConverter.convert(
 			ddmFormRules, ddmFormRuleSerializerContext);
+	}
+
+	protected LocalizedValue getLocalizedValue(
+			JSONObject jsonObject, Set<Locale> availableLocales)
+		throws PortalException {
+
+		LocalizedValue localizedValue = new LocalizedValue();
+
+		if (jsonObject == null) {
+			return localizedValue;
+		}
+
+		for (Locale availableLocale : availableLocales) {
+			String languageId = LocaleUtil.toLanguageId(availableLocale);
+
+			localizedValue.addString(
+				LocaleUtil.fromLanguageId(languageId),
+				jsonObject.getString(languageId));
+		}
+
+		return localizedValue;
 	}
 
 	protected LocalizedValue getLocalizedValue(

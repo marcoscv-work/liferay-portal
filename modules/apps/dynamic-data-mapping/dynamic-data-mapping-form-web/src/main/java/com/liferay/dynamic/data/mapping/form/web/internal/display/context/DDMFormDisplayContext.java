@@ -203,6 +203,7 @@ public class DDMFormDisplayContext {
 		}
 
 		ddmFormRenderingContext.setShowSubmitButton(isShowSubmitButton());
+		ddmFormRenderingContext.setSubmitLabel(getSubmitLabel());
 
 		return _ddmFormRenderer.render(
 			ddmForm, ddmFormLayout, ddmFormRenderingContext);

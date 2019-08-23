@@ -12,31 +12,53 @@
  * details.
  */
 
+import {render} from 'frontend-js-react-web';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import SegmentsExperimentsUtil from './util/index.es';
 import SegmentsExperimentsSidebar from './components/SegmentsExperimentsSidebar.es';
 import SegmentsExperimentsContext from './context.es';
-import {ClayIconSpriteContext} from '@clayui/icon';
 
 export default function segmentsExperimentsApp(id, props, context) {
 	const rootElement = document.getElementById(id);
 
-	ReactDOM.render(
+	const {page, endpoints} = context;
+	const {
+		createSegmentsExperimentURL,
+		createSegmentsVariantURL,
+		deleteSegmentsVariantURL,
+		editSegmentsExperimentURL,
+		editSegmentsVariantLayoutURL,
+		editSegmentsVariantURL
+	} = endpoints;
+
+	render(
 		<SegmentsExperimentsContext.Provider
 			value={{
-				page: context.page,
-				endpoints: context.endpoints
+				editVariantLayoutURL: editSegmentsVariantLayoutURL,
+				page,
+				segmentsExperimentsUtil: SegmentsExperimentsUtil({
+					contentPageEditorNamespace:
+						context.contentPageEditorNamespace,
+					endpoints: {
+						createSegmentsExperimentURL,
+						createSegmentsVariantURL,
+						deleteSegmentsVariantURL,
+						editSegmentsExperimentURL,
+						editSegmentsVariantURL
+					},
+					namespace: context.namespace
+				})
 			}}
 		>
-			<ClayIconSpriteContext.Provider value={context.spritemap}>
-				<SegmentsExperimentsSidebar
-					initialSegmentsExperiences={props.segmentsExperiences}
-					initialSegmentsExperiment={props.segmentsExperiment}
-					initialSelectedSegmentsExperienceId={
-						props.selectedSegmentsExperienceId
-					}
-				/>
-			</ClayIconSpriteContext.Provider>
+			<SegmentsExperimentsSidebar
+				initialGoals={props.segmentsExperimentGoals}
+				initialSegmentsExperiences={props.segmentsExperiences}
+				initialSegmentsExperiment={props.segmentsExperiment}
+				initialSegmentsVariants={props.initialSegmentsVariants}
+				initialSelectedSegmentsExperienceId={
+					props.selectedSegmentsExperienceId
+				}
+			/>
 		</SegmentsExperimentsContext.Provider>,
 		rootElement
 	);

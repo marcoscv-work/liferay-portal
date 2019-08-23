@@ -32,6 +32,12 @@ class DataLayoutBuilder extends Component {
 			const translationManager = results[0];
 
 			if (translationManager) {
+				translationManager.on('availableLocalesChange', event => {
+					this.props.availableLanguageIds = event.newVal.map(
+						({id}) => id
+					);
+				});
+
 				translationManager.on('editingLocaleChange', event => {
 					this.props.editingLanguageId = event.newVal;
 				});
@@ -116,45 +122,98 @@ class DataLayoutBuilder extends Component {
 		}
 	}
 
+	_isCustomProperty(name) {
+		const fields = [
+			'defaultValue',
+			'fieldType',
+			'indexable',
+			'label',
+			'localizable',
+			'name',
+			'repeatable',
+			'tip'
+		];
+
+		return fields.indexOf(name) === -1;
+	}
+
 	_serialize(pages) {
-		const {defaultLanguageId} = this.props;
+		const {availableLanguageIds, defaultLanguageId} = this.props;
 		const columnDefinitions = [];
 		const pagesVisitor = new PagesVisitor(pages);
 
 		const newPages = pagesVisitor.mapFields(
 			({fieldName, settingsContext}) => {
-				const columnConfig = {};
+				const columnConfig = {
+					customProperties: {}
+				};
 				const settingsContextVisitor = new PagesVisitor(
 					settingsContext.pages
 				);
 
 				settingsContextVisitor.mapFields(
 					({fieldName, localizable, localizedValue, value}) => {
-						if (localizable) {
-							columnConfig[fieldName] = localizedValue;
-						} else {
-							if (fieldName === 'dataType') {
-								fieldName = 'type';
-							}
-
-							columnConfig[fieldName] = value;
+						if (fieldName === 'predefinedValue') {
+							fieldName = 'defaultValue';
+						} else if (fieldName === 'type') {
+							fieldName = 'fieldType';
 						}
-					}
+
+						if (localizable) {
+							if (this._isCustomProperty(fieldName)) {
+								columnConfig.customProperties[
+									fieldName
+								] = localizedValue;
+							} else {
+								columnConfig[fieldName] = localizedValue;
+							}
+						} else {
+							if (this._isCustomProperty(fieldName)) {
+								columnConfig.customProperties[
+									fieldName
+								] = value;
+							} else {
+								columnConfig[fieldName] = value;
+							}
+						}
+					},
+					false
 				);
 
 				columnDefinitions.push(columnConfig);
 
 				return fieldName;
-			}
+			},
+			false
 		);
 
 		return {
 			definition: JSON.stringify({
-				fields: columnDefinitions
+				availableLanguageIds,
+				dataDefinitionFields: columnDefinitions,
+				defaultLanguageId
 			}),
 			layout: JSON.stringify({
-				defaultLanguageId,
-				pages: newPages,
+				dataLayoutPages: newPages.map(page => {
+					const rows = page.rows.map(row => {
+						const columns = row.columns.map(column => {
+							return {
+								columnSize: column.size,
+								fieldNames: column.fields
+							};
+						});
+
+						return {
+							dataLayoutColumns: columns
+						};
+					});
+
+					return {
+						dataLayoutRows: rows,
+						description: page.localizedDescription,
+						title: page.localizedTitle
+					};
+				}),
 				paginationMode: 'wizard'
 			})
 		};
@@ -226,12 +285,14 @@ class DataLayoutBuilder extends Component {
 					localizedTitle,
 					title
 				};
-			})
+			}),
+			rules: context.rules || []
 		};
 	}
 }
 
 DataLayoutBuilder.PROPS = {
+	availableLanguageIds: Config.array(),
 	context: Config.shapeOf({
 		pages: Config.arrayOf(pageStructure),
 		paginationMode: Config.string(),

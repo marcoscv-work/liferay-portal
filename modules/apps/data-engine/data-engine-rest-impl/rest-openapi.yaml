@@ -3,6 +3,10 @@ components:
         DataDefinition:
             description: https://www.schema.org/DataDefinition
             properties:
+                availableLanguageIds:
+                    items:
+                        type: string
+                    type: array
                 dataDefinitionFields:
                     items:
                         $ref: '#/components/schemas/DataDefinitionField'
@@ -18,6 +22,8 @@ components:
                     type: string
                 dateModified:
                     format: date-time
+                    type: string
+                defaultLanguageId:
                     type: string
                 description:
                     additionalProperties:
@@ -64,6 +70,11 @@ components:
                     type: boolean
                 name:
                     type: string
+                nestedDataDefinitionFields:
+                    items:
+                        $ref: '#/components/schemas/DataDefinitionField'
+                    type:
+                        array
                 repeatable:
                     type: boolean
                 tip:
@@ -121,8 +132,6 @@ components:
                     type: string
                 dateModified:
                     format: date-time
-                    type: string
-                defaultLanguageId:
                     type: string
                 description:
                     additionalProperties:
@@ -663,36 +672,6 @@ paths:
                                 $ref: "#/components/schemas/DataRecord"
                     description: ""
             tags: ["DataRecord"]
-    "/data-layout/{dataLayoutId}/data-layout-permissions":
-        post:
-            operationId: postDataLayoutDataLayoutPermission
-            parameters:
-                - in: path
-                  name: dataLayoutId
-                  required: true
-                  schema:
-                      format: int64
-                      type: integer
-                - in: query
-                  name: operation
-                  required: true
-                  schema:
-                      type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: "#/components/schemas/DataLayoutPermission"
-                    application/xml:
-                        schema:
-                            $ref: "#/components/schemas/DataLayoutPermission"
-                description: ""
-            responses:
-                204:
-                    content:
-                        application/json: {}
-                    description: ""
-            tags: ["DataLayout"]
     "/data-layouts/{dataLayoutId}":
         delete:
             operationId: deleteDataLayout
@@ -757,6 +736,100 @@ paths:
                                 $ref: "#/components/schemas/DataLayout"
                     description: ""
             tags: ["DataLayout"]
+    "/data-layouts/{dataLayoutId}/data-layout-permissions":
+        post:
+            operationId: postDataLayoutDataLayoutPermission
+            parameters:
+                - in: path
+                  name: dataLayoutId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: query
+                  name: operation
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/DataLayoutPermission"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/DataLayoutPermission"
+                description: ""
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                    description: ""
+            tags: ["DataLayout"]
+    "/data-list-views/{dataListViewId}":
+        delete:
+            operationId: deleteDataListView
+            parameters:
+                - in: path
+                  name: dataListViewId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                    description: ""
+            tags: ["DataListView"]
+        get:
+            operationId: getDataListView
+            parameters:
+                - in: path
+                  name: dataListViewId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/DataListView"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/DataListView"
+                    description: ""
+            tags: ["DataListView"]
+        put:
+            operationId: putDataListView
+            parameters:
+                - in: path
+                  name: dataListViewId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/DataListView"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/DataListView"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/DataListView"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/DataListView"
+                    description: ""
+            tags: ["DataListView"]
     "/data-record-collections/{dataRecordCollectionId}":
         delete:
             operationId: deleteDataRecordCollection
@@ -1127,9 +1200,38 @@ paths:
                                 $ref: "#/components/schemas/DataDefinition"
                     description: ""
             tags: ["DataDefinition"]
-    "/sites/{siteId}/data-layout":
+    "/sites/{siteId}/data-layout-permissions":
+        post:
+            operationId: postSiteDataLayoutPermission
+            parameters:
+                - in: path
+                  name: siteId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: query
+                  name: operation
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/DataLayoutPermission"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/DataLayoutPermission"
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                    description: ""
+            tags: ["DataLayout"]
+    "/sites/{siteId}/data-layouts":
         get:
-            operationId: getSiteDataLayoutPage
+            operationId: getSiteDataLayoutsPage
             parameters:
                 - in: path
                   name: siteId
@@ -1167,35 +1269,6 @@ paths:
                                 items:
                                     $ref: "#/components/schemas/DataLayout"
                                 type: array
-                    description: ""
-            tags: ["DataLayout"]
-    "/sites/{siteId}/data-layout-permissions":
-        post:
-            operationId: postSiteDataLayoutPermission
-            parameters:
-                - in: path
-                  name: siteId
-                  required: true
-                  schema:
-                      format: int64
-                      type: integer
-                - in: query
-                  name: operation
-                  required: true
-                  schema:
-                      type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: "#/components/schemas/DataLayoutPermission"
-                    application/xml:
-                        schema:
-                            $ref: "#/components/schemas/DataLayoutPermission"
-            responses:
-                204:
-                    content:
-                        application/json: {}
                     description: ""
             tags: ["DataLayout"]
     "/sites/{siteId}/data-layouts/{dataLayoutKey}":

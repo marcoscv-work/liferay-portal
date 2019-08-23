@@ -20,9 +20,6 @@ AUI.add(
 		var UploaderQueue = A.Uploader.Queue;
 
 		var STATUS_CODE = Liferay.STATUS_CODE;
-
-		var STR_BLANK = '';
-
 		var STRINGS = 'strings';
 
 		var STR_PARAM_FALLBACK = 'uploader=fallback';
@@ -38,7 +35,7 @@ AUI.add(
 			'<div class="card-horizontal">',
 			'<div class="card-row card-row-padded">',
 			'<div class="card-col-field">',
-			'<span class="icon-file"></span>',
+			Liferay.Util.getLexiconIconTpl('document'),
 			'</div>',
 			'<div class="card-col-content card-col-gutters clamp-horizontal">',
 			'<div class="clamp-container">',
@@ -50,16 +47,12 @@ AUI.add(
 			'</div>',
 			'<div class="card-col-field delete-button-col">',
 			'<a class="delete-button lfr-button" href="javascript:;" id="{id}deleteButton" title="{[ this.strings.deleteFileText ]}">',
-			'<svg class="lexicon-icon" focusable="false"><use data-href="' +
-				Liferay.ThemeDisplay.getPathThemeImages() +
-				'/lexicon/icons.svg#times" /><title>{[ this.strings.deleteFileText ]}</title></svg>',
+			Liferay.Util.getLexiconIconTpl('times'),
 			'</a>',
 			'</div>',
 
 			'<a class="cancel-button lfr-button" href="javascript:;" id="{id}cancelButton">',
-			'<svg class="lexicon-icon" focusable="false"><use data-href="' +
-				Liferay.ThemeDisplay.getPathThemeImages() +
-				'/lexicon/icons.svg#times" /><title>{[ this.strings.cancelFileText ]}</title></svg>',
+			Liferay.Util.getLexiconIconTpl('times'),
 			'<span class="cancel-button-text">{[ this.strings.cancelFileText ]}</span>',
 			'</a>',
 			'</div>',
@@ -145,9 +138,7 @@ AUI.add(
 
 			'<div class="alert alert-warning hide pending-files-info" role="alert">',
 			'<span class="alert-indicator">',
-			'<svg class="lexicon-icon" focusable="false"><use data-href="' +
-				Liferay.ThemeDisplay.getPathThemeImages() +
-				'/lexicon/icons.svg#warning" /></svg>',
+			Liferay.Util.getLexiconIconTpl('warning'),
 			'</span>',
 			'<strong class="lead">{[ this.strings.warningTitle ]}</strong>{[ this.strings.pendingFileText ]}',
 			'</div>',
@@ -340,7 +331,7 @@ AUI.add(
 				}
 			},
 
-			AUGMENTS: [Liferay.PortletBase, Liferay.StorageFormatter],
+			AUGMENTS: [Liferay.PortletBase],
 
 			NAME: 'liferayupload',
 
@@ -381,10 +372,11 @@ AUI.add(
 							}
 						);
 					} else {
-						var maxFileSize = instance.formatStorage(
+						var maxFileSize = Liferay.Util.formatStorage(
 							instance.get('maxFileSize')
 						);
-						var maxUploadRequestSize = instance.formatStorage(
+
+						var maxUploadRequestSize = Liferay.Util.formatStorage(
 							Liferay.PropsValues
 								.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE
 						);
@@ -937,28 +929,28 @@ AUI.add(
 					var deleteFile = instance.get('deleteFile');
 
 					if (deleteFile) {
-						A.io.request(deleteFile, {
-							data: instance.ns({
-								fileName: li.attr('data-fileName')
-							}),
-							dataType: 'JSON',
-							on: {
-								failure: function(event, id, obj) {
-									li.show();
+						var data = {
+							fileName: li.attr('data-fileName')
+						};
 
-									instance._handleDeleteResponse(
-										failureResponse,
-										li
-									);
-								},
-								success: function(event, id, obj) {
-									instance._handleDeleteResponse(
-										this.get('responseData'),
-										li
-									);
-								}
-							}
-						});
+						Liferay.Util.fetch(deleteFile, {
+							body: Liferay.Util.objectToFormData(
+								instance.ns(data)
+							),
+							method: 'POST'
+						})
+							.then(response => response.json())
+							.then(response => {
+								instance._handleDeleteResponse(response, li);
+							})
+							.catch(() => {
+								li.show();
+
+								instance._handleDeleteResponse(
+									failureResponse,
+									li
+								);
+							});
 					} else {
 						instance._handleDeleteResponse(failureResponse, li);
 					}
@@ -1265,16 +1257,11 @@ AUI.add(
 
 					if (tempFileURL && instance.get('restoreState')) {
 						if (Lang.isString(tempFileURL)) {
-							A.io.request(tempFileURL, {
-								after: {
-									success: function(event) {
-										instance._formatTempFiles(
-											this.get('responseData')
-										);
-									}
-								},
-								dataType: 'JSON'
-							});
+							Liferay.Util.fetch(tempFileURL)
+								.then(response => response.json())
+								.then(response =>
+									instance._formatTempFiles(response)
+								);
 						} else {
 							tempFileURL.method(
 								tempFileURL.params,
@@ -1504,11 +1491,9 @@ AUI.add(
 	'',
 	{
 		requires: [
-			'aui-io-request',
 			'aui-template-deprecated',
 			'collection',
 			'liferay-portlet-base',
-			'liferay-storage-formatter',
 			'uploader'
 		]
 	}

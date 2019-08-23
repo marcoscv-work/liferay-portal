@@ -23,6 +23,8 @@ long previewClassPK = (long)request.getAttribute("liferay-layout:render-fragment
 int previewType = (int)request.getAttribute("liferay-layout:render-fragment-layout:previewType");
 long[] segmentsExperienceIds = (long[])request.getAttribute("liferay-layout:render-fragment-layout:segmentsExperienceIds");
 JSONArray structureJSONArray = (JSONArray)request.getAttribute("liferay-layout:render-fragment-layout:structureJSONArray");
+
+RenderFragmentLayoutDisplayContext renderFragmentLayoutDisplayContext = new RenderFragmentLayoutDisplayContext(request);
 %>
 
 <c:if test="<%= structureJSONArray != null %>">
@@ -49,7 +51,7 @@ JSONArray structureJSONArray = (JSONArray)request.getAttribute("liferay-layout:r
 
 					if (rowConfigJSONObject != null) {
 						backgroundColorCssClass = rowConfigJSONObject.getString("backgroundColorCssClass");
-						backgroundImage = rowConfigJSONObject.getString("backgroundImage");
+						backgroundImage = renderFragmentLayoutDisplayContext.getBackgroundImage(rowConfigJSONObject);
 						columnSpacing = GetterUtil.getBoolean(rowConfigJSONObject.getString("columnSpacing"), true);
 						containerType = rowConfigJSONObject.getString("containerType");
 						paddingHorizontal = GetterUtil.getLong(rowConfigJSONObject.getString("paddingHorizontal"), paddingHorizontal);

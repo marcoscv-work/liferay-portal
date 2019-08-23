@@ -134,63 +134,6 @@ public class JSONUtilTest {
 		Assert.assertFalse(
 			JSONUtil.equals(
 				JSONUtil.putAll("a", "1"), JSONUtil.putAll("1", "a")));
-
-		Assert.assertFalse(
-			JSONUtil.equals(
-				JSONUtil.put(
-					JSONUtil.put(
-						"innerDouble", 0.532049
-					).put(
-						"innerFoo", "bar"
-					).put(
-						"innerJSONArray1", JSONUtil.putAll(9, 5, 3, 4)
-					).put(
-						"innerJSONArray2",
-						JSONUtil.put(
-							JSONUtil.put(
-								"integer3", 3
-							).put(
-								"integer1", 1
-							).put(
-								"integer2", 2
-							)
-						).put(
-							JSONUtil.put(
-								"double1", 1.0
-							).put(
-								"foo1", "bar1"
-							)
-						)
-					).put(
-						"innerJSONArray3", JSONUtil.putAll("9", "5", "3", "4")
-					)),
-				JSONUtil.put(
-					JSONUtil.put(
-						"innerJSONArray2",
-						JSONUtil.put(
-							JSONUtil.put(
-								"integer1", 1
-							).put(
-								"integer2", 2
-							).put(
-								"integer3", 3
-							)
-						).put(
-							JSONUtil.put(
-								"foo1", "bar1"
-							).put(
-								"double1", 1.0
-							)
-						)
-					).put(
-						"innerDouble", 0.532049
-					).put(
-						"innerJSONArray3", JSONUtil.putAll("5", "9", "4", "3")
-					).put(
-						"innerFoo", "bar"
-					).put(
-						"innerJSONArray1", JSONUtil.putAll(5, 9, 4, 3)
-					))));
 	}
 
 	@Test
@@ -215,78 +158,46 @@ public class JSONUtilTest {
 	}
 
 	@Test
-	public void testJSONObjectEqualsWithStrictChecking() {
+	public void testJSONObjectEquals() {
+		Assert.assertTrue(
+			JSONUtil.equals(
+				JSONUtil.put(
+					"double", 0.532049
+				).put(
+					"foo", "bar"
+				),
+				JSONUtil.put(
+					"double", 0.532049
+				).put(
+					"foo", "bar"
+				)));
+
+		Assert.assertTrue(
+			JSONUtil.equals(
+				JSONUtil.put(
+					"double", 0.532049
+				).put(
+					"foo", "bar"
+				),
+				JSONUtil.put(
+					"foo", "bar"
+				).put(
+					"double", 0.532049
+				)));
+
 		Assert.assertFalse(
 			JSONUtil.equals(
 				JSONUtil.put(
 					"double", 0.532049
 				).put(
 					"foo", "bar"
-				).put(
-					"innerJSONObject",
-					JSONUtil.put(
-						"innerDouble", 0.532049
-					).put(
-						"innerFoo", "bar"
-					).put(
-						"innerJSONArray1", JSONUtil.putAll(9, 5, 3, 4)
-					).put(
-						"innerJSONArray2",
-						JSONUtil.put(
-							JSONUtil.put(
-								"integer1", 1
-							).put(
-								"integer2", 2
-							).put(
-								"integer3", 3
-							)
-						).put(
-							JSONUtil.put(
-								"double1", 1.0
-							).put(
-								"foo1", "bar1"
-							)
-						)
-					).put(
-						"innerJSONArray3", JSONUtil.putAll("9", "5", "3", "4")
-					)
-				).put(
-					"integer", 5
 				),
 				JSONUtil.put(
-					"integer", 5
-				).put(
-					"innerJSONObject",
-					JSONUtil.put(
-						"innerJSONArray1", JSONUtil.putAll(5, 9, 4, 3)
-					).put(
-						"innerJSONArray3", JSONUtil.putAll("5", "9", "4", "3")
-					).put(
-						"innerFoo", "bar"
-					).put(
-						"innerDouble", 0.532049
-					).put(
-						"innerJSONArray2",
-						JSONUtil.put(
-							JSONUtil.put(
-								"integer3", 3
-							).put(
-								"integer1", 1
-							).put(
-								"integer2", 2
-							)
-						).put(
-							JSONUtil.put(
-								"foo1", "bar1"
-							).put(
-								"double1", 1.0
-							)
-						)
-					)
+					"double", 0.532049
 				).put(
 					"foo", "bar"
 				).put(
-					"double", 0.532049
+					"integer", 5
 				)));
 	}
 

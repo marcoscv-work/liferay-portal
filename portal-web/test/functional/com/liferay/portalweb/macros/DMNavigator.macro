@@ -2,8 +2,16 @@ definition {
 
 	var dmDocumentTypeName = "File Upload";
 
-	macro gotoAddDocumentType {
+	macro gotoAddDocumentTypeCP {
 		LexiconEntry.gotoAdd();
+
+		var key_dmDocumentTypeName = "${dmDocumentTypeName}";
+
+		MenuItem.click(menuItem = "${dmDocumentTypeName}");
+	}
+
+	macro gotoAddDocumentTypePG {
+		Portlet.clickPortletPlusIconPG(portletName = "Documents and Media");
 
 		var key_dmDocumentTypeName = "${dmDocumentTypeName}";
 

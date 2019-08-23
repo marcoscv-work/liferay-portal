@@ -16,11 +16,13 @@ package com.liferay.data.engine.field.type;
 
 import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
 import com.liferay.data.engine.spi.dto.SPIDataDefinitionField;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageConstants;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -38,7 +40,8 @@ import javax.servlet.http.HttpServletResponse;
 public abstract class BaseFieldType implements FieldType {
 
 	@Override
-	public SPIDataDefinitionField deserialize(JSONObject jsonObject)
+	public SPIDataDefinitionField deserialize(
+			FieldTypeTracker fieldTypeTracker, JSONObject jsonObject)
 		throws Exception {
 
 		if (!jsonObject.has("name")) {
@@ -58,6 +61,9 @@ public abstract class BaseFieldType implements FieldType {
 					put("showLabel", jsonObject.getBoolean("showLabel"));
 				}
 			});
+		spiDataDefinitionField.setDefaultValue(
+			LocalizedValueUtil.toLocalizedValues(
+				jsonObject.getJSONObject("defaultValue")));
 		spiDataDefinitionField.setFieldType(jsonObject.getString("type"));
 		spiDataDefinitionField.setIndexable(
 			jsonObject.getBoolean("indexable", true));
@@ -71,6 +77,29 @@ public abstract class BaseFieldType implements FieldType {
 		spiDataDefinitionField.setLocalizable(
 			jsonObject.getBoolean("localizable", false));
 		spiDataDefinitionField.setName(jsonObject.getString("name"));
+
+		if (jsonObject.has("nestedDataDefinitionFields")) {
+			spiDataDefinitionField.setNestedSPIDataDefinitionFields(
+				JSONUtil.toArray(
+					(JSONArray)GetterUtil.getObject(
+						jsonObject.getJSONArray("nestedDataDefinitionFields"),
+						JSONFactoryUtil.createJSONArray()),
+					nestedDataDefinitionFieldJSONObject -> {
+						if (jsonObject.has("type")) {
+							FieldType fieldType = fieldTypeTracker.getFieldType(
+								nestedDataDefinitionFieldJSONObject.getString(
+									"type"));
+
+							return fieldType.deserialize(
+								fieldTypeTracker,
+								nestedDataDefinitionFieldJSONObject);
+						}
+
+						return null;
+					},
+					SPIDataDefinitionField.class));
+		}
+
 		spiDataDefinitionField.setRepeatable(
 			jsonObject.getBoolean("repeatable", false));
 		spiDataDefinitionField.setTip(
@@ -95,6 +124,7 @@ public abstract class BaseFieldType implements FieldType {
 		context.put(
 			"dir",
 			LanguageUtil.get(httpServletRequest, LanguageConstants.KEY_DIR));
+		context.put("fieldName", spiDataDefinitionField.getName());
 		context.put("indexable", spiDataDefinitionField.getIndexable());
 		context.put(
 			"label",
@@ -103,6 +133,14 @@ public abstract class BaseFieldType implements FieldType {
 				LocaleUtil.toLanguageId(httpServletRequest.getLocale())));
 		context.put("localizable", spiDataDefinitionField.getLocalizable());
 		context.put("name", spiDataDefinitionField.getName());
+		context.put(
+			"nestedDataDefinitionFields",
+			spiDataDefinitionField.getNestedSPIDataDefinitionFields());
+		context.put(
+			"predefinedValue",
+			LocalizedValueUtil.getLocalizedValue(
+				httpServletRequest.getLocale(),
+				spiDataDefinitionField.getDefaultValue()));
 		context.put(
 			"readOnly",
 			MapUtil.getBoolean(
@@ -139,6 +177,7 @@ public abstract class BaseFieldType implements FieldType {
 
 	@Override
 	public JSONObject toJSONObject(
+			FieldTypeTracker fieldTypeTracker,
 			SPIDataDefinitionField spiDataDefinitionField)
 		throws Exception {
 
@@ -155,6 +194,10 @@ public abstract class BaseFieldType implements FieldType {
 		}
 
 		return JSONUtil.put(
+			"defaultValue",
+			LocalizedValueUtil.toJSONObject(
+				spiDataDefinitionField.getDefaultValue())
+		).put(
 			"indexable", spiDataDefinitionField.getIndexable()
 		).put(
 			"label",
@@ -163,6 +206,17 @@ public abstract class BaseFieldType implements FieldType {
 			"localizable", spiDataDefinitionField.getLocalizable()
 		).put(
 			"name", name
+		).put(
+			"nestedDataDefinitionFields",
+			JSONUtil.toJSONArray(
+				spiDataDefinitionField.getNestedSPIDataDefinitionFields(),
+				nestedSPIDataDefinitionField -> {
+					FieldType fieldType = fieldTypeTracker.getFieldType(
+						nestedSPIDataDefinitionField.getFieldType());
+
+					return fieldType.toJSONObject(
+						fieldTypeTracker, nestedSPIDataDefinitionField);
+				})
 		).put(
 			"repeatable", spiDataDefinitionField.getRepeatable()
 		).put(

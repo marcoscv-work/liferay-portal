@@ -21,10 +21,13 @@ import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.PersistedModel;
+import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -60,6 +63,10 @@ public interface SegmentsExperimentRelLocalService
 	 *
 	 * Never modify or reference this interface directly. Always use {@link SegmentsExperimentRelLocalServiceUtil} to access the segments experiment rel local service. Add custom service methods to <code>com.liferay.segments.service.impl.SegmentsExperimentRelLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public SegmentsExperimentRel addSegmentsExperimentRel(
+			long segmentsExperimentId, long segmentsExperienceId,
+			ServiceContext serviceContext)
+		throws PortalException;
 
 	/**
 	 * Adds the segments experiment rel to the database. Also notifies the appropriate model listeners.
@@ -105,10 +112,16 @@ public interface SegmentsExperimentRelLocalService
 	 *
 	 * @param segmentsExperimentRel the segments experiment rel
 	 * @return the segments experiment rel that was removed
+	 * @throws PortalException
 	 */
 	@Indexable(type = IndexableType.DELETE)
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public SegmentsExperimentRel deleteSegmentsExperimentRel(
-		SegmentsExperimentRel segmentsExperimentRel);
+			SegmentsExperimentRel segmentsExperimentRel)
+		throws PortalException;
+
+	public void deleteSegmentsExperimentRels(long segmentsExperimentId)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -210,6 +223,11 @@ public interface SegmentsExperimentRelLocalService
 			long segmentsExperimentRelId)
 		throws PortalException;
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public SegmentsExperimentRel getSegmentsExperimentRel(
+			long segmentsExperimentId, long segmentsExperienceId)
+		throws PortalException;
+
 	/**
 	 * Returns a range of all the segments experiment rels.
 	 *
@@ -225,6 +243,10 @@ public interface SegmentsExperimentRelLocalService
 	public List<SegmentsExperimentRel> getSegmentsExperimentRels(
 		int start, int end);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<SegmentsExperimentRel> getSegmentsExperimentRels(
+		long segmentsExperimentId);
+
 	/**
 	 * Returns the number of segments experiment rels.
 	 *
@@ -232,6 +254,11 @@ public interface SegmentsExperimentRelLocalService
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getSegmentsExperimentRelsCount();
+
+	public SegmentsExperimentRel updateSegmentsExperimentRel(
+			long segmentsExperimentRelId, String name,
+			ServiceContext serviceContext)
+		throws PortalException;
 
 	/**
 	 * Updates the segments experiment rel in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.

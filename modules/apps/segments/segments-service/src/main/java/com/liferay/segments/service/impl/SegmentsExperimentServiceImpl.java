@@ -14,45 +14,51 @@
 
 package com.liferay.segments.service.impl;
 
+import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
-import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionFactory;
-import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
-import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermissionFactory;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
-import com.liferay.segments.constants.SegmentsActionKeys;
-import com.liferay.segments.constants.SegmentsConstants;
 import com.liferay.segments.model.SegmentsExperiment;
 import com.liferay.segments.service.base.SegmentsExperimentServiceBaseImpl;
 
 import java.util.List;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 /**
  * @author Eduardo García
  */
+@Component(
+	property = {
+		"json.web.service.context.name=segments",
+		"json.web.service.context.path=SegmentsExperiment"
+	},
+	service = AopService.class
+)
 public class SegmentsExperimentServiceImpl
 	extends SegmentsExperimentServiceBaseImpl {
 
 	@Override
 	public SegmentsExperiment addSegmentsExperiment(
 			long segmentsExperienceId, long classNameId, long classPK,
-			String name, String description, ServiceContext serviceContext)
+			String name, String description, String goal, String goalTarget,
+			ServiceContext serviceContext)
 		throws PortalException {
 
-		_portletResourcePermission.check(
-			getPermissionChecker(), serviceContext.getScopeGroupId(),
-			SegmentsActionKeys.MANAGE_SEGMENTS_ENTRIES);
+		LayoutPermissionUtil.check(
+			getPermissionChecker(), classPK, ActionKeys.UPDATE);
 
 		return segmentsExperimentLocalService.addSegmentsExperiment(
-			segmentsExperienceId, classNameId, classPK, name, description,
-			serviceContext);
+			segmentsExperienceId, classNameId, classPK, name, description, goal,
+			goalTarget, serviceContext);
 	}
 
 	@Override
-	public List<SegmentsExperiment> getSegmentsExperienceSegmentsExperiments(
+	public SegmentsExperiment fetchSegmentsExperiment(
 			long segmentsExperienceId, long classNameId, long classPK,
 			int status)
 		throws PortalException {
@@ -60,9 +66,42 @@ public class SegmentsExperimentServiceImpl
 		LayoutPermissionUtil.check(
 			getPermissionChecker(), classPK, ActionKeys.UPDATE);
 
+		return segmentsExperimentLocalService.fetchSegmentsExperiment(
+			segmentsExperienceId, classNameId, classPK, status);
+	}
+
+	@Override
+	public SegmentsExperiment fetchSegmentsExperiment(
+			long groupId, String segmentsExperimentKey)
+		throws PortalException {
+
+		SegmentsExperiment segmentsExperiment =
+			segmentsExperimentLocalService.fetchSegmentsExperiment(
+				groupId, segmentsExperimentKey);
+
+		if ((segmentsExperiment != null) &&
+			_segmentsExperimentResourcePermission.contains(
+				getPermissionChecker(), segmentsExperiment, ActionKeys.VIEW)) {
+
+			return segmentsExperiment;
+		}
+
+		return null;
+	}
+
+	@Override
+	public List<SegmentsExperiment> getSegmentsExperienceSegmentsExperiments(
+			long[] segmentsExperienceIds, long classNameId, long classPK,
+			int[] statuses, int start, int end)
+		throws PortalException {
+
+		LayoutPermissionUtil.check(
+			getPermissionChecker(), classPK, ActionKeys.UPDATE);
+
 		return segmentsExperimentLocalService.
 			getSegmentsExperienceSegmentsExperiments(
-				segmentsExperienceId, classNameId, classPK, status);
+				segmentsExperienceIds, classNameId, classPK, statuses, start,
+				end);
 	}
 
 	@Override
@@ -89,7 +128,8 @@ public class SegmentsExperimentServiceImpl
 
 	@Override
 	public SegmentsExperiment updateSegmentsExperiment(
-			long segmentsExperimentId, String name, String description)
+			long segmentsExperimentId, String name, String description,
+			String goal, String goalTarget)
 		throws PortalException {
 
 		_segmentsExperimentResourcePermission.check(
@@ -99,7 +139,22 @@ public class SegmentsExperimentServiceImpl
 			ActionKeys.UPDATE);
 
 		return segmentsExperimentLocalService.updateSegmentsExperiment(
-			segmentsExperimentId, name, description);
+			segmentsExperimentId, name, description, goal, goalTarget);
+	}
+
+	@Override
+	public SegmentsExperiment updateSegmentsExperiment(
+			String segmentsExperimentKey, int status)
+		throws PortalException {
+
+		_segmentsExperimentResourcePermission.check(
+			getPermissionChecker(),
+			segmentsExperimentLocalService.getSegmentsExperiment(
+				segmentsExperimentKey),
+			ActionKeys.UPDATE);
+
+		return segmentsExperimentLocalService.updateSegmentsExperiment(
+			segmentsExperimentKey, status);
 	}
 
 	private long _getPublishedLayoutClassPK(long classPK) {
@@ -116,16 +171,10 @@ public class SegmentsExperimentServiceImpl
 		return classPK;
 	}
 
-	private static volatile PortletResourcePermission
-		_portletResourcePermission =
-			PortletResourcePermissionFactory.getInstance(
-				SegmentsExperimentServiceImpl.class,
-				"_portletResourcePermission", SegmentsConstants.RESOURCE_NAME);
-	private static volatile ModelResourcePermission<SegmentsExperiment>
-		_segmentsExperimentResourcePermission =
-			ModelResourcePermissionFactory.getInstance(
-				SegmentsExperimentServiceImpl.class,
-				"_segmentsExperimentResourcePermission",
-				SegmentsExperiment.class);
+	@Reference(
+		target = "(model.class.name=com.liferay.segments.model.SegmentsExperiment)"
+	)
+	private ModelResourcePermission<SegmentsExperiment>
+		_segmentsExperimentResourcePermission;
 
 }

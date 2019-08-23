@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.util.MapUtil;
-import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Objects;
 
@@ -41,17 +40,12 @@ public class DataLayoutUtil {
 					jsonObject.getJSONArray("pages"),
 					pageJSONObject -> _toDataLayoutPage(pageJSONObject),
 					DataLayoutPage.class);
-				defaultLanguageId = jsonObject.getString("defaultLanguageId");
 				paginationMode = jsonObject.getString("paginationMode");
 			}
 		};
 	}
 
 	public static String toJSON(DataLayout dataLayout) throws Exception {
-		if (Validator.isNull(dataLayout.getDefaultLanguageId())) {
-			throw new Exception("Default language ID is required");
-		}
-
 		if (!Objects.equals(dataLayout.getPaginationMode(), "pagination") &&
 			!Objects.equals(dataLayout.getPaginationMode(), "wizard")) {
 
@@ -60,8 +54,6 @@ public class DataLayoutUtil {
 		}
 
 		return JSONUtil.put(
-			"defaultLanguageId", dataLayout.getDefaultLanguageId()
-		).put(
 			"pages",
 			JSONUtil.toJSONArray(
 				dataLayout.getDataLayoutPages(),
@@ -115,9 +107,9 @@ public class DataLayoutUtil {
 		throws Exception {
 
 		return JSONUtil.put(
-			"fieldNames", JSONUtil.put(dataLayoutColumn.getFieldNames())
+			"columnSize", dataLayoutColumn.getColumnSize()
 		).put(
-			"size", dataLayoutColumn.getColumnSize()
+			"fieldNames", JSONUtil.put(dataLayoutColumn.getFieldNames())
 		);
 	}
 

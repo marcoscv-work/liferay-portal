@@ -16,6 +16,7 @@ import 'asset-taglib/asset_categories_selector/AssetCategoriesSelector.es';
 import 'clay-multi-select';
 import 'clay-radio';
 import 'frontend-js-web/liferay/compat/modal/Modal.es';
+import {fetch} from 'frontend-js-web';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
 import {Config} from 'metal-state';
@@ -128,20 +129,15 @@ class EditCategories extends Component {
 	 * @param {Function} callback Callback function
 	 */
 	_fetchCategoriesRequest(url, method, bodyData) {
-		const body = JSON.stringify(bodyData);
-
-		const headers = new Headers();
-		headers.append('Content-Type', 'application/json');
-		headers.append('X-CSRF-Token', Liferay.authToken);
-
-		const request = {
-			body,
-			credentials: 'include',
-			headers,
+		const init = {
+			body: JSON.stringify(bodyData),
+			headers: {
+				'content-type': 'application/json'
+			},
 			method
 		};
 
-		return fetch(this.pathModule + url, request)
+		return fetch(this.pathModule + url, init)
 			.then(response => response.json())
 			.catch(() => {
 				this.close();

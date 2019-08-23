@@ -157,6 +157,20 @@ public class AppSerDes {
 			sb.append(app.getSiteId());
 		}
 
+		if (app.getStatus() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"status\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(app.getStatus()));
+
+			sb.append("\"");
+		}
+
 		if (app.getUserId() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -246,6 +260,13 @@ public class AppSerDes {
 			map.put("siteId", String.valueOf(app.getSiteId()));
 		}
 
+		if (app.getStatus() == null) {
+			map.put("status", null);
+		}
+		else {
+			map.put("status", String.valueOf(app.getStatus()));
+		}
+
 		if (app.getUserId() == null) {
 			map.put("userId", null);
 		}
@@ -284,7 +305,10 @@ public class AppSerDes {
 
 			Class valueClass = value.getClass();
 
-			if (value instanceof String) {
+			if (value instanceof Map) {
+				sb.append(_toJSON((Map)value));
+			}
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");
@@ -386,6 +410,11 @@ public class AppSerDes {
 			else if (Objects.equals(jsonParserFieldName, "siteId")) {
 				if (jsonParserFieldValue != null) {
 					app.setSiteId(Long.valueOf((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "status")) {
+				if (jsonParserFieldValue != null) {
+					app.setStatus((String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "userId")) {

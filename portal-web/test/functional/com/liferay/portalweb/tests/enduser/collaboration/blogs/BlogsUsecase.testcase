@@ -52,9 +52,7 @@ definition {
 
 	@priority = "4"
 	test AddBlogsEntryWithHTML {
-		BlogsNavigator.openBlogsAdmin(siteURLKey = "guest");
-
-		Blogs.addEntryWithHTML(
+		JSONBlog.addEntry(
 			entryContent = '''<b>Bold Type</b> <i>Italics</i>''',
 			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title");
@@ -124,7 +122,7 @@ definition {
 	test AllowMultiplePortletConfigurationsPerSite {
 		JSONGroup.addGroup(groupName = "Site Name");
 
-		ProductMenu.gotoSite(site = "Site Name");
+		SitePages.openPagesAdmin(siteURLKey = "Site Name");
 
 		JSONLayout.addPublicLayout(
 			groupName = "Site Name",
@@ -257,7 +255,7 @@ definition {
 
 	@priority = "4"
 	test ChangeBlogsRatingType {
-		Blogs.addEntry(
+		JSONBlog.addEntry(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 
@@ -281,9 +279,7 @@ definition {
 
 	@priority = "4"
 	test DeleteBlogsEntry {
-		BlogsNavigator.openBlogsAdmin(siteURLKey = "guest");
-
-		Blogs.addEntry(
+		JSONBlog.addEntry(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 
@@ -614,14 +610,7 @@ definition {
 
 	@priority = "5"
 	test RestoreBlogsEntry {
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			panel = "Site Administration",
-			portlet = "Blogs");
-
-		Blogs.addEntry(
+		JSONBlog.addEntry(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 
@@ -1350,33 +1339,6 @@ definition {
 	}
 
 	@priority = "4"
-	test ViewBlogsEntryWithUploadedCoverImage {
-		BlogsNavigator.openBlogsAdmin(siteURLKey = "guest");
-
-		Blogs.addEntryWithUploadedCoverImage(
-			coverImageName = "Document_1",
-			entryContent = "Blogs Entry Content",
-			entrySubtitle = "Blogs Entry Subtitle",
-			entryTitle = "Blogs Entry Title",
-			navTab = "Upload Image",
-			uploadFileName = "Document_1.jpg");
-
-		Button.clickPublish();
-
-		Pause(locator1 = "30000");
-
-		Navigator.gotoPage(pageName = "Blogs Page");
-
-		BlogsNavigator.gotoEntryPG(
-			entryContent = "Blogs Entry Content",
-			entryTitle = "Blogs Entry Title");
-
-		BlogsEntry.viewEntry(
-			entryContent = "Blogs Entry Content",
-			entryTitle = "Blogs Entry Title");
-	}
-
-	@priority = "4"
 	test ViewNoBlogsDraftDisplaysInAP {
 		JSONLayout.addPublicLayout(
 			groupName = "Guest",
@@ -1392,9 +1354,7 @@ definition {
 
 		AssetPublisherPortlet.configureAssetLinkBehaviorPG(assetLinkBehavior = "Show Full Content");
 
-		Navigator.gotoPage(pageName = "Blogs Page");
-
-		Blogs.addEntry(
+		JSONBlog.addEntry(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 

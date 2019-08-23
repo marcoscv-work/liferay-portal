@@ -65,7 +65,7 @@ public class AppBuilderAppCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(27);
+		StringBundler sb = new StringBundler(29);
 
 		sb.append("{uuid=");
 		sb.append(uuid);
@@ -85,14 +85,16 @@ public class AppBuilderAppCacheModel
 		sb.append(modifiedDate);
 		sb.append(", ddmStructureId=");
 		sb.append(ddmStructureId);
-		sb.append(", deDataLayoutId=");
-		sb.append(deDataLayoutId);
+		sb.append(", ddmStructureLayoutId=");
+		sb.append(ddmStructureLayoutId);
 		sb.append(", deDataListViewId=");
 		sb.append(deDataListViewId);
 		sb.append(", name=");
 		sb.append(name);
 		sb.append(", settings=");
 		sb.append(settings);
+		sb.append(", status=");
+		sb.append(status);
 		sb.append("}");
 
 		return sb.toString();
@@ -136,7 +138,7 @@ public class AppBuilderAppCacheModel
 		}
 
 		appBuilderAppImpl.setDdmStructureId(ddmStructureId);
-		appBuilderAppImpl.setDeDataLayoutId(deDataLayoutId);
+		appBuilderAppImpl.setDdmStructureLayoutId(ddmStructureLayoutId);
 		appBuilderAppImpl.setDeDataListViewId(deDataListViewId);
 
 		if (name == null) {
@@ -152,6 +154,8 @@ public class AppBuilderAppCacheModel
 		else {
 			appBuilderAppImpl.setSettings(settings);
 		}
+
+		appBuilderAppImpl.setStatus(status);
 
 		appBuilderAppImpl.resetOriginalValues();
 
@@ -175,11 +179,13 @@ public class AppBuilderAppCacheModel
 
 		ddmStructureId = objectInput.readLong();
 
-		deDataLayoutId = objectInput.readLong();
+		ddmStructureLayoutId = objectInput.readLong();
 
 		deDataListViewId = objectInput.readLong();
 		name = objectInput.readUTF();
 		settings = objectInput.readUTF();
+
+		status = objectInput.readInt();
 	}
 
 	@Override
@@ -211,7 +217,7 @@ public class AppBuilderAppCacheModel
 
 		objectOutput.writeLong(ddmStructureId);
 
-		objectOutput.writeLong(deDataLayoutId);
+		objectOutput.writeLong(ddmStructureLayoutId);
 
 		objectOutput.writeLong(deDataListViewId);
 
@@ -228,6 +234,8 @@ public class AppBuilderAppCacheModel
 		else {
 			objectOutput.writeUTF(settings);
 		}
+
+		objectOutput.writeInt(status);
 	}
 
 	public String uuid;
@@ -239,9 +247,10 @@ public class AppBuilderAppCacheModel
 	public long createDate;
 	public long modifiedDate;
 	public long ddmStructureId;
-	public long deDataLayoutId;
+	public long ddmStructureLayoutId;
 	public long deDataListViewId;
 	public String name;
 	public String settings;
+	public int status;
 
 }

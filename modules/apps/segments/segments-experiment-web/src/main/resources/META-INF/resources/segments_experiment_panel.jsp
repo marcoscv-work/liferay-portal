@@ -28,22 +28,28 @@ String segmentsExperimentRootId = renderResponse.getNamespace() + "-segments-exp
 	segmentsExperimentsApp.default(
 		'<%= segmentsExperimentRootId %>',
 		{
+			initialSegmentsVariants: <%= segmentsExperimentDisplayContext.getSegmentsExperimentRelsJSONArray(locale) %>,
 			segmentsExperiences: <%= segmentsExperimentDisplayContext.getSegmentsExperiencesJSONArray(locale) %>,
-			segmentsExperiment: <%= segmentsExperimentDisplayContext.getSegmentsExperimentJSONObject() %>,
+			segmentsExperiment: <%= segmentsExperimentDisplayContext.getSegmentsExperimentJSONObject(locale) %>,
+			segmentsExperimentGoals: <%= segmentsExperimentDisplayContext.getSegmentsExperimentGoalsJSONArray(locale) %>,
 			selectedSegmentsExperienceId: '<%= segmentsExperimentDisplayContext.getSelectedSegmentsExperienceId() %>'
 		},
 		{
+			contentPageEditorNamespace: '<%= segmentsExperimentDisplayContext.getContentPageEditorPortletNamespace() %>',
 			endpoints: {
-				createSegmentsExperimentURL: '/segments.segmentsexperiment/add-segments-experiment',
-				editSegmentsExperimentURL: '/segments.segmentsexperiment/update-segments-experiment'
+				createSegmentsExperimentURL: '<%= segmentsExperimentDisplayContext.getCreateSegmentsExperimentURL() %>',
+				createSegmentsVariantURL: '<%= segmentsExperimentDisplayContext.getCreateSegmentsVariantURL() %>',
+				deleteSegmentsVariantURL: '<%= segmentsExperimentDisplayContext.getDeleteSegmentsVariantURL() %>',
+				editSegmentsExperimentURL: '<%= segmentsExperimentDisplayContext.getEditSegmentsExperimentURL() %>',
+				editSegmentsVariantLayoutURL: '<%= segmentsExperimentDisplayContext.getEditSegmentsVariantLayoutURL() %>',
+				editSegmentsVariantURL: '<%= segmentsExperimentDisplayContext.getEditSegmentsVariantURL() %>'
 			},
 			namespace: '<portlet:namespace />',
 			page: {
 				classPK: '<%= themeDisplay.getPlid() %>',
 				classNameId: '<%= PortalUtil.getClassNameId(Layout.class.getName()) %>',
 				type: '<%= layout.getType() %>'
-			},
-			spritemap: '<%= themeDisplay.getPathThemeImages() + "/lexicon/icons.svg" %>'
+			}
 		}
 	);
 </aui:script>

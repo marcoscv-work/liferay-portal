@@ -65,16 +65,27 @@ AUI.add(
 			'<ul class="lfr-ddm-pages-container nav vertical-scrolling"></ul>';
 
 		var TPL_REPEATABLE_ADD =
-			'<a class="icon-plus-sign lfr-ddm-repeatable-add-button" href="javascript:;"></a>';
+			'<a class="lfr-ddm-repeatable-add-button" href="javascript:;">' +
+			Liferay.Util.getLexiconIconTpl('plus') +
+			'</a>';
+
+		var TPL_REPEATABLE_ICON =
+			'<div class="lfr-ddm-repeatable-drag-icon">' +
+			Liferay.Util.getLexiconIconTpl('drag') +
+			'</div>';
 
 		var TPL_REPEATABLE_DELETE =
-			'<a class="hide icon-minus-sign lfr-ddm-repeatable-delete-button" href="javascript:;"></a>';
+			'<a class="hide lfr-ddm-repeatable-delete-button" href="javascript:;">' +
+			Liferay.Util.getLexiconIconTpl('hr') +
+			'</a>';
 
 		var TPL_REPEATABLE_HELPER =
 			'<div class="lfr-ddm-repeatable-helper"></div>';
 
 		var TPL_REQUIRED_MARK =
-			'<span class="icon-asterisk text-warning"><span class="hide-accessible">' +
+			'<span class="text-warning">' +
+			Liferay.Util.getLexiconIconTpl('asterisk') +
+			'<span class="hide-accessible">' +
 			Liferay.Language.get('required') +
 			'</span></span>';
 
@@ -433,6 +444,7 @@ AUI.add(
 
 					if (instance.get('repeatable')) {
 						instance.renderRepeatableUI();
+						instance.syncLabel(instance.get('displayLocale'));
 						instance.syncRepeatablelUI();
 					}
 
@@ -637,6 +649,14 @@ AUI.add(
 					});
 				},
 
+				getRuleInputName: function() {
+					var instance = this;
+
+					var inputName = instance.getInputName();
+
+					return inputName;
+				},
+
 				getSiblings: function() {
 					var instance = this;
 
@@ -683,6 +703,13 @@ AUI.add(
 					var instance = this;
 
 					var container = instance.get('container');
+
+					var containerLabel = container._node.children[0];
+
+					containerLabel.insertAdjacentHTML(
+						'afterbegin',
+						TPL_REPEATABLE_ICON
+					);
 
 					container.append(TPL_REPEATABLE_ADD);
 					container.append(TPL_REPEATABLE_DELETE);
@@ -1434,6 +1461,14 @@ AUI.add(
 					return value;
 				},
 
+				getRuleInputName: function() {
+					var instance = this;
+
+					var inputName = instance.getInputName();
+
+					return inputName + 'Title';
+				},
+
 				getUploadURL: function() {
 					var instance = this;
 
@@ -1621,6 +1656,14 @@ AUI.add(
 					}
 
 					return value;
+				},
+
+				getRuleInputName: function() {
+					var instance = this;
+
+					var inputName = instance.getInputName();
+
+					return inputName + 'Title';
 				},
 
 				getWebContentSelectorURL: function() {
@@ -1907,6 +1950,14 @@ AUI.add(
 					}
 
 					return value;
+				},
+
+				getRuleInputName: function() {
+					var instance = this;
+
+					var inputName = instance.getInputName();
+
+					return inputName + 'LayoutName';
 				},
 
 				setValue: function(value) {
@@ -3105,6 +3156,7 @@ AUI.add(
 						titleNode.val('');
 					}
 
+					instance._validateField(altNode);
 					instance._validateField(titleNode);
 
 					var clearButtonNode = A.one(
@@ -4137,18 +4189,18 @@ AUI.add(
 						if (event.type === 'liferay-ddm-field:repeat') {
 							var originalField = event.originalField;
 
-							var originalFieldInputName = originalField.getInputName();
+							var originalFieldRuleInputName = originalField.getRuleInputName();
 
 							var originalFieldRules =
-								validatorRules[originalFieldInputName];
+								validatorRules[originalFieldRuleInputName];
 
 							if (originalFieldRules) {
 								validatorRules[
-									field.getInputName()
+									field.getRuleInputName()
 								] = originalFieldRules;
 							}
 						} else if (event.type === 'liferay-ddm-field:remove') {
-							delete validatorRules[field.getInputName()];
+							delete validatorRules[field.getRuleInputName()];
 
 							var inputNode = field.getInputNode();
 

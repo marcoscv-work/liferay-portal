@@ -235,6 +235,10 @@ public abstract class BaseDataListViewResourceTestCase {
 			Arrays.asList(dataListView1, dataListView2),
 			(List<DataListView>)page.getItems());
 		assertValid(page);
+
+		dataListViewResource.deleteDataListView(dataListView1.getId());
+
+		dataListViewResource.deleteDataListView(dataListView2.getId());
 	}
 
 	@Test
@@ -436,6 +440,75 @@ public abstract class BaseDataListViewResourceTestCase {
 		return dataListViewResource.postDataDefinitionDataListView(
 			testGetDataDefinitionDataListViewsPage_getDataDefinitionId(),
 			dataListView);
+	}
+
+	@Test
+	public void testDeleteDataListView() throws Exception {
+		DataListView dataListView = testDeleteDataListView_addDataListView();
+
+		assertHttpResponseStatusCode(
+			204,
+			dataListViewResource.deleteDataListViewHttpResponse(
+				dataListView.getId()));
+
+		assertHttpResponseStatusCode(
+			404,
+			dataListViewResource.getDataListViewHttpResponse(
+				dataListView.getId()));
+
+		assertHttpResponseStatusCode(
+			404, dataListViewResource.getDataListViewHttpResponse(0L));
+	}
+
+	protected DataListView testDeleteDataListView_addDataListView()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
+	public void testGetDataListView() throws Exception {
+		DataListView postDataListView = testGetDataListView_addDataListView();
+
+		DataListView getDataListView = dataListViewResource.getDataListView(
+			postDataListView.getId());
+
+		assertEquals(postDataListView, getDataListView);
+		assertValid(getDataListView);
+	}
+
+	protected DataListView testGetDataListView_addDataListView()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
+	public void testPutDataListView() throws Exception {
+		DataListView postDataListView = testPutDataListView_addDataListView();
+
+		DataListView randomDataListView = randomDataListView();
+
+		DataListView putDataListView = dataListViewResource.putDataListView(
+			postDataListView.getId(), randomDataListView);
+
+		assertEquals(randomDataListView, putDataListView);
+		assertValid(putDataListView);
+
+		DataListView getDataListView = dataListViewResource.getDataListView(
+			putDataListView.getId());
+
+		assertEquals(randomDataListView, getDataListView);
+		assertValid(getDataListView);
+	}
+
+	protected DataListView testPutDataListView_addDataListView()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
 	}
 
 	protected void assertHttpResponseStatusCode(

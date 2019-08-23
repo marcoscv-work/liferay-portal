@@ -20,7 +20,6 @@ import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
 import com.liferay.portal.kernel.security.access.control.AccessControlled;
 import com.liferay.portal.kernel.service.BaseService;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -41,13 +40,6 @@ import org.osgi.annotation.versioning.ProviderType;
  */
 @AccessControlled
 @JSONWebService
-@OSGiBeanProperties(
-	property = {
-		"json.web.service.context.name=segments",
-		"json.web.service.context.path=SegmentsExperiment"
-	},
-	service = SegmentsExperimentService.class
-)
 @ProviderType
 @Transactional(
 	isolation = Isolation.PORTAL,
@@ -62,7 +54,19 @@ public interface SegmentsExperimentService extends BaseService {
 	 */
 	public SegmentsExperiment addSegmentsExperiment(
 			long segmentsExperienceId, long classNameId, long classPK,
-			String name, String description, ServiceContext serviceContext)
+			String name, String description, String goal, String goalTarget,
+			ServiceContext serviceContext)
+		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public SegmentsExperiment fetchSegmentsExperiment(
+			long segmentsExperienceId, long classNameId, long classPK,
+			int status)
+		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public SegmentsExperiment fetchSegmentsExperiment(
+			long groupId, String segmentsExperimentKey)
 		throws PortalException;
 
 	/**
@@ -74,8 +78,8 @@ public interface SegmentsExperimentService extends BaseService {
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<SegmentsExperiment> getSegmentsExperienceSegmentsExperiments(
-			long segmentsExperienceId, long classNameId, long classPK,
-			int status)
+			long[] segmentsExperienceIds, long classNameId, long classPK,
+			int[] statuses, int start, int end)
 		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -87,7 +91,12 @@ public interface SegmentsExperimentService extends BaseService {
 		long groupId, long classNameId, long classPK);
 
 	public SegmentsExperiment updateSegmentsExperiment(
-			long segmentsExperimentId, String name, String description)
+			long segmentsExperimentId, String name, String description,
+			String goal, String goalTarget)
+		throws PortalException;
+
+	public SegmentsExperiment updateSegmentsExperiment(
+			String segmentsExperimentKey, int status)
 		throws PortalException;
 
 }

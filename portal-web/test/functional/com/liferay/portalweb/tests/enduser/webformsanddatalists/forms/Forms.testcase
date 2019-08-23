@@ -320,7 +320,7 @@ definition {
 
 		Navigator.openURL();
 
-		ProductMenu.gotoSite(site = "Global");
+		SitePages.openPagesAdmin(siteURLKey = "global");
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
@@ -432,6 +432,10 @@ definition {
 			portlet = "Sites");
 
 		Site.addBlankCP(siteName = "Form Site");
+
+		JSONLayout.addPublicLayout(
+			groupName = "Form Site",
+			layoutName = "Form Page");
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",

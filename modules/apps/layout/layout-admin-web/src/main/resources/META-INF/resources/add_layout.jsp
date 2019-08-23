@@ -77,10 +77,8 @@ List<SiteNavigationMenu> autoSiteNavigationMenus = layoutsAdminDisplayContext.ge
 	</liferay-frontend:edit-form>
 </div>
 
-<aui:script require="metal-uri/src/Uri">
+<aui:script>
 	var form = document.<portlet:namespace />fm;
-
-	var Uri = metalUriSrcUri.default;
 
 	form.addEventListener(
 		'submit',
@@ -103,11 +101,10 @@ List<SiteNavigationMenu> autoSiteNavigationMenus = layoutsAdminDisplayContext.ge
 				}
 			);
 
-			fetch(
+			Liferay.Util.fetch(
 				form.action,
 				{
 					body: formData,
-					credentials: 'include',
 					method: 'POST'
 				}
 			).then(
@@ -117,9 +114,9 @@ List<SiteNavigationMenu> autoSiteNavigationMenus = layoutsAdminDisplayContext.ge
 			).then(
 				function(response) {
 					if (response.redirectURL) {
-						var redirectURL = new Uri(response.redirectURL);
+						var redirectURL = new URL(response.redirectURL, window.location.origin);
 
-						redirectURL.setParameterValue('p_p_state', 'normal');
+						redirectURL.searchParams.set('p_p_state', 'normal');
 
 						Liferay.fire(
 							'closeWindow',

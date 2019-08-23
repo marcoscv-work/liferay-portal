@@ -60,6 +60,13 @@ public interface AccountEntryLocalService
 	 *
 	 * Never modify or reference this interface directly. Always use {@link AccountEntryLocalServiceUtil} to access the account entry local service. Add custom service methods to <code>com.liferay.account.service.impl.AccountEntryLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public void activateAccountEntries(long[] accountEntryIds)
+		throws PortalException;
+
+	public AccountEntry activateAccountEntry(AccountEntry accountEntry);
+
+	public AccountEntry activateAccountEntry(long accountEntryId)
+		throws Exception;
 
 	/**
 	 * Adds the account entry to the database. Also notifies the appropriate model listeners.
@@ -70,6 +77,11 @@ public interface AccountEntryLocalService
 	@Indexable(type = IndexableType.REINDEX)
 	public AccountEntry addAccountEntry(AccountEntry accountEntry);
 
+	public AccountEntry addAccountEntry(
+			long userId, long parentAccountEntryId, String name,
+			String description, long logoId, int status)
+		throws PortalException;
+
 	/**
 	 * Creates a new account entry with the primary key. Does not add the account entry to the database.
 	 *
@@ -79,14 +91,27 @@ public interface AccountEntryLocalService
 	@Transactional(enabled = false)
 	public AccountEntry createAccountEntry(long accountEntryId);
 
+	public void deactivateAccountEntries(long[] accountEntryIds)
+		throws PortalException;
+
+	public AccountEntry deactivateAccountEntry(AccountEntry accountEntry);
+
+	public AccountEntry deactivateAccountEntry(long accountEntryId)
+		throws Exception;
+
+	public void deleteAccountEntries(long[] accountEntryIds)
+		throws PortalException;
+
 	/**
 	 * Deletes the account entry from the database. Also notifies the appropriate model listeners.
 	 *
 	 * @param accountEntry the account entry
 	 * @return the account entry that was removed
+	 * @throws PortalException
 	 */
 	@Indexable(type = IndexableType.DELETE)
-	public AccountEntry deleteAccountEntry(AccountEntry accountEntry);
+	public AccountEntry deleteAccountEntry(AccountEntry accountEntry)
+		throws PortalException;
 
 	/**
 	 * Deletes the account entry with the primary key from the database. Also notifies the appropriate model listeners.
@@ -189,6 +214,11 @@ public interface AccountEntryLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<AccountEntry> getAccountEntries(int start, int end);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AccountEntry> getAccountEntries(
+		long companyId, int status, int start, int end,
+		OrderByComparator<AccountEntry> obc);
+
 	/**
 	 * Returns the number of account entries.
 	 *
@@ -234,5 +264,7 @@ public interface AccountEntryLocalService
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	public AccountEntry updateAccountEntry(AccountEntry accountEntry);
+
+	public AccountEntry updateStatus(AccountEntry accountEntry, int status);
 
 }

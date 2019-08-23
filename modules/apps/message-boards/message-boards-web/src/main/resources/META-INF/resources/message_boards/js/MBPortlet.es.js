@@ -14,7 +14,7 @@
 
 import core from 'metal';
 import {EventHandler} from 'metal-events';
-import {PortletBase} from 'frontend-js-web';
+import {PortletBase, fetch} from 'frontend-js-web';
 
 /**
  * MBPortlet handles the actions of replying or editing a
@@ -91,9 +91,6 @@ class MBPortlet extends PortletBase {
 		if (viewRemovedAttachmentsLink) {
 			viewRemovedAttachmentsLink.addEventListener('click', () => {
 				Liferay.Util.openWindow({
-					id: this.namespace + 'openRemovedPageAttachments',
-					title: Liferay.Language.get('removed-attachments'),
-					uri: this.viewTrashAttachmentsURL,
 					dialog: {
 						on: {
 							visibleChange: event => {
@@ -102,7 +99,10 @@ class MBPortlet extends PortletBase {
 								}
 							}
 						}
-					}
+					},
+					id: this.namespace + 'openRemovedPageAttachments',
+					title: Liferay.Language.get('removed-attachments'),
+					uri: this.viewTrashAttachmentsURL
 				});
 			});
 		}
@@ -190,9 +190,7 @@ class MBPortlet extends PortletBase {
 
 		const deleteURL = link.getAttribute('data-url');
 
-		fetch(deleteURL, {
-			credentials: 'include'
-		}).then(() => {
+		fetch(deleteURL).then(() => {
 			const searchContainer = this.searchContainer_;
 
 			searchContainer.deleteRow(

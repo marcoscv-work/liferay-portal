@@ -15,6 +15,7 @@
 package com.liferay.portal.lock.service.persistence.impl;
 
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.configuration.Configuration;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -22,10 +23,12 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
@@ -36,7 +39,7 @@ import com.liferay.portal.lock.model.Lock;
 import com.liferay.portal.lock.model.impl.LockImpl;
 import com.liferay.portal.lock.model.impl.LockModelImpl;
 import com.liferay.portal.lock.service.persistence.LockPersistence;
-import com.liferay.portal.spring.extender.service.ServiceReference;
+import com.liferay.portal.lock.service.persistence.impl.constants.LockPersistenceConstants;
 
 import java.io.Serializable;
 
@@ -52,7 +55,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.sql.DataSource;
+
 import org.osgi.annotation.versioning.ProviderType;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The persistence implementation for the lock service.
@@ -64,6 +73,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @author Brian Wing Shun Chan
  * @generated
  */
+@Component(service = LockPersistence.class)
 @ProviderType
 public class LockPersistenceImpl
 	extends BasePersistenceImpl<Lock> implements LockPersistence {
@@ -149,13 +159,13 @@ public class LockPersistenceImpl
 	 * @param start the lower bound of the range of locks
 	 * @param end the upper bound of the range of locks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching locks
 	 */
 	@Override
 	public List<Lock> findByUuid(
 		String uuid, int start, int end,
-		OrderByComparator<Lock> orderByComparator, boolean retrieveFromCache) {
+		OrderByComparator<Lock> orderByComparator, boolean useFinderCache) {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -167,17 +177,20 @@ public class LockPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByUuid;
-			finderArgs = new Object[] {uuid};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByUuid;
+				finderArgs = new Object[] {uuid};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByUuid;
 			finderArgs = new Object[] {uuid, start, end, orderByComparator};
 		}
 
 		List<Lock> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<Lock>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -254,10 +267,14 @@ public class LockPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -694,13 +711,13 @@ public class LockPersistenceImpl
 	 * @param start the lower bound of the range of locks
 	 * @param end the upper bound of the range of locks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching locks
 	 */
 	@Override
 	public List<Lock> findByUuid_C(
 		String uuid, long companyId, int start, int end,
-		OrderByComparator<Lock> orderByComparator, boolean retrieveFromCache) {
+		OrderByComparator<Lock> orderByComparator, boolean useFinderCache) {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -712,10 +729,13 @@ public class LockPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByUuid_C;
-			finderArgs = new Object[] {uuid, companyId};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByUuid_C;
+				finderArgs = new Object[] {uuid, companyId};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByUuid_C;
 			finderArgs = new Object[] {
 				uuid, companyId, start, end, orderByComparator
@@ -724,7 +744,7 @@ public class LockPersistenceImpl
 
 		List<Lock> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<Lock>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -807,10 +827,14 @@ public class LockPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -1274,13 +1298,13 @@ public class LockPersistenceImpl
 	 * @param start the lower bound of the range of locks
 	 * @param end the upper bound of the range of locks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching locks
 	 */
 	@Override
 	public List<Lock> findByClassName(
 		String className, int start, int end,
-		OrderByComparator<Lock> orderByComparator, boolean retrieveFromCache) {
+		OrderByComparator<Lock> orderByComparator, boolean useFinderCache) {
 
 		className = Objects.toString(className, "");
 
@@ -1292,10 +1316,13 @@ public class LockPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByClassName;
-			finderArgs = new Object[] {className};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByClassName;
+				finderArgs = new Object[] {className};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByClassName;
 			finderArgs = new Object[] {
 				className, start, end, orderByComparator
@@ -1304,7 +1331,7 @@ public class LockPersistenceImpl
 
 		List<Lock> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<Lock>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -1381,10 +1408,14 @@ public class LockPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -1820,13 +1851,13 @@ public class LockPersistenceImpl
 	 * @param start the lower bound of the range of locks
 	 * @param end the upper bound of the range of locks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching locks
 	 */
 	@Override
 	public List<Lock> findByLtExpirationDate(
 		Date expirationDate, int start, int end,
-		OrderByComparator<Lock> orderByComparator, boolean retrieveFromCache) {
+		OrderByComparator<Lock> orderByComparator, boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -1839,7 +1870,7 @@ public class LockPersistenceImpl
 
 		List<Lock> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<Lock>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -1918,10 +1949,14 @@ public class LockPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -2350,21 +2385,25 @@ public class LockPersistenceImpl
 	 *
 	 * @param className the class name
 	 * @param key the key
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching lock, or <code>null</code> if a matching lock could not be found
 	 */
 	@Override
 	public Lock fetchByC_K(
-		String className, String key, boolean retrieveFromCache) {
+		String className, String key, boolean useFinderCache) {
 
 		className = Objects.toString(className, "");
 		key = Objects.toString(key, "");
 
-		Object[] finderArgs = new Object[] {className, key};
+		Object[] finderArgs = null;
+
+		if (useFinderCache) {
+			finderArgs = new Object[] {className, key};
+		}
 
 		Object result = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			result = finderCache.getResult(
 				_finderPathFetchByC_K, finderArgs, this);
 		}
@@ -2428,8 +2467,10 @@ public class LockPersistenceImpl
 				List<Lock> list = q.list();
 
 				if (list.isEmpty()) {
-					finderCache.putResult(
-						_finderPathFetchByC_K, finderArgs, list);
+					if (useFinderCache) {
+						finderCache.putResult(
+							_finderPathFetchByC_K, finderArgs, list);
+					}
 				}
 				else {
 					Lock lock = list.get(0);
@@ -2440,7 +2481,9 @@ public class LockPersistenceImpl
 				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(_finderPathFetchByC_K, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(_finderPathFetchByC_K, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -2570,7 +2613,6 @@ public class LockPersistenceImpl
 
 		setModelImplClass(LockImpl.class);
 		setModelPKClass(long.class);
-		setEntityCacheEnabled(LockModelImpl.ENTITY_CACHE_ENABLED);
 
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
 
@@ -2588,8 +2630,7 @@ public class LockPersistenceImpl
 	@Override
 	public void cacheResult(Lock lock) {
 		entityCache.putResult(
-			LockModelImpl.ENTITY_CACHE_ENABLED, LockImpl.class,
-			lock.getPrimaryKey(), lock);
+			entityCacheEnabled, LockImpl.class, lock.getPrimaryKey(), lock);
 
 		finderCache.putResult(
 			_finderPathFetchByC_K,
@@ -2607,8 +2648,8 @@ public class LockPersistenceImpl
 	public void cacheResult(List<Lock> locks) {
 		for (Lock lock : locks) {
 			if (entityCache.getResult(
-					LockModelImpl.ENTITY_CACHE_ENABLED, LockImpl.class,
-					lock.getPrimaryKey()) == null) {
+					entityCacheEnabled, LockImpl.class, lock.getPrimaryKey()) ==
+						null) {
 
 				cacheResult(lock);
 			}
@@ -2644,8 +2685,7 @@ public class LockPersistenceImpl
 	@Override
 	public void clearCache(Lock lock) {
 		entityCache.removeResult(
-			LockModelImpl.ENTITY_CACHE_ENABLED, LockImpl.class,
-			lock.getPrimaryKey());
+			entityCacheEnabled, LockImpl.class, lock.getPrimaryKey());
 
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
@@ -2660,8 +2700,7 @@ public class LockPersistenceImpl
 
 		for (Lock lock : locks) {
 			entityCache.removeResult(
-				LockModelImpl.ENTITY_CACHE_ENABLED, LockImpl.class,
-				lock.getPrimaryKey());
+				entityCacheEnabled, LockImpl.class, lock.getPrimaryKey());
 
 			clearUniqueFindersCache((LockModelImpl)lock, true);
 		}
@@ -2856,7 +2895,7 @@ public class LockPersistenceImpl
 
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 
-		if (!LockModelImpl.COLUMN_BITMASK_ENABLED) {
+		if (!_columnBitmaskEnabled) {
 			finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 		}
 		else if (isNew) {
@@ -2945,8 +2984,8 @@ public class LockPersistenceImpl
 		}
 
 		entityCache.putResult(
-			LockModelImpl.ENTITY_CACHE_ENABLED, LockImpl.class,
-			lock.getPrimaryKey(), lock, false);
+			entityCacheEnabled, LockImpl.class, lock.getPrimaryKey(), lock,
+			false);
 
 		clearUniqueFindersCache(lockModelImpl, false);
 		cacheUniqueFindersCache(lockModelImpl);
@@ -3059,13 +3098,13 @@ public class LockPersistenceImpl
 	 * @param start the lower bound of the range of locks
 	 * @param end the upper bound of the range of locks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of locks
 	 */
 	@Override
 	public List<Lock> findAll(
 		int start, int end, OrderByComparator<Lock> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -3075,17 +3114,20 @@ public class LockPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindAll;
-			finderArgs = FINDER_ARGS_EMPTY;
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindAll;
+				finderArgs = FINDER_ARGS_EMPTY;
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindAll;
 			finderArgs = new Object[] {start, end, orderByComparator};
 		}
 
 		List<Lock> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<Lock>)finderCache.getResult(
 				finderPath, finderArgs, this);
 		}
@@ -3135,10 +3177,14 @@ public class LockPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -3226,27 +3272,27 @@ public class LockPersistenceImpl
 	/**
 	 * Initializes the lock persistence.
 	 */
-	public void afterPropertiesSet() {
+	@Activate
+	public void activate() {
+		LockModelImpl.setEntityCacheEnabled(entityCacheEnabled);
+		LockModelImpl.setFinderCacheEnabled(finderCacheEnabled);
+
 		_finderPathWithPaginationFindAll = new FinderPath(
-			LockModelImpl.ENTITY_CACHE_ENABLED,
-			LockModelImpl.FINDER_CACHE_ENABLED, LockImpl.class,
+			entityCacheEnabled, finderCacheEnabled, LockImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
 
 		_finderPathWithoutPaginationFindAll = new FinderPath(
-			LockModelImpl.ENTITY_CACHE_ENABLED,
-			LockModelImpl.FINDER_CACHE_ENABLED, LockImpl.class,
+			entityCacheEnabled, finderCacheEnabled, LockImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll",
 			new String[0]);
 
 		_finderPathCountAll = new FinderPath(
-			LockModelImpl.ENTITY_CACHE_ENABLED,
-			LockModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
 			new String[0]);
 
 		_finderPathWithPaginationFindByUuid = new FinderPath(
-			LockModelImpl.ENTITY_CACHE_ENABLED,
-			LockModelImpl.FINDER_CACHE_ENABLED, LockImpl.class,
+			entityCacheEnabled, finderCacheEnabled, LockImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUuid",
 			new String[] {
 				String.class.getName(), Integer.class.getName(),
@@ -3254,21 +3300,18 @@ public class LockPersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByUuid = new FinderPath(
-			LockModelImpl.ENTITY_CACHE_ENABLED,
-			LockModelImpl.FINDER_CACHE_ENABLED, LockImpl.class,
+			entityCacheEnabled, finderCacheEnabled, LockImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByUuid",
 			new String[] {String.class.getName()},
 			LockModelImpl.UUID_COLUMN_BITMASK);
 
 		_finderPathCountByUuid = new FinderPath(
-			LockModelImpl.ENTITY_CACHE_ENABLED,
-			LockModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUuid",
 			new String[] {String.class.getName()});
 
 		_finderPathWithPaginationFindByUuid_C = new FinderPath(
-			LockModelImpl.ENTITY_CACHE_ENABLED,
-			LockModelImpl.FINDER_CACHE_ENABLED, LockImpl.class,
+			entityCacheEnabled, finderCacheEnabled, LockImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUuid_C",
 			new String[] {
 				String.class.getName(), Long.class.getName(),
@@ -3277,22 +3320,19 @@ public class LockPersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByUuid_C = new FinderPath(
-			LockModelImpl.ENTITY_CACHE_ENABLED,
-			LockModelImpl.FINDER_CACHE_ENABLED, LockImpl.class,
+			entityCacheEnabled, finderCacheEnabled, LockImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByUuid_C",
 			new String[] {String.class.getName(), Long.class.getName()},
 			LockModelImpl.UUID_COLUMN_BITMASK |
 			LockModelImpl.COMPANYID_COLUMN_BITMASK);
 
 		_finderPathCountByUuid_C = new FinderPath(
-			LockModelImpl.ENTITY_CACHE_ENABLED,
-			LockModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUuid_C",
 			new String[] {String.class.getName(), Long.class.getName()});
 
 		_finderPathWithPaginationFindByClassName = new FinderPath(
-			LockModelImpl.ENTITY_CACHE_ENABLED,
-			LockModelImpl.FINDER_CACHE_ENABLED, LockImpl.class,
+			entityCacheEnabled, finderCacheEnabled, LockImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByClassName",
 			new String[] {
 				String.class.getName(), Integer.class.getName(),
@@ -3300,21 +3340,18 @@ public class LockPersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByClassName = new FinderPath(
-			LockModelImpl.ENTITY_CACHE_ENABLED,
-			LockModelImpl.FINDER_CACHE_ENABLED, LockImpl.class,
+			entityCacheEnabled, finderCacheEnabled, LockImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByClassName",
 			new String[] {String.class.getName()},
 			LockModelImpl.CLASSNAME_COLUMN_BITMASK);
 
 		_finderPathCountByClassName = new FinderPath(
-			LockModelImpl.ENTITY_CACHE_ENABLED,
-			LockModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByClassName",
 			new String[] {String.class.getName()});
 
 		_finderPathWithPaginationFindByLtExpirationDate = new FinderPath(
-			LockModelImpl.ENTITY_CACHE_ENABLED,
-			LockModelImpl.FINDER_CACHE_ENABLED, LockImpl.class,
+			entityCacheEnabled, finderCacheEnabled, LockImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByLtExpirationDate",
 			new String[] {
 				Date.class.getName(), Integer.class.getName(),
@@ -3322,37 +3359,69 @@ public class LockPersistenceImpl
 			});
 
 		_finderPathWithPaginationCountByLtExpirationDate = new FinderPath(
-			LockModelImpl.ENTITY_CACHE_ENABLED,
-			LockModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "countByLtExpirationDate",
 			new String[] {Date.class.getName()});
 
 		_finderPathFetchByC_K = new FinderPath(
-			LockModelImpl.ENTITY_CACHE_ENABLED,
-			LockModelImpl.FINDER_CACHE_ENABLED, LockImpl.class,
+			entityCacheEnabled, finderCacheEnabled, LockImpl.class,
 			FINDER_CLASS_NAME_ENTITY, "fetchByC_K",
 			new String[] {String.class.getName(), String.class.getName()},
 			LockModelImpl.CLASSNAME_COLUMN_BITMASK |
 			LockModelImpl.KEY_COLUMN_BITMASK);
 
 		_finderPathCountByC_K = new FinderPath(
-			LockModelImpl.ENTITY_CACHE_ENABLED,
-			LockModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_K",
 			new String[] {String.class.getName(), String.class.getName()});
 	}
 
-	public void destroy() {
+	@Deactivate
+	public void deactivate() {
 		entityCache.removeCache(LockImpl.class.getName());
 		finderCache.removeCache(FINDER_CLASS_NAME_ENTITY);
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@ServiceReference(type = EntityCache.class)
+	@Override
+	@Reference(
+		target = LockPersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setConfiguration(Configuration configuration) {
+		super.setConfiguration(configuration);
+
+		_columnBitmaskEnabled = GetterUtil.getBoolean(
+			configuration.get(
+				"value.object.column.bitmask.enabled.com.liferay.portal.lock.model.Lock"),
+			true);
+	}
+
+	@Override
+	@Reference(
+		target = LockPersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setDataSource(DataSource dataSource) {
+		super.setDataSource(dataSource);
+	}
+
+	@Override
+	@Reference(
+		target = LockPersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		super.setSessionFactory(sessionFactory);
+	}
+
+	private boolean _columnBitmaskEnabled;
+
+	@Reference
 	protected EntityCache entityCache;
 
-	@ServiceReference(type = FinderCache.class)
+	@Reference
 	protected FinderCache finderCache;
 
 	private Long _getTime(Date date) {
@@ -3388,5 +3457,14 @@ public class LockPersistenceImpl
 
 	private static final Set<String> _badColumnNames = SetUtil.fromArray(
 		new String[] {"uuid", "key"});
+
+	static {
+		try {
+			Class.forName(LockPersistenceConstants.class.getName());
+		}
+		catch (ClassNotFoundException cnfe) {
+			throw new ExceptionInInitializerError(cnfe);
+		}
+	}
 
 }

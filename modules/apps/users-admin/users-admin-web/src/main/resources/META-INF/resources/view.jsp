@@ -206,11 +206,10 @@ else {
 		formData.append('ids', ids);
 		formData.append('status', status);
 
-		fetch(
+		Liferay.Util.fetch(
 			'<liferay-portlet:resourceURL id="/users_admin/get_users_count" />',
 			{
 				body: formData,
-				credentials: 'include',
 				method: 'POST'
 			}
 		)

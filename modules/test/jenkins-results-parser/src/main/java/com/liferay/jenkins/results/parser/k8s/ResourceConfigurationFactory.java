@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,6 +57,22 @@ public class ResourceConfigurationFactory {
 
 		return getConfigurationPod(
 			_getDatabaseConfigurationName(databaseName, databaseVersion));
+	}
+
+	public static Set<String> getPodConfigurationKeys() {
+		return _podConfigurationsMap.keySet();
+	}
+
+	protected static String getPodPrefix() {
+		String hostname = JenkinsResultsParserUtil.getHostName(null);
+
+		if (hostname == null) {
+			throw new RuntimeException("Unable to determine hostname");
+		}
+
+		hostname = hostname.toLowerCase();
+
+		return hostname.replaceAll("([^\\.]+)(\\..*|)", "$1-");
 	}
 
 	private static String _getDatabaseConfigurationName(
@@ -164,14 +181,7 @@ public class ResourceConfigurationFactory {
 
 		V1Pod v1Pod = new V1Pod();
 
-		String hostname = JenkinsResultsParserUtil.getHostName(null);
-
-		if (hostname == null) {
-			throw new RuntimeException("Unable to determine hostname");
-		}
-
-		hostname = JenkinsResultsParserUtil.combine(
-			hostname.replaceFirst("\\..*", ""), "-", dockerBaseImageName);
+		String hostname = getPodPrefix() + dockerBaseImageName;
 
 		V1ObjectMeta v1ObjectMeta = _newConfigurationMetaData(hostname);
 

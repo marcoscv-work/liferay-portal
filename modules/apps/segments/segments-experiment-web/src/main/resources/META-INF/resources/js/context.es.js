@@ -16,21 +16,32 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const SegmentsExperimentsContext = React.createContext({
-	endpoints: {},
-	page: {}
+	page: {
+		classNameId: '',
+		classPK: '',
+		type: ''
+	},
+	segmentsExperimentsUtil: {
+		createExperiment: () => {},
+		createVariant: () => {},
+		deleteVariant: () => {},
+		editExperiment: () => {},
+		editVariant: () => {}
+	}
 });
 
 SegmentsExperimentsContext.Provider.propTypes = {
-	value: PropTypes.shape({
-		endpoints: PropTypes.shape({
-			createSegmentsExperimentURL: PropTypes.string,
-			editSegmentsExperimentURL: PropTypes.string
-		}).isRequired,
-		page: PropTypes.shape({
-			classNameId: PropTypes.string.isRequired,
-			classPK: PropTypes.string.isRequired,
-			type: PropTypes.string.isRequired
-		})
+	page: PropTypes.shape({
+		classNameId: PropTypes.string.isRequired,
+		classPK: PropTypes.string.isRequired,
+		type: PropTypes.string.isRequired
+	}),
+	segmentsExperimentsUtil: PropTypes.shape({
+		createExperiment: PropTypes.func.isRequired,
+		createVariant: PropTypes.func.isRequired,
+		deleteVariant: PropTypes.func.isRequired,
+		editExperiment: PropTypes.func.isRequired,
+		editVariant: PropTypes.func.isRequired
 	})
 };
 

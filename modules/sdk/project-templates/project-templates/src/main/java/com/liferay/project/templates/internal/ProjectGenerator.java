@@ -17,11 +17,11 @@ package com.liferay.project.templates.internal;
 import aQute.bnd.version.Version;
 import aQute.bnd.version.VersionRange;
 
+import com.liferay.project.templates.FileUtil;
 import com.liferay.project.templates.ProjectTemplateCustomizer;
 import com.liferay.project.templates.ProjectTemplates;
 import com.liferay.project.templates.ProjectTemplatesArgs;
 import com.liferay.project.templates.WorkspaceUtil;
-import com.liferay.project.templates.internal.util.FileUtil;
 import com.liferay.project.templates.internal.util.ProjectTemplatesUtil;
 import com.liferay.project.templates.internal.util.Validator;
 
@@ -64,11 +64,14 @@ public class ProjectGenerator {
 			projectTemplatesArgs.getDependencyInjector();
 		boolean dependencyManagementEnabled =
 			projectTemplatesArgs.isDependencyManagementEnabled();
+		String framework = projectTemplatesArgs.getFramework();
+		String frameworkDependencies =
+			projectTemplatesArgs.getFrameworkDependencies();
 		String groupId = projectTemplatesArgs.getGroupId();
 		String liferayVersion = projectTemplatesArgs.getLiferayVersion();
 		String packageName = projectTemplatesArgs.getPackageName();
-
 		String template = projectTemplatesArgs.getTemplate();
+		String viewType = projectTemplatesArgs.getViewType();
 
 		if (template.equals("portlet")) {
 			projectTemplatesArgs.setTemplate("mvc-portlet");
@@ -145,9 +148,13 @@ public class ProjectGenerator {
 		_setProperty(
 			properties, "dependencyManagementEnabled",
 			String.valueOf(dependencyManagementEnabled));
+		_setProperty(properties, "framework", framework);
+		_setProperty(
+			properties, "frameworkDependencies", frameworkDependencies);
 		_setProperty(properties, "liferayVersion", liferayVersion);
 		_setProperty(properties, "package", packageName);
 		_setProperty(properties, "projectType", projectType);
+		_setProperty(properties, "viewType", viewType);
 
 		archetypeGenerationRequest.setProperties(properties);
 

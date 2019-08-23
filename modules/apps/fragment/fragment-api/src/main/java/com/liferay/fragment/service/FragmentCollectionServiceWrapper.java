@@ -123,6 +123,13 @@ public class FragmentCollectionServiceWrapper
 	}
 
 	@Override
+	public java.util.List<com.liferay.fragment.model.FragmentCollection>
+		getFragmentCollections(long[] groupIds) {
+
+		return _fragmentCollectionService.getFragmentCollections(groupIds);
+	}
+
+	@Override
 	public int getFragmentCollectionsCount(long groupId) {
 		return _fragmentCollectionService.getFragmentCollectionsCount(groupId);
 	}

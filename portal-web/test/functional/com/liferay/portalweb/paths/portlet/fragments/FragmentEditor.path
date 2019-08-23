@@ -29,7 +29,7 @@
 	<td></td>
 </tr>
 <tr>
-	<td>JAVASCRIPT_EDITOR</td>
+	<td>JS_EDITOR</td>
 	<td>//div[contains(@class,'fragment-editor')]/div[contains(@class,'source-editor')][3]//textarea</td>
 	<td></td>
 </tr>
@@ -41,6 +41,16 @@
 <tr>
 	<td>FRAGMENTS_TOOLKIT_LINK</td>
 	<td>//a[@title='Fragments Toolkit']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CONFIGURATION_EDITOR</td>
+	<td>//div[contains(@class,'fragment-editor')]/div[contains(@class,'source-editor json')]//textarea</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRAGMENTS_EDITOR_LINE_ERROR</td>
+	<td>//div[contains(@class,'ace_gutter-cell') and contains(@class,'ace_error')]</td>
 	<td></td>
 </tr>
 </tbody>

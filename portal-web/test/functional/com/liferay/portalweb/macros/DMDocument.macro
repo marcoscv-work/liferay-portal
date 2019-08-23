@@ -12,7 +12,7 @@ definition {
 	}
 
 	macro addCP {
-		DMNavigator.gotoAddDocumentType(dmDocumentTypeName = "${dmDocumentTypeName}");
+		DMNavigator.gotoAddDocumentTypeCP(dmDocumentTypeName = "${dmDocumentTypeName}");
 
 		var key_dmDocumentTitle = "${dmDocumentTitle}";
 
@@ -73,7 +73,7 @@ definition {
 	}
 
 	macro addDMShortcutCP {
-		DMNavigator.gotoAddDocumentType(dmDocumentTypeName = "Shortcut");
+		DMNavigator.gotoAddDocumentTypeCP(dmDocumentTypeName = "Shortcut");
 
 		Click(locator1 = "DocumentsAndMediaAddShortcut#SELECT_SITE_BUTTON");
 
@@ -175,16 +175,8 @@ definition {
 		Alert.viewSuccessMessage();
 	}
 
-	macro addGoogleApp {
-		Portlet.clickPortletPlusIconPG(portletName = "Documents and Media");
-
-		var key_menuItem = "${dmGoogleApp}";
-
-		MenuItem.click(menuItem = "${dmGoogleApp}");
-	}
-
 	macro addMultipleCP {
-		DMNavigator.gotoAddDocumentType(dmDocumentTypeName = "Multiple Files Upload");
+		DMNavigator.gotoAddDocumentTypeCP(dmDocumentTypeName = "Multiple Files Upload");
 
 		if (isSet(dmDocumentFileList)) {
 			for (var dmDocumentFile : list "${dmDocumentFileList}") {
@@ -418,7 +410,7 @@ definition {
 	}
 
 	macro addWithWorkflowCP {
-		DMNavigator.gotoAddDocumentType(dmDocumentTypeName = "${dmDocumentTypeName}");
+		DMNavigator.gotoAddDocumentTypeCP(dmDocumentTypeName = "${dmDocumentTypeName}");
 
 		DMDocument.editDocument(
 			dmDocumentDescription = "${dmDocumentDescription}",
@@ -1205,15 +1197,22 @@ definition {
 	macro sharePG {
 		IFrame.selectModalFrame();
 
-		Type.sendKeys(
-			locator1 = "Sharing#MODAL_INVITE_TO_COLLABORATE_INPUT",
-			value1 = "${userEmailAddress}");
+		if (isSet(noAutocomplete)) {
+			Type.sendKeys(
+				locator1 = "Sharing#MODAL_INVITE_TO_COLLABORATE_INPUT",
+				value1 = "${userEmailAddress}");
+		}
+		else {
+			Type.sendKeys(
+				locator1 = "Sharing#MODAL_INVITE_TO_COLLABORATE_INPUT",
+				value1 = "${userEmailAddress}");
 
-		Click(locator1 = "Sharing#MODAL_INVITE_TO_COLLABORATE_DROPDOWN");
+			Click(locator1 = "Sharing#MODAL_INVITE_TO_COLLABORATE_DROPDOWN");
 
-		var key_userName = "${userName}";
+			var key_userName = "${userName}";
 
-		AssertElementPresent(locator1 = "Sharing#MODAL_INVITE_TO_COLLABORATE_TAG");
+			AssertElementPresent(locator1 = "Sharing#MODAL_INVITE_TO_COLLABORATE_TAG");
+		}
 
 		if (isSet(shareable)) {
 			FormFields.enableCheckbox(fieldName = "shareable");
@@ -1264,11 +1263,9 @@ definition {
 			portlet = "Documents and Media");
 
 		if (IsElementNotPresent(locator1 = "Message#EMPTY_INFO")) {
-			Check(locator1 = "DocumentsAndMedia#TOOLBAR_SELECT_ALL_CHECKBOX");
+			Click(locator1 = "DocumentsAndMedia#TOOLBAR_SELECT_ALL_CHECKBOX");
 
-			AssertClick.waitForDMHomeAssertTextEqualsClick(
-				locator1 = "DocumentsAndMedia#TOOLBAR_ACTIONS",
-				value1 = "Actions");
+			Click(locator1 = "DocumentsAndMedia#TOOLBAR_ACTIONS");
 
 			MenuItem.viewPresent(menuItem = "Move to Recycle Bin");
 

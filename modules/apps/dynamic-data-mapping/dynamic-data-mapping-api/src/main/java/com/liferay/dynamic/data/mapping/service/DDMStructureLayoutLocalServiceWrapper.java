@@ -292,6 +292,14 @@ public class DDMStructureLayoutLocalServiceWrapper
 
 	@Override
 	public com.liferay.dynamic.data.mapping.model.DDMStructureLayout
+		fetchStructureLayout(long structureLayoutId) {
+
+		return _ddmStructureLayoutLocalService.fetchStructureLayout(
+			structureLayoutId);
+	}
+
+	@Override
+	public com.liferay.dynamic.data.mapping.model.DDMStructureLayout
 		fetchStructureLayout(
 			long groupId, long classNameId, String structureLayoutKey) {
 
@@ -495,9 +503,51 @@ public class DDMStructureLayoutLocalServiceWrapper
 	}
 
 	@Override
+	public java.util.List
+		<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
+			getStructureLayouts(
+				long groupId, long classNameId, int start, int end,
+				com.liferay.portal.kernel.util.OrderByComparator
+					<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
+						orderByComparator) {
+
+		return _ddmStructureLayoutLocalService.getStructureLayouts(
+			groupId, classNameId, start, end, orderByComparator);
+	}
+
+	@Override
+	public java.util.List
+		<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
+			getStructureLayouts(
+				long groupId, long classNameId, long structureVersionId,
+				int start, int end,
+				com.liferay.portal.kernel.util.OrderByComparator
+					<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
+						orderByComparator) {
+
+		return _ddmStructureLayoutLocalService.getStructureLayouts(
+			groupId, classNameId, structureVersionId, start, end,
+			orderByComparator);
+	}
+
+	@Override
 	public int getStructureLayoutsCount(long groupId) {
 		return _ddmStructureLayoutLocalService.getStructureLayoutsCount(
 			groupId);
+	}
+
+	@Override
+	public int getStructureLayoutsCount(long groupId, long classNameId) {
+		return _ddmStructureLayoutLocalService.getStructureLayoutsCount(
+			groupId, classNameId);
+	}
+
+	@Override
+	public int getStructureLayoutsCount(
+		long groupId, long classNameId, long structureVersionId) {
+
+		return _ddmStructureLayoutLocalService.getStructureLayoutsCount(
+			groupId, classNameId, structureVersionId);
 	}
 
 	@Override

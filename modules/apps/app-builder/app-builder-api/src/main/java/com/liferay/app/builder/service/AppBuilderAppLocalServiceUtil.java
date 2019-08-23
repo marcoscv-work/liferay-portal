@@ -52,6 +52,18 @@ public class AppBuilderAppLocalServiceUtil {
 		return getService().addAppBuilderApp(appBuilderApp);
 	}
 
+	public static com.liferay.app.builder.model.AppBuilderApp addAppBuilderApp(
+			long groupId, long companyId, long userId, long ddmStructureId,
+			long ddmStructureLayoutId, long deDataListViewId,
+			java.util.Map<java.util.Locale, String> nameMap, String settings,
+			int status)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().addAppBuilderApp(
+			groupId, companyId, userId, ddmStructureId, ddmStructureLayoutId,
+			deDataListViewId, nameMap, settings, status);
+	}
+
 	/**
 	 * Creates a new app builder app with the primary key. Does not add the app builder app to the database.
 	 *
@@ -258,6 +270,29 @@ public class AppBuilderAppLocalServiceUtil {
 		return getService().getAppBuilderApps(start, end);
 	}
 
+	public static java.util.List<com.liferay.app.builder.model.AppBuilderApp>
+		getAppBuilderApps(
+			long groupId, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.app.builder.model.AppBuilderApp>
+					orderByComparator) {
+
+		return getService().getAppBuilderApps(
+			groupId, start, end, orderByComparator);
+	}
+
+	public static java.util.List<com.liferay.app.builder.model.AppBuilderApp>
+		getAppBuilderApps(
+			long groupId, long companyId, long ddmStructureId, int start,
+			int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.app.builder.model.AppBuilderApp>
+					orderByComparator) {
+
+		return getService().getAppBuilderApps(
+			groupId, companyId, ddmStructureId, start, end, orderByComparator);
+	}
+
 	/**
 	 * Returns all the app builder apps matching the UUID and company.
 	 *
@@ -302,6 +337,17 @@ public class AppBuilderAppLocalServiceUtil {
 		return getService().getAppBuilderAppsCount();
 	}
 
+	public static int getAppBuilderAppsCount(long groupId) {
+		return getService().getAppBuilderAppsCount(groupId);
+	}
+
+	public static int getAppBuilderAppsCount(
+		long groupId, long companyId, long ddmStructureId) {
+
+		return getService().getAppBuilderAppsCount(
+			groupId, companyId, ddmStructureId);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery
 		getExportActionableDynamicQuery(
 			com.liferay.exportimport.kernel.lar.PortletDataContext
@@ -344,6 +390,19 @@ public class AppBuilderAppLocalServiceUtil {
 			com.liferay.app.builder.model.AppBuilderApp appBuilderApp) {
 
 		return getService().updateAppBuilderApp(appBuilderApp);
+	}
+
+	public static com.liferay.app.builder.model.AppBuilderApp
+			updateAppBuilderApp(
+				long userId, long appBuilderAppId, long ddmStructureId,
+				long ddmStructureLayoutId, long deDataListViewId,
+				java.util.Map<java.util.Locale, String> nameMap,
+				String settings, int status)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().updateAppBuilderApp(
+			userId, appBuilderAppId, ddmStructureId, ddmStructureLayoutId,
+			deDataListViewId, nameMap, settings, status);
 	}
 
 	public static AppBuilderAppLocalService getService() {

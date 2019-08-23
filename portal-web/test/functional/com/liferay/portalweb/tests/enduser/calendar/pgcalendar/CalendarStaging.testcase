@@ -72,9 +72,9 @@ definition {
 
 		Navigator.openURL();
 
-		ProductMenu.gotoSite(
-			page = "Staging Test Page",
-			site = "Site Name");
+		Navigator.gotoSitePage(
+			pageName = "Staging Test Page",
+			siteName = "Site Name");
 
 		CalendarEvent.view(eventTitle = "Calendar Event Title");
 
@@ -121,7 +121,7 @@ definition {
 
 		CalendarEvent.assertEventNotEditable();
 
-		ProductMenu.gotoSite(site = "Site Name");
+		Navigator.openSiteURL(siteName = "Site Name");
 
 		CalendarNavigator.gotoAddEvent();
 
@@ -131,7 +131,7 @@ definition {
 
 		Navigator.openURL();
 
-		ProductMenu.gotoSite(site = "Site Name");
+		Navigator.openSiteURL(siteName = "Site Name");
 
 		CalendarNavigator.gotoView(viewType = "Day");
 

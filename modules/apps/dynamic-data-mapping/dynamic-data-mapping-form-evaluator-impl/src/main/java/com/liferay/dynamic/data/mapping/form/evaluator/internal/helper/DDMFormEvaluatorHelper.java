@@ -35,6 +35,7 @@ import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
 import com.liferay.dynamic.data.mapping.model.DDMFormRule;
+import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -473,7 +474,15 @@ public class DDMFormEvaluatorHelper {
 		builder.withInstanceId(fieldInstanceId);
 
 		if (!valid) {
-			String errorMessage = ddmFormFieldValidation.getErrorMessage();
+			String errorMessage = null;
+
+			LocalizedValue errorMessageLocalizedValue =
+				ddmFormFieldValidation.getErrorMessageLocalizedValue();
+
+			if (errorMessageLocalizedValue != null) {
+				errorMessage = errorMessageLocalizedValue.getString(
+					_resourceBundle.getLocale());
+			}
 
 			if (errorMessage == null) {
 				errorMessage = LanguageUtil.get(

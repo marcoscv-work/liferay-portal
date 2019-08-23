@@ -93,8 +93,8 @@ portletURL.setWindowState(WindowState.NORMAL);
 				<aui:col cssClass="toolbar" width="<%= 100 %>">
 					<div class="filter-container">
 						<aui:row>
-							<aui:col cssClass="contact-group-filter" width="<%= 100 %>">
-								<aui:input label="" name="checkAll" type="checkbox" />
+							<aui:col cssClass="contact-group-filter form-inline">
+								<aui:input cssClass="mr-2" label="" name="checkAll" type="checkbox" />
 
 								<c:if test="<%= !userPublicPage %>">
 									<aui:select cssClass="contact-group-filter-select" inlineField="<%= true %>" label="" name="filterBy" value="<%= filterBy %>">
@@ -137,7 +137,7 @@ portletURL.setWindowState(WindowState.NORMAL);
 					</div>
 
 					<c:if test="<%= !showOnlySiteMembers && !userPublicPage %>">
-						<aui:button cssClass="add-contact" icon="icon-plus-sign" id="addContact" value="add-contact" />
+						<aui:button cssClass="add-contact" id="addContact" value="add-contact" />
 					</c:if>
 				</aui:col>
 			</aui:row>
@@ -146,13 +146,19 @@ portletURL.setWindowState(WindowState.NORMAL);
 		<aui:row cssClass="contacts-result-container lfr-app-column-view">
 			<aui:col cssClass="contacts-list" first="<%= true %>" width="<%= 30 %>">
 				<div class="toggle-user">
-					<i class="icon-chevron-left"></i>
+					<liferay-ui:icon
+						icon="angle-left"
+						markupView="lexicon"
+					/>
 				</div>
 
 				<div class="contacts-search lfr-search-column search-bar">
 					<aui:input cssClass="search-input" id="name" label="" name="name" size="30" type="text" value="<%= HtmlUtil.escape(name) %>" />
 
-					<i class="icon-search"></i>
+					<liferay-ui:icon
+						icon="search"
+						markupView="lexicon"
+					/>
 				</div>
 
 				<aui:row>

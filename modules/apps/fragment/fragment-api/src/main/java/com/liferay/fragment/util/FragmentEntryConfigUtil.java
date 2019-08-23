@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.segments.constants.SegmentsExperienceConstants;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +35,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Rubén Pulido
@@ -121,8 +123,62 @@ public class FragmentEntryConfigUtil {
 
 			return _getFieldValue(dataType, value);
 		}
+		else if (StringUtil.equalsIgnoreCase(
+					fragmentConfigurationField.getType(), "text")) {
+
+			String dataType = fragmentConfigurationField.getDataType();
+
+			if (Validator.isNull(dataType)) {
+				dataType = "string";
+			}
+
+			return _getFieldValue(dataType, value);
+		}
 
 		return _getFieldValue("string", value);
+	}
+
+	public static Object getFieldValue(
+		String configuration, String editableValues,
+		long[] segmentsExperienceIds, String name) {
+
+		JSONObject editableValuesJSONObject = null;
+
+		try {
+			editableValuesJSONObject = JSONFactoryUtil.createJSONObject(
+				editableValues);
+		}
+		catch (Exception e) {
+			return null;
+		}
+
+		JSONObject configurationValuesJSONObject =
+			editableValuesJSONObject.getJSONObject(
+				"com.liferay.fragment.entry.processor.freemarker." +
+					"FreeMarkerFragmentEntryProcessor");
+
+		if (configurationValuesJSONObject == null) {
+			return null;
+		}
+
+		List<FragmentConfigurationField> fragmentConfigurationFields =
+			getFragmentConfigurationFields(configuration);
+
+		for (FragmentConfigurationField fragmentConfigurationField :
+				fragmentConfigurationFields) {
+
+			if (!Objects.equals(fragmentConfigurationField.getName(), name)) {
+				continue;
+			}
+
+			JSONObject configurationJSONObject =
+				getSegmentedConfigurationValues(
+					segmentsExperienceIds, configurationValuesJSONObject);
+
+			return configurationJSONObject.get(name);
+		}
+
+		return null;
 	}
 
 	/**
@@ -165,6 +221,27 @@ public class FragmentEntryConfigUtil {
 			});
 
 		return fragmentConfigurationFields;
+	}
+
+	public static JSONObject getSegmentedConfigurationValues(
+		long[] segmentsExperienceIds,
+		JSONObject configurationValuesJSONObject) {
+
+		long segmentsExperienceId = SegmentsExperienceConstants.ID_DEFAULT;
+
+		if (segmentsExperienceIds.length > 0) {
+			segmentsExperienceId = segmentsExperienceIds[0];
+		}
+
+		JSONObject configurationJSONObject =
+			configurationValuesJSONObject.getJSONObject(
+				SegmentsExperienceConstants.ID_PREFIX + segmentsExperienceId);
+
+		if (configurationJSONObject == null) {
+			configurationJSONObject = JSONFactoryUtil.createJSONObject();
+		}
+
+		return configurationJSONObject;
 	}
 
 	private static Object _getAssetEntry(String value) {

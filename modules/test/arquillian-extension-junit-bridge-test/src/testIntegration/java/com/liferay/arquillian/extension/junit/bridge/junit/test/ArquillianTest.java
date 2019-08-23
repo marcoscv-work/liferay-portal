@@ -20,17 +20,19 @@ import com.liferay.arquillian.extension.junit.bridge.junit.test.item.BeforeAfter
 import com.liferay.arquillian.extension.junit.bridge.junit.test.item.BeforeAfterTestItem;
 import com.liferay.arquillian.extension.junit.bridge.junit.test.item.ClassRuleTestItem;
 import com.liferay.arquillian.extension.junit.bridge.junit.test.item.ExpectedExceptionTestItem;
+import com.liferay.arquillian.extension.junit.bridge.junit.test.item.FailTestItem;
 import com.liferay.arquillian.extension.junit.bridge.junit.test.item.IgnoreTestItem;
 import com.liferay.arquillian.extension.junit.bridge.junit.test.item.NoExpectedExceptionTestItem;
 import com.liferay.arquillian.extension.junit.bridge.junit.test.item.NotSerializableExceptionTestItem;
 import com.liferay.arquillian.extension.junit.bridge.junit.test.item.NotSerializableExceptionTestItem.UnserializableException;
 import com.liferay.arquillian.extension.junit.bridge.junit.test.item.RuleTestItem;
 import com.liferay.portal.kernel.test.junit.BridgeJUnitTestRunner;
+import com.liferay.portal.kernel.util.StringBundler;
 
 import java.io.IOException;
-import java.io.NotSerializableException;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Assert;
@@ -119,6 +121,24 @@ public class ArquillianTest {
 	}
 
 	@Test
+	public void testFail() {
+		AtomicBoolean atomicBoolean = new AtomicBoolean();
+
+		BridgeJUnitTestRunner.runBridgeTests(
+			new BridgeJUnitTestRunner.BridgeRunListener(ArquillianTest.class) {
+
+				@Override
+				public void testFailure(Failure failure) {
+					atomicBoolean.set(true);
+				}
+
+			},
+			FailTestItem.class);
+
+		Assert.assertTrue(atomicBoolean.get());
+	}
+
+	@Test
 	public void testIgnore() throws IOException {
 		try {
 			Result result = BridgeJUnitTestRunner.runBridgeTests(
@@ -153,11 +173,14 @@ public class ArquillianTest {
 
 		Assert.assertNotNull(throwable);
 
-		Assert.assertEquals(AssertionError.class, throwable.getClass());
+		String message = throwable.getMessage();
 
-		Assert.assertEquals(
-			"Expected test to throw " + IOException.class,
-			throwable.getMessage());
+		Assert.assertTrue(
+			message,
+			message.startsWith(
+				StringBundler.concat(
+					AssertionError.class.getName(), ": ",
+					"Expected test to throw " + IOException.class)));
 	}
 
 	@Test
@@ -177,15 +200,16 @@ public class ArquillianTest {
 
 		Throwable throwable = throwableContainer.get();
 
-		Assert.assertEquals(
-			NotSerializableException.class, throwable.getClass());
+		Assert.assertNotNull(throwable);
 
-		Throwable cause = throwable.getCause();
+		String message = throwable.getMessage();
 
-		Assert.assertEquals(
-			UnserializableException.class.getName() + ": " +
-				NotSerializableExceptionTestItem.class.getName(),
-			cause.getMessage());
+		Assert.assertTrue(
+			message,
+			message.startsWith(
+				StringBundler.concat(
+					UnserializableException.class.getName(), ": ",
+					NotSerializableExceptionTestItem.class.getName())));
 	}
 
 	@Test

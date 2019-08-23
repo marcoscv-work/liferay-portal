@@ -92,19 +92,19 @@ export const FLOATING_TOOLBAR_BUTTONS = {
 		type: 'panel'
 	},
 
-	backgroundImage: {
-		icon: 'picture',
-		id: 'background_image',
-		panelId: 'background_image',
-		title: Liferay.Language.get('background-image'),
-		type: 'panel'
-	},
-
 	edit: {
 		icon: 'pencil',
 		id: 'edit',
 		title: Liferay.Language.get('edit'),
 		type: 'editor'
+	},
+
+	fragmentBackgroundImage: {
+		icon: 'pencil',
+		id: 'fragment_background_image',
+		panelId: 'fragment_background_image',
+		title: Liferay.Language.get('fragment-background-image'),
+		type: 'panel'
 	},
 
 	fragmentConfiguration: {
@@ -115,19 +115,19 @@ export const FLOATING_TOOLBAR_BUTTONS = {
 		type: 'panel'
 	},
 
-	imageLink: {
-		icon: 'link',
+	imageProperties: {
+		icon: 'pencil',
 		id: 'image_properties',
 		panelId: 'image_properties',
 		title: Liferay.Language.get('image-properties'),
 		type: 'panel'
 	},
 
-	imageProperties: {
-		icon: 'pencil',
-		id: 'image_properties',
-		panelId: 'image_properties',
-		title: Liferay.Language.get('image-properties'),
+	layoutBackgroundImage: {
+		icon: 'picture',
+		id: 'layout_background_image',
+		panelId: 'layout_background_image',
+		title: Liferay.Language.get('layout-background-image'),
 		type: 'panel'
 	},
 
@@ -193,10 +193,12 @@ export const FRAGMENTS_EDITOR_ITEM_BORDERS = {
  * @type {!object}
  */
 export const FRAGMENTS_EDITOR_ITEM_TYPES = {
+	backgroundImageEditable: 'fragments-editor-background-image-editable',
 	column: 'fragments-editor-column',
 	editable: 'fragments-editor-editable-field',
 	fragment: 'fragments-editor-fragment',
 	fragmentList: 'fragments-editor-fragment-list',
+	mappedItem: 'fragments-editor-mapped-item',
 	row: 'fragments-editor-row'
 };
 
@@ -215,6 +217,14 @@ export const FRAGMENTS_EDITOR_ROW_TYPES = {
  */
 export const FREEMARKER_FRAGMENT_ENTRY_PROCESSOR =
 	'com.liferay.fragment.entry.processor.freemarker.FreeMarkerFragmentEntryProcessor';
+
+/**
+ * Available mapping source type ids
+ */
+export const MAPPING_SOURCE_TYPE_IDS = {
+	content: 'specific_content',
+	structure: 'structure'
+};
 
 /**
  * Available attributes for target config key

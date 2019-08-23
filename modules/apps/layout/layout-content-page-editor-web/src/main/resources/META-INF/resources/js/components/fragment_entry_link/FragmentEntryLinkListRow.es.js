@@ -17,7 +17,7 @@ import Soy from 'metal-soy';
 import {Config} from 'metal-state';
 
 import '../floating_toolbar/background_color/FloatingToolbarBackgroundColorPanel.es';
-import '../floating_toolbar/background_image/FloatingToolbarBackgroundImagePanel.es';
+import '../floating_toolbar/layout_background_image/FloatingToolbarLayoutBackgroundImagePanel.es';
 import '../floating_toolbar/spacing/FloatingToolbarSpacingPanel.es';
 import './ColumnOverlayGrid.es';
 import './FragmentEntryLink.es';
@@ -27,37 +27,59 @@ import {
 	FRAGMENTS_EDITOR_ITEM_TYPES,
 	FRAGMENTS_EDITOR_ROW_TYPES
 } from '../../utils/constants';
+import {getAssetFieldValue} from '../../utils/FragmentsEditorFetchUtils.es';
 import getConnectedComponent from '../../store/ConnectedComponent.es';
 import {
 	getItemMoveDirection,
 	getItemPath,
 	getRowIndex,
-	itemIsInPath
+	itemIsInPath,
+	editableIsMappedToAssetEntry
 } from '../../utils/FragmentsEditorGetUtils.es';
 import {
 	moveRow,
 	removeItem,
 	setIn
 } from '../../utils/FragmentsEditorUpdateUtils.es';
-import {REMOVE_ROW} from '../../actions/actions.es';
+import {OPEN_ASSET_TYPE_DIALOG} from '../../actions/actions.es';
 import {shouldUpdatePureComponent} from '../../utils/FragmentsEditorComponentUtils.es';
 import templates from './FragmentEntryLinkListRow.soy';
 import {updateRowColumnsAction} from '../../actions/updateRowColumns.es';
-
-/**
- * Defines the list of available panels.
- * @type {object[]}
- */
-const ROW_FLOATING_TOOLBAR_BUTTONS = [
-	FLOATING_TOOLBAR_BUTTONS.backgroundColor,
-	FLOATING_TOOLBAR_BUTTONS.backgroundImage,
-	FLOATING_TOOLBAR_BUTTONS.spacing
-];
+import {removeRowAction} from '../../actions/removeRow.es';
 
 /**
  * Creates a Fragment Entry Link List Row component.
  */
 class FragmentEntryLinkListRow extends Component {
+	/**
+	 * @param {object} config
+	 * @return {object[]} Floating toolbar buttons
+	 */
+	static _getFloatingToolbarButtons(config) {
+		const buttons = [];
+
+		buttons.push(FLOATING_TOOLBAR_BUTTONS.backgroundColor);
+
+		const layouttBackgroundImageButton = {
+			...FLOATING_TOOLBAR_BUTTONS.layoutBackgroundImage
+		};
+
+		if (
+			config.backgroundImage &&
+			(config.backgroundImage.mappedField ||
+				config.backgroundImage.fieldId)
+		) {
+			layouttBackgroundImageButton.cssClass =
+				'fragments-editor__floating-toolbar--mapped-field';
+		}
+
+		buttons.push(layouttBackgroundImageButton);
+
+		buttons.push(FLOATING_TOOLBAR_BUTTONS.spacing);
+
+		return buttons;
+	}
+
 	/**
 	 * Checks if the given row should be highlighted
 	 * @param {string} dropTargetItemId
@@ -111,6 +133,9 @@ class FragmentEntryLinkListRow extends Component {
 		this._handleBodyMouseLeave = this._handleBodyMouseLeave.bind(this);
 		this._handleBodyMouseMove = this._handleBodyMouseMove.bind(this);
 		this._handleBodyMouseUp = this._handleBodyMouseUp.bind(this);
+		this._handleFloatingToolbarButtonClicked = this._handleFloatingToolbarButtonClicked.bind(
+			this
+		);
 
 		document.body.addEventListener(
 			'mouseleave',
@@ -152,6 +177,12 @@ class FragmentEntryLinkListRow extends Component {
 		) {
 			columnResizerVisible = true;
 		}
+
+		nextState = setIn(
+			nextState,
+			['_backgroundImageValue'],
+			this._getBackgroundImageValue()
+		);
 
 		nextState = setIn(
 			nextState,
@@ -213,6 +244,24 @@ class FragmentEntryLinkListRow extends Component {
 	}
 
 	/**
+	 * Handle getAssetFieldValueURL changed
+	 * @inheritDoc
+	 * @review
+	 */
+	syncGetAssetFieldValueURL() {
+		this._updateMappedBackgroundFieldValue();
+	}
+
+	/**
+	 * Handle layoutData changed
+	 * @inheritDoc
+	 * @review
+	 */
+	syncLayoutData() {
+		this._updateMappedBackgroundFieldValue();
+	}
+
+	/**
 	 * Clears resizing properties.
 	 * @private
 	 */
@@ -236,7 +285,12 @@ class FragmentEntryLinkListRow extends Component {
 	_createFloatingToolbar() {
 		const config = {
 			anchorElement: this.element,
-			buttons: ROW_FLOATING_TOOLBAR_BUTTONS,
+			buttons: FragmentEntryLinkListRow._getFloatingToolbarButtons(
+				this.row.config
+			),
+			events: {
+				buttonClicked: this._handleFloatingToolbarButtonClicked
+			},
 			item: this.row,
 			itemId: this.rowId,
 			itemType: FRAGMENTS_EDITOR_ITEM_TYPES.row,
@@ -261,6 +315,22 @@ class FragmentEntryLinkListRow extends Component {
 
 			this._floatingToolbar = null;
 		}
+	}
+
+	/**
+	 * Disposes of an existing floating toolbar instance.
+	 * @private
+	 */
+	_getBackgroundImageValue() {
+		if (this._mappedBackgroundFieldValue) {
+			return this._mappedBackgroundFieldValue;
+		}
+
+		if (typeof this.row.config.backgroundImage == 'string') {
+			return this.row.config.backgroundImage;
+		}
+
+		return '';
 	}
 
 	/**
@@ -362,6 +432,30 @@ class FragmentEntryLinkListRow extends Component {
 	}
 
 	/**
+	 * Callback executed when an floating toolbar button is clicked
+	 * @param {Event} event
+	 * @param {Object} data
+	 * @private
+	 */
+	_handleFloatingToolbarButtonClicked(event, data) {
+		const {panelId} = data;
+
+		if (
+			panelId ===
+				FLOATING_TOOLBAR_BUTTONS.layoutBackgroundImage.panelId &&
+			this.mappingFieldsURL &&
+			!this.selectedMappingTypes.type
+		) {
+			event.preventDefault();
+
+			this.store.dispatch({
+				type: OPEN_ASSET_TYPE_DIALOG,
+				value: true
+			});
+		}
+	}
+
+	/**
 	 * @private
 	 */
 	_handleResizerMouseDown(event) {
@@ -407,9 +501,37 @@ class FragmentEntryLinkListRow extends Component {
 	_handleRowRemoveButtonClick(event) {
 		event.stopPropagation();
 
-		removeItem(this.store, REMOVE_ROW, {
-			rowId: this.hoveredItemId
-		});
+		removeItem(this.store, removeRowAction(this.hoveredItemId));
+	}
+
+	/**
+	 * Updates mapped field value
+	 * @private
+	 * @review
+	 */
+	_updateMappedBackgroundFieldValue() {
+		if (
+			this.getAssetFieldValueURL &&
+			this.row.config.backgroundImage &&
+			editableIsMappedToAssetEntry(this.row.config.backgroundImage)
+		) {
+			getAssetFieldValue(
+				this.row.config.backgroundImage.classNameId,
+				this.row.config.backgroundImage.classPK,
+				this.row.config.backgroundImage.fieldId
+			).then(response => {
+				const {fieldValue} = response;
+
+				if (
+					fieldValue &&
+					fieldValue.url !== this._mappedBackgroundFieldValue
+				) {
+					this._mappedBackgroundFieldValue = fieldValue.url;
+				}
+			});
+		} else {
+			this._mappedBackgroundFieldValue = null;
+		}
 	}
 
 	/**
@@ -436,6 +558,16 @@ FragmentEntryLinkListRow.STATE = {
 	 * @type {object|null}
 	 */
 	_floatingToolbar: Config.internal().value(null),
+
+	/**
+	 * Mapped background field value
+	 * @instance
+	 * @memberOf FragmentEntryLinkListRow
+	 * @private
+	 * @review
+	 * @type {string}
+	 */
+	_mappedBackgroundFieldValue: Config.internal().string(),
 
 	/**
 	 * Index of the column being resized.
@@ -523,9 +655,11 @@ const ConnectedFragmentEntryLinkListRow = getConnectedComponent(
 		'dropTargetBorder',
 		'dropTargetItemId',
 		'dropTargetItemType',
+		'getAssetFieldValueURL',
 		'hoveredItemId',
 		'hoveredItemType',
 		'layoutData',
+		'mappingFieldsURL',
 		'selectedMappingTypes',
 		'spritemap'
 	]

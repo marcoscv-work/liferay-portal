@@ -117,10 +117,13 @@ public abstract class AccountEntryLocalServiceBaseImpl
 	 *
 	 * @param accountEntry the account entry
 	 * @return the account entry that was removed
+	 * @throws PortalException
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public AccountEntry deleteAccountEntry(AccountEntry accountEntry) {
+	public AccountEntry deleteAccountEntry(AccountEntry accountEntry)
+		throws PortalException {
+
 		return accountEntryPersistence.remove(accountEntry);
 	}
 
@@ -391,5 +394,13 @@ public abstract class AccountEntryLocalServiceBaseImpl
 	@Reference
 	protected com.liferay.counter.kernel.service.CounterLocalService
 		counterLocalService;
+
+	@Reference
+	protected com.liferay.portal.kernel.service.ResourceLocalService
+		resourceLocalService;
+
+	@Reference
+	protected com.liferay.portal.kernel.service.UserLocalService
+		userLocalService;
 
 }

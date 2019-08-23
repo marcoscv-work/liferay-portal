@@ -34,6 +34,16 @@ JournalMoveEntriesDisplayContext journalMovesEntriesDisplayContext = new Journal
 	<liferay-frontend:edit-form-body>
 		<liferay-ui:error exception="<%= DuplicateFolderNameException.class %>" message="the-folder-you-selected-already-has-an-entry-with-this-name.-please-select-a-different-folder" />
 		<liferay-ui:error exception="<%= InvalidDDMStructureException.class %>" message="the-folder-you-selected-does-not-allow-this-type-of-structure.-please-select-a-different-folder" />
+
+		<liferay-ui:error exception="<%= InvalidFolderException.class %>">
+
+			<%
+			InvalidFolderException ife = (InvalidFolderException)errorException;
+			%>
+
+			<liferay-ui:message arguments="<%= ife.getMessageArgument(locale) %>" key="<%= ife.getMessageKey() %>" />
+		</liferay-ui:error>
+
 		<liferay-ui:error exception="<%= NoSuchFolderException.class %>" message="please-enter-a-valid-folder" />
 
 		<liferay-frontend:fieldset-group>

@@ -1,0 +1,25 @@
+.app-builder-sidebar {
+	background: white;
+	border-top-width: 0;
+	display: flex;
+	flex-flow: column;
+	height: 100%;
+	position: fixed;
+	right: 0;
+
+	&.main {
+		transform: translateX(0%);
+		transition: transform 0.3s, opacity 0.15s ease-in-out;
+		width: $sidebarMainWidth;
+
+		&.closed {
+			opacity: 0;
+			transform: translateX(100%);
+		}
+	}
+
+	&.mini {
+		padding: 16px;
+		width: $sidebarMiniWidth;
+	}
+}

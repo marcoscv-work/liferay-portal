@@ -61,7 +61,7 @@
 					"columnId": "7",
 					"fragmentEntries": [
 						{
-							"editableValues": "{\"com.liferay.fragment.entry.processor.editable.EditableFragmentEntryProcessor\":{\"04-link\":{\"defaultValue\":\"Go somewhere\",\"config\":{\"href\":\"#\"}},\"02-title\":{\"defaultValue\":\"\\n\\t\\t\\t\\t\\tCard Title Example\\n\\t\\t\\t\\t\",\"config\":{}},\"01-img\":{\"defaultValue\":\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAYAAAA7KqwyAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAkSURBVHgB7cxBEQAACAIwtH8Pzw52kxD8OBZgNXsPQUOUwCIgAz0DHTyygaAAAAAASUVORK5CYII=\",\"config\":{}},\"03-content\":{\"defaultValue\":\"\\n\\t\\t\\t\\t\\t\\tThis is an example of quick text to fill the body of the card with some content in order to present it properly in page. We hope you like it.\\n\\t\\t\\t\\t\\t\",\"config\":{}}}}",
+							"editableValues": "{\"com.liferay.fragment.entry.processor.editable.EditableFragmentEntryProcessor\":{\"04-link\":{\"defaultValue\":\"Go Somewhere\",\"config\":{\"href\":\"#\"}},\"02-title\":{\"defaultValue\":\"\\n\\t\\t\\t\\t\\tCard Title Example\\n\\t\\t\\t\\t\",\"config\":{}},\"01-img\":{\"defaultValue\":\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAYAAAA7KqwyAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAkSURBVHgB7cxBEQAACAIwtH8Pzw52kxD8OBZgNXsPQUOUwCIgAz0DHTyygaAAAAAASUVORK5CYII=\",\"config\":{}},\"03-content\":{\"defaultValue\":\"\\n\\t\\t\\t\\t\\t\\tThis is an example of quick text to fill the body of the card with some content in order to present it properly in page. We hope you like it.\\n\\t\\t\\t\\t\\t\",\"config\":{}}}}",
 							"fragmentEntryKey": "BASIC_COMPONENT-card"
 						}
 					],

@@ -199,7 +199,10 @@ public class PhoneSerDes {
 
 			Class valueClass = value.getClass();
 
-			if (value instanceof String) {
+			if (value instanceof Map) {
+				sb.append(_toJSON((Map)value));
+			}
+			else if (value instanceof String) {
 				sb.append("\"");
 				sb.append(_escape(entry.getValue()));
 				sb.append("\"");

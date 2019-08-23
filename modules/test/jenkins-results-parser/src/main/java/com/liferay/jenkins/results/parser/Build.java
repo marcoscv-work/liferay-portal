@@ -162,6 +162,8 @@ public interface Build {
 
 	public boolean hasBuildURL(String buildURL);
 
+	public boolean hasGenericCIFailure();
+
 	public boolean hasModifiedDownstreamBuilds();
 
 	public boolean isBuildModified();

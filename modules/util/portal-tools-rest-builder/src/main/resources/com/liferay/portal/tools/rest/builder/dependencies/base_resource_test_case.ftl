@@ -627,9 +627,7 @@ public abstract class Base${schemaName}ResourceTestCase {
 
 						);
 
-						assertEqualsIgnoringOrder(
-							Arrays.asList(${schemaVarName}1, ${schemaVarName}2, ${schemaVarName}3),
-							(List<${schemaName}>)page3.getItems());
+						assertEqualsIgnoringOrder(Arrays.asList(${schemaVarName}1, ${schemaVarName}2, ${schemaVarName}3), (List<${schemaName}>)page3.getItems());
 					}
 				</#if>
 

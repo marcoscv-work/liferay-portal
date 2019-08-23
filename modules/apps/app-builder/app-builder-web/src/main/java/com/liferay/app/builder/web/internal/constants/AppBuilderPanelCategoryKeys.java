@@ -22,4 +22,7 @@ public class AppBuilderPanelCategoryKeys {
 	public static final String CONTROL_PANEL_APP_BUILDER =
 		"control_panel.app_builder";
 
+	public static final String CONTROL_PANEL_APP_BUILDER_APP =
+		"control_panel.app_builder_app";
+
 }

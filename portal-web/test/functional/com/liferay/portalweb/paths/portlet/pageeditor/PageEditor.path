@@ -40,23 +40,68 @@
 	<td></td>
 </tr>
 <tr>
+	<td>FRAGMENT_SIDEBAR_BACK</td>
+	<td>//button[*[name()='svg'][contains(@class,'lexicon-icon-angle-left')]]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>FRAGMENT_SIDEBAR_COLLAPSED</td>
 	<td>//div[contains(@class,'fragments-editor-sidebar') and contains(@class,'collapsed')]</td>
 	<td></td>
 </tr>
 <tr>
-	<td>FRAGMENT_SIDEBAR_COMMENT_ENTRY</td>
-	<td>//p[@class='text-secondary']</td>
+	<td>FRAGMENT_SIDEBAR_COMMENTS</td>
+	<td>//div[contains(@class,'alloy-editor-container') and contains(@id,'pageEditorCommentEditor')]/div[contains(@data-placeholder,'Type your comment here.')]</td>
 	<td></td>
 </tr>
 <tr>
-	<td>FRAGMENT_SIDEBAR_COMMENT_SECONDARY</td>
-	<td>//h2[contains(@class,'text-secondary') and contains(.,'${key_secondary}')]</td>
+	<td>FRAGMENT_SIDEBAR_COMMENTS_EDITOR</td>
+	<td>xpath=(//div[contains(@class,'alloy-editor-container') and contains(@id,'pageEditorCommentEditor')]/div[contains(@data-placeholder,'Type your comment here.')])[last()]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRAGMENT_SIDEBAR_COMMENT_ENTRY</td>
+	<td>//div[contains(@class,'text-secondary')]/p[contains(.,'${key_fragmentComment}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRAGMENT_SIDEBAR_COMMENT_LIST_HEADING</td>
+	<td>//strong[contains(@class,'text-dark') and contains(.,'${key_fragmentName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRAGMENT_SIDEBAR_COMMENT_LIST_SECONDARY_TEXT</td>
+	<td>//span[contains(@class,'text-secondary') and contains(.,'${key_commentCount}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRAGMENT_SIDEBAR_COMMENT_LIST_TITLE</td>
+	<td>//h1[contains(@class,'fragments-editor-sidebar-section__title') and contains(.,'Comments')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRAGMENT_SIDEBAR_COMMENT_SECTION_NAME</td>
+	<td>//h1[contains(@class,'fragments-editor-sidebar-section')]//span[contains(.,'${key_fragmentName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRAGMENT_SIDEBAR_ELLIPSIS</td>
+	<td>//div[contains(@class,'sidebar')]//button[*[contains(@class,'lexicon-icon-ellipsis-v')]]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>FRAGMENT_SIDEBAR_LOADED</td>
 	<td>//div[@class='fragments-editor-sidebar-sections-buttons']/button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRAGMENT_SIDEBAR_REPLY_COMMENTS_EDITOR</td>
+	<td>//div[contains(@class,'alloy-editor-container') and contains(@id,'pageEditorCommentReplyEditor')]/div[contains(@data-placeholder,'Type your comment here.')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRAGMENT_SIDEBAR_REPLY_COMMENTS_ENTRY</td>
+	<td>xpath=(//div[contains(@class,'text-secondary')]/p[contains(.,'${key_commentReply}')])[last()]</td>
 	<td></td>
 </tr>
 <tr>
@@ -91,7 +136,7 @@
 </tr>
 <tr>
 	<td>FRAGMENT_SIDEBAR_SECTION_TITLE</td>
-	<td>//div[contains(@class,'sidebar-section')]/h1</td>
+	<td>//div[contains(@class,'sidebar-section')]//h1</td>
 	<td></td>
 </tr>
 <tr>
@@ -134,6 +179,11 @@
 <tr>
 	<td>SECTION_HEADER_DELETE_BUTTON</td>
 	<td>//section[contains(@class,'fragment-entry-link')][${key_position}]/nav//button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SECTION_NAME</td>
+	<td>//section[contains(@class,'fragment-entry-link')][contains(.,'${fragment_name}')]</td>
 	<td></td>
 </tr>
 <tr>

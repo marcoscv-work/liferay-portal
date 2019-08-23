@@ -37,8 +37,8 @@ import com.liferay.dynamic.data.mapping.form.evaluator.internal.function.factory
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueAccessor;
 import com.liferay.dynamic.data.mapping.form.field.type.DefaultDDMFormFieldValueAccessor;
-import com.liferay.dynamic.data.mapping.form.field.type.checkbox.internal.CheckboxDDMFormFieldValueAccessor;
-import com.liferay.dynamic.data.mapping.form.field.type.numeric.internal.NumericDDMFormFieldValueAccessor;
+import com.liferay.dynamic.data.mapping.form.field.type.internal.checkbox.CheckboxDDMFormFieldValueAccessor;
+import com.liferay.dynamic.data.mapping.form.field.type.internal.numeric.NumericDDMFormFieldValueAccessor;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
@@ -810,7 +810,10 @@ public class DDMFormEvaluatorHelperTest extends PowerMockito {
 		DDMFormFieldValidation ddmFormFieldValidation =
 			new DDMFormFieldValidation();
 
-		ddmFormFieldValidation.setErrorMessage("This field should be zero.");
+		ddmFormFieldValidation.setErrorMessageLocalizedValue(
+			DDMFormValuesTestUtil.createLocalizedValue(
+				"This field should be zero.", LocaleUtil.US));
+
 		ddmFormFieldValidation.setExpression("field0 == 0");
 
 		ddmFormField.setDDMFormFieldValidation(ddmFormFieldValidation);
@@ -859,8 +862,10 @@ public class DDMFormEvaluatorHelperTest extends PowerMockito {
 		DDMFormFieldValidation ddmFormFieldValidation =
 			new DDMFormFieldValidation();
 
-		ddmFormFieldValidation.setErrorMessage(
-			"This field should be less than zero.");
+		ddmFormFieldValidation.setErrorMessageLocalizedValue(
+			DDMFormValuesTestUtil.createLocalizedValue(
+				"This field should be less than zero.", LocaleUtil.US));
+
 		ddmFormFieldValidation.setExpression("field0 < 0");
 
 		ddmFormField.setDDMFormFieldValidation(ddmFormFieldValidation);
@@ -943,8 +948,9 @@ public class DDMFormEvaluatorHelperTest extends PowerMockito {
 		DDMFormFieldValidation ddmFormFieldValidation =
 			new DDMFormFieldValidation();
 
-		ddmFormFieldValidation.setErrorMessage(
-			"This field should not contain zero.");
+		ddmFormFieldValidation.setErrorMessageLocalizedValue(
+			DDMFormValuesTestUtil.createLocalizedValue(
+				"This field should not contain zero.", LocaleUtil.US));
 
 		ddmFormFieldValidation.setExpression("NOT(contains(field0, \"0\"))");
 

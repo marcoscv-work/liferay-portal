@@ -52,6 +52,14 @@ public interface DataListViewResource {
 			Long dataDefinitionId, DataListView dataListView)
 		throws Exception;
 
+	public void deleteDataListView(Long dataListViewId) throws Exception;
+
+	public DataListView getDataListView(Long dataListViewId) throws Exception;
+
+	public DataListView putDataListView(
+			Long dataListViewId, DataListView dataListView)
+		throws Exception;
+
 	public default void setContextAcceptLanguage(
 		AcceptLanguage contextAcceptLanguage) {
 	}

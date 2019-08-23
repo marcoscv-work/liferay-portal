@@ -14,6 +14,7 @@
 
 package com.liferay.segments.service.impl;
 
+import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.ResourceConstants;
@@ -25,7 +26,7 @@ import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.segments.constants.SegmentsConstants;
+import com.liferay.segments.constants.SegmentsExperienceConstants;
 import com.liferay.segments.exception.SegmentsExperienceNameException;
 import com.liferay.segments.exception.SegmentsExperiencePriorityException;
 import com.liferay.segments.model.SegmentsExperience;
@@ -38,9 +39,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.osgi.service.component.annotations.Component;
+
 /**
  * @author David Arques
  */
+@Component(
+	property = "model.class.name=com.liferay.segments.model.SegmentsExperience",
+	service = AopService.class
+)
 public class SegmentsExperienceLocalServiceImpl
 	extends SegmentsExperienceLocalServiceBaseImpl {
 
@@ -112,14 +119,7 @@ public class SegmentsExperienceLocalServiceImpl
 	public void deleteSegmentsEntrySegmentsExperiences(long segmentsEntryId)
 		throws PortalException {
 
-		List<SegmentsExperience> segmentsExperiences =
-			segmentsExperiencePersistence.findBySegmentsEntryId(
-				segmentsEntryId);
-
-		for (SegmentsExperience segmentsExperience : segmentsExperiences) {
-			segmentsExperienceLocalService.deleteSegmentsExperience(
-				segmentsExperience.getSegmentsExperienceId());
-		}
+		segmentsExperiencePersistence.removeBySegmentsEntryId(segmentsEntryId);
 	}
 
 	@Override
@@ -171,10 +171,10 @@ public class SegmentsExperienceLocalServiceImpl
 
 		// Segments experiments
 
-		segmentsExperimentLocalService.deleteSegmentsExperiments(
+		segmentsExperimentPersistence.removeByS_C_C(
 			segmentsExperience.getSegmentsExperienceId(),
 			segmentsExperience.getClassNameId(),
-			segmentsExperience.getClassPK());
+			_getPublishedLayoutClassPK(segmentsExperience.getClassPK()));
 
 		// Resources
 
@@ -189,22 +189,14 @@ public class SegmentsExperienceLocalServiceImpl
 			long groupId, long classNameId, long classPK)
 		throws PortalException {
 
-		// Segments experiences
+		long publishedClassPK = _getPublishedLayoutClassPK(classPK);
 
-		List<SegmentsExperience> segmentsExperiences =
-			segmentsExperiencePersistence.findByG_C_C(
-				groupId, classNameId, _getPublishedLayoutClassPK(classPK));
+		segmentsExperiencePersistence.removeByG_C_C(
+			groupId, classNameId, publishedClassPK);
 
-		for (SegmentsExperience segmentsExperience : segmentsExperiences) {
-			segmentsExperienceLocalService.deleteSegmentsExperience(
-				segmentsExperience.getSegmentsExperienceId());
-		}
-
-		// Segments experiments
-
-		segmentsExperimentLocalService.deleteSegmentsExperiments(
-			SegmentsConstants.SEGMENTS_EXPERIENCE_ID_DEFAULT, classNameId,
-			classPK);
+		segmentsExperimentPersistence.removeByS_C_C(
+			SegmentsExperienceConstants.ID_DEFAULT, classNameId,
+			publishedClassPK);
 	}
 
 	@Override
@@ -216,11 +208,27 @@ public class SegmentsExperienceLocalServiceImpl
 	}
 
 	@Override
+	public SegmentsExperience fetchSegmentsExperience(
+		long groupId, String segmentsExperienceKey) {
+
+		return segmentsExperiencePersistence.fetchByG_S(
+			groupId, segmentsExperienceKey);
+	}
+
+	@Override
 	public SegmentsExperience getSegmentsExperience(long segmentsExperienceId)
 		throws PortalException {
 
 		return segmentsExperiencePersistence.findByPrimaryKey(
 			segmentsExperienceId);
+	}
+
+	@Override
+	public List<SegmentsExperience> getSegmentsExperiences(
+		long groupId, long classNameId, long classPK) {
+
+		return segmentsExperiencePersistence.findByG_C_C(
+			groupId, classNameId, _getPublishedLayoutClassPK(classPK));
 	}
 
 	@Override
@@ -240,6 +248,16 @@ public class SegmentsExperienceLocalServiceImpl
 		return segmentsExperiencePersistence.findByG_C_C_A(
 			groupId, classNameId, _getPublishedLayoutClassPK(classPK), active,
 			start, end, orderByComparator);
+	}
+
+	@Override
+	public List<SegmentsExperience> getSegmentsExperiences(
+		long groupId, long[] segmentsEntryIds, long classNameId, long classPK,
+		boolean active) {
+
+		return segmentsExperiencePersistence.findByG_S_C_C_A(
+			groupId, segmentsEntryIds, classNameId,
+			_getPublishedLayoutClassPK(classPK), active);
 	}
 
 	@Override
@@ -322,12 +340,12 @@ public class SegmentsExperienceLocalServiceImpl
 		final int originalPriority = segmentsExperience.getPriority();
 
 		segmentsExperience.setPriority(
-			SegmentsConstants.SEGMENTS_EXPERIENCE_PRIORITY_DEFAULT - 1);
+			SegmentsExperienceConstants.PRIORITY_DEFAULT - 1);
 
 		segmentsExperiencePersistence.update(segmentsExperience);
 
 		swapSegmentsExperience.setPriority(
-			SegmentsConstants.SEGMENTS_EXPERIENCE_PRIORITY_DEFAULT - 2);
+			SegmentsExperienceConstants.PRIORITY_DEFAULT - 2);
 
 		segmentsExperiencePersistence.update(swapSegmentsExperience);
 
@@ -366,7 +384,7 @@ public class SegmentsExperienceLocalServiceImpl
 	private void _validateName(Map<Locale, String> nameMap)
 		throws PortalException {
 
-		Locale locale = LocaleUtil.getDefault();
+		Locale locale = LocaleUtil.getSiteDefault();
 
 		if (nameMap.isEmpty() || Validator.isNull(nameMap.get(locale))) {
 			throw new SegmentsExperienceNameException();

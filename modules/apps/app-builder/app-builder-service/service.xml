@@ -24,10 +24,11 @@
 		<!-- Other fields -->
 
 		<column name="ddmStructureId" type="long" />
-		<column name="deDataLayoutId" type="long" />
+		<column name="ddmStructureLayoutId" type="long" />
 		<column name="deDataListViewId" type="long" />
 		<column localized="true" name="name" type="String" />
 		<column name="settings" type="String" />
+		<column name="status" type="int" />
 
 		<!-- Finder methods -->
 
@@ -39,5 +40,18 @@
 			<finder-column name="companyId" />
 			<finder-column name="ddmStructureId" />
 		</finder>
+		<finder name="G_C_D_S" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column name="companyId" />
+			<finder-column name="ddmStructureId" />
+			<finder-column name="status" />
+		</finder>
+
+		<!-- References -->
+
+		<reference entity="User" package-path="com.liferay.portal" />
 	</entity>
+	<exceptions>
+		<exception>AppBuilderAppStatus</exception>
+	</exceptions>
 </service-builder>

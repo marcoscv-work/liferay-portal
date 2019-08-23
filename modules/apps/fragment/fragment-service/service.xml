@@ -141,6 +141,7 @@
 
 		<!-- References -->
 
+		<reference entity="FragmentCollection" package-path="com.liferay.fragment" />
 		<reference entity="FragmentEntryLink" package-path="com.liferay.fragment" />
 		<reference entity="Resource" package-path="com.liferay.portal" />
 		<reference entity="User" package-path="com.liferay.portal" />
@@ -192,6 +193,9 @@
 
 		<finder name="GroupId" return-type="Collection">
 			<finder-column name="groupId" />
+		</finder>
+		<finder name="FragmentEntryId" return-type="Collection">
+			<finder-column name="fragmentEntryId" />
 		</finder>
 		<finder name="RendererKey" return-type="Collection">
 			<finder-column name="rendererKey" />

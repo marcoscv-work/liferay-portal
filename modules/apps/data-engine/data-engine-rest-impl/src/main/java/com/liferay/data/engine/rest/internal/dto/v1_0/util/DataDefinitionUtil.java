@@ -14,6 +14,8 @@
 
 package com.liferay.data.engine.rest.internal.dto.v1_0.util;
 
+import com.liferay.data.engine.field.type.FieldType;
+import com.liferay.data.engine.field.type.FieldTypeTracker;
 import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinition;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinitionField;
@@ -22,14 +24,14 @@ import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
-import com.liferay.portal.kernel.util.Validator;
 
 /**
  * @author Jeyvison Nascimento
  */
 public class DataDefinitionUtil {
 
-	public static DataDefinition toDataDefinition(DDMStructure ddmStructure)
+	public static DataDefinition toDataDefinition(
+			DDMStructure ddmStructure, FieldTypeTracker fieldTypeTracker)
 		throws Exception {
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
@@ -37,9 +39,11 @@ public class DataDefinitionUtil {
 
 		return new DataDefinition() {
 			{
+				availableLanguageIds = _getAvailableLanguageIds(jsonObject);
 				dataDefinitionFields = JSONUtil.toArray(
 					jsonObject.getJSONArray("fields"),
-					fieldJSONObject -> _toDataDefinitionField(fieldJSONObject),
+					fieldJSONObject -> _toDataDefinitionField(
+						fieldTypeTracker, fieldJSONObject),
 					DataDefinitionField.class);
 				dataDefinitionKey = ddmStructure.getStructureKey();
 				dataDefinitionRules = JSONUtil.toArray(
@@ -48,6 +52,7 @@ public class DataDefinitionUtil {
 					DataDefinitionRule.class);
 				dateCreated = ddmStructure.getCreateDate();
 				dateModified = ddmStructure.getModifiedDate();
+				defaultLanguageId = jsonObject.getString("defaultLanguageId");
 				description = LocalizedValueUtil.toStringObjectMap(
 					ddmStructure.getDescriptionMap());
 				id = ddmStructure.getStructureId();
@@ -60,14 +65,23 @@ public class DataDefinitionUtil {
 		};
 	}
 
-	public static String toJSON(DataDefinition dataDefinition)
+	public static String toJSON(
+			DataDefinition dataDefinition, FieldTypeTracker fieldTypeTracker)
 		throws Exception {
 
 		return JSONUtil.put(
+			"availableLanguageIds",
+			JSONUtil.toJSONArray(
+				dataDefinition.getAvailableLanguageIds(),
+				languageId -> languageId)
+		).put(
+			"defaultLanguageId", dataDefinition.getDefaultLanguageId()
+		).put(
 			"fields",
 			JSONUtil.toJSONArray(
 				dataDefinition.getDataDefinitionFields(),
-				dataDefinitionField -> _toJSONObject(dataDefinitionField))
+				dataDefinitionField -> _toJSONObject(
+					dataDefinitionField, fieldTypeTracker))
 		).put(
 			"rules",
 			JSONUtil.toJSONArray(
@@ -76,50 +90,24 @@ public class DataDefinitionUtil {
 		).toString();
 	}
 
+	private static String[] _getAvailableLanguageIds(JSONObject jsonObject) {
+		return JSONUtil.toStringArray(
+			jsonObject.getJSONArray("availableLanguageIds"));
+	}
+
 	private static DataDefinitionField _toDataDefinitionField(
-			JSONObject jsonObject)
+			FieldTypeTracker fieldTypeTracker, JSONObject jsonObject)
 		throws Exception {
 
-		return new DataDefinitionField() {
-			{
-				if (jsonObject.has("predefinedValue")) {
-					defaultValue = LocalizedValueUtil.toLocalizedValues(
-						jsonObject.getJSONObject("predefinedValue"));
-				}
+		if (jsonObject.has("type")) {
+			FieldType fieldType = fieldTypeTracker.getFieldType(
+				jsonObject.getString("type"));
 
-				if (!jsonObject.has("type")) {
-					throw new Exception("Type is required");
-				}
+			return DataDefinitionFieldUtil.toDataDefinitionField(
+				fieldType.deserialize(fieldTypeTracker, jsonObject));
+		}
 
-				fieldType = jsonObject.getString("type");
-
-				indexable = jsonObject.getBoolean("indexable", true);
-
-				if (!jsonObject.has("label")) {
-					throw new Exception("Label is required");
-				}
-
-				label = LocalizedValueUtil.toLocalizedValues(
-					jsonObject.getJSONObject("label"));
-
-				localizable = jsonObject.getBoolean("localizable", false);
-
-				if (!jsonObject.has("name")) {
-					throw new Exception("Name is required");
-				}
-
-				name = jsonObject.getString("name");
-
-				repeatable = jsonObject.getBoolean("repeatable", false);
-
-				if (!jsonObject.has("tip")) {
-					throw new Exception("Tip is required");
-				}
-
-				tip = LocalizedValueUtil.toLocalizedValues(
-					jsonObject.getJSONObject("tip"));
-			}
-		};
+		return new DataDefinitionField();
 	}
 
 	private static DataDefinitionRule _toDataDefinitionRule(
@@ -140,39 +128,17 @@ public class DataDefinitionUtil {
 	}
 
 	private static JSONObject _toJSONObject(
-			DataDefinitionField dataDefinitionField)
+			DataDefinitionField dataDefinitionField,
+			FieldTypeTracker fieldTypeTracker)
 		throws Exception {
 
-		String name = dataDefinitionField.getName();
+		FieldType fieldType = fieldTypeTracker.getFieldType(
+			dataDefinitionField.getFieldType());
 
-		if (Validator.isNull(name)) {
-			throw new Exception("Name is required");
-		}
-
-		String type = dataDefinitionField.getFieldType();
-
-		if ((type == null) || type.isEmpty()) {
-			throw new Exception("Type is required");
-		}
-
-		return JSONUtil.put(
-			"defaultValue", dataDefinitionField.getDefaultValue()
-		).put(
-			"indexable", dataDefinitionField.getIndexable()
-		).put(
-			"label",
-			LocalizedValueUtil.toJSONObject(dataDefinitionField.getLabel())
-		).put(
-			"localizable", dataDefinitionField.getLocalizable()
-		).put(
-			"name", name
-		).put(
-			"repeatable", dataDefinitionField.getRepeatable()
-		).put(
-			"tip", LocalizedValueUtil.toJSONObject(dataDefinitionField.getTip())
-		).put(
-			"type", type
-		);
+		return fieldType.toJSONObject(
+			fieldTypeTracker,
+			DataDefinitionFieldUtil.toSPIDataDefinitionField(
+				dataDefinitionField));
 	}
 
 	private static JSONObject _toJSONObject(

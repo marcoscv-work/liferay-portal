@@ -17,7 +17,7 @@ import React from 'react';
 
 const {Divider, Item} = ClayDropDown;
 
-export default function DropDownAction({action, item, setActive}) {
+export default ({action, item, setActive}) => {
 	const {callback, link, name} = action;
 	const href = link ? link(item) : 'javascript:;';
 
@@ -39,4 +39,4 @@ export default function DropDownAction({action, item, setActive}) {
 			{name}
 		</Item>
 	);
-}
+};

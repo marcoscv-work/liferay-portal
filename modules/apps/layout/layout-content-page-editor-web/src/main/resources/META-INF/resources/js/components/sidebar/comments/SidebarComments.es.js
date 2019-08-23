@@ -12,48 +12,38 @@
  * details.
  */
 
-import PropTypes from 'prop-types';
 import React from 'react';
 
-import {NoCommentsMessage} from './NoCommentsMessage.es';
+import {FragmentComments} from './FragmentComments.es';
+import {FragmentEntryLinksWithComments} from './FragmentEntryLinksWithComments.es';
 import {FRAGMENTS_EDITOR_ITEM_TYPES} from '../../../utils/constants';
-import {ConnectedFragmentComments} from './FragmentComments.es';
-import {getConnectedReactComponent} from '../../../store/ConnectedComponent.es';
 import {getItemPath} from '../../../utils/FragmentsEditorGetUtils.es';
+import useSelector from '../../../store/hooks/useSelector.es';
 
-const SidebarComments = props => {
+const SidebarComments = () => {
+	const activeItemId = useSelector(state => state.activeItemId);
+	const activeItemType = useSelector(state => state.activeItemType);
+	const structure = useSelector(state => state.layoutData.structure);
+
 	const activeFragmentEntryLink = getItemPath(
-		props.activeItemId,
-		props.activeItemType,
-		props.structure
+		activeItemId,
+		activeItemType,
+		structure
 	).find(
 		activeItem =>
 			activeItem.itemType === FRAGMENTS_EDITOR_ITEM_TYPES.fragment
 	);
 
-	return activeFragmentEntryLink ? (
-		<ConnectedFragmentComments
-			fragmentEntryLinkId={activeFragmentEntryLink.itemId}
-		/>
-	) : (
-		<NoCommentsMessage />
-	);
+	if (activeFragmentEntryLink) {
+		return (
+			<FragmentComments
+				fragmentEntryLinkId={activeFragmentEntryLink.itemId}
+			/>
+		);
+	}
+
+	return <FragmentEntryLinksWithComments />;
 };
 
-SidebarComments.propTypes = {
-	activeItemId: PropTypes.string,
-	activeItemType: PropTypes.string,
-	structure: PropTypes.array
-};
-
-const ConnectedSidebarComments = getConnectedReactComponent(
-	state => ({
-		activeItemId: state.activeItemId,
-		activeItemType: state.activeItemType,
-		structure: state.layoutData.structure
-	}),
-	() => ({})
-)(SidebarComments);
-
-export {ConnectedSidebarComments, SidebarComments};
-export default ConnectedSidebarComments;
+export {SidebarComments};
+export default SidebarComments;

@@ -70,7 +70,7 @@ AUI.add(
 				}
 			},
 
-			AUGMENTS: [Liferay.PortletBase, Liferay.StorageFormatter],
+			AUGMENTS: [Liferay.PortletBase],
 
 			EXTENDS: A.Base,
 
@@ -290,7 +290,7 @@ AUI.add(
 									'please-enter-a-file-with-a-valid-file-size-no-larger-than-x'
 								),
 								[
-									instance.formatStorage(
+									Liferay.Util.formatStorage(
 										instance.get('maxFileSize')
 									)
 								]
@@ -307,7 +307,11 @@ AUI.add(
 								Liferay.Language.get(
 									'request-is-larger-than-x-and-could-not-be-processed'
 								),
-								[instance.formatStorage(maxUploadRequestSize)]
+								[
+									Liferay.Util.formatStorage(
+										maxUploadRequestSize
+									)
+								]
 							);
 						}
 					}
@@ -328,7 +332,9 @@ AUI.add(
 									},
 									{
 										key: Liferay.Language.get('size'),
-										value: instance.formatStorage(file.size)
+										value: Liferay.Util.formatStorage(
+											file.size
+										)
 									},
 									{
 										key: Liferay.Language.get('name'),
@@ -494,7 +500,7 @@ AUI.add(
 									'please-enter-a-file-with-a-valid-file-size-no-larger-than-x'
 								),
 								[
-									instance.formatStorage(
+									Liferay.Util.formatStorage(
 										instance.get('maxFileSize')
 									)
 								]
@@ -530,8 +536,7 @@ AUI.add(
 			'liferay-alert',
 			'liferay-item-selector-uploader',
 			'liferay-item-viewer',
-			'liferay-portlet-base',
-			'liferay-storage-formatter'
+			'liferay-portlet-base'
 		]
 	}
 );

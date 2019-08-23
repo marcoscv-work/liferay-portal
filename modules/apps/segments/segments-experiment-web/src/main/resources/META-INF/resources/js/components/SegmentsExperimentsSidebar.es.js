@@ -16,20 +16,39 @@ import React, {useState, useContext} from 'react';
 import PropTypes from 'prop-types';
 import SegmentsExperiments from './SegmentsExperiments.es';
 import SegmentsExperimentsModal from './SegmentsExperimentsModal.es';
-import {SegmentsExperienceType, SegmentsExperimentType} from '../types.es';
+import {
+	InitialSegmentsVariantType,
+	SegmentsExperienceType,
+	SegmentsExperimentGoal,
+	SegmentsExperimentType
+} from '../types.es';
 import SegmentsExperimentsContext from '../context.es';
 import UnsupportedSegmentsExperiments from './UnsupportedSegmentsExperiments.es';
 
 function SegmentsExperimentsSidebar({
+	initialGoals,
 	initialSegmentsExperiences,
+	initialSegmentsVariants,
 	initialSegmentsExperiment,
 	initialSelectedSegmentsExperienceId = '0'
 }) {
-	const {endpoints, page} = useContext(SegmentsExperimentsContext);
+	const {segmentsExperimentsUtil, page} = useContext(
+		SegmentsExperimentsContext
+	);
 	const [creationModal, setCreationModal] = useState({active: false});
-	const [editModal, setEditionModal] = useState({active: false});
+	const [editionModal, setEditionModal] = useState({active: false});
 	const [segmentsExperiment, setSegmentsExperiment] = useState(
 		initialSegmentsExperiment
+	);
+	const [variants, setVariants] = useState(
+		initialSegmentsVariants.map(variant => {
+			if (
+				variant.segmentsExperienceId ===
+				initialSegmentsExperiment.segmentsExperienceId
+			)
+				return {...variant, control: true};
+			return {...variant, control: false};
+		})
 	);
 
 	return page.type === 'content' ? (
@@ -40,31 +59,44 @@ function SegmentsExperimentsSidebar({
 				onSelectSegmentsExperienceChange={
 					_handleSelectSegmentsExperience
 				}
+				onVariantCreation={_handleVariantCreation}
+				onVariantDeletion={_handleVariantDeletion}
+				onVariantEdition={_handleVariantEdition}
 				segmentsExperiences={initialSegmentsExperiences}
 				segmentsExperiment={segmentsExperiment}
 				selectedSegmentsExperienceId={
 					initialSelectedSegmentsExperienceId
 				}
+				variants={variants}
 			/>
-			<SegmentsExperimentsModal
-				active={creationModal.active}
-				description={creationModal.description}
-				error={creationModal.error}
-				name={creationModal.name}
-				onClose={_handleModalClose}
-				onSave={_handleExperimentCreation}
-				segmentsExperienceId={creationModal.segmentsExperienceId}
-			/>
-			<SegmentsExperimentsModal
-				active={editModal.active}
-				description={editModal.description}
-				error={editModal.error}
-				name={editModal.name}
-				onClose={_handleEditModalClose}
-				onSave={_handleExperimentEdition}
-				segmentsExperienceId={editModal.segmentsExperienceId}
-				segmentsExperimentId={editModal.segmentsExperiementId}
-			/>
+			{creationModal.active && (
+				<SegmentsExperimentsModal
+					active={creationModal.active}
+					description={creationModal.description}
+					error={creationModal.error}
+					goals={initialGoals}
+					name={creationModal.name}
+					onClose={_handleModalClose}
+					onSave={_handleExperimentCreation}
+					segmentsExperienceId={creationModal.segmentsExperienceId}
+					title={Liferay.Language.get('create-new-test')}
+				/>
+			)}
+			{editionModal.active && (
+				<SegmentsExperimentsModal
+					active={editionModal.active}
+					description={editionModal.description}
+					error={editionModal.error}
+					goal={editionModal.goal.value}
+					goals={initialGoals}
+					name={editionModal.name}
+					onClose={_handleEditModalClose}
+					onSave={_handleExperimentEdition}
+					segmentsExperienceId={editionModal.segmentsExperienceId}
+					segmentsExperimentId={editionModal.segmentsExperimentId}
+					title={Liferay.Language.get('edit-test')}
+				/>
+			)}
 		</div>
 	) : (
 		<UnsupportedSegmentsExperiments />
@@ -90,73 +122,112 @@ function SegmentsExperimentsSidebar({
 	}
 
 	function _handleExperimentCreation(segmentsExperiment) {
-		Liferay.Service(
-			endpoints.createSegmentsExperimentURL,
-			{
-				segmentsExperienceId: segmentsExperiment.segmentsExperienceId,
-				name: segmentsExperiment.name,
-				description: segmentsExperiment.description,
-				classPK: page.classPK,
-				classNameId: page.classNameId
-			},
-			function _successCallback(response) {
-				setSegmentsExperiment({
-					description: response.description,
-					name: response.name,
-					segmentsExperienceId: response.segmentsExperienceId,
-					segmentsExperimentId: response.segmentsExperimentId
-				});
-			},
-			function _errorCallback() {
+		const body = {
+			classNameId: page.classNameId,
+			classPK: page.classPK,
+			description: segmentsExperiment.description,
+			goal: segmentsExperiment.goal,
+			goalTarget: segmentsExperiment.goalTarget,
+			name: segmentsExperiment.name,
+			segmentsExperienceId: segmentsExperiment.segmentsExperienceId
+		};
+
+		segmentsExperimentsUtil
+			.createExperiment(body)
+			.then(function _successCallback(objectResponse) {
+				const {
+					segmentsExperiment,
+					segmentsExperimentRel
+				} = objectResponse;
+
+				setVariants([{...segmentsExperimentRel, control: true}]);
+
 				setCreationModal({
-					active: true,
-					name: segmentsExperiment.name,
+					active: false
+				});
+
+				setSegmentsExperiment({
 					description: segmentsExperiment.description,
+					goal: segmentsExperiment.goal,
+					name: segmentsExperiment.name,
+					segmentsEntryName: segmentsExperiment.segmentsEntryName,
 					segmentsExperienceId:
 						segmentsExperiment.segmentsExperienceId,
-					error: Liferay.Language.get('create-experiment-error')
+					segmentsExperimentId:
+						segmentsExperiment.segmentsExperimentId,
+					status: segmentsExperiment.status
 				});
-			}
-		);
+			})
+			.catch(function _errorCallback() {
+				setCreationModal({
+					active: true,
+					description: segmentsExperiment.description,
+					error: Liferay.Language.get('create-test-error'),
+					name: segmentsExperiment.name,
+					segmentsEntryName: segmentsExperiment.segmentsEntryName,
+					segmentsExperienceId:
+						segmentsExperiment.segmentsExperienceId
+				});
+			});
 	}
 
 	function _handleEditSegmentsExperiment() {
 		setEditionModal({
 			active: true,
-			name: segmentsExperiment.name,
 			description: segmentsExperiment.description,
+			goal: segmentsExperiment.goal,
+			name: segmentsExperiment.name,
+			segmentsEntryName: segmentsExperiment.segmentsEntryName,
 			segmentsExperienceId: segmentsExperiment.segmentsExperienceId,
-			segmentsExperiementId: segmentsExperiment.segmentsExperimentId
+			segmentsExperimentId: segmentsExperiment.segmentsExperimentId,
+			status: segmentsExperiment.status
 		});
 	}
 
 	function _handleExperimentEdition(segmentsExperiment) {
-		Liferay.Service(
-			endpoints.editSegmentsExperimentURL,
-			{
-				name: segmentsExperiment.name,
-				description: segmentsExperiment.description,
-				segmentsExperimentId: segmentsExperiment.segmentsExperimentId
-			},
-			function _successCallback(response) {
-				setSegmentsExperiment({
-					description: response.description,
-					name: response.name,
-					segmentsExperienceId: response.segmentsExperienceId,
-					segmentsExperimentId: response.segmentsExperimentId
+		const body = {
+			description: segmentsExperiment.description,
+			goal: segmentsExperiment.goal,
+			goalTarget: segmentsExperiment.goalTarget,
+			name: segmentsExperiment.name,
+			segmentsExperimentId: segmentsExperiment.segmentsExperimentId
+		};
+
+		segmentsExperimentsUtil
+			.editExperiment(body)
+			.then(function _successCallback(objectResponse) {
+				const {segmentsExperiment} = objectResponse;
+
+				setEditionModal({
+					active: false
 				});
-			},
-			function _errorCallback() {
-				setCreationModal({
-					active: true,
-					name: segmentsExperiment.name,
+
+				setSegmentsExperiment({
 					description: segmentsExperiment.description,
+					goal: segmentsExperiment.goal,
+					name: segmentsExperiment.name,
+					segmentsEntryName: segmentsExperiment.segmentsEntryName,
 					segmentsExperienceId:
 						segmentsExperiment.segmentsExperienceId,
-					error: Liferay.Language.get('edit-experiment-error')
+					segmentsExperimentId:
+						segmentsExperiment.segmentsExperimentId,
+					status: segmentsExperiment.status
 				});
-			}
-		);
+			})
+			.catch(function _errorCallback() {
+				setEditionModal({
+					active: true,
+					description: segmentsExperiment.description,
+					error: Liferay.Language.get('edit-test-error'),
+					name: segmentsExperiment.name,
+					segmentsEntryName: segmentsExperiment.segmentsEntryName,
+					segmentsExperienceId:
+						segmentsExperiment.segmentsExperienceId,
+					segmentsExperimentId:
+						segmentsExperiment.segmentsExperimentId,
+					status: segmentsExperiment.status
+				});
+			});
 	}
 
 	function _handleSelectSegmentsExperience(segmentsExperienceId) {
@@ -171,12 +242,100 @@ function SegmentsExperimentsSidebar({
 
 		Liferay.Util.navigate(newUrl);
 	}
+
+	function _handleVariantCreation(name) {
+		return new Promise((resolve, reject) => {
+			const body = {
+				classNameId: page.classNameId,
+				classPK: page.classPK,
+				name,
+				segmentsExperimentId: segmentsExperiment.segmentsExperimentId
+			};
+
+			segmentsExperimentsUtil
+				.createVariant(body)
+				.then(({segmentsExperimentRel}) => {
+					const {
+						name,
+						segmentsExperienceId,
+						segmentsExperimentId,
+						segmentsExperimentRelId
+					} = segmentsExperimentRel;
+
+					setVariants([
+						...variants,
+						{
+							control: false,
+							name,
+							segmentsExperienceId,
+							segmentsExperimentId,
+							segmentsExperimentRelId
+						}
+					]);
+					resolve();
+				})
+				.catch(error => reject(error));
+		});
+	}
+
+	function _handleVariantDeletion(variantId) {
+		const body = {
+			classNameId: page.classNameId,
+			classPK: page.classPK,
+			segmentsExperimentRelId: variantId
+		};
+
+		segmentsExperimentsUtil.deleteVariant(body).then(() => {
+			setVariants(
+				variants.filter(
+					variant => variant.segmentsExperimentRelId !== variantId
+				)
+			);
+		});
+	}
+
+	function _handleVariantEdition({name, variantId}) {
+		return new Promise((resolve, reject) => {
+			const body = {
+				classNameId: page.classNameId,
+				classPK: page.classPK,
+				name,
+				segmentsExperimentRelId: variantId
+			};
+
+			segmentsExperimentsUtil
+				.editVariant(body)
+				.then(({segmentsExperimentRel}) => {
+					setVariants(
+						variants.map(variant => {
+							if (
+								segmentsExperimentRel.segmentsExperimentRelId ===
+								variant.segmentsExperimentRelId
+							) {
+								return {
+									...variant,
+									name: segmentsExperimentRel.name
+								};
+							}
+							return variant;
+						})
+					);
+					resolve();
+				})
+				.catch(() => {
+					reject();
+				});
+		});
+	}
 }
 
 SegmentsExperimentsSidebar.propTypes = {
-	initialSelectedSegmentsExperienceId: PropTypes.string,
+	initialGoals: PropTypes.arrayOf(SegmentsExperimentGoal),
+	initialSegmentsExperiences: PropTypes.arrayOf(SegmentsExperienceType),
 	initialSegmentsExperiment: SegmentsExperimentType,
-	initialSegmentsExperiences: PropTypes.arrayOf(SegmentsExperienceType)
+	initialSegmentsVariants: PropTypes.arrayOf(InitialSegmentsVariantType)
+		.isRequired,
+	initialSelectedSegmentsExperienceId: PropTypes.string
 };
 
 export default SegmentsExperimentsSidebar;

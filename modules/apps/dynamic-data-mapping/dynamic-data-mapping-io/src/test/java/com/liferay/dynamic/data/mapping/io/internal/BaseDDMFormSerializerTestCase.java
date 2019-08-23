@@ -20,6 +20,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.test.util.DDMFormTestUtil;
+import com.liferay.dynamic.data.mapping.test.util.DDMFormValuesTestUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 
@@ -138,8 +139,15 @@ public abstract class BaseDDMFormSerializerTestCase extends BaseDDMTestCase {
 		DDMFormFieldValidation ddmFormFieldValidation =
 			new DDMFormFieldValidation();
 
-		ddmFormFieldValidation.setErrorMessage(
-			"Field " + ddmFormField.getName() + " must not be empty.");
+		ddmFormFieldValidation.setErrorMessageLocalizedValue(
+			DDMFormValuesTestUtil.createLocalizedValue(
+				"Field ".concat(
+					ddmFormField.getName()
+				).concat(
+					" must not be empty."
+				),
+				LocaleUtil.US));
+
 		ddmFormFieldValidation.setExpression(
 			"!" + ddmFormField.getName() + ".isEmpty()");
 

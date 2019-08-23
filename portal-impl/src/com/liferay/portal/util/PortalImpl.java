@@ -105,6 +105,7 @@ import com.liferay.portal.kernel.portlet.PortletBagPool;
 import com.liferay.portal.kernel.portlet.PortletConfigFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portlet.PortletInstanceFactoryUtil;
+import com.liferay.portal.kernel.portlet.PortletModeFactory;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletQNameUtil;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
@@ -7115,15 +7116,21 @@ public class PortalImpl implements Portal {
 			return PortletMode.VIEW;
 		}
 
+		Portlet portlet = PortletLocalServiceUtil.getPortletById(
+			getCompanyId(httpServletRequest), portletId);
+
+		Set<String> allPortletModes = portlet.getAllPortletModes();
+
+		if (!allPortletModes.contains(portletMode.toString())) {
+			return PortletModeFactory.getPortletMode(null, 3);
+		}
+
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
 		PermissionChecker permissionChecker =
 			themeDisplay.getPermissionChecker();
-
-		Portlet portlet = PortletLocalServiceUtil.getPortletById(
-			getCompanyId(httpServletRequest), portletId);
 
 		boolean updateLayout = false;
 

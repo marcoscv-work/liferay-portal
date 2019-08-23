@@ -20,6 +20,7 @@ import './fragments/SidebarElementsPanel.es';
 import './fragments/SidebarSectionsPanel.es';
 import './layouts/SidebarLayoutsPanel.es';
 import './mapping/SidebarMappingPanel.es';
+import './page_content/SidebarMappedContentsPanel.es';
 import './page_structure/SidebarPageStructurePanel.es';
 import './widgets/SidebarWidgetsPanel.es';
 import {getConnectedComponent} from '../../store/ConnectedComponent.es';
@@ -74,19 +75,16 @@ class FragmentsEditorSidebarContent extends Component {
 	 * @review
 	 */
 	_handlePanelButtonClick(event) {
-		const {sidebarPanelId} = event.delegateTarget.dataset;
+		let {sidebarPanelId} = event.delegateTarget.dataset;
 
 		if (this.selectedSidebarPanelId === sidebarPanelId) {
-			this.store.dispatch({
-				sidebarPanelId: '',
-				type: UPDATE_SELECTED_SIDEBAR_PANEL_ID
-			});
-		} else {
-			this.store.dispatch({
-				sidebarPanelId,
-				type: UPDATE_SELECTED_SIDEBAR_PANEL_ID
-			});
+			sidebarPanelId = '';
 		}
+
+		this.store.dispatch({
+			type: UPDATE_SELECTED_SIDEBAR_PANEL_ID,
+			value: sidebarPanelId
+		});
 	}
 
 	/**
@@ -96,8 +94,8 @@ class FragmentsEditorSidebarContent extends Component {
 	 */
 	_hideSidebar() {
 		this.store.dispatch({
-			sidebarPanelId: '',
-			type: UPDATE_SELECTED_SIDEBAR_PANEL_ID
+			type: UPDATE_SELECTED_SIDEBAR_PANEL_ID,
+			value: ''
 		});
 	}
 }

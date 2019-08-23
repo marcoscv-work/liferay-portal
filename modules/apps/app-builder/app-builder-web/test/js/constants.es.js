@@ -17,10 +17,10 @@ const createItems = size => {
 
 	for (let i = 0; i < size; i++) {
 		items.push({
-			id: i + 1,
-			name: `Name ${i + 1}`,
 			dateCreated: '01/01/2019',
-			dateModified: '01/02/2019'
+			dateModified: '01/02/2019',
+			id: i + 1,
+			name: `Name ${i + 1}`
 		});
 	}
 
@@ -29,8 +29,8 @@ const createItems = size => {
 
 export const ACTIONS = [
 	{
-		name: 'Delete',
-		callback: () => {}
+		callback: () => {},
+		name: 'Delete'
 	}
 ];
 
@@ -47,8 +47,8 @@ export const COLUMNS = [
 ];
 
 export const EMPTY_STATE = {
-	title: 'title',
-	description: 'description'
+	description: 'description',
+	title: 'title'
 };
 
 export const ENDPOINT = '/endpoint';

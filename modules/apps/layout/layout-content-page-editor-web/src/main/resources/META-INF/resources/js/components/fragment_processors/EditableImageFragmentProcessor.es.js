@@ -51,12 +51,35 @@ function destroy() {}
  * @return {object[]} Floating toolbar panels
  */
 function getFloatingToolbarButtons(editableValues) {
-	return editableValues.mappedField
-		? [FLOATING_TOOLBAR_BUTTONS.imageLink, FLOATING_TOOLBAR_BUTTONS.map]
-		: [
-				FLOATING_TOOLBAR_BUTTONS.imageProperties,
-				FLOATING_TOOLBAR_BUTTONS.map
-		  ];
+	const buttons = [];
+
+	const linkButton = Object.assign({}, FLOATING_TOOLBAR_BUTTONS.link);
+
+	if (
+		editableValues.config &&
+		(editableValues.config.fieldId ||
+			editableValues.config.href ||
+			editableValues.config.mappedField)
+	) {
+		linkButton.cssClass =
+			'fragments-editor__floating-toolbar--linked-field';
+	}
+
+	buttons.push(linkButton);
+
+	if (!editableValues.mappedField && !editableValues.fieldId) {
+		buttons.push(FLOATING_TOOLBAR_BUTTONS.imageProperties);
+	}
+
+	const mapButton = Object.assign({}, FLOATING_TOOLBAR_BUTTONS.map);
+
+	if (editableValues.fieldId || editableValues.mappedField) {
+		mapButton.cssClass = 'fragments-editor__floating-toolbar--mapped-field';
+	}
+
+	buttons.push(mapButton);
+
+	return buttons;
 }
 
 /**
@@ -118,7 +141,22 @@ function render(content, value, editableValues) {
 		}
 	}
 
-	return wrapper.innerHTML;
+	if (editableValues && editableValues.config && editableValues.config.href) {
+		const link = document.createElement('a');
+		const {config} = editableValues;
+
+		link.href = config.href;
+
+		if (config.target) {
+			link.target = config.target;
+		}
+
+		link.appendChild(image);
+
+		return link.outerHTML;
+	} else {
+		return wrapper.innerHTML;
+	}
 }
 
 export default {

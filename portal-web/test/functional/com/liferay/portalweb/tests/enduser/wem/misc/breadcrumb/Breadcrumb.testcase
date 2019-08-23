@@ -83,7 +83,7 @@ definition {
 			childPageName = "Child Page Name",
 			parentPageName = "Parent Page Name");
 
-		ProductMenu.gotoSite(site = "Site Name");
+		Navigator.openSiteURL(siteName = "Site Name");
 
 		Page.gotoChildPagePG(
 			childPageName = "Child Page Name",
@@ -255,7 +255,7 @@ definition {
 			childPageName = "Child Page Name",
 			parentPageName = "Parent Page Name");
 
-		ProductMenu.gotoSite(site = "Site Name");
+		Navigator.openSiteURL(siteName = "Site Name");
 
 		Page.gotoChildPagePG(
 			childPageName = "Child Page Name",
@@ -393,7 +393,7 @@ definition {
 			childPageName = "Child Page Name",
 			parentPageName = "Parent Page Name");
 
-		ProductMenu.gotoSite(site = "Child SiteName");
+		Navigator.openSiteURL(siteName = "Child SiteName");
 
 		Page.gotoChildPagePG(
 			childPageName = "Child Page Name",
@@ -427,8 +427,6 @@ definition {
 	test DisplayTemplateWithHorizontalStyle {
 		property testray.component.names = "Breadcrumb";
 
-		var siteName = TestCase.getSiteName(siteName = "${siteName}");
-
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
 			panel = "Site Administration",
@@ -438,7 +436,7 @@ definition {
 			childPageName = "Child Page Name",
 			parentPageName = "Home");
 
-		ProductMenu.gotoSite(site = "${siteName}");
+		Navigator.openURL();
 
 		Page.gotoChildPagePG(
 			childPageName = "Child Page Name",
@@ -469,8 +467,6 @@ definition {
 	test DisplayTemplateWithVerticalStyle {
 		property testray.component.names = "Breadcrumb";
 
-		var siteName = TestCase.getSiteName(siteName = "${siteName}");
-
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
 			panel = "Site Administration",
@@ -480,7 +476,7 @@ definition {
 			childPageName = "Child Page Name",
 			parentPageName = "Home");
 
-		ProductMenu.gotoSite(site = "${siteName}");
+		Navigator.openURL();
 
 		Page.gotoChildPagePG(
 			childPageName = "Child Page Name",
@@ -512,8 +508,6 @@ definition {
 		property test.name.skip.portal.instance = "Breadcrumb#EnableShowGuestSite";
 		property testray.component.names = "Breadcrumb";
 
-		var siteName = TestCase.getSiteName(siteName = "${siteName}");
-
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
 			panel = "Site Administration",
@@ -523,7 +517,7 @@ definition {
 			childPageName = "Child Page Name",
 			parentPageName = "Home");
 
-		ProductMenu.gotoSite(site = "${siteName}");
+		Navigator.openURL();
 
 		Page.gotoChildPagePG(
 			childPageName = "Child Page Name",

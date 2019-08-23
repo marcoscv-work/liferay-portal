@@ -30,7 +30,6 @@ import './segmentsExperiences/modal.es';
 
 const DISMISS_ALERT_ANIMATION_WAIT = 500;
 const MODAL_EXPERIENCE_STATE_KEY = 'modalExperienceState';
-const NEW_SEGMENT_TO_SELECT = 'segmentsEntryId';
 
 /**
  * Stores a given modalState
@@ -100,14 +99,12 @@ function restoreExperiencesState() {
  * and if the current url provides a segment id
  *
  * @param {string} classPK
+ * @param {string} incomingSegmentId
  * @returns {modalState|null}
  */
-function getExperiencesState(classPK) {
+function getExperiencesState(classPK, incomingSegmentId) {
 	if (!classPK) return null;
 	const prevState = restoreExperiencesState();
-	const url = window.location.href;
-	const urlParams = new URLSearchParams(url);
-	const incomingSegmentId = urlParams.get(NEW_SEGMENT_TO_SELECT);
 
 	if (
 		incomingSegmentId &&
@@ -116,14 +113,14 @@ function getExperiencesState(classPK) {
 	) {
 		const {modalStates, selectedSegmentsExperienceId} = prevState;
 		return {
-			selectedSegmentsExperienceId,
 			modalStates: {
 				[prevState.modalStates.type]: {
 					name: modalStates.experienceName,
 					segmentsEntryId: incomingSegmentId,
 					segmentsExperienceId: modalStates.segmentsExperienceId
 				}
-			}
+			},
+			selectedSegmentsExperienceId
 		};
 	}
 	return null;
@@ -218,7 +215,10 @@ class SegmentsExperienceSelector extends Component {
 	 */
 	syncClassPK(next) {
 		if (next) {
-			const experiencesState = getExperiencesState(next);
+			const experiencesState = getExperiencesState(
+				next,
+				this.selectedSegmentsEntryId
+			);
 			this.modalStates = experiencesState && experiencesState.modalStates;
 			if (
 				experiencesState &&
@@ -506,10 +506,10 @@ class SegmentsExperienceSelector extends Component {
 
 		storeExperiencesState({
 			modalStates: {
-				type,
-				experienceName,
 				classPK,
-				segmentsExperienceId
+				experienceName,
+				segmentsExperienceId,
+				type
 			},
 			selectedSegmentsExperienceId: this.segmentsExperienceId
 		});
@@ -764,6 +764,11 @@ class SegmentsExperienceSelector extends Component {
 
 SegmentsExperienceSelector.STATE = {
 	/**
+	 * Url to redirect the user when clicking new experience
+	 */
+	editSegmentsEntryURL: Config.string(),
+
+	/**
 	 * Contains the state of Experience edition and creation
 	 */
 	modalStates: Config.object(),
@@ -776,9 +781,9 @@ SegmentsExperienceSelector.STATE = {
 		.value(false),
 
 	/**
-	 * Url to redirect the user when clicking new experience
+	 * Segments Id of a just created Segment to recover Experiences modal state
 	 */
-	editSegmentsEntryURL: Config.string()
+	selectedSegmentsEntryId: Config.string()
 };
 
 const ConnectedSegmentsExperienceSelector = getConnectedComponent(

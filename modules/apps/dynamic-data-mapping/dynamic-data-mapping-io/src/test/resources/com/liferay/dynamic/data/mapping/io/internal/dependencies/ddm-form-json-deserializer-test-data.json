@@ -29,7 +29,9 @@
 			},
 			"type": "checkbox",
 			"validation": {
-				"errorMessage": "You must check this box to continue.",
+				"errorMessage": {
+					"en_US": "You must check this box to continue."
+				},
 				"expression": "Boolean2282"
 			},
 			"visibilityExpression": "true"
@@ -242,7 +244,6 @@
 			"visibilityExpression": "true"
 		},
 		{
-
 			"dataType": "number",
 			"fieldNamespace": "ddm",
 			"indexType": "keyword",
@@ -491,7 +492,6 @@
 									"value": "Value 2"
 								},
 								{
-
 									"label": {
 										"en_US": "Option 3",
 										"pt_BR": "Opcao 3"

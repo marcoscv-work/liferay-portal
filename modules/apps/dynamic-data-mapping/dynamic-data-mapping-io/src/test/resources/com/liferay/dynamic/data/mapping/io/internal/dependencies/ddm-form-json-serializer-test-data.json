@@ -43,7 +43,9 @@
 					"showLabel": true,
 					"type": "select",
 					"validation": {
-						"errorMessage": "Field ChildField must not be empty.",
+						"errorMessage": {
+							"en_US": "Field ChildField must not be empty."
+						},
 						"expression": "!ChildField.isEmpty()"
 					},
 					"visibilityExpression": "true"
@@ -59,7 +61,9 @@
 			"showLabel": true,
 			"type": "text",
 			"validation": {
-				"errorMessage": "Field ParentField must not be empty.",
+				"errorMessage": {
+					"en_US": "Field ParentField must not be empty."
+				},
 				"expression": "!ParentField.isEmpty()"
 			},
 			"visibilityExpression": "true"
@@ -90,7 +94,9 @@
 			"showLabel": false,
 			"type": "radio",
 			"validation": {
-				"errorMessage": "Field BooleanField must not be empty.",
+				"errorMessage": {
+					"en_US": "Field BooleanField must not be empty."
+				},
 				"expression": "!BooleanField.isEmpty()"
 			},
 			"visibilityExpression": "false"
@@ -123,7 +129,9 @@
 			"showLabel": true,
 			"type": "select",
 			"validation": {
-				"errorMessage": "Field SelectField must not be empty.",
+				"errorMessage": {
+					"en_US": "Field SelectField must not be empty."
+				},
 				"expression": "!SelectField.isEmpty()"
 			},
 			"visibilityExpression": "true"
@@ -147,7 +155,9 @@
 			"showLabel": true,
 			"type": "text",
 			"validation": {
-				"errorMessage": "Field TextField must not be empty.",
+				"errorMessage": {
+					"en_US": "Field TextField must not be empty."
+				},
 				"expression": "!TextField.isEmpty()"
 			},
 			"visibilityExpression": "true"

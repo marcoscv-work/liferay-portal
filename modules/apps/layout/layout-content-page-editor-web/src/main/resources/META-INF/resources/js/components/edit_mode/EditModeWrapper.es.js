@@ -13,17 +13,20 @@
  */
 
 import Component from 'metal-component';
+import {Config} from 'metal-state';
+import {FRAGMENTS_EDITOR_ITEM_TYPES} from '../../utils/constants';
 import getConnectedComponent from '../../store/ConnectedComponent.es';
+import {
+	UPDATE_ACTIVE_ITEM,
+	UPDATE_SELECTED_SIDEBAR_PANEL_ID
+} from '../../actions/actions.es';
 
-/**
- * @type string
- */
-const WRAPPER_CLASS = 'fragment-entry-link-list-wrapper';
+const WRAPPER_CLASSES = {
+	default: 'fragment-entry-link-list-wrapper',
+	padded: 'fragment-entry-link-list-wrapper--padded'
+};
 
-/**
- * @type string
- */
-const WRAPPER_PADDED_CLASS = 'fragment-entry-link-list-wrapper--padded';
+const HIGHLIGHTED_COMMENT_ID_KEY = 'FRAGMENTS_EDITOR_HIGHLIGHTED_COMMENT_ID';
 
 /**
  * EditModeWrapper
@@ -32,41 +35,219 @@ const WRAPPER_PADDED_CLASS = 'fragment-entry-link-list-wrapper--padded';
 class EditModeWrapper extends Component {
 	/**
 	 * @inheritdoc
+	 * @review
 	 */
 	created() {
-		this._handleSelectedSidebarPanelIdChanged = this._handleSelectedSidebarPanelIdChanged.bind(
-			this
-		);
+		requestAnimationFrame(() => {
+			this._handleMessageIdURLParameter();
 
-		this.on(
-			'selectedSidebarPanelIdChanged',
-			this._handleSelectedSidebarPanelIdChanged
-		);
+			this._handleActiveItemURLParameter();
+			this._handleSidebarPanelIdURLParameter();
 
-		this._handleSelectedSidebarPanelIdChanged();
+			this._syncURL();
+
+			this.on(
+				'activeItemIdChanged',
+				this._syncValueToURL('activeItemId')
+			);
+
+			this.on(
+				'activeItemTypeChanged',
+				this._syncValueToURL('activeItemType')
+			);
+
+			this.on(
+				'selectedSidebarPanelIdChanged',
+				this._syncValueToURL('sidebarPanelId')
+			);
+		});
 	}
 
 	/**
-	 * Callback called when the sidebar visibily changes
+	 * @inheritdoc
+	 * @review
 	 */
-	_handleSelectedSidebarPanelIdChanged() {
+	syncSelectedSidebarPanelId() {
+		this._toggleWrapperPadding();
+	}
+
+	/**
+	 * @inheritdoc
+	 * @review
+	 */
+	syncSidebarPanels() {
+		this._toggleWrapperPadding();
+	}
+
+	/**
+	 * @private
+	 * @review
+	 */
+	_handleActiveItemURLParameter() {
+		const activeItemId = this._url.searchParams.get('activeItemId');
+		const activeItemType = this._url.searchParams.get('activeItemType');
+
+		if (activeItemId && activeItemType) {
+			this.store.dispatch({
+				activeItemId,
+				activeItemType,
+				type: UPDATE_ACTIVE_ITEM
+			});
+		}
+	}
+
+	/**
+	 * @private
+	 * @review
+	 */
+	_handleMessageIdURLParameter() {
+		const messageId = this._url.searchParams.get('messageId');
+
+		if (this.fragmentEntryLinks && messageId) {
+			const matchComment = comment => comment.commentId === messageId;
+
+			const fragmentEntryLink = Object.values(
+				this.fragmentEntryLinks
+			).find(fragmentEntryLink =>
+				fragmentEntryLink.comments.find(
+					comment =>
+						matchComment(comment) ||
+						comment.children.find(matchComment)
+				)
+			);
+
+			if (fragmentEntryLink) {
+				this._url.searchParams.delete('messageId');
+
+				this._url.searchParams.set('sidebarPanelId', 'comments');
+
+				this._url.searchParams.set(
+					'activeItemId',
+					fragmentEntryLink.fragmentEntryLinkId
+				);
+
+				this._url.searchParams.set(
+					'activeItemType',
+					FRAGMENTS_EDITOR_ITEM_TYPES.fragment
+				);
+
+				window.sessionStorage.setItem(
+					HIGHLIGHTED_COMMENT_ID_KEY,
+					messageId
+				);
+			}
+		}
+	}
+
+	/**
+	 * @private
+	 * @review
+	 */
+	_handleSidebarPanelIdURLParameter() {
+		const sidebarPanelId = this._url.searchParams.get('sidebarPanelId');
+
+		const sidebarPanel = this.sidebarPanels.find(
+			panel => panel.sidebarPanelId === sidebarPanelId
+		);
+
+		if (sidebarPanelId !== null && sidebarPanel) {
+			this.store.dispatch({
+				type: UPDATE_SELECTED_SIDEBAR_PANEL_ID,
+				value: sidebarPanel.sidebarPanelId
+			});
+		}
+	}
+
+	/**
+	 * Syncs internal URL to window state
+	 * @private
+	 * @review
+	 */
+	_syncURL() {
+		let skipLoadPopstate;
+
+		if (Liferay.SPA && Liferay.SPA.app) {
+			skipLoadPopstate = Liferay.SPA.app.skipLoadPopstate;
+			Liferay.SPA.app.skipLoadPopstate = true;
+		}
+
+		history.replaceState(null, document.head.title, this._url.href);
+
+		requestAnimationFrame(() => {
+			if (
+				Liferay.SPA &&
+				Liferay.SPA.app &&
+				typeof skipLoadPopstate === 'boolean'
+			) {
+				Liferay.SPA.app.skipLoadPopstate = skipLoadPopstate;
+			}
+		});
+	}
+
+	/**
+	 * @param {string} key
+	 * @private
+	 * @review
+	 */
+	_syncValueToURL(key) {
+		/**
+		 * @param {{ newVal: any }} change
+		 */
+		return change => {
+			if (change.newVal !== null) {
+				this._url.searchParams.set(key, change.newVal);
+			} else {
+				this._url.searchParams.delete(key);
+			}
+
+			this._syncURL();
+		};
+	}
+
+	/**
+	 * @private
+	 * @review
+	 */
+	_toggleWrapperPadding() {
+		const sidebarPanel = this.sidebarPanels.find(
+			panel => panel.sidebarPanelId === this.sidebarPanelId
+		);
+
 		const wrapper = document.getElementById('wrapper');
 
 		if (wrapper) {
-			wrapper.classList.add(WRAPPER_CLASS);
+			wrapper.classList.add(WRAPPER_CLASSES.default);
 
-			if (this.selectedSidebarPanelId) {
-				wrapper.classList.add(WRAPPER_PADDED_CLASS);
+			if (sidebarPanel) {
+				wrapper.classList.add(WRAPPER_CLASSES.padded);
 			} else {
-				wrapper.classList.remove(WRAPPER_PADDED_CLASS);
+				wrapper.classList.remove(WRAPPER_CLASSES.padded);
 			}
 		}
 	}
 }
 
+EditModeWrapper.STATE = {
+	/**
+	 * Internal URL object
+	 * @default new URL
+	 * @memberof EditModeWrapper
+	 * @private
+	 * @review
+	 * @type {URL}
+	 */
+	_url: Config.instanceOf(URL)
+		.internal()
+		.value(new URL(location.href))
+};
+
 const ConnectedEditModeWrapper = getConnectedComponent(EditModeWrapper, [
-	'selectedSidebarPanelId'
+	'activeItemId',
+	'activeItemType',
+	'fragmentEntryLinks',
+	'selectedSidebarPanelId',
+	'sidebarPanels'
 ]);
 
-export {ConnectedEditModeWrapper, EditModeWrapper};
+export {ConnectedEditModeWrapper, EditModeWrapper, HIGHLIGHTED_COMMENT_ID_KEY};
 export default ConnectedEditModeWrapper;

@@ -76,6 +76,8 @@ definition {
 	macro addAddressViaMyAccount {
 		Click(locator1 = "NavBar#ADDRESSES");
 
+		Click(locator1 = "Button#ADD_ADDRESS");
+
 		Type(
 			locator1 = "TextInput#STREET_1",
 			value1 = "${userAddressStreet1}");
@@ -108,7 +110,7 @@ definition {
 			locator1 = "TextInput#CITY",
 			value1 = "${userAddressCity}");
 
-		Click(locator1 = "Radio#PRIMARY");
+		Check(locator1 = "Checkbox#MAKE_PRIMARY");
 
 		Check(locator1 = "Checkbox#MAILING");
 
@@ -1084,6 +1086,23 @@ definition {
 		}
 	}
 
+	macro deletePersonalDataCP {
+		Search.searchCP(searchTerm = "${userFirstName}");
+
+		LexiconEntry.gotoEntryMenuItemNoError(
+			menuItem = "Delete Personal Data",
+			rowEntry = "${userFirstName}");
+
+		AssertConfirm(value1 = "The user must be deactivated before starting the data erasure process. Are you sure you want to deactivate the user?");
+
+		Alert.viewSuccessMessage();
+
+		AssertElementPresent(
+			key_firstName = "${userFirstName}",
+			key_lastName = "${userLastName}",
+			locator1 = "DataErasure#HEADER");
+	}
+
 	macro deleteProfileImage {
 		Button.click(button = "Delete");
 
@@ -1733,8 +1752,6 @@ definition {
 		AssertClick(
 			locator1 = "UserBar#USER_SIGN_IN",
 			value1 = "Sign In");
-
-		AssertElementPresent(locator1 = "Icon#FACEBOOK");
 
 		AssertClick(
 			locator1 = "Link#FACEBOOK",

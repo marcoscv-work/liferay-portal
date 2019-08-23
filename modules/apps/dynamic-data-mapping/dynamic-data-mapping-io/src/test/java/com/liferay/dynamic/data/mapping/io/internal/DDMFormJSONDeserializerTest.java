@@ -193,9 +193,13 @@ public class DDMFormJSONDeserializerTest
 		Assert.assertNotNull(ddmFormFieldValidation);
 		Assert.assertEquals(
 			"Boolean2282", ddmFormFieldValidation.getExpression());
+
+		LocalizedValue errorMessageLocalizedValue =
+			ddmFormFieldValidation.getErrorMessageLocalizedValue();
+
 		Assert.assertEquals(
 			"You must check this box to continue.",
-			ddmFormFieldValidation.getErrorMessage());
+			errorMessageLocalizedValue.getString(LocaleUtil.US));
 
 		Assert.assertEquals("true", ddmFormField.getVisibilityExpression());
 	}

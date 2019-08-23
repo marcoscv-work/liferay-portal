@@ -12,6 +12,7 @@
  * details.
  */
 
+import CreateContentDialog from '../components/content/CreateContentDialog.es';
 import {UPDATE_LAST_SAVE_DATE} from '../actions/actions.es';
 
 /**
@@ -36,15 +37,15 @@ const IMAGE_SELECTOR_RETURN_TYPES = {
  * @param {object} options
  * @param {function} options.callback
  * @param {string} options.assetBrowserURL
+ * @param {string} options.eventName
  * @param {string} options.modalTitle
- * @param {string} options.portletNamespace
  * @param {function} [options.destroyedCallback=null]
  */
 function openAssetBrowser({
 	assetBrowserURL,
 	callback,
+	eventName,
 	modalTitle,
-	portletNamespace,
 	destroyedCallback = null
 }) {
 	Liferay.Util.selectEntity(
@@ -54,7 +55,7 @@ function openAssetBrowser({
 				destroyOnHide: true,
 				modal: true
 			},
-			eventName: `${portletNamespace}selectAsset`,
+			eventName: eventName,
 			title: modalTitle,
 			uri: assetBrowserURL
 		},
@@ -71,6 +72,27 @@ function openAssetBrowser({
 			}
 		}
 	);
+}
+
+/**
+ * @param {object} store Store
+ * @param {function} onCancelButtonClick
+ * @param {function} onSubmitButtonClick
+ * @param {function} onVisibilityChange
+ * @return {CreateContentDialog}
+ */
+function openCreateContentDialog(
+	store,
+	onCancelButtonClick,
+	onSubmitButtonClick,
+	onVisibilityChange
+) {
+	return new CreateContentDialog({
+		store,
+		onCancelButtonClick,
+		onSubmitButtonClick,
+		onVisibilityChange
+	});
 }
 
 /**
@@ -174,6 +196,7 @@ function stopListeningWidgetConfigurationChange() {
 
 export {
 	openAssetBrowser,
+	openCreateContentDialog,
 	openImageSelector,
 	startListeningWidgetConfigurationChange,
 	stopListeningWidgetConfigurationChange

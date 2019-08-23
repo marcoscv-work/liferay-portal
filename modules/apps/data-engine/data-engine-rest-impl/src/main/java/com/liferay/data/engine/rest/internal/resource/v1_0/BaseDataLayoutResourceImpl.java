@@ -94,7 +94,7 @@ public abstract class BaseDataLayoutResourceImpl implements DataLayoutResource {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/data-engine/v1.0/data-definitions/{dataDefinitionId}/data-layouts' -d $'{"dataDefinitionId": ___, "dataLayoutKey": ___, "dataLayoutPages": ___, "dateCreated": ___, "dateModified": ___, "defaultLanguageId": ___, "description": ___, "id": ___, "name": ___, "paginationMode": ___, "siteId": ___, "userId": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/data-engine/v1.0/data-definitions/{dataDefinitionId}/data-layouts' -d $'{"dataDefinitionId": ___, "dataLayoutKey": ___, "dataLayoutPages": ___, "dateCreated": ___, "dateModified": ___, "description": ___, "id": ___, "name": ___, "paginationMode": ___, "siteId": ___, "userId": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Override
 	@Consumes({"application/json", "application/xml"})
@@ -112,32 +112,6 @@ public abstract class BaseDataLayoutResourceImpl implements DataLayoutResource {
 		throws Exception {
 
 		return new DataLayout();
-	}
-
-	/**
-	 * Invoke this method with the command line:
-	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/data-engine/v1.0/data-layout/{dataLayoutId}/data-layout-permissions' -d $'{"addDataLayout": ___, "definePermissions": ___, "delete": ___, "roleNames": ___, "update": ___, "view": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
-	 */
-	@Override
-	@Consumes({"application/json", "application/xml"})
-	@POST
-	@Parameters(
-		value = {
-			@Parameter(in = ParameterIn.PATH, name = "dataLayoutId"),
-			@Parameter(in = ParameterIn.QUERY, name = "operation")
-		}
-	)
-	@Path("/data-layout/{dataLayoutId}/data-layout-permissions")
-	@Produces("application/json")
-	@Tags(value = {@Tag(name = "DataLayout")})
-	public void postDataLayoutDataLayoutPermission(
-			@NotNull @Parameter(hidden = true) @PathParam("dataLayoutId") Long
-				dataLayoutId,
-			@NotNull @Parameter(hidden = true) @QueryParam("operation") String
-				operation,
-			DataLayoutPermission dataLayoutPermission)
-		throws Exception {
 	}
 
 	/**
@@ -183,7 +157,7 @@ public abstract class BaseDataLayoutResourceImpl implements DataLayoutResource {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PUT' 'http://localhost:8080/o/data-engine/v1.0/data-layouts/{dataLayoutId}' -d $'{"dataDefinitionId": ___, "dataLayoutKey": ___, "dataLayoutPages": ___, "dateCreated": ___, "dateModified": ___, "defaultLanguageId": ___, "description": ___, "id": ___, "name": ___, "paginationMode": ___, "siteId": ___, "userId": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'PUT' 'http://localhost:8080/o/data-engine/v1.0/data-layouts/{dataLayoutId}' -d $'{"dataDefinitionId": ___, "dataLayoutKey": ___, "dataLayoutPages": ___, "dateCreated": ___, "dateModified": ___, "description": ___, "id": ___, "name": ___, "paginationMode": ___, "siteId": ___, "userId": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Override
 	@Consumes({"application/json", "application/xml"})
@@ -206,29 +180,27 @@ public abstract class BaseDataLayoutResourceImpl implements DataLayoutResource {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'GET' 'http://localhost:8080/o/data-engine/v1.0/sites/{siteId}/data-layout'  -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/data-engine/v1.0/data-layouts/{dataLayoutId}/data-layout-permissions' -d $'{"addDataLayout": ___, "definePermissions": ___, "delete": ___, "roleNames": ___, "update": ___, "view": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Override
-	@GET
+	@Consumes({"application/json", "application/xml"})
+	@POST
 	@Parameters(
 		value = {
-			@Parameter(in = ParameterIn.PATH, name = "siteId"),
-			@Parameter(in = ParameterIn.QUERY, name = "keywords"),
-			@Parameter(in = ParameterIn.QUERY, name = "page"),
-			@Parameter(in = ParameterIn.QUERY, name = "pageSize"),
-			@Parameter(in = ParameterIn.QUERY, name = "sort")
+			@Parameter(in = ParameterIn.PATH, name = "dataLayoutId"),
+			@Parameter(in = ParameterIn.QUERY, name = "operation")
 		}
 	)
-	@Path("/sites/{siteId}/data-layout")
-	@Produces({"application/json", "application/xml"})
+	@Path("/data-layouts/{dataLayoutId}/data-layout-permissions")
+	@Produces("application/json")
 	@Tags(value = {@Tag(name = "DataLayout")})
-	public Page<DataLayout> getSiteDataLayoutPage(
-			@NotNull @Parameter(hidden = true) @PathParam("siteId") Long siteId,
-			@Parameter(hidden = true) @QueryParam("keywords") String keywords,
-			@Context Pagination pagination, @Context Sort[] sorts)
+	public void postDataLayoutDataLayoutPermission(
+			@NotNull @Parameter(hidden = true) @PathParam("dataLayoutId") Long
+				dataLayoutId,
+			@NotNull @Parameter(hidden = true) @QueryParam("operation") String
+				operation,
+			DataLayoutPermission dataLayoutPermission)
 		throws Exception {
-
-		return Page.of(Collections.emptyList());
 	}
 
 	/**
@@ -254,6 +226,34 @@ public abstract class BaseDataLayoutResourceImpl implements DataLayoutResource {
 				operation,
 			DataLayoutPermission dataLayoutPermission)
 		throws Exception {
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/data-engine/v1.0/sites/{siteId}/data-layouts'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@GET
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "siteId"),
+			@Parameter(in = ParameterIn.QUERY, name = "keywords"),
+			@Parameter(in = ParameterIn.QUERY, name = "page"),
+			@Parameter(in = ParameterIn.QUERY, name = "pageSize"),
+			@Parameter(in = ParameterIn.QUERY, name = "sort")
+		}
+	)
+	@Path("/sites/{siteId}/data-layouts")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "DataLayout")})
+	public Page<DataLayout> getSiteDataLayoutsPage(
+			@NotNull @Parameter(hidden = true) @PathParam("siteId") Long siteId,
+			@Parameter(hidden = true) @QueryParam("keywords") String keywords,
+			@Context Pagination pagination, @Context Sort[] sorts)
+		throws Exception {
+
+		return Page.of(Collections.emptyList());
 	}
 
 	/**

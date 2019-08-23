@@ -48,7 +48,9 @@ public class StagingProcessesControlPanelEntry extends BaseControlPanelEntry {
 			return true;
 		}
 
-		if (group.isLayoutPrototype() || group.isLayoutSetPrototype()) {
+		if (group.isLayoutPrototype() || group.isLayoutSetPrototype() ||
+			group.isUser() || group.isUserGroup()) {
+
 			return true;
 		}
 

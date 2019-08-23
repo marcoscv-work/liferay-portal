@@ -205,14 +205,10 @@ function remove(array, position) {
  * @param {!Object} removeItemPayload Data that is passed to the reducer
  * @review
  */
-function removeItem(store, removeItemAction, removeItemPayload) {
+function removeItem(store, removeAction) {
 	store
 		.dispatch(enableSavingChangesStatusAction())
-		.dispatch(
-			Object.assign({}, removeItemPayload, {
-				type: removeItemAction
-			})
-		)
+		.dispatch(removeAction)
 		.dispatch(updateLastSaveDateAction())
 		.dispatch(disableSavingChangesStatusAction());
 }
@@ -365,24 +361,30 @@ function updateUsedWidgets(widgets, portletIds) {
  * @param {Object[]} state.fragmentEntryLinks
  * @param {Object[]} state.widgets
  * @param {string} fragmentEntryLinkId
- * @return {Object} Next state
+ * @return {Object}
  */
-function updateWidgets(state, fragmentEntryLinkId) {
-	const fragmentEntryLink = state.fragmentEntryLinks[fragmentEntryLinkId];
+function updateWidgets(state, fragmentEntryLinkIds = []) {
 	let nextState = state;
 
-	if (fragmentEntryLink.portletId) {
-		const widget = getWidget(state.widgets, fragmentEntryLink.portletId);
+	fragmentEntryLinkIds.forEach(fragmentEntryLinkId => {
+		const fragmentEntryLink = state.fragmentEntryLinks[fragmentEntryLinkId];
 
-		if (!widget.instanceable && widget.used) {
-			const widgetPath = getWidgetPath(
+		if (fragmentEntryLink.portletId) {
+			const widget = getWidget(
 				state.widgets,
 				fragmentEntryLink.portletId
 			);
 
-			nextState = setIn(state, [...widgetPath, 'used'], false);
+			if (!widget.instanceable && widget.used) {
+				const widgetPath = getWidgetPath(
+					state.widgets,
+					fragmentEntryLink.portletId
+				);
+
+				nextState = setIn(state, [...widgetPath, 'used'], false);
+			}
 		}
-	}
+	});
 
 	return nextState;
 }

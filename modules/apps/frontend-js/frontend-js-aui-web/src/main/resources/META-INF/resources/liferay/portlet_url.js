@@ -17,8 +17,6 @@ AUI.add(
 	function(A) {
 		var Lang = A.Lang;
 
-		var Util = Liferay.Util;
-
 		var PortletURL = function(lifecycle, params, basePortletURL) {
 			var instance = this;
 
@@ -55,18 +53,19 @@ AUI.add(
 				scroll: null
 			};
 
+			if (!basePortletURL) {
+				basePortletURL =
+					themeDisplay.getPortalURL() +
+					themeDisplay.getPathMain() +
+					'/portal/layout?p_l_id=' +
+					themeDisplay.getPlid();
+			}
+
 			instance.options = {
 				basePortletURL: basePortletURL,
 				escapeXML: null,
 				secure: null
 			};
-
-			if (!basePortletURL) {
-				instance.options.basePortletURL =
-					themeDisplay.getPathMain() +
-					'/portal/layout?p_l_id=' +
-					themeDisplay.getPlid();
-			}
 
 			A.each(params, function(item, index) {
 				if (Lang.isValue(item)) {
@@ -242,41 +241,37 @@ AUI.add(
 
 				var options = instance.options;
 
-				var reservedParams = instance.reservedParams;
+				var reservedParameters = {};
 
-				var resultURL = new A.Url(options.basePortletURL);
-
-				var portletId = reservedParams.p_p_id;
-
-				if (!portletId) {
-					portletId = resultURL.getParameter('p_p_id');
-				}
-
-				var namespacePrefix = Util.getPortletNamespace(portletId);
-
-				A.each(reservedParams, function(item, index) {
-					if (Lang.isValue(item)) {
-						resultURL.setParameter(index, item);
+				Object.entries(instance.reservedParams).forEach(function([
+					key,
+					value
+				]) {
+					if (value != null) {
+						reservedParameters[key] = value;
 					}
 				});
 
-				A.each(instance.params, function(item, index) {
-					if (Lang.isValue(item)) {
-						resultURL.setParameter(namespacePrefix + index, item);
-					}
-				});
+				var parameters = Object.assign(
+					{},
+					instance.params,
+					reservedParameters
+				);
+
+				var portletURL = Liferay.Util.PortletURL.createURL(
+					options.basePortletURL,
+					parameters
+				);
 
 				if (options.secure) {
-					resultURL.setProtocol('https');
+					portletURL.protocol = 'https:';
 				}
-
-				var value = resultURL.toString();
 
 				if (options.escapeXML) {
-					value = Lang.String.escapeHTML(value);
+					portletURL.href = Lang.String.escapeHTML(portletURL.href);
 				}
 
-				return value;
+				return portletURL.toString();
 			},
 
 			_isReservedParam: function(paramName) {
@@ -322,11 +317,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: [
-			'aui-base',
-			'aui-io-request',
-			'aui-url',
-			'querystring-stringify-simple'
-		]
+		requires: ['aui-base']
 	}
 );
