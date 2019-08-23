@@ -99,10 +99,10 @@ public class SegmentsExperimentCacheModel
 		sb.append(name);
 		sb.append(", description=");
 		sb.append(description);
-		sb.append(", status=");
-		sb.append(status);
 		sb.append(", typeSettings=");
 		sb.append(typeSettings);
+		sb.append(", status=");
+		sb.append(status);
 		sb.append("}");
 
 		return sb.toString();
@@ -174,14 +174,14 @@ public class SegmentsExperimentCacheModel
 			segmentsExperimentImpl.setDescription(description);
 		}
 
-		segmentsExperimentImpl.setStatus(status);
-
 		if (typeSettings == null) {
 			segmentsExperimentImpl.setTypeSettings("");
 		}
 		else {
 			segmentsExperimentImpl.setTypeSettings(typeSettings);
 		}
+
+		segmentsExperimentImpl.setStatus(status);
 
 		segmentsExperimentImpl.resetOriginalValues();
 
@@ -213,9 +213,9 @@ public class SegmentsExperimentCacheModel
 		classPK = objectInput.readLong();
 		name = objectInput.readUTF();
 		description = objectInput.readUTF();
+		typeSettings = objectInput.readUTF();
 
 		status = objectInput.readInt();
-		typeSettings = objectInput.readUTF();
 	}
 
 	@Override
@@ -274,14 +274,14 @@ public class SegmentsExperimentCacheModel
 			objectOutput.writeUTF(description);
 		}
 
-		objectOutput.writeInt(status);
-
 		if (typeSettings == null) {
 			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(typeSettings);
 		}
+
+		objectOutput.writeInt(status);
 	}
 
 	public String uuid;
@@ -299,7 +299,7 @@ public class SegmentsExperimentCacheModel
 	public long classPK;
 	public String name;
 	public String description;
-	public int status;
 	public String typeSettings;
+	public int status;
 
 }

@@ -271,10 +271,15 @@ public class StructureUtil {
 						DDMFormFieldValidation ddmFormFieldValidation =
 							(DDMFormFieldValidation)object;
 
+						LocalizedValue errorMessageLocalizedValue =
+							ddmFormFieldValidation.
+								getErrorMessageLocalizedValue();
+
 						return new Validation() {
 							{
 								errorMessage =
-									ddmFormFieldValidation.getErrorMessage();
+									errorMessageLocalizedValue.getString(
+										locale);
 								expression =
 									ddmFormFieldValidation.getExpression();
 							}

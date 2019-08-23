@@ -1,0 +1,13 @@
+definition {
+
+	macro checkConfigCheckbox {
+		Click(
+			fragment_name = "${fragmentName}",
+			locator1 = "PageEditor#SECTION_NAME");
+
+		Check.checkToggleSwitch(
+			checkboxName = "${checkboxName}",
+			locator1 = "Fragment#FRAGMENT_CHECKBOX");
+	}
+
+}

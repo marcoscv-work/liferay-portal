@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.segments.exception.NoSuchExperimentException;
 import com.liferay.segments.model.SegmentsExperiment;
 
 import java.io.Serializable;
@@ -67,7 +68,8 @@ public interface SegmentsExperimentLocalService
 	 */
 	public SegmentsExperiment addSegmentsExperiment(
 			long segmentsExperienceId, long classNameId, long classPK,
-			String name, String description, ServiceContext serviceContext)
+			String name, String description, String goal, String goalTarget,
+			ServiceContext serviceContext)
 		throws PortalException;
 
 	/**
@@ -196,6 +198,14 @@ public interface SegmentsExperimentLocalService
 	public SegmentsExperiment fetchSegmentsExperiment(
 		long segmentsExperimentId);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public SegmentsExperiment fetchSegmentsExperiment(
+		long segmentsExperienceId, long classNameId, long classPK, int status);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public SegmentsExperiment fetchSegmentsExperiment(
+		long groupId, String segmentsExperimentKey);
+
 	/**
 	 * Returns the segments experiment matching the UUID and group.
 	 *
@@ -239,7 +249,8 @@ public interface SegmentsExperimentLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<SegmentsExperiment> getSegmentsExperienceSegmentsExperiments(
-		long segmentsExperienceId, long classNameId, long classPK, int status);
+		long[] segmentsExperienceIds, long classNameId, long classPK,
+		int[] statuses, int start, int end);
 
 	/**
 	 * Returns the segments experiment with the primary key.
@@ -251,6 +262,11 @@ public interface SegmentsExperimentLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public SegmentsExperiment getSegmentsExperiment(long segmentsExperimentId)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public SegmentsExperiment getSegmentsExperiment(
+			String segmentsExperimentKey)
+		throws NoSuchExperimentException;
 
 	/**
 	 * Returns the segments experiment matching the UUID and group.
@@ -317,8 +333,13 @@ public interface SegmentsExperimentLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getSegmentsExperimentsCount();
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public boolean hasSegmentsExperiment(
+		long segmentsExperienceId, long classNameId, long classPK, int status);
+
 	public SegmentsExperiment updateSegmentsExperiment(
-			long segmentsExperimentId, String name, String description)
+			long segmentsExperimentId, String name, String description,
+			String goal, String goalTarget)
 		throws PortalException;
 
 	/**
@@ -330,5 +351,9 @@ public interface SegmentsExperimentLocalService
 	@Indexable(type = IndexableType.REINDEX)
 	public SegmentsExperiment updateSegmentsExperiment(
 		SegmentsExperiment segmentsExperiment);
+
+	public SegmentsExperiment updateSegmentsExperiment(
+			String segmentsExperimentKey, int status)
+		throws PortalException;
 
 }

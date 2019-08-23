@@ -23,7 +23,6 @@ import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
 import com.liferay.layout.util.LayoutCopyHelper;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -44,7 +43,7 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.segments.constants.SegmentsConstants;
+import com.liferay.segments.constants.SegmentsExperienceConstants;
 import com.liferay.segments.model.SegmentsExperience;
 import com.liferay.segments.model.SegmentsExperienceModel;
 import com.liferay.segments.service.SegmentsExperienceLocalService;
@@ -310,12 +309,11 @@ public class LayoutCopyHelperImpl implements LayoutCopyHelper {
 	}
 
 	private long[] _getSegmentsExperienceIds(
-			long groupId, long classNameId, long classPK)
-		throws PortalException {
+		long groupId, long classNameId, long classPK) {
 
 		List<SegmentsExperience> segmentsExperiences =
 			_segmentsExperienceLocalService.getSegmentsExperiences(
-				groupId, classNameId, classPK, true);
+				groupId, classNameId, classPK);
 
 		Stream<SegmentsExperience> stream = segmentsExperiences.stream();
 
@@ -323,7 +321,7 @@ public class LayoutCopyHelperImpl implements LayoutCopyHelper {
 			stream.mapToLong(
 				SegmentsExperienceModel::getSegmentsExperienceId
 			).toArray(),
-			new long[] {SegmentsConstants.SEGMENTS_EXPERIENCE_ID_DEFAULT});
+			new long[] {SegmentsExperienceConstants.ID_DEFAULT});
 	}
 
 	private static final TransactionConfig _transactionConfig =

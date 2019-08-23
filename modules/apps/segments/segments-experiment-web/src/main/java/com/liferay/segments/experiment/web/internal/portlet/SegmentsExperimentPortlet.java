@@ -15,13 +15,16 @@
 package com.liferay.segments.experiment.web.internal.portlet;
 
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.segments.constants.SegmentsPortletKeys;
 import com.liferay.segments.experiment.web.internal.constants.SegmentsExperimentWebKeys;
 import com.liferay.segments.experiment.web.internal.display.context.SegmentsExperimentDisplayContext;
+import com.liferay.segments.experiment.web.internal.product.navigation.control.menu.SegmentsExperimentProductNavigationControlMenuEntry;
 import com.liferay.segments.service.SegmentsExperienceService;
+import com.liferay.segments.service.SegmentsExperimentRelService;
 import com.liferay.segments.service.SegmentsExperimentService;
 
 import java.io.IOException;
@@ -79,21 +82,37 @@ public class SegmentsExperimentPortlet extends MVCPortlet {
 
 		SegmentsExperimentDisplayContext segmentsExperimentDisplayContext =
 			new SegmentsExperimentDisplayContext(
-				httpServletRequest, _segmentsExperienceService,
-				_segmentsExperimentService);
+				httpServletRequest, renderResponse, _layoutLocalService,
+				_portal, _segmentsExperienceService, _segmentsExperimentService,
+				_segmentsExperimentRelService);
 
 		renderRequest.setAttribute(
 			SegmentsExperimentWebKeys.SEGMENTS_EXPERIMENT_DISPLAY_CONTEXT,
 			segmentsExperimentDisplayContext);
 
+		renderRequest.setAttribute(
+			SegmentsExperimentWebKeys.SEGMENTS_EXPERIMENT_PANEL_STATE_OPEN,
+			_segmentsExperimentProductNavigationControlMenuEntry.
+				isPanelStateOpen(httpServletRequest));
+
 		super.doDispatch(renderRequest, renderResponse);
 	}
+
+	@Reference
+	private LayoutLocalService _layoutLocalService;
 
 	@Reference
 	private Portal _portal;
 
 	@Reference
 	private SegmentsExperienceService _segmentsExperienceService;
+
+	@Reference
+	private SegmentsExperimentProductNavigationControlMenuEntry
+		_segmentsExperimentProductNavigationControlMenuEntry;
+
+	@Reference
+	private SegmentsExperimentRelService _segmentsExperimentRelService;
 
 	@Reference
 	private SegmentsExperimentService _segmentsExperimentService;

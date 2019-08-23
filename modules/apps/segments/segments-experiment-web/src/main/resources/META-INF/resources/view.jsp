@@ -16,10 +16,6 @@
 
 <%@ include file="/init.jsp" %>
 
-<%
-String segmentsExperimentPanelState = SessionClicks.get(request, "com.liferay.segments.experiment.web_panelState", "closed");
-%>
-
 <div class="lfr-segments-experiment-sidebar" id="segmentsExperimentSidebar">
 	<div class="sidebar-header">
 		<h1 class="sr-only"><liferay-ui:message key="ab-test-panel" /></h1>
@@ -30,7 +26,7 @@ String segmentsExperimentPanelState = SessionClicks.get(request, "com.liferay.se
 	</div>
 
 	<div class="sidebar-body">
-		<c:if test='<%= Objects.equals(segmentsExperimentPanelState, "open") %>'>
+		<c:if test="<%= GetterUtil.getBoolean(request.getAttribute(SegmentsExperimentWebKeys.SEGMENTS_EXPERIMENT_PANEL_STATE_OPEN)) %>">
 			<liferay-util:include page="/segments_experiment_panel.jsp" servletContext="<%= application %>" />
 		</c:if>
 	</div>

@@ -23,13 +23,18 @@ import com.liferay.change.tracking.rest.resource.v1_0.SettingsResource;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
 
 import javax.annotation.Generated;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.osgi.service.component.ComponentServiceObjects;
 
@@ -167,6 +172,10 @@ public class Mutation {
 
 		collectionResource.setContextAcceptLanguage(_acceptLanguage);
 		collectionResource.setContextCompany(_company);
+		collectionResource.setContextHttpServletRequest(_httpServletRequest);
+		collectionResource.setContextHttpServletResponse(_httpServletResponse);
+		collectionResource.setContextUriInfo(_uriInfo);
+		collectionResource.setContextUser(_user);
 	}
 
 	private void _populateResourceContext(SettingsResource settingsResource)
@@ -174,6 +183,10 @@ public class Mutation {
 
 		settingsResource.setContextAcceptLanguage(_acceptLanguage);
 		settingsResource.setContextCompany(_company);
+		settingsResource.setContextHttpServletRequest(_httpServletRequest);
+		settingsResource.setContextHttpServletResponse(_httpServletResponse);
+		settingsResource.setContextUriInfo(_uriInfo);
+		settingsResource.setContextUser(_user);
 	}
 
 	private static ComponentServiceObjects<CollectionResource>
@@ -183,5 +196,9 @@ public class Mutation {
 
 	private AcceptLanguage _acceptLanguage;
 	private Company _company;
+	private HttpServletRequest _httpServletRequest;
+	private HttpServletResponse _httpServletResponse;
+	private UriInfo _uriInfo;
+	private User _user;
 
 }

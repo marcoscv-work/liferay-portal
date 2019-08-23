@@ -277,6 +277,13 @@ public class FragmentEntryLinkPersistenceTest {
 	}
 
 	@Test
+	public void testCountByFragmentEntryId() throws Exception {
+		_persistence.countByFragmentEntryId(RandomTestUtil.nextLong());
+
+		_persistence.countByFragmentEntryId(0L);
+	}
+
+	@Test
 	public void testCountByRendererKey() throws Exception {
 		_persistence.countByRendererKey("");
 

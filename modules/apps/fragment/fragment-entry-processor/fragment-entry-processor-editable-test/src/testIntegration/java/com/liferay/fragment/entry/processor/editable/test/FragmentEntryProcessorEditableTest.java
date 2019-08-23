@@ -17,6 +17,8 @@ package com.liferay.fragment.entry.processor.editable.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.service.AssetEntryUsageLocalService;
+import com.liferay.asset.test.util.AssetTestUtil;
+import com.liferay.fragment.constants.FragmentConstants;
 import com.liferay.fragment.constants.FragmentEntryLinkConstants;
 import com.liferay.fragment.exception.FragmentEntryContentException;
 import com.liferay.fragment.model.FragmentCollection;
@@ -47,7 +49,6 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
-import com.liferay.portlet.asset.util.test.AssetTestUtil;
 
 import java.io.IOException;
 
@@ -383,8 +384,10 @@ public class FragmentEntryProcessorEditableTest {
 
 		return _fragmentEntryService.addFragmentEntry(
 			_group.getGroupId(), fragmentCollection.getFragmentCollectionId(),
-			"Fragment Entry", null, _getFileAsString(htmlFile), null,
-			WorkflowConstants.STATUS_APPROVED, serviceContext);
+			"fragment-entry", "Fragment Entry", null,
+			_getFileAsString(htmlFile), null, null, 0,
+			FragmentConstants.TYPE_SECTION, WorkflowConstants.STATUS_APPROVED,
+			serviceContext);
 	}
 
 	private String _getFileAsString(String fileName) throws IOException {

@@ -50,12 +50,24 @@ public interface PropsKeys {
 	public static final String ADMIN_EMAIL_PASSWORD_RESET_SUBJECT =
 		"admin.email.password.reset.subject";
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String ADMIN_EMAIL_PASSWORD_SENT_BODY =
 		"admin.email.password.sent.body";
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String ADMIN_EMAIL_PASSWORD_SENT_SUBJECT =
 		"admin.email.password.sent.subject";
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String ADMIN_EMAIL_USER_ADDED_BODY =
 		"admin.email.user.added.body";
 
@@ -679,6 +691,10 @@ public interface PropsKeys {
 		COMPANY_SECURITY_PASSWORD_REMINDER_QUERY_FORM_AUTOCOMPLETE =
 			"company.security.password.reminder.query.form.autocomplete";
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static final String COMPANY_SECURITY_SEND_PASSWORD =
 		"company.security.send.password";
 
@@ -2297,6 +2313,10 @@ public interface PropsKeys {
 		MODULE_FRAMEWORK_WEB_SERVLET_ANNOTATION_SCANNING_BLACKLIST =
 			"module.framework.web.servlet.annotation.scanning.blacklist";
 
+	public static final String
+		MODULE_FRAMEWORK_WEB_SERVLET_ANNOTATION_SCANNING_WHITELIST =
+			"module.framework.web.servlet.annotation.scanning.whitelist";
+
 	public static final String MULTI_VALUE_MAP = "multi.value.map.";
 
 	public static final String MY_SITES_DIRECTORY_SITE_EXCLUDES =
@@ -3867,6 +3887,9 @@ public interface PropsKeys {
 
 	public static final String WIDGET_SERVLET_MAPPING =
 		"widget.servlet.mapping";
+
+	public static final String WORK_DIR_OVERRIDE_ENABLED =
+		"work.dir.override.enabled";
 
 	public static final String WORKFLOW_EMAIL_FROM_ADDRESS =
 		"workflow.email.from.address";

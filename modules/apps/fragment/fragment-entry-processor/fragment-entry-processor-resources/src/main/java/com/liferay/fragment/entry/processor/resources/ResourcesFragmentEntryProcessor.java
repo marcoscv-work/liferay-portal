@@ -91,7 +91,7 @@ public class ResourcesFragmentEntryProcessor implements FragmentEntryProcessor {
 			String fileEntryURL = StringPool.BLANK;
 
 			if (fileEntry != null) {
-				fileEntryURL = DLUtil.getPreviewURL(
+				fileEntryURL = DLUtil.getDownloadURL(
 					fileEntry, fileEntry.getFileVersion(), null,
 					StringPool.BLANK, false, false);
 			}

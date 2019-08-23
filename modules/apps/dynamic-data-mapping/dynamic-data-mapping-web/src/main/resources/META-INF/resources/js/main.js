@@ -33,6 +33,14 @@ AUI.add(
 
 		var DEFAULTS_FORM_VALIDATOR = A.config.FormValidator;
 
+		var ICON_ASTERISK_TPL =
+			'<span>' + Liferay.Util.getLexiconIconTpl('asterisk') + '</span>';
+
+		var ICON_QUESTION_TPL =
+			'<span>' +
+			Liferay.Util.getLexiconIconTpl('question-circle-full') +
+			'</span>';
+
 		var MAP_HIDDEN_FIELD_ATTRS = {
 			checkbox: ['readOnly'],
 
@@ -189,6 +197,7 @@ AUI.add(
 						strings: {
 							asc: Liferay.Language.get('ascending'),
 							desc: Liferay.Language.get('descending'),
+							propertyName: Liferay.Language.get('property-name'),
 							reverseSortBy: Lang.sub(
 								Liferay.Language.get('reverse-sort-by-x'),
 								['{column}']
@@ -196,7 +205,8 @@ AUI.add(
 							sortBy: Lang.sub(
 								Liferay.Language.get('sort-by-x'),
 								['{column}']
-							)
+							),
+							value: Liferay.Language.get('value')
 						}
 					}
 				},
@@ -206,6 +216,7 @@ AUI.add(
 						addNode: Liferay.Language.get('add-field'),
 						button: Liferay.Language.get('button'),
 						buttonType: Liferay.Language.get('button-type'),
+						cancel: Liferay.Language.get('cancel'),
 						deleteFieldsMessage: Liferay.Language.get(
 							'are-you-sure-you-want-to-delete-the-selected-entries'
 						),
@@ -372,7 +383,24 @@ AUI.add(
 						arguments
 					);
 
+					if (field.name === 'ddm-image' && field.get('required')) {
+						var requiredNode = field
+							._getFieldNode()
+							.one('.glyphicon-asterisk');
+
+						if (requiredNode) {
+							requiredNode.toggle(true);
+						}
+					}
+
 					// Dynamically updates field toolbar items to produce lexicon svg markup instead of default glyphicon
+
+					field.set(
+						'requiredFlagNode',
+						A.Node.create(ICON_ASTERISK_TPL)
+					);
+
+					field.set('tipFlagNode', A.Node.create(ICON_QUESTION_TPL));
 
 					var defaultGetToolbarItemsFn = A.bind(
 						field._getToolbarItems,
@@ -511,6 +539,10 @@ AUI.add(
 				},
 
 				_beforeGetEditor: function(record, column) {
+					if (column.key === 'name') {
+						return;
+					}
+
 					var instance = this;
 
 					var columnEditor = column.editor;
@@ -815,6 +847,15 @@ AUI.add(
 										);
 									}
 								}
+							}
+						} else if (attributeName === 'required') {
+							var state = changed.value.newVal === 'true';
+							var requiredNode = editingField
+								._getFieldNode()
+								.one('.glyphicon-asterisk');
+
+							if (requiredNode) {
+								requiredNode.toggle(state);
 							}
 						}
 					}
@@ -1213,8 +1254,7 @@ AUI.add(
 			DEFAULT: [
 				{
 					fieldLabel: Liferay.Language.get('button'),
-					iconClass:
-						'form-builder-field-icon form-builder-field-icon-button',
+					iconClass: 'square-hole',
 					label: Liferay.Language.get('button'),
 					type: 'button'
 				},
@@ -1226,8 +1266,7 @@ AUI.add(
 				},
 				{
 					fieldLabel: Liferay.Language.get('fieldset'),
-					iconClass:
-						'form-builder-field-icon form-builder-field-icon-fieldset',
+					iconClass: 'cards',
 					label: Liferay.Language.get('fieldset'),
 					type: 'fieldset'
 				},

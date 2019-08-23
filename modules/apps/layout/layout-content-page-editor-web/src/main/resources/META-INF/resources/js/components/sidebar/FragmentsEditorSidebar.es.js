@@ -67,7 +67,11 @@ class FragmentsEditorSidebar extends Component {
 	 * @review
 	 */
 	rendered() {
-		if (this.selectedSidebarPanelId) {
+		const selectedSidebarPanel = this.sidebarPanels.find(
+			panel => panel.sidebarPanelId === this.selectedSidebarPanelId
+		);
+
+		if (selectedSidebarPanel) {
 			Liferay.SideNavigation.hide(this._productMenuToggle);
 		}
 	}
@@ -78,8 +82,8 @@ class FragmentsEditorSidebar extends Component {
 	 */
 	_handleHide() {
 		this.store.dispatch({
-			sidebarPanelId: '',
-			type: UPDATE_SELECTED_SIDEBAR_PANEL_ID
+			type: UPDATE_SELECTED_SIDEBAR_PANEL_ID,
+			value: ''
 		});
 	}
 }
@@ -92,16 +96,6 @@ class FragmentsEditorSidebar extends Component {
  */
 FragmentsEditorSidebar.STATE = {
 	/**
-	 * Internal property for subscribing to sidenav events.
-	 * @default undefined
-	 * @instance
-	 * @memberOf FragmentsEditorSidebar
-	 * @review
-	 * @type {EventHandle}
-	 */
-	_toggleHandle: Config.internal(),
-
-	/**
 	 * Synced ProductMenu toggle button.
 	 * @default undefined
 	 * @instance
@@ -109,12 +103,22 @@ FragmentsEditorSidebar.STATE = {
 	 * @review
 	 * @type {object}
 	 */
-	_productMenuToggle: Config.internal()
+	_productMenuToggle: Config.internal(),
+
+	/**
+	 * Internal property for subscribing to sidenav events.
+	 * @default undefined
+	 * @instance
+	 * @memberOf FragmentsEditorSidebar
+	 * @review
+	 * @type {EventHandle}
+	 */
+	_toggleHandle: Config.internal()
 };
 
 const ConnectedFragmentsEditorSidebar = getConnectedComponent(
 	FragmentsEditorSidebar,
-	['selectedSidebarPanelId']
+	['selectedSidebarPanelId', 'sidebarPanels']
 );
 
 Soy.register(ConnectedFragmentsEditorSidebar, templates);

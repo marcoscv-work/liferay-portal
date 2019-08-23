@@ -16,6 +16,7 @@ package com.liferay.fragment.web.internal.portlet;
 
 import com.liferay.fragment.constants.FragmentActionKeys;
 import com.liferay.fragment.constants.FragmentPortletKeys;
+import com.liferay.fragment.contributor.FragmentCollectionContributorTracker;
 import com.liferay.fragment.model.FragmentCollection;
 import com.liferay.fragment.processor.FragmentEntryProcessorRegistry;
 import com.liferay.fragment.renderer.FragmentRendererController;
@@ -27,6 +28,7 @@ import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.io.IOException;
@@ -61,8 +63,7 @@ import org.osgi.service.component.annotations.Reference;
 		"javax.portlet.init-param.view-template=/view.jsp",
 		"javax.portlet.name=" + FragmentPortletKeys.FRAGMENT,
 		"javax.portlet.resource-bundle=content.Language",
-		"javax.portlet.security-role-ref=administrator",
-		"javax.portlet.supports.mime-type=text/html"
+		"javax.portlet.security-role-ref=administrator"
 	},
 	service = Portlet.class
 )
@@ -88,13 +89,12 @@ public class FragmentPortlet extends MVCPortlet {
 			throw new PortletException(ce);
 		}
 
-		List<FragmentCollection> fragmentCollections =
-			_fragmentCollectionService.getFragmentCollections(
-				themeDisplay.getScopeGroupId());
-
 		renderRequest.setAttribute(
-			FragmentWebKeys.FRAGMENT_COLLECTIONS, fragmentCollections);
-
+			FragmentWebKeys.FRAGMENT_COLLECTION_CONTRIBUTOR_TRACKER,
+			_fragmentCollectionContributorTracker);
+		renderRequest.setAttribute(
+			FragmentWebKeys.FRAGMENT_COLLECTIONS,
+			_getFragmentCollections(renderRequest));
 		renderRequest.setAttribute(
 			FragmentPortletConfiguration.class.getName(),
 			fragmentPortletConfiguration);
@@ -111,8 +111,30 @@ public class FragmentPortlet extends MVCPortlet {
 		super.doDispatch(renderRequest, renderResponse);
 	}
 
+	private List<FragmentCollection> _getFragmentCollections(
+		RenderRequest renderRequest) {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		long[] groupIds = {themeDisplay.getCompanyGroupId()};
+
+		if (themeDisplay.getScopeGroupId() !=
+				themeDisplay.getCompanyGroupId()) {
+
+			groupIds = ArrayUtil.append(
+				groupIds, themeDisplay.getScopeGroupId());
+		}
+
+		return _fragmentCollectionService.getFragmentCollections(groupIds);
+	}
+
 	@Reference
 	private ConfigurationProvider _configurationProvider;
+
+	@Reference
+	private FragmentCollectionContributorTracker
+		_fragmentCollectionContributorTracker;
 
 	@Reference
 	private FragmentCollectionService _fragmentCollectionService;

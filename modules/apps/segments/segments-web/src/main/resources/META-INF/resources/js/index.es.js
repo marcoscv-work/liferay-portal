@@ -12,21 +12,18 @@
  * details.
  */
 
+import {render} from 'frontend-js-react-web';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import SegmentEdit from './components/segment_edit/SegmentEdit.es';
 import ThemeContext from './ThemeContext.es';
-import {ClayIconSpriteContext} from '@clayui/icon';
 
 export default function(id, props, context) {
-	ReactDOM.render(
-		<ClayIconSpriteContext.Provider value={context.spritemap}>
-			<ThemeContext.Provider value={context}>
-				<div className="segments-root">
-					<SegmentEdit {...props} />
-				</div>
-			</ThemeContext.Provider>
-		</ClayIconSpriteContext.Provider>,
+	render(
+		<ThemeContext.Provider value={context}>
+			<div className="segments-root">
+				<SegmentEdit {...props} />
+			</div>
+		</ThemeContext.Provider>,
 		document.getElementById(id)
 	);
 }

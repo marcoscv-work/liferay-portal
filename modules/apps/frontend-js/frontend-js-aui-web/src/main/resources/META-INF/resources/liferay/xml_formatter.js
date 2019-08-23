@@ -43,8 +43,8 @@ AUI.add(
 					var lineIndent = instance.get('lineIndent');
 
 					return Liferay.Util.formatXML(content, {
-						tagIndent,
-						lineIndent
+						lineIndent: lineIndent,
+						tagIndent: tagIndent
 					});
 				}
 			}

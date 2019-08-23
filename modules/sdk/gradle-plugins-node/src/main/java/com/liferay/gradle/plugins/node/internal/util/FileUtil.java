@@ -19,6 +19,7 @@ import com.liferay.gradle.util.OSDetector;
 import groovy.json.JsonSlurper;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 
 import java.nio.charset.StandardCharsets;
@@ -112,6 +113,34 @@ public class FileUtil extends com.liferay.gradle.util.FileUtil {
 		return sb.toString();
 	}
 
+	public static File[] getFiles(
+		File dir, final String prefix, final String suffix) {
+
+		return dir.listFiles(
+			new FileFilter() {
+
+				@Override
+				public boolean accept(File file) {
+					if (file.isDirectory()) {
+						return false;
+					}
+
+					String name = file.getName();
+
+					if (!name.startsWith(prefix)) {
+						return false;
+					}
+
+					if (!name.endsWith(suffix)) {
+						return false;
+					}
+
+					return true;
+				}
+
+			});
+	}
+
 	public static void removeBinDirLinks(Logger logger, File nodeModulesDir)
 		throws IOException {
 
@@ -184,6 +213,16 @@ public class FileUtil extends com.liferay.gradle.util.FileUtil {
 
 			throw re;
 		}
+	}
+
+	public static void write(File file, byte[] bytes) throws Exception {
+		File dir = file.getParentFile();
+
+		if (dir != null) {
+			Files.createDirectories(dir.toPath());
+		}
+
+		Files.write(file.toPath(), bytes);
 	}
 
 	private static void _createBinDirLinks(

@@ -15,6 +15,7 @@
 package com.liferay.segments.service.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
@@ -26,17 +27,22 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.service.test.ServiceTestUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.util.test.LayoutTestUtil;
-import com.liferay.segments.constants.SegmentsConstants;
+import com.liferay.segments.constants.SegmentsExperienceConstants;
+import com.liferay.segments.constants.SegmentsExperimentConstants;
+import com.liferay.segments.exception.SegmentsExperimentGoalException;
 import com.liferay.segments.exception.SegmentsExperimentNameException;
 import com.liferay.segments.exception.SegmentsExperimentStatusException;
 import com.liferay.segments.model.SegmentsEntry;
 import com.liferay.segments.model.SegmentsExperience;
 import com.liferay.segments.model.SegmentsExperiment;
+import com.liferay.segments.model.SegmentsExperimentRel;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 import com.liferay.segments.service.SegmentsExperimentLocalService;
+import com.liferay.segments.service.SegmentsExperimentRelLocalService;
 import com.liferay.segments.test.util.SegmentsTestUtil;
 
 import java.util.List;
@@ -76,6 +82,8 @@ public class SegmentsExperimentLocalServiceTest {
 				segmentsExperience.getClassNameId(),
 				segmentsExperience.getClassPK(), RandomTestUtil.randomString(),
 				RandomTestUtil.randomString(),
+				SegmentsExperimentConstants.Goal.BOUNCE_RATE.getLabel(),
+				StringPool.BLANK,
 				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
 
 		SegmentsExperiment actualSegmentsExperiment =
@@ -105,6 +113,21 @@ public class SegmentsExperimentLocalServiceTest {
 		Assert.assertEquals(
 			expectedSegmentsExperiment.getTypeSettings(),
 			actualSegmentsExperiment.getTypeSettings());
+
+		List<SegmentsExperimentRel> segmentsExperimentRels =
+			_segmentsExperimentRelLocalService.getSegmentsExperimentRels(
+				actualSegmentsExperiment.getSegmentsExperimentId());
+
+		Assert.assertEquals(
+			segmentsExperimentRels.toString(), 1,
+			segmentsExperimentRels.size());
+
+		SegmentsExperimentRel segmentsExperimentRel =
+			segmentsExperimentRels.get(0);
+
+		Assert.assertEquals(
+			actualSegmentsExperiment.getSegmentsExperienceId(),
+			segmentsExperimentRel.getSegmentsExperienceId());
 	}
 
 	@Test(expected = SegmentsExperimentNameException.class)
@@ -116,6 +139,8 @@ public class SegmentsExperimentLocalServiceTest {
 			segmentsExperience.getClassNameId(),
 			segmentsExperience.getClassPK(), StringPool.BLANK,
 			RandomTestUtil.randomString(),
+			SegmentsExperimentConstants.Goal.BOUNCE_RATE.getLabel(),
+			StringPool.BLANK,
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
 	}
 
@@ -130,6 +155,8 @@ public class SegmentsExperimentLocalServiceTest {
 			segmentsExperience.getClassNameId(),
 			segmentsExperience.getClassPK(), RandomTestUtil.randomString(),
 			RandomTestUtil.randomString(),
+			SegmentsExperimentConstants.Goal.BOUNCE_RATE.getLabel(),
+			StringPool.BLANK,
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
 
 		_segmentsExperimentLocalService.addSegmentsExperiment(
@@ -137,6 +164,20 @@ public class SegmentsExperimentLocalServiceTest {
 			segmentsExperience.getClassNameId(),
 			segmentsExperience.getClassPK(), RandomTestUtil.randomString(),
 			RandomTestUtil.randomString(),
+			SegmentsExperimentConstants.Goal.BOUNCE_RATE.getLabel(),
+			StringPool.BLANK,
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+	}
+
+	@Test(expected = SegmentsExperimentGoalException.class)
+	public void testAddSegmentsExperimentWithInvalidGoal() throws Exception {
+		SegmentsExperience segmentsExperience = _addSegmentsExperience();
+
+		_segmentsExperimentLocalService.addSegmentsExperiment(
+			segmentsExperience.getSegmentsExperienceId(),
+			segmentsExperience.getClassNameId(),
+			segmentsExperience.getClassPK(), StringPool.BLANK,
+			RandomTestUtil.randomString(), StringPool.BLANK, StringPool.BLANK,
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
 	}
 
@@ -149,6 +190,8 @@ public class SegmentsExperimentLocalServiceTest {
 			segmentsExperience.getClassNameId(),
 			segmentsExperience.getClassPK(), null,
 			RandomTestUtil.randomString(),
+			SegmentsExperimentConstants.Goal.BOUNCE_RATE.getLabel(),
+			StringPool.BLANK,
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
 	}
 
@@ -156,12 +199,7 @@ public class SegmentsExperimentLocalServiceTest {
 	public void testDeleteSegmentsExperiments() throws Exception {
 		SegmentsExperience segmentsExperience = _addSegmentsExperience();
 
-		_segmentsExperimentLocalService.addSegmentsExperiment(
-			segmentsExperience.getSegmentsExperienceId(),
-			segmentsExperience.getClassNameId(),
-			segmentsExperience.getClassPK(), RandomTestUtil.randomString(),
-			RandomTestUtil.randomString(),
-			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+		_addSegmentsExperiment(segmentsExperience);
 
 		_segmentsExperimentLocalService.deleteSegmentsExperiments(
 			segmentsExperience.getSegmentsExperienceId(),
@@ -174,6 +212,37 @@ public class SegmentsExperimentLocalServiceTest {
 					segmentsExperience.getSegmentsExperienceId(),
 					segmentsExperience.getClassNameId(),
 					segmentsExperience.getClassPK())));
+	}
+
+	@Test
+	public void testFetchSegmentsExperiment() throws Exception {
+		SegmentsExperiment segmentsExperiment = _addSegmentsExperiment();
+
+		SegmentsExperience segmentsExperience =
+			_segmentsExperienceLocalService.addSegmentsExperience(
+				segmentsExperiment.getSegmentsEntryId(),
+				segmentsExperiment.getClassNameId(),
+				segmentsExperiment.getClassPK(),
+				RandomTestUtil.randomLocaleStringMap(), false,
+				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		_segmentsExperimentRelLocalService.addSegmentsExperimentRel(
+			segmentsExperiment.getSegmentsExperimentId(),
+			segmentsExperience.getSegmentsExperienceId(),
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		Assert.assertNull(
+			_segmentsExperimentLocalService.fetchSegmentsExperiment(
+				segmentsExperience.getSegmentsExperienceId(),
+				segmentsExperience.getClassNameId(),
+				segmentsExperience.getClassPK(),
+				SegmentsExperimentConstants.STATUS_RUNNING));
+		Assert.assertNotNull(
+			_segmentsExperimentLocalService.fetchSegmentsExperiment(
+				segmentsExperience.getSegmentsExperienceId(),
+				segmentsExperience.getClassNameId(),
+				segmentsExperience.getClassPK(),
+				SegmentsExperimentConstants.STATUS_DRAFT));
 	}
 
 	@Test
@@ -196,19 +265,11 @@ public class SegmentsExperimentLocalServiceTest {
 				_group.getGroupId(), segmentsEntry.getSegmentsEntryId(),
 				classNameId, layout.getPlid());
 
-		SegmentsExperiment segmentsExperiment1 =
-			_segmentsExperimentLocalService.addSegmentsExperiment(
-				segmentsExperience1.getSegmentsExperienceId(), classNameId,
-				layout.getPlid(), RandomTestUtil.randomString(),
-				RandomTestUtil.randomString(),
-				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+		SegmentsExperiment segmentsExperiment1 = _addSegmentsExperiment(
+			segmentsExperience1);
 
-		SegmentsExperiment segmentsExperiment2 =
-			_segmentsExperimentLocalService.addSegmentsExperiment(
-				segmentsExperience2.getSegmentsExperienceId(), classNameId,
-				layout.getPlid(), RandomTestUtil.randomString(),
-				RandomTestUtil.randomString(),
-				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+		SegmentsExperiment segmentsExperiment2 = _addSegmentsExperiment(
+			segmentsExperience2);
 
 		List<SegmentsExperiment> segmentsExperiments =
 			_segmentsExperimentLocalService.getSegmentsEntrySegmentsExperiments(
@@ -226,6 +287,11 @@ public class SegmentsExperimentLocalServiceTest {
 			Layout.class.getName());
 		Layout layout = LayoutTestUtil.addLayout(_group);
 
+		SegmentsExperiment segmentsExperimentDefault =
+			SegmentsTestUtil.addSegmentsExperiment(
+				_group.getGroupId(), SegmentsExperienceConstants.ID_DEFAULT,
+				classNameId, layout.getPlid());
+
 		SegmentsExperience segmentsExperience1 =
 			SegmentsTestUtil.addSegmentsExperience(
 				_group.getGroupId(), classNameId, layout.getPlid());
@@ -234,26 +300,11 @@ public class SegmentsExperimentLocalServiceTest {
 			SegmentsTestUtil.addSegmentsExperience(
 				_group.getGroupId(), classNameId, layout.getPlid());
 
-		SegmentsExperiment segmentsExperiment1 =
-			_segmentsExperimentLocalService.addSegmentsExperiment(
-				SegmentsConstants.SEGMENTS_EXPERIENCE_ID_DEFAULT, classNameId,
-				layout.getPlid(), RandomTestUtil.randomString(),
-				RandomTestUtil.randomString(),
-				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+		SegmentsExperiment segmentsExperiment1 = _addSegmentsExperiment(
+			segmentsExperience1);
 
-		SegmentsExperiment segmentsExperiment2 =
-			_segmentsExperimentLocalService.addSegmentsExperiment(
-				segmentsExperience1.getSegmentsExperienceId(), classNameId,
-				layout.getPlid(), RandomTestUtil.randomString(),
-				RandomTestUtil.randomString(),
-				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
-
-		SegmentsExperiment segmentsExperiment3 =
-			_segmentsExperimentLocalService.addSegmentsExperiment(
-				segmentsExperience2.getSegmentsExperienceId(), classNameId,
-				layout.getPlid(), RandomTestUtil.randomString(),
-				RandomTestUtil.randomString(),
-				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+		SegmentsExperiment segmentsExperiment2 = _addSegmentsExperiment(
+			segmentsExperience2);
 
 		List<SegmentsExperiment> segmentsExperiments =
 			_segmentsExperimentLocalService.getSegmentsExperiments(
@@ -261,9 +312,218 @@ public class SegmentsExperimentLocalServiceTest {
 
 		Assert.assertEquals(
 			segmentsExperiments.toString(), 3, segmentsExperiments.size());
-		Assert.assertEquals(segmentsExperiment3, segmentsExperiments.get(0));
-		Assert.assertEquals(segmentsExperiment2, segmentsExperiments.get(1));
-		Assert.assertEquals(segmentsExperiment1, segmentsExperiments.get(2));
+		Assert.assertEquals(segmentsExperiment2, segmentsExperiments.get(0));
+		Assert.assertEquals(segmentsExperiment1, segmentsExperiments.get(1));
+		Assert.assertEquals(
+			segmentsExperimentDefault, segmentsExperiments.get(2));
+	}
+
+	@Test
+	public void testHasSegmentsExperiment() throws Exception {
+		SegmentsExperiment segmentsExperiment = _addSegmentsExperiment();
+
+		SegmentsExperience segmentsExperience =
+			_segmentsExperienceLocalService.addSegmentsExperience(
+				segmentsExperiment.getSegmentsEntryId(),
+				segmentsExperiment.getClassNameId(),
+				segmentsExperiment.getClassPK(),
+				RandomTestUtil.randomLocaleStringMap(), false,
+				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		_segmentsExperimentRelLocalService.addSegmentsExperimentRel(
+			segmentsExperiment.getSegmentsExperimentId(),
+			segmentsExperience.getSegmentsExperienceId(),
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		Assert.assertFalse(
+			_segmentsExperimentLocalService.hasSegmentsExperiment(
+				segmentsExperience.getSegmentsExperienceId(),
+				segmentsExperience.getClassNameId(),
+				segmentsExperience.getClassPK(),
+				SegmentsExperimentConstants.STATUS_RUNNING));
+		Assert.assertTrue(
+			_segmentsExperimentLocalService.hasSegmentsExperiment(
+				segmentsExperience.getSegmentsExperienceId(),
+				segmentsExperience.getClassNameId(),
+				segmentsExperience.getClassPK(),
+				SegmentsExperimentConstants.STATUS_DRAFT));
+	}
+
+	@Test(expected = SegmentsExperimentStatusException.class)
+	public void testUpdateSegmentsExperimentStatusToPausedWithExistingExperimentInPaused()
+		throws Exception {
+
+		SegmentsExperience segmentsExperience = _addSegmentsExperience();
+
+		SegmentsExperiment segmentsExperiment =
+			_segmentsExperimentLocalService.addSegmentsExperiment(
+				segmentsExperience.getSegmentsExperienceId(),
+				segmentsExperience.getClassNameId(),
+				segmentsExperience.getClassPK(), RandomTestUtil.randomString(),
+				RandomTestUtil.randomString(),
+				SegmentsExperimentConstants.Goal.BOUNCE_RATE.getLabel(),
+				StringPool.BLANK,
+				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		_segmentsExperimentLocalService.updateSegmentsExperiment(
+			segmentsExperiment.getSegmentsExperimentKey(),
+			SegmentsExperimentConstants.STATUS_RUNNING);
+
+		_segmentsExperimentLocalService.updateSegmentsExperiment(
+			segmentsExperiment.getSegmentsExperimentKey(),
+			SegmentsExperimentConstants.STATUS_PAUSED);
+
+		SegmentsExperiment newSegmentsExperiment =
+			_segmentsExperimentLocalService.addSegmentsExperiment(
+				segmentsExperience.getSegmentsExperienceId(),
+				segmentsExperience.getClassNameId(),
+				segmentsExperience.getClassPK(), RandomTestUtil.randomString(),
+				RandomTestUtil.randomString(),
+				SegmentsExperimentConstants.Goal.BOUNCE_RATE.getLabel(),
+				StringPool.BLANK,
+				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		_segmentsExperimentLocalService.updateSegmentsExperiment(
+			newSegmentsExperiment.getSegmentsExperimentKey(),
+			SegmentsExperimentConstants.STATUS_RUNNING);
+
+		_segmentsExperimentLocalService.updateSegmentsExperiment(
+			newSegmentsExperiment.getSegmentsExperimentKey(),
+			SegmentsExperimentConstants.STATUS_PAUSED);
+	}
+
+	@Test(expected = SegmentsExperimentStatusException.class)
+	public void testUpdateSegmentsExperimentStatusToRunningWithExistingExperimentInRunning()
+		throws Exception {
+
+		SegmentsExperience segmentsExperience = _addSegmentsExperience();
+
+		SegmentsExperiment segmentsExperiment =
+			_segmentsExperimentLocalService.addSegmentsExperiment(
+				segmentsExperience.getSegmentsExperienceId(),
+				segmentsExperience.getClassNameId(),
+				segmentsExperience.getClassPK(), RandomTestUtil.randomString(),
+				RandomTestUtil.randomString(),
+				SegmentsExperimentConstants.Goal.BOUNCE_RATE.getLabel(),
+				StringPool.BLANK,
+				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		_segmentsExperimentLocalService.updateSegmentsExperiment(
+			segmentsExperiment.getSegmentsExperimentKey(),
+			SegmentsExperimentConstants.STATUS_RUNNING);
+
+		SegmentsExperiment newSegmentsExperiment =
+			_segmentsExperimentLocalService.addSegmentsExperiment(
+				segmentsExperience.getSegmentsExperienceId(),
+				segmentsExperience.getClassNameId(),
+				segmentsExperience.getClassPK(), RandomTestUtil.randomString(),
+				RandomTestUtil.randomString(),
+				SegmentsExperimentConstants.Goal.BOUNCE_RATE.getLabel(),
+				StringPool.BLANK,
+				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		_segmentsExperimentLocalService.updateSegmentsExperiment(
+			newSegmentsExperiment.getSegmentsExperimentKey(),
+			SegmentsExperimentConstants.STATUS_RUNNING);
+	}
+
+	@Test(expected = SegmentsExperimentGoalException.class)
+	public void testUpdateSegmentsExperimentWithInvalidGoal() throws Exception {
+		SegmentsExperiment segmentsExperiment = _addSegmentsExperiment();
+
+		String invalidGoal =
+			SegmentsExperimentConstants.Goal.BOUNCE_RATE.getLabel() +
+				"_INVALID";
+
+		_segmentsExperimentLocalService.updateSegmentsExperiment(
+			segmentsExperiment.getSegmentsExperimentId(),
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			invalidGoal, StringPool.BLANK);
+	}
+
+	@Test(expected = SegmentsExperimentNameException.class)
+	public void testUpdateSegmentsExperimentWithInvalidName() throws Exception {
+		SegmentsExperiment segmentsExperiment = _addSegmentsExperiment();
+
+		_segmentsExperimentLocalService.updateSegmentsExperiment(
+			segmentsExperiment.getSegmentsExperimentId(), StringPool.BLANK,
+			RandomTestUtil.randomString(),
+			SegmentsExperimentConstants.Goal.BOUNCE_RATE.getLabel(),
+			StringPool.BLANK);
+	}
+
+	@Test(expected = SegmentsExperimentStatusException.class)
+	public void testUpdateSegmentsExperimentWithInvalidStatus()
+		throws Exception {
+
+		SegmentsExperiment segmentsExperiment = _addSegmentsExperiment();
+
+		_segmentsExperimentLocalService.updateSegmentsExperiment(
+			segmentsExperiment.getSegmentsExperimentKey(), Integer.MIN_VALUE);
+	}
+
+	@Test(expected = SegmentsExperimentStatusException.class)
+	public void testUpdateSegmentsExperimentWithInvalidStatusTransition()
+		throws Exception {
+
+		SegmentsExperiment segmentsExperiment = _addSegmentsExperiment();
+
+		_segmentsExperimentLocalService.updateSegmentsExperiment(
+			segmentsExperiment.getSegmentsExperimentKey(),
+			SegmentsExperimentConstants.STATUS_TERMINATED);
+	}
+
+	@Test
+	public void testUpdateSegmentsExperimentWithValidGoal() throws Exception {
+		SegmentsExperiment segmentsExperiment = _addSegmentsExperiment();
+
+		SegmentsExperiment updatedSegmentsExperiment =
+			_segmentsExperimentLocalService.updateSegmentsExperiment(
+				segmentsExperiment.getSegmentsExperimentId(),
+				segmentsExperiment.getName(),
+				segmentsExperiment.getDescription(),
+				SegmentsExperimentConstants.Goal.SCROLL_DEPTH.getLabel(),
+				StringPool.BLANK);
+
+		UnicodeProperties typeSettingsProperties =
+			updatedSegmentsExperiment.getTypeSettingsProperties();
+
+		String goal = typeSettingsProperties.getProperty("goal");
+
+		Assert.assertEquals(
+			SegmentsExperimentConstants.Goal.SCROLL_DEPTH.getLabel(), goal);
+	}
+
+	@Test
+	public void testUpdateSegmentsExperimentWithValidName() throws Exception {
+		SegmentsExperiment segmentsExperiment = _addSegmentsExperiment();
+
+		String name = RandomTestUtil.randomString();
+		String description = RandomTestUtil.randomString();
+
+		SegmentsExperiment updatedSegmentsExperiment =
+			_segmentsExperimentLocalService.updateSegmentsExperiment(
+				segmentsExperiment.getSegmentsExperimentId(), name, description,
+				SegmentsExperimentConstants.Goal.BOUNCE_RATE.getLabel(),
+				StringPool.BLANK);
+
+		Assert.assertEquals(name, updatedSegmentsExperiment.getName());
+		Assert.assertEquals(
+			description, updatedSegmentsExperiment.getDescription());
+	}
+
+	@Test
+	public void testUpdateSegmentsExperimentWithValidStatus() throws Exception {
+		SegmentsExperiment segmentsExperiment = _addSegmentsExperiment();
+
+		SegmentsExperiment updatedSegmentsExperiment =
+			_segmentsExperimentLocalService.updateSegmentsExperiment(
+				segmentsExperiment.getSegmentsExperimentKey(),
+				SegmentsExperimentConstants.STATUS_RUNNING);
+
+		Assert.assertEquals(
+			SegmentsExperimentConstants.STATUS_RUNNING,
+			updatedSegmentsExperiment.getStatus());
 	}
 
 	private SegmentsExperience _addSegmentsExperience() throws Exception {
@@ -275,6 +535,22 @@ public class SegmentsExperimentLocalServiceTest {
 			_group.getGroupId(), classNameId, layout.getPlid());
 	}
 
+	private SegmentsExperiment _addSegmentsExperiment() throws Exception {
+		SegmentsExperience segmentsExperience = _addSegmentsExperience();
+
+		return _addSegmentsExperiment(segmentsExperience);
+	}
+
+	private SegmentsExperiment _addSegmentsExperiment(
+			SegmentsExperience segmentsExperience)
+		throws Exception {
+
+		return SegmentsTestUtil.addSegmentsExperiment(
+			_group.getGroupId(), segmentsExperience.getSegmentsExperienceId(),
+			segmentsExperience.getClassNameId(),
+			segmentsExperience.getClassPK());
+	}
+
 	@Inject
 	private ClassNameLocalService _classNameLocalService;
 
@@ -282,6 +558,13 @@ public class SegmentsExperimentLocalServiceTest {
 	private Group _group;
 
 	@Inject
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
+
+	@Inject
 	private SegmentsExperimentLocalService _segmentsExperimentLocalService;
+
+	@Inject
+	private SegmentsExperimentRelLocalService
+		_segmentsExperimentRelLocalService;
 
 }

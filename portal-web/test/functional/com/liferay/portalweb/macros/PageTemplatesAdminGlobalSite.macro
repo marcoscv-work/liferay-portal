@@ -89,7 +89,7 @@ definition {
 	}
 
 	macro tearDownCP {
-		ProductMenu.gotoSite(site = "Global");
+		SitePages.openPagesAdmin(siteURLKey = "global");
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",

@@ -39,6 +39,24 @@ public class AccountEntryLocalServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to <code>com.liferay.account.service.impl.AccountEntryLocalServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
 	 */
+	public static void activateAccountEntries(long[] accountEntryIds)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		getService().activateAccountEntries(accountEntryIds);
+	}
+
+	public static com.liferay.account.model.AccountEntry activateAccountEntry(
+		com.liferay.account.model.AccountEntry accountEntry) {
+
+		return getService().activateAccountEntry(accountEntry);
+	}
+
+	public static com.liferay.account.model.AccountEntry activateAccountEntry(
+			long accountEntryId)
+		throws Exception {
+
+		return getService().activateAccountEntry(accountEntryId);
+	}
 
 	/**
 	 * Adds the account entry to the database. Also notifies the appropriate model listeners.
@@ -50,6 +68,15 @@ public class AccountEntryLocalServiceUtil {
 		com.liferay.account.model.AccountEntry accountEntry) {
 
 		return getService().addAccountEntry(accountEntry);
+	}
+
+	public static com.liferay.account.model.AccountEntry addAccountEntry(
+			long userId, long parentAccountEntryId, String name,
+			String description, long logoId, int status)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().addAccountEntry(
+			userId, parentAccountEntryId, name, description, logoId, status);
 	}
 
 	/**
@@ -64,14 +91,41 @@ public class AccountEntryLocalServiceUtil {
 		return getService().createAccountEntry(accountEntryId);
 	}
 
+	public static void deactivateAccountEntries(long[] accountEntryIds)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		getService().deactivateAccountEntries(accountEntryIds);
+	}
+
+	public static com.liferay.account.model.AccountEntry deactivateAccountEntry(
+		com.liferay.account.model.AccountEntry accountEntry) {
+
+		return getService().deactivateAccountEntry(accountEntry);
+	}
+
+	public static com.liferay.account.model.AccountEntry deactivateAccountEntry(
+			long accountEntryId)
+		throws Exception {
+
+		return getService().deactivateAccountEntry(accountEntryId);
+	}
+
+	public static void deleteAccountEntries(long[] accountEntryIds)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		getService().deleteAccountEntries(accountEntryIds);
+	}
+
 	/**
 	 * Deletes the account entry from the database. Also notifies the appropriate model listeners.
 	 *
 	 * @param accountEntry the account entry
 	 * @return the account entry that was removed
+	 * @throws PortalException
 	 */
 	public static com.liferay.account.model.AccountEntry deleteAccountEntry(
-		com.liferay.account.model.AccountEntry accountEntry) {
+			com.liferay.account.model.AccountEntry accountEntry)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().deleteAccountEntry(accountEntry);
 	}
@@ -209,6 +263,16 @@ public class AccountEntryLocalServiceUtil {
 		return getService().getAccountEntries(start, end);
 	}
 
+	public static java.util.List<com.liferay.account.model.AccountEntry>
+		getAccountEntries(
+			long companyId, int status, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.account.model.AccountEntry> obc) {
+
+		return getService().getAccountEntries(
+			companyId, status, start, end, obc);
+	}
+
 	/**
 	 * Returns the number of account entries.
 	 *
@@ -271,6 +335,12 @@ public class AccountEntryLocalServiceUtil {
 		com.liferay.account.model.AccountEntry accountEntry) {
 
 		return getService().updateAccountEntry(accountEntry);
+	}
+
+	public static com.liferay.account.model.AccountEntry updateStatus(
+		com.liferay.account.model.AccountEntry accountEntry, int status) {
+
+		return getService().updateStatus(accountEntry, status);
 	}
 
 	public static AccountEntryLocalService getService() {

@@ -94,16 +94,16 @@ AUI.add(
 				_getSidebarContent: function(event) {
 					var instance = this;
 
-					A.io.request(instance.get('resourceUrl'), {
-						form: instance._searchContainer.getForm().getDOM(),
-						on: {
-							success: function(event, id, xhr) {
-								var response = xhr.responseText;
-
-								instance.get('targetNode').setContent(response);
-							}
-						}
-					});
+					Liferay.Util.fetch(instance.get('resourceUrl'), {
+						body: new FormData(
+							instance._searchContainer.getForm().getDOM()
+						),
+						method: 'POST'
+					})
+						.then(response => response.text())
+						.then(response =>
+							instance.get('targetNode').setContent(response)
+						);
 				},
 
 				_onSearchContainerRegistered: function(event) {
@@ -134,7 +134,6 @@ AUI.add(
 		requires: [
 			'aui-base',
 			'aui-debounce',
-			'aui-io-request',
 			'aui-parse-content',
 			'liferay-portlet-base'
 		]

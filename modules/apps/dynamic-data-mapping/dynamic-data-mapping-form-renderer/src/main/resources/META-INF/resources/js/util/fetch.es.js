@@ -12,6 +12,8 @@
  * details.
  */
 
+import {fetch, objectToFormData} from 'frontend-js-web';
+
 const defaultHeaders = {
 	Accept: 'application/json'
 };
@@ -23,7 +25,6 @@ export const makeFetch = ({
 	method = 'POST'
 }) => {
 	const fetchData = {
-		credentials: 'include',
 		headers,
 		method
 	};
@@ -44,19 +45,17 @@ export const makeFetch = ({
 };
 
 export const convertToFormData = body => {
-	if (body instanceof HTMLFormElement) {
-		return new FormData(body);
-	} else if (body instanceof FormData) {
-		return body;
+	let requestBody = body;
+
+	if (body instanceof FormData) {
+		requestBody = body;
+	} else if (body instanceof HTMLFormElement) {
+		requestBody = new FormData(body);
 	} else if (typeof body === 'object') {
-		const formData = new FormData();
-
-		Object.entries(body).forEach(([key, value]) =>
-			formData.append(key, value)
-		);
-
-		return formData;
+		requestBody = objectToFormData(body);
+	} else {
+		requestBody = body;
 	}
 
-	throw new Error('Unsupported body type.');
+	return requestBody;
 };

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE service-builder PUBLIC "-//Liferay//DTD Service Builder 7.2.0//EN" "http://www.liferay.com/dtd/liferay-service-builder_7_2_0.dtd">
 
-<service-builder auto-namespace-tables="false" package-path="com.liferay.segments">
+<service-builder auto-namespace-tables="false" dependency-injector="ds" package-path="com.liferay.segments">
 	<author>Eduardo Garcia</author>
 	<namespace>Segments</namespace>
 	<entity local-service="true" name="SegmentsEntry" remote-service="true" uuid="true">
@@ -233,8 +233,8 @@
 		<column name="classPK" type="long" />
 		<column name="name" type="String" />
 		<column name="description" type="String" />
-		<column name="status" type="int" />
 		<column name="typeSettings" type="String" />
+		<column name="status" type="int" />
 
 		<!-- Order -->
 
@@ -246,6 +246,9 @@
 
 		<finder name="GroupId" return-type="Collection">
 			<finder-column name="groupId" />
+		</finder>
+		<finder name="SegmentsExperimentKey" return-type="Collection">
+			<finder-column name="segmentsExperimentKey" />
 		</finder>
 		<finder name="G_S" return-type="SegmentsExperiment" unique="true">
 			<finder-column name="groupId" />
@@ -261,17 +264,11 @@
 			<finder-column name="classNameId" />
 			<finder-column name="classPK" />
 		</finder>
-		<finder name="G_S_C_C" return-type="Collection">
-			<finder-column name="groupId" />
+		<finder name="S_C_C_S" return-type="Collection">
 			<finder-column arrayable-operator="OR" name="segmentsExperienceId" />
 			<finder-column name="classNameId" />
 			<finder-column name="classPK" />
-		</finder>
-		<finder name="S_C_C_S" return-type="Collection">
-			<finder-column name="segmentsExperienceId" />
-			<finder-column name="classNameId" />
-			<finder-column name="classPK" />
-			<finder-column name="status" />
+			<finder-column arrayable-operator="OR" name="status" />
 		</finder>
 
 		<!-- References -->
@@ -307,6 +304,10 @@
 		<finder name="SegmentsExperimentId" return-type="Collection">
 			<finder-column name="segmentsExperimentId" />
 		</finder>
+		<finder name="S_S" return-type="SegmentsExperimentRel" unique="true">
+			<finder-column name="segmentsExperimentId" />
+			<finder-column name="segmentsExperienceId" />
+		</finder>
 	</entity>
 	<exceptions>
 		<exception>RequiredSegmentsEntry</exception>
@@ -315,7 +316,9 @@
 		<exception>SegmentsEntryName</exception>
 		<exception>SegmentsExperienceName</exception>
 		<exception>SegmentsExperiencePriority</exception>
+		<exception>SegmentsExperimentGoal</exception>
 		<exception>SegmentsExperimentName</exception>
+		<exception>SegmentsExperimentRelName</exception>
 		<exception>SegmentsExperimentStatus</exception>
 	</exceptions>
 </service-builder>

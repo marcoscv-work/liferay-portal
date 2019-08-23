@@ -14,6 +14,7 @@
 
 package com.liferay.segments.service.impl;
 
+import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
@@ -36,14 +37,16 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.GroupThreadLocal;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.segments.constants.SegmentsConstants;
+import com.liferay.segments.constants.SegmentsEntryConstants;
 import com.liferay.segments.exception.RequiredSegmentsEntryException;
 import com.liferay.segments.exception.SegmentsEntryKeyException;
 import com.liferay.segments.exception.SegmentsEntryNameException;
 import com.liferay.segments.model.SegmentsEntry;
+import com.liferay.segments.service.SegmentsEntryRelLocalService;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 import com.liferay.segments.service.base.SegmentsEntryLocalServiceBaseImpl;
 
 import java.io.Serializable;
@@ -56,9 +59,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 /**
  * @author Eduardo García
  */
+@Component(
+	property = "model.class.name=com.liferay.segments.model.SegmentsEntry",
+	service = AopService.class
+)
 public class SegmentsEntryLocalServiceImpl
 	extends SegmentsEntryLocalServiceBaseImpl {
 
@@ -105,7 +115,7 @@ public class SegmentsEntryLocalServiceImpl
 		segmentsEntry.setCriteria(criteria);
 
 		if (Validator.isNull(source)) {
-			segmentsEntry.setSource(SegmentsConstants.SOURCE_DEFAULT);
+			segmentsEntry.setSource(SegmentsEntryConstants.SOURCE_DEFAULT);
 		}
 		else {
 			segmentsEntry.setSource(source);
@@ -128,8 +138,7 @@ public class SegmentsEntryLocalServiceImpl
 			segmentsEntryPersistence.findByGroupId(groupId);
 
 		for (SegmentsEntry segmentsEntry : segmentsEntries) {
-			segmentsEntryLocalService.deleteSegmentsEntry(
-				segmentsEntry.getSegmentsEntryId());
+			segmentsEntryLocalService.deleteSegmentsEntry(segmentsEntry);
 		}
 	}
 
@@ -181,12 +190,12 @@ public class SegmentsEntryLocalServiceImpl
 
 		// Segments experiences
 
-		segmentsExperienceLocalService.deleteSegmentsEntrySegmentsExperiences(
+		_segmentsExperienceLocalService.deleteSegmentsEntrySegmentsExperiences(
 			segmentsEntry.getSegmentsEntryId());
 
 		// Segments rels
 
-		segmentsEntryRelLocalService.deleteSegmentsEntryRels(
+		_segmentsEntryRelLocalService.deleteSegmentsEntryRels(
 			segmentsEntry.getSegmentsEntryId());
 
 		return segmentsEntry;
@@ -205,7 +214,7 @@ public class SegmentsEntryLocalServiceImpl
 		}
 
 		for (long ancestorSiteGroupId :
-				PortalUtil.getAncestorSiteGroupIds(groupId)) {
+				_portal.getAncestorSiteGroupIds(groupId)) {
 
 			segmentsEntry = segmentsEntryPersistence.fetchByG_S(
 				ancestorSiteGroupId, segmentsEntryKey);
@@ -229,8 +238,7 @@ public class SegmentsEntryLocalServiceImpl
 		}
 
 		return segmentsEntryPersistence.findByGroupId(
-			ArrayUtil.append(
-				PortalUtil.getAncestorSiteGroupIds(groupId), groupId),
+			ArrayUtil.append(_portal.getAncestorSiteGroupIds(groupId), groupId),
 			start, end, orderByComparator);
 	}
 
@@ -240,8 +248,7 @@ public class SegmentsEntryLocalServiceImpl
 		OrderByComparator<SegmentsEntry> orderByComparator) {
 
 		return segmentsEntryPersistence.findByG_A_T(
-			ArrayUtil.append(
-				PortalUtil.getAncestorSiteGroupIds(groupId), groupId),
+			ArrayUtil.append(_portal.getAncestorSiteGroupIds(groupId), groupId),
 			active, type, start, end, orderByComparator);
 	}
 
@@ -251,8 +258,7 @@ public class SegmentsEntryLocalServiceImpl
 		int end, OrderByComparator<SegmentsEntry> orderByComparator) {
 
 		return segmentsEntryPersistence.findByG_A_S_T(
-			ArrayUtil.append(
-				PortalUtil.getAncestorSiteGroupIds(groupId), groupId),
+			ArrayUtil.append(_portal.getAncestorSiteGroupIds(groupId), groupId),
 			active, source, type, start, end, orderByComparator);
 	}
 
@@ -275,7 +281,7 @@ public class SegmentsEntryLocalServiceImpl
 
 		return segmentsEntryPersistence.countByGroupId(
 			ArrayUtil.append(
-				PortalUtil.getAncestorSiteGroupIds(groupId), groupId));
+				_portal.getAncestorSiteGroupIds(groupId), groupId));
 	}
 
 	@Override
@@ -373,7 +379,7 @@ public class SegmentsEntryLocalServiceImpl
 
 		if (includeAncestorSegmentsEntries) {
 			groupIds = ArrayUtil.append(
-				groupIds, PortalUtil.getAncestorSiteGroupIds(groupId));
+				groupIds, _portal.getAncestorSiteGroupIds(groupId));
 		}
 
 		searchContext.setGroupIds(groupIds);
@@ -440,12 +446,21 @@ public class SegmentsEntryLocalServiceImpl
 	protected void validateName(long groupId, Map<Locale, String> nameMap)
 		throws PortalException {
 
-		Locale defaultLocale = PortalUtil.getSiteDefaultLocale(groupId);
+		Locale defaultLocale = _portal.getSiteDefaultLocale(groupId);
 
 		if (nameMap.isEmpty() || Validator.isNull(nameMap.get(defaultLocale))) {
 			throw new SegmentsEntryNameException(
 				"Name is null for locale " + defaultLocale.getDisplayName());
 		}
 	}
+
+	@Reference
+	private Portal _portal;
+
+	@Reference
+	private SegmentsEntryRelLocalService _segmentsEntryRelLocalService;
+
+	@Reference
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 }

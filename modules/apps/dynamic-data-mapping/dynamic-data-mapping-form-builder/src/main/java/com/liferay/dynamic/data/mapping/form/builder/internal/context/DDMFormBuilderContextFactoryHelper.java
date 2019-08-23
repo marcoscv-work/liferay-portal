@@ -38,6 +38,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -269,7 +270,7 @@ public class DDMFormBuilderContextFactoryHelper {
 					ddmFormFieldTypeSetting.getType(), "validation")) {
 
 			return doCreateDDMFormFieldValue(
-				(DDMFormFieldValidation)propertyValue);
+				availableLocales, (DDMFormFieldValidation)propertyValue);
 		}
 
 		return new UnlocalizedValue(String.valueOf(propertyValue));
@@ -290,17 +291,26 @@ public class DDMFormBuilderContextFactoryHelper {
 	}
 
 	protected Value doCreateDDMFormFieldValue(
+		Set<Locale> availableLocales,
 		DDMFormFieldValidation ddmFormFieldValidation) {
 
-		JSONObject jsonObject = _jsonFactory.createJSONObject();
+		JSONObject errorMessageJSONObject = _jsonFactory.createJSONObject();
 
-		jsonObject.put(
-			"errorMessage", ddmFormFieldValidation.getErrorMessage()
-		).put(
-			"expression", ddmFormFieldValidation.getExpression()
-		);
+		for (Locale availableLocale : availableLocales) {
+			LocalizedValue errorMessageLocalizedValue =
+				ddmFormFieldValidation.getErrorMessageLocalizedValue();
 
-		return new UnlocalizedValue(jsonObject.toString());
+			errorMessageJSONObject.put(
+				LocaleUtil.toLanguageId(availableLocale),
+				errorMessageLocalizedValue.getString(availableLocale));
+		}
+
+		return new UnlocalizedValue(
+			JSONUtil.put(
+				"errorMessage", errorMessageJSONObject
+			).put(
+				"expression", ddmFormFieldValidation.getExpression()
+			).toString());
 	}
 
 	protected Map<String, Object> doCreateFormContext(

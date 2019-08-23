@@ -94,14 +94,14 @@ public interface SegmentsExperimentRelPersistence
 	 * @param start the lower bound of the range of segments experiment rels
 	 * @param end the upper bound of the range of segments experiment rels (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching segments experiment rels
 	 */
 	public java.util.List<SegmentsExperimentRel> findBySegmentsExperimentId(
 		long segmentsExperimentId, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<SegmentsExperimentRel>
 			orderByComparator,
-		boolean retrieveFromCache);
+		boolean useFinderCache);
 
 	/**
 	 * Returns the first segments experiment rel in the ordered set where segmentsExperimentId = &#63;.
@@ -184,6 +184,60 @@ public interface SegmentsExperimentRelPersistence
 	 * @return the number of matching segments experiment rels
 	 */
 	public int countBySegmentsExperimentId(long segmentsExperimentId);
+
+	/**
+	 * Returns the segments experiment rel where segmentsExperimentId = &#63; and segmentsExperienceId = &#63; or throws a <code>NoSuchExperimentRelException</code> if it could not be found.
+	 *
+	 * @param segmentsExperimentId the segments experiment ID
+	 * @param segmentsExperienceId the segments experience ID
+	 * @return the matching segments experiment rel
+	 * @throws NoSuchExperimentRelException if a matching segments experiment rel could not be found
+	 */
+	public SegmentsExperimentRel findByS_S(
+			long segmentsExperimentId, long segmentsExperienceId)
+		throws NoSuchExperimentRelException;
+
+	/**
+	 * Returns the segments experiment rel where segmentsExperimentId = &#63; and segmentsExperienceId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 *
+	 * @param segmentsExperimentId the segments experiment ID
+	 * @param segmentsExperienceId the segments experience ID
+	 * @return the matching segments experiment rel, or <code>null</code> if a matching segments experiment rel could not be found
+	 */
+	public SegmentsExperimentRel fetchByS_S(
+		long segmentsExperimentId, long segmentsExperienceId);
+
+	/**
+	 * Returns the segments experiment rel where segmentsExperimentId = &#63; and segmentsExperienceId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 *
+	 * @param segmentsExperimentId the segments experiment ID
+	 * @param segmentsExperienceId the segments experience ID
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the matching segments experiment rel, or <code>null</code> if a matching segments experiment rel could not be found
+	 */
+	public SegmentsExperimentRel fetchByS_S(
+		long segmentsExperimentId, long segmentsExperienceId,
+		boolean useFinderCache);
+
+	/**
+	 * Removes the segments experiment rel where segmentsExperimentId = &#63; and segmentsExperienceId = &#63; from the database.
+	 *
+	 * @param segmentsExperimentId the segments experiment ID
+	 * @param segmentsExperienceId the segments experience ID
+	 * @return the segments experiment rel that was removed
+	 */
+	public SegmentsExperimentRel removeByS_S(
+			long segmentsExperimentId, long segmentsExperienceId)
+		throws NoSuchExperimentRelException;
+
+	/**
+	 * Returns the number of segments experiment rels where segmentsExperimentId = &#63; and segmentsExperienceId = &#63;.
+	 *
+	 * @param segmentsExperimentId the segments experiment ID
+	 * @param segmentsExperienceId the segments experience ID
+	 * @return the number of matching segments experiment rels
+	 */
+	public int countByS_S(long segmentsExperimentId, long segmentsExperienceId);
 
 	/**
 	 * Caches the segments experiment rel in the entity cache if it is enabled.
@@ -287,14 +341,14 @@ public interface SegmentsExperimentRelPersistence
 	 * @param start the lower bound of the range of segments experiment rels
 	 * @param end the upper bound of the range of segments experiment rels (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of segments experiment rels
 	 */
 	public java.util.List<SegmentsExperimentRel> findAll(
 		int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<SegmentsExperimentRel>
 			orderByComparator,
-		boolean retrieveFromCache);
+		boolean useFinderCache);
 
 	/**
 	 * Removes all the segments experiment rels from the database.

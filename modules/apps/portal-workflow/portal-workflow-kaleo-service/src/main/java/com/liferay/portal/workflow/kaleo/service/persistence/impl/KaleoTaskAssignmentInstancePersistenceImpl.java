@@ -15,6 +15,7 @@
 package com.liferay.portal.workflow.kaleo.service.persistence.impl;
 
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.configuration.Configuration;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -22,20 +23,22 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ProxyUtil;
-import com.liferay.portal.spring.extender.service.ServiceReference;
 import com.liferay.portal.workflow.kaleo.exception.NoSuchTaskAssignmentInstanceException;
 import com.liferay.portal.workflow.kaleo.model.KaleoTaskAssignmentInstance;
 import com.liferay.portal.workflow.kaleo.model.impl.KaleoTaskAssignmentInstanceImpl;
 import com.liferay.portal.workflow.kaleo.model.impl.KaleoTaskAssignmentInstanceModelImpl;
 import com.liferay.portal.workflow.kaleo.service.persistence.KaleoTaskAssignmentInstancePersistence;
+import com.liferay.portal.workflow.kaleo.service.persistence.impl.constants.KaleoPersistenceConstants;
 
 import java.io.Serializable;
 
@@ -47,7 +50,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.sql.DataSource;
+
 import org.osgi.annotation.versioning.ProviderType;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The persistence implementation for the kaleo task assignment instance service.
@@ -59,6 +68,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @author Brian Wing Shun Chan
  * @generated
  */
+@Component(service = KaleoTaskAssignmentInstancePersistence.class)
 @ProviderType
 public class KaleoTaskAssignmentInstancePersistenceImpl
 	extends BasePersistenceImpl<KaleoTaskAssignmentInstance>
@@ -148,14 +158,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 	 * @param start the lower bound of the range of kaleo task assignment instances
 	 * @param end the upper bound of the range of kaleo task assignment instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching kaleo task assignment instances
 	 */
 	@Override
 	public List<KaleoTaskAssignmentInstance> findByCompanyId(
 		long companyId, int start, int end,
 		OrderByComparator<KaleoTaskAssignmentInstance> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -165,10 +175,13 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByCompanyId;
-			finderArgs = new Object[] {companyId};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByCompanyId;
+				finderArgs = new Object[] {companyId};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByCompanyId;
 			finderArgs = new Object[] {
 				companyId, start, end, orderByComparator
@@ -177,7 +190,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 		List<KaleoTaskAssignmentInstance> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<KaleoTaskAssignmentInstance>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -248,10 +261,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -678,14 +695,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 	 * @param start the lower bound of the range of kaleo task assignment instances
 	 * @param end the upper bound of the range of kaleo task assignment instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching kaleo task assignment instances
 	 */
 	@Override
 	public List<KaleoTaskAssignmentInstance> findByKaleoDefinitionVersionId(
 		long kaleoDefinitionVersionId, int start, int end,
 		OrderByComparator<KaleoTaskAssignmentInstance> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -695,11 +712,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath =
-				_finderPathWithoutPaginationFindByKaleoDefinitionVersionId;
-			finderArgs = new Object[] {kaleoDefinitionVersionId};
+
+			if (useFinderCache) {
+				finderPath =
+					_finderPathWithoutPaginationFindByKaleoDefinitionVersionId;
+				finderArgs = new Object[] {kaleoDefinitionVersionId};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath =
 				_finderPathWithPaginationFindByKaleoDefinitionVersionId;
 			finderArgs = new Object[] {
@@ -709,7 +729,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 		List<KaleoTaskAssignmentInstance> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<KaleoTaskAssignmentInstance>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -782,10 +802,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -1222,14 +1246,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 	 * @param start the lower bound of the range of kaleo task assignment instances
 	 * @param end the upper bound of the range of kaleo task assignment instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching kaleo task assignment instances
 	 */
 	@Override
 	public List<KaleoTaskAssignmentInstance> findByKaleoInstanceId(
 		long kaleoInstanceId, int start, int end,
 		OrderByComparator<KaleoTaskAssignmentInstance> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -1239,10 +1263,13 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByKaleoInstanceId;
-			finderArgs = new Object[] {kaleoInstanceId};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByKaleoInstanceId;
+				finderArgs = new Object[] {kaleoInstanceId};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByKaleoInstanceId;
 			finderArgs = new Object[] {
 				kaleoInstanceId, start, end, orderByComparator
@@ -1251,7 +1278,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 		List<KaleoTaskAssignmentInstance> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<KaleoTaskAssignmentInstance>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -1322,10 +1349,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -1755,14 +1786,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 	 * @param start the lower bound of the range of kaleo task assignment instances
 	 * @param end the upper bound of the range of kaleo task assignment instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching kaleo task assignment instances
 	 */
 	@Override
 	public List<KaleoTaskAssignmentInstance> findBykaleoTaskInstanceTokenId(
 		long kaleoTaskInstanceTokenId, int start, int end,
 		OrderByComparator<KaleoTaskAssignmentInstance> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -1772,11 +1803,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath =
-				_finderPathWithoutPaginationFindBykaleoTaskInstanceTokenId;
-			finderArgs = new Object[] {kaleoTaskInstanceTokenId};
+
+			if (useFinderCache) {
+				finderPath =
+					_finderPathWithoutPaginationFindBykaleoTaskInstanceTokenId;
+				finderArgs = new Object[] {kaleoTaskInstanceTokenId};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath =
 				_finderPathWithPaginationFindBykaleoTaskInstanceTokenId;
 			finderArgs = new Object[] {
@@ -1786,7 +1820,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 		List<KaleoTaskAssignmentInstance> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<KaleoTaskAssignmentInstance>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -1859,10 +1893,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -2299,14 +2337,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 	 * @param start the lower bound of the range of kaleo task assignment instances
 	 * @param end the upper bound of the range of kaleo task assignment instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching kaleo task assignment instances
 	 */
 	@Override
 	public List<KaleoTaskAssignmentInstance> findByassigneeClassName(
 		String assigneeClassName, int start, int end,
 		OrderByComparator<KaleoTaskAssignmentInstance> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		assigneeClassName = Objects.toString(assigneeClassName, "");
 
@@ -2318,10 +2356,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByassigneeClassName;
-			finderArgs = new Object[] {assigneeClassName};
+
+			if (useFinderCache) {
+				finderPath =
+					_finderPathWithoutPaginationFindByassigneeClassName;
+				finderArgs = new Object[] {assigneeClassName};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByassigneeClassName;
 			finderArgs = new Object[] {
 				assigneeClassName, start, end, orderByComparator
@@ -2330,7 +2372,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 		List<KaleoTaskAssignmentInstance> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<KaleoTaskAssignmentInstance>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -2415,10 +2457,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -2883,14 +2929,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 	 * @param start the lower bound of the range of kaleo task assignment instances
 	 * @param end the upper bound of the range of kaleo task assignment instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching kaleo task assignment instances
 	 */
 	@Override
 	public List<KaleoTaskAssignmentInstance> findByG_ACPK(
 		long groupId, long assigneeClassPK, int start, int end,
 		OrderByComparator<KaleoTaskAssignmentInstance> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -2900,10 +2946,13 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByG_ACPK;
-			finderArgs = new Object[] {groupId, assigneeClassPK};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByG_ACPK;
+				finderArgs = new Object[] {groupId, assigneeClassPK};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByG_ACPK;
 			finderArgs = new Object[] {
 				groupId, assigneeClassPK, start, end, orderByComparator
@@ -2912,7 +2961,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 		List<KaleoTaskAssignmentInstance> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<KaleoTaskAssignmentInstance>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -2988,10 +3037,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -3451,7 +3504,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 	 * @param start the lower bound of the range of kaleo task assignment instances
 	 * @param end the upper bound of the range of kaleo task assignment instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching kaleo task assignment instances
 	 */
 	@Override
@@ -3459,7 +3512,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 		long kaleoTaskInstanceTokenId, String assigneeClassName, int start,
 		int end,
 		OrderByComparator<KaleoTaskAssignmentInstance> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		assigneeClassName = Objects.toString(assigneeClassName, "");
 
@@ -3471,12 +3524,15 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByKTITI_ACN;
-			finderArgs = new Object[] {
-				kaleoTaskInstanceTokenId, assigneeClassName
-			};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByKTITI_ACN;
+				finderArgs = new Object[] {
+					kaleoTaskInstanceTokenId, assigneeClassName
+				};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByKTITI_ACN;
 			finderArgs = new Object[] {
 				kaleoTaskInstanceTokenId, assigneeClassName, start, end,
@@ -3486,7 +3542,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 		List<KaleoTaskAssignmentInstance> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<KaleoTaskAssignmentInstance>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -3576,10 +3632,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -4078,14 +4138,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 	 * @param start the lower bound of the range of kaleo task assignment instances
 	 * @param end the upper bound of the range of kaleo task assignment instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching kaleo task assignment instances
 	 */
 	@Override
 	public List<KaleoTaskAssignmentInstance> findByACN_ACPK(
 		String assigneeClassName, long assigneeClassPK, int start, int end,
 		OrderByComparator<KaleoTaskAssignmentInstance> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		assigneeClassName = Objects.toString(assigneeClassName, "");
 
@@ -4097,10 +4157,13 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByACN_ACPK;
-			finderArgs = new Object[] {assigneeClassName, assigneeClassPK};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByACN_ACPK;
+				finderArgs = new Object[] {assigneeClassName, assigneeClassPK};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByACN_ACPK;
 			finderArgs = new Object[] {
 				assigneeClassName, assigneeClassPK, start, end,
@@ -4110,7 +4173,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 		List<KaleoTaskAssignmentInstance> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<KaleoTaskAssignmentInstance>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -4199,10 +4262,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -4622,8 +4689,6 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 		setModelImplClass(KaleoTaskAssignmentInstanceImpl.class);
 		setModelPKClass(long.class);
-		setEntityCacheEnabled(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED);
 	}
 
 	/**
@@ -4636,8 +4701,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 		KaleoTaskAssignmentInstance kaleoTaskAssignmentInstance) {
 
 		entityCache.putResult(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceImpl.class,
+			entityCacheEnabled, KaleoTaskAssignmentInstanceImpl.class,
 			kaleoTaskAssignmentInstance.getPrimaryKey(),
 			kaleoTaskAssignmentInstance);
 
@@ -4657,8 +4721,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 				kaleoTaskAssignmentInstances) {
 
 			if (entityCache.getResult(
-					KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-					KaleoTaskAssignmentInstanceImpl.class,
+					entityCacheEnabled, KaleoTaskAssignmentInstanceImpl.class,
 					kaleoTaskAssignmentInstance.getPrimaryKey()) == null) {
 
 				cacheResult(kaleoTaskAssignmentInstance);
@@ -4697,8 +4760,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 		KaleoTaskAssignmentInstance kaleoTaskAssignmentInstance) {
 
 		entityCache.removeResult(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceImpl.class,
+			entityCacheEnabled, KaleoTaskAssignmentInstanceImpl.class,
 			kaleoTaskAssignmentInstance.getPrimaryKey());
 
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
@@ -4716,8 +4778,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 				kaleoTaskAssignmentInstances) {
 
 			entityCache.removeResult(
-				KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-				KaleoTaskAssignmentInstanceImpl.class,
+				entityCacheEnabled, KaleoTaskAssignmentInstanceImpl.class,
 				kaleoTaskAssignmentInstance.getPrimaryKey());
 		}
 	}
@@ -4918,7 +4979,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 
-		if (!KaleoTaskAssignmentInstanceModelImpl.COLUMN_BITMASK_ENABLED) {
+		if (!_columnBitmaskEnabled) {
 			finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 		}
 		else if (isNew) {
@@ -5201,8 +5262,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 		}
 
 		entityCache.putResult(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceImpl.class,
+			entityCacheEnabled, KaleoTaskAssignmentInstanceImpl.class,
 			kaleoTaskAssignmentInstance.getPrimaryKey(),
 			kaleoTaskAssignmentInstance, false);
 
@@ -5321,14 +5381,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 	 * @param start the lower bound of the range of kaleo task assignment instances
 	 * @param end the upper bound of the range of kaleo task assignment instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of kaleo task assignment instances
 	 */
 	@Override
 	public List<KaleoTaskAssignmentInstance> findAll(
 		int start, int end,
 		OrderByComparator<KaleoTaskAssignmentInstance> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -5338,17 +5398,20 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindAll;
-			finderArgs = FINDER_ARGS_EMPTY;
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindAll;
+				finderArgs = FINDER_ARGS_EMPTY;
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindAll;
 			finderArgs = new Object[] {start, end, orderByComparator};
 		}
 
 		List<KaleoTaskAssignmentInstance> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<KaleoTaskAssignmentInstance>)finderCache.getResult(
 				finderPath, finderArgs, this);
 		}
@@ -5399,10 +5462,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -5488,29 +5555,31 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 	/**
 	 * Initializes the kaleo task assignment instance persistence.
 	 */
-	public void afterPropertiesSet() {
+	@Activate
+	public void activate() {
+		KaleoTaskAssignmentInstanceModelImpl.setEntityCacheEnabled(
+			entityCacheEnabled);
+		KaleoTaskAssignmentInstanceModelImpl.setFinderCacheEnabled(
+			finderCacheEnabled);
+
 		_finderPathWithPaginationFindAll = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			KaleoTaskAssignmentInstanceImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
 
 		_finderPathWithoutPaginationFindAll = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			KaleoTaskAssignmentInstanceImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll",
 			new String[0]);
 
 		_finderPathCountAll = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
-			Long.class, FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
+			entityCacheEnabled, finderCacheEnabled, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
 			new String[0]);
 
 		_finderPathWithPaginationFindByCompanyId = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			KaleoTaskAssignmentInstanceImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByCompanyId",
 			new String[] {
@@ -5519,23 +5588,20 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByCompanyId = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			KaleoTaskAssignmentInstanceImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByCompanyId",
 			new String[] {Long.class.getName()},
 			KaleoTaskAssignmentInstanceModelImpl.COMPANYID_COLUMN_BITMASK);
 
 		_finderPathCountByCompanyId = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
-			Long.class, FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
-			"countByCompanyId", new String[] {Long.class.getName()});
+			entityCacheEnabled, finderCacheEnabled, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByCompanyId",
+			new String[] {Long.class.getName()});
 
 		_finderPathWithPaginationFindByKaleoDefinitionVersionId =
 			new FinderPath(
-				KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-				KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+				entityCacheEnabled, finderCacheEnabled,
 				KaleoTaskAssignmentInstanceImpl.class,
 				FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
 				"findByKaleoDefinitionVersionId",
@@ -5546,8 +5612,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 		_finderPathWithoutPaginationFindByKaleoDefinitionVersionId =
 			new FinderPath(
-				KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-				KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+				entityCacheEnabled, finderCacheEnabled,
 				KaleoTaskAssignmentInstanceImpl.class,
 				FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
 				"findByKaleoDefinitionVersionId",
@@ -5556,15 +5621,13 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 					KALEODEFINITIONVERSIONID_COLUMN_BITMASK);
 
 		_finderPathCountByKaleoDefinitionVersionId = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
-			Long.class, FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
 			"countByKaleoDefinitionVersionId",
 			new String[] {Long.class.getName()});
 
 		_finderPathWithPaginationFindByKaleoInstanceId = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			KaleoTaskAssignmentInstanceImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByKaleoInstanceId",
 			new String[] {
@@ -5573,8 +5636,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByKaleoInstanceId = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			KaleoTaskAssignmentInstanceImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByKaleoInstanceId",
 			new String[] {Long.class.getName()},
@@ -5582,15 +5644,13 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 				KALEOINSTANCEID_COLUMN_BITMASK);
 
 		_finderPathCountByKaleoInstanceId = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
-			Long.class, FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
-			"countByKaleoInstanceId", new String[] {Long.class.getName()});
+			entityCacheEnabled, finderCacheEnabled, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByKaleoInstanceId",
+			new String[] {Long.class.getName()});
 
 		_finderPathWithPaginationFindBykaleoTaskInstanceTokenId =
 			new FinderPath(
-				KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-				KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+				entityCacheEnabled, finderCacheEnabled,
 				KaleoTaskAssignmentInstanceImpl.class,
 				FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
 				"findBykaleoTaskInstanceTokenId",
@@ -5601,8 +5661,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 		_finderPathWithoutPaginationFindBykaleoTaskInstanceTokenId =
 			new FinderPath(
-				KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-				KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+				entityCacheEnabled, finderCacheEnabled,
 				KaleoTaskAssignmentInstanceImpl.class,
 				FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
 				"findBykaleoTaskInstanceTokenId",
@@ -5611,15 +5670,13 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 					KALEOTASKINSTANCETOKENID_COLUMN_BITMASK);
 
 		_finderPathCountBykaleoTaskInstanceTokenId = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
-			Long.class, FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
 			"countBykaleoTaskInstanceTokenId",
 			new String[] {Long.class.getName()});
 
 		_finderPathWithPaginationFindByassigneeClassName = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			KaleoTaskAssignmentInstanceImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByassigneeClassName",
 			new String[] {
@@ -5628,8 +5685,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByassigneeClassName = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			KaleoTaskAssignmentInstanceImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
 			"findByassigneeClassName", new String[] {String.class.getName()},
@@ -5637,14 +5693,12 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 				ASSIGNEECLASSNAME_COLUMN_BITMASK);
 
 		_finderPathCountByassigneeClassName = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
-			Long.class, FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
 			"countByassigneeClassName", new String[] {String.class.getName()});
 
 		_finderPathWithPaginationFindByG_ACPK = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			KaleoTaskAssignmentInstanceImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByG_ACPK",
 			new String[] {
@@ -5654,8 +5708,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByG_ACPK = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			KaleoTaskAssignmentInstanceImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByG_ACPK",
 			new String[] {Long.class.getName(), Long.class.getName()},
@@ -5664,15 +5717,12 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 				ASSIGNEECLASSPK_COLUMN_BITMASK);
 
 		_finderPathCountByG_ACPK = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
-			Long.class, FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
-			"countByG_ACPK",
+			entityCacheEnabled, finderCacheEnabled, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByG_ACPK",
 			new String[] {Long.class.getName(), Long.class.getName()});
 
 		_finderPathWithPaginationFindByKTITI_ACN = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			KaleoTaskAssignmentInstanceImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByKTITI_ACN",
 			new String[] {
@@ -5682,8 +5732,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByKTITI_ACN = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			KaleoTaskAssignmentInstanceImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByKTITI_ACN",
 			new String[] {Long.class.getName(), String.class.getName()},
@@ -5693,15 +5742,12 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 				ASSIGNEECLASSNAME_COLUMN_BITMASK);
 
 		_finderPathCountByKTITI_ACN = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
-			Long.class, FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
-			"countByKTITI_ACN",
+			entityCacheEnabled, finderCacheEnabled, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByKTITI_ACN",
 			new String[] {Long.class.getName(), String.class.getName()});
 
 		_finderPathWithPaginationFindByACN_ACPK = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			KaleoTaskAssignmentInstanceImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByACN_ACPK",
 			new String[] {
@@ -5711,8 +5757,7 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByACN_ACPK = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
+			entityCacheEnabled, finderCacheEnabled,
 			KaleoTaskAssignmentInstanceImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByACN_ACPK",
 			new String[] {String.class.getName(), Long.class.getName()},
@@ -5722,14 +5767,13 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 				ASSIGNEECLASSPK_COLUMN_BITMASK);
 
 		_finderPathCountByACN_ACPK = new FinderPath(
-			KaleoTaskAssignmentInstanceModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoTaskAssignmentInstanceModelImpl.FINDER_CACHE_ENABLED,
-			Long.class, FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
-			"countByACN_ACPK",
+			entityCacheEnabled, finderCacheEnabled, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByACN_ACPK",
 			new String[] {String.class.getName(), Long.class.getName()});
 	}
 
-	public void destroy() {
+	@Deactivate
+	public void deactivate() {
 		entityCache.removeCache(
 			KaleoTaskAssignmentInstanceImpl.class.getName());
 		finderCache.removeCache(FINDER_CLASS_NAME_ENTITY);
@@ -5737,10 +5781,44 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@ServiceReference(type = EntityCache.class)
+	@Override
+	@Reference(
+		target = KaleoPersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setConfiguration(Configuration configuration) {
+		super.setConfiguration(configuration);
+
+		_columnBitmaskEnabled = GetterUtil.getBoolean(
+			configuration.get(
+				"value.object.column.bitmask.enabled.com.liferay.portal.workflow.kaleo.model.KaleoTaskAssignmentInstance"),
+			true);
+	}
+
+	@Override
+	@Reference(
+		target = KaleoPersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setDataSource(DataSource dataSource) {
+		super.setDataSource(dataSource);
+	}
+
+	@Override
+	@Reference(
+		target = KaleoPersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		super.setSessionFactory(sessionFactory);
+	}
+
+	private boolean _columnBitmaskEnabled;
+
+	@Reference
 	protected EntityCache entityCache;
 
-	@ServiceReference(type = FinderCache.class)
+	@Reference
 	protected FinderCache finderCache;
 
 	private static final String _SQL_SELECT_KALEOTASKASSIGNMENTINSTANCE =
@@ -5766,5 +5844,14 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		KaleoTaskAssignmentInstancePersistenceImpl.class);
+
+	static {
+		try {
+			Class.forName(KaleoPersistenceConstants.class.getName());
+		}
+		catch (ClassNotFoundException cnfe) {
+			throw new ExceptionInInitializerError(cnfe);
+		}
+	}
 
 }

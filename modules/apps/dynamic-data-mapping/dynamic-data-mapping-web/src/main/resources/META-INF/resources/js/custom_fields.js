@@ -30,6 +30,13 @@ AUI.add(
 
 		var booleanParse = A.DataType.Boolean.parse;
 		var camelize = Lang.String.camelize;
+
+		var editorLocalizedStrings = {
+			cancel: Liferay.Language.get('cancel'),
+			edit: Liferay.Language.get('edit'),
+			save: Liferay.Language.get('save')
+		};
+
 		var instanceOf = A.instanceOf;
 		var isNull = Lang.isNull;
 		var isObject = Lang.isObject;
@@ -125,6 +132,7 @@ AUI.add(
 			'<label class="control-label">' +
 			A.Escape.html(Liferay.Language.get('image-description')) +
 			'</label>' +
+			'<span class="glyphicon glyphicon-asterisk hide" style="display: none;" hidden="hidden"></span>' +
 			'<input class="field form-control" type="text" value="" disabled>' +
 			'</div>';
 
@@ -1362,6 +1370,11 @@ AUI.add(
 
 			var type = instance.get('type');
 
+			var booleanOptions = {
+				false: Liferay.Language.get('no'),
+				true: Liferay.Language.get('yes')
+			};
+
 			var indexTypeOptions = {
 				'': Liferay.Language.get('no'),
 				keyword: Liferay.Language.get('yes')
@@ -1382,11 +1395,6 @@ AUI.add(
 				};
 			}
 
-			var booleanOptions = {
-				false: Liferay.Language.get('no'),
-				true: Liferay.Language.get('yes')
-			};
-
 			model.forEach(function(item, index) {
 				if (item.attributeName == 'name') {
 					item.editor = new A.TextCellEditor({
@@ -1402,13 +1410,18 @@ AUI.add(
 						}
 					});
 				}
+
+				if (item.editor) {
+					item.editor.set('strings', editorLocalizedStrings);
+				}
 			});
 
 			return model.concat([
 				{
 					attributeName: 'indexType',
 					editor: new A.RadioCellEditor({
-						options: indexTypeOptions
+						options: indexTypeOptions,
+						strings: editorLocalizedStrings
 					}),
 					formatter: function(val) {
 						return indexTypeOptions[val.data.value];
@@ -1418,7 +1431,8 @@ AUI.add(
 				{
 					attributeName: 'localizable',
 					editor: new A.RadioCellEditor({
-						options: booleanOptions
+						options: booleanOptions,
+						strings: editorLocalizedStrings
 					}),
 					formatter: function(val) {
 						return booleanOptions[val.data.value];
@@ -1428,7 +1442,8 @@ AUI.add(
 				{
 					attributeName: 'repeatable',
 					editor: new A.RadioCellEditor({
-						options: booleanOptions
+						options: booleanOptions,
+						strings: editorLocalizedStrings
 					}),
 					formatter: function(val) {
 						return booleanOptions[val.data.value];
@@ -1476,7 +1491,9 @@ AUI.add(
 						if (attributeName === 'predefinedValue') {
 							collection[index] = {
 								attributeName: attributeName,
-								editor: new ColorCellEditor(),
+								editor: new ColorCellEditor({
+									strings: editorLocalizedStrings
+								}),
 								name: Liferay.Language.get('predefined-value')
 							};
 						}
@@ -1601,7 +1618,8 @@ AUI.add(
 										return retVal;
 									}
 								}),
-								name: Liferay.Language.get('predefined-value')
+								name: Liferay.Language.get('predefined-value'),
+								strings: editorLocalizedStrings
 							};
 						}
 					});
@@ -1659,7 +1677,9 @@ AUI.add(
 						var attributeName = item.attributeName;
 
 						if (attributeName === 'predefinedValue') {
-							item.editor = new DLFileEntryCellEditor();
+							item.editor = new DLFileEntryCellEditor({
+								strings: editorLocalizedStrings
+							});
 
 							item.formatter = function(obj) {
 								var data = obj.data;
@@ -1834,12 +1854,16 @@ AUI.add(
 						},
 						{
 							attributeName: 'label',
-							editor: new A.TextAreaCellEditor(),
+							editor: new A.TextAreaCellEditor({
+								strings: editorLocalizedStrings
+							}),
 							name: Liferay.Language.get('text')
 						},
 						{
 							attributeName: 'style',
-							editor: new A.TextAreaCellEditor(),
+							editor: new A.TextAreaCellEditor({
+								strings: editorLocalizedStrings
+							}),
 							name: Liferay.Language.get('style')
 						}
 					];
@@ -1972,7 +1996,9 @@ AUI.add(
 
 					model.push({
 						attributeName: 'style',
-						editor: new A.TextAreaCellEditor(),
+						editor: new A.TextAreaCellEditor({
+							strings: editorLocalizedStrings
+						}),
 						name: Liferay.Language.get('style')
 					});
 
@@ -2045,7 +2071,9 @@ AUI.add(
 
 					model.push({
 						attributeName: 'style',
-						editor: new A.TextAreaCellEditor(),
+						editor: new A.TextAreaCellEditor({
+							strings: editorLocalizedStrings
+						}),
 						name: Liferay.Language.get('style')
 					});
 
@@ -2053,7 +2081,9 @@ AUI.add(
 						var attributeName = item.attributeName;
 
 						if (attributeName === 'predefinedValue') {
-							item.editor = new JournalArticleCellEditor();
+							item.editor = new JournalArticleCellEditor({
+								strings: editorLocalizedStrings
+							});
 
 							item.formatter = function(obj) {
 								var data = obj.data;

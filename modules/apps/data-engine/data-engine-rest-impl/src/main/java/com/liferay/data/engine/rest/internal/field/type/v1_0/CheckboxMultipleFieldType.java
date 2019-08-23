@@ -16,7 +16,7 @@ package com.liferay.data.engine.rest.internal.field.type.v1_0;
 
 import com.liferay.data.engine.field.type.BaseFieldType;
 import com.liferay.data.engine.field.type.FieldType;
-import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
+import com.liferay.data.engine.field.type.FieldTypeTracker;
 import com.liferay.data.engine.rest.internal.field.type.v1_0.util.CustomPropertiesUtil;
 import com.liferay.data.engine.rest.internal.field.type.v1_0.util.DataFieldOptionUtil;
 import com.liferay.data.engine.spi.dto.SPIDataDefinitionField;
@@ -50,11 +50,12 @@ import org.osgi.service.component.annotations.Component;
 public class CheckboxMultipleFieldType extends BaseFieldType {
 
 	@Override
-	public SPIDataDefinitionField deserialize(JSONObject jsonObject)
+	public SPIDataDefinitionField deserialize(
+			FieldTypeTracker fieldTypeTracker, JSONObject jsonObject)
 		throws Exception {
 
 		SPIDataDefinitionField spiDataDefinitionField = super.deserialize(
-			jsonObject);
+			fieldTypeTracker, jsonObject);
 
 		Map<String, Object> customProperties =
 			spiDataDefinitionField.getCustomProperties();
@@ -62,14 +63,10 @@ public class CheckboxMultipleFieldType extends BaseFieldType {
 		customProperties.put("inline", jsonObject.getBoolean("inline"));
 		customProperties.put(
 			"options",
-			DataFieldOptionUtil.toDataFieldOptions(
+			DataFieldOptionUtil.toLocalizedDataFieldOptions(
 				jsonObject.getJSONObject("options")));
 		customProperties.put(
 			"showAsSwitcher", jsonObject.getBoolean("showAsSwitcher"));
-
-		spiDataDefinitionField.setDefaultValue(
-			LocalizedValueUtil.toLocalizedValues(
-				jsonObject.getJSONObject("predefinedValue")));
 
 		return spiDataDefinitionField;
 	}
@@ -81,10 +78,12 @@ public class CheckboxMultipleFieldType extends BaseFieldType {
 
 	@Override
 	public JSONObject toJSONObject(
+			FieldTypeTracker fieldTypeTracker,
 			SPIDataDefinitionField spiDataDefinitionField)
 		throws Exception {
 
-		JSONObject jsonObject = super.toJSONObject(spiDataDefinitionField);
+		JSONObject jsonObject = super.toJSONObject(
+			fieldTypeTracker, spiDataDefinitionField);
 
 		return jsonObject.put(
 			"inline",
@@ -93,12 +92,7 @@ public class CheckboxMultipleFieldType extends BaseFieldType {
 		).put(
 			"options",
 			DataFieldOptionUtil.toJSONObject(
-				CustomPropertiesUtil.getDataFieldOptions(
-					spiDataDefinitionField.getCustomProperties(), "options"))
-		).put(
-			"predefinedValue",
-			LocalizedValueUtil.toJSONObject(
-				spiDataDefinitionField.getDefaultValue())
+				spiDataDefinitionField.getCustomProperties(), "options")
 		).put(
 			"showAsSwitcher",
 			MapUtil.getBoolean(
@@ -119,16 +113,8 @@ public class CheckboxMultipleFieldType extends BaseFieldType {
 				spiDataDefinitionField.getCustomProperties(), "inline", false));
 		context.put(
 			"options",
-			DataFieldOptionUtil.toDataFieldOptions(
-				CustomPropertiesUtil.getDataFieldOptions(
-					spiDataDefinitionField.getCustomProperties(), "options"),
-				LanguageUtil.getLanguageId(httpServletRequest)));
-		context.put(
-			"predefinedValue",
-			MapUtil.getString(
-				CustomPropertiesUtil.getMap(
-					spiDataDefinitionField.getCustomProperties(),
-					"predefinedValue"),
+			DataFieldOptionUtil.getLocalizedDataFieldOptions(
+				spiDataDefinitionField.getCustomProperties(), "options",
 				LanguageUtil.getLanguageId(httpServletRequest)));
 		context.put(
 			"showAsSwitcher",

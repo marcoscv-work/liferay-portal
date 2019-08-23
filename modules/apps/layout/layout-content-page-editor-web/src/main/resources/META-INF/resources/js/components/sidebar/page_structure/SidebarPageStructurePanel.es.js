@@ -17,15 +17,12 @@ import {Config} from 'metal-state';
 import Soy from 'metal-soy';
 
 import '../fragments/FragmentsEditorSidebarCard.es';
-import {
-	REMOVE_FRAGMENT_ENTRY_LINK,
-	REMOVE_ROW
-} from '../../../actions/actions.es';
 import {removeItem, setIn} from '../../../utils/FragmentsEditorUpdateUtils.es';
 import {
 	EDITABLE_FRAGMENT_ENTRY_PROCESSOR,
 	FRAGMENTS_EDITOR_ITEM_TYPES,
-	FRAGMENTS_EDITOR_ROW_TYPES
+	FRAGMENTS_EDITOR_ROW_TYPES,
+	BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR
 } from '../../../utils/constants';
 import {getConnectedComponent} from '../../../store/ConnectedComponent.es';
 import {
@@ -33,6 +30,8 @@ import {
 	getRowFragmentEntryLinkIds
 } from '../../../utils/FragmentsEditorGetUtils.es';
 import templates from './SidebarPageStructurePanel.soy';
+import {removeRowAction} from '../../../actions/removeRow.es';
+import {removeFragmentEntryLinkAction} from '../../../actions/removeFragmentEntryLinks.es';
 
 /**
  * SidebarPageStructurePanel
@@ -95,18 +94,33 @@ class SidebarPageStructurePanel extends Component {
 	 */
 	static _getFragmentEntryLinkTree(state, fragmentEntryLink) {
 		return SidebarPageStructurePanel._getTreeNode(state, {
-			children: Object.keys(
-				fragmentEntryLink.editableValues[
-					EDITABLE_FRAGMENT_ENTRY_PROCESSOR
-				] || {}
-			).map(editableValueKey =>
-				SidebarPageStructurePanel._getTreeNode(state, {
-					elementId: `${fragmentEntryLink.fragmentEntryLinkId}-${editableValueKey}`,
-					elementType: FRAGMENTS_EDITOR_ITEM_TYPES.editable,
-					key: `${FRAGMENTS_EDITOR_ITEM_TYPES.editable}-${fragmentEntryLink.fragmentEntryLinkId}-${editableValueKey}`,
-					label: editableValueKey
-				})
-			),
+			children: [
+				...Object.keys(
+					fragmentEntryLink.editableValues[
+						EDITABLE_FRAGMENT_ENTRY_PROCESSOR
+					] || {}
+				).map(editableValueKey =>
+					SidebarPageStructurePanel._getTreeNode(state, {
+						elementId: `${fragmentEntryLink.fragmentEntryLinkId}-${editableValueKey}`,
+						elementType: FRAGMENTS_EDITOR_ITEM_TYPES.editable,
+						key: `${FRAGMENTS_EDITOR_ITEM_TYPES.editable}-${fragmentEntryLink.fragmentEntryLinkId}-${editableValueKey}`,
+						label: editableValueKey
+					})
+				),
+				...Object.keys(
+					fragmentEntryLink.editableValues[
+						BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR
+					] || {}
+				).map(editableValueKey =>
+					SidebarPageStructurePanel._getTreeNode(state, {
+						elementId: `${fragmentEntryLink.fragmentEntryLinkId}-${editableValueKey}`,
+						elementType:
+							FRAGMENTS_EDITOR_ITEM_TYPES.backgroundImageEditable,
+						key: `${FRAGMENTS_EDITOR_ITEM_TYPES.backgroundImageEditable}-${fragmentEntryLink.fragmentEntryLinkId}-${editableValueKey}`,
+						label: editableValueKey
+					})
+				)
+			],
 			elementId: fragmentEntryLink.fragmentEntryLinkId,
 			elementType: FRAGMENTS_EDITOR_ITEM_TYPES.fragment,
 			key: `${FRAGMENTS_EDITOR_ITEM_TYPES.fragment}-${fragmentEntryLink.fragmentEntryLinkId}`,
@@ -174,7 +188,12 @@ class SidebarPageStructurePanel extends Component {
 		return {
 			active:
 				state.activeItemId === data.elementId &&
-				state.activeItemType === data.elementType,
+				state.activeItemType === data.elementType &&
+				state.selectedItems.some(
+					selectedItem =>
+						selectedItem.itemId === data.elementId &&
+						selectedItem.itemType === data.elementType
+				),
 			children: data.children || [],
 			elementId: data.elementId || '',
 			elementType: data.elementType || '',
@@ -185,7 +204,12 @@ class SidebarPageStructurePanel extends Component {
 				state.hoveredItemType === data.elementType,
 			key: data.key,
 			label: data.label,
-			removable: data.removable || false
+			removable: data.removable || false,
+			selected: state.selectedItems.some(
+				selectedItem =>
+					selectedItem.itemId === data.elementId &&
+					selectedItem.itemType === data.elementType
+			)
 		};
 	}
 
@@ -266,23 +290,16 @@ class SidebarPageStructurePanel extends Component {
 		const itemType = event.delegateTarget.dataset.elementType;
 
 		let removeItemAction = null;
-		let removeItemPayload = null;
 
 		if (itemType === FRAGMENTS_EDITOR_ITEM_TYPES.row) {
-			removeItemAction = REMOVE_ROW;
-
-			removeItemPayload = {
-				rowId: itemId
-			};
+			removeItemAction = removeRowAction(itemId);
 		} else if (itemType === FRAGMENTS_EDITOR_ITEM_TYPES.fragment) {
-			removeItemAction = REMOVE_FRAGMENT_ENTRY_LINK;
-
-			removeItemPayload = {
-				fragmentEntryLinkId: itemId
-			};
+			removeItemAction = removeFragmentEntryLinkAction(itemId);
 		}
 
-		removeItem(this.store, removeItemAction, removeItemPayload);
+		if (removeItemAction) {
+			removeItem(this.store, removeItemAction);
+		}
 	}
 }
 
@@ -315,6 +332,7 @@ const ConnectedSidebarPageStructurePanel = getConnectedComponent(
 		'hoveredItemId',
 		'hoveredItemType',
 		'layoutData',
+		'selectedItems',
 		'spritemap'
 	]
 );

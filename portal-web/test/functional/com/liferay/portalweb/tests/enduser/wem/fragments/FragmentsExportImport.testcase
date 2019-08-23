@@ -96,29 +96,17 @@ definition {
 		}
 
 		task ("Navigate to the fragment collection") {
-			Navigator.gotoNavNested(navNested = "Collection Name");
+			FragmentsAdmin.gotoCollection(collectionName = "Collection Name");
 		}
 
 		task ("Add a section fragment that uses the Button fragment code") {
 			FragmentsAdmin.addSection(fragmentName = "Fragment Name");
 
-			var htmlSnippet = TestCase.getFileContent(fileName = "fragment_button.html");
+			FragmentsEditor.typeFileContent(fileName = "fragment_button.html");
 
-			Type.typeAceEditorNoError(
-				locator1 = "FragmentEditor#HTML_EDITOR",
-				value1 = "${htmlSnippet}");
+			FragmentsEditor.typeFileContent(fileName = "fragment_button.css");
 
-			var cssSnippet = TestCase.getFileContent(fileName = "fragment_button.css");
-
-			Type.typeAceEditorNoError(
-				locator1 = "FragmentEditor#CSS_EDITOR",
-				value1 = "${cssSnippet}");
-
-			var javascriptSnippet = TestCase.getFileContent(fileName = "fragment_button.js");
-
-			Type.typeAceEditorNoError(
-				locator1 = "FragmentEditor#JAVASCRIPT_EDITOR",
-				value1 = "${javascriptSnippet}");
+			FragmentsEditor.typeFileContent(fileName = "fragment_button.js");
 
 			Button.clickPublish();
 
@@ -142,7 +130,7 @@ definition {
 		}
 
 		task ("Navigate to the fragment collection in the new site") {
-			Navigator.gotoNavNested(navNested = "Collection Name");
+			FragmentsAdmin.gotoCollection(collectionName = "Collection Name");
 		}
 
 		task ("Assert the section fragment survived the import and the fragment preview displays the Button fragment") {

@@ -55,10 +55,11 @@ public class AppBuilderAppWrapper
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("ddmStructureId", getDdmStructureId());
-		attributes.put("deDataLayoutId", getDeDataLayoutId());
+		attributes.put("ddmStructureLayoutId", getDdmStructureLayoutId());
 		attributes.put("deDataListViewId", getDeDataListViewId());
 		attributes.put("name", getName());
 		attributes.put("settings", getSettings());
+		attributes.put("status", getStatus());
 
 		return attributes;
 	}
@@ -119,10 +120,11 @@ public class AppBuilderAppWrapper
 			setDdmStructureId(ddmStructureId);
 		}
 
-		Long deDataLayoutId = (Long)attributes.get("deDataLayoutId");
+		Long ddmStructureLayoutId = (Long)attributes.get(
+			"ddmStructureLayoutId");
 
-		if (deDataLayoutId != null) {
-			setDeDataLayoutId(deDataLayoutId);
+		if (ddmStructureLayoutId != null) {
+			setDdmStructureLayoutId(ddmStructureLayoutId);
 		}
 
 		Long deDataListViewId = (Long)attributes.get("deDataListViewId");
@@ -141,6 +143,12 @@ public class AppBuilderAppWrapper
 
 		if (settings != null) {
 			setSettings(settings);
+		}
+
+		Integer status = (Integer)attributes.get("status");
+
+		if (status != null) {
+			setStatus(status);
 		}
 	}
 
@@ -190,13 +198,13 @@ public class AppBuilderAppWrapper
 	}
 
 	/**
-	 * Returns the de data layout ID of this app builder app.
+	 * Returns the ddm structure layout ID of this app builder app.
 	 *
-	 * @return the de data layout ID of this app builder app
+	 * @return the ddm structure layout ID of this app builder app
 	 */
 	@Override
-	public long getDeDataLayoutId() {
-		return model.getDeDataLayoutId();
+	public long getDdmStructureLayoutId() {
+		return model.getDdmStructureLayoutId();
 	}
 
 	/**
@@ -331,6 +339,16 @@ public class AppBuilderAppWrapper
 	}
 
 	/**
+	 * Returns the status of this app builder app.
+	 *
+	 * @return the status of this app builder app
+	 */
+	@Override
+	public int getStatus() {
+		return model.getStatus();
+	}
+
+	/**
 	 * Returns the user ID of this app builder app.
 	 *
 	 * @return the user ID of this app builder app
@@ -431,13 +449,13 @@ public class AppBuilderAppWrapper
 	}
 
 	/**
-	 * Sets the de data layout ID of this app builder app.
+	 * Sets the ddm structure layout ID of this app builder app.
 	 *
-	 * @param deDataLayoutId the de data layout ID of this app builder app
+	 * @param ddmStructureLayoutId the ddm structure layout ID of this app builder app
 	 */
 	@Override
-	public void setDeDataLayoutId(long deDataLayoutId) {
-		model.setDeDataLayoutId(deDataLayoutId);
+	public void setDdmStructureLayoutId(long ddmStructureLayoutId) {
+		model.setDdmStructureLayoutId(ddmStructureLayoutId);
 	}
 
 	/**
@@ -551,6 +569,16 @@ public class AppBuilderAppWrapper
 	@Override
 	public void setSettings(String settings) {
 		model.setSettings(settings);
+	}
+
+	/**
+	 * Sets the status of this app builder app.
+	 *
+	 * @param status the status of this app builder app
+	 */
+	@Override
+	public void setStatus(int status) {
+		model.setStatus(status);
 	}
 
 	/**

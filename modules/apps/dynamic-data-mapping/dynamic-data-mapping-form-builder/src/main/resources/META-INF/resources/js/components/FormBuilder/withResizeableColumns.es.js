@@ -16,11 +16,7 @@ import Component from 'metal-jsx';
 import Position from 'metal-position';
 import {Config} from 'metal-state';
 import {Drag} from 'metal-drag-drop';
-import {
-	focusedFieldStructure,
-	pageStructure,
-	ruleStructure
-} from '../../util/config.es';
+import {focusedFieldStructure, pageStructure} from '../../util/config.es';
 
 const withResizeableColumns = ChildComponent => {
 	class ResizeableColumns extends Component {
@@ -157,9 +153,27 @@ const withResizeableColumns = ChildComponent => {
 		editingLanguageId: Config.string(),
 
 		/**
+		 * @default undefined
+		 * @instance
+		 * @memberof FormBuilder
+		 * @type {?string}
+		 */
+
+		fieldSetDefinitionURL: Config.string(),
+
+		/**
 		 * @default []
 		 * @instance
-		 * @memberof Sidebar
+		 * @memberof FormBuilder
+		 * @type {?(array|undefined)}
+		 */
+
+		fieldSets: Config.array().value([]),
+
+		/**
+		 * @default []
+		 * @instance
+		 * @memberof FormBuilder
 		 * @type {?(array|undefined)}
 		 */
 
@@ -200,21 +214,34 @@ const withResizeableColumns = ChildComponent => {
 		portletNamespace: Config.string().required(),
 
 		/**
+		 * @default undefined
 		 * @instance
 		 * @memberof FormBuilder
-		 * @type {string}
+		 * @type {!string}
 		 */
 
-		rules: Config.arrayOf(ruleStructure).required(),
+		spritemap: Config.string().required(),
+
+		/**
+		 * @instance
+		 * @memberof FormBuilder
+		 * @type {object}
+		 */
+
+		successPageSettings: Config.shapeOf({
+			body: Config.object(),
+			enabled: Config.bool(),
+			title: Config.object()
+		}).value({}),
 
 		/**
 		 * @default undefined
 		 * @instance
-		 * @memberof FormRenderer
-		 * @type {!string}
+		 * @memberof FormBuilder
+		 * @type {?string}
 		 */
 
-		spritemap: Config.string().required()
+		view: Config.string()
 	};
 
 	return ResizeableColumns;

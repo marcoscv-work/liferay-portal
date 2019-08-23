@@ -49,8 +49,8 @@ public class SegmentsExperimentSoap implements Serializable {
 		soapModel.setClassPK(model.getClassPK());
 		soapModel.setName(model.getName());
 		soapModel.setDescription(model.getDescription());
-		soapModel.setStatus(model.getStatus());
 		soapModel.setTypeSettings(model.getTypeSettings());
+		soapModel.setStatus(model.getStatus());
 
 		return soapModel;
 	}
@@ -233,20 +233,20 @@ public class SegmentsExperimentSoap implements Serializable {
 		_description = description;
 	}
 
-	public int getStatus() {
-		return _status;
-	}
-
-	public void setStatus(int status) {
-		_status = status;
-	}
-
 	public String getTypeSettings() {
 		return _typeSettings;
 	}
 
 	public void setTypeSettings(String typeSettings) {
 		_typeSettings = typeSettings;
+	}
+
+	public int getStatus() {
+		return _status;
+	}
+
+	public void setStatus(int status) {
+		_status = status;
 	}
 
 	private String _uuid;
@@ -264,7 +264,7 @@ public class SegmentsExperimentSoap implements Serializable {
 	private long _classPK;
 	private String _name;
 	private String _description;
-	private int _status;
 	private String _typeSettings;
+	private int _status;
 
 }

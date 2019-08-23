@@ -30,11 +30,17 @@ import com.liferay.data.engine.rest.resource.v1_0.DataRecordResource;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
 
 import javax.annotation.Generated;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import javax.ws.rs.core.UriInfo;
 
 import org.osgi.service.component.ComponentServiceObjects;
 
@@ -178,24 +184,6 @@ public class Mutation {
 	}
 
 	@GraphQLField
-	public boolean createDataLayoutDataLayoutPermission(
-			@GraphQLName("dataLayoutId") Long dataLayoutId,
-			@GraphQLName("operation") String operation,
-			@GraphQLName("dataLayoutPermission") DataLayoutPermission
-				dataLayoutPermission)
-		throws Exception {
-
-		_applyVoidComponentServiceObjects(
-			_dataLayoutResourceComponentServiceObjects,
-			this::_populateResourceContext,
-			dataLayoutResource ->
-				dataLayoutResource.postDataLayoutDataLayoutPermission(
-					dataLayoutId, operation, dataLayoutPermission));
-
-		return true;
-	}
-
-	@GraphQLField
 	public boolean deleteDataLayout(
 			@GraphQLName("dataLayoutId") Long dataLayoutId)
 		throws Exception {
@@ -220,6 +208,24 @@ public class Mutation {
 			this::_populateResourceContext,
 			dataLayoutResource -> dataLayoutResource.putDataLayout(
 				dataLayoutId, dataLayout));
+	}
+
+	@GraphQLField
+	public boolean createDataLayoutDataLayoutPermission(
+			@GraphQLName("dataLayoutId") Long dataLayoutId,
+			@GraphQLName("operation") String operation,
+			@GraphQLName("dataLayoutPermission") DataLayoutPermission
+				dataLayoutPermission)
+		throws Exception {
+
+		_applyVoidComponentServiceObjects(
+			_dataLayoutResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			dataLayoutResource ->
+				dataLayoutResource.postDataLayoutDataLayoutPermission(
+					dataLayoutId, operation, dataLayoutPermission));
+
+		return true;
 	}
 
 	@GraphQLField
@@ -252,6 +258,33 @@ public class Mutation {
 			dataListViewResource ->
 				dataListViewResource.postDataDefinitionDataListView(
 					dataDefinitionId, dataListView));
+	}
+
+	@GraphQLField
+	public boolean deleteDataListView(
+			@GraphQLName("dataListViewId") Long dataListViewId)
+		throws Exception {
+
+		_applyVoidComponentServiceObjects(
+			_dataListViewResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			dataListViewResource -> dataListViewResource.deleteDataListView(
+				dataListViewId));
+
+		return true;
+	}
+
+	@GraphQLField
+	public DataListView updateDataListView(
+			@GraphQLName("dataListViewId") Long dataListViewId,
+			@GraphQLName("dataListView") DataListView dataListView)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_dataListViewResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			dataListViewResource -> dataListViewResource.putDataListView(
+				dataListViewId, dataListView));
 	}
 
 	@GraphQLField
@@ -438,6 +471,12 @@ public class Mutation {
 
 		dataDefinitionResource.setContextAcceptLanguage(_acceptLanguage);
 		dataDefinitionResource.setContextCompany(_company);
+		dataDefinitionResource.setContextHttpServletRequest(
+			_httpServletRequest);
+		dataDefinitionResource.setContextHttpServletResponse(
+			_httpServletResponse);
+		dataDefinitionResource.setContextUriInfo(_uriInfo);
+		dataDefinitionResource.setContextUser(_user);
 	}
 
 	private void _populateResourceContext(DataLayoutResource dataLayoutResource)
@@ -445,6 +484,10 @@ public class Mutation {
 
 		dataLayoutResource.setContextAcceptLanguage(_acceptLanguage);
 		dataLayoutResource.setContextCompany(_company);
+		dataLayoutResource.setContextHttpServletRequest(_httpServletRequest);
+		dataLayoutResource.setContextHttpServletResponse(_httpServletResponse);
+		dataLayoutResource.setContextUriInfo(_uriInfo);
+		dataLayoutResource.setContextUser(_user);
 	}
 
 	private void _populateResourceContext(
@@ -453,6 +496,11 @@ public class Mutation {
 
 		dataListViewResource.setContextAcceptLanguage(_acceptLanguage);
 		dataListViewResource.setContextCompany(_company);
+		dataListViewResource.setContextHttpServletRequest(_httpServletRequest);
+		dataListViewResource.setContextHttpServletResponse(
+			_httpServletResponse);
+		dataListViewResource.setContextUriInfo(_uriInfo);
+		dataListViewResource.setContextUser(_user);
 	}
 
 	private void _populateResourceContext(DataRecordResource dataRecordResource)
@@ -460,6 +508,10 @@ public class Mutation {
 
 		dataRecordResource.setContextAcceptLanguage(_acceptLanguage);
 		dataRecordResource.setContextCompany(_company);
+		dataRecordResource.setContextHttpServletRequest(_httpServletRequest);
+		dataRecordResource.setContextHttpServletResponse(_httpServletResponse);
+		dataRecordResource.setContextUriInfo(_uriInfo);
+		dataRecordResource.setContextUser(_user);
 	}
 
 	private void _populateResourceContext(
@@ -468,6 +520,12 @@ public class Mutation {
 
 		dataRecordCollectionResource.setContextAcceptLanguage(_acceptLanguage);
 		dataRecordCollectionResource.setContextCompany(_company);
+		dataRecordCollectionResource.setContextHttpServletRequest(
+			_httpServletRequest);
+		dataRecordCollectionResource.setContextHttpServletResponse(
+			_httpServletResponse);
+		dataRecordCollectionResource.setContextUriInfo(_uriInfo);
+		dataRecordCollectionResource.setContextUser(_user);
 	}
 
 	private static ComponentServiceObjects<DataDefinitionResource>
@@ -483,5 +541,9 @@ public class Mutation {
 
 	private AcceptLanguage _acceptLanguage;
 	private Company _company;
+	private HttpServletRequest _httpServletRequest;
+	private HttpServletResponse _httpServletResponse;
+	private UriInfo _uriInfo;
+	private User _user;
 
 }

@@ -16,6 +16,8 @@ package com.liferay.headless.delivery.graphql.v1_0.test;
 
 import com.liferay.headless.delivery.client.dto.v1_0.BlogPosting;
 import com.liferay.headless.delivery.client.http.HttpInvoker;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONDeserializer;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -24,6 +26,8 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.test.log.CaptureAppender;
+import com.liferay.portal.test.log.Log4JLoggerTestUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.util.ArrayList;
@@ -34,6 +38,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.Generated;
+
+import org.apache.log4j.Level;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -68,18 +74,56 @@ public abstract class BaseBlogPostingGraphQLTestCase {
 	}
 
 	@Test
-	public void testGetBlogPosting() throws Exception {
-		BlogPosting postBlogPosting = testGetBlogPosting_addBlogPosting();
+	public void testDeleteBlogPosting() throws Exception {
+		BlogPosting blogPosting = testBlogPosting_addBlogPosting();
 
-		List<GraphQLField> graphQLFields = new ArrayList<>();
+		GraphQLField graphQLField = new GraphQLField(
+			"mutation",
+			new GraphQLField(
+				"deleteBlogPosting",
+				new HashMap<String, Object>() {
+					{
+						put("blogPostingId", blogPosting.getId());
+					}
+				}));
 
-		graphQLFields.add(new GraphQLField("id"));
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			invoke(graphQLField.toString()));
 
-		for (String additionalAssertFieldName :
-				getAdditionalAssertFieldNames()) {
+		JSONObject dataJSONObject = jsonObject.getJSONObject("data");
 
-			graphQLFields.add(new GraphQLField(additionalAssertFieldName));
+		Assert.assertTrue(dataJSONObject.getBoolean("deleteBlogPosting"));
+
+		try (CaptureAppender captureAppender =
+				Log4JLoggerTestUtil.configureLog4JLogger(
+					"graphql.execution.SimpleDataFetcherExceptionHandler",
+					Level.WARN)) {
+
+			graphQLField = new GraphQLField(
+				"query",
+				new GraphQLField(
+					"blogPosting",
+					new HashMap<String, Object>() {
+						{
+							put("blogPostingId", blogPosting.getId());
+						}
+					},
+					new GraphQLField("id")));
+
+			jsonObject = JSONFactoryUtil.createJSONObject(
+				invoke(graphQLField.toString()));
+
+			JSONArray errorsJSONArray = jsonObject.getJSONArray("errors");
+
+			Assert.assertTrue(errorsJSONArray.length() > 0);
 		}
+	}
+
+	@Test
+	public void testGetBlogPosting() throws Exception {
+		BlogPosting blogPosting = testBlogPosting_addBlogPosting();
+
+		List<GraphQLField> graphQLFields = getGraphQLFields();
 
 		GraphQLField graphQLField = new GraphQLField(
 			"query",
@@ -87,33 +131,108 @@ public abstract class BaseBlogPostingGraphQLTestCase {
 				"blogPosting",
 				new HashMap<String, Object>() {
 					{
-						put("blogPostingId", postBlogPosting.getId());
+						put("blogPostingId", blogPosting.getId());
 					}
 				},
 				graphQLFields.toArray(new GraphQLField[0])));
 
-		JSONObject responseJSONObject = JSONFactoryUtil.createJSONObject(
-			_invoke(graphQLField.toString()));
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			invoke(graphQLField.toString()));
 
-		JSONObject dataJSONObject = responseJSONObject.getJSONObject("data");
+		JSONObject dataJSONObject = jsonObject.getJSONObject("data");
+
+		Assert.assertTrue(
+			equals(blogPosting, dataJSONObject.getJSONObject("blogPosting")));
+	}
+
+	@Test
+	public void testGetSiteBlogPostingsPage() throws Exception {
+		List<GraphQLField> graphQLFields = new ArrayList<>();
+
+		List<GraphQLField> itemsGraphQLFields = getGraphQLFields();
+
+		graphQLFields.add(
+			new GraphQLField(
+				"items", itemsGraphQLFields.toArray(new GraphQLField[0])));
+
+		graphQLFields.add(new GraphQLField("page"));
+		graphQLFields.add(new GraphQLField("totalCount"));
+
+		GraphQLField graphQLField = new GraphQLField(
+			"query",
+			new GraphQLField(
+				"blogPostings",
+				new HashMap<String, Object>() {
+					{
+						put("page", 1);
+						put("pageSize", 2);
+						put("siteId", testGroup.getGroupId());
+					}
+				},
+				graphQLFields.toArray(new GraphQLField[0])));
+
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			invoke(graphQLField.toString()));
+
+		JSONObject dataJSONObject = jsonObject.getJSONObject("data");
+
+		JSONObject blogPostingsJSONObject = dataJSONObject.getJSONObject(
+			"blogPostings");
+
+		Assert.assertEquals(0, blogPostingsJSONObject.get("totalCount"));
+
+		BlogPosting blogPosting1 = testBlogPosting_addBlogPosting();
+		BlogPosting blogPosting2 = testBlogPosting_addBlogPosting();
+
+		jsonObject = JSONFactoryUtil.createJSONObject(
+			invoke(graphQLField.toString()));
+
+		dataJSONObject = jsonObject.getJSONObject("data");
+
+		blogPostingsJSONObject = dataJSONObject.getJSONObject("blogPostings");
+
+		Assert.assertEquals(2, blogPostingsJSONObject.get("totalCount"));
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(blogPosting1, blogPosting2),
+			blogPostingsJSONObject.getJSONArray("items"));
+	}
+
+	@Test
+	public void testPostSiteBlogPosting() throws Exception {
+		BlogPosting randomBlogPosting = randomBlogPosting();
+
+		BlogPosting blogPosting = testBlogPosting_addBlogPosting(
+			randomBlogPosting);
 
 		Assert.assertTrue(
 			equals(
-				postBlogPosting, dataJSONObject.getJSONObject("blogPosting")));
+				randomBlogPosting,
+				JSONFactoryUtil.createJSONObject(
+					JSONFactoryUtil.serialize(blogPosting))));
 	}
 
-	protected BlogPosting testGetBlogPosting_addBlogPosting() throws Exception {
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
+	protected void assertEqualsIgnoringOrder(
+		List<BlogPosting> blogPostings, JSONArray jsonArray) {
+
+		for (BlogPosting blogPosting : blogPostings) {
+			boolean contains = false;
+
+			for (Object object : jsonArray) {
+				if (equals(blogPosting, (JSONObject)object)) {
+					contains = true;
+
+					break;
+				}
+			}
+
+			Assert.assertTrue(
+				jsonArray + " does not contain " + blogPosting, contains);
+		}
 	}
 
 	protected boolean equals(BlogPosting blogPosting, JSONObject jsonObject) {
-		List<String> fieldNames = new ArrayList(
-			Arrays.asList(getAdditionalAssertFieldNames()));
-
-		fieldNames.add("id");
-
-		for (String fieldName : fieldNames) {
+		for (String fieldName : getAdditionalAssertFieldNames()) {
 			if (Objects.equals("alternativeHeadline", fieldName)) {
 				if (!Objects.equals(
 						blogPosting.getAlternativeHeadline(),
@@ -212,6 +331,37 @@ public abstract class BaseBlogPostingGraphQLTestCase {
 		return new String[0];
 	}
 
+	protected List<GraphQLField> getGraphQLFields() {
+		List<GraphQLField> graphQLFields = new ArrayList<>();
+
+		graphQLFields.add(new GraphQLField("id"));
+
+		for (String additionalAssertFieldName :
+				getAdditionalAssertFieldNames()) {
+
+			graphQLFields.add(new GraphQLField(additionalAssertFieldName));
+		}
+
+		return graphQLFields;
+	}
+
+	protected String invoke(String query) throws Exception {
+		HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+		httpInvoker.body(
+			JSONUtil.put(
+				"query", query
+			).toString(),
+			"application/json");
+		httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
+		httpInvoker.path("http://localhost:8080/o/graphql");
+		httpInvoker.userNameAndPassword("test@liferay.com:test");
+
+		HttpInvoker.HttpResponse httpResponse = httpInvoker.invoke();
+
+		return httpResponse.getContent();
+	}
+
 	protected BlogPosting randomBlogPosting() throws Exception {
 		return new BlogPosting() {
 			{
@@ -230,26 +380,201 @@ public abstract class BaseBlogPostingGraphQLTestCase {
 		};
 	}
 
+	protected BlogPosting testBlogPosting_addBlogPosting() throws Exception {
+		return testBlogPosting_addBlogPosting(randomBlogPosting());
+	}
+
+	protected BlogPosting testBlogPosting_addBlogPosting(
+			BlogPosting blogPosting)
+		throws Exception {
+
+		StringBuilder sb = new StringBuilder("{");
+
+		for (String additionalAssertFieldName :
+				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals(
+					"alternativeHeadline", additionalAssertFieldName)) {
+
+				sb.append(additionalAssertFieldName);
+				sb.append(": ");
+
+				Object value = blogPosting.getAlternativeHeadline();
+
+				if (value instanceof String) {
+					sb.append("\"");
+					sb.append(value);
+					sb.append("\"");
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append(", ");
+			}
+
+			if (Objects.equals("articleBody", additionalAssertFieldName)) {
+				sb.append(additionalAssertFieldName);
+				sb.append(": ");
+
+				Object value = blogPosting.getArticleBody();
+
+				if (value instanceof String) {
+					sb.append("\"");
+					sb.append(value);
+					sb.append("\"");
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append(", ");
+			}
+
+			if (Objects.equals("description", additionalAssertFieldName)) {
+				sb.append(additionalAssertFieldName);
+				sb.append(": ");
+
+				Object value = blogPosting.getDescription();
+
+				if (value instanceof String) {
+					sb.append("\"");
+					sb.append(value);
+					sb.append("\"");
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append(", ");
+			}
+
+			if (Objects.equals("encodingFormat", additionalAssertFieldName)) {
+				sb.append(additionalAssertFieldName);
+				sb.append(": ");
+
+				Object value = blogPosting.getEncodingFormat();
+
+				if (value instanceof String) {
+					sb.append("\"");
+					sb.append(value);
+					sb.append("\"");
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append(", ");
+			}
+
+			if (Objects.equals("friendlyUrlPath", additionalAssertFieldName)) {
+				sb.append(additionalAssertFieldName);
+				sb.append(": ");
+
+				Object value = blogPosting.getFriendlyUrlPath();
+
+				if (value instanceof String) {
+					sb.append("\"");
+					sb.append(value);
+					sb.append("\"");
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append(", ");
+			}
+
+			if (Objects.equals("headline", additionalAssertFieldName)) {
+				sb.append(additionalAssertFieldName);
+				sb.append(": ");
+
+				Object value = blogPosting.getHeadline();
+
+				if (value instanceof String) {
+					sb.append("\"");
+					sb.append(value);
+					sb.append("\"");
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append(", ");
+			}
+
+			if (Objects.equals("id", additionalAssertFieldName)) {
+				sb.append(additionalAssertFieldName);
+				sb.append(": ");
+
+				Object value = blogPosting.getId();
+
+				if (value instanceof String) {
+					sb.append("\"");
+					sb.append(value);
+					sb.append("\"");
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append(", ");
+			}
+
+			if (Objects.equals("siteId", additionalAssertFieldName)) {
+				sb.append(additionalAssertFieldName);
+				sb.append(": ");
+
+				Object value = blogPosting.getSiteId();
+
+				if (value instanceof String) {
+					sb.append("\"");
+					sb.append(value);
+					sb.append("\"");
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append(", ");
+			}
+		}
+
+		sb.append("}");
+
+		List<GraphQLField> graphQLFields = getGraphQLFields();
+
+		GraphQLField graphQLField = new GraphQLField(
+			"mutation",
+			new GraphQLField(
+				"createSiteBlogPosting",
+				new HashMap<String, Object>() {
+					{
+						put("siteId", testGroup.getGroupId());
+						put("blogPosting", sb.toString());
+					}
+				},
+				graphQLFields.toArray(new GraphQLField[0])));
+
+		JSONDeserializer<BlogPosting> jsonDeserializer =
+			JSONFactoryUtil.createJSONDeserializer();
+
+		String object = invoke(graphQLField.toString());
+
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(object);
+
+		JSONObject dataJSONObject = jsonObject.getJSONObject("data");
+
+		return jsonDeserializer.deserialize(
+			String.valueOf(
+				dataJSONObject.getJSONObject("createSiteBlogPosting")),
+			BlogPosting.class);
+	}
+
 	protected Company testCompany;
 	protected Group testGroup;
 
-	private String _invoke(String query) throws Exception {
-		HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
-
-		JSONObject jsonObject = JSONUtil.put("query", query);
-
-		httpInvoker.body(jsonObject.toString(), "application/json");
-
-		httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
-		httpInvoker.path("http://localhost:8080/o/graphql");
-		httpInvoker.userNameAndPassword("test@liferay.com:test");
-
-		HttpInvoker.HttpResponse httpResponse = httpInvoker.invoke();
-
-		return httpResponse.getContent();
-	}
-
-	private class GraphQLField {
+	protected class GraphQLField {
 
 		public GraphQLField(String key, GraphQLField... graphQLFields) {
 			this(key, new HashMap<>(), graphQLFields);

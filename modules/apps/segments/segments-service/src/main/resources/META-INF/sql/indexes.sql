@@ -25,7 +25,8 @@ create index IX_8D0D6955 on SegmentsExperiment (groupId, segmentsExperienceId, c
 create unique index IX_72C2980B on SegmentsExperiment (groupId, segmentsExperimentKey[$COLUMN_LENGTH:75$]);
 create index IX_12B591F7 on SegmentsExperiment (segmentsExperienceId, classNameId, classPK, status);
 create index IX_2FF139A2 on SegmentsExperiment (segmentsExperienceId, status);
+create index IX_127B4FCF on SegmentsExperiment (segmentsExperimentKey[$COLUMN_LENGTH:75$]);
 create index IX_DECD8397 on SegmentsExperiment (uuid_[$COLUMN_LENGTH:75$], companyId);
 create unique index IX_284003D9 on SegmentsExperiment (uuid_[$COLUMN_LENGTH:75$], groupId);
 
-create index IX_1FF5BA6E on SegmentsExperimentRel (segmentsExperimentId);
+create unique index IX_52421287 on SegmentsExperimentRel (segmentsExperimentId, segmentsExperienceId);

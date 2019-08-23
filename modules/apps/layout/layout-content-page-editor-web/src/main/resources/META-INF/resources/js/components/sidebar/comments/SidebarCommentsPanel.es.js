@@ -12,50 +12,14 @@
  * details.
  */
 
-import {ClayIconSpriteContext} from '@clayui/icon';
-import {Component} from 'metal-component';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import Soy from 'metal-soy';
-
-import {getConnectedComponent} from '../../../store/ConnectedComponent.es';
-import {ConnectedSidebarComments} from './SidebarComments.es';
-import {StoreContext} from '../../../store/StoreContext.es';
+import SidebarComments from './SidebarComments.es';
+import getConnectedReactComponentAdapter from '../../../store/ReactComponentAdapter.es';
 import templates from './SidebarCommentsPanel.soy';
 
-class SidebarCommentsPanel extends Component {
-	disposed() {
-		ReactDOM.unmountComponentAtNode(this.refs.app);
-	}
-
-	syncStore(store, prevStore) {
-		if (store && store !== prevStore) {
-			this._mountApp();
-		}
-	}
-
-	_mountApp() {
-		ReactDOM.unmountComponentAtNode(this.refs.app);
-
-		ReactDOM.render(
-			<ClayIconSpriteContext.Provider
-				value={this.store.getState().spritemap}
-			>
-				<StoreContext.Provider value={this.store}>
-					<ConnectedSidebarComments />
-				</StoreContext.Provider>
-			</ClayIconSpriteContext.Provider>,
-			this.refs.app
-		);
-	}
-}
-
-const ConnectedSidebarCommentsPanel = getConnectedComponent(
-	SidebarCommentsPanel,
-	[]
+const SidebarCommentsPanel = getConnectedReactComponentAdapter(
+	SidebarComments,
+	templates
 );
 
-Soy.register(ConnectedSidebarCommentsPanel, templates);
-
-export {ConnectedSidebarCommentsPanel, SidebarCommentsPanel};
-export default ConnectedSidebarCommentsPanel;
+export {SidebarCommentsPanel};
+export default SidebarCommentsPanel;

@@ -165,14 +165,14 @@ public class MicroblogsEntryPersistenceImpl
 	 * @param start the lower bound of the range of microblogs entries
 	 * @param end the upper bound of the range of microblogs entries (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching microblogs entries
 	 */
 	@Override
 	public List<MicroblogsEntry> findByCompanyId(
 		long companyId, int start, int end,
 		OrderByComparator<MicroblogsEntry> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -182,10 +182,13 @@ public class MicroblogsEntryPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByCompanyId;
-			finderArgs = new Object[] {companyId};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByCompanyId;
+				finderArgs = new Object[] {companyId};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByCompanyId;
 			finderArgs = new Object[] {
 				companyId, start, end, orderByComparator
@@ -194,7 +197,7 @@ public class MicroblogsEntryPersistenceImpl
 
 		List<MicroblogsEntry> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<MicroblogsEntry>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -260,10 +263,14 @@ public class MicroblogsEntryPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -674,14 +681,14 @@ public class MicroblogsEntryPersistenceImpl
 	 * @param start the lower bound of the range of microblogs entries
 	 * @param end the upper bound of the range of microblogs entries (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching microblogs entries
 	 */
 	@Override
 	public List<MicroblogsEntry> findByUserId(
 		long userId, int start, int end,
 		OrderByComparator<MicroblogsEntry> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -691,17 +698,20 @@ public class MicroblogsEntryPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByUserId;
-			finderArgs = new Object[] {userId};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByUserId;
+				finderArgs = new Object[] {userId};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByUserId;
 			finderArgs = new Object[] {userId, start, end, orderByComparator};
 		}
 
 		List<MicroblogsEntry> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<MicroblogsEntry>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -767,10 +777,14 @@ public class MicroblogsEntryPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -1186,14 +1200,14 @@ public class MicroblogsEntryPersistenceImpl
 	 * @param start the lower bound of the range of microblogs entries
 	 * @param end the upper bound of the range of microblogs entries (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching microblogs entries
 	 */
 	@Override
 	public List<MicroblogsEntry> findByU_T(
 		long userId, int type, int start, int end,
 		OrderByComparator<MicroblogsEntry> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -1203,10 +1217,13 @@ public class MicroblogsEntryPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByU_T;
-			finderArgs = new Object[] {userId, type};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByU_T;
+				finderArgs = new Object[] {userId, type};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByU_T;
 			finderArgs = new Object[] {
 				userId, type, start, end, orderByComparator
@@ -1215,7 +1232,7 @@ public class MicroblogsEntryPersistenceImpl
 
 		List<MicroblogsEntry> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<MicroblogsEntry>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -1287,10 +1304,14 @@ public class MicroblogsEntryPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -1743,14 +1764,14 @@ public class MicroblogsEntryPersistenceImpl
 	 * @param start the lower bound of the range of microblogs entries
 	 * @param end the upper bound of the range of microblogs entries (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching microblogs entries
 	 */
 	@Override
 	public List<MicroblogsEntry> findByCCNI_CCPK(
 		long creatorClassNameId, long creatorClassPK, int start, int end,
 		OrderByComparator<MicroblogsEntry> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -1760,10 +1781,13 @@ public class MicroblogsEntryPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByCCNI_CCPK;
-			finderArgs = new Object[] {creatorClassNameId, creatorClassPK};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByCCNI_CCPK;
+				finderArgs = new Object[] {creatorClassNameId, creatorClassPK};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByCCNI_CCPK;
 			finderArgs = new Object[] {
 				creatorClassNameId, creatorClassPK, start, end,
@@ -1773,7 +1797,7 @@ public class MicroblogsEntryPersistenceImpl
 
 		List<MicroblogsEntry> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<MicroblogsEntry>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -1847,10 +1871,14 @@ public class MicroblogsEntryPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -2227,14 +2255,14 @@ public class MicroblogsEntryPersistenceImpl
 	 * @param start the lower bound of the range of microblogs entries
 	 * @param end the upper bound of the range of microblogs entries (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching microblogs entries
 	 */
 	@Override
 	public List<MicroblogsEntry> findByCCNI_CCPK(
 		long creatorClassNameId, long[] creatorClassPKs, int start, int end,
 		OrderByComparator<MicroblogsEntry> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		if (creatorClassPKs == null) {
 			creatorClassPKs = new long[0];
@@ -2256,11 +2284,14 @@ public class MicroblogsEntryPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderArgs = new Object[] {
-				creatorClassNameId, StringUtil.merge(creatorClassPKs)
-			};
+
+			if (useFinderCache) {
+				finderArgs = new Object[] {
+					creatorClassNameId, StringUtil.merge(creatorClassPKs)
+				};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderArgs = new Object[] {
 				creatorClassNameId, StringUtil.merge(creatorClassPKs), start,
 				end, orderByComparator
@@ -2269,7 +2300,7 @@ public class MicroblogsEntryPersistenceImpl
 
 		List<MicroblogsEntry> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<MicroblogsEntry>)finderCache.getResult(
 				_finderPathWithPaginationFindByCCNI_CCPK, finderArgs, this);
 
@@ -2348,12 +2379,17 @@ public class MicroblogsEntryPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(
-					_finderPathWithPaginationFindByCCNI_CCPK, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(
+						_finderPathWithPaginationFindByCCNI_CCPK, finderArgs,
+						list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(
-					_finderPathWithPaginationFindByCCNI_CCPK, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(
+						_finderPathWithPaginationFindByCCNI_CCPK, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -2605,14 +2641,14 @@ public class MicroblogsEntryPersistenceImpl
 	 * @param start the lower bound of the range of microblogs entries
 	 * @param end the upper bound of the range of microblogs entries (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching microblogs entries
 	 */
 	@Override
 	public List<MicroblogsEntry> findByCCNI_T(
 		long creatorClassNameId, int type, int start, int end,
 		OrderByComparator<MicroblogsEntry> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -2622,10 +2658,13 @@ public class MicroblogsEntryPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByCCNI_T;
-			finderArgs = new Object[] {creatorClassNameId, type};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByCCNI_T;
+				finderArgs = new Object[] {creatorClassNameId, type};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByCCNI_T;
 			finderArgs = new Object[] {
 				creatorClassNameId, type, start, end, orderByComparator
@@ -2634,7 +2673,7 @@ public class MicroblogsEntryPersistenceImpl
 
 		List<MicroblogsEntry> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<MicroblogsEntry>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -2707,10 +2746,14 @@ public class MicroblogsEntryPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -3162,14 +3205,14 @@ public class MicroblogsEntryPersistenceImpl
 	 * @param start the lower bound of the range of microblogs entries
 	 * @param end the upper bound of the range of microblogs entries (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching microblogs entries
 	 */
 	@Override
 	public List<MicroblogsEntry> findByT_P(
 		int type, long parentMicroblogsEntryId, int start, int end,
 		OrderByComparator<MicroblogsEntry> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -3179,10 +3222,13 @@ public class MicroblogsEntryPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByT_P;
-			finderArgs = new Object[] {type, parentMicroblogsEntryId};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByT_P;
+				finderArgs = new Object[] {type, parentMicroblogsEntryId};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByT_P;
 			finderArgs = new Object[] {
 				type, parentMicroblogsEntryId, start, end, orderByComparator
@@ -3191,7 +3237,7 @@ public class MicroblogsEntryPersistenceImpl
 
 		List<MicroblogsEntry> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<MicroblogsEntry>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -3264,10 +3310,14 @@ public class MicroblogsEntryPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -3727,14 +3777,14 @@ public class MicroblogsEntryPersistenceImpl
 	 * @param start the lower bound of the range of microblogs entries
 	 * @param end the upper bound of the range of microblogs entries (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching microblogs entries
 	 */
 	@Override
 	public List<MicroblogsEntry> findByC_CCNI_CCPK(
 		long companyId, long creatorClassNameId, long creatorClassPK, int start,
 		int end, OrderByComparator<MicroblogsEntry> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -3744,12 +3794,15 @@ public class MicroblogsEntryPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByC_CCNI_CCPK;
-			finderArgs = new Object[] {
-				companyId, creatorClassNameId, creatorClassPK
-			};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByC_CCNI_CCPK;
+				finderArgs = new Object[] {
+					companyId, creatorClassNameId, creatorClassPK
+				};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByC_CCNI_CCPK;
 			finderArgs = new Object[] {
 				companyId, creatorClassNameId, creatorClassPK, start, end,
@@ -3759,7 +3812,7 @@ public class MicroblogsEntryPersistenceImpl
 
 		List<MicroblogsEntry> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<MicroblogsEntry>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -3838,10 +3891,14 @@ public class MicroblogsEntryPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -4241,7 +4298,7 @@ public class MicroblogsEntryPersistenceImpl
 	 * @param start the lower bound of the range of microblogs entries
 	 * @param end the upper bound of the range of microblogs entries (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching microblogs entries
 	 */
 	@Override
@@ -4249,7 +4306,7 @@ public class MicroblogsEntryPersistenceImpl
 		long companyId, long creatorClassNameId, long[] creatorClassPKs,
 		int start, int end,
 		OrderByComparator<MicroblogsEntry> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		if (creatorClassPKs == null) {
 			creatorClassPKs = new long[0];
@@ -4271,11 +4328,15 @@ public class MicroblogsEntryPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderArgs = new Object[] {
-				companyId, creatorClassNameId, StringUtil.merge(creatorClassPKs)
-			};
+
+			if (useFinderCache) {
+				finderArgs = new Object[] {
+					companyId, creatorClassNameId,
+					StringUtil.merge(creatorClassPKs)
+				};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderArgs = new Object[] {
 				companyId, creatorClassNameId,
 				StringUtil.merge(creatorClassPKs), start, end, orderByComparator
@@ -4284,7 +4345,7 @@ public class MicroblogsEntryPersistenceImpl
 
 		List<MicroblogsEntry> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<MicroblogsEntry>)finderCache.getResult(
 				_finderPathWithPaginationFindByC_CCNI_CCPK, finderArgs, this);
 
@@ -4368,13 +4429,17 @@ public class MicroblogsEntryPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(
-					_finderPathWithPaginationFindByC_CCNI_CCPK, finderArgs,
-					list);
+				if (useFinderCache) {
+					finderCache.putResult(
+						_finderPathWithPaginationFindByC_CCNI_CCPK, finderArgs,
+						list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(
-					_finderPathWithPaginationFindByC_CCNI_CCPK, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(
+						_finderPathWithPaginationFindByC_CCNI_CCPK, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -4651,14 +4716,14 @@ public class MicroblogsEntryPersistenceImpl
 	 * @param start the lower bound of the range of microblogs entries
 	 * @param end the upper bound of the range of microblogs entries (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching microblogs entries
 	 */
 	@Override
 	public List<MicroblogsEntry> findByC_CCNI_T(
 		long companyId, long creatorClassNameId, int type, int start, int end,
 		OrderByComparator<MicroblogsEntry> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -4668,10 +4733,13 @@ public class MicroblogsEntryPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByC_CCNI_T;
-			finderArgs = new Object[] {companyId, creatorClassNameId, type};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByC_CCNI_T;
+				finderArgs = new Object[] {companyId, creatorClassNameId, type};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByC_CCNI_T;
 			finderArgs = new Object[] {
 				companyId, creatorClassNameId, type, start, end,
@@ -4681,7 +4749,7 @@ public class MicroblogsEntryPersistenceImpl
 
 		List<MicroblogsEntry> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<MicroblogsEntry>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -4759,10 +4827,14 @@ public class MicroblogsEntryPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -5253,14 +5325,14 @@ public class MicroblogsEntryPersistenceImpl
 	 * @param start the lower bound of the range of microblogs entries
 	 * @param end the upper bound of the range of microblogs entries (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching microblogs entries
 	 */
 	@Override
 	public List<MicroblogsEntry> findByCCNI_CCPK_T(
 		long creatorClassNameId, long creatorClassPK, int type, int start,
 		int end, OrderByComparator<MicroblogsEntry> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -5270,12 +5342,15 @@ public class MicroblogsEntryPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByCCNI_CCPK_T;
-			finderArgs = new Object[] {
-				creatorClassNameId, creatorClassPK, type
-			};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByCCNI_CCPK_T;
+				finderArgs = new Object[] {
+					creatorClassNameId, creatorClassPK, type
+				};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByCCNI_CCPK_T;
 			finderArgs = new Object[] {
 				creatorClassNameId, creatorClassPK, type, start, end,
@@ -5285,7 +5360,7 @@ public class MicroblogsEntryPersistenceImpl
 
 		List<MicroblogsEntry> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<MicroblogsEntry>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -5364,10 +5439,14 @@ public class MicroblogsEntryPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -5765,14 +5844,14 @@ public class MicroblogsEntryPersistenceImpl
 	 * @param start the lower bound of the range of microblogs entries
 	 * @param end the upper bound of the range of microblogs entries (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching microblogs entries
 	 */
 	@Override
 	public List<MicroblogsEntry> findByCCNI_CCPK_T(
 		long creatorClassNameId, long[] creatorClassPKs, int type, int start,
 		int end, OrderByComparator<MicroblogsEntry> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		if (creatorClassPKs == null) {
 			creatorClassPKs = new long[0];
@@ -5794,11 +5873,14 @@ public class MicroblogsEntryPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderArgs = new Object[] {
-				creatorClassNameId, StringUtil.merge(creatorClassPKs), type
-			};
+
+			if (useFinderCache) {
+				finderArgs = new Object[] {
+					creatorClassNameId, StringUtil.merge(creatorClassPKs), type
+				};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderArgs = new Object[] {
 				creatorClassNameId, StringUtil.merge(creatorClassPKs), type,
 				start, end, orderByComparator
@@ -5807,7 +5889,7 @@ public class MicroblogsEntryPersistenceImpl
 
 		List<MicroblogsEntry> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<MicroblogsEntry>)finderCache.getResult(
 				_finderPathWithPaginationFindByCCNI_CCPK_T, finderArgs, this);
 
@@ -5893,13 +5975,17 @@ public class MicroblogsEntryPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(
-					_finderPathWithPaginationFindByCCNI_CCPK_T, finderArgs,
-					list);
+				if (useFinderCache) {
+					finderCache.putResult(
+						_finderPathWithPaginationFindByCCNI_CCPK_T, finderArgs,
+						list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(
-					_finderPathWithPaginationFindByCCNI_CCPK_T, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(
+						_finderPathWithPaginationFindByCCNI_CCPK_T, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -6187,7 +6273,7 @@ public class MicroblogsEntryPersistenceImpl
 	 * @param start the lower bound of the range of microblogs entries
 	 * @param end the upper bound of the range of microblogs entries (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching microblogs entries
 	 */
 	@Override
@@ -6195,7 +6281,7 @@ public class MicroblogsEntryPersistenceImpl
 		long companyId, long creatorClassNameId, long creatorClassPK, int type,
 		int start, int end,
 		OrderByComparator<MicroblogsEntry> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -6205,12 +6291,15 @@ public class MicroblogsEntryPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByC_CCNI_CCPK_T;
-			finderArgs = new Object[] {
-				companyId, creatorClassNameId, creatorClassPK, type
-			};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByC_CCNI_CCPK_T;
+				finderArgs = new Object[] {
+					companyId, creatorClassNameId, creatorClassPK, type
+				};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByC_CCNI_CCPK_T;
 			finderArgs = new Object[] {
 				companyId, creatorClassNameId, creatorClassPK, type, start, end,
@@ -6220,7 +6309,7 @@ public class MicroblogsEntryPersistenceImpl
 
 		List<MicroblogsEntry> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<MicroblogsEntry>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -6304,10 +6393,14 @@ public class MicroblogsEntryPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -6730,7 +6823,7 @@ public class MicroblogsEntryPersistenceImpl
 	 * @param start the lower bound of the range of microblogs entries
 	 * @param end the upper bound of the range of microblogs entries (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching microblogs entries
 	 */
 	@Override
@@ -6738,7 +6831,7 @@ public class MicroblogsEntryPersistenceImpl
 		long companyId, long creatorClassNameId, long[] creatorClassPKs,
 		int type, int start, int end,
 		OrderByComparator<MicroblogsEntry> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		if (creatorClassPKs == null) {
 			creatorClassPKs = new long[0];
@@ -6760,12 +6853,15 @@ public class MicroblogsEntryPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderArgs = new Object[] {
-				companyId, creatorClassNameId,
-				StringUtil.merge(creatorClassPKs), type
-			};
+
+			if (useFinderCache) {
+				finderArgs = new Object[] {
+					companyId, creatorClassNameId,
+					StringUtil.merge(creatorClassPKs), type
+				};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderArgs = new Object[] {
 				companyId, creatorClassNameId,
 				StringUtil.merge(creatorClassPKs), type, start, end,
@@ -6775,7 +6871,7 @@ public class MicroblogsEntryPersistenceImpl
 
 		List<MicroblogsEntry> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<MicroblogsEntry>)finderCache.getResult(
 				_finderPathWithPaginationFindByC_CCNI_CCPK_T, finderArgs, this);
 
@@ -6866,13 +6962,18 @@ public class MicroblogsEntryPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(
-					_finderPathWithPaginationFindByC_CCNI_CCPK_T, finderArgs,
-					list);
+				if (useFinderCache) {
+					finderCache.putResult(
+						_finderPathWithPaginationFindByC_CCNI_CCPK_T,
+						finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(
-					_finderPathWithPaginationFindByC_CCNI_CCPK_T, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(
+						_finderPathWithPaginationFindByC_CCNI_CCPK_T,
+						finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -7175,7 +7276,7 @@ public class MicroblogsEntryPersistenceImpl
 	 * @param start the lower bound of the range of microblogs entries
 	 * @param end the upper bound of the range of microblogs entries (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching microblogs entries
 	 */
 	@Override
@@ -7183,7 +7284,7 @@ public class MicroblogsEntryPersistenceImpl
 		long userId, Date createDate, int type, int socialRelationType,
 		int start, int end,
 		OrderByComparator<MicroblogsEntry> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -7193,12 +7294,15 @@ public class MicroblogsEntryPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByU_C_T_S;
-			finderArgs = new Object[] {
-				userId, _getTime(createDate), type, socialRelationType
-			};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByU_C_T_S;
+				finderArgs = new Object[] {
+					userId, _getTime(createDate), type, socialRelationType
+				};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByU_C_T_S;
 			finderArgs = new Object[] {
 				userId, _getTime(createDate), type, socialRelationType, start,
@@ -7208,7 +7312,7 @@ public class MicroblogsEntryPersistenceImpl
 
 		List<MicroblogsEntry> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<MicroblogsEntry>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -7303,10 +7407,14 @@ public class MicroblogsEntryPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -8522,14 +8630,14 @@ public class MicroblogsEntryPersistenceImpl
 	 * @param start the lower bound of the range of microblogs entries
 	 * @param end the upper bound of the range of microblogs entries (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of microblogs entries
 	 */
 	@Override
 	public List<MicroblogsEntry> findAll(
 		int start, int end,
 		OrderByComparator<MicroblogsEntry> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -8539,17 +8647,20 @@ public class MicroblogsEntryPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindAll;
-			finderArgs = FINDER_ARGS_EMPTY;
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindAll;
+				finderArgs = FINDER_ARGS_EMPTY;
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindAll;
 			finderArgs = new Object[] {start, end, orderByComparator};
 		}
 
 		List<MicroblogsEntry> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<MicroblogsEntry>)finderCache.getResult(
 				finderPath, finderArgs, this);
 		}
@@ -8599,10 +8710,14 @@ public class MicroblogsEntryPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -9093,5 +9208,14 @@ public class MicroblogsEntryPersistenceImpl
 
 	private static final Set<String> _badColumnNames = SetUtil.fromArray(
 		new String[] {"type"});
+
+	static {
+		try {
+			Class.forName(MicroblogsPersistenceConstants.class.getName());
+		}
+		catch (ClassNotFoundException cnfe) {
+			throw new ExceptionInInitializerError(cnfe);
+		}
+	}
 
 }

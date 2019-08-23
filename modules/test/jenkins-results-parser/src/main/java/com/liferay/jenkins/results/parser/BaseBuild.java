@@ -1235,6 +1235,22 @@ public abstract class BaseBuild implements Build {
 	}
 
 	@Override
+	public boolean hasGenericCIFailure() {
+		for (FailureMessageGenerator failureMessageGenerator :
+				getFailureMessageGenerators()) {
+
+			Element failureMessage = failureMessageGenerator.getMessageElement(
+				this);
+
+			if (failureMessage != null) {
+				return failureMessageGenerator.isGenericCIFailure();
+			}
+		}
+
+		return false;
+	}
+
+	@Override
 	public int hashCode() {
 		String key = getBuildURL();
 
@@ -2227,8 +2243,8 @@ public abstract class BaseBuild implements Build {
 			JenkinsResultsParserUtil.toDurationString(getDuration()));
 	}
 
-	protected Pattern getBuildURLPattern() {
-		return _buildURLPattern;
+	protected MultiPattern getBuildURLMultiPattern() {
+		return _buildURLMultiPattern;
 	}
 
 	protected int getDownstreamBuildCountByResult(String result) {
@@ -3023,11 +3039,11 @@ public abstract class BaseBuild implements Build {
 			fromArchive = false;
 		}
 
-		Pattern buildURLPattern = getBuildURLPattern();
+		MultiPattern buildURLMultiPattern = getBuildURLMultiPattern();
 
-		Matcher matcher = buildURLPattern.matcher(buildURL);
+		Matcher matcher = buildURLMultiPattern.find(buildURL);
 
-		if (!matcher.find()) {
+		if (matcher == null) {
 			Pattern archiveBuildURLPattern = getArchiveBuildURLPattern();
 
 			matcher = archiveBuildURLPattern.matcher(buildURL);
@@ -3360,7 +3376,7 @@ public abstract class BaseBuild implements Build {
 			Pattern.quote(JenkinsResultsParserUtil.URL_DEPENDENCIES_HTTP),
 			")/*(?<archiveName>.*)/(?<master>[^/]+)/+(?<jobName>[^/]+)",
 			".*/(?<buildNumber>\\d+)/?"));
-	private static final Pattern _buildURLPattern = Pattern.compile(
+	private static final MultiPattern _buildURLMultiPattern = new MultiPattern(
 		JenkinsResultsParserUtil.combine(
 			"\\w+://(?<master>[^/]+)/+job/+(?<jobName>[^/]+).*/(?<buildNumber>",
 			"\\d+)/?"));

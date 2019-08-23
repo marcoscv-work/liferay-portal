@@ -179,6 +179,7 @@ public abstract class BaseDataDefinitionResourceTestCase {
 		DataDefinition dataDefinition = randomDataDefinition();
 
 		dataDefinition.setDataDefinitionKey(regex);
+		dataDefinition.setDefaultLanguageId(regex);
 		dataDefinition.setStorageType(regex);
 
 		String json = DataDefinitionSerDes.toJSON(dataDefinition);
@@ -188,6 +189,7 @@ public abstract class BaseDataDefinitionResourceTestCase {
 		dataDefinition = DataDefinitionSerDes.toDTO(json);
 
 		Assert.assertEquals(regex, dataDefinition.getDataDefinitionKey());
+		Assert.assertEquals(regex, dataDefinition.getDefaultLanguageId());
 		Assert.assertEquals(regex, dataDefinition.getStorageType());
 	}
 
@@ -623,6 +625,16 @@ public abstract class BaseDataDefinitionResourceTestCase {
 				getAdditionalAssertFieldNames()) {
 
 			if (Objects.equals(
+					"availableLanguageIds", additionalAssertFieldName)) {
+
+				if (dataDefinition.getAvailableLanguageIds() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
 					"dataDefinitionFields", additionalAssertFieldName)) {
 
 				if (dataDefinition.getDataDefinitionFields() == null) {
@@ -646,6 +658,16 @@ public abstract class BaseDataDefinitionResourceTestCase {
 					"dataDefinitionRules", additionalAssertFieldName)) {
 
 				if (dataDefinition.getDataDefinitionRules() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"defaultLanguageId", additionalAssertFieldName)) {
+
+				if (dataDefinition.getDefaultLanguageId() == null) {
 					valid = false;
 				}
 
@@ -734,6 +756,19 @@ public abstract class BaseDataDefinitionResourceTestCase {
 				getAdditionalAssertFieldNames()) {
 
 			if (Objects.equals(
+					"availableLanguageIds", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						dataDefinition1.getAvailableLanguageIds(),
+						dataDefinition2.getAvailableLanguageIds())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
 					"dataDefinitionFields", additionalAssertFieldName)) {
 
 				if (!Objects.deepEquals(
@@ -787,6 +822,19 @@ public abstract class BaseDataDefinitionResourceTestCase {
 				if (!Objects.deepEquals(
 						dataDefinition1.getDateModified(),
 						dataDefinition2.getDateModified())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"defaultLanguageId", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						dataDefinition1.getDefaultLanguageId(),
+						dataDefinition2.getDefaultLanguageId())) {
 
 					return false;
 				}
@@ -906,6 +954,11 @@ public abstract class BaseDataDefinitionResourceTestCase {
 		sb.append(operator);
 		sb.append(" ");
 
+		if (entityFieldName.equals("availableLanguageIds")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		if (entityFieldName.equals("dataDefinitionFields")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
@@ -990,6 +1043,14 @@ public abstract class BaseDataDefinitionResourceTestCase {
 			return sb.toString();
 		}
 
+		if (entityFieldName.equals("defaultLanguageId")) {
+			sb.append("'");
+			sb.append(String.valueOf(dataDefinition.getDefaultLanguageId()));
+			sb.append("'");
+
+			return sb.toString();
+		}
+
 		if (entityFieldName.equals("description")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
@@ -1033,6 +1094,7 @@ public abstract class BaseDataDefinitionResourceTestCase {
 				dataDefinitionKey = RandomTestUtil.randomString();
 				dateCreated = RandomTestUtil.nextDate();
 				dateModified = RandomTestUtil.nextDate();
+				defaultLanguageId = RandomTestUtil.randomString();
 				id = RandomTestUtil.randomLong();
 				siteId = testGroup.getGroupId();
 				storageType = RandomTestUtil.randomString();

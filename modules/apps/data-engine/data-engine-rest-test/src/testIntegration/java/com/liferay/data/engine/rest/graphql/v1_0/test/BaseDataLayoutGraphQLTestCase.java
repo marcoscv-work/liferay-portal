@@ -16,6 +16,7 @@ package com.liferay.data.engine.rest.graphql.v1_0.test;
 
 import com.liferay.data.engine.rest.client.dto.v1_0.DataLayout;
 import com.liferay.data.engine.rest.client.http.HttpInvoker;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -24,6 +25,8 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.test.log.CaptureAppender;
+import com.liferay.portal.test.log.Log4JLoggerTestUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.util.ArrayList;
@@ -34,6 +37,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.Generated;
+
+import org.apache.log4j.Level;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -68,18 +73,56 @@ public abstract class BaseDataLayoutGraphQLTestCase {
 	}
 
 	@Test
-	public void testGetDataLayout() throws Exception {
-		DataLayout postDataLayout = testGetDataLayout_addDataLayout();
+	public void testDeleteDataLayout() throws Exception {
+		DataLayout dataLayout = testDataLayout_addDataLayout();
 
-		List<GraphQLField> graphQLFields = new ArrayList<>();
+		GraphQLField graphQLField = new GraphQLField(
+			"mutation",
+			new GraphQLField(
+				"deleteDataLayout",
+				new HashMap<String, Object>() {
+					{
+						put("dataLayoutId", dataLayout.getId());
+					}
+				}));
 
-		graphQLFields.add(new GraphQLField("id"));
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			invoke(graphQLField.toString()));
 
-		for (String additionalAssertFieldName :
-				getAdditionalAssertFieldNames()) {
+		JSONObject dataJSONObject = jsonObject.getJSONObject("data");
 
-			graphQLFields.add(new GraphQLField(additionalAssertFieldName));
+		Assert.assertTrue(dataJSONObject.getBoolean("deleteDataLayout"));
+
+		try (CaptureAppender captureAppender =
+				Log4JLoggerTestUtil.configureLog4JLogger(
+					"graphql.execution.SimpleDataFetcherExceptionHandler",
+					Level.WARN)) {
+
+			graphQLField = new GraphQLField(
+				"query",
+				new GraphQLField(
+					"dataLayout",
+					new HashMap<String, Object>() {
+						{
+							put("dataLayoutId", dataLayout.getId());
+						}
+					},
+					new GraphQLField("id")));
+
+			jsonObject = JSONFactoryUtil.createJSONObject(
+				invoke(graphQLField.toString()));
+
+			JSONArray errorsJSONArray = jsonObject.getJSONArray("errors");
+
+			Assert.assertTrue(errorsJSONArray.length() > 0);
 		}
+	}
+
+	@Test
+	public void testGetDataLayout() throws Exception {
+		DataLayout dataLayout = testDataLayout_addDataLayout();
+
+		List<GraphQLField> graphQLFields = getGraphQLFields();
 
 		GraphQLField graphQLField = new GraphQLField(
 			"query",
@@ -87,38 +130,78 @@ public abstract class BaseDataLayoutGraphQLTestCase {
 				"dataLayout",
 				new HashMap<String, Object>() {
 					{
-						put("dataLayoutId", postDataLayout.getId());
+						put("dataLayoutId", dataLayout.getId());
 					}
 				},
 				graphQLFields.toArray(new GraphQLField[0])));
 
-		JSONObject responseJSONObject = JSONFactoryUtil.createJSONObject(
-			_invoke(graphQLField.toString()));
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			invoke(graphQLField.toString()));
 
-		JSONObject dataJSONObject = responseJSONObject.getJSONObject("data");
+		JSONObject dataJSONObject = jsonObject.getJSONObject("data");
 
 		Assert.assertTrue(
-			equals(postDataLayout, dataJSONObject.getJSONObject("dataLayout")));
+			equals(dataLayout, dataJSONObject.getJSONObject("dataLayout")));
 	}
 
-	protected DataLayout testGetDataLayout_addDataLayout() throws Exception {
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
+	@Test
+	public void testGetSiteDataLayoutsPage() throws Exception {
+		List<GraphQLField> graphQLFields = new ArrayList<>();
+
+		List<GraphQLField> itemsGraphQLFields = getGraphQLFields();
+
+		graphQLFields.add(
+			new GraphQLField(
+				"items", itemsGraphQLFields.toArray(new GraphQLField[0])));
+
+		graphQLFields.add(new GraphQLField("page"));
+		graphQLFields.add(new GraphQLField("totalCount"));
+
+		GraphQLField graphQLField = new GraphQLField(
+			"query",
+			new GraphQLField(
+				"dataLayouts",
+				new HashMap<String, Object>() {
+					{
+						put("page", 1);
+						put("pageSize", 2);
+						put("siteId", testGroup.getGroupId());
+					}
+				},
+				graphQLFields.toArray(new GraphQLField[0])));
+
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			invoke(graphQLField.toString()));
+
+		JSONObject dataJSONObject = jsonObject.getJSONObject("data");
+
+		JSONObject dataLayoutsJSONObject = dataJSONObject.getJSONObject(
+			"dataLayouts");
+
+		Assert.assertEquals(0, dataLayoutsJSONObject.get("totalCount"));
+
+		DataLayout dataLayout1 = testDataLayout_addDataLayout();
+		DataLayout dataLayout2 = testDataLayout_addDataLayout();
+
+		jsonObject = JSONFactoryUtil.createJSONObject(
+			invoke(graphQLField.toString()));
+
+		dataJSONObject = jsonObject.getJSONObject("data");
+
+		dataLayoutsJSONObject = dataJSONObject.getJSONObject("dataLayouts");
+
+		Assert.assertEquals(2, dataLayoutsJSONObject.get("totalCount"));
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(dataLayout1, dataLayout2),
+			dataLayoutsJSONObject.getJSONArray("items"));
 	}
 
 	@Test
 	public void testGetSiteDataLayout() throws Exception {
-		DataLayout postDataLayout = testGetSiteDataLayout_addDataLayout();
+		DataLayout dataLayout = testDataLayout_addDataLayout();
 
-		List<GraphQLField> graphQLFields = new ArrayList<>();
-
-		graphQLFields.add(new GraphQLField("id"));
-
-		for (String additionalAssertFieldName :
-				getAdditionalAssertFieldNames()) {
-
-			graphQLFields.add(new GraphQLField(additionalAssertFieldName));
-		}
+		List<GraphQLField> graphQLFields = getGraphQLFields();
 
 		GraphQLField graphQLField = new GraphQLField(
 			"query",
@@ -126,34 +209,41 @@ public abstract class BaseDataLayoutGraphQLTestCase {
 				"dataLayout",
 				new HashMap<String, Object>() {
 					{
-						put("dataLayoutId", postDataLayout.getId());
+						put("dataLayoutId", dataLayout.getId());
 					}
 				},
 				graphQLFields.toArray(new GraphQLField[0])));
 
-		JSONObject responseJSONObject = JSONFactoryUtil.createJSONObject(
-			_invoke(graphQLField.toString()));
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			invoke(graphQLField.toString()));
 
-		JSONObject dataJSONObject = responseJSONObject.getJSONObject("data");
+		JSONObject dataJSONObject = jsonObject.getJSONObject("data");
 
 		Assert.assertTrue(
-			equals(postDataLayout, dataJSONObject.getJSONObject("dataLayout")));
+			equals(dataLayout, dataJSONObject.getJSONObject("dataLayout")));
 	}
 
-	protected DataLayout testGetSiteDataLayout_addDataLayout()
-		throws Exception {
+	protected void assertEqualsIgnoringOrder(
+		List<DataLayout> dataLayouts, JSONArray jsonArray) {
 
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
+		for (DataLayout dataLayout : dataLayouts) {
+			boolean contains = false;
+
+			for (Object object : jsonArray) {
+				if (equals(dataLayout, (JSONObject)object)) {
+					contains = true;
+
+					break;
+				}
+			}
+
+			Assert.assertTrue(
+				jsonArray + " does not contain " + dataLayout, contains);
+		}
 	}
 
 	protected boolean equals(DataLayout dataLayout, JSONObject jsonObject) {
-		List<String> fieldNames = new ArrayList(
-			Arrays.asList(getAdditionalAssertFieldNames()));
-
-		fieldNames.add("id");
-
-		for (String fieldName : fieldNames) {
+		for (String fieldName : getAdditionalAssertFieldNames()) {
 			if (Objects.equals("dataDefinitionId", fieldName)) {
 				if (!Objects.equals(
 						dataLayout.getDataDefinitionId(),
@@ -169,17 +259,6 @@ public abstract class BaseDataLayoutGraphQLTestCase {
 				if (!Objects.equals(
 						dataLayout.getDataLayoutKey(),
 						(String)jsonObject.getString("dataLayoutKey"))) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("defaultLanguageId", fieldName)) {
-				if (!Objects.equals(
-						dataLayout.getDefaultLanguageId(),
-						(String)jsonObject.getString("defaultLanguageId"))) {
 
 					return false;
 				}
@@ -241,32 +320,28 @@ public abstract class BaseDataLayoutGraphQLTestCase {
 		return new String[0];
 	}
 
-	protected DataLayout randomDataLayout() throws Exception {
-		return new DataLayout() {
-			{
-				dataDefinitionId = RandomTestUtil.randomLong();
-				dataLayoutKey = RandomTestUtil.randomString();
-				dateCreated = RandomTestUtil.nextDate();
-				dateModified = RandomTestUtil.nextDate();
-				defaultLanguageId = RandomTestUtil.randomString();
-				id = RandomTestUtil.randomLong();
-				paginationMode = RandomTestUtil.randomString();
-				siteId = testGroup.getGroupId();
-				userId = RandomTestUtil.randomLong();
-			}
-		};
+	protected List<GraphQLField> getGraphQLFields() {
+		List<GraphQLField> graphQLFields = new ArrayList<>();
+
+		graphQLFields.add(new GraphQLField("id"));
+
+		for (String additionalAssertFieldName :
+				getAdditionalAssertFieldNames()) {
+
+			graphQLFields.add(new GraphQLField(additionalAssertFieldName));
+		}
+
+		return graphQLFields;
 	}
 
-	protected Company testCompany;
-	protected Group testGroup;
-
-	private String _invoke(String query) throws Exception {
+	protected String invoke(String query) throws Exception {
 		HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
 
-		JSONObject jsonObject = JSONUtil.put("query", query);
-
-		httpInvoker.body(jsonObject.toString(), "application/json");
-
+		httpInvoker.body(
+			JSONUtil.put(
+				"query", query
+			).toString(),
+			"application/json");
 		httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
 		httpInvoker.path("http://localhost:8080/o/graphql");
 		httpInvoker.userNameAndPassword("test@liferay.com:test");
@@ -276,7 +351,30 @@ public abstract class BaseDataLayoutGraphQLTestCase {
 		return httpResponse.getContent();
 	}
 
-	private class GraphQLField {
+	protected DataLayout randomDataLayout() throws Exception {
+		return new DataLayout() {
+			{
+				dataDefinitionId = RandomTestUtil.randomLong();
+				dataLayoutKey = RandomTestUtil.randomString();
+				dateCreated = RandomTestUtil.nextDate();
+				dateModified = RandomTestUtil.nextDate();
+				id = RandomTestUtil.randomLong();
+				paginationMode = RandomTestUtil.randomString();
+				siteId = testGroup.getGroupId();
+				userId = RandomTestUtil.randomLong();
+			}
+		};
+	}
+
+	protected DataLayout testDataLayout_addDataLayout() throws Exception {
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	protected Company testCompany;
+	protected Group testGroup;
+
+	protected class GraphQLField {
 
 		public GraphQLField(String key, GraphQLField... graphQLFields) {
 			this(key, new HashMap<>(), graphQLFields);

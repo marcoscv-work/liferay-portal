@@ -17,9 +17,9 @@ AUI.add(
 	function(A) {
 		var Lang = A.Lang;
 
-		var CSS_ICON_STAR = 'icon-star';
+		var CSS_ICON_STAR = 'icon-star-on';
 
-		var CSS_ICON_STAR_EMPTY = 'icon-star-empty';
+		var CSS_ICON_STAR_EMPTY = 'icon-star-off';
 
 		var EMPTY_FN = Lang.emptyFn;
 
@@ -166,19 +166,20 @@ AUI.add(
 						score: score
 					});
 
-					A.io.request(url, {
-						data: {
-							className: instance.get('className'),
-							classPK: instance.get('classPK'),
-							p_auth: Liferay.authToken,
-							p_l_id: themeDisplay.getPlid(),
-							score: score
-						},
-						dataType: 'JSON',
-						on: {
-							success: A.bind(callback, instance)
-						}
-					});
+					var data = {
+						className: instance.get('className'),
+						classPK: instance.get('classPK'),
+						p_auth: Liferay.authToken,
+						p_l_id: themeDisplay.getPlid(),
+						score: score
+					};
+
+					Liferay.Util.fetch(url, {
+						body: Liferay.Util.objectToFormData(data),
+						method: 'POST'
+					})
+						.then(response => response.json())
+						.then(response => callback.call(instance, response));
 				},
 
 				_showScoreTooltip: function(event) {
@@ -187,7 +188,7 @@ AUI.add(
 					var message = '';
 
 					var stars = instance._ratingScoreNode
-						.all('.icon-star')
+						.all('.icon-star-on')
 						.size();
 
 					if (stars === 1) {
@@ -422,23 +423,19 @@ AUI.add(
 					);
 				},
 
-				_saveCallback: function(event, id, obj) {
+				_saveCallback: function(response) {
 					var instance = this;
-
-					var xhr = event.currentTarget;
-
-					var json = xhr.get(STR_RESPONSE_DATA);
 
 					var description = Liferay.Language.get('average');
 
 					var averageScore =
-						json.averageScore * instance.get(STR_SIZE);
+						response.averageScore * instance.get(STR_SIZE);
 
-					var score = json.score * instance.get(STR_SIZE);
+					var score = response.score * instance.get(STR_SIZE);
 
 					var label = instance._getLabel(
 						description,
-						json.totalEntries
+						response.totalEntries
 					);
 
 					var formattedAverageScore = averageScore.toFixed(1);
@@ -550,16 +547,12 @@ AUI.add(
 					}
 				},
 
-				_saveCallback: function(event, id, obj) {
+				_saveCallback: function(response) {
 					var instance = this;
 
-					var xhr = event.currentTarget;
-
-					var json = xhr.get(STR_RESPONSE_DATA);
-
 					var thumbScore = instance._getThumbScores(
-						json.totalEntries,
-						json.totalScore
+						response.totalEntries,
+						response.totalScore
 					);
 
 					instance._updateScores(thumbScore);
@@ -739,6 +732,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-io-request', 'aui-rating']
+		requires: ['aui-rating']
 	}
 );

@@ -100,7 +100,6 @@
 							'async-queue',
 							'aui-autocomplete-deprecated',
 							'aui-io-plugin-deprecated',
-							'aui-io-request',
 							'aui-live-search-deprecated',
 							'aui-modal',
 							'aui-template-deprecated',
@@ -114,7 +113,6 @@
 						requires: [
 							'aui-base',
 							'aui-data-set-deprecated',
-							'aui-io-request',
 							'aui-parse-content',
 							'base',
 							'liferay-undo-manager',
@@ -299,8 +297,7 @@
 							'liferay-item-selector-uploader',
 							'liferay-item-viewer',
 							'liferay-notice',
-							'liferay-portlet-base',
-							'liferay-storage-formatter'
+							'liferay-portlet-base'
 						]
 					},
 					'liferay-item-selector-uploader': {
@@ -346,11 +343,9 @@
 						path: 'logo_editor.js',
 						requires: [
 							'aui-image-cropper',
-							'aui-io-request',
 							'liferay-alert',
 							'liferay-crop-region',
-							'liferay-portlet-base',
-							'liferay-storage-formatter'
+							'liferay-portlet-base'
 						]
 					},
 					'liferay-logo-selector': {
@@ -445,11 +440,7 @@
 					},
 					'liferay-portlet-url': {
 						path: 'portlet_url.js',
-						requires: [
-							'aui-base',
-							'aui-io-request',
-							'querystring-stringify-simple'
-						]
+						requires: ['aui-base']
 					},
 					'liferay-preview': {
 						path: 'preview.js',
@@ -466,7 +457,7 @@
 					},
 					'liferay-ratings': {
 						path: 'ratings.js',
-						requires: ['aui-io-request', 'aui-rating']
+						requires: ['aui-rating']
 					},
 					'liferay-resize-rtl': {
 						condition: {
@@ -481,7 +472,6 @@
 						path: 'restore_entry.js',
 						requires: [
 							'aui-io-plugin-deprecated',
-							'aui-io-request',
 							'aui-modal',
 							'liferay-portlet-base'
 						]
@@ -521,7 +511,6 @@
 					'liferay-session': {
 						path: 'session.js',
 						requires: [
-							'aui-io-request',
 							'aui-timer',
 							'cookie',
 							'liferay-notification'
@@ -532,7 +521,6 @@
 						requires: [
 							'aui-base',
 							'aui-component',
-							'aui-io-request',
 							'aui-parse-content',
 							'liferay-form',
 							'liferay-portlet-url',
@@ -583,11 +571,9 @@
 					'liferay-upload': {
 						path: 'upload.js',
 						requires: [
-							'aui-io-request',
 							'aui-template-deprecated',
 							'collection',
 							'liferay-portlet-base',
-							'liferay-storage-formatter',
 							'uploader'
 						]
 					},

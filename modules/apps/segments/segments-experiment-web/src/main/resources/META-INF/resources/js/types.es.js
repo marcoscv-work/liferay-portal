@@ -15,17 +15,53 @@
 import PropTypes from 'prop-types';
 
 const SegmentsExperimentType = PropTypes.shape({
-	name: PropTypes.string.isRequired,
 	description: PropTypes.string,
+	goal: SegmentsExperimentGoal,
+	name: PropTypes.string.isRequired,
+	segmentsEntryName: PropTypes.string.isRequired,
+	segmentsExperienceId: PropTypes.string,
 	segmentsExperimentId: PropTypes.string.isRequired,
-	segmentsExperienceId: PropTypes.string
+	status: SegmentsExperimentStatus
 });
 
 const SegmentsExperienceType = PropTypes.shape({
-	name: PropTypes.string.isRequired,
 	description: PropTypes.string,
+	name: PropTypes.string.isRequired,
 	segmentsExperienceId: PropTypes.string.isRequired,
 	segmentsExperiment: SegmentsExperimentType
 });
 
-export {SegmentsExperienceType, SegmentsExperimentType};
+const InitialSegmentsVariantType = PropTypes.shape({
+	name: PropTypes.string.isRequired,
+	segmentsExperienceId: PropTypes.string.isRequired,
+	segmentsExperimentId: PropTypes.string.isRequired,
+	segmentsExperimentRelId: PropTypes.string.isRequired
+});
+
+const SegmentsVariantType = PropTypes.shape({
+	control: PropTypes.bool.isRequired,
+	name: PropTypes.string.isRequired,
+	segmentsExperienceId: PropTypes.string.isRequired,
+	segmentsExperimentId: PropTypes.string.isRequired,
+	segmentsExperimentRelId: PropTypes.string.isRequired
+});
+
+const SegmentsExperimentGoal = PropTypes.shape({
+	label: PropTypes.string.isRequired,
+	target: PropTypes.string,
+	value: PropTypes.string.isRequired
+});
+
+const SegmentsExperimentStatus = PropTypes.shape({
+	label: PropTypes.string.isRequired,
+	value: PropTypes.string.isRequired
+});
+
+export {
+	InitialSegmentsVariantType,
+	SegmentsExperienceType,
+	SegmentsExperimentGoal,
+	SegmentsExperimentStatus,
+	SegmentsExperimentType,
+	SegmentsVariantType
+};

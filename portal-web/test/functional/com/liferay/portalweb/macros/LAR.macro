@@ -119,7 +119,7 @@ definition {
 
 	macro _gotoExportSite {
 		if (isSet(siteScopeName)) {
-			ProductMenu.gotoSite(site = "${siteScopeName}");
+			Navigator.openSiteURL(siteName = "${siteScopeName}");
 		}
 
 		ProductMenu.gotoPortlet(
@@ -130,7 +130,9 @@ definition {
 
 	macro _gotoImportSite {
 		if (isSet(siteName)) {
-			ProductMenu.gotoSite(site = "${siteName}");
+			SitePages.openPagesAdmin(
+				baseURL = "${baseURL}",
+				siteURLKey = "${siteName}");
 		}
 
 		ProductMenu.gotoPortlet(
@@ -547,7 +549,9 @@ definition {
 	}
 
 	macro importSiteCP {
-		LAR._gotoImportSite(siteName = "${siteName}");
+		LAR._gotoImportSite(
+			baseURL = "${baseURL}",
+			siteName = "${siteName}");
 
 		LAR._selectImportFileSite(
 			importCampaignValidationError = "${importCampaignValidationError}",

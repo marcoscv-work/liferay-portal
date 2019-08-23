@@ -16,7 +16,7 @@ package com.liferay.data.engine.rest.internal.field.type.v1_0;
 
 import com.liferay.data.engine.field.type.BaseFieldType;
 import com.liferay.data.engine.field.type.FieldType;
-import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
+import com.liferay.data.engine.field.type.FieldTypeTracker;
 import com.liferay.data.engine.rest.internal.field.type.v1_0.util.CustomPropertiesUtil;
 import com.liferay.data.engine.rest.internal.field.type.v1_0.util.DataFieldOptionUtil;
 import com.liferay.data.engine.spi.dto.SPIDataDefinitionField;
@@ -51,11 +51,12 @@ import org.osgi.service.component.annotations.Component;
 public class SelectFieldType extends BaseFieldType {
 
 	@Override
-	public SPIDataDefinitionField deserialize(JSONObject jsonObject)
+	public SPIDataDefinitionField deserialize(
+			FieldTypeTracker fieldTypeTracker, JSONObject jsonObject)
 		throws Exception {
 
 		SPIDataDefinitionField spiDataDefinitionField = super.deserialize(
-			jsonObject);
+			fieldTypeTracker, jsonObject);
 
 		Map<String, Object> customProperties =
 			spiDataDefinitionField.getCustomProperties();
@@ -65,12 +66,8 @@ public class SelectFieldType extends BaseFieldType {
 		customProperties.put("multiple", jsonObject.getBoolean("multiple"));
 		customProperties.put(
 			"options",
-			DataFieldOptionUtil.toDataFieldOptions(
+			DataFieldOptionUtil.toLocalizedDataFieldOptions(
 				jsonObject.getJSONObject("options")));
-		customProperties.put(
-			"predefinedValue",
-			LocalizedValueUtil.toLocalizedValues(
-				jsonObject.getJSONObject("predefinedValue")));
 
 		return spiDataDefinitionField;
 	}
@@ -82,10 +79,12 @@ public class SelectFieldType extends BaseFieldType {
 
 	@Override
 	public JSONObject toJSONObject(
+			FieldTypeTracker fieldTypeTracker,
 			SPIDataDefinitionField spiDataDefinitionField)
 		throws Exception {
 
-		JSONObject jsonObject = super.toJSONObject(spiDataDefinitionField);
+		JSONObject jsonObject = super.toJSONObject(
+			fieldTypeTracker, spiDataDefinitionField);
 
 		return jsonObject.put(
 			"dataSourceType",
@@ -98,12 +97,7 @@ public class SelectFieldType extends BaseFieldType {
 		).put(
 			"options",
 			DataFieldOptionUtil.toJSONObject(
-				CustomPropertiesUtil.getDataFieldOptions(
-					spiDataDefinitionField.getCustomProperties(), "options"))
-		).put(
-			"predefinedValue",
-			CustomPropertiesUtil.getMap(
-				spiDataDefinitionField.getCustomProperties(), "predefinedValue")
+				spiDataDefinitionField.getCustomProperties(), "options")
 		);
 	}
 
@@ -125,16 +119,8 @@ public class SelectFieldType extends BaseFieldType {
 				false));
 		context.put(
 			"options",
-			DataFieldOptionUtil.toDataFieldOptions(
-				CustomPropertiesUtil.getDataFieldOptions(
-					spiDataDefinitionField.getCustomProperties(), "options"),
-				LanguageUtil.getLanguageId(httpServletRequest)));
-		context.put(
-			"predefinedValue",
-			MapUtil.getString(
-				CustomPropertiesUtil.getMap(
-					spiDataDefinitionField.getCustomProperties(),
-					"predefinedValue"),
+			DataFieldOptionUtil.getLocalizedDataFieldOptions(
+				spiDataDefinitionField.getCustomProperties(), "options",
 				LanguageUtil.getLanguageId(httpServletRequest)));
 		context.put("strings", _getLanguageTerms(httpServletRequest));
 		context.put(

@@ -87,28 +87,19 @@ AUI.add(
 					);
 
 					if (exportProcessesNode && exportProcessesResourceURL) {
-						A.io.request(exportProcessesResourceURL, {
-							method: 'GET',
-							on: {
-								success: function(event, id, obj) {
-									var responseData = this.get('responseData');
+						Liferay.Util.fetch(exportProcessesResourceURL)
+							.then(function(response) {
+								return response.text();
+							})
+							.then(function(response) {
+								exportProcessesNode.plug(A.Plugin.ParseContent);
 
-									if (responseData) {
-										exportProcessesNode.plug(
-											A.Plugin.ParseContent
-										);
+								exportProcessesNode.empty();
 
-										exportProcessesNode.empty();
+								exportProcessesNode.setContent(response);
 
-										exportProcessesNode.setContent(
-											responseData
-										);
-
-										instance._scheduleRenderProcess();
-									}
-								}
-							}
-						});
+								instance._scheduleRenderProcess();
+							});
 					}
 				},
 
@@ -146,10 +137,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: [
-			'aui-io-request',
-			'aui-parse-content',
-			'liferay-portlet-base'
-		]
+		requires: ['aui-parse-content', 'liferay-portlet-base']
 	}
 );

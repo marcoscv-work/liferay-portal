@@ -23,9 +23,10 @@ import Button from './Button.es';
 const CONFIRM_BUTTON_CLASS = 'fragments-editor__inline-confirm-button';
 
 const InlineConfirm = props => {
-	const {onCancelButtonClick} = props;
+	const {onCancelButtonClick, onConfirmButtonClick} = props;
 	const [performingAction, setPerformingAction] = useState(false);
 	const wrapper = useRef(null);
+	const isMounted = useRef(false);
 
 	const _handleConfirmButtonClick = () => {
 		if (wrapper.current) {
@@ -33,8 +34,20 @@ const InlineConfirm = props => {
 		}
 
 		setPerformingAction(true);
-		props.onConfirmButtonClick().then(() => setPerformingAction(false));
+
+		onConfirmButtonClick().then(() => {
+			if (isMounted.current) {
+				setPerformingAction(false);
+			}
+		});
 	};
+
+	useEffect(() => {
+		isMounted.current = true;
+		return () => {
+			isMounted.current = false;
+		};
+	}, []);
 
 	useEffect(() => {
 		if (wrapper.current) {

@@ -4018,7 +4018,7 @@ log.sanitizer.enabled=false</echo>
 	<target name="js-unit-jdk8">
 		<run-batch-test>
 			<test-action>
-				<gradle-execute dir="modules" task="npmRunTest">
+				<gradle-execute dir="modules" task="packageRunTest">
 					<arg value="--continue" />
 					<arg value="--parallel" />
 				</gradle-execute>
@@ -4705,7 +4705,7 @@ ${output.content}</echo>
 	<target name="portal-frontend-js-lint-jdk8">
 		<run-batch-test>
 			<test-action>
-				<gradle-execute dir="modules" task="npmRunLint" />
+				<gradle-execute dir="modules" task="packageRunLint" />
 			</test-action>
 
 			<test-set-up>
@@ -4718,11 +4718,9 @@ ${output.content}</echo>
 		<run-batch-test>
 			<test-action>
 				<sequential>
-					<execute dir="${release.tool.dir}">
-						<![CDATA[
-							ant dist
-						]]>
-					</execute>
+					<ant dir="${release.tool.dir}" inheritAll="false" target="dist" useNativeBasedir="true">
+						<property name="project.release.dir.native" value="${release.tool.dir}" />
+					</ant>
 				</sequential>
 			</test-action>
 		</run-batch-test>

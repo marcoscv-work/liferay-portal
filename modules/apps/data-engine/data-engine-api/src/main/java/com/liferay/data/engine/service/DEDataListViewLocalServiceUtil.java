@@ -271,6 +271,18 @@ public class DEDataListViewLocalServiceUtil {
 		return getService().getDEDataListViews(start, end);
 	}
 
+	public static java.util.List<com.liferay.data.engine.model.DEDataListView>
+		getDEDataListViews(
+			long groupId, long companyId, long ddmStructureId, int start,
+			int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.data.engine.model.DEDataListView>
+					orderByComparator) {
+
+		return getService().getDEDataListViews(
+			groupId, companyId, ddmStructureId, start, end, orderByComparator);
+	}
+
 	/**
 	 * Returns all the de data list views matching the UUID and company.
 	 *
@@ -315,6 +327,13 @@ public class DEDataListViewLocalServiceUtil {
 		return getService().getDEDataListViewsCount();
 	}
 
+	public static int getDEDataListViewsCount(
+		long groupId, long companyId, long ddmStructureId) {
+
+		return getService().getDEDataListViewsCount(
+			groupId, companyId, ddmStructureId);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery
 		getExportActionableDynamicQuery(
 			com.liferay.exportimport.kernel.lar.PortletDataContext
@@ -357,6 +376,17 @@ public class DEDataListViewLocalServiceUtil {
 			com.liferay.data.engine.model.DEDataListView deDataListView) {
 
 		return getService().updateDEDataListView(deDataListView);
+	}
+
+	public static com.liferay.data.engine.model.DEDataListView
+			updateDEDataListView(
+				long deDataListViewId, String appliedFilters, String fieldNames,
+				java.util.Map<java.util.Locale, String> nameMap,
+				String sortField)
+		throws Exception {
+
+		return getService().updateDEDataListView(
+			deDataListViewId, appliedFilters, fieldNames, nameMap, sortField);
 	}
 
 	public static DEDataListViewLocalService getService() {

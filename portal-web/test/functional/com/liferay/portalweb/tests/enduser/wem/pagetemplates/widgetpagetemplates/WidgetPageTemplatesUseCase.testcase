@@ -27,7 +27,7 @@ definition {
 	test ViewNoAddPageTabViaPageTemplatesCP {
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		ProductMenu.gotoSite(site = "Global");
+		SitePages.openPagesAdmin(siteURLKey = "global");
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",

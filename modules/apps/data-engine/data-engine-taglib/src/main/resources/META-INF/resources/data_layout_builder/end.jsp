@@ -19,16 +19,29 @@
 <div id="<%= namespace + "container" %>"></div>
 
 <aui:script require='<%= fieldTypesModules + ", " + dataLayoutBuilderModule + " as DataLayoutBuilder" %>'>
-	new DataLayoutBuilder.default(
-		{
-			context: <%= dataLayoutJSONObject %>,
-			dataDefinitionInputId: '<%= namespace + dataDefinitionInputId %>',
-			dataLayoutInputId: '<%= namespace + dataLayoutInputId %>',
-			editingLanguageId: '<%= themeDisplay.getLanguageId() %>',
-			fieldTypes: <%= fieldTypesJSONArray %>,
-			portletNamespace: '<%= namespace %>',
-			spritemap: '<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg'
-		},
-		'#<%= namespace %>container'
+	Liferay.component(
+		'<%= componentId %>',
+		new DataLayoutBuilder.default(
+			{
+				context: <%= dataLayoutJSONObject %>,
+				dataDefinitionInputId: '<%= namespace + dataDefinitionInputId %>',
+				dataLayoutInputId: '<%= namespace + dataLayoutInputId %>',
+				editingLanguageId: '<%= themeDisplay.getLanguageId() %>',
+				fieldTypes: <%= fieldTypesJSONArray %>,
+				portletNamespace: '<%= namespace %>',
+				spritemap: '<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg'
+			},
+			'#<%= namespace %>container'
+		)
 	);
+
+	var clearPortletHandlers = function(event) {
+		if (event.portletId === '<%= portletDisplay.getRootPortletId() %>') {
+			Liferay.destroyComponent('<%= componentId %>');
+
+			Liferay.detach('destroyPortlet', clearPortletHandlers);
+		}
+	};
+
+	Liferay.on('destroyPortlet', clearPortletHandlers);
 </aui:script>

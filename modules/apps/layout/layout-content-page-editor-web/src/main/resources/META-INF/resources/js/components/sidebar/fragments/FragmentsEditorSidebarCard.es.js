@@ -31,9 +31,10 @@ class FragmentsEditorSidebarCard extends Component {
 	 * @review
 	 */
 	_handleClick(event) {
-		const {itemId, itemName} = event.delegateTarget.dataset;
+		const {itemGroupId, itemId, itemName} = event.delegateTarget.dataset;
 
 		this.emit('itemClick', {
+			itemGroupId,
 			itemId,
 			itemName
 		});

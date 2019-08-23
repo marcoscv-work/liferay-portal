@@ -39,13 +39,33 @@ public class SegmentsExperimentServiceWrapper
 	@Override
 	public com.liferay.segments.model.SegmentsExperiment addSegmentsExperiment(
 			long segmentsExperienceId, long classNameId, long classPK,
-			String name, String description,
+			String name, String description, String goal, String goalTarget,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _segmentsExperimentService.addSegmentsExperiment(
-			segmentsExperienceId, classNameId, classPK, name, description,
-			serviceContext);
+			segmentsExperienceId, classNameId, classPK, name, description, goal,
+			goalTarget, serviceContext);
+	}
+
+	@Override
+	public com.liferay.segments.model.SegmentsExperiment
+			fetchSegmentsExperiment(
+				long segmentsExperienceId, long classNameId, long classPK,
+				int status)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _segmentsExperimentService.fetchSegmentsExperiment(
+			segmentsExperienceId, classNameId, classPK, status);
+	}
+
+	@Override
+	public com.liferay.segments.model.SegmentsExperiment
+			fetchSegmentsExperiment(long groupId, String segmentsExperimentKey)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _segmentsExperimentService.fetchSegmentsExperiment(
+			groupId, segmentsExperimentKey);
 	}
 
 	/**
@@ -61,13 +81,14 @@ public class SegmentsExperimentServiceWrapper
 	@Override
 	public java.util.List<com.liferay.segments.model.SegmentsExperiment>
 			getSegmentsExperienceSegmentsExperiments(
-				long segmentsExperienceId, long classNameId, long classPK,
-				int status)
+				long[] segmentsExperienceIds, long classNameId, long classPK,
+				int[] statuses, int start, int end)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _segmentsExperimentService.
 			getSegmentsExperienceSegmentsExperiments(
-				segmentsExperienceId, classNameId, classPK, status);
+				segmentsExperienceIds, classNameId, classPK, statuses, start,
+				end);
 	}
 
 	@Override
@@ -90,11 +111,21 @@ public class SegmentsExperimentServiceWrapper
 	@Override
 	public com.liferay.segments.model.SegmentsExperiment
 			updateSegmentsExperiment(
-				long segmentsExperimentId, String name, String description)
+				long segmentsExperimentId, String name, String description,
+				String goal, String goalTarget)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _segmentsExperimentService.updateSegmentsExperiment(
-			segmentsExperimentId, name, description);
+			segmentsExperimentId, name, description, goal, goalTarget);
+	}
+
+	@Override
+	public com.liferay.segments.model.SegmentsExperiment
+			updateSegmentsExperiment(String segmentsExperimentKey, int status)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _segmentsExperimentService.updateSegmentsExperiment(
+			segmentsExperimentKey, status);
 	}
 
 	@Override

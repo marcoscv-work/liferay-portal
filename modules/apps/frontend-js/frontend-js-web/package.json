@@ -1,7 +1,7 @@
 {
 	"dependencies": {
-		"clay": "2.16.2",
-		"clay-alert": "2.16.2",
+		"clay": "2.17.0",
+		"clay-alert": "2.17.0",
 		"liferay-amd-loader": "4.1.0",
 		"lodash.escape": "4.0.1",
 		"lodash.groupby": "4.6.0",
@@ -14,10 +14,8 @@
 		"metal-dom": "2.16.8",
 		"metal-drag-drop": "3.3.1",
 		"metal-events": "2.16.8",
-		"metal-keyboard-focus": "2.0.1",
 		"metal-position": "2.1.2",
 		"metal-soy": "2.16.8",
-		"metal-uri": "2.4.0",
 		"svg4everybody": "^2.1.8",
 		"uuid": "^3.3.2"
 	},
@@ -26,12 +24,15 @@
 			"Liferay": {}
 		},
 		"setupFiles": [
-			"<rootDir>/test/liferay/portlet/mock/setup.es.js"
+			"<rootDir>/test/liferay/portlet/mock/setup.es.js",
+			"<rootDir>/test/liferay/util/mock/setup.es.js"
 		],
 		"testPathIgnorePatterns": [
 			"<rootDir>/node_modules/",
 			"<rootDir>/test/liferay/portlet/mock/portlet_data.es.js",
-			"<rootDir>/test/liferay/portlet/mock/setup.es.js"
+			"<rootDir>/test/liferay/portlet/mock/setup.es.js",
+			"<rootDir>/test/liferay/util/mock/headers.es.js",
+			"<rootDir>/test/liferay/util/mock/setup.es.js"
 		],
 		"testResultsProcessor": "liferay-jest-junit-reporter",
 		"testURL": "http://localhost",

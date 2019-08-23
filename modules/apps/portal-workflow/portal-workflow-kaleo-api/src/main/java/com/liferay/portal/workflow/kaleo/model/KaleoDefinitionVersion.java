@@ -60,6 +60,10 @@ public interface KaleoDefinitionVersion
 
 			};
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public KaleoDefinition fetchKaleoDefinition();
 
 	public KaleoDefinition getKaleoDefinition()

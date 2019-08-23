@@ -42,8 +42,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -106,6 +108,69 @@ public abstract class BaseDataListViewResourceImpl
 	public DataListView postDataDefinitionDataListView(
 			@NotNull @Parameter(hidden = true) @PathParam("dataDefinitionId")
 				Long dataDefinitionId,
+			DataListView dataListView)
+		throws Exception {
+
+		return new DataListView();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'DELETE' 'http://localhost:8080/o/data-engine/v1.0/data-list-views/{dataListViewId}'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@DELETE
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "dataListViewId")}
+	)
+	@Path("/data-list-views/{dataListViewId}")
+	@Produces("application/json")
+	@Tags(value = {@Tag(name = "DataListView")})
+	public void deleteDataListView(
+			@NotNull @Parameter(hidden = true) @PathParam("dataListViewId") Long
+				dataListViewId)
+		throws Exception {
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/data-engine/v1.0/data-list-views/{dataListViewId}'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@GET
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "dataListViewId")}
+	)
+	@Path("/data-list-views/{dataListViewId}")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "DataListView")})
+	public DataListView getDataListView(
+			@NotNull @Parameter(hidden = true) @PathParam("dataListViewId") Long
+				dataListViewId)
+		throws Exception {
+
+		return new DataListView();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PUT' 'http://localhost:8080/o/data-engine/v1.0/data-list-views/{dataListViewId}' -d $'{"appliedFilters": ___, "dataDefinitionId": ___, "dateCreated": ___, "dateModified": ___, "fieldNames": ___, "id": ___, "name": ___, "siteId": ___, "sortField": ___, "userId": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@Override
+	@Consumes({"application/json", "application/xml"})
+	@PUT
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "dataListViewId")}
+	)
+	@Path("/data-list-views/{dataListViewId}")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "DataListView")})
+	public DataListView putDataListView(
+			@NotNull @Parameter(hidden = true) @PathParam("dataListViewId") Long
+				dataListViewId,
 			DataListView dataListView)
 		throws Exception {
 

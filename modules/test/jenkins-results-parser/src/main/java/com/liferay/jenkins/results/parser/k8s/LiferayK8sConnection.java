@@ -17,6 +17,9 @@ package com.liferay.jenkins.results.parser.k8s;
 import com.google.gson.JsonSyntaxException;
 
 import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
+import com.liferay.jenkins.results.parser.Retryable;
+
+import com.squareup.okhttp.OkHttpClient;
 
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
@@ -32,6 +35,7 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Kenji Heigel
@@ -46,58 +50,275 @@ public class LiferayK8sConnection {
 		return _liferayK8sConnection;
 	}
 
+	public Boolean assertPodNotFound(final Pod pod, final String namespace) {
+		Retryable<Boolean> retryable = new Retryable<Boolean>() {
+
+			public Boolean execute() {
+				return _assertPodNotFound(pod, namespace);
+			}
+
+		};
+
+		return retryable.executeWithRetries();
+	}
+
+	public Boolean assertPodRunning(Pod pod) {
+		String phase = pod.getPhase();
+
+		if (phase == null) {
+			return false;
+		}
+
+		if (phase.equals("Running")) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public Pod createPod(Pod configurationPod) {
 		return createPod(configurationPod, getNamespace());
 	}
 
-	public Pod createPod(Pod configurationPod, String namespace) {
-		try {
-			Pod pod = new Pod(
-				_coreV1Api.createNamespacedPod(
-					namespace, configurationPod.getV1Pod(), null));
+	public Pod createPod(final Pod configurationPod, final String namespace) {
+		Retryable<Pod> retryable = new Retryable<Pod>() {
 
-			long timeout =
-				System.currentTimeMillis() + (_SECONDS_RETRY_TIMEOUT * 1000);
-
-			String phase = "";
-
-			while (!phase.equals("Running") &&
-				   (System.currentTimeMillis() < timeout)) {
-
-				phase = pod.getPhase();
-
-				JenkinsResultsParserUtil.sleep(_SECONDS_RETRY_PERIOD * 1000);
-
-				pod.refreshV1Pod();
+			public Pod execute() {
+				return _createPod(configurationPod, namespace);
 			}
 
-			if (phase.equals("Running")) {
-				System.out.println(
-					JenkinsResultsParserUtil.combine(
-						"Successfully created pod with name '", pod.getName(),
-						"' in namespace '", namespace, "'"));
-			}
-			else {
-				System.out.println(
-					JenkinsResultsParserUtil.combine(
-						"Unable to start new pod with name '",
-						configurationPod.getName(), "' in namespace '",
-						namespace, "'"));
-			}
+		};
 
-			return pod;
-		}
-		catch (ApiException ae) {
-			throw new RuntimeException(ae);
-		}
+		return retryable.executeWithRetries();
 	}
 
-	public boolean deletePod(Pod pod) {
+	public Boolean deletePod(Pod pod) {
 		return deletePod(pod, getNamespace());
 	}
 
-	public boolean deletePod(Pod pod, String namespace) {
-		String podName = pod.getName();
+	public Boolean deletePod(final Pod pod, final String namespace) {
+		Retryable<Boolean> retryable = new Retryable<Boolean>() {
+
+			public Boolean execute() {
+				return _deletePod(pod, namespace);
+			}
+
+		};
+
+		return retryable.executeWithRetries();
+	}
+
+	public boolean deleteSpawnedPods() {
+		deleteSpawnedPods(getNamespace());
+
+		return false;
+	}
+
+	public boolean deleteSpawnedPods(String namespace) {
+		List<Pod> pods = getPods(namespace);
+
+		for (Pod pod : pods) {
+			String podName = pod.getName();
+
+			if (podName.startsWith(
+					ResourceConfigurationFactory.getPodPrefix())) {
+
+				for (String key :
+						ResourceConfigurationFactory.
+							getPodConfigurationKeys()) {
+
+					if (podName.endsWith(key)) {
+						deletePod(pod, namespace);
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+	public String getNamespace() {
+		try {
+			File file = new File(
+				"/var/run/secrets/kubernetes.io/serviceaccount/namespace");
+
+			if (file.exists()) {
+				String contents = JenkinsResultsParserUtil.read(file);
+
+				return contents.trim();
+			}
+		}
+		catch (IOException ioe) {
+			System.out.println("Unable to read namespace file");
+		}
+
+		return "default";
+	}
+
+	public Pod getPod(Pod pod) {
+		return getPod(pod, getNamespace());
+	}
+
+	public Pod getPod(final Pod pod, final String namespace) {
+		Retryable<Pod> retryable = new Retryable<Pod>() {
+
+			public Pod execute() {
+				return _getPod(pod, namespace);
+			}
+
+		};
+
+		return retryable.executeWithRetries();
+	}
+
+	public List<Pod> getPods() {
+		Retryable<List<Pod>> retryable = new Retryable<List<Pod>>() {
+
+			public List<Pod> execute() {
+				return _getPods();
+			}
+
+		};
+
+		return retryable.executeWithRetries();
+	}
+
+	public List<Pod> getPods(final String namespace) {
+		Retryable<List<Pod>> retryable = new Retryable<List<Pod>>() {
+
+			public List<Pod> execute() {
+				return _getPods(namespace);
+			}
+
+		};
+
+		return retryable.executeWithRetries();
+	}
+
+	public void setDebugging(boolean debugging) {
+		_apiClient.setDebugging(debugging);
+	}
+
+	public Boolean waitForPodNotFound(final Pod pod, final String namespace) {
+		Retryable<Boolean> retryable = new Retryable<Boolean>(
+			_MAX_RETRIES, _SECONDS_RETRY_PERIOD, false) {
+
+			public Boolean execute() {
+				if (assertPodNotFound(_currentPod, namespace)) {
+					return true;
+				}
+
+				_currentPod = _getPod(pod, namespace);
+
+				throw new RuntimeException("Pod still exists");
+			}
+
+			private Pod _currentPod = pod;
+
+		};
+
+		long start = System.currentTimeMillis();
+
+		boolean found = !retryable.executeWithRetries();
+
+		if (found) {
+			System.out.println(
+				JenkinsResultsParserUtil.combine(
+					"Pod still exists after waiting ",
+					JenkinsResultsParserUtil.toDurationString(
+						System.currentTimeMillis() - start)));
+		}
+
+		return !found;
+	}
+
+	public Boolean waitForPodRunning(final Pod pod) {
+		Retryable<Boolean> retryable = new Retryable<Boolean>(
+			_MAX_RETRIES, _SECONDS_RETRY_PERIOD, false) {
+
+			public Boolean execute() {
+				pod.refreshV1Pod();
+
+				if (assertPodRunning(pod)) {
+					return true;
+				}
+
+				throw new RuntimeException("Pod not running");
+			}
+
+		};
+
+		long start = System.currentTimeMillis();
+
+		boolean running = retryable.executeWithRetries();
+
+		if (!running) {
+			System.out.println(
+				JenkinsResultsParserUtil.combine(
+					"Pod not running after waiting ",
+					JenkinsResultsParserUtil.toDurationString(
+						System.currentTimeMillis() - start)));
+		}
+
+		return running;
+	}
+
+	private LiferayK8sConnection() {
+	}
+
+	private Boolean _assertPodNotFound(Pod pod, String namespace) {
+		try {
+			new Pod(
+				_coreV1Api.readNamespacedPod(
+					pod.getName(), namespace, null, true, false));
+		}
+		catch (ApiException ae) {
+			String expectedMessage = "Not Found";
+
+			if (expectedMessage.equals(ae.getMessage())) {
+				return true;
+			}
+
+			throw new RuntimeException(ae);
+		}
+
+		return false;
+	}
+
+	private Pod _createPod(Pod configurationPod, String namespace) {
+		Pod pod = null;
+
+		try {
+			pod = new Pod(
+				_coreV1Api.createNamespacedPod(
+					namespace, configurationPod.getV1Pod(), null));
+		}
+		catch (ApiException ae) {
+			System.out.println(ae);
+
+			pod = getPod(configurationPod, namespace);
+		}
+
+		if (pod == null) {
+			throw new RuntimeException(
+				JenkinsResultsParserUtil.combine(
+					"Unable to start new pod with name '",
+					configurationPod.getName(), "' in namespace '", namespace,
+					"'"));
+		}
+
+		if (waitForPodRunning(pod)) {
+			System.out.println(
+				JenkinsResultsParserUtil.combine(
+					"Successfully created pod with name '", pod.getName(),
+					"' in namespace '", namespace, "'"));
+		}
+
+		return pod;
+	}
+
+	private Boolean _deletePod(Pod pod, String namespace) {
+		final String podName = pod.getName();
 
 		try {
 			_coreV1Api.deleteNamespacedPod(
@@ -129,18 +350,7 @@ public class LiferayK8sConnection {
 			}
 		}
 
-		long timeout =
-			System.currentTimeMillis() + (_SECONDS_RETRY_TIMEOUT * 1000);
-
-		pod = getPod(pod, namespace);
-
-		while ((pod != null) && (System.currentTimeMillis() < timeout)) {
-			pod = getPod(pod, namespace);
-
-			JenkinsResultsParserUtil.sleep(_SECONDS_RETRY_PERIOD * 1000);
-		}
-
-		if (pod == null) {
+		if (waitForPodNotFound(pod, namespace)) {
 			System.out.println(
 				JenkinsResultsParserUtil.combine(
 					"Successfully deleted pod with name '", podName,
@@ -157,25 +367,7 @@ public class LiferayK8sConnection {
 		return false;
 	}
 
-	public String getNamespace() {
-		try {
-			File file = new File(
-				"/var/run/secrets/kubernetes.io/serviceaccount/namespace");
-
-			if (file.exists()) {
-				String contents = JenkinsResultsParserUtil.read(file);
-
-				return contents.trim();
-			}
-		}
-		catch (IOException ioe) {
-			System.out.println("Unable to read namespace file");
-		}
-
-		return "default";
-	}
-
-	public Pod getPod(Pod pod, String namespace) {
+	private Pod _getPod(Pod pod, String namespace) {
 		try {
 			return new Pod(
 				_coreV1Api.readNamespacedPod(
@@ -189,11 +381,11 @@ public class LiferayK8sConnection {
 					"Unable to get pod with name '", pod.getName(),
 					"' in namespace '", namespace, "'"));
 
-			return null;
+			throw new RuntimeException(ae);
 		}
 	}
 
-	public List<Pod> getPods() {
+	private List<Pod> _getPods() {
 		V1PodList v1PodList = null;
 
 		try {
@@ -215,7 +407,7 @@ public class LiferayK8sConnection {
 		return pods;
 	}
 
-	public List<Pod> getPods(String namespace) {
+	private List<Pod> _getPods(String namespace) {
 		V1PodList v1PodList = null;
 
 		try {
@@ -238,16 +430,9 @@ public class LiferayK8sConnection {
 		return pods;
 	}
 
-	public void setDebugging(boolean debugging) {
-		_apiClient.setDebugging(debugging);
-	}
+	private static final int _MAX_RETRIES = 30;
 
-	private LiferayK8sConnection() {
-	}
-
-	private static final int _SECONDS_RETRY_PERIOD = 5;
-
-	private static final int _SECONDS_RETRY_TIMEOUT = 300;
+	private static final int _SECONDS_RETRY_PERIOD = 10;
 
 	private static final ApiClient _apiClient;
 	private static final CoreV1Api _coreV1Api;
@@ -256,6 +441,12 @@ public class LiferayK8sConnection {
 	static {
 		try {
 			_apiClient = Config.defaultClient();
+
+			OkHttpClient okHttpClient = _apiClient.getHttpClient();
+
+			okHttpClient.setConnectTimeout(5, TimeUnit.MINUTES);
+			okHttpClient.setReadTimeout(5, TimeUnit.MINUTES);
+			okHttpClient.setWriteTimeout(5, TimeUnit.MINUTES);
 
 			Configuration.setDefaultApiClient(_apiClient);
 

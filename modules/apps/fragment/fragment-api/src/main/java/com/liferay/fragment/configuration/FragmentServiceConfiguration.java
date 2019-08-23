@@ -18,6 +18,8 @@ import aQute.bnd.annotation.metatype.Meta;
 
 import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Pavel Savinov
  */
@@ -29,6 +31,7 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 	id = "com.liferay.fragment.configuration.FragmentServiceConfiguration",
 	localization = "content/Language", name = "fragment-configuration-name"
 )
+@ProviderType
 public interface FragmentServiceConfiguration {
 
 	@Meta.AD(
@@ -37,5 +40,8 @@ public interface FragmentServiceConfiguration {
 		name = "propagate-fragment-changes-automatically", required = false
 	)
 	public boolean propagateChanges();
+
+	@Meta.AD(deflt = "false", name = "enable-configuration", required = false)
+	public boolean enableConfiguration();
 
 }

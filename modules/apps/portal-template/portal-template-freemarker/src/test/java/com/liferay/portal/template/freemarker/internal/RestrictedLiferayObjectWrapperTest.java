@@ -40,7 +40,8 @@ import org.junit.Test;
 /**
  * @author Tina Tian
  */
-public class RestrictedLiferayObjectWrapperTest extends BaseObjectWrapperTest {
+public class RestrictedLiferayObjectWrapperTest
+	extends BaseObjectWrapperTestCase {
 
 	@ClassRule
 	public static final CodeCoverageAssertor codeCoverageAssertor =
@@ -201,8 +202,9 @@ public class RestrictedLiferayObjectWrapperTest extends BaseObjectWrapperTest {
 			LogRecord logRecord = logRecords.get(0);
 
 			Assert.assertEquals(
-				"\"" + methodName + "\" does not match format " +
-					"\"className#methodName\"",
+				StringBundler.concat(
+					"\"", methodName, "\" does not match format ",
+					"\"className#methodName\""),
 				logRecord.getMessage());
 		}
 	}
@@ -278,8 +280,9 @@ public class RestrictedLiferayObjectWrapperTest extends BaseObjectWrapperTest {
 			Assert.assertSame(InvalidPropertyException.class, tme.getClass());
 
 			Assert.assertEquals(
-				"Denied access to method or field " + key + " of " +
-					TestLiferayMethodObject.class.toString(),
+				StringBundler.concat(
+					"Denied access to method or field ", key, " of ",
+					TestLiferayMethodObject.class.toString()),
 				tme.getMessage());
 		}
 	}

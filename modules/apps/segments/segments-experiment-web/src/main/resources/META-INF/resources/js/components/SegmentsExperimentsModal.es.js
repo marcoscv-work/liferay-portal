@@ -12,102 +12,114 @@
  * details.
  */
 
-import React, {useRef, useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import ClayModal from '@clayui/modal';
 import ClayButton from '@clayui/button';
 import ClayAlert from '@clayui/alert';
-import getCN from 'classnames';
+import ValidatedInput from './ValidatedInput/ValidatedInput.es';
+import ClayIcon from '@clayui/icon';
+import ClaySelect from '@clayui/select';
+import {SegmentsExperimentGoal} from '../types.es';
 
 function SegmentsExperimentsModal({
-	onClose,
 	active,
-	error,
-	onSave,
-	name = '',
 	description = '',
+	error,
+	goal,
+	goals = [],
+	name = '',
+	onClose,
+	onSave,
 	segmentsExperienceId,
-	segmentsExperimentId
+	segmentsExperimentId,
+	title
 }) {
 	const [inputDescription, setInputDescription] = useState(description);
+	const [inputGoal, setInputGoal] = useState(
+		goal || (goals[0] && goals[0].value)
+	);
 	const [inputName, setInputName] = useState(name);
-	const [nameError, setNameError] = useState(false);
-	const inputRef = useRef();
-
-	useEffect(() => {
-		if (active && inputRef.current) inputRef.current.focus();
-	}, [active]);
-
-	useEffect(() => {
-		setInputName(name);
-	}, [name]);
-
-	useEffect(() => {
-		setInputDescription(description);
-	}, [description]);
-
-	const nameFormGroupClasses = getCN('form-group', {
-		'has-error': nameError
-	});
+	const [invalidForm, setInvalidForm] = useState(false);
 
 	return active ? (
-		<ClayModal onClose={_handleModalClose}>
+		<ClayModal onClose={_handleModalClose} size="lg">
 			{onClose => {
 				return (
-					<React.Fragment>
-						<ClayModal.Header>
-							{Liferay.Language.get('create-new-test')}
-						</ClayModal.Header>
+					<>
+						<ClayModal.Header>{title}</ClayModal.Header>
 						<ClayModal.Body>
-							{error && (
-								<ClayAlert
-									displayType="danger"
-									title={Liferay.Language.get('error')}
-								>
-									{error}
-								</ClayAlert>
-							)}
-							<div className={nameFormGroupClasses}>
-								<label>
-									{Liferay.Language.get('test-name')}
-									<span aria-hidden="true">*</span>
-								</label>
-								<input
-									className="form-control"
-									onBlur={_handleNameInputBlur}
+							<form onSubmit={_handleFormSubmit}>
+								{error && (
+									<ClayAlert
+										displayType="danger"
+										title={Liferay.Language.get('error')}
+									>
+										{error}
+									</ClayAlert>
+								)}
+
+								<ValidatedInput
+									autofocus={true}
+									errorMessage={Liferay.Language.get(
+										'test-name-is-required'
+									)}
+									label={Liferay.Language.get('test-name')}
 									onChange={_handleNameChange}
-									onFocus={_handleNameInputFocus}
-									ref={inputRef}
+									onValidationChange={
+										_handleInputNameValidation
+									}
 									value={inputName}
 								/>
-								{nameError && (
-									<div className="form-feedback-group">
-										<div className="form-feedback-item">
+
+								<div className="form-group">
+									<label>
+										{Liferay.Language.get('description')}
+									</label>
+									<textarea
+										className="form-control"
+										maxLength="4000"
+										onChange={_handleDescriptionChange}
+										placeholder={Liferay.Language.get(
+											'description-placeholder'
+										)}
+										value={inputDescription}
+									/>
+								</div>
+								{goals.length > 0 && (
+									<div className="form-group">
+										<label className="w100">
 											{Liferay.Language.get(
-												'experiment-name-is-required'
+												'select-goal'
 											)}
-										</div>
+											<ClayIcon
+												className="reference-mark text-warning ml-1"
+												symbol="asterisk"
+											/>
+											<ClaySelect
+												className="mt-1"
+												defaultValue={inputGoal}
+												onChange={_handleGoalChange}
+											>
+												{goals.map(goal => (
+													<ClaySelect.Option
+														key={goal.value}
+														label={goal.label}
+														value={goal.value}
+													/>
+												))}
+											</ClaySelect>
+										</label>
 									</div>
 								)}
-							</div>
-							<div className="form-group">
-								<label>
-									{Liferay.Language.get('description')}
-								</label>
-								<textarea
-									className="form-control"
-									onChange={_handleDescriptionChange}
-									placeholder={Liferay.Language.get(
-										'description-placeholder'
-									)}
-									value={inputDescription}
-								/>
-							</div>
+							</form>
 						</ClayModal.Body>
+
 						<ClayModal.Footer
 							last={
 								<ClayButton.Group spaced>
 									<ClayButton
+										disabled={invalidForm}
 										displayType="secondary"
 										onClick={onClose}
 									>
@@ -122,11 +134,15 @@ function SegmentsExperimentsModal({
 								</ClayButton.Group>
 							}
 						/>
-					</React.Fragment>
+					</>
 				);
 			}}
 		</ClayModal>
 	) : null;
+
+	function _handleGoalChange(event) {
+		setInputGoal(event.target.value);
+	}
 
 	function _handleNameChange(event) {
 		setInputName(event.target.value);
@@ -136,46 +152,52 @@ function SegmentsExperimentsModal({
 		setInputDescription(event.target.value);
 	}
 
-	function _handleNameInputBlur() {
-		if (!inputName) setNameError(true);
-	}
-
-	function _handleNameInputFocus() {
-		setNameError(false);
+	function _handleInputNameValidation(error) {
+		setInvalidForm(error);
 	}
 
 	/**
 	 * Triggers `onTestCreation` and closes the modal
 	 */
 	function _handleSave() {
-		onSave({
-			name: inputName,
-			description: inputDescription,
-			segmentsExperienceId,
-			segmentsExperimentId
-		});
-		_handleModalClose();
+		if (!invalidForm) {
+			onSave({
+				description: inputDescription,
+				goal: inputGoal,
+				goalTarget: '',
+				name: inputName,
+				segmentsExperienceId,
+				segmentsExperimentId
+			});
+		}
 	}
 
 	/**
 	 * Resets modal values and triggers `onClose`
 	 */
 	function _handleModalClose() {
-		setInputDescription('');
-		setInputName('');
 		onClose();
+	}
+
+	function _handleFormSubmit(event) {
+		event.preventDefault();
+
+		_handleSave();
 	}
 }
 
 SegmentsExperimentsModal.propTypes = {
 	active: PropTypes.bool.isRequired,
-	error: PropTypes.string,
 	description: PropTypes.string,
-	segmentsExperienceId: PropTypes.string,
-	segmentsExperimentId: PropTypes.string,
+	error: PropTypes.string,
+	goal: SegmentsExperimentGoal,
+	goals: PropTypes.arrayOf(SegmentsExperimentGoal),
 	name: PropTypes.string,
 	onClose: PropTypes.func.isRequired,
-	onSave: PropTypes.func.isRequired
+	onSave: PropTypes.func.isRequired,
+	segmentsExperienceId: PropTypes.string,
+	segmentsExperimentId: PropTypes.string,
+	title: PropTypes.string.isRequired
 };
 
 export default SegmentsExperimentsModal;

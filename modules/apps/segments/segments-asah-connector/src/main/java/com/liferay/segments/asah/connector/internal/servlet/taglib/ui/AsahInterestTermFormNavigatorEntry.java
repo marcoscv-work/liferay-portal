@@ -27,9 +27,11 @@ import com.liferay.portal.kernel.servlet.taglib.ui.BaseJSPFormNavigatorEntry;
 import com.liferay.portal.kernel.servlet.taglib.ui.FormNavigatorEntry;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
-import com.liferay.segments.constants.SegmentsConstants;
+import com.liferay.portal.kernel.util.Validator;
+import com.liferay.segments.constants.SegmentsEntryConstants;
 
 import java.io.IOException;
 
@@ -94,7 +96,7 @@ public class AsahInterestTermFormNavigatorEntry
 
 				long segmentsEntryId = ParamUtil.getLong(
 					httpServletRequest, "segmentsEntryId",
-					SegmentsConstants.SEGMENTS_ENTRY_ID_DEFAULT);
+					SegmentsEntryConstants.ID_DEFAULT);
 
 				properties.load(
 					assetListEntry.getTypeSettings(segmentsEntryId));
@@ -117,13 +119,27 @@ public class AsahInterestTermFormNavigatorEntry
 
 	@Override
 	public boolean isVisible(User user, AssetListEntry assetListEntry) {
-		if (assetListEntry.getType() ==
-				AssetListEntryTypeConstants.TYPE_DYNAMIC) {
+		if (Validator.isNull(
+				PrefsPropsUtil.getString(
+					user.getCompanyId(), "liferayAnalyticsDataSourceId")) ||
+			Validator.isNull(
+				PrefsPropsUtil.getString(
+					user.getCompanyId(),
+					"liferayAnalyticsFaroBackendSecuritySignature")) ||
+			Validator.isNull(
+				PrefsPropsUtil.getString(
+					user.getCompanyId(), "liferayAnalyticsFaroBackendURL"))) {
 
-			return true;
+			return false;
 		}
 
-		return false;
+		if (assetListEntry.getType() !=
+				AssetListEntryTypeConstants.TYPE_DYNAMIC) {
+
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override

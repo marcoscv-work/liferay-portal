@@ -13,13 +13,25 @@
  */
 
 import {FLOATING_TOOLBAR_BUTTONS} from '../../utils/constants';
-import {destroy, init} from './EditableTextFragmentProcessor.es';
+import {destroy, init} from './EditableRichTextFragmentProcessor.es';
 
 /**
  * @return {object[]} Floating toolbar panels
  */
-function getFloatingToolbarButtons() {
-	return [FLOATING_TOOLBAR_BUTTONS.edit, FLOATING_TOOLBAR_BUTTONS.link];
+function getFloatingToolbarButtons(editableValues) {
+	const linkButton = Object.assign({}, FLOATING_TOOLBAR_BUTTONS.link);
+
+	if (
+		editableValues.config &&
+		(editableValues.config.fieldId ||
+			editableValues.config.href ||
+			editableValues.config.mappedField)
+	) {
+		linkButton.cssClass =
+			'fragments-editor__floating-toolbar--linked-field';
+	}
+
+	return [linkButton, FLOATING_TOOLBAR_BUTTONS.edit];
 }
 
 /**

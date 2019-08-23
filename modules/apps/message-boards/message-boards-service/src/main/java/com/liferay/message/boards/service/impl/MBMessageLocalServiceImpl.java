@@ -970,6 +970,10 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 	@Override
 	public List<MBMessage> getChildMessages(long parentMessageId, int status) {
+		if (status == WorkflowConstants.STATUS_ANY) {
+			return mbMessagePersistence.findByParentMessageId(parentMessageId);
+		}
+
 		return mbMessagePersistence.findByP_S(parentMessageId, status);
 	}
 
@@ -977,12 +981,21 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 	public List<MBMessage> getChildMessages(
 		long parentMessageId, int status, int start, int end) {
 
+		if (status == WorkflowConstants.STATUS_ANY) {
+			return mbMessagePersistence.findByParentMessageId(
+				parentMessageId, start, end);
+		}
+
 		return mbMessagePersistence.findByP_S(
 			parentMessageId, status, start, end);
 	}
 
 	@Override
 	public int getChildMessagesCount(long parentMessageId, int status) {
+		if (status == WorkflowConstants.STATUS_ANY) {
+			return mbMessagePersistence.countByParentMessageId(parentMessageId);
+		}
+
 		return mbMessagePersistence.countByP_S(parentMessageId, status);
 	}
 

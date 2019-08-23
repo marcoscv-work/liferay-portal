@@ -47,6 +47,7 @@ import com.liferay.journal.exception.FeedTargetLayoutFriendlyUrlException;
 import com.liferay.journal.exception.FeedTargetPortletIdException;
 import com.liferay.journal.exception.FolderNameException;
 import com.liferay.journal.exception.InvalidDDMStructureException;
+import com.liferay.journal.exception.InvalidFolderException;
 import com.liferay.journal.exception.MaxAddMenuFavItemsException;
 import com.liferay.journal.exception.NoSuchArticleException;
 import com.liferay.journal.exception.NoSuchFeedException;
@@ -117,8 +118,7 @@ import org.osgi.service.component.annotations.Reference;
 		"javax.portlet.init-param.view-template=/view.jsp",
 		"javax.portlet.name=" + JournalPortletKeys.JOURNAL,
 		"javax.portlet.resource-bundle=content.Language",
-		"javax.portlet.security-role-ref=power-user,user",
-		"javax.portlet.supports.mime-type=text/html"
+		"javax.portlet.security-role-ref=power-user,user"
 	},
 	service = {JournalPortlet.class, Portlet.class}
 )
@@ -272,6 +272,7 @@ public class JournalPortlet extends MVCPortlet {
 			cause instanceof FileSizeException ||
 			cause instanceof FolderNameException ||
 			cause instanceof InvalidDDMStructureException ||
+			cause instanceof InvalidFolderException ||
 			cause instanceof LiferayFileItemException ||
 			cause instanceof LocaleException ||
 			cause instanceof MaxAddMenuFavItemsException ||

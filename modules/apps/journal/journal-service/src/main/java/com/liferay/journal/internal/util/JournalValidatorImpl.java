@@ -14,6 +14,7 @@
 
 package com.liferay.journal.internal.util;
 
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.journal.configuration.JournalServiceConfiguration;
 import com.liferay.journal.exception.FolderNameException;
 import com.liferay.journal.util.JournalValidator;
@@ -71,7 +72,17 @@ public final class JournalValidatorImpl implements JournalValidator {
 		throws FolderNameException {
 
 		if (!isValidName(folderName)) {
-			throw new FolderNameException(folderName);
+			String message =
+				"Folder name \"" + folderName +
+					"\" contains invalid characters";
+
+			if (_log.isWarnEnabled()) {
+				_log.warn(message);
+			}
+
+			if (!ExportImportThreadLocal.isImportInProcess()) {
+				throw new FolderNameException(message);
+			}
 		}
 	}
 

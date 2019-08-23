@@ -20,7 +20,7 @@ import com.liferay.jenkins.results.parser.GitUtil;
 import com.liferay.jenkins.results.parser.GitWorkingDirectory;
 import com.liferay.jenkins.results.parser.GitWorkingDirectoryFactory;
 import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
-import com.liferay.jenkins.results.parser.ReadWriteResourceMonitor;
+import com.liferay.jenkins.results.parser.K8sNodeReadWriteResourceMonitor;
 import com.liferay.jenkins.results.parser.TGZUtil;
 
 import java.io.File;
@@ -53,7 +53,11 @@ public class LiferayCIGitRepositoriesArchiverUtil {
 					"GIT_REPOSITORIES_BASE_DIR")),
 			Arrays.asList(gitRepositoryNamesString.split(",")),
 			new GitRepositoryArchivesDirResourceMonitor(
-				JenkinsResultsParserUtil.getEnvironmentVariable("ETCD_URL")));
+				JenkinsResultsParserUtil.getEnvironmentVariable("ETCD_URL")),
+			new K8sNodeReadWriteResourceMonitor(
+				JenkinsResultsParserUtil.getEnvironmentVariable("ETCD_URL"),
+				JenkinsResultsParserUtil.getEnvironmentVariable(
+					"K8S_NODE_NAME")));
 	}
 
 	private static boolean _cloneGitRepositoryFromGitHub(
@@ -120,6 +124,40 @@ public class LiferayCIGitRepositoriesArchiverUtil {
 		gitWorkingDirectory.addGitRemote(true, "upstream-temp", gitRemoteURL);
 	}
 
+	private static boolean _copyGitRepositoryFromArchivesDir(
+		File gitRepositoryArchivesDir, File gitRepositoryBaseDir,
+		String gitRepositoryName) {
+
+		File gitRepositoryArchive = new File(
+			gitRepositoryArchivesDir, gitRepositoryName + ".tar.gz");
+
+		if (!gitRepositoryArchive.exists()) {
+			return false;
+		}
+
+		File gitRepositoryArchiveTemp = new File(
+			gitRepositoryBaseDir, gitRepositoryName + ".tar.gz");
+
+		JenkinsResultsParserUtil.delete(gitRepositoryArchiveTemp);
+
+		try {
+			JenkinsResultsParserUtil.copy(
+				gitRepositoryArchive, gitRepositoryArchiveTemp);
+
+			TGZUtil.unarchive(gitRepositoryArchiveTemp, gitRepositoryBaseDir);
+
+			return true;
+		}
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+
+			return false;
+		}
+		finally {
+			JenkinsResultsParserUtil.delete(gitRepositoryArchiveTemp);
+		}
+	}
+
 	private static boolean _copyGitRepositoryFromMirrors(
 		File gitRepositoryBaseDir, String gitRepositoryName) {
 
@@ -159,47 +197,15 @@ public class LiferayCIGitRepositoriesArchiverUtil {
 		}
 	}
 
-	private static boolean _copyGitRepositoryFromNFSDir(
-		File gitRepositoryArchivesNFSDir, File gitRepositoryBaseDir,
-		String gitRepositoryName) {
-
-		File gitRepositoryArchiveNFS = new File(
-			gitRepositoryArchivesNFSDir, gitRepositoryName + ".tar.gz");
-
-		if (!gitRepositoryArchiveNFS.exists()) {
-			return false;
-		}
-
-		File gitRepositoryArchive = new File(
-			gitRepositoryBaseDir, gitRepositoryName + ".tar.gz");
-
-		JenkinsResultsParserUtil.delete(gitRepositoryArchive);
-
-		try {
-			JenkinsResultsParserUtil.copy(
-				gitRepositoryArchiveNFS, gitRepositoryArchive);
-
-			TGZUtil.unarchive(gitRepositoryArchive, gitRepositoryBaseDir);
-
-			return true;
-		}
-		catch (IOException ioe) {
-			ioe.printStackTrace();
-
-			return false;
-		}
-		finally {
-			JenkinsResultsParserUtil.delete(gitRepositoryArchive);
-		}
-	}
-
 	private static void _createGitRepositoryArchives(
-		File gitRepositoryArchivesNFSDir, File gitRepositoryBaseDir,
+		File gitRepositoryArchivesDir, File gitRepositoryBaseDir,
 		List<String> gitRepositoryNames,
-		ReadWriteResourceMonitor readWriteResourceMonitor) {
+		GitRepositoryArchivesDirResourceMonitor
+			gitRepositoryArchivesDirResourceMonitor,
+		K8sNodeReadWriteResourceMonitor k8sNodeReadWriteResourceMonitor) {
 
-		if (!gitRepositoryArchivesNFSDir.exists()) {
-			gitRepositoryArchivesNFSDir.mkdirs();
+		if (!gitRepositoryArchivesDir.exists()) {
+			gitRepositoryArchivesDir.mkdirs();
 		}
 
 		if (!gitRepositoryBaseDir.exists()) {
@@ -218,8 +224,8 @@ public class LiferayCIGitRepositoriesArchiverUtil {
 
 			JenkinsResultsParserUtil.delete(gitRepositoryDir);
 
-			if (!(_copyGitRepositoryFromNFSDir(
-					gitRepositoryArchivesNFSDir, gitRepositoryBaseDir,
+			if (!(_copyGitRepositoryFromArchivesDir(
+					gitRepositoryArchivesDir, gitRepositoryBaseDir,
 					gitRepositoryName) ||
 				  _copyGitRepositoryFromMirrors(
 					  gitRepositoryBaseDir, gitRepositoryName) ||
@@ -249,28 +255,37 @@ public class LiferayCIGitRepositoriesArchiverUtil {
 			gitWorkingDirectory.gc();
 
 			File gitRepositoryArchive = new File(
+				gitRepositoryArchivesDir, gitRepositoryName + ".tar.gz");
+			File gitRepositoryArchiveTemp = new File(
 				gitRepositoryBaseDir, gitRepositoryName + ".tar.gz");
-			File gitRepositoryArchiveNFS = new File(
-				gitRepositoryArchivesNFSDir, gitRepositoryName + ".tar.gz");
 
-			String connectionKey =
-				readWriteResourceMonitor.getNewConnectionName();
+			String gitRepositoryConnectionKey =
+				gitRepositoryArchivesDirResourceMonitor.getNewConnectionName();
+			String k8sNodeConnectionName =
+				k8sNodeReadWriteResourceMonitor.getNewConnectionName();
 
 			try {
-				TGZUtil.archive(gitRepositoryDir, gitRepositoryArchive);
+				gitRepositoryArchivesDirResourceMonitor.waitWrite(
+					gitRepositoryConnectionKey);
 
-				readWriteResourceMonitor.waitWrite(connectionKey);
+				TGZUtil.archive(gitRepositoryDir, gitRepositoryArchiveTemp);
+
+				k8sNodeReadWriteResourceMonitor.wait(k8sNodeConnectionName);
 
 				JenkinsResultsParserUtil.move(
-					gitRepositoryArchive, gitRepositoryArchiveNFS);
+					gitRepositoryArchiveTemp, gitRepositoryArchive);
 			}
 			catch (IOException ioe) {
 				throw new RuntimeException(ioe);
 			}
 			finally {
-				readWriteResourceMonitor.signalWrite(connectionKey);
+				k8sNodeReadWriteResourceMonitor.signalWrite(
+					k8sNodeConnectionName);
 
-				JenkinsResultsParserUtil.delete(gitRepositoryArchive);
+				gitRepositoryArchivesDirResourceMonitor.signal(
+					gitRepositoryConnectionKey);
+
+				JenkinsResultsParserUtil.delete(gitRepositoryArchiveTemp);
 			}
 		}
 	}

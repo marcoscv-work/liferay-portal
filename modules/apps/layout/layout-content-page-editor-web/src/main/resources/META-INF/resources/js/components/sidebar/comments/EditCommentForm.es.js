@@ -20,25 +20,26 @@ import {editFragmentEntryLinkComment} from '../../../utils/FragmentsEditorFetchU
 
 const EditCommentForm = props => {
 	const [editingComment, setEditingComment] = useState(false);
-	const [textareaContent, setTextareaContent] = useState(props.body);
+	const [textareaContent, setTextareaContent] = useState(props.comment.body);
 
 	const _handleCommentButtonClick = () => {
 		setEditingComment(true);
 
-		editFragmentEntryLinkComment(props.commentId, textareaContent)
-			.then(response => response.json())
-			.then(comment => {
-				setEditingComment(false);
+		editFragmentEntryLinkComment(
+			props.comment.commentId,
+			textareaContent
+		).then(comment => {
+			setEditingComment(false);
 
-				props.onEdit(comment);
-				props.onCloseForm();
-			});
+			props.onEdit(comment);
+			props.onCloseForm();
+		});
 	};
 
 	return (
 		<CommentForm
 			autoFocus
-			id={`pageEditorCommentEditor_${props.commentId}`}
+			id={`pageEditorCommentEditor_${props.comment.commentId}`}
 			loading={editingComment}
 			onCancelButtonClick={() => props.onCloseForm()}
 			onSubmitButtonClick={_handleCommentButtonClick}
@@ -55,8 +56,10 @@ EditCommentForm.defaultProps = {
 };
 
 EditCommentForm.propTypes = {
-	body: PropTypes.string.isRequired,
-	commentId: PropTypes.string.isRequired,
+	comment: PropTypes.shape({
+		body: PropTypes.string.isRequired,
+		commentId: PropTypes.string.isRequired
+	}),
 	onCloseForm: PropTypes.func.isRequired,
 	onEdit: PropTypes.func
 };

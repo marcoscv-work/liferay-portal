@@ -13,7 +13,7 @@
  */
 
 import 'clay-button';
-import {PortletBase} from 'frontend-js-web';
+import {PortletBase, fetch} from 'frontend-js-web';
 import 'frontend-js-web/liferay/compat/modal/Modal.es';
 import Soy from 'metal-soy';
 import {Config} from 'metal-state';
@@ -113,11 +113,10 @@ class Flags extends PortletBase {
 
 		fetch(this.uri, {
 			body: formData,
-			credentials: 'include',
-			method: 'post'
+			method: 'POST'
 		})
-			.then(xhr => {
-				if (xhr.status === Liferay.STATUS_CODE.OK) {
+			.then(response => {
+				if (response.status === Liferay.STATUS_CODE.OK) {
 					this._showConfirmationMessage = true;
 				}
 			})
@@ -148,6 +147,15 @@ Flags.STATE = {
 		.value(false),
 
 	/**
+	 * Selected reason to flag.
+	 * @instance
+	 * @memberof Flags
+	 * @type {String}
+	 */
+
+	_selectedReason: Config.string().internal(),
+
+	/**
 	 * Flag to indicate if dialog should show the confirmation message.
 	 * @default false
 	 * @instance
@@ -170,15 +178,6 @@ Flags.STATE = {
 	_showErrorMessage: Config.bool()
 		.internal()
 		.value(false),
-
-	/**
-	 * Selected reason to flag.
-	 * @instance
-	 * @memberof Flags
-	 * @type {String}
-	 */
-
-	_selectedReason: Config.string().internal(),
 
 	/**
 	 * Company name.

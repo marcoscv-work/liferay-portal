@@ -15,6 +15,7 @@
 package com.liferay.segments.service.persistence.impl;
 
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.configuration.Configuration;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -22,20 +23,22 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ProxyUtil;
-import com.liferay.portal.spring.extender.service.ServiceReference;
 import com.liferay.segments.exception.NoSuchEntryRelException;
 import com.liferay.segments.model.SegmentsEntryRel;
 import com.liferay.segments.model.impl.SegmentsEntryRelImpl;
 import com.liferay.segments.model.impl.SegmentsEntryRelModelImpl;
 import com.liferay.segments.service.persistence.SegmentsEntryRelPersistence;
+import com.liferay.segments.service.persistence.impl.constants.SegmentsPersistenceConstants;
 
 import java.io.Serializable;
 
@@ -46,7 +49,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 import org.osgi.annotation.versioning.ProviderType;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The persistence implementation for the segments entry rel service.
@@ -58,6 +67,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @author Eduardo Garcia
  * @generated
  */
+@Component(service = SegmentsEntryRelPersistence.class)
 @ProviderType
 public class SegmentsEntryRelPersistenceImpl
 	extends BasePersistenceImpl<SegmentsEntryRel>
@@ -148,14 +158,14 @@ public class SegmentsEntryRelPersistenceImpl
 	 * @param start the lower bound of the range of segments entry rels
 	 * @param end the upper bound of the range of segments entry rels (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching segments entry rels
 	 */
 	@Override
 	public List<SegmentsEntryRel> findBySegmentsEntryId(
 		long segmentsEntryId, int start, int end,
 		OrderByComparator<SegmentsEntryRel> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -165,10 +175,13 @@ public class SegmentsEntryRelPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindBySegmentsEntryId;
-			finderArgs = new Object[] {segmentsEntryId};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindBySegmentsEntryId;
+				finderArgs = new Object[] {segmentsEntryId};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindBySegmentsEntryId;
 			finderArgs = new Object[] {
 				segmentsEntryId, start, end, orderByComparator
@@ -177,7 +190,7 @@ public class SegmentsEntryRelPersistenceImpl
 
 		List<SegmentsEntryRel> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<SegmentsEntryRel>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -245,10 +258,14 @@ public class SegmentsEntryRelPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -675,14 +692,14 @@ public class SegmentsEntryRelPersistenceImpl
 	 * @param start the lower bound of the range of segments entry rels
 	 * @param end the upper bound of the range of segments entry rels (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching segments entry rels
 	 */
 	@Override
 	public List<SegmentsEntryRel> findByCN_CPK(
 		long classNameId, long classPK, int start, int end,
 		OrderByComparator<SegmentsEntryRel> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -692,10 +709,13 @@ public class SegmentsEntryRelPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByCN_CPK;
-			finderArgs = new Object[] {classNameId, classPK};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByCN_CPK;
+				finderArgs = new Object[] {classNameId, classPK};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByCN_CPK;
 			finderArgs = new Object[] {
 				classNameId, classPK, start, end, orderByComparator
@@ -704,7 +724,7 @@ public class SegmentsEntryRelPersistenceImpl
 
 		List<SegmentsEntryRel> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<SegmentsEntryRel>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -776,10 +796,14 @@ public class SegmentsEntryRelPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -1235,14 +1259,14 @@ public class SegmentsEntryRelPersistenceImpl
 	 * @param start the lower bound of the range of segments entry rels
 	 * @param end the upper bound of the range of segments entry rels (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of matching segments entry rels
 	 */
 	@Override
 	public List<SegmentsEntryRel> findByG_CN_CPK(
 		long groupId, long classNameId, long classPK, int start, int end,
 		OrderByComparator<SegmentsEntryRel> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -1252,10 +1276,13 @@ public class SegmentsEntryRelPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindByG_CN_CPK;
-			finderArgs = new Object[] {groupId, classNameId, classPK};
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByG_CN_CPK;
+				finderArgs = new Object[] {groupId, classNameId, classPK};
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByG_CN_CPK;
 			finderArgs = new Object[] {
 				groupId, classNameId, classPK, start, end, orderByComparator
@@ -1264,7 +1291,7 @@ public class SegmentsEntryRelPersistenceImpl
 
 		List<SegmentsEntryRel> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<SegmentsEntryRel>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
@@ -1341,10 +1368,14 @@ public class SegmentsEntryRelPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -1813,21 +1844,23 @@ public class SegmentsEntryRelPersistenceImpl
 	 * @param segmentsEntryId the segments entry ID
 	 * @param classNameId the class name ID
 	 * @param classPK the class pk
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching segments entry rel, or <code>null</code> if a matching segments entry rel could not be found
 	 */
 	@Override
 	public SegmentsEntryRel fetchByS_CN_CPK(
 		long segmentsEntryId, long classNameId, long classPK,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
-		Object[] finderArgs = new Object[] {
-			segmentsEntryId, classNameId, classPK
-		};
+		Object[] finderArgs = null;
+
+		if (useFinderCache) {
+			finderArgs = new Object[] {segmentsEntryId, classNameId, classPK};
+		}
 
 		Object result = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			result = finderCache.getResult(
 				_finderPathFetchByS_CN_CPK, finderArgs, this);
 		}
@@ -1874,8 +1907,10 @@ public class SegmentsEntryRelPersistenceImpl
 				List<SegmentsEntryRel> list = q.list();
 
 				if (list.isEmpty()) {
-					finderCache.putResult(
-						_finderPathFetchByS_CN_CPK, finderArgs, list);
+					if (useFinderCache) {
+						finderCache.putResult(
+							_finderPathFetchByS_CN_CPK, finderArgs, list);
+					}
 				}
 				else {
 					SegmentsEntryRel segmentsEntryRel = list.get(0);
@@ -1886,8 +1921,10 @@ public class SegmentsEntryRelPersistenceImpl
 				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(
-					_finderPathFetchByS_CN_CPK, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(
+						_finderPathFetchByS_CN_CPK, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -2002,7 +2039,6 @@ public class SegmentsEntryRelPersistenceImpl
 
 		setModelImplClass(SegmentsEntryRelImpl.class);
 		setModelPKClass(long.class);
-		setEntityCacheEnabled(SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED);
 	}
 
 	/**
@@ -2013,9 +2049,8 @@ public class SegmentsEntryRelPersistenceImpl
 	@Override
 	public void cacheResult(SegmentsEntryRel segmentsEntryRel) {
 		entityCache.putResult(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelImpl.class, segmentsEntryRel.getPrimaryKey(),
-			segmentsEntryRel);
+			entityCacheEnabled, SegmentsEntryRelImpl.class,
+			segmentsEntryRel.getPrimaryKey(), segmentsEntryRel);
 
 		finderCache.putResult(
 			_finderPathFetchByS_CN_CPK,
@@ -2037,8 +2072,7 @@ public class SegmentsEntryRelPersistenceImpl
 	public void cacheResult(List<SegmentsEntryRel> segmentsEntryRels) {
 		for (SegmentsEntryRel segmentsEntryRel : segmentsEntryRels) {
 			if (entityCache.getResult(
-					SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-					SegmentsEntryRelImpl.class,
+					entityCacheEnabled, SegmentsEntryRelImpl.class,
 					segmentsEntryRel.getPrimaryKey()) == null) {
 
 				cacheResult(segmentsEntryRel);
@@ -2075,8 +2109,8 @@ public class SegmentsEntryRelPersistenceImpl
 	@Override
 	public void clearCache(SegmentsEntryRel segmentsEntryRel) {
 		entityCache.removeResult(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelImpl.class, segmentsEntryRel.getPrimaryKey());
+			entityCacheEnabled, SegmentsEntryRelImpl.class,
+			segmentsEntryRel.getPrimaryKey());
 
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
@@ -2092,8 +2126,8 @@ public class SegmentsEntryRelPersistenceImpl
 
 		for (SegmentsEntryRel segmentsEntryRel : segmentsEntryRels) {
 			entityCache.removeResult(
-				SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-				SegmentsEntryRelImpl.class, segmentsEntryRel.getPrimaryKey());
+				entityCacheEnabled, SegmentsEntryRelImpl.class,
+				segmentsEntryRel.getPrimaryKey());
 
 			clearUniqueFindersCache(
 				(SegmentsEntryRelModelImpl)segmentsEntryRel, true);
@@ -2321,7 +2355,7 @@ public class SegmentsEntryRelPersistenceImpl
 
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 
-		if (!SegmentsEntryRelModelImpl.COLUMN_BITMASK_ENABLED) {
+		if (!_columnBitmaskEnabled) {
 			finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 		}
 		else if (isNew) {
@@ -2430,9 +2464,8 @@ public class SegmentsEntryRelPersistenceImpl
 		}
 
 		entityCache.putResult(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelImpl.class, segmentsEntryRel.getPrimaryKey(),
-			segmentsEntryRel, false);
+			entityCacheEnabled, SegmentsEntryRelImpl.class,
+			segmentsEntryRel.getPrimaryKey(), segmentsEntryRel, false);
 
 		clearUniqueFindersCache(segmentsEntryRelModelImpl, false);
 		cacheUniqueFindersCache(segmentsEntryRelModelImpl);
@@ -2548,14 +2581,14 @@ public class SegmentsEntryRelPersistenceImpl
 	 * @param start the lower bound of the range of segments entry rels
 	 * @param end the upper bound of the range of segments entry rels (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @param useFinderCache whether to use the finder cache
 	 * @return the ordered range of segments entry rels
 	 */
 	@Override
 	public List<SegmentsEntryRel> findAll(
 		int start, int end,
 		OrderByComparator<SegmentsEntryRel> orderByComparator,
-		boolean retrieveFromCache) {
+		boolean useFinderCache) {
 
 		boolean pagination = true;
 		FinderPath finderPath = null;
@@ -2565,17 +2598,20 @@ public class SegmentsEntryRelPersistenceImpl
 			(orderByComparator == null)) {
 
 			pagination = false;
-			finderPath = _finderPathWithoutPaginationFindAll;
-			finderArgs = FINDER_ARGS_EMPTY;
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindAll;
+				finderArgs = FINDER_ARGS_EMPTY;
+			}
 		}
-		else {
+		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindAll;
 			finderArgs = new Object[] {start, end, orderByComparator};
 		}
 
 		List<SegmentsEntryRel> list = null;
 
-		if (retrieveFromCache) {
+		if (useFinderCache) {
 			list = (List<SegmentsEntryRel>)finderCache.getResult(
 				finderPath, finderArgs, this);
 		}
@@ -2625,10 +2661,14 @@ public class SegmentsEntryRelPersistenceImpl
 
 				cacheResult(list);
 
-				finderCache.putResult(finderPath, finderArgs, list);
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
 			}
 			catch (Exception e) {
-				finderCache.removeResult(finderPath, finderArgs);
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
 
 				throw processException(e);
 			}
@@ -2711,55 +2751,47 @@ public class SegmentsEntryRelPersistenceImpl
 	/**
 	 * Initializes the segments entry rel persistence.
 	 */
-	public void afterPropertiesSet() {
+	@Activate
+	public void activate() {
+		SegmentsEntryRelModelImpl.setEntityCacheEnabled(entityCacheEnabled);
+		SegmentsEntryRelModelImpl.setFinderCacheEnabled(finderCacheEnabled);
+
 		_finderPathWithPaginationFindAll = new FinderPath(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelModelImpl.FINDER_CACHE_ENABLED,
-			SegmentsEntryRelImpl.class, FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
-			"findAll", new String[0]);
+			entityCacheEnabled, finderCacheEnabled, SegmentsEntryRelImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
 
 		_finderPathWithoutPaginationFindAll = new FinderPath(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelModelImpl.FINDER_CACHE_ENABLED,
-			SegmentsEntryRelImpl.class,
+			entityCacheEnabled, finderCacheEnabled, SegmentsEntryRelImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll",
 			new String[0]);
 
 		_finderPathCountAll = new FinderPath(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
 			new String[0]);
 
 		_finderPathWithPaginationFindBySegmentsEntryId = new FinderPath(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelModelImpl.FINDER_CACHE_ENABLED,
-			SegmentsEntryRelImpl.class, FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
-			"findBySegmentsEntryId",
+			entityCacheEnabled, finderCacheEnabled, SegmentsEntryRelImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findBySegmentsEntryId",
 			new String[] {
 				Long.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
 			});
 
 		_finderPathWithoutPaginationFindBySegmentsEntryId = new FinderPath(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelModelImpl.FINDER_CACHE_ENABLED,
-			SegmentsEntryRelImpl.class,
+			entityCacheEnabled, finderCacheEnabled, SegmentsEntryRelImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findBySegmentsEntryId",
 			new String[] {Long.class.getName()},
 			SegmentsEntryRelModelImpl.SEGMENTSENTRYID_COLUMN_BITMASK);
 
 		_finderPathCountBySegmentsEntryId = new FinderPath(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countBySegmentsEntryId",
 			new String[] {Long.class.getName()});
 
 		_finderPathWithPaginationFindByCN_CPK = new FinderPath(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelModelImpl.FINDER_CACHE_ENABLED,
-			SegmentsEntryRelImpl.class, FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
-			"findByCN_CPK",
+			entityCacheEnabled, finderCacheEnabled, SegmentsEntryRelImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByCN_CPK",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
 				Integer.class.getName(), Integer.class.getName(),
@@ -2767,25 +2799,20 @@ public class SegmentsEntryRelPersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByCN_CPK = new FinderPath(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelModelImpl.FINDER_CACHE_ENABLED,
-			SegmentsEntryRelImpl.class,
+			entityCacheEnabled, finderCacheEnabled, SegmentsEntryRelImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByCN_CPK",
 			new String[] {Long.class.getName(), Long.class.getName()},
 			SegmentsEntryRelModelImpl.CLASSNAMEID_COLUMN_BITMASK |
 			SegmentsEntryRelModelImpl.CLASSPK_COLUMN_BITMASK);
 
 		_finderPathCountByCN_CPK = new FinderPath(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByCN_CPK",
 			new String[] {Long.class.getName(), Long.class.getName()});
 
 		_finderPathWithPaginationFindByG_CN_CPK = new FinderPath(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelModelImpl.FINDER_CACHE_ENABLED,
-			SegmentsEntryRelImpl.class, FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
-			"findByG_CN_CPK",
+			entityCacheEnabled, finderCacheEnabled, SegmentsEntryRelImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByG_CN_CPK",
 			new String[] {
 				Long.class.getName(), Long.class.getName(),
 				Long.class.getName(), Integer.class.getName(),
@@ -2793,9 +2820,7 @@ public class SegmentsEntryRelPersistenceImpl
 			});
 
 		_finderPathWithoutPaginationFindByG_CN_CPK = new FinderPath(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelModelImpl.FINDER_CACHE_ENABLED,
-			SegmentsEntryRelImpl.class,
+			entityCacheEnabled, finderCacheEnabled, SegmentsEntryRelImpl.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByG_CN_CPK",
 			new String[] {
 				Long.class.getName(), Long.class.getName(), Long.class.getName()
@@ -2805,18 +2830,15 @@ public class SegmentsEntryRelPersistenceImpl
 			SegmentsEntryRelModelImpl.CLASSPK_COLUMN_BITMASK);
 
 		_finderPathCountByG_CN_CPK = new FinderPath(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByG_CN_CPK",
 			new String[] {
 				Long.class.getName(), Long.class.getName(), Long.class.getName()
 			});
 
 		_finderPathFetchByS_CN_CPK = new FinderPath(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelModelImpl.FINDER_CACHE_ENABLED,
-			SegmentsEntryRelImpl.class, FINDER_CLASS_NAME_ENTITY,
-			"fetchByS_CN_CPK",
+			entityCacheEnabled, finderCacheEnabled, SegmentsEntryRelImpl.class,
+			FINDER_CLASS_NAME_ENTITY, "fetchByS_CN_CPK",
 			new String[] {
 				Long.class.getName(), Long.class.getName(), Long.class.getName()
 			},
@@ -2825,25 +2847,59 @@ public class SegmentsEntryRelPersistenceImpl
 			SegmentsEntryRelModelImpl.CLASSPK_COLUMN_BITMASK);
 
 		_finderPathCountByS_CN_CPK = new FinderPath(
-			SegmentsEntryRelModelImpl.ENTITY_CACHE_ENABLED,
-			SegmentsEntryRelModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByS_CN_CPK",
 			new String[] {
 				Long.class.getName(), Long.class.getName(), Long.class.getName()
 			});
 	}
 
-	public void destroy() {
+	@Deactivate
+	public void deactivate() {
 		entityCache.removeCache(SegmentsEntryRelImpl.class.getName());
 		finderCache.removeCache(FINDER_CLASS_NAME_ENTITY);
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@ServiceReference(type = EntityCache.class)
+	@Override
+	@Reference(
+		target = SegmentsPersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setConfiguration(Configuration configuration) {
+		super.setConfiguration(configuration);
+
+		_columnBitmaskEnabled = GetterUtil.getBoolean(
+			configuration.get(
+				"value.object.column.bitmask.enabled.com.liferay.segments.model.SegmentsEntryRel"),
+			true);
+	}
+
+	@Override
+	@Reference(
+		target = SegmentsPersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setDataSource(DataSource dataSource) {
+		super.setDataSource(dataSource);
+	}
+
+	@Override
+	@Reference(
+		target = SegmentsPersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		super.setSessionFactory(sessionFactory);
+	}
+
+	private boolean _columnBitmaskEnabled;
+
+	@Reference
 	protected EntityCache entityCache;
 
-	@ServiceReference(type = FinderCache.class)
+	@Reference
 	protected FinderCache finderCache;
 
 	private static final String _SQL_SELECT_SEGMENTSENTRYREL =
@@ -2868,5 +2924,14 @@ public class SegmentsEntryRelPersistenceImpl
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		SegmentsEntryRelPersistenceImpl.class);
+
+	static {
+		try {
+			Class.forName(SegmentsPersistenceConstants.class.getName());
+		}
+		catch (ClassNotFoundException cnfe) {
+			throw new ExceptionInInitializerError(cnfe);
+		}
+	}
 
 }

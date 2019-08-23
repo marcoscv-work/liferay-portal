@@ -19,7 +19,15 @@ package com.liferay.segments.experiment.web.internal.constants;
  */
 public class SegmentsExperimentWebKeys {
 
+	public static final String SEGMENTS_EXPERIMENT = "SEGMENTS_EXPERIMENT";
+
 	public static final String SEGMENTS_EXPERIMENT_DISPLAY_CONTEXT =
 		"SEGMENTS_EXPERIMENT_DISPLAY_CONTEXT";
+
+	public static final String SEGMENTS_EXPERIMENT_PANEL_STATE_OPEN =
+		"SEGMENTS_EXPERIMENT_PANEL_STATE_OPEN";
+
+	public static final String SEGMENTS_EXPERIMENT_SEGMENTS_EXPERIENCE_KEY =
+		"SEGMENTS_EXPERIMENT_SEGMENTS_EXPERIENCE_KEY";
 
 }

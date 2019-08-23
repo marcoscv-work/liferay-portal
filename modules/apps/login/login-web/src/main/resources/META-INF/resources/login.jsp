@@ -94,9 +94,6 @@
 									<c:when test="<%= PropsValues.LOGIN_CREATE_ACCOUNT_ALLOW_CUSTOM_PASSWORD %>">
 										<liferay-ui:message key="use-your-password-to-login" />
 									</c:when>
-									<c:when test="<%= company.isSendPassword() %>">
-										<liferay-ui:message arguments="<%= HtmlUtil.escape(userEmailAddress) %>" key="your-password-was-sent-to-x" translateArguments="<%= false %>" />
-									</c:when>
 									<c:otherwise>
 										<liferay-ui:message arguments="<%= HtmlUtil.escape(userEmailAddress) %>" key="you-can-set-your-password-following-instructions-sent-to-x" translateArguments="<%= false %>" />
 									</c:otherwise>

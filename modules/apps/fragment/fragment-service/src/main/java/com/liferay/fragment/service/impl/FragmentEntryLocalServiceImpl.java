@@ -16,10 +16,11 @@ package com.liferay.fragment.service.impl;
 
 import com.liferay.fragment.configuration.FragmentServiceConfiguration;
 import com.liferay.fragment.constants.FragmentConstants;
+import com.liferay.fragment.constants.FragmentPortletKeys;
 import com.liferay.fragment.exception.DuplicateFragmentEntryKeyException;
-import com.liferay.fragment.exception.FragmentEntryContentException;
 import com.liferay.fragment.exception.FragmentEntryNameException;
 import com.liferay.fragment.exception.RequiredFragmentEntryException;
+import com.liferay.fragment.model.FragmentCollection;
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.processor.FragmentEntryProcessorRegistry;
@@ -37,13 +38,17 @@ import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.WildcardMode;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
+import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -53,12 +58,12 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -186,50 +191,10 @@ public class FragmentEntryLocalServiceImpl
 			int type, int status, ServiceContext serviceContext)
 		throws PortalException {
 
-		// Fragment entry
-
-		User user = userLocalService.getUser(userId);
-
-		validate(name);
-
-		if (Validator.isNull(fragmentEntryKey)) {
-			fragmentEntryKey = generateFragmentEntryKey(groupId, name);
-		}
-
-		fragmentEntryKey = _getFragmentEntryKey(fragmentEntryKey);
-
-		validateFragmentEntryKey(groupId, fragmentEntryKey);
-
-		long fragmentEntryId = counterLocalService.increment();
-
-		FragmentEntry fragmentEntry = fragmentEntryPersistence.create(
-			fragmentEntryId);
-
-		fragmentEntry.setUuid(serviceContext.getUuid());
-		fragmentEntry.setGroupId(groupId);
-		fragmentEntry.setCompanyId(user.getCompanyId());
-		fragmentEntry.setUserId(user.getUserId());
-		fragmentEntry.setUserName(user.getFullName());
-		fragmentEntry.setCreateDate(serviceContext.getCreateDate(new Date()));
-		fragmentEntry.setModifiedDate(
-			serviceContext.getModifiedDate(new Date()));
-		fragmentEntry.setFragmentCollectionId(fragmentCollectionId);
-		fragmentEntry.setFragmentEntryKey(fragmentEntryKey);
-		fragmentEntry.setName(name);
-		fragmentEntry.setPreviewFileEntryId(previewFileEntryId);
-		fragmentEntry.setType(type);
-		fragmentEntry.setStatus(status);
-		fragmentEntry.setStatusByUserId(userId);
-		fragmentEntry.setStatusByUserName(user.getFullName());
-		fragmentEntry.setStatusDate(new Date());
-
-		fragmentEntryPersistence.update(fragmentEntry);
-
-		// Resources
-
-		resourceLocalService.addModelResources(fragmentEntry, serviceContext);
-
-		return fragmentEntry;
+		return addFragmentEntry(
+			userId, groupId, fragmentCollectionId, fragmentEntryKey, name,
+			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
+			StringPool.BLANK, previewFileEntryId, type, status, serviceContext);
 	}
 
 	/**
@@ -251,6 +216,12 @@ public class FragmentEntryLocalServiceImpl
 			serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #addFragmentEntry(long, long, long, String, String, String,
+	 *             String, String, String, long, int, int, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public FragmentEntry addFragmentEntry(
 			long userId, long groupId, long fragmentCollectionId, String name,
@@ -263,6 +234,12 @@ public class FragmentEntryLocalServiceImpl
 			html, js, type, status, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #addFragmentEntry(long, long, long, String, String, String,
+	 *             String, String, String, long, int, int, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public FragmentEntry addFragmentEntry(
 			long userId, long groupId, long fragmentCollectionId, String name,
@@ -275,6 +252,12 @@ public class FragmentEntryLocalServiceImpl
 			html, js, FragmentConstants.TYPE_SECTION, status, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #addFragmentEntry(long, long, long, String, String, String,
+	 *             String, String, String, long, int, int, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public FragmentEntry addFragmentEntry(
 			long userId, long groupId, long fragmentCollectionId, String name,
@@ -287,6 +270,12 @@ public class FragmentEntryLocalServiceImpl
 			html, js, previewFileEntryId, type, status, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #addFragmentEntry(long, long, long, String, String, String,
+	 *             String, String, String, long, int, int, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public FragmentEntry addFragmentEntry(
 			long userId, long groupId, long fragmentCollectionId, String name,
@@ -300,6 +289,12 @@ public class FragmentEntryLocalServiceImpl
 			status, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #addFragmentEntry(long, long, long, String, String, String,
+	 *             String, String, String, long, int, int, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public FragmentEntry addFragmentEntry(
 			long userId, long groupId, long fragmentCollectionId,
@@ -312,6 +307,12 @@ public class FragmentEntryLocalServiceImpl
 			html, js, 0, type, status, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #addFragmentEntry(long, long, long, String, String, String,
+	 *             String, String, String, long, int, int, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public FragmentEntry addFragmentEntry(
 			long userId, long groupId, long fragmentCollectionId,
@@ -325,6 +326,12 @@ public class FragmentEntryLocalServiceImpl
 			serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #addFragmentEntry(long, long, long, String, String, String,
+	 *             String, String, String, long, int, int, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public FragmentEntry addFragmentEntry(
 			long userId, long groupId, long fragmentCollectionId,
@@ -338,6 +345,12 @@ public class FragmentEntryLocalServiceImpl
 			html, js, null, previewFileEntryId, type, status, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), replaced by {@link
+	 *             #addFragmentEntry(long, long, long, String, String, String,
+	 *             String, String, String, long, int, int, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public FragmentEntry addFragmentEntry(
 			long userId, long groupId, long fragmentCollectionId,
@@ -377,8 +390,6 @@ public class FragmentEntryLocalServiceImpl
 
 		if (WorkflowConstants.STATUS_APPROVED == status) {
 			validateContent(html, configuration);
-
-			html = _parseHTMLContent(html);
 		}
 
 		long fragmentEntryId = counterLocalService.increment();
@@ -433,12 +444,20 @@ public class FragmentEntryLocalServiceImpl
 		sb.append(LanguageUtil.get(LocaleUtil.getMostRelevantLocale(), "copy"));
 		sb.append(StringPool.CLOSE_PARENTHESIS);
 
-		return addFragmentEntry(
+		long originalFragmentCollectionId =
+			fragmentEntry.getFragmentCollectionId();
+
+		FragmentEntry copyFragmentEntry = addFragmentEntry(
 			userId, groupId, fragmentCollectionId, null, sb.toString(),
 			fragmentEntry.getCss(), fragmentEntry.getHtml(),
 			fragmentEntry.getJs(), fragmentEntry.getConfiguration(),
 			fragmentEntry.getPreviewFileEntryId(), fragmentEntry.getType(),
 			fragmentEntry.getStatus(), serviceContext);
+
+		_copyFragmentEntryResources(
+			fragmentEntry, originalFragmentCollectionId, fragmentCollectionId);
+
+		return copyFragmentEntry;
 	}
 
 	@Override
@@ -448,8 +467,9 @@ public class FragmentEntryLocalServiceImpl
 
 		// Fragment entry
 
-		long fragmentEntryLinkCount = fragmentEntryLinkPersistence.countByG_F(
-			fragmentEntry.getGroupId(), fragmentEntry.getFragmentEntryId());
+		long fragmentEntryLinkCount =
+			fragmentEntryLinkPersistence.countByFragmentEntryId(
+				fragmentEntry.getFragmentEntryId());
 
 		if (fragmentEntryLinkCount > 0) {
 			throw new RequiredFragmentEntryException();
@@ -587,7 +607,17 @@ public class FragmentEntryLocalServiceImpl
 		FragmentEntry fragmentEntry = fragmentEntryPersistence.findByPrimaryKey(
 			fragmentEntryId);
 
+		if (fragmentEntry.getFragmentCollectionId() == fragmentCollectionId) {
+			return fragmentEntry;
+		}
+
+		long originalFragmentCollectionId =
+			fragmentEntry.getFragmentCollectionId();
+
 		fragmentEntry.setFragmentCollectionId(fragmentCollectionId);
+
+		_copyFragmentEntryResources(
+			fragmentEntry, originalFragmentCollectionId, fragmentCollectionId);
 
 		return fragmentEntryPersistence.update(fragmentEntry);
 	}
@@ -679,8 +709,6 @@ public class FragmentEntryLocalServiceImpl
 
 		if (WorkflowConstants.STATUS_APPROVED == status) {
 			validateContent(html, configuration);
-
-			html = _parseHTMLContent(html);
 		}
 
 		User user = userLocalService.getUser(userId);
@@ -764,6 +792,84 @@ public class FragmentEntryLocalServiceImpl
 		}
 	}
 
+	private void _copyFragmentEntryResources(
+			FragmentEntry fragmentEntry, long sourceFragmentCollectionId,
+			long targetFragmentCollectionId)
+		throws PortalException {
+
+		if (sourceFragmentCollectionId == targetFragmentCollectionId) {
+			return;
+		}
+
+		ServiceContext serviceContext =
+			ServiceContextThreadLocal.getServiceContext();
+
+		Set<FileEntry> fileEntries = _getFileEntries(
+			sourceFragmentCollectionId, fragmentEntry);
+
+		if ((serviceContext == null) || fileEntries.isEmpty()) {
+			return;
+		}
+
+		FragmentCollection targetFragmentCollection =
+			fragmentCollectionPersistence.fetchByPrimaryKey(
+				targetFragmentCollectionId);
+
+		try {
+			for (FileEntry fileEntry : fileEntries) {
+				FileEntry existingFileEntry =
+					PortletFileRepositoryUtil.fetchPortletFileEntry(
+						fragmentEntry.getGroupId(),
+						targetFragmentCollection.getResourcesFolderId(),
+						fileEntry.getFileName());
+
+				if (existingFileEntry == null) {
+					PortletFileRepositoryUtil.addPortletFileEntry(
+						serviceContext.getScopeGroupId(),
+						serviceContext.getUserId(),
+						FragmentCollection.class.getName(),
+						targetFragmentCollection.getFragmentCollectionId(),
+						FragmentPortletKeys.FRAGMENT,
+						targetFragmentCollection.getResourcesFolderId(),
+						fileEntry.getContentStream(), fileEntry.getFileName(),
+						fileEntry.getMimeType(), false);
+				}
+			}
+		}
+		catch (Exception e) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(e, e);
+			}
+		}
+	}
+
+	private Set<FileEntry> _getFileEntries(
+			long fragmentCollectionId, FragmentEntry fragmentEntry)
+		throws PortalException {
+
+		Set<FileEntry> fileEntries = new HashSet<>();
+
+		FragmentCollection fragmentCollection =
+			fragmentCollectionPersistence.fetchByPrimaryKey(
+				fragmentCollectionId);
+
+		Matcher matcher = _pattern.matcher(fragmentEntry.getHtml());
+
+		while (matcher.find()) {
+			FileEntry fileEntry =
+				PortletFileRepositoryUtil.fetchPortletFileEntry(
+					fragmentEntry.getGroupId(),
+					fragmentCollection.getResourcesFolderId(),
+					matcher.group(1));
+
+			if (fileEntry != null) {
+				fileEntries.add(fileEntry);
+			}
+		}
+
+		return fileEntries;
+	}
+
 	private String _getFragmentEntryKey(String fragmentEntryKey) {
 		if (fragmentEntryKey != null) {
 			fragmentEntryKey = fragmentEntryKey.trim();
@@ -772,28 +878,6 @@ public class FragmentEntryLocalServiceImpl
 		}
 
 		return StringPool.BLANK;
-	}
-
-	private String _parseHTMLContent(String html)
-		throws FragmentEntryContentException {
-
-		Document document = Jsoup.parseBodyFragment(html);
-
-		Document.OutputSettings outputSettings = new Document.OutputSettings();
-
-		outputSettings.prettyPrint(false);
-
-		document.outputSettings(outputSettings);
-
-		Element bodyElement = document.body();
-
-		String bodyHtml = bodyElement.html();
-
-		if (Validator.isNull(bodyHtml)) {
-			throw new FragmentEntryContentException();
-		}
-
-		return bodyHtml;
 	}
 
 	private void _propagateChanges(long fragmentEntryId)
@@ -816,6 +900,12 @@ public class FragmentEntryLocalServiceImpl
 
 		actionableDynamicQuery.performActions();
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		FragmentEntryLocalServiceImpl.class);
+
+	private static final Pattern _pattern = Pattern.compile(
+		"\\[resources:(.+?)\\]");
 
 	@Reference
 	private ConfigurationProvider _configurationProvider;

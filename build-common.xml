@@ -1550,8 +1550,13 @@ artifact.url=${remote.repository.url}/com/liferay/portal/com.liferay.${processed
 						</then>
 					</if>
 
+					<condition else="true" property="sync.dir.symbolic" value="false">
+						<os family="windows" />
+					</condition>
+
 					<sync-dir
 						dir="${project.dir}/${build.binaries.cache.dir}/.gradle/caches/modules-2/files-2.1"
+						symbolic="${sync.dir.symbolic}"
 						toDir="${project.dir}/.gradle/caches/modules-2/files-2.1"
 					/>
 
@@ -1737,10 +1742,12 @@ artifact.url=${remote.repository.url}/com/liferay/portal/com.liferay.${processed
 					</and>
 				</not>
 				<then>
+					<gradle-execute dir="${project.dir}/modules" task="setUpYarnOfflineCache">
+						<arg value="--build-file=${project.dir}/modules/util.gradle" />
+					</gradle-execute>
+
 					<retry retrycount="5" retrydelay="10000">
-						<gradle-execute dir="${project.dir}/modules" task="setUpYarn">
-							<arg value="--build-file=${project.dir}/modules/util.gradle" />
-						</gradle-execute>
+						<gradle-execute dir="${project.dir}/modules" task=":yarnInstall" />
 					</retry>
 				</then>
 			</if>
@@ -1900,7 +1907,7 @@ rerun your task.
 
 			<delete file="${gradle.properties.file}" />
 
-			<condition else="false" property="jsp.precompile.enabled">
+			<condition else="false" property="compile.jsp.include">
 				<istrue value="${jsp.precompile.modules}" />
 			</condition>
 
@@ -1914,11 +1921,11 @@ rerun your task.
 					<propertyref name="baseline.jar.report.level" />
 					<propertyref name="baseline.jar.report.only.dirty.packages" />
 					<propertyref name="build.binaries.cache.dir" />
+					<propertyref name="compile.jsp.include" />
 					<propertyref name="git.working.branch.name" />
 					<propertyref name="jacoco.agent.configuration" />
 					<propertyref name="jacoco.agent.jar" />
 					<propertyref name="jira.project.keys" />
-					<propertyref name="jsp.precompile.enabled" />
 					<propertyref name="jsp.precompile.from.source" />
 					<propertyref name="junit.code.coverage" />
 					<propertyref name="junit.java.integration.gc" />
@@ -1945,7 +1952,7 @@ rerun your task.
 					<propertyref prefix="gradle.releng.pom." />
 					<propertyref prefix="ivy.pom." />
 					<propertyref prefix="microsoft.translator." />
-					<propertyref prefix="nodejs.npm." />
+					<propertyref prefix="nodejs." />
 					<propertyref prefix="sonatype." />
 					<propertyref prefix="source.formatter." />
 					<propertyref regex=".+\.ignore\.local$" />

@@ -208,6 +208,7 @@
 		<field name="currentId" type="long" />
 	</model>
 	<model name="com.liferay.document.library.kernel.model.DLFileEntry">
+		<field name="mvccVersion" type="long" />
 		<field name="uuid" type="String" />
 		<field name="fileEntryId" type="long" />
 		<field name="groupId" type="long" />
@@ -252,6 +253,7 @@
 		<field name="lastPublishDate" type="Date" />
 	</model>
 	<model name="com.liferay.document.library.kernel.model.DLFileEntryMetadata">
+		<field name="mvccVersion" type="long" />
 		<field name="uuid" type="String" />
 		<field name="fileEntryMetadataId" type="long" />
 		<field name="companyId" type="long" />
@@ -261,6 +263,7 @@
 		<field name="fileVersionId" type="long" />
 	</model>
 	<model name="com.liferay.document.library.kernel.model.DLFileEntryType">
+		<field name="mvccVersion" type="long" />
 		<field name="uuid" type="String" />
 		<field name="fileEntryTypeId" type="long" />
 		<field name="groupId" type="long" />
@@ -280,6 +283,7 @@
 		<field name="lastPublishDate" type="Date" />
 	</model>
 	<model name="com.liferay.document.library.kernel.model.DLFileShortcut">
+		<field name="mvccVersion" type="long" />
 		<field name="uuid" type="String" />
 		<field name="fileShortcutId" type="long" />
 		<field name="groupId" type="long" />
@@ -302,6 +306,7 @@
 		<field name="statusDate" type="Date" />
 	</model>
 	<model name="com.liferay.document.library.kernel.model.DLFileVersion">
+		<field name="mvccVersion" type="long" />
 		<field name="uuid" type="String" />
 		<field name="fileVersionId" type="long" />
 		<field name="groupId" type="long" />
@@ -343,6 +348,7 @@
 		<field name="statusDate" type="Date" />
 	</model>
 	<model name="com.liferay.document.library.kernel.model.DLFolder">
+		<field name="mvccVersion" type="long" />
 		<field name="uuid" type="String" />
 		<field name="folderId" type="long" />
 		<field name="groupId" type="long" />
@@ -1224,23 +1230,6 @@
 		<field name="actionId" type="String" />
 		<field name="bitwiseValue" type="long" />
 	</model>
-	<model name="com.liferay.portal.kernel.model.ResourceBlock">
-		<field name="mvccVersion" type="long" />
-		<field name="resourceBlockId" type="long" />
-		<field name="companyId" type="long" />
-		<field name="groupId" type="long" />
-		<field name="name" type="String" />
-		<field name="permissionsHash" type="String" />
-		<field name="referenceCount" type="long" />
-	</model>
-	<model name="com.liferay.portal.kernel.model.ResourceBlockPermission">
-		<field name="mvccVersion" type="long" />
-		<field name="resourceBlockPermissionId" type="long" />
-		<field name="companyId" type="long" />
-		<field name="resourceBlockId" type="long" />
-		<field name="roleId" type="long" />
-		<field name="actionIds" type="long" />
-	</model>
 	<model name="com.liferay.portal.kernel.model.ResourcePermission">
 		<field name="mvccVersion" type="long" />
 		<field name="resourcePermissionId" type="long" />
@@ -1257,15 +1246,6 @@
 		<field name="ownerId" type="long" />
 		<field name="actionIds" type="long" />
 		<field name="viewActionId" type="boolean" />
-	</model>
-	<model name="com.liferay.portal.kernel.model.ResourceTypePermission">
-		<field name="mvccVersion" type="long" />
-		<field name="resourceTypePermissionId" type="long" />
-		<field name="companyId" type="long" />
-		<field name="groupId" type="long" />
-		<field name="name" type="String" />
-		<field name="roleId" type="long" />
-		<field name="actionIds" type="long" />
 	</model>
 	<model name="com.liferay.portal.kernel.model.Role">
 		<field name="mvccVersion" type="long" />

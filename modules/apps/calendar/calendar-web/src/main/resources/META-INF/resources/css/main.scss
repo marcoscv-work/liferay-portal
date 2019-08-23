@@ -75,8 +75,11 @@
 .calendar-list-item-hover,
 .calendar-list-item-active {
 	background-color: #dce3ea;
-
-	@include force-wrap();
+	white-space: -moz-pre-wrap;
+	white-space: pre-line;
+	white-space: pre-wrap;
+	white-space: pre;
+	word-wrap: break-word;
 
 	.calendar-list-item-arrow {
 		display: block;
@@ -165,10 +168,10 @@
 				cursor: pointer;
 			}
 
-			.icon-caret-left,
-			.icon-caret-right {
+			.lexicon-icon-caret-left,
+			.lexicon-icon-caret-right {
 				left: 50%;
-				margin: -14px 0 0 -1px;
+				margin: -14px 0 0 -7px;
 				position: absolute;
 				top: 50%;
 			}

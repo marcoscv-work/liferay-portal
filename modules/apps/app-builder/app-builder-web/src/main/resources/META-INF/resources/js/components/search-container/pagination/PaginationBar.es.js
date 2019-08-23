@@ -16,30 +16,15 @@ import React from 'react';
 import PaginationPageSelector from './PaginationPageSelector.es';
 import PaginationPageSizeSelector from './PaginationPageSizeSelector.es';
 
-export default function PaginationBar({
-	itemsCount,
-	onPageChange,
-	onPageSizeChange,
-	page,
-	pageSize,
-	totalCount,
-	totalPages
-}) {
+export default ({itemsCount, totalCount, totalPages}) => {
 	return (
 		<div className="pagination-bar">
 			<PaginationPageSizeSelector
 				itemsCount={itemsCount}
-				onPageSizeChange={onPageSizeChange}
-				page={page}
-				pageSize={pageSize}
 				totalCount={totalCount}
 			/>
 
-			<PaginationPageSelector
-				onPageChange={onPageChange}
-				page={page}
-				totalPages={totalPages}
-			/>
+			<PaginationPageSelector totalPages={totalPages} />
 		</div>
 	);
-}
+};

@@ -1,22 +1,31 @@
 {
 	"dependencies": {
-		"@babel/preset-react": "^7.0.0",
 		"@clayui/alert": "3.0.0-milestone.2",
 		"@clayui/button": "3.0.0-milestone.2",
 		"@clayui/drop-down": "3.0.0-milestone.2",
 		"@clayui/icon": "3.0.0-milestone.2",
 		"@clayui/select": "3.0.0-milestone.2",
 		"classnames": "^2.2.6",
+		"frontend-js-react-web": "^2.0.0",
 		"prop-types": "15.7.2",
-		"react": "16.8.6",
-		"react-dom": "16.8.6"
+		"react": "16.9.0"
+	},
+	"jest": {
+		"setupFilesAfterEnv": [
+			"<rootDir>/test/js/setup.js"
+		],
+		"testPathIgnorePatterns": [
+			"<rootDir>/test/js/[^/]+\\.js",
+			"<rootDir>/node_modules/"
+		]
 	},
 	"name": "segments-experiment-web",
 	"private": true,
 	"scripts": {
 		"build": "liferay-npm-scripts build",
 		"checkFormat": "liferay-npm-scripts check",
-		"format": "liferay-npm-scripts fix"
+		"format": "liferay-npm-scripts fix",
+		"test": "liferay-npm-scripts test"
 	},
 	"version": "1.0.0"
 }

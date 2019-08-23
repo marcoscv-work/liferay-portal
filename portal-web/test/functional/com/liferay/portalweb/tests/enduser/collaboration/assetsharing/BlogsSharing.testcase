@@ -25,15 +25,14 @@ definition {
 			userEmailAddress = "userea@liferay.com",
 			userScreenName = "usersn");
 
-		BlogsNavigator.openBlogsAdmin(siteURLKey = "guest");
-
-		LexiconEntry.changeDisplayStyle(displayStyle = "list");
-
-		Blogs.addEntry(
+		JSONBlog.addEntry(
 			entryContent = "Blogs Entry Content",
+			entrySubtitle = "",
 			entryTitle = "Blogs Entry Title");
 
 		BlogsNavigator.openBlogsAdmin(siteURLKey = "guest");
+
+		LexiconEntry.changeDisplayStyle(displayStyle = "list");
 	}
 
 	tearDown {
@@ -87,21 +86,21 @@ definition {
 
 		Notifications.viewNewSharedContent(
 			contentSharingPermission = "viewing",
-			contentTitle = "Blog Entry Title",
+			contentTitle = "Blogs Entry Title",
 			ownerName = "Test Test");
 
 		Notifications.gotoNotifications();
 
 		Notifications.viewNewSharedContent(
 			contentSharingPermission = "updating",
-			contentTitle = "Blog Entry Title",
+			contentTitle = "Blogs Entry Title",
 			ownerName = "Test Test");
 
 		Notifications.gotoNotifications();
 
 		Notifications.viewNewSharedContent(
 			contentSharingPermission = "commenting",
-			contentTitle = "Blog Entry Title",
+			contentTitle = "Blogs Entry Title",
 			ownerName = "Test Test");
 	}
 
@@ -111,6 +110,7 @@ definition {
 		BlogsNavigator.gotoShare(entryTitle = "Blogs Entry Title");
 
 		Asset.share(
+			noAutocomplete = "true",
 			sharingPermissions = "Update",
 			userEmailAddress = "userea@liferay.com",
 			userName = "userfn userln");
@@ -234,6 +234,7 @@ definition {
 		BlogsNavigator.gotoShare(entryTitle = "Blogs Entry Title");
 
 		Asset.share(
+			noAutocomplete = "true",
 			sharingPermissions = "Update",
 			userEmailAddress = "userea@liferay.com",
 			userName = "userfn userln");
@@ -268,6 +269,7 @@ definition {
 		BlogsNavigator.gotoShare(entryTitle = "Blogs Entry Title");
 
 		Asset.share(
+			noAutocomplete = "true",
 			sharingPermissions = "Update",
 			userEmailAddress = "userea@liferay.com",
 			userName = "userfn userln");

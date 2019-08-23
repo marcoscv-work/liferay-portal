@@ -16,7 +16,7 @@ package com.liferay.segments.util;
 
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.segments.constants.SegmentsConstants;
+import com.liferay.segments.constants.SegmentsExperienceConstants;
 
 /**
  * @author Pavel Savinov
@@ -43,41 +43,13 @@ public class SegmentsExperiencePortletUtil {
 		return GetterUtil.getLong(
 			portletId.substring(
 				index + _SEGMENTS_EXPERIENCE_SEPARATOR.length()),
-			SegmentsConstants.SEGMENTS_EXPERIENCE_ID_DEFAULT);
-	}
-
-	public static boolean hasSegmentsExperienceId(
-		String portletId, long segmentsExperienceId) {
-
-		if (segmentsExperienceId ==
-				SegmentsConstants.SEGMENTS_EXPERIENCE_ID_DEFAULT) {
-
-			return true;
-		}
-
-		int index = portletId.indexOf(_SEGMENTS_EXPERIENCE_SEPARATOR);
-
-		if (index == -1) {
-			return false;
-		}
-
-		long currentSegmentsExperienceId = GetterUtil.getLong(
-			portletId.substring(
-				index + _SEGMENTS_EXPERIENCE_SEPARATOR.length()));
-
-		if (segmentsExperienceId == currentSegmentsExperienceId) {
-			return true;
-		}
-
-		return false;
+			SegmentsExperienceConstants.ID_DEFAULT);
 	}
 
 	public static String setSegmentsExperienceId(
 		String instanceId, long segmentsExperienceId) {
 
-		if (segmentsExperienceId ==
-				SegmentsConstants.SEGMENTS_EXPERIENCE_ID_DEFAULT) {
-
+		if (segmentsExperienceId == SegmentsExperienceConstants.ID_DEFAULT) {
 			return instanceId;
 		}
 

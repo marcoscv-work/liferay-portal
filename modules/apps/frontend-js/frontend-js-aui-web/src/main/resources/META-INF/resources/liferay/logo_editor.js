@@ -45,11 +45,7 @@ AUI.add(
 				}
 			},
 
-			AUGMENTS: [
-				Liferay.CropRegion,
-				Liferay.PortletBase,
-				Liferay.StorageFormatter
-			],
+			AUGMENTS: [Liferay.CropRegion, Liferay.PortletBase],
 
 			EXTENDS: A.Base,
 
@@ -81,13 +77,12 @@ AUI.add(
 				bindUI: function() {
 					var instance = this;
 
-					instance.publish({
-						uploadComplete: {
-							defaultFn: A.rbind('_defUploadCompleteFn', instance)
-						},
-						uploadStart: {
-							defaultFn: A.rbind('_defUploadStartFn', instance)
-						}
+					instance.publish('uploadComplete', {
+						defaultFn: A.rbind('_defUploadCompleteFn', instance)
+					});
+
+					instance.publish('uploadStart', {
+						defaultFn: A.rbind('_defUploadStartFn', instance)
 					});
 
 					instance._fileNameNode.on(
@@ -130,29 +125,25 @@ AUI.add(
 					}
 				},
 
-				_defUploadCompleteFn: function(event, id, obj) {
+				_defUploadCompleteFn: function(event) {
 					var instance = this;
 
-					var responseText = obj.responseText;
-
-					try {
-						responseText = JSON.parse(responseText);
-					} catch (e) {}
+					var response = event.response;
 
 					var portraitPreviewImg = instance._portraitPreviewImg;
 
-					if (Lang.isObject(responseText)) {
-						if (responseText.errorMessage) {
-							instance._showError(responseText.errorMessage);
+					if (Lang.isObject(response)) {
+						if (response.errorMessage) {
+							instance._showError(response.errorMessage);
 
 							instance._fileNameNode.set('value', '');
 						}
 
-						if (responseText.tempImageFileName) {
+						if (response.tempImageFileName) {
 							var previewURL = instance.get('previewURL');
 
 							var tempImageFileName = encodeURIComponent(
-								responseText.tempImageFileName
+								response.tempImageFileName
 							);
 
 							previewURL = Liferay.Util.addParams(
@@ -171,7 +162,7 @@ AUI.add(
 							instance.one('#previewURL').val(previewURL);
 							instance
 								.one('#tempImageFileName')
-								.val(responseText.tempImageFileName);
+								.val(response.tempImageFileName);
 						}
 					}
 
@@ -243,20 +234,20 @@ AUI.add(
 							imageCropper.disable();
 						}
 
-						A.io.request(instance.get('uploadURL'), {
-							form: {
-								id: instance.ns('fm'),
-								upload: true
-							},
-							on: {
-								complete: A.bind(
-									'fire',
-									instance,
-									'uploadComplete'
-								),
-								start: A.bind('fire', instance, 'uploadStart')
-							}
-						});
+						var form = document[instance.ns('fm')];
+
+						instance.fire('uploadStart');
+
+						Liferay.Util.fetch(instance.get('uploadURL'), {
+							body: new FormData(form),
+							method: 'POST'
+						})
+							.then(response => response.json())
+							.then(response => {
+								instance.fire('uploadComplete', {
+									response: response
+								});
+							});
 					}
 				},
 
@@ -379,12 +370,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: [
-			'aui-image-cropper',
-			'aui-io-request',
-			'liferay-alert',
-			'liferay-portlet-base',
-			'liferay-storage-formatter'
-		]
+		requires: ['aui-image-cropper', 'liferay-alert', 'liferay-portlet-base']
 	}
 );

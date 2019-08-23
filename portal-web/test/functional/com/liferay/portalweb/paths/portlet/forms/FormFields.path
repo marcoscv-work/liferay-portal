@@ -67,7 +67,7 @@
 </tr>
 <tr>
 	<td>REPEATABLE_HELP_TEXT</td>
-	<td>//div[contains(@class,'form-field-container')][${key_repeatableFieldNumber}]//div[contains(@data-field-name,'${key_fieldName}')]//p[@class='liferay-ddm-form-field-tip'] | //div[contains(@class,'form-field-container')][${key_repeatableFieldNumber}]//div[contains(@data-field-name,'${key_fieldName}')]/span</td>
+	<td>//div[contains(@class,'form-container')]//div[contains(@data-field-name,'${key_fieldName}')][${key_repeatableFieldNumber}]//p[@class='liferay-ddm-form-field-tip'] | //div[contains(@class,'form-container')]//div[contains(@data-field-name,'${key_fieldName}')][${key_repeatableFieldNumber}]/span</td>
 	<td></td>
 </tr>
 <tr>
@@ -171,7 +171,7 @@
 </tr>
 <tr>
 	<td>RADIO_OPTION_CHECKED</td>
-	<td>//label[contains(@*,'${key_radioOption}') or contains(.,'${key_radioOption}')]/input[@type='radio' and @checked="checked" and contains(@name,'${key_fieldName}')]</td>
+	<td>//label[contains(@*,'${key_radioOption}') or contains(.,'${key_radioOption}')]/input[@type='radio' and @checked="checked" and contains(@name,'${key_fieldName}')] | //label[contains(@*,'${key_radioOption}') or contains(.,'${key_radioOption}')]/input[@type='radio' and @checked="" and contains(@name,'${key_fieldName}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -187,7 +187,7 @@
 </tr>
 <tr>
 	<td>REPEATABLE_TEXT_MULTILINE_LABEL</td>
-	<td>//div[contains(@class,'form-field-container')][${key_repeatableFieldNumber}]//div[contains(@data-field-name,'${key_fieldName}')]//label[contains(.,'${key_fieldLabel}')]</td>
+	<td>//div[contains(@class,'form-container')]//div[contains(@data-field-name,'${key_fieldName}')][${key_repeatableFieldNumber}]//label[contains(.,'${key_fieldLabel}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -417,7 +417,7 @@
 <!--FRONTEND SPA INFRASTRUCTURE-->
 <tr>
 	<td>USER_NOTIFICATION_TIMEOUT</td>
-	<td>//input[contains(@id,'userNotificationTimeout')]</td>
+	<td>//input[contains(@name,'userNotificationTimeout')]</td>
 	<td></td>
 </tr>
 </tbody>

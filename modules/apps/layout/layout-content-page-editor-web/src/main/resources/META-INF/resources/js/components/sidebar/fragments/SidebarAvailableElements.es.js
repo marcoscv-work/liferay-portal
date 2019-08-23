@@ -144,7 +144,7 @@ class SidebarAvailableElements extends Component {
 		event.preventDefault();
 
 		if (data.target) {
-			const {itemId, itemName} = data.source.dataset;
+			const {itemGroupId, itemId, itemName} = data.source.dataset;
 
 			requestAnimationFrame(() => {
 				this._initializeDragAndDrop();
@@ -155,6 +155,7 @@ class SidebarAvailableElements extends Component {
 				.dispatch({
 					fragmentEntryKey: itemId,
 					fragmentName: itemName,
+					groupId: itemGroupId,
 					type: ADD_FRAGMENT_ENTRY_LINK
 				})
 				.dispatch(updateLastSaveDateAction())
@@ -179,6 +180,7 @@ class SidebarAvailableElements extends Component {
 			.dispatch({
 				fragmentEntryKey: event.itemId,
 				fragmentName: event.itemName,
+				groupId: event.itemGroupId,
 				type: ADD_FRAGMENT_ENTRY_LINK
 			})
 			.dispatch(updateLastSaveDateAction())

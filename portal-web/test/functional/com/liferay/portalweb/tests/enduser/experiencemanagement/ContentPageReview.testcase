@@ -1,8 +1,6 @@
 @component-name = "portal-collaboration"
 definition {
 
-	property osgi.module.configuration.file.names = "com.liferay.layout.content.page.editor.web.internal.configuration.ContentPageEditorCommentsConfiguration-default.config";
-	property osgi.module.configurations = "enabled=B&quot;true&quot;";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Content Pages";
@@ -23,6 +21,19 @@ definition {
 
 			FragmentsAdmin.importCollectionFromDependenciesFolder(collectionZipFile = "fragment-collection.zip");
 		}
+
+		task ("Enable Content Page Comments at the instance level") {
+			SystemSettings.openSystemSettingsAdmin();
+
+			SystemSettings.gotoConfiguration(
+				configurationCategory = "Pages",
+				configurationName = "Content Page Editor",
+				configurationScope = "Virtual Instance Scope");
+
+			FormFields.enableCheckbox(fieldName = "Comments Enabled");
+
+			SystemSettings.saveConfiguration();
+		}
 	}
 
 	tearDown {
@@ -39,6 +50,8 @@ definition {
 	@description = "This case ensures that the user can add a comment to a fragment of a content page."
 	@priority = "5"
 	test AddComment {
+		property test.name.skip.portal.instance = "ContentPageReview#AddComment";
+
 		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
 
 		ContentPages.addPage(pageName = "Test Content Page Name");
@@ -60,6 +73,8 @@ definition {
 	@description = "This case ensures that the user can add a comment with escape characters to a fragment of a content page."
 	@priority = "4"
 	test AddCommentWithEscapeCharacters {
+		property test.name.skip.portal.instance = "ContentPageReview#AddCommentWithEscapeCharacters";
+
 		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
 
 		ContentPages.addPage(pageName = "Test Content Page Name");
@@ -78,9 +93,203 @@ definition {
 		PageEditor.viewComment(fragmentComment = '''& < > " Escape Characters Comment''');
 	}
 
-	@description = "This test ensures that once the proper configuration file is added, Portal starts up with Content Page comments loaded."
+	@description = "This case ensures a user can delete a fragment comment after publishing a content page."
+	@priority = "5"
+	test DeleteComment {
+		property test.name.skip.portal.instance = "ContentPageReview#DeleteComment";
+
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+		ContentPages.addPage(pageName = "Test Content Page Name");
+
+		PageEditor.addFragment(
+			collectionName = "Collection Name",
+			fragmentName = "Title");
+
+		PageEditor.addComment(
+			content = "Lorem ipsum dolor sit amet",
+			fragmentClass = "header",
+			fragmentComment = "This is a fragment comment.",
+			fragmentName = "Title",
+			position = "1");
+
+		PageEditor.clickPublish();
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+
+		ContentPages.clickPencil();
+
+		PageEditor.gotoTab(tabName = "Comments");
+
+		Click(
+			key_content = "Lorem ipsum dolor sit amet",
+			key_fragmentClass = "header",
+			key_position = "1",
+			locator1 = "Fragment#FRAGMENT");
+
+		PageEditor.viewComment(fragmentComment = "This is a fragment comment.");
+
+		PageEditor.replyToComment(commentReply = "Fragment Comment.");
+
+		PageEditor.deleteComment(fragmentComment = "This is a fragment comment.");
+	}
+
+	@description = "This test ensures that Content Page Comments can be disabled at the instance level."
+	@priority = "4"
+	test DisableContentPageCommentsAtInstanceScope {
+		property test.name.skip.portal.instance = "ContentPageReview#DisableContentPageCommentsAtInstanceScope";
+
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+		ContentPages.addPage(pageName = "Test Content Page Name");
+
+		PageEditor.addFragment(
+			collectionName = "Collection Name",
+			fragmentName = "Title");
+
+		PageEditor.addComment(
+			content = "Lorem ipsum dolor sit amet",
+			fragmentClass = "header",
+			fragmentComment = "This is a fragment comment.",
+			fragmentName = "Title",
+			position = "1");
+
+		PageEditor.clickPublish();
+
+		SystemSettings.openSystemSettingsAdmin();
+
+		SystemSettings.gotoConfiguration(
+			configurationCategory = "Pages",
+			configurationName = "Content Page Editor",
+			configurationScope = "Virtual Instance Scope");
+
+		FormFields.disableCheckbox(fieldName = "Comments Enabled");
+
+		SystemSettings.saveConfiguration();
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+
+		ContentPages.clickPencil();
+
+		AssertElementNotPresent(
+			key_tabName = "Comments",
+			locator1 = "PageEditor#FRAGMENT_SIDEBAR_TAB_BUTTON");
+
+		AssertElementNotPresent(
+			key_fragmentComment = "This is a fragment comment.",
+			locator1 = "PageEditor#FRAGMENT_SIDEBAR_COMMENT_ENTRY");
+	}
+
+	@description = "This test ensures that users can enable and disable Content Page Comments at the system level."
+	@priority = "4"
+	test DisableContentPageCommentsAtSystemScope {
+		property test.name.skip.portal.instance = "ContentPageReview#DisableContentPageCommentsAtSystemScope";
+
+		SystemSettings.openSystemSettingsAdmin();
+
+		SystemSettings.gotoConfiguration(
+			configurationCategory = "Pages",
+			configurationName = "Content Page Editor",
+			configurationScope = "Virtual Instance Scope");
+
+		FormFields.disableCheckbox(fieldName = "Comments Enabled");
+
+		SystemSettings.saveConfiguration();
+
+		SystemSettings.openSystemSettingsAdmin();
+
+		SystemSettings.gotoConfiguration(
+			configurationCategory = "Pages",
+			configurationName = "Content Page Editor",
+			configurationScope = "System Scope");
+
+		FormFields.enableCheckbox(fieldName = "Comments Enabled");
+
+		SystemSettings.saveConfiguration();
+
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+		ContentPages.addPage(pageName = "Test Content Page Name");
+
+		PageEditor.addFragment(
+			collectionName = "Collection Name",
+			fragmentName = "Title");
+
+		PageEditor.addComment(
+			content = "Lorem ipsum dolor sit amet",
+			fragmentClass = "header",
+			fragmentComment = "This is a fragment comment.",
+			fragmentName = "Title",
+			position = "1");
+
+		PageEditor.clickPublish();
+
+		SystemSettings.openSystemSettingsAdmin();
+
+		SystemSettings.gotoConfiguration(
+			configurationCategory = "Pages",
+			configurationName = "Content Page Editor",
+			configurationScope = "System Scope");
+
+		FormFields.disableCheckbox(fieldName = "Comments Enabled");
+
+		SystemSettings.saveConfiguration();
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+
+		ContentPages.clickPencil();
+
+		AssertElementNotPresent(
+			key_tabName = "Comments",
+			locator1 = "PageEditor#FRAGMENT_SIDEBAR_TAB_BUTTON");
+
+		AssertElementNotPresent(
+			key_fragmentComment = "This is a fragment comment.",
+			locator1 = "PageEditor#FRAGMENT_SIDEBAR_COMMENT_ENTRY");
+	}
+
+	@description = "This case ensures a user can mark a fragment comment as resolved after publishing a content page."
+	@priority = "4"
+	test ResolveComment {
+		property test.name.skip.portal.instance = "ContentPageReview#ResolveComment";
+
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+		ContentPages.addPage(pageName = "Test Content Page Name");
+
+		PageEditor.addFragment(
+			collectionName = "Collection Name",
+			fragmentName = "Static Text");
+
+		PageEditor.addComment(
+			content = "This is static text.",
+			fragmentClass = "static-text",
+			fragmentComment = "This is a fragment comment.",
+			fragmentName = "Static Text",
+			position = "1");
+
+		PageEditor.clickPublish();
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+
+		ContentPages.clickPencil();
+
+		PageEditor.gotoTab(tabName = "Comments");
+
+		Click(
+			key_content = "This is static text.",
+			key_fragmentClass = "static-text",
+			key_position = "1",
+			locator1 = "Fragment#FRAGMENT");
+
+		PageEditor.resolveComment(fragmentComment = "This is a fragment comment.");
+	}
+
+	@description = "This test ensures that Content Page Comments is being used once the proper configuration is enabled."
 	@priority = "5"
 	test Smoke {
+		property test.name.skip.portal.instance = "ContentPageReview#Smoke";
+
 		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
 
 		ContentPages.addPage(pageName = "Test Content Page Name");
@@ -92,9 +301,11 @@ definition {
 		PageEditor.closeSidebar(tabName = "Comments");
 	}
 
-	@description = "This case ensures that the user can see the previously created comment to fragment after publishing a content page."
-	@priority = "4"
+	@description = "This case ensures that the user can see a fragment comment after publishing a content page."
+	@priority = "5"
 	test ViewComment {
+		property test.name.skip.portal.instance = "ContentPageReview#ViewComment";
+
 		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
 
 		ContentPages.addPage(pageName = "Test Content Page Name");
@@ -116,17 +327,116 @@ definition {
 
 		ContentPages.clickPencil();
 
+		PageEditor.gotoTab(tabName = "Comments");
+
 		Click(
 			key_content = "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
 			key_fragmentClass = "rich-text",
 			key_position = "1",
 			locator1 = "Fragment#FRAGMENT");
 
-		PageEditor.gotoTab(tabName = "Comments");
-
 		PageEditor.viewComment(
 			fragmentComment = "This is a fragment comment!",
-			key_secondary = "Rich Text");
+			key_fragmentName = "Rich Text");
+	}
+
+	@description = "This case ensures that users can view created comments when no fragment is selected and navigate to them."
+	@priority = "5"
+	test ViewCommentList {
+		property test.name.skip.portal.instance = "ContentPageReview#ViewCommentList";
+
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+		ContentPages.addPage(pageName = "Test Content Page Name");
+
+		PageEditor.addFragment(
+			collectionName = "Collection Name",
+			fragmentName = "Title");
+
+		PageEditor.addComment(
+			content = "Lorem ipsum dolor sit amet",
+			fragmentClass = "header",
+			fragmentComment = "Title fragment comment",
+			fragmentName = "Title",
+			position = "1");
+
+		PageEditor.gotoCommentList();
+
+		PageEditor.viewCommentList(
+			commentCount = "1 Comment",
+			fragmentName = "Title",
+			openComment = "true");
+
+		PageEditor.viewComment(fragmentComment = "Title fragment comment");
+
+		PageEditor.clickPublish();
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+
+		ContentPages.clickPencil();
+
+		PageEditor.addFragment(
+			collectionName = "Collection Name",
+			fragmentName = "Content");
+
+		PageEditor.addComment(
+			content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean tempus eleifend lacus nec porttitor. Vestibulum pharetra ullamcorper felis volutpat commodo. Nam id ipsum placerat, hendrerit orci eu, congue nisi. Proin.",
+			fragmentClass = "body",
+			fragmentComment = "Content fragment comment",
+			fragmentName = "Content",
+			position = "2");
+
+		PageEditor.gotoCommentList();
+
+		PageEditor.viewCommentList(
+			commentCount = "1 Comment",
+			fragmentName = "Title");
+
+		PageEditor.viewCommentList(
+			commentCount = "1 Comment",
+			fragmentName = "Content",
+			openComment = "true");
+
+		PageEditor.viewComment(fragmentComment = "Content fragment comment");
+	}
+
+	@description = "This case ensures that the user can see an edited fragment comment after publishing a content page."
+	@priority = "4"
+	test ViewEditedComment {
+		property test.name.skip.portal.instance = "ContentPageReview#ViewEditedComment";
+
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+		ContentPages.addPage(pageName = "Test Content Page Name");
+
+		PageEditor.addFragment(
+			collectionName = "Collection Name",
+			fragmentName = "Static Text");
+
+		PageEditor.addComment(
+			content = "This is static text.",
+			fragmentClass = "static-text",
+			fragmentComment = "This is a fragment comment.",
+			fragmentName = "Static Text",
+			position = "1");
+
+		PageEditor.editComment(fragmentCommentEdit = "This is a fragment comment edited.");
+
+		PageEditor.clickPublish();
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+
+		ContentPages.clickPencil();
+
+		PageEditor.gotoTab(tabName = "Comments");
+
+		Click(
+			key_content = "This is static text.",
+			key_fragmentClass = "static-text",
+			key_position = "1",
+			locator1 = "Fragment#FRAGMENT");
+
+		PageEditor.viewComment(fragmentComment = "This is a fragment comment edited.");
 	}
 
 }

@@ -35,6 +35,10 @@ public class KaleoDefinitionVersionImpl extends KaleoDefinitionVersionBaseImpl {
 	public KaleoDefinitionVersionImpl() {
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public KaleoDefinition fetchKaleoDefinition() {
 		ServiceContext serviceContext = new ServiceContext();

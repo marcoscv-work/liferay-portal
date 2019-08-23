@@ -105,12 +105,11 @@ public class ExportImportDateUtil {
 			portletRequest, paramPrefix + "Minute");
 		int dateAmPm = ParamUtil.getInteger(
 			portletRequest, paramPrefix + "AmPm");
-		TimeZone timeZone = TimeZoneUtil.getTimeZone(
-			ParamUtil.getString(portletRequest, "timeZoneId"));
 
 		return getCalendar(
 			dateAmPm, dateYear, dateMonth, dateDay, dateHour, dateMinute,
-			themeDisplay.getLocale(), timeZone, timeZoneSensitive);
+			themeDisplay.getLocale(), themeDisplay.getTimeZone(),
+			timeZoneSensitive);
 	}
 
 	public static DateRange getDateRange(

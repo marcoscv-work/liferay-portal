@@ -10,7 +10,9 @@
 	{@param? _handleEditableFocus: any}
 	{@param? _highlighted: any}
 	{@param? _mapped: bool}
+	{@param? _mappedItemHovered: bool}
 	{@param? _mappedFieldLabel: string}
+	{@param? _selected: any}
 	{@param? _translated: bool}
 	{@param? activeItemId: string}
 	{@param? activeItemType: string}
@@ -33,6 +35,10 @@
 
 		{if $hoveredItemId == $itemId and $hoveredItemType == $itemTypes.editable}
 			{sp}fragments-editor__editable--hovered
+		{/if}
+
+		{if $_mappedItemHovered}
+			{sp}fragments-editor__editable--mapped-item-hovered
 		{/if}
 
 		{if $_highlighted}
@@ -65,6 +71,10 @@
 					{sp}{$editableValues.config.textStyle}
 				{/if}
 			{/if}
+		{/if}
+
+		{if $_selected}
+			{sp}fragments-editor__editable--selected
 		{/if}
 	{/let}
 

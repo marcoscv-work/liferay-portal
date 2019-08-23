@@ -47,7 +47,7 @@ import com.liferay.portal.kernel.transaction.TransactionConfig;
 import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.segments.constants.SegmentsConstants;
+import com.liferay.segments.constants.SegmentsExperienceConstants;
 
 import java.util.Locale;
 import java.util.Map;
@@ -76,6 +76,7 @@ public class AddFragmentEntryLinkMVCActionCommand extends BaseMVCActionCommand {
 			ActionRequest actionRequest)
 		throws PortalException {
 
+		long groupId = ParamUtil.getLong(actionRequest, "groupId");
 		String fragmentEntryKey = ParamUtil.getString(
 			actionRequest, "fragmentKey");
 
@@ -83,7 +84,7 @@ public class AddFragmentEntryLinkMVCActionCommand extends BaseMVCActionCommand {
 			actionRequest);
 
 		FragmentEntry fragmentEntry = _getFragmentEntry(
-			serviceContext, fragmentEntryKey);
+			groupId, fragmentEntryKey, serviceContext);
 
 		FragmentRenderer fragmentRenderer =
 			_fragmentRendererTracker.getFragmentRenderer(fragmentEntryKey);
@@ -121,7 +122,7 @@ public class AddFragmentEntryLinkMVCActionCommand extends BaseMVCActionCommand {
 
 		long segmentsExperienceId = ParamUtil.getLong(
 			actionRequest, "segmentsExperienceId",
-			SegmentsConstants.SEGMENTS_EXPERIENCE_ID_DEFAULT);
+			SegmentsExperienceConstants.ID_DEFAULT);
 		String data = ParamUtil.getString(actionRequest, "data");
 
 		_layoutPageTemplateStructureLocalService.
@@ -156,7 +157,7 @@ public class AddFragmentEntryLinkMVCActionCommand extends BaseMVCActionCommand {
 			defaultFragmentRendererContext.setMode(
 				FragmentEntryLinkConstants.EDIT);
 			defaultFragmentRendererContext.setSegmentsExperienceIds(
-				new long[] {SegmentsConstants.SEGMENTS_EXPERIENCE_ID_DEFAULT});
+				new long[] {SegmentsExperienceConstants.ID_DEFAULT});
 
 			String configuration = _fragmentRendererController.getConfiguration(
 				defaultFragmentRendererContext);
@@ -208,11 +209,11 @@ public class AddFragmentEntryLinkMVCActionCommand extends BaseMVCActionCommand {
 	}
 
 	private FragmentEntry _getFragmentEntry(
-		ServiceContext serviceContext, String fragmentEntryKey) {
+		long groupId, String fragmentEntryKey, ServiceContext serviceContext) {
 
 		FragmentEntry fragmentEntry =
 			_fragmentEntryLocalService.fetchFragmentEntry(
-				serviceContext.getScopeGroupId(), fragmentEntryKey);
+				groupId, fragmentEntryKey);
 
 		if (fragmentEntry != null) {
 			return fragmentEntry;

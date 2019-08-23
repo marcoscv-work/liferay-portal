@@ -61,8 +61,8 @@ public class SegmentsExperimentWrapper
 		attributes.put("classPK", getClassPK());
 		attributes.put("name", getName());
 		attributes.put("description", getDescription());
-		attributes.put("status", getStatus());
 		attributes.put("typeSettings", getTypeSettings());
+		attributes.put("status", getStatus());
 
 		return attributes;
 	}
@@ -162,16 +162,16 @@ public class SegmentsExperimentWrapper
 			setDescription(description);
 		}
 
-		Integer status = (Integer)attributes.get("status");
-
-		if (status != null) {
-			setStatus(status);
-		}
-
 		String typeSettings = (String)attributes.get("typeSettings");
 
 		if (typeSettings != null) {
 			setTypeSettings(typeSettings);
+		}
+
+		Integer status = (Integer)attributes.get("status");
+
+		if (status != null) {
+			setStatus(status);
 		}
 	}
 
@@ -235,6 +235,16 @@ public class SegmentsExperimentWrapper
 		return model.getDescription();
 	}
 
+	@Override
+	public String getGoal() {
+		return model.getGoal();
+	}
+
+	@Override
+	public String getGoalTarget() {
+		return model.getGoalTarget();
+	}
+
 	/**
 	 * Returns the group ID of this segments experiment.
 	 *
@@ -285,6 +295,13 @@ public class SegmentsExperimentWrapper
 		return model.getSegmentsEntryId();
 	}
 
+	@Override
+	public String getSegmentsEntryName(java.util.Locale locale)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return model.getSegmentsEntryName(locale);
+	}
+
 	/**
 	 * Returns the segments experience ID of this segments experiment.
 	 *
@@ -293,6 +310,11 @@ public class SegmentsExperimentWrapper
 	@Override
 	public long getSegmentsExperienceId() {
 		return model.getSegmentsExperienceId();
+	}
+
+	@Override
+	public String getSegmentsExperienceKey() {
+		return model.getSegmentsExperienceKey();
 	}
 
 	/**
@@ -315,6 +337,11 @@ public class SegmentsExperimentWrapper
 		return model.getSegmentsExperimentKey();
 	}
 
+	@Override
+	public java.util.List<SegmentsExperimentRel> getSegmentsExperimentRels() {
+		return model.getSegmentsExperimentRels();
+	}
+
 	/**
 	 * Returns the status of this segments experiment.
 	 *
@@ -333,6 +360,13 @@ public class SegmentsExperimentWrapper
 	@Override
 	public String getTypeSettings() {
 		return model.getTypeSettings();
+	}
+
+	@Override
+	public com.liferay.portal.kernel.util.UnicodeProperties
+		getTypeSettingsProperties() {
+
+		return model.getTypeSettingsProperties();
 	}
 
 	/**

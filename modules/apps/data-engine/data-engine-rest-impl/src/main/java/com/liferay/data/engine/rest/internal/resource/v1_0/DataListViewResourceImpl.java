@@ -20,6 +20,9 @@ import com.liferay.data.engine.rest.dto.v1_0.DataListView;
 import com.liferay.data.engine.rest.internal.odata.entity.v1_0.DataDefinitionEntityModel;
 import com.liferay.data.engine.rest.resource.v1_0.DataListViewResource;
 import com.liferay.data.engine.service.DEDataListViewLocalService;
+import com.liferay.data.engine.util.comparator.DEDataListViewCreateDateComparator;
+import com.liferay.data.engine.util.comparator.DEDataListViewModifiedDateComparator;
+import com.liferay.data.engine.util.comparator.DEDataListViewNameComparator;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.portal.kernel.json.JSONFactory;
@@ -33,6 +36,9 @@ import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
@@ -63,6 +69,11 @@ public class DataListViewResourceImpl
 	extends BaseDataListViewResourceImpl implements EntityModelResource {
 
 	@Override
+	public void deleteDataListView(Long dataListViewId) throws Exception {
+		_deDataListViewLocalService.deleteDEDataListView(dataListViewId);
+	}
+
+	@Override
 	public Page<DataListView> getDataDefinitionDataListViewsPage(
 			Long dataDefinitionId, String keywords, Pagination pagination,
 			Sort[] sorts)
@@ -86,6 +97,24 @@ public class DataListViewResourceImpl
 		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
 			dataDefinitionId);
 
+		if (Validator.isNull(keywords)) {
+			return Page.of(
+				transform(
+					_deDataListViewLocalService.getDEDataListViews(
+						ddmStructure.getGroupId(),
+						contextCompany.getCompanyId(),
+						ddmStructure.getStructureId(),
+						pagination.getStartPosition(),
+						pagination.getEndPosition(),
+						_toOrderByComparator(
+							(Sort)ArrayUtil.getValue(sorts, 0))),
+					this::_toDataListView),
+				pagination,
+				_deDataListViewLocalService.getDEDataListViewsCount(
+					ddmStructure.getGroupId(), contextCompany.getCompanyId(),
+					ddmStructure.getStructureId()));
+		}
+
 		return SearchUtil.search(
 			booleanQuery -> {
 			},
@@ -104,6 +133,12 @@ public class DataListViewResourceImpl
 				_deDataListViewLocalService.getDEDataListView(
 					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))),
 			sorts);
+	}
+
+	@Override
+	public DataListView getDataListView(Long dataListViewId) throws Exception {
+		return _toDataListView(
+			_deDataListViewLocalService.getDEDataListView(dataListViewId));
 	}
 
 	@Override
@@ -133,6 +168,20 @@ public class DataListViewResourceImpl
 		dataListView.setId(deDataListView.getPrimaryKey());
 
 		return dataListView;
+	}
+
+	@Override
+	public DataListView putDataListView(
+			Long dataListViewId, DataListView dataListView)
+		throws Exception {
+
+		return _toDataListView(
+			_deDataListViewLocalService.updateDEDataListView(
+				dataListViewId,
+				MapUtil.toString(dataListView.getAppliedFilters()),
+				Arrays.toString(dataListView.getFieldNames()),
+				LocalizedValueUtil.toLocaleStringMap(dataListView.getName()),
+				dataListView.getSortField()));
 	}
 
 	private DataListView _toDataListView(DEDataListView deDataListView)
@@ -173,6 +222,21 @@ public class DataListViewResourceImpl
 		}
 
 		return map;
+	}
+
+	private OrderByComparator<DEDataListView> _toOrderByComparator(Sort sort) {
+		boolean ascending = !sort.isReverse();
+
+		String sortFieldName = sort.getFieldName();
+
+		if (StringUtil.startsWith(sortFieldName, "createDate")) {
+			return new DEDataListViewCreateDateComparator(ascending);
+		}
+		else if (StringUtil.startsWith(sortFieldName, "localized_name")) {
+			return new DEDataListViewNameComparator(ascending);
+		}
+
+		return new DEDataListViewModifiedDateComparator(ascending);
 	}
 
 	private static final EntityModel _entityModel =

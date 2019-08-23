@@ -36,6 +36,7 @@ import {updateEditableValues} from '../utils/FragmentsEditorFetchUtils.es';
 import debouncedAlert from '../utils/debouncedAlert.es';
 import {prefixSegmentsExperienceId} from '../utils/prefixSegmentsExperienceId.es';
 import {getFragmentEntryLinkContent} from '../reducers/fragments.es';
+import {updateMappedContentsAction} from './updateMappedContents.es';
 
 /**
  * @type {number}
@@ -63,26 +64,40 @@ const debouncedUpdateEditableValues = debouncedAlert(
 		previousEditableValues,
 		nextEditableValues
 	) => {
-		updateEditableValues(fragmentEntryLinkId, nextEditableValues)
-			.then(() => {
-				dispatch(updateEditableValueSuccessAction());
-				dispatch(disableSavingChangesStatusAction());
-				dispatch(updateLastSaveDateAction());
-			})
-			.catch(() => {
-				dispatch(
-					updateEditableValueErrorAction(
-						fragmentEntryLinkId,
-						previousEditableValues
-					)
-				);
-
-				dispatch(disableSavingChangesStatusAction());
-			});
+		_updateEditableValues(
+			dispatch,
+			fragmentEntryLinkId,
+			previousEditableValues,
+			nextEditableValues
+		);
 	},
 
 	UPDATE_EDITABLE_VALUES_DELAY
 );
+
+function _updateEditableValues(
+	dispatch,
+	fragmentEntryLinkId,
+	previousEditableValues,
+	nextEditableValues
+) {
+	return updateEditableValues(fragmentEntryLinkId, nextEditableValues)
+		.then(() => {
+			dispatch(updateEditableValueSuccessAction());
+			dispatch(disableSavingChangesStatusAction());
+			dispatch(updateLastSaveDateAction());
+		})
+		.catch(() => {
+			dispatch(
+				updateEditableValueErrorAction(
+					fragmentEntryLinkId,
+					previousEditableValues
+				)
+			);
+
+			dispatch(disableSavingChangesStatusAction());
+		});
+}
 
 /**
  * @param {number} fragmentEntryLinkId
@@ -127,28 +142,19 @@ function updateConfigurationValueAction(
 
 		dispatch(enableSavingChangesStatusAction());
 
-		updateEditableValues(fragmentEntryLinkId, nextEditableValues)
-			.then(() => {
-				dispatch(updateEditableValueSuccessAction());
-				dispatch(disableSavingChangesStatusAction());
-				dispatch(updateLastSaveDateAction());
-				dispatch(
-					updateFragmentEntryLinkContent(
-						fragmentEntryLinkId,
-						segmentsExperienceId
-					)
-				);
-			})
-			.catch(() => {
-				dispatch(
-					updateEditableValueErrorAction(
-						fragmentEntryLinkId,
-						previousEditableValues
-					)
-				);
-
-				dispatch(disableSavingChangesStatusAction());
-			});
+		return _updateEditableValues(
+			dispatch,
+			fragmentEntryLinkId,
+			previousEditableValues,
+			nextEditableValues
+		).then(() => {
+			dispatch(
+				updateFragmentEntryLinkContent(
+					fragmentEntryLinkId,
+					segmentsExperienceId
+				)
+			);
+		});
 	};
 }
 
@@ -173,9 +179,40 @@ function updateEditableValueAction(data) {
 				editableValueId: data.editableValueId
 			}
 		],
+		data.processor,
 		data.segmentsExperienceId,
-		data.processor
+		data.debounced
 	);
+}
+
+/**
+ * @param {string} fragmentEntryLinkId
+ * @param {string} editableId
+ * @param {Array<{editableValueId: string, content: string}>} editableValues
+ * @param {string} [processor=EDITABLE_FRAGMENT_ENTRY_PROCESSOR]
+ * @param {string} [segmentsExperienceId='']
+ * @return {function}
+ * @review
+ */
+function updateEditableValuesMappingAction(
+	fragmentEntryLinkId,
+	editableId,
+	editableValues,
+	processor = EDITABLE_FRAGMENT_ENTRY_PROCESSOR,
+	segmentsExperienceId = ''
+) {
+	return function(dispatch) {
+		dispatch(
+			updateEditableValuesAction(
+				fragmentEntryLinkId,
+				editableId,
+				editableValues,
+				processor,
+				segmentsExperienceId,
+				false
+			)
+		).dispatch(updateMappedContentsAction());
+	};
 }
 
 /**
@@ -190,8 +227,9 @@ function updateEditableValuesAction(
 	fragmentEntryLinkId,
 	editableId,
 	editableValues,
-	editableValueSegmentsExperienceId = '',
-	processor = EDITABLE_FRAGMENT_ENTRY_PROCESSOR
+	processor = EDITABLE_FRAGMENT_ENTRY_PROCESSOR,
+	segmentsExperienceId = '',
+	debounced = true
 ) {
 	return function(dispatch, getState) {
 		const state = getState();
@@ -205,11 +243,8 @@ function updateEditableValuesAction(
 			keysTreeArray = [...keysTreeArray, editableId];
 		}
 
-		if (editableValueSegmentsExperienceId) {
-			keysTreeArray = [
-				...keysTreeArray,
-				editableValueSegmentsExperienceId
-			];
+		if (segmentsExperienceId) {
+			keysTreeArray = [...keysTreeArray, segmentsExperienceId];
 		}
 
 		let nextEditableValues = previousEditableValues;
@@ -266,12 +301,21 @@ function updateEditableValuesAction(
 
 		dispatch(enableSavingChangesStatusAction());
 
-		debouncedUpdateEditableValues(
-			dispatch,
-			fragmentEntryLinkId,
-			previousEditableValues,
-			nextEditableValues
-		);
+		if (debounced) {
+			debouncedUpdateEditableValues(
+				dispatch,
+				fragmentEntryLinkId,
+				previousEditableValues,
+				nextEditableValues
+			);
+		} else {
+			return _updateEditableValues(
+				dispatch,
+				fragmentEntryLinkId,
+				previousEditableValues,
+				nextEditableValues
+			);
+		}
 	};
 }
 
@@ -356,6 +400,7 @@ export {
 	updateConfigurationValueAction,
 	updateFragmentEntryLinkContent,
 	updateEditableValueAction,
+	updateEditableValuesMappingAction,
 	updateEditableValuesAction,
 	updateEditableValueSuccessAction
 };

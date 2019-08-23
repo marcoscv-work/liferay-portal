@@ -75,6 +75,8 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 		<liferay-util:include page="/repository_entry_browser/search_info.jsp" servletContext="<%= application %>" />
 	</c:if>
 
+	<div class="message-container"></div>
+
 	<%
 	long folderId = ParamUtil.getLong(request, "folderId");
 
@@ -102,7 +104,7 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 			<label class="btn btn-default" for="<%= randomNamespace %>InputFile"><liferay-ui:message key="select-file" /></label>
 		</liferay-util:buffer>
 
-		<div class="drop-enabled drop-zone no-border">
+		<div class="drop-enabled drop-zone">
 			<c:choose>
 				<c:when test="<%= BrowserSnifferUtil.isMobile(request) %>">
 					<%= selectFileHTML %>
@@ -168,7 +170,10 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 									%>
 
 									<c:if test="<%= Validator.isNotNull(iconCssClass) %>">
-										<i class="<%= iconCssClass %>"></i>
+										<liferay-ui:icon
+											icon="<%= iconCssClass %>"
+											markupView="lexicon"
+										/>
 									</c:if>
 
 									<span class="taglib-text">
@@ -315,8 +320,8 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 										<c:choose>
 											<c:when test="<%= Validator.isNull(thumbnailSrc) %>">
 												<liferay-frontend:icon-vertical-card
-													cardCssClass="card-interactive card-interactive-primary"
-													cssClass="file-card item-preview"
+													cardCssClass="card-interactive"
+													cssClass="file-card form-check form-check-card item-preview"
 													data="<%= data %>"
 													icon="documents-and-media"
 													title="<%= title %>"
@@ -331,8 +336,8 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 											</c:when>
 											<c:otherwise>
 												<liferay-frontend:vertical-card
-													cardCssClass="card-interactive card-interactive-primary"
-													cssClass="file-card item-preview"
+													cardCssClass="card-interactive"
+													cssClass="form-check form-check-card image-card item-preview"
 													data="<%= data %>"
 													imageUrl="<%= thumbnailSrc %>"
 													title="<%= title %>"
@@ -467,8 +472,8 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 	</c:if>
 </div>
 
-<aui:script use="liferay-item-selector-repository-entry-browser">
-	new Liferay.ItemSelectorRepositoryEntryBrowser(
+<aui:script require='<%= npmResolvedPackageName + "/repository_entry_browser/js/ItemSelectorRepositoryEntryBrowser.es as ItemSelectorRepositoryEntryBrowser" %>'>
+	var itemSelector = new ItemSelectorRepositoryEntryBrowser.default(
 		{
 			closeCaption: '<%= UnicodeLanguageUtil.get(request, tabName) %>',
 
@@ -488,12 +493,9 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 			</c:if>
 
 			maxFileSize: '<%= maxFileSize %>',
-			on: {
-				selectedItem: function(event) {
-					Liferay.Util.getOpener().Liferay.fire('<%= itemSelectedEventName %>', event);
-				}
-			},
+
 			rootNode: '#<%= randomNamespace %>ItemSelectorContainer',
+
 			validExtensions: '<%= ListUtil.isEmpty(extensions) ? "*" : StringUtil.merge(extensions) %>'
 
 			<c:if test="<%= uploadURL != null %>">
@@ -507,6 +509,13 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 				, uploadItemReturnType: '<%= HtmlUtil.escapeAttribute(returnType) %>',
 				uploadItemURL: '<%= uploadURL.toString() %>'
 			</c:if>
+		}
+	);
+
+	itemSelector.on(
+		'selectedItem',
+		function(event) {
+			Liferay.Util.getOpener().Liferay.fire('<%= itemSelectedEventName %>', event);
 		}
 	);
 </aui:script>

@@ -97,8 +97,8 @@ class Text extends Component {
 
 		this.setState(
 			{
-				value,
-				filteredItems: []
+				filteredItems: [],
+				value
 			},
 			() => {
 				this.dispatchEvent(event, 'fieldEdited', value);
@@ -254,7 +254,7 @@ Text.STATE = {
 	 * @type {?(string|undefined)}
 	 */
 
-	placeholder: Config.string(),
+	placeholder: Config.string().value(''),
 
 	/**
 	 * @default undefined

@@ -238,6 +238,11 @@ public interface DEDataListViewLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<DEDataListView> getDEDataListViews(int start, int end);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<DEDataListView> getDEDataListViews(
+		long groupId, long companyId, long ddmStructureId, int start, int end,
+		OrderByComparator<DEDataListView> orderByComparator);
+
 	/**
 	 * Returns all the de data list views matching the UUID and company.
 	 *
@@ -273,6 +278,10 @@ public interface DEDataListViewLocalService
 	public int getDEDataListViewsCount();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getDEDataListViewsCount(
+		long groupId, long companyId, long ddmStructureId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
 		PortletDataContext portletDataContext);
 
@@ -299,5 +308,10 @@ public interface DEDataListViewLocalService
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	public DEDataListView updateDEDataListView(DEDataListView deDataListView);
+
+	public DEDataListView updateDEDataListView(
+			long deDataListViewId, String appliedFilters, String fieldNames,
+			Map<Locale, String> nameMap, String sortField)
+		throws Exception;
 
 }

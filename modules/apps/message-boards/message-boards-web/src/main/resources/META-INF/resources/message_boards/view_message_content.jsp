@@ -293,12 +293,6 @@ if (portletTitleBasedNavigation) {
 			<aui:input name="index" type="hidden" value="<%= String.valueOf(index) %>" />
 		</aui:form>
 	</c:if>
-
-	<c:if test="<%= !MBUtil.isViewableMessage(themeDisplay, rootMessage) %>">
-		<div class="alert alert-danger">
-			<liferay-ui:message key="you-do-not-have-permission-to-access-the-requested-resource" />
-		</div>
-	</c:if>
 </div>
 
 <aui:script require="metal-dom/src/all/dom as dom">
@@ -324,36 +318,35 @@ if (portletTitleBasedNavigation) {
 					<portlet:param name="messageId" value="<%= String.valueOf(message.getMessageId()) %>" />
 				</portlet:resourceURL>
 
-				fetch(
+				Liferay.Util.fetch(
 					'<%= getMessagesURL.toString() %>',
 					{
 						body: formData,
-						credentials: 'include',
 						method: 'POST'
 					}
 				)
-				.then(
-					function(response) {
-						return response.text();
-					}
-				)
-				.then(
-					function(response) {
-						var messageContainer = document.getElementById('<portlet:namespace />messageContainer');
+					.then(
+						function(response) {
+							return response.text();
+						}
+					)
+					.then(
+						function(response) {
+							var messageContainer = document.getElementById('<portlet:namespace />messageContainer');
 
-						if (messageContainer) {
-							dom.append(messageContainer, response);
+							if (messageContainer) {
+								dom.append(messageContainer, response);
 
-							dom.globalEval.runScriptsInElement(messageContainer.parentElement);
+								dom.globalEval.runScriptsInElement(messageContainer.parentElement);
 
-							var replyContainer = document.querySelector('#<portlet:namespace />messageContainer > .reply-container');
+								var replyContainer = document.querySelector('#<portlet:namespace />messageContainer > .reply-container');
 
-							if (replyContainer) {
-								dom.append(messageContainer, replyContainer);
+								if (replyContainer) {
+									dom.append(messageContainer, replyContainer);
+								}
 							}
 						}
-					}
-				);
+					);
 			}
 		);
 	}

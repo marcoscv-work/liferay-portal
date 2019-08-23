@@ -934,11 +934,8 @@ definition {
 				password = "test",
 				userEmailAddress = "test@liferay.com");
 		}
-		else {
-			Navigator.openURL();
-		}
 
-		ProductMenu.gotoSite(site = "${siteName}");
+		SitePages.openPagesAdmin(siteURLKey = "${siteName}");
 
 		ProductMenu.gotoPortlet(
 			category = "Publishing",

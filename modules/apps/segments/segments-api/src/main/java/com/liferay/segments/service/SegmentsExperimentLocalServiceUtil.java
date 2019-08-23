@@ -42,13 +42,13 @@ public class SegmentsExperimentLocalServiceUtil {
 	public static com.liferay.segments.model.SegmentsExperiment
 			addSegmentsExperiment(
 				long segmentsExperienceId, long classNameId, long classPK,
-				String name, String description,
+				String name, String description, String goal, String goalTarget,
 				com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().addSegmentsExperiment(
-			segmentsExperienceId, classNameId, classPK, name, description,
-			serviceContext);
+			segmentsExperienceId, classNameId, classPK, name, description, goal,
+			goalTarget, serviceContext);
 	}
 
 	/**
@@ -216,6 +216,22 @@ public class SegmentsExperimentLocalServiceUtil {
 		return getService().fetchSegmentsExperiment(segmentsExperimentId);
 	}
 
+	public static com.liferay.segments.model.SegmentsExperiment
+		fetchSegmentsExperiment(
+			long segmentsExperienceId, long classNameId, long classPK,
+			int status) {
+
+		return getService().fetchSegmentsExperiment(
+			segmentsExperienceId, classNameId, classPK, status);
+	}
+
+	public static com.liferay.segments.model.SegmentsExperiment
+		fetchSegmentsExperiment(long groupId, String segmentsExperimentKey) {
+
+		return getService().fetchSegmentsExperiment(
+			groupId, segmentsExperimentKey);
+	}
+
 	/**
 	 * Returns the segments experiment matching the UUID and group.
 	 *
@@ -284,11 +300,11 @@ public class SegmentsExperimentLocalServiceUtil {
 
 	public static java.util.List<com.liferay.segments.model.SegmentsExperiment>
 		getSegmentsExperienceSegmentsExperiments(
-			long segmentsExperienceId, long classNameId, long classPK,
-			int status) {
+			long[] segmentsExperienceIds, long classNameId, long classPK,
+			int[] statuses, int start, int end) {
 
 		return getService().getSegmentsExperienceSegmentsExperiments(
-			segmentsExperienceId, classNameId, classPK, status);
+			segmentsExperienceIds, classNameId, classPK, statuses, start, end);
 	}
 
 	/**
@@ -303,6 +319,13 @@ public class SegmentsExperimentLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().getSegmentsExperiment(segmentsExperimentId);
+	}
+
+	public static com.liferay.segments.model.SegmentsExperiment
+			getSegmentsExperiment(String segmentsExperimentKey)
+		throws com.liferay.segments.exception.NoSuchExperimentException {
+
+		return getService().getSegmentsExperiment(segmentsExperimentKey);
 	}
 
 	/**
@@ -389,13 +412,21 @@ public class SegmentsExperimentLocalServiceUtil {
 		return getService().getSegmentsExperimentsCount();
 	}
 
+	public static boolean hasSegmentsExperiment(
+		long segmentsExperienceId, long classNameId, long classPK, int status) {
+
+		return getService().hasSegmentsExperiment(
+			segmentsExperienceId, classNameId, classPK, status);
+	}
+
 	public static com.liferay.segments.model.SegmentsExperiment
 			updateSegmentsExperiment(
-				long segmentsExperimentId, String name, String description)
+				long segmentsExperimentId, String name, String description,
+				String goal, String goalTarget)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return getService().updateSegmentsExperiment(
-			segmentsExperimentId, name, description);
+			segmentsExperimentId, name, description, goal, goalTarget);
 	}
 
 	/**
@@ -409,6 +440,14 @@ public class SegmentsExperimentLocalServiceUtil {
 			com.liferay.segments.model.SegmentsExperiment segmentsExperiment) {
 
 		return getService().updateSegmentsExperiment(segmentsExperiment);
+	}
+
+	public static com.liferay.segments.model.SegmentsExperiment
+			updateSegmentsExperiment(String segmentsExperimentKey, int status)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().updateSegmentsExperiment(
+			segmentsExperimentKey, status);
 	}
 
 	public static SegmentsExperimentLocalService getService() {

@@ -17,7 +17,6 @@ package com.liferay.change.tracking.engine;
 import com.liferay.change.tracking.engine.exception.CTEngineException;
 import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.change.tracking.model.CTEntry;
-import com.liferay.change.tracking.model.CTEntryAggregate;
 import com.liferay.change.tracking.model.CTProcess;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.model.BaseModel;
@@ -122,38 +121,6 @@ public interface CTEngineManager {
 	public List<CTCollection> getCTCollections(long companyId);
 
 	/**
-	 * Returns the change entries associated with the given change collection.
-	 *
-	 * @param  ctCollection the change collection
-	 * @param  groupIds the group primary keys
-	 * @param  userIds the user primary keys
-	 * @param  classNameIds the class name primary keys
-	 * @param  changeTypes the change types
-	 * @param  collision whether the change entries collide with the production
-	 *         change collection
-	 * @param  queryDefinition the settings regarding pagination, order, and
-	 *         status filtering
-	 * @return the change entries associated with the given change collection
-	 */
-	public List<CTEntry> getCTEntries(
-		CTCollection ctCollection, long[] groupIds, long[] userIds,
-		long[] classNameIds, int[] changeTypes, Boolean collision,
-		QueryDefinition<CTEntry> queryDefinition);
-
-	/**
-	 * Returns all the change tracking entries associated with the given change
-	 * collection, keywords, and query definition.
-	 *
-	 * @param  ctCollection the change collection
-	 * @param  keywords the keywords
-	 * @param  queryDefinition the settings regarding pagination and order
-	 * @return the change tracking entries
-	 */
-	public List<CTEntry> getCTEntries(
-		CTCollection ctCollection, String keywords,
-		QueryDefinition<CTEntry> queryDefinition);
-
-	/**
 	 * Returns all the change entries associated with the given change
 	 * collection.
 	 *
@@ -175,39 +142,6 @@ public interface CTEngineManager {
 		long ctCollectionId, QueryDefinition<CTEntry> queryDefinition);
 
 	/**
-	 * Returns the number of change entries associated with the given change
-	 * collection and filters.
-	 *
-	 * @param  ctCollection the change collection
-	 * @param  groupIds the group primary keys
-	 * @param  userIds the user primary keys
-	 * @param  classNameIds the class name primary keys
-	 * @param  changeTypes the change types
-	 * @param  collision whether the change entries collide with the production
-	 *         change collection
-	 * @param  queryDefinition the settings regarding the status filtering
-	 * @return the number of change tracking entries with the given change
-	 *         collection and filters
-	 */
-	public int getCTEntriesCount(
-		CTCollection ctCollection, long[] groupIds, long[] userIds,
-		long[] classNameIds, int[] changeTypes, Boolean collision,
-		QueryDefinition<CTEntry> queryDefinition);
-
-	/**
-	 * Returns the number of change tracking entries associated with the given
-	 * change collection, keywords, and query definition.
-	 *
-	 * @param  ctCollection the change collection
-	 * @param  keywords the keywords
-	 * @param  queryDefinition the settings
-	 * @return the number of change tracking entries
-	 */
-	public int getCTEntriesCount(
-		CTCollection ctCollection, String keywords,
-		QueryDefinition<CTEntry> queryDefinition);
-
-	/**
 	 * Returns the number of the change entries associated with the given change
 	 * collection.
 	 *
@@ -218,15 +152,6 @@ public interface CTEngineManager {
 	 */
 	public int getCTEntriesCount(
 		long ctCollectionId, QueryDefinition<CTEntry> queryDefinition);
-
-	/**
-	 * Returns all the change entry aggregates associated with the given change
-	 * collection.
-	 *
-	 * @param  ctCollectionId the primary key of the change collection
-	 * @return the change entry aggregates
-	 */
-	public List<CTEntryAggregate> getCTEntryAggregates(long ctCollectionId);
 
 	/**
 	 * Returns the change tracking processes.

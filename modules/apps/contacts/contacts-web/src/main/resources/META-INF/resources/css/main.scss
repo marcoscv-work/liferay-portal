@@ -1,5 +1,4 @@
-@import 'bourbon';
-@import 'mixins';
+@import 'atlas-variables';
 
 $border-color: #c9c9c9;
 $section-header-bg: #cce6f7;
@@ -165,7 +164,7 @@ $section-header-bg: #cce6f7;
 		overflow-y: scroll;
 		padding-right: 0;
 		position: absolute;
-		top: 40px;
+		top: 55px;
 		width: 100%;
 
 		.more-results a {
@@ -270,7 +269,7 @@ $section-header-bg: #cce6f7;
 			display: none;
 		}
 
-		.field-group .icon-edit {
+		.field-group .lexicon-icon-pencil {
 			display: none;
 		}
 	}
@@ -286,11 +285,16 @@ $section-header-bg: #cce6f7;
 			top: 0;
 			width: 250px;
 
-			.contacts-search .icon-search {
-				color: $border-color;
-				position: absolute;
-				right: 11px;
-				top: 11px;
+			.contacts-search {
+				margin-top: 0.5rem;
+				position: relative;
+
+				.lexicon-icon-search {
+					color: $border-color;
+					position: absolute;
+					right: 0.85rem;
+					top: 0.85rem;
+				}
 			}
 		}
 
@@ -536,7 +540,7 @@ $section-header-bg: #cce6f7;
 			width: initial;
 		}
 
-		.icon-edit {
+		.lexicon-icon-pencil {
 			left: 100%;
 			position: absolute;
 			top: 5px;
@@ -545,7 +549,7 @@ $section-header-bg: #cce6f7;
 		&:hover {
 			cursor: pointer;
 
-			.icon-edit {
+			.lexicon-icon-pencil {
 				display: block;
 			}
 		}
@@ -712,7 +716,7 @@ $section-header-bg: #cce6f7;
 
 /* ---------- Responsive ---------- */
 
-@include respond-to(phone) {
+@include media-breakpoint-down(md) {
 	.contacts-portlet {
 		.toolbar {
 			.filter-container {
@@ -767,8 +771,8 @@ $section-header-bg: #cce6f7;
 			left: 0;
 			position: relative;
 
-			@include transition-duration(0.3s);
-			@include transition-property(left);
+			transition-duration: 0.3s;
+			transition-property: left;
 
 			z-index: 1;
 		}
@@ -777,8 +781,8 @@ $section-header-bg: #cce6f7;
 			background: #fff;
 			margin-left: 0;
 
-			@include transition-duration(0.3s);
-			@include transition-property(margin-left);
+			transition-duration: 0.3s;
+			transition-property: margin-left;
 
 			z-index: 1;
 

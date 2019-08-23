@@ -18,11 +18,7 @@ import '../SuccessPage/SuccessPageWizardItem.soy.js';
 import Component from 'metal-jsx';
 import {ClayActionsDropdown} from 'clay-dropdown';
 import {Config} from 'metal-state';
-import {
-	focusedFieldStructure,
-	pageStructure,
-	ruleStructure
-} from '../../util/config.es';
+import {focusedFieldStructure, pageStructure} from '../../util/config.es';
 import {setValue} from '../../util/i18n.es';
 
 const withMultiplePages = ChildComponent => {
@@ -267,9 +263,27 @@ const withMultiplePages = ChildComponent => {
 		editingLanguageId: Config.string(),
 
 		/**
+		 * @default undefined
+		 * @instance
+		 * @memberof FormBuilder
+		 * @type {?string}
+		 */
+
+		fieldSetDefinitionURL: Config.string(),
+
+		/**
 		 * @default []
 		 * @instance
-		 * @memberof Sidebar
+		 * @memberof FormBuilder
+		 * @type {?(array|undefined)}
+		 */
+
+		fieldSets: Config.array().value([]),
+
+		/**
+		 * @default []
+		 * @instance
+		 * @memberof FormBuilder
 		 * @type {?(array|undefined)}
 		 */
 
@@ -310,17 +324,9 @@ const withMultiplePages = ChildComponent => {
 		portletNamespace: Config.string().required(),
 
 		/**
-		 * @instance
-		 * @memberof FormBuilder
-		 * @type {string}
-		 */
-
-		rules: Config.arrayOf(ruleStructure).required(),
-
-		/**
 		 * @default undefined
 		 * @instance
-		 * @memberof FormRenderer
+		 * @memberof FormBuilder
 		 * @type {!string}
 		 */
 
@@ -328,7 +334,7 @@ const withMultiplePages = ChildComponent => {
 
 		/**
 		 * @instance
-		 * @memberof MultiplePages
+		 * @memberof FormBuilder
 		 * @type {object}
 		 */
 
@@ -336,7 +342,16 @@ const withMultiplePages = ChildComponent => {
 			body: Config.object(),
 			enabled: Config.bool(),
 			title: Config.object()
-		}).value({})
+		}).value({}),
+
+		/**
+		 * @default undefined
+		 * @instance
+		 * @memberof FormBuilder
+		 * @type {?string}
+		 */
+
+		view: Config.string()
 	};
 
 	MultiplePages.STATE = {

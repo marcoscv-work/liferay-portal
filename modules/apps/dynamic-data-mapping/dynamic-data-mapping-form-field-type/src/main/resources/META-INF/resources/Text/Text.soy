@@ -91,6 +91,8 @@
 	{@param? readOnly: bool}
 	{@param? value: string}
 
+	{let $inputValue: $value ?: $predefinedValue /}
+
 	{let $attributes kind="attributes"}
 		class="ddm-field-text form-control"
 
@@ -118,15 +120,13 @@
 			disabled="disabled"
 		{/if}
 
-		{if $value}
-			value="{$value}"
-		{else}
-			value="{$predefinedValue}"
+		{if $displayStyle == 'singleline'}
+			value="{$inputValue}"
 		{/if}
 	{/let}
 
 	{if $displayStyle == 'multiline'}
-		<textarea {$attributes}></textarea>
+		<textarea {$attributes}>{$inputValue}</textarea>
 	{elseif ($displayStyle == 'singleline' and $readOnly) or not($autocompleteEnabled)}
 		<input {$attributes}>
 	{elseif $autocompleteEnabled and isNonnull($options) and length($options) > 0}

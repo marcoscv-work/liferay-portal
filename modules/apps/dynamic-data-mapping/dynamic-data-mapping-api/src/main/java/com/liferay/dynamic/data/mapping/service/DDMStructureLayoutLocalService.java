@@ -229,6 +229,9 @@ public interface DDMStructureLayoutLocalService
 		String uuid, long groupId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public DDMStructureLayout fetchStructureLayout(long structureLayoutId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DDMStructureLayout fetchStructureLayout(
 		long groupId, long classNameId, String structureLayoutKey);
 
@@ -350,7 +353,24 @@ public interface DDMStructureLayoutLocalService
 		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<DDMStructureLayout> getStructureLayouts(
+		long groupId, long classNameId, int start, int end,
+		OrderByComparator<DDMStructureLayout> orderByComparator);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<DDMStructureLayout> getStructureLayouts(
+		long groupId, long classNameId, long structureVersionId, int start,
+		int end, OrderByComparator<DDMStructureLayout> orderByComparator);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getStructureLayoutsCount(long groupId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getStructureLayoutsCount(long groupId, long classNameId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getStructureLayoutsCount(
+		long groupId, long classNameId, long structureVersionId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<DDMStructureLayout> search(

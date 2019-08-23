@@ -2957,46 +2957,37 @@ public class PortletDataContextImpl implements PortletDataContext {
 						we);
 				}
 
-				return;
+				continue;
+			}
+
+			long typePK = GetterUtil.getLong(
+				stagedGroupedWorkflowDefinitionLinkElement.attributeValue(
+					"type-pk"),
+				-1);
+
+			if (typePK != -1) {
+				Map<Long, Long> ddmPrimaryKeys =
+					(Map<Long, Long>)getNewPrimaryKeysMap(
+						DDMStructure.class.getName());
+
+				typePK = ddmPrimaryKeys.getOrDefault(typePK, typePK);
 			}
 
 			if ((workflowDefinition != null) &&
 				!WorkflowDefinitionLinkLocalServiceUtil.
 					hasWorkflowDefinitionLink(
 						getCompanyId(), getScopeGroupId(), className,
-						newPrimaryKey)) {
+						newPrimaryKey, typePK)) {
+
+				PermissionChecker permissionChecker =
+					PermissionThreadLocal.getPermissionChecker();
 
 				try {
-					long importedClassPK = GetterUtil.getLong(
-						classedModel.getPrimaryKeyObj());
-
-					String referrerUuid =
-						stagedGroupedWorkflowDefinitionLinkElement.
-							attributeValue("uuid");
-
-					WorkflowDefinitionLink referrerWorkflowDefinitionLink =
-						WorkflowDefinitionLinkLocalServiceUtil.
-							getWorkflowDefinitionLink(
-								Long.valueOf(referrerUuid));
-
-					long typePK = referrerWorkflowDefinitionLink.getTypePK();
-
-					if (typePK != -1) {
-						Map<Long, Long> ddmPrimaryKeys =
-							(Map<Long, Long>)getNewPrimaryKeysMap(
-								DDMStructure.class.getName());
-
-						typePK = ddmPrimaryKeys.getOrDefault(typePK, typePK);
-					}
-
-					PermissionChecker permissionChecker =
-						PermissionThreadLocal.getPermissionChecker();
-
 					WorkflowDefinitionLinkLocalServiceUtil.
 						addWorkflowDefinitionLink(
 							permissionChecker.getUserId(), getCompanyId(),
-							getScopeGroupId(), className, importedClassPK,
-							typePK, workflowDefinition.getName(),
+							getScopeGroupId(), className, newPrimaryKey, typePK,
+							workflowDefinition.getName(),
 							workflowDefinition.getVersion());
 				}
 				catch (PortalException pe) {

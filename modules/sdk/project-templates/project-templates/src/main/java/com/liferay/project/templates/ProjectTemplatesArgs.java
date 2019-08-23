@@ -56,6 +56,14 @@ public class ProjectTemplatesArgs {
 		return _destinationDir;
 	}
 
+	public String getFramework() {
+		return _framework;
+	}
+
+	public String getFrameworkDependencies() {
+		return _frameworkDependencies;
+	}
+
 	public String getGroupId() {
 		return _groupId;
 	}
@@ -98,6 +106,10 @@ public class ProjectTemplatesArgs {
 
 	public String getTemplateVersion() {
 		return _templateVersion;
+	}
+
+	public String getViewType() {
+		return _viewType;
 	}
 
 	public boolean isDependencyManagementEnabled() {
@@ -150,6 +162,14 @@ public class ProjectTemplatesArgs {
 		_force = force;
 	}
 
+	public void setFramework(String framework) {
+		_framework = framework;
+	}
+
+	public void setFrameworkDependencies(String frameworkDependencies) {
+		_frameworkDependencies = frameworkDependencies;
+	}
+
 	public void setGradle(boolean gradle) {
 		_gradle = gradle;
 	}
@@ -200,6 +220,10 @@ public class ProjectTemplatesArgs {
 
 	public void setTemplateVersion(String templateVersion) {
 		_templateVersion = templateVersion;
+	}
+
+	public void setViewType(String viewType) {
+		_viewType = viewType;
 	}
 
 	protected boolean isHelp() {
@@ -256,6 +280,18 @@ public class ProjectTemplatesArgs {
 	private boolean _force;
 
 	@Parameter(
+		description = "The name of the framework to use in the generated project.",
+		names = "--framework"
+	)
+	private String _framework;
+
+	@Parameter(
+		description = "The way that the framework dependencies will be configured.",
+		names = "--framework-dependencies"
+	)
+	private String _frameworkDependencies = "embedded";
+
+	@Parameter(
 		arity = 1,
 		description = "Add the Gradle build script and the Gradle Wrapper to the new project.",
 		names = "--gradle"
@@ -288,7 +324,7 @@ public class ProjectTemplatesArgs {
 
 	@Parameter(
 		description = "The version of Liferay to target when creating the project.",
-		names = "--liferayVersion"
+		names = "--liferay-version"
 	)
 	private String _liferayVersion = "7.2";
 
@@ -342,5 +378,11 @@ public class ProjectTemplatesArgs {
 
 	@Parameter(hidden = true, names = "--template-version")
 	private String _templateVersion;
+
+	@Parameter(
+		description = "Choose the view technology that will be used in the generated project.",
+		names = "--view-type"
+	)
+	private String _viewType;
 
 }

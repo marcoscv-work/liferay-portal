@@ -14,7 +14,7 @@
 
 package com.liferay.fragment.entry.processor.freemarker;
 
-import com.liferay.fragment.entry.processor.freemarker.configuration.FreeMarkerFragmentEntryProcessorConfiguration;
+import com.liferay.fragment.entry.processor.freemarker.internal.configuration.FreeMarkerFragmentEntryProcessorConfiguration;
 import com.liferay.fragment.exception.FragmentEntryContentException;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.processor.FragmentEntryProcessor;
@@ -41,9 +41,11 @@ import com.liferay.portal.kernel.template.TemplateManager;
 import com.liferay.portal.kernel.template.TemplateManagerUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.segments.constants.SegmentsConstants;
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.segments.constants.SegmentsExperienceConstants;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -181,7 +183,10 @@ public class FreeMarkerFragmentEntryProcessor
 				httpServletResponse = serviceContext.getResponse();
 			}
 
-			if ((httpServletRequest != null) && (httpServletResponse != null)) {
+			if ((httpServletRequest != null) &&
+				(httpServletRequest.getAttribute(WebKeys.THEME_DISPLAY) !=
+					null)) {
+
 				TemplateManager templateManager =
 					TemplateManagerUtil.getTemplateManager(
 						TemplateConstants.LANG_TYPE_FTL);
@@ -241,8 +246,13 @@ public class FreeMarkerFragmentEntryProcessor
 			return configurationDefaultValuesJSONObject;
 		}
 
-		JSONObject configurationJSONObject = _getSegmentedConfigurationValues(
-			segmentsExperienceIds, configurationValuesJSONObject);
+		JSONObject configurationJSONObject = configurationValuesJSONObject;
+
+		if (_isPersonalizationSupported(configurationValuesJSONObject)) {
+			configurationJSONObject =
+				FragmentEntryConfigUtil.getSegmentedConfigurationValues(
+					segmentsExperienceIds, configurationValuesJSONObject);
+		}
 
 		List<FragmentConfigurationField> configurationFields =
 			FragmentEntryConfigUtil.getFragmentConfigurationFields(
@@ -287,27 +297,18 @@ public class FreeMarkerFragmentEntryProcessor
 		return message;
 	}
 
-	private JSONObject _getSegmentedConfigurationValues(
-		long[] segmentsExperienceIds,
-		JSONObject configurationValuesJSONObject) {
+	private boolean _isPersonalizationSupported(JSONObject jsonObject) {
+		Iterator<String> keys = jsonObject.keys();
 
-		long segmentsExperienceId =
-			SegmentsConstants.SEGMENTS_EXPERIENCE_ID_DEFAULT;
+		while (keys.hasNext()) {
+			String key = keys.next();
 
-		if (segmentsExperienceIds.length > 0) {
-			segmentsExperienceId = segmentsExperienceIds[0];
+			if (key.startsWith(SegmentsExperienceConstants.ID_PREFIX)) {
+				return true;
+			}
 		}
 
-		JSONObject configurationJSONObject =
-			configurationValuesJSONObject.getJSONObject(
-				SegmentsConstants.SEGMENTS_EXPERIENCE_ID_PREFIX +
-					segmentsExperienceId);
-
-		if (configurationJSONObject == null) {
-			configurationJSONObject = JSONFactoryUtil.createJSONObject();
-		}
-
-		return configurationJSONObject;
+		return false;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
