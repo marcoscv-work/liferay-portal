@@ -26,7 +26,7 @@ Map<String, Object> data = new HashMap<>();
 data.put("qa-id", "customizations");
 %>
 
-<li class="active control-menu-link control-menu-nav-item customization-link visible-xs">
+<li class="active control-menu-link control-menu-nav-item customization-link d-block d-sm-none">
 	<liferay-ui:icon
 		data="<%= data %>"
 		icon="pencil"
@@ -41,7 +41,7 @@ data.put("qa-id", "customizations");
 <li class="control-menu-nav-item" id="<%= portletNamespace %>customizationBar">
 	<div class="control-menu-level-2">
 		<div class="container-fluid container-fluid-max-xl">
-			<div class="control-menu-level-2-heading visible-xs">
+			<div class="control-menu-level-2-heading d-block d-sm-none">
 				<liferay-ui:message key="customization-options" />
 
 				<button aria-label="<%= LanguageUtil.get(request, "close") %>" class="close" id="<%= portletNamespace %>closeCustomizationOptions" type="button">
@@ -132,7 +132,7 @@ data.put("qa-id", "customizations");
 				String toggleCustomizationViewURL = HttpUtil.addParameter(toggleCustomizationViewPortletURL.toString(), "customized_view", !layoutTypePortlet.isCustomizedView());
 				%>
 
-				<li class="control-menu-nav-item hidden-xs">
+				<li class="control-menu-nav-item d-none d-sm-block">
 					<liferay-ui:icon-menu
 						direction="left-side"
 						icon="<%= StringPool.BLANK %>"
@@ -153,7 +153,7 @@ data.put("qa-id", "customizations");
 						</c:if>
 					</liferay-ui:icon-menu>
 				</li>
-				<li class="control-menu-nav-item visible-xs">
+				<li class="control-menu-nav-item d-block d-sm-none">
 					<div class="btn-group dropdown">
 						<aui:a cssClass="btn btn-primary" href="<%= toggleCustomizationViewURL %>" label="<%= toggleCustomizedViewMessage %>" />
 
