@@ -29,7 +29,7 @@
 	%>
 
 		<liferay-ui:section>
-			<div class="container-fluid-1280">
+			<div class="container-fluid container-fluid-max-xl">
 				<liferay-util:include page="<%= partial %>" servletContext="<%= application %>" />
 			</div>
 		</liferay-ui:section>

@@ -24,7 +24,7 @@ DLEditFileShortcutDisplayContext dlEditFileShortcutDisplayContext = (DLEditFileS
 renderResponse.setTitle(dlEditFileShortcutDisplayContext.getTitle());
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<aui:form action="<%= dlEditFileShortcutDisplayContext.getEditFileShortcutURL() %>" method="post" name="fm">
 		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 		<aui:input name="fileShortcutId" type="hidden" value="<%= dlEditFileShortcutDisplayContext.getFileShortcutId() %>" />

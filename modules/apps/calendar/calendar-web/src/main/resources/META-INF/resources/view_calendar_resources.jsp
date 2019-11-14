@@ -38,7 +38,7 @@ CalendarResourceDisplayTerms displayTerms = new CalendarResourceDisplayTerms(ren
 	<portlet:param name="tabs1" value="resources" />
 </liferay-portlet:renderURL>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<c:choose>
 		<c:when test="<%= displayTerms.getScope() == themeDisplay.getCompanyGroupId() %>">
 			<h3><liferay-ui:message key="users" /></h3>

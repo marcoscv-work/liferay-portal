@@ -13,7 +13,7 @@
 	]>}
 	{@param? loaded: bool}
 
-	<div id="change-list-history" {if not $processEntries or length($processEntries) == 0}class="container-fluid-1280"{/if} >
+	<div id="change-list-history" {if not $processEntries or length($processEntries) == 0}class="container-fluid container-fluid-max-xl"{/if} >
 		{if not $loaded}
 			{call .loading /}
 		{else}

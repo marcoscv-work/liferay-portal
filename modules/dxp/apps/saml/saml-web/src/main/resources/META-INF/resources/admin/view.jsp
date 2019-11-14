@@ -37,7 +37,7 @@ else if (samlProviderConfigurationHelper.isRoleSp()) {
 	names="<%= tabs1Names %>"
 	url="<%= portletURL.toString() %>"
 >
-	<div class="container-fluid-1280">
+	<div class="container-fluid container-fluid-max-xl">
 		<c:choose>
 			<c:when test='<%= tabs1.equals("general") %>'>
 				<liferay-util:include page="/admin/general.jsp" servletContext="<%= pageContext.getServletContext() %>" />

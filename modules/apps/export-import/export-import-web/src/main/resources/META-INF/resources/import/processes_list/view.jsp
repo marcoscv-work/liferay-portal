@@ -27,7 +27,7 @@ String searchContainerId = ParamUtil.getString(request, "searchContainerId");
 %>
 
 <div id="<portlet:namespace />importProcessesSearchContainer">
-	<div class="container-fluid-1280" id="<portlet:namespace />processesContainer">
+	<div class="container-fluid container-fluid-max-xl" id="<portlet:namespace />processesContainer">
 		<liferay-util:include page="/import/processes_list/import_layouts_processes.jsp" servletContext="<%= application %>">
 			<liferay-util:param name="groupId" value="<%= String.valueOf(groupId) %>" />
 			<liferay-util:param name="privateLayout" value="<%= String.valueOf(privateLayout) %>" />

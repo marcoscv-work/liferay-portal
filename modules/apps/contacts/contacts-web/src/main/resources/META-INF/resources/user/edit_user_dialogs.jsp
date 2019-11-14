@@ -37,7 +37,7 @@ if (extension) {
 %>
 
 <div id="<%= portletNamespace %>updateUserDialog">
-	<aui:form action="" cssClass="container-fluid-1280" method="post" name="dialogForm" portletNamespace="<%= portletNamespace %>">
+	<aui:form action="" cssClass="container-fluid container-fluid-max-xl" method="post" name="dialogForm" portletNamespace="<%= portletNamespace %>">
 		<aui:input name="redirect" type="hidden" value="<%= selUser.getDisplayURL(themeDisplay) %>" />
 		<aui:input name="fieldGroup" type="hidden" value="<%= curSectionId %>" />
 		<aui:input name="p_u_i_d" type="hidden" value="<%= (selUser != null) ? selUser.getUserId() : 0 %>" />

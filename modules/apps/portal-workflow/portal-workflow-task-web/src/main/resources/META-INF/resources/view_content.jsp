@@ -43,7 +43,7 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle(title);
 %>
 
-<div class="container-fluid-1280 main-content-body">
+<div class="container-fluid container-fluid-max-xl main-content-body">
 	<div class="col-md-12 lfr-asset-column lfr-asset-column-details">
 		<div class="card-horizontal main-content-card">
 			<div class="panel-body">

@@ -31,7 +31,7 @@
 			navigationItems="<%= serverDisplayContext.getServerNavigationItems() %>"
 		/>
 
-		<div class="<%= tabs1.equals("log-levels") ? StringPool.BLANK : "container-fluid-1280" %>">
+		<div class="<%= tabs1.equals("log-levels") ? StringPool.BLANK : "container-fluid container-fluid-max-xl" %>">
 			<c:choose>
 				<c:when test='<%= tabs1.equals("log-levels") %>'>
 					<liferay-util:include page="/log_levels.jsp" servletContext="<%= application %>" />

@@ -52,7 +52,7 @@ Map<String, String> emailDefinitionTerms = EmailConfigurationUtil.getEmailDefini
 			<liferay-ui:error key="emailNotificationsSubject" message="please-enter-a-valid-subject" />
 
 			<liferay-ui:section>
-				<div class="container-fluid-1280">
+				<div class="container-fluid container-fluid-max-xl">
 					<aui:fieldset-group markupView="lexicon">
 						<aui:fieldset>
 							<aui:input cssClass="lfr-input-text-container" label="name" name="preferences--emailFromName--" type="text" value="<%= emailFromName %>" />
@@ -64,7 +64,7 @@ Map<String, String> emailDefinitionTerms = EmailConfigurationUtil.getEmailDefini
 			</liferay-ui:section>
 
 			<liferay-ui:section>
-				<div class="container-fluid-1280">
+				<div class="container-fluid container-fluid-max-xl">
 					<aui:fieldset-group markupView="lexicon">
 						<liferay-frontend:email-notification-settings
 							emailBodyLocalizedValuesMap="<%= reportsGroupServiceEmailConfiguration.emailDeliveryBody() %>"
@@ -78,7 +78,7 @@ Map<String, String> emailDefinitionTerms = EmailConfigurationUtil.getEmailDefini
 			</liferay-ui:section>
 
 			<liferay-ui:section>
-				<div class="container-fluid-1280">
+				<div class="container-fluid container-fluid-max-xl">
 					<aui:fieldset-group markupView="lexicon">
 						<liferay-frontend:email-notification-settings
 							emailBodyLocalizedValuesMap="<%= reportsGroupServiceEmailConfiguration.emailNotificationsBody() %>"

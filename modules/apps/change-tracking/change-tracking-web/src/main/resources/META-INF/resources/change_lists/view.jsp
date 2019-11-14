@@ -44,7 +44,7 @@ renderResponse.setTitle(LanguageUtil.get(request, "select-change-list"));
 	viewTypeItems="<%= changeListsDisplayContext.getViewTypeItems() %>"
 />
 
-<div class="container-fluid-1280 lfr-search-container-wrapper main-content-body">
+<div class="container-fluid container-fluid-max-xl lfr-search-container-wrapper main-content-body">
 	<c:choose>
 		<c:when test='<%= Objects.equals(changeListsDisplayContext.getDisplayStyle(), "list") %>'>
 			<liferay-ui:search-container

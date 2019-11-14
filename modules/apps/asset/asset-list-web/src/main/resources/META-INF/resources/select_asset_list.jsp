@@ -24,7 +24,7 @@ SelectAssetListDisplayContext selectAssetListDisplayContext = new SelectAssetLis
 	displayContext="<%= new SelectAssetListManagementToolbarDisplayContext(liferayPortletRequest, liferayPortletResponse, request, selectAssetListDisplayContext) %>"
 />
 
-<div class="container-fluid-1280" id="<portlet:namespace />assetLists">
+<div class="container-fluid container-fluid-max-xl" id="<portlet:namespace />assetLists">
 	<liferay-ui:search-container
 		emptyResultsMessage="there-are-no-content-sets"
 		id="assetListEntries"

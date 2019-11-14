@@ -204,7 +204,7 @@ class SLAListCard extends React.Component {
 					<SLAConfirmDialog itemToRemove={itemToRemove} />
 				)}
 
-				<div className="container-fluid-1280">
+				<div className="container-fluid container-fluid-max-xl">
 					{!!blockedSLACount && (
 						<div
 							className="alert alert-danger alert-dismissible"

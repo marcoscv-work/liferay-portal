@@ -24,7 +24,7 @@ String prompt = (String)SessionMessages.get(renderRequest, "prompt");
 
 <portlet:actionURL name="executeCommand" var="executeCommandURL" />
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<aui:form action="<%= executeCommandURL %>" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "executeCommand();" %>'>
 		<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
 

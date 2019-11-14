@@ -55,7 +55,7 @@ PortletURL portletURL = userGroupItemSelectorViewDisplayContext.getPortletURL();
 	</liferay-frontend:management-bar-filters>
 </liferay-frontend:management-bar>
 
-<div class="container-fluid-1280" id="<portlet:namespace />userGroupSelectorWrapper">
+<div class="container-fluid container-fluid-max-xl" id="<portlet:namespace />userGroupSelectorWrapper">
 	<liferay-ui:search-container
 		id="userGroups"
 		searchContainer="<%= userGroupItemSelectorViewDisplayContext.getSearchContainer() %>"

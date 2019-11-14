@@ -62,7 +62,7 @@ sortingURL.setParameter("orderByType", orderByType.equals("asc") ? "desc" : "asc
 	sortingURL="<%= sortingURL.toString() %>"
 />
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<c:choose>
 		<c:when test="<%= userTrackers != null %>">
 			<liferay-ui:search-container

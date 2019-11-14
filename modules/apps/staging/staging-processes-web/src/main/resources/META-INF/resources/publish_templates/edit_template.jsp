@@ -104,7 +104,7 @@ renderResponse.setTitle((exportImportConfiguration == null) ? LanguageUtil.get(r
 	</c:if>
 </c:if>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<div id="<portlet:namespace />customConfiguration">
 		<portlet:actionURL name="editPublishConfiguration" var="updatePublishConfigurationURL">
 			<portlet:param name="mvcRenderCommandName" value="editPublishConfiguration" />

@@ -18,7 +18,7 @@
 
 <div class="management-bar-container" data-qa-id="managementBar" id="<%= namespace %>managementBarContainerId">
 	<div class="management-bar management-bar-default">
-		<div class="container-fluid-1280">
+		<div class="container-fluid container-fluid-max-xl">
 			<div class="management-bar-header">
 				<c:if test="<%= includeCheckBox %>">
 					<div class="checkbox">
@@ -55,7 +55,7 @@
 
 	<c:if test="<%= Validator.isNotNull(actionButtons) || includeCheckBox %>">
 		<div class="management-bar management-bar-default management-bar-no-collapse management-bar-secondary-bar" id="<%= namespace %>actionButtons">
-			<div class="container-fluid-1280">
+			<div class="container-fluid container-fluid-max-xl">
 				<div class="management-bar-header">
 					<c:if test="<%= includeCheckBox %>">
 						<div class="checkbox">

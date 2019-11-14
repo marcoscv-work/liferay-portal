@@ -56,7 +56,7 @@ renderResponse.setTitle((workflowDefinition == null) ? LanguageUtil.get(request,
 
 <c:if test="<%= workflowDefinition != null %>">
 	<liferay-frontend:info-bar>
-		<div class="container-fluid-1280">
+		<div class="container-fluid container-fluid-max-xl">
 			<div class="info-bar-item">
 				<c:choose>
 					<c:when test="<%= active %>">
@@ -190,7 +190,7 @@ renderResponse.setTitle((workflowDefinition == null) ? LanguageUtil.get(request,
 		</div>
 	</c:if>
 
-	<div class="container-fluid-1280">
+	<div class="container-fluid container-fluid-max-xl">
 		<div class="sidenav-content">
 			<aui:form method="post" name="fm">
 				<aui:input name="redirect" type="hidden" value="<%= redirect %>" />

@@ -35,7 +35,7 @@ SelectUsersDisplayContext selectUsersDisplayContext = (SelectUsersDisplayContext
 	viewTypeItems="<%= selectUsersDisplayContext.getViewTypeItems() %>"
 />
 
-<aui:form cssClass="container-fluid-1280" name="fm">
+<aui:form cssClass="container-fluid container-fluid-max-xl" name="fm">
 	<liferay-ui:search-container
 		id="selectSegmentsEntryUsers"
 		searchContainer="<%= selectUsersDisplayContext.getUserSearchContainer() %>"

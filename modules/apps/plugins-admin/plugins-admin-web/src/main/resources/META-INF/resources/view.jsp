@@ -59,7 +59,7 @@ boolean showEditPluginHREF = true;
 	%>'
 />
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<c:choose>
 		<c:when test='<%= tabs2.equals("themes") %>'>
 			<%@ include file="/themes.jspf" %>

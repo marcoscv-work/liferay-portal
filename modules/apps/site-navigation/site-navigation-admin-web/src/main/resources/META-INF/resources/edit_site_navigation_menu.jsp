@@ -50,7 +50,7 @@ renderResponse.setTitle(siteNavigationAdminDisplayContext.getSiteNavigationMenuN
 	</nav>
 </c:if>
 
-<div class="container-fluid-1280 contextual-sidebar-content site-navigation-content">
+<div class="container-fluid container-fluid-max-xl contextual-sidebar-content site-navigation-content">
 	<div class="lfr-search-container-wrapper site-navigation-menu-container">
 		<liferay-ui:error embed="<%= false %>" key="<%= InvalidSiteNavigationMenuItemOrderException.class.getName() %>" message="the-order-of-site-navigation-menu-items-is-invalid" />
 

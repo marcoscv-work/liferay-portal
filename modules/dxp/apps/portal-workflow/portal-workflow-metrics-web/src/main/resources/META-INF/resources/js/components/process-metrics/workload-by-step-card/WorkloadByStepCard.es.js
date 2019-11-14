@@ -114,7 +114,7 @@ class WorkloadByStepCard extends React.Component {
 		const fetching = !loading && !totalCount;
 
 		return (
-			<Panel className="container-fluid-1280 mt-4">
+			<Panel className="container-fluid container-fluid-max-xl mt-4">
 				<Panel.Header elementClasses={'dashboard-panel-header'}>
 					<div>
 						<span className={'mr-2'}>

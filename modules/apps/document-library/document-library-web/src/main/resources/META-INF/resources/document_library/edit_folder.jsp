@@ -63,7 +63,7 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle(headerTitle);
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<liferay-util:buffer
 		var="removeFileEntryTypeIcon"
 	>

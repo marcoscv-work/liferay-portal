@@ -51,7 +51,7 @@ renderResponse.setTitle((ddmDataProviderInstance == null) ? LanguageUtil.get(req
 
 	<%@ include file="/exceptions.jspf" %>
 
-	<div class="container-fluid-1280 lfr-ddm-edit-data-provider">
+	<div class="container-fluid container-fluid-max-xl lfr-ddm-edit-data-provider">
 		<aui:fieldset-group markupView="lexicon">
 			<aui:fieldset>
 				<liferay-util:buffer
@@ -88,7 +88,7 @@ renderResponse.setTitle((ddmDataProviderInstance == null) ? LanguageUtil.get(req
 	</div>
 
 	<c:if test="<%= !windowState.equals(LiferayWindowState.POP_UP) %>">
-		<div class="container-fluid-1280">
+		<div class="container-fluid container-fluid-max-xl">
 			<aui:button-row>
 				<aui:button id="submit" label="save" type="submit" />
 

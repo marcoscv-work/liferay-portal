@@ -196,7 +196,7 @@ class ProcessMetrics extends React.Component {
 
 const DashboardTab = props => {
 	return (
-		<div className="container-fluid-1280">
+		<div className="container-fluid container-fluid-max-xl">
 			<div className="row">
 				<div className="col-md-9 p-0">
 					<PendingItemsCard {...props} />

@@ -28,7 +28,7 @@ TrashHandler trashHandler = trashDisplayContext.getTrashHandler();
 			displayContext="<%= new TrashContainerManagementToolbarDisplayContext(liferayPortletRequest, liferayPortletResponse, request, trashDisplayContext) %>"
 		/>
 
-		<div class="closed container-fluid-1280 sidenav-container sidenav-right" id="<portlet:namespace />infoPanelId">
+		<div class="closed container-fluid container-fluid-max-xl sidenav-container sidenav-right" id="<portlet:namespace />infoPanelId">
 			<liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" id="/trash/info_panel" var="sidebarPanelURL" />
 
 			<liferay-frontend:sidebar-panel
@@ -154,7 +154,7 @@ TrashHandler trashHandler = trashDisplayContext.getTrashHandler();
 		renderResponse.setTitle(trashRenderer.getTitle(locale));
 		%>
 
-		<div class="container-fluid-1280">
+		<div class="container-fluid container-fluid-max-xl">
 			<aui:fieldset-group markupView="lexicon">
 				<aui:fieldset>
 					<liferay-asset:asset-display

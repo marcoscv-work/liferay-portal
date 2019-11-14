@@ -17,7 +17,7 @@
 <%@ include file="/data_layout_renderer/init.jsp" %>
 
 <div class="sheet">
-	<div class="container-fluid-1280 ddm-form-builder-app">
+	<div class="container-fluid container-fluid-max-xl ddm-form-builder-app">
 		<%= content %>
 	</div>
 </div>

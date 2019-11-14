@@ -31,7 +31,7 @@ portletURL.setParameter("title", HtmlUtil.unescape(wikiPage.getTitle()));
 portletURL.setParameter("sourceVersion", String.valueOf(sourceVersion));
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<aui:form action="<%= portletURL.toString() %>" method="post" name="selectVersionFm">
 		<liferay-ui:search-container
 			id="wikiPageVersionSearchContainer"

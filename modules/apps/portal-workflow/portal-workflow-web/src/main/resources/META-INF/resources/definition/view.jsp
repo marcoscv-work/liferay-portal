@@ -50,7 +50,7 @@ WorkflowDefinitionSearch workflowDefinitionSearch = new WorkflowDefinitionSearch
 	sortingURL="<%= workflowDefinitionDisplayContext.getSortingURL(request) %>"
 />
 
-<div class="container-fluid-1280 workflow-definition-container">
+<div class="container-fluid container-fluid-max-xl workflow-definition-container">
 	<liferay-ui:error exception="<%= RequiredWorkflowDefinitionException.class %>">
 		<liferay-ui:message arguments="<%= workflowDefinitionDisplayContext.getMessageArguments((RequiredWorkflowDefinitionException)errorException) %>" key="<%= workflowDefinitionDisplayContext.getMessageKey((RequiredWorkflowDefinitionException)errorException) %>" translateArguments="<%= false %>" />
 	</liferay-ui:error>

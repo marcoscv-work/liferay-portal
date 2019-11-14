@@ -45,7 +45,7 @@ portletURL.setParameter("tabs1", tabs1);
 	</aui:nav>
 </aui:nav-bar>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<c:choose>
 		<c:when test='<%= tabs1.equals("test") %>'>
 			<%@ include file="/test.jspf" %>

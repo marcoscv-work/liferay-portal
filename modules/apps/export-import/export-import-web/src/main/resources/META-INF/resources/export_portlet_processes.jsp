@@ -49,7 +49,7 @@ OrderByComparator<BackgroundTask> orderByComparator = BackgroundTaskComparatorFa
 	</liferay-staging:alert>
 </c:if>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<liferay-ui:search-container
 		emptyResultsMessage="no-export-processes-were-found"
 		iteratorURL="<%= portletURL %>"

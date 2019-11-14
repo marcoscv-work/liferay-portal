@@ -110,7 +110,7 @@ redirectURL.setParameter("privateLayout", String.valueOf(privateLayout));
 response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<c:if test='<%= SessionMessages.contains(renderRequest, "requestProcessed") %>'>
 
 		<%
@@ -190,7 +190,7 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 
 		<div id="<portlet:namespace />publishOptions">
 			<div class="export-dialog-tree">
-				<div class="container-fluid-1280">
+				<div class="container-fluid container-fluid-max-xl">
 
 					<%
 					String taskExecutorClassName = localPublishing ? BackgroundTaskExecutorNames.LAYOUT_STAGING_BACKGROUND_TASK_EXECUTOR : BackgroundTaskExecutorNames.LAYOUT_REMOTE_STAGING_BACKGROUND_TASK_EXECUTOR;

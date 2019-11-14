@@ -25,7 +25,7 @@ List<DiffResult> sourceResults = diffResults[0];
 List<DiffResult> targetResults = diffResults[1];
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<c:choose>
 		<c:when test="<%= !sourceResults.isEmpty() %>">
 			<table class="table table-bordered table-hover table-striped" id="taglib-diff-results">

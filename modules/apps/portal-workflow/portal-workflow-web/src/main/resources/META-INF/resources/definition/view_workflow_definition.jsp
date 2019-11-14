@@ -41,7 +41,7 @@ boolean previewBeforeRestore = WorkflowWebKeys.WORKFLOW_PREVIEW_BEFORE_RESTORE_S
 </liferay-portlet:renderURL>
 
 <liferay-frontend:info-bar>
-	<div class="container-fluid-1280">
+	<div class="container-fluid container-fluid-max-xl">
 		<c:if test="<%= !previewBeforeRestore %>">
 			<div class="info-bar-item">
 				<c:choose>
@@ -79,7 +79,7 @@ boolean previewBeforeRestore = WorkflowWebKeys.WORKFLOW_PREVIEW_BEFORE_RESTORE_S
 	</div>
 </liferay-frontend:info-bar>
 
-<div class="<%= previewBeforeRestore ? "" : "container-fluid-1280" %>" id="container">
+<div class="<%= previewBeforeRestore ? "" : "container-fluid container-fluid-max-xl" %>" id="container">
 	<aui:model-context bean="<%= workflowDefinition %>" model="<%= WorkflowDefinition.class %>" />
 
 	<aui:input name="content" type="hidden" value="<%= content %>" />

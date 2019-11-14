@@ -35,14 +35,14 @@ List<ItemSelectorCriterion> itemSelectorCriteria = itemSelector.getItemSelectorC
 SearchContainer searchContainer = new GroupSearch(liferayPortletRequest, iteratorURL);
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<div class="btn-group" role="group">
 		<a class="btn btn-secondary <%= !repositories ? "active" : StringPool.BLANK %>" href="<%= sitesURL %>"><liferay-ui:message key="sites" /></a>
 		<a class="btn btn-secondary <%= repositories? "active" : StringPool.BLANK %>" href="<%= repositoriesURL %>"><liferay-ui:message key="repositories" /></a>
 	</div>
 </div>
 
-<div class="container-fluid-1280 lfr-item-viewer">
+<div class="container-fluid container-fluid-max-xl lfr-item-viewer">
 	<liferay-ui:search-container
 		searchContainer="<%= searchContainer %>"
 		total="<%= groupsCount %>"

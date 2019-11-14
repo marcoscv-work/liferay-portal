@@ -32,7 +32,7 @@ boolean privateLayout = ParamUtil.getBoolean(request, "privateLayout");
 
 <aui:form cssClass="lfr-export-dialog" method="post" name="fm1">
 	<div class="lfr-dynamic-uploader">
-		<div class="container-fluid-1280">
+		<div class="container-fluid container-fluid-max-xl">
 			<div class="lfr-upload-container" id="<portlet:namespace />fileUpload"></div>
 		</div>
 	</div>

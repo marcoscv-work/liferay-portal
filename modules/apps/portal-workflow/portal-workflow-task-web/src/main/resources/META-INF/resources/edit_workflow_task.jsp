@@ -65,7 +65,7 @@ portletDisplay.setURLBack(backURL);
 renderResponse.setTitle(headerTitle);
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<aui:col cssClass="lfr-asset-column lfr-asset-column-details">
 		<liferay-ui:error exception="<%= WorkflowTaskDueDateException.class %>" message="please-enter-a-valid-due-date" />
 

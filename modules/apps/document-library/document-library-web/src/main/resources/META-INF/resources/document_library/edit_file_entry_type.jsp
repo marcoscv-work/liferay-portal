@@ -51,7 +51,7 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle((fileEntryType == null) ? LanguageUtil.get(request, "new-document-type") : fileEntryType.getName(locale));
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<liferay-util:buffer
 		var="removeStructureIcon"
 	>

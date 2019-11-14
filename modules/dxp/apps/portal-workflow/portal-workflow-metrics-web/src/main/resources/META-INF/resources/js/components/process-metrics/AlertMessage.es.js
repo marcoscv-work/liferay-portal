@@ -23,7 +23,7 @@ export default class AlertMessage extends React.Component {
 		}
 
 		return (
-			<div className="container-fluid-1280">
+			<div className="container-fluid container-fluid-max-xl">
 				<div
 					className={`alert alert-dismissible alert-${type} ${className}`}
 					role="alert"

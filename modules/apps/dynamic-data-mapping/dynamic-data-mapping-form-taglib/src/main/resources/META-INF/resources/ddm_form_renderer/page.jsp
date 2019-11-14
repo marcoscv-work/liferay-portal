@@ -85,7 +85,7 @@ if (ddmFormInstance != null) {
 
 					<c:if test="<%= showFormBasicInfo %>">
 						<div class="ddm-form-basic-info">
-							<div class="container-fluid-1280">
+							<div class="container-fluid container-fluid-max-xl">
 								<h1 class="ddm-form-name"><%= HtmlUtil.escape(ddmFormInstance.getName(displayLocale)) %></h1>
 
 								<%
@@ -99,7 +99,7 @@ if (ddmFormInstance != null) {
 						</div>
 					</c:if>
 
-					<div class="container-fluid-1280 ddm-form-builder-app">
+					<div class="container-fluid container-fluid-max-xl ddm-form-builder-app">
 						<%= ddmFormHTML %>
 
 						<aui:input name="empty" type="hidden" value="" />

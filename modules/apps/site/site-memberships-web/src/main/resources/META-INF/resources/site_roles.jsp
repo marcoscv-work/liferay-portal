@@ -24,7 +24,7 @@ SiteRolesDisplayContext siteRolesDisplayContext = new SiteRolesDisplayContext(re
 	displayContext="<%= new SiteRolesManagementToolbarDisplayContext(liferayPortletRequest, liferayPortletResponse, request, siteRolesDisplayContext) %>"
 />
 
-<aui:form cssClass="container-fluid-1280 portlet-site-memberships-assign-site-roles" name="fm">
+<aui:form cssClass="container-fluid container-fluid-max-xl portlet-site-memberships-assign-site-roles" name="fm">
 	<liferay-ui:search-container
 		id="siteRoles"
 		searchContainer="<%= siteRolesDisplayContext.getRoleSearchSearchContainer() %>"

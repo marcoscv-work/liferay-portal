@@ -39,7 +39,7 @@ int exportImportConfigurationType = localPublishing ? ExportImportConfigurationC
 %>
 
 <div class="export-dialog-tree">
-	<div class="container-fluid-1280">
+	<div class="container-fluid container-fluid-max-xl">
 		<div class="alert alert-info">
 			<liferay-ui:message key="publish-templates-can-be-administered-in-the-control-menu" />
 		</div>

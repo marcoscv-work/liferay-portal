@@ -39,7 +39,7 @@ else {
 OrderByComparator<BackgroundTask> orderByComparator = BackgroundTaskComparatorFactoryUtil.getBackgroundTaskOrderByComparator(orderByCol, orderByType);
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<liferay-ui:search-container
 		emptyResultsMessage="no-publication-processes-were-found"
 		iteratorURL="<%= portletURL %>"

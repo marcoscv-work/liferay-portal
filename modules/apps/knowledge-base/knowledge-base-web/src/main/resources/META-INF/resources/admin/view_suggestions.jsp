@@ -79,7 +79,7 @@ List<KBComment> kbComments = kbCommentsSearchContainer.getResults();
 	sortingURL="<%= String.valueOf(kbSuggestionListManagementToolbarDisplayContext.getSortingURL()) %>"
 />
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<liferay-ui:success key="suggestionDeleted" message="suggestion-deleted-successfully" />
 
 	<liferay-ui:success key="suggestionsDeleted" message="suggestions-deleted-successfully" />

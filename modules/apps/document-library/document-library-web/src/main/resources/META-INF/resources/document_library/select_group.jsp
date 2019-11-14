@@ -24,7 +24,7 @@ PortletURL portletURL = renderResponse.createRenderURL();
 portletURL.setParameter("mvcPath", "/document_library/select_group.jsp");
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<clay:management-toolbar
 		clearResultsURL="<%= portletURL.toString() %>"
 		searchActionURL="<%= portletURL.toString() %>"

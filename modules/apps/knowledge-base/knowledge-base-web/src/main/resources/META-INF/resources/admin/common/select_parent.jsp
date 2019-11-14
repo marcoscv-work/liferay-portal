@@ -76,7 +76,7 @@ else {
 }
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<aui:form method="post" name="fm">
 
 		<%

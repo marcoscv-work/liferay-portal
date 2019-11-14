@@ -16,7 +16,7 @@
 
 <%@ include file="/init.jsp" %>
 
-<div class="container-fluid-1280 pt-3">
+<div class="container-fluid container-fluid-max-xl pt-3">
 	<liferay-ui:search-container
 		id="assetEntries"
 		searchContainer="<%= assetListDisplayContext.getAssetListContentSearchContainer() %>"

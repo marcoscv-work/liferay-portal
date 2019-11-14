@@ -243,7 +243,7 @@ AUI.add(
 				},
 
 				TPL_ALERT_NODE:
-					'<div class="container-fluid-1280 lfr-alert-wrapper"></div>',
+					'<div class="container-fluid container-fluid-max-xl lfr-alert-wrapper"></div>',
 
 				TPL_ALERTS_CONTAINER: '<div class="lfr-alert-container"></div>',
 

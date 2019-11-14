@@ -61,7 +61,7 @@ renderResponse.setTitle((structure == null) ? LanguageUtil.get(request, "new-ele
 		</div>
 	</nav>
 
-	<div class="container-fluid-1280 ddm-translation-manager">
+	<div class="container-fluid container-fluid-max-xl ddm-translation-manager">
 		<liferay-frontend:translation-manager
 			availableLocales="<%= ddmFormAdminDisplayContext.getAvailableLocales() %>"
 			changeableDefaultLanguage="<%= false %>"
@@ -81,7 +81,7 @@ renderResponse.setTitle((structure == null) ? LanguageUtil.get(request, "new-ele
 		<%@ include file="/admin/exceptions.jspf" %>
 
 		<div class="ddm-form-basic-info">
-			<div class="container-fluid-1280">
+			<div class="container-fluid container-fluid-max-xl">
 				<h1>
 					<liferay-ui:input-editor
 						autoCreate="<%= false %>"

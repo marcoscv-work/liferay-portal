@@ -433,7 +433,7 @@ class Form extends Component {
 					/>
 				</LayoutProviderTag>
 
-				<div class="container-fluid-1280">
+				<div class="container-fluid container-fluid-max-xl">
 					{this.isFormBuilderView() && (
 						<div class="button-holder ddm-form-builder-buttons">
 							<PublishButton

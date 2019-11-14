@@ -101,10 +101,10 @@ if (portletTitleBasedNavigation) {
 
 <c:choose>
 	<c:when test="<%= portletTitleBasedNavigation %>">
-<div class="container-fluid-1280" id="<portlet:namespace />FileEntry">
+<div class="container-fluid container-fluid-max-xl" id="<portlet:namespace />FileEntry">
 	</c:when>
 	<c:otherwise>
-<div class="closed container-fluid-1280 sidenav-container sidenav-right" id="<portlet:namespace />infoPanelId">
+<div class="closed container-fluid container-fluid-max-xl sidenav-container sidenav-right" id="<portlet:namespace />infoPanelId">
 	</c:otherwise>
 </c:choose>
 

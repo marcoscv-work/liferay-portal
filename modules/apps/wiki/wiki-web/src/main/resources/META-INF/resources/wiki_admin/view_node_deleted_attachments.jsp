@@ -43,7 +43,7 @@ portletDisplay.setURLBack(backToNodeURL.toString());
 renderResponse.setTitle(LanguageUtil.get(request, "removed-attachments"));
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<portlet:actionURL name="/wiki/edit_node_attachment" var="emptyTrashURL">
 		<portlet:param name="nodeId" value="<%= String.valueOf(node.getPrimaryKey()) %>" />
 	</portlet:actionURL>

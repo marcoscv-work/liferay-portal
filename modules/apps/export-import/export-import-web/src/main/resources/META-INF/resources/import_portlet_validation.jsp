@@ -35,7 +35,7 @@ String redirect = ParamUtil.getString(request, "redirect");
 	%>
 
 	<div class="lfr-dynamic-uploader <%= (fileEntry == null) ? "hide-dialog-footer" : StringPool.BLANK %>">
-		<div class="container-fluid-1280">
+		<div class="container-fluid container-fluid-max-xl">
 			<div class="lfr-upload-container" id="<portlet:namespace />fileUpload"></div>
 		</div>
 	</div>

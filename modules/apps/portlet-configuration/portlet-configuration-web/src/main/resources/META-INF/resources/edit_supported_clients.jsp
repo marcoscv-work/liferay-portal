@@ -29,7 +29,7 @@ Set<String> allPortletModes = selPortlet.getAllPortletModes();
 </portlet:actionURL>
 
 <div class="portlet-configuration-edit-supported-clients">
-	<aui:form action="<%= editSupportedClientsURL %>" cssClass="container-fluid-1280" method="post" name="fm">
+	<aui:form action="<%= editSupportedClientsURL %>" cssClass="container-fluid container-fluid-max-xl" method="post" name="fm">
 		<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
 		<aui:input name="returnToFullPageURL" type="hidden" value="<%= returnToFullPageURL %>" />
 		<aui:input name="portletResource" type="hidden" value="<%= portletResource %>" />
@@ -39,7 +39,7 @@ Set<String> allPortletModes = selPortlet.getAllPortletModes();
 				<liferay-util:param name="tabs1" value="supported-clients" />
 			</liferay-util:include>
 
-			<div class="container-fluid-1280">
+			<div class="container-fluid container-fluid-max-xl">
 				<aui:fieldset-group markupView="lexicon">
 
 					<%

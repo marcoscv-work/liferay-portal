@@ -148,7 +148,7 @@ function Comparator({
 	return (
 		<form
 			action={portletURL}
-			className="container-fluid-1280 diff-version-comparator"
+			className="container-fluid container-fluid-max-xl diff-version-comparator"
 			method="post"
 			name={`${portletNamespace}diffVersionFm`}
 			ref={formRef}

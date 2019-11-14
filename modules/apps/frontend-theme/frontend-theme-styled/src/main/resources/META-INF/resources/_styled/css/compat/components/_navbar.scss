@@ -105,7 +105,7 @@
 			$navbar-border-bottom-width
 			$navbar-border-left-width;
 
-		.container-fluid-1280 {
+		.container-fluid-max-xl {
 			@include media-breakpoint-up(md) {
 				display: flex;
 			}

@@ -37,7 +37,7 @@ MasterPageManagementToolbarDisplayContext masterPageManagementToolbarDisplayCont
 	<portlet:param name="redirect" value="<%= currentURL %>" />
 </portlet:actionURL>
 
-<aui:form action="<%= deleteMasterPageURL %>" cssClass="container-fluid-1280" name="fm">
+<aui:form action="<%= deleteMasterPageURL %>" cssClass="container-fluid container-fluid-max-xl" name="fm">
 	<liferay-ui:error key="<%= PortalException.class.getName() %>" message="one-or-more-entries-could-not-be-deleted" />
 	<liferay-ui:error key="<%= RequiredLayoutPageTemplateEntryException.class.getName() %>" message="you-cannot-delete-master-pages-that-are-used-by-a-page" />
 

@@ -24,7 +24,7 @@ UserGroupRolesDisplayContext userGroupRolesDisplayContext = new UserGroupRolesDi
 	displayContext="<%= new UserGroupRolesManagementToolbarDisplayContext(liferayPortletRequest, liferayPortletResponse, request, userGroupRolesDisplayContext) %>"
 />
 
-<aui:form cssClass="container-fluid-1280 portlet-site-memberships-assign-site-roles" name="fm">
+<aui:form cssClass="container-fluid container-fluid-max-xl portlet-site-memberships-assign-site-roles" name="fm">
 	<liferay-ui:search-container
 		id="userGroupGroupRoleRole"
 		searchContainer="<%= userGroupRolesDisplayContext.getRoleSearchSearchContainer() %>"

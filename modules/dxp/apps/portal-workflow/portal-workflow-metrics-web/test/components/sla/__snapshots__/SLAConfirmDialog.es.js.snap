@@ -387,7 +387,7 @@ exports[`Should cancel dialog through SLA List 1`] = `
           </div>
         </nav>
         <div
-          className="container-fluid-1280"
+          className="container-fluid container-fluid-max-xl"
         >
           <ListView
             emptyMessageText="sla-allows-to-define-and-measure-process-performance"
@@ -673,7 +673,7 @@ exports[`Should cancel dialog through SLA List 2`] = `
           </div>
         </nav>
         <div
-          className="container-fluid-1280"
+          className="container-fluid container-fluid-max-xl"
         >
           <ListView
             emptyMessageText="sla-allows-to-define-and-measure-process-performance"

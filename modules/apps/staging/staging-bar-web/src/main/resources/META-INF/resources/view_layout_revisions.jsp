@@ -39,7 +39,7 @@ List<LayoutRevision> rootLayoutRevisions = LayoutRevisionLocalServiceUtil.getChi
 	<liferay-util:param name="navigationName" value="history" />
 </liferay-util:include>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<c:if test="<%= !rootLayoutRevisions.isEmpty() %>">
 		<c:if test="<%= rootLayoutRevisions.size() > 1 %>">
 			<aui:select cssClass="variation-selector" inlineLabel="left" label="" name="variationsSelector">

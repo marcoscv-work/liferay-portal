@@ -20,7 +20,7 @@
 	displayContext="<%= new AssetTagsSelectorManagementToolbarDisplayContext(liferayPortletRequest, liferayPortletResponse, request, assetTagsSelectorDisplayContext) %>"
 />
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<liferay-ui:search-container
 		id="tags"
 		searchContainer="<%= assetTagsSelectorDisplayContext.getTagsSearchContainer() %>"

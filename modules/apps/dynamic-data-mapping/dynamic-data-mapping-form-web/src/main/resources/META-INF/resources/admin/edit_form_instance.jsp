@@ -42,7 +42,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 </portlet:actionURL>
 
 <div class="lfr-alert-container">
-	<div class="container-fluid-1280 lfr-alert-wrapper"></div>
+	<div class="container-fluid container-fluid-max-xl lfr-alert-wrapper"></div>
 </div>
 
 <div class="portlet-forms" id="<portlet:namespace />formContainer">
@@ -78,7 +78,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 		</div>
 	</nav>
 
-	<div class="container-fluid-1280 ddm-translation-manager">
+	<div class="container-fluid container-fluid-max-xl ddm-translation-manager">
 		<liferay-frontend:translation-manager
 			availableLocales="<%= ddmFormAdminDisplayContext.getAvailableLocales() %>"
 			changeableDefaultLanguage="<%= false %>"
@@ -100,7 +100,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 		<%@ include file="/admin/exceptions.jspf" %>
 
 		<div class="ddm-form-basic-info">
-			<div class="container-fluid-1280">
+			<div class="container-fluid container-fluid-max-xl">
 				<h1>
 					<liferay-ui:input-editor
 						autoCreate="<%= false %>"
@@ -130,7 +130,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 		<div id="<portlet:namespace />-container"></div>
 	</aui:form>
 
-	<div class="container-fluid-1280 ddm-form-instance-settings hide" id="<portlet:namespace />settings">
+	<div class="container-fluid container-fluid-max-xl ddm-form-instance-settings hide" id="<portlet:namespace />settings">
 		<%= ddmFormAdminDisplayContext.serializeSettingsForm() %>
 	</div>
 </div>

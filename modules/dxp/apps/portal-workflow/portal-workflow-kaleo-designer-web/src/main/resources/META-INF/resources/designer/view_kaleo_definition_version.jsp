@@ -38,7 +38,7 @@ renderResponse.setTitle(kaleoDefinitionVersion.getTitle(locale));
 <aui:model-context bean="<%= kaleoDefinitionVersion %>" model="<%= KaleoDefinitionVersion.class %>" />
 
 <liferay-frontend:info-bar>
-	<div class="container-fluid-1280">
+	<div class="container-fluid container-fluid-max-xl">
 		<div class="info-bar-item">
 			<c:choose>
 				<c:when test="<%= (kaleoDefinition != null) && kaleoDefinition.isActive() %>">

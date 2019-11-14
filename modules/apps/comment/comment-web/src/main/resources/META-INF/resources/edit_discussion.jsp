@@ -55,7 +55,7 @@ if (comment instanceof WorkflowableComment) {
 	title='<%= (comment == null) ? "new-message" : "edit-message" %>'
 />
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<aui:form action='<%= themeDisplay.getPathMain() + "/portal/comment/discussion/edit" %>' enctype="multipart/form-data" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveComment();" %>'>
 		<input name="p_auth" type="hidden" value="<%= AuthTokenUtil.getToken(request) %>" />
 		<input name="namespace" type="hidden" value="<%= renderResponse.getNamespace() %>" />

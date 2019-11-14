@@ -16,7 +16,7 @@
 
 <%@ include file="/process_summary/init.jsp" %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<%@ include file="/process_summary/process_summary_pages.jspf" %>
 
 	<%@ include file="/process_summary/process_summary_dates.jspf" %>

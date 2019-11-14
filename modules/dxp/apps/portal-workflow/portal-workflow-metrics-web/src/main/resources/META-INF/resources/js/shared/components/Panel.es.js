@@ -93,7 +93,7 @@ class Panel extends React.Component {
 		const classes = getCN('panel', 'panel-secondary', elementClasses);
 
 		return (
-			<div className={'container-fluid-1280 mt-4'}>
+			<div className={'container-fluid container-fluid-max-xl mt-4'}>
 				<div className={classes}>{children}</div>
 			</div>
 		);

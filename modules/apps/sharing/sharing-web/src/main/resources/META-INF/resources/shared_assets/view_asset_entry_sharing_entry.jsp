@@ -95,7 +95,7 @@ else {
 	</c:if>
 </liferay-util:buffer>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<c:choose>
 		<c:when test="<%= scopeGroup.equals(themeDisplay.getControlPanelGroup()) %>">
 			<aui:fieldset-group markupView="lexicon">

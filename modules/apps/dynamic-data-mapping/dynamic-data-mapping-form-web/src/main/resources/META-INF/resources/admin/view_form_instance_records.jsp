@@ -44,7 +44,7 @@ renderResponse.setTitle(LanguageUtil.get(request, "form-entries"));
 	sortingURL="<%= ddmFormViewFormInstanceRecordsDisplayContext.getSortingURL() %>"
 />
 
-<div class="container-fluid-1280" id="<portlet:namespace />viewEntriesContainer">
+<div class="container-fluid container-fluid-max-xl" id="<portlet:namespace />viewEntriesContainer">
 	<aui:form action="<%= portletURL.toString() %>" method="post" name="searchContainerForm">
 		<aui:input name="deleteFormInstanceRecordIds" type="hidden" />
 
@@ -112,7 +112,7 @@ renderResponse.setTitle(LanguageUtil.get(request, "form-entries"));
 	</aui:form>
 </div>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<liferay-ui:search-paginator
 		searchContainer="<%= ddmFormViewFormInstanceRecordsDisplayContext.getSearch() %>"
 	/>

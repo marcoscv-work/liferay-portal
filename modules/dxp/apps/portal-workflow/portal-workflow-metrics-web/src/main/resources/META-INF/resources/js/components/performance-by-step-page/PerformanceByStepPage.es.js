@@ -143,7 +143,7 @@ const Body = ({page, pageSize, processId, query, search, sort}) => {
 			)}
 
 			<div
-				className="container-fluid-1280 mt-4 workflow-process-dashboard"
+				className="container-fluid container-fluid-max-xl mt-4 workflow-process-dashboard"
 				data-testid="performanceByStepBody"
 			>
 				<PromisesResolver promises={promises}>

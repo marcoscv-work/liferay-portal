@@ -33,7 +33,7 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle(LanguageUtil.format(request, "new-x", kaleoProcess.getName(locale), false));
 %>
 
-<div class="container-fluid-1280 sidenav-container sidenav-right">
+<div class="container-fluid container-fluid-max-xl sidenav-container sidenav-right">
 	<portlet:actionURL name="startWorkflowInstance" var="startWorkflowInstanceURL" />
 
 	<aui:form action="<%= startWorkflowInstanceURL %>" cssClass="lfr-dynamic-form" enctype="multipart/form-data" method="post" name="fm1">

@@ -54,7 +54,7 @@ RankingPortletDisplayContext rankingPortletDisplayContext = (RankingPortletDispl
 	<portlet:param name="redirect" value="<%= currentURL %>" />
 </portlet:actionURL>
 
-<aui:form action="<%= deleteResultsRankingEntryURL %>" cssClass="container-fluid-1280" method="post" name="resultsRankingEntriesFm">
+<aui:form action="<%= deleteResultsRankingEntryURL %>" cssClass="container-fluid container-fluid-max-xl" method="post" name="resultsRankingEntriesFm">
 	<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
 
 	<liferay-ui:search-container

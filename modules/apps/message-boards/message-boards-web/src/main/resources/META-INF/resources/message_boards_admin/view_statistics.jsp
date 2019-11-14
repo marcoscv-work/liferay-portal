@@ -32,7 +32,7 @@ long categoryId = GetterUtil.getLong(request.getAttribute("view.jsp-categoryId")
 MBCategoryDisplay categoryDisplay = new MBCategoryDisplay(scopeGroupId, categoryId);
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<liferay-ui:panel-container
 		cssClass="statistics-panel"
 		extended="<%= false %>"

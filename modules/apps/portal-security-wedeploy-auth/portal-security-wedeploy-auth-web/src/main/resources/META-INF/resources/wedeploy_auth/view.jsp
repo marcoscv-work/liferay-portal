@@ -24,7 +24,7 @@ String clientId = ParamUtil.getString(request, "clientId");
 WeDeployAuthApp weDeployAuthApp = WeDeployAuthAppLocalServiceUtil.fetchWeDeployAuthApp(redirectURI, clientId);
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<c:choose>
 		<c:when test="<%= weDeployAuthApp == null %>">
 			<div class="alert alert-info">

@@ -106,7 +106,7 @@ const Body = ({page, pageSize, processId, query}) => {
 
 	return (
 		<>
-			<div className="container-fluid-1280 mt-4">
+			<div className="container-fluid container-fluid-max-xl mt-4">
 				<PromisesResolver promises={promises}>
 					<PromisesResolver.Pending>
 						<div className={`border-1 pb-6 pt-6 sheet`}>

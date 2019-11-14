@@ -161,7 +161,7 @@ else {
 	%>
 
 	<div class="roles-selector-body">
-		<div class="container-fluid-1280">
+		<div class="container-fluid container-fluid-max-xl">
 			<c:choose>
 				<c:when test="<%= role == null %>">
 					<liferay-util:include page="/edit_roles.jsp" servletContext="<%= application %>" />

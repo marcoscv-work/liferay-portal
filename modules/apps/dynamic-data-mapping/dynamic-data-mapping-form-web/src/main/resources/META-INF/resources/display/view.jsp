@@ -30,7 +30,7 @@ long formInstanceId = ddmFormDisplayContext.getFormInstanceId();
 	</c:when>
 	<c:when test="<%= !ddmFormDisplayContext.hasAddFormInstanceRecordPermission() && !ddmFormDisplayContext.hasViewPermission() %>">
 		<div class="ddm-form-basic-info">
-			<div class="container-fluid-1280">
+			<div class="container-fluid container-fluid-max-xl">
 				<clay:alert
 					message='<%= LanguageUtil.get(resourceBundle, "you-do-not-have-the-permission-to-view-this-form") %>'
 					style="warning"
@@ -41,7 +41,7 @@ long formInstanceId = ddmFormDisplayContext.getFormInstanceId();
 	</c:when>
 	<c:when test="<%= ddmFormDisplayContext.isRequireAuthentication() %>">
 		<div class="ddm-form-basic-info">
-			<div class="container-fluid-1280">
+			<div class="container-fluid container-fluid-max-xl">
 				<clay:alert
 					message='<%= LanguageUtil.get(resourceBundle, "you-need-to-be-signed-in-to-view-this-form") %>'
 					style="warning"
@@ -70,7 +70,7 @@ long formInstanceId = ddmFormDisplayContext.getFormInstanceId();
 
 				<div class="portlet-forms">
 					<div class="ddm-form-basic-info ddm-form-success-page">
-						<div class="container-fluid-1280">
+						<div class="container-fluid container-fluid-max-xl">
 							<h1 class="ddm-form-name"><%= HtmlUtil.escape(GetterUtil.getString(title.getString(displayLocale), title.getString(title.getDefaultLocale()))) %></h1>
 
 							<h5 class="ddm-form-description"><%= HtmlUtil.escape(GetterUtil.getString(body.getString(displayLocale), body.getString(body.getDefaultLocale()))) %></h5>
@@ -131,7 +131,7 @@ long formInstanceId = ddmFormDisplayContext.getFormInstanceId();
 						<liferay-ui:error-principal />
 
 						<c:if test="<%= ddmFormDisplayContext.isFormShared() %>">
-							<div class="container-fluid-1280">
+							<div class="container-fluid container-fluid-max-xl">
 								<div class="locale-actions">
 									<liferay-ui:language
 										formAction="<%= currentURL %>"
@@ -144,7 +144,7 @@ long formInstanceId = ddmFormDisplayContext.getFormInstanceId();
 
 						<c:if test="<%= !ddmFormDisplayContext.hasAddFormInstanceRecordPermission() %>">
 							<div class="ddm-form-basic-info">
-								<div class="container-fluid-1280">
+								<div class="container-fluid container-fluid-max-xl">
 									<clay:alert
 										message='<%= LanguageUtil.get(resourceBundle, "you-do-not-have-the-permission-to-submit-this-form") %>'
 										style="warning"
@@ -155,7 +155,7 @@ long formInstanceId = ddmFormDisplayContext.getFormInstanceId();
 						</c:if>
 
 						<div class="ddm-form-basic-info">
-							<div class="container-fluid-1280">
+							<div class="container-fluid container-fluid-max-xl">
 								<h1 class="ddm-form-name"><%= HtmlUtil.escape(formInstance.getName(displayLocale)) %></h1>
 
 								<%
@@ -168,7 +168,7 @@ long formInstanceId = ddmFormDisplayContext.getFormInstanceId();
 							</div>
 						</div>
 
-						<div class="container-fluid-1280 ddm-form-builder-app ddm-form-builder-app-not-ready" id="<%= ddmFormDisplayContext.getContainerId() %>container">
+						<div class="container-fluid container-fluid-max-xl ddm-form-builder-app ddm-form-builder-app-not-ready" id="<%= ddmFormDisplayContext.getContainerId() %>container">
 							<%= ddmFormDisplayContext.getDDMFormHTML() %>
 
 							<aui:input name="empty" type="hidden" value="" />

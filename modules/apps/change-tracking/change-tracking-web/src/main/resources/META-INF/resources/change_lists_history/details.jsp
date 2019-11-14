@@ -55,7 +55,7 @@ portletDisplay.setShowBackIcon(true);
 	sortingURL="<%= changeListsHistoryDetailsDisplayContext.getSortingURL() %>"
 />
 
-<div class="closed container-fluid-1280">
+<div class="closed container-fluid container-fluid-max-xl">
 	<liferay-site-navigation:breadcrumb
 		breadcrumbEntries="<%= changeListsHistoryDetailsDisplayContext.getBreadcrumbEntries(title) %>"
 	/>

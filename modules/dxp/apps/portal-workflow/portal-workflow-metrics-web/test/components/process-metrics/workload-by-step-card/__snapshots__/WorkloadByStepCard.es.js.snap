@@ -79,10 +79,10 @@ exports[`Should component receive props 1`] = `
         processId={35315}
       >
         <Panel
-          className="container-fluid-1280 mt-4"
+          className="container-fluid container-fluid-max-xl mt-4"
         >
           <div
-            className="container-fluid-1280 mt-4"
+            className="container-fluid container-fluid-max-xl mt-4"
           >
             <div
               className="panel panel-secondary"
@@ -247,10 +247,10 @@ exports[`Should component shows empty state when items is undefined 1`] = `
     >
       <WorkloadByStepCard>
         <Panel
-          className="container-fluid-1280 mt-4"
+          className="container-fluid container-fluid-max-xl mt-4"
         >
           <div
-            className="container-fluid-1280 mt-4"
+            className="container-fluid container-fluid-max-xl mt-4"
           >
             <div
               className="panel panel-secondary"
@@ -419,10 +419,10 @@ exports[`Should render component 1`] = `
         processId={35315}
       >
         <Panel
-          className="container-fluid-1280 mt-4"
+          className="container-fluid container-fluid-max-xl mt-4"
         >
           <div
-            className="container-fluid-1280 mt-4"
+            className="container-fluid container-fluid-max-xl mt-4"
           >
             <div
               className="panel panel-secondary"
@@ -514,7 +514,7 @@ exports[`Should render component 1`] = `
 
 exports[`Should render component with empty data 1`] = `
 <div
-  className="container-fluid-1280 mt-4"
+  className="container-fluid container-fluid-max-xl mt-4"
 >
   <div
     className="panel panel-secondary"
@@ -576,7 +576,7 @@ exports[`Should render component with empty data 1`] = `
 
 exports[`Should render component with error state 1`] = `
 <div
-  className="container-fluid-1280 mt-4"
+  className="container-fluid container-fluid-max-xl mt-4"
 >
   <div
     className="panel panel-secondary"

@@ -18,7 +18,7 @@
 
 <liferay-util:include page="/admin/toolbar.jsp" servletContext="<%= application %>" />
 
-<div class="container-fluid-1280 main-content-body">
+<div class="container-fluid container-fluid-max-xl main-content-body">
 	<c:choose>
 		<c:when test="<%= hasAddSourcePermission && reportsEngineDisplayContext.isSourcesTabSelected() %>">
 			<liferay-util:include page="/admin/data_source/sources.jsp" servletContext="<%= application %>" />

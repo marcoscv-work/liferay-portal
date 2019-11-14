@@ -27,7 +27,7 @@
 <liferay-util:dynamic-include key="com.liferay.data.engine.taglib#/data_layout_builder/start.jsp#pre" />
 
 <c:if test="<%= localizable %>">
-	<div class="container-fluid-1280 ddm-translation-manager">
+	<div class="container-fluid container-fluid-max-xl ddm-translation-manager">
 		<liferay-frontend:translation-manager
 			availableLocales="<%= availableLocales %>"
 			changeableDefaultLanguage="<%= false %>"

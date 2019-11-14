@@ -44,7 +44,7 @@ SearchContainer sharingEntriesSearchContainer = new SearchContainer(renderReques
 sharedAssetsViewDisplayContext.populateResults(sharingEntriesSearchContainer);
 %>
 
-<div class="container-fluid-1280 main-content-body">
+<div class="container-fluid container-fluid-max-xl main-content-body">
 	<liferay-ui:search-container
 		id="sharingEntries"
 		searchContainer="<%= sharingEntriesSearchContainer %>"

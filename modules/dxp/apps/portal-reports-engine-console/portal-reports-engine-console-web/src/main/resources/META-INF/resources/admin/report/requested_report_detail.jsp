@@ -36,7 +36,7 @@ portletDisplay.setURLBack(searchRequestURL.toString());
 renderResponse.setTitle(definition.getName(locale));
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<c:choose>
 		<c:when test="<%= status.equals(ReportStatus.ERROR.getValue()) %>">
 			<div class="portlet-msg-error">

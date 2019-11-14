@@ -47,7 +47,7 @@ renderResponse.setTitle(LanguageUtil.get(request, "compare-versions"));
 	<portlet:param name="articleId" value="<%= articleId %>" />
 </liferay-portlet:resourceURL>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<c:if test="<%= portletDisplay.isStatePopUp() %>">
 		<liferay-ui:header
 			backURL="<%= redirect %>"

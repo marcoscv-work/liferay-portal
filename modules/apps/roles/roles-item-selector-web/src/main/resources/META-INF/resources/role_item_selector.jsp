@@ -55,7 +55,7 @@ PortletURL portletURL = roleItemSelectorViewDisplayContext.getPortletURL();
 	</liferay-frontend:management-bar-filters>
 </liferay-frontend:management-bar>
 
-<div class="container-fluid-1280" id="<portlet:namespace />roleSelectorWrapper">
+<div class="container-fluid container-fluid-max-xl" id="<portlet:namespace />roleSelectorWrapper">
 	<liferay-ui:search-container
 		id="roles"
 		searchContainer="<%= roleItemSelectorViewDisplayContext.getSearchContainer() %>"

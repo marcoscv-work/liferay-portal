@@ -62,7 +62,7 @@ renderResponse.setTitle(title);
 %>
 
 <c:if test="<%= kaleoProcessStarted %>">
-	<div class="alert alert-info container-fluid-1280">
+	<div class="alert alert-info container-fluid container-fluid-max-xl">
 		<liferay-ui:message key="updating-the-field-set-or-workflow-will-cause-loss-of-data" />
 	</div>
 </c:if>
@@ -72,7 +72,7 @@ renderResponse.setTitle(title);
 	<portlet:param name="redirect" value="<%= backPortletURL.toString() %>" />
 </portlet:actionURL>
 
-<aui:form action="<%= editKaleoProcessURL %>" cssClass="container-fluid-1280" method="post" name="fm">
+<aui:form action="<%= editKaleoProcessURL %>" cssClass="container-fluid container-fluid-max-xl" method="post" name="fm">
 	<aui:input name="kaleoProcessId" type="hidden" value="<%= kaleoProcessId %>" />
 	<aui:input name="groupId" type="hidden" value="<%= groupId %>" />
 	<aui:input name="scope" type="hidden" value="1" />

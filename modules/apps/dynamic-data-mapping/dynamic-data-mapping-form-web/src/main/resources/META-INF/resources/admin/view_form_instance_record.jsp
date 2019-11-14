@@ -27,7 +27,7 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle(LanguageUtil.get(request, "view-form"));
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<c:if test="<%= formInstanceRecordVersion != null %>">
 		<aui:model-context bean="<%= formInstanceRecordVersion %>" model="<%= DDMFormInstanceRecordVersion.class %>" />
 
@@ -37,6 +37,6 @@ renderResponse.setTitle(LanguageUtil.get(request, "view-form"));
 	</c:if>
 </div>
 
-<div class="container-fluid-1280 ddm-form-builder-app form-entry">
+<div class="container-fluid container-fluid-max-xl ddm-form-builder-app form-entry">
 	<%= ddmFormAdminDisplayContext.getDDMFormHTML(renderRequest) %>
 </div>

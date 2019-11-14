@@ -34,7 +34,7 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle(workflowInstanceEditDisplayContext.getHeaderTitle());
 %>
 
-<div class="container-fluid-1280">
+<div class="container-fluid container-fluid-max-xl">
 	<aui:col cssClass="lfr-asset-column lfr-asset-column-details">
 		<aui:fieldset-group markupView="lexicon">
 			<aui:fieldset>

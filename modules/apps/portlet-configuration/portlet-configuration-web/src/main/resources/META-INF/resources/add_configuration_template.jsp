@@ -31,7 +31,7 @@ String redirect = ParamUtil.getString(request, "redirect");
 		<aui:input name="portletResource" type="hidden" value="<%= portletResource %>" />
 
 		<div class="portlet-configuration-body-content">
-			<div class="container-fluid-1280">
+			<div class="container-fluid container-fluid-max-xl">
 				<liferay-ui:error exception="<%= PortletItemNameException.class %>" message="please-enter-a-valid-setup-name" />
 
 				<aui:fieldset-group markupView="lexicon">

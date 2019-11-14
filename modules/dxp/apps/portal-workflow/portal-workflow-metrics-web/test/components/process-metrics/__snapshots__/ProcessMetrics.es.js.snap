@@ -2045,7 +2045,7 @@ exports[`Should render dashboard route children 1`] = `
           <Request>
             <Panel>
               <div
-                className="container-fluid-1280 mt-4"
+                className="container-fluid container-fluid-max-xl mt-4"
               >
                 <div
                   className="panel panel-secondary"
@@ -2149,10 +2149,10 @@ exports[`Should render dashboard route children 1`] = `
         query=""
       >
         <Panel
-          className="container-fluid-1280 mt-4"
+          className="container-fluid container-fluid-max-xl mt-4"
         >
           <div
-            className="container-fluid-1280 mt-4"
+            className="container-fluid container-fluid-max-xl mt-4"
           >
             <div
               className="panel panel-secondary"
