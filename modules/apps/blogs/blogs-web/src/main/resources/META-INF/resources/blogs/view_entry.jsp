@@ -94,7 +94,7 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 
 		<c:if test="<%= (previousEntry != null) || (nextEntry != null) %>">
 			<div class="row">
-				<div class="col-md-10 col-md-offset-1 entry-navigation">
+				<div class="col-md-10 entry-navigation mx-auto">
 					<h2><strong><liferay-ui:message key="more-blog-entries" /></strong></h2>
 
 					<div class="row widget-mode-card">
@@ -117,7 +117,7 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 	</c:if>
 
 	<div class="row">
-		<div class="col-md-8 col-md-offset-2">
+		<div class="col-md-8 mx-auto">
 			<c:if test="<%= blogsPortletInstanceConfiguration.enableComments() %>">
 
 				<%

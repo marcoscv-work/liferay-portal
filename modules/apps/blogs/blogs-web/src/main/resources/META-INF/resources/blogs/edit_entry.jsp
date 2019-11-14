@@ -160,7 +160,7 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 
 					<aui:input name="coverImageCaption" type="hidden" />
 
-					<div class="col-md-8 col-md-offset-2">
+					<div class="col-md-8 mx-auto">
 						<div class="cover-image-caption <%= (coverImageFileEntryId == 0) ? "invisible" : "" %>">
 							<small>
 								<liferay-ui:input-editor
@@ -174,7 +174,7 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 						</div>
 					</div>
 
-					<div class="col-md-8 col-md-offset-2">
+					<div class="col-md-8 mx-auto">
 						<div class="entry-title form-group">
 							<liferay-ui:input-editor
 								contents="<%= HtmlUtil.escape(title) %>"
