@@ -24,7 +24,7 @@
 	<div id="{$id}">
 		<div class="dialog-body">
 			<div class="lfr-image-editor-image-container" id="{$id}ImageContainer">
-				<img class="hide img-responsive" src="{$image}">
+				<img class="hide img-fluid" src="{$image}">
 				<canvas class="fade {$imageEditorReady ? 'in' : ''} image-preview"></canvas>
 
 				{call ImageEditorLoading.render data="all"}

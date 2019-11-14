@@ -94,7 +94,7 @@ request.removeAttribute(WebKeys.SEARCH_CONTAINER_RESULT_ROW);
 
 				<div class="sidebar-body">
 					<p>
-						<img alt="<%= HtmlUtil.escapeAttribute(group.getDescriptiveName()) %>" class="center-block img-responsive" src="<%= group.getLogoURL(themeDisplay, true) %>" />
+						<img alt="<%= HtmlUtil.escapeAttribute(group.getDescriptiveName()) %>" class="center-block img-fluid" src="<%= group.getLogoURL(themeDisplay, true) %>" />
 					</p>
 
 					<c:if test="<%= group.isOrganization() %>">
