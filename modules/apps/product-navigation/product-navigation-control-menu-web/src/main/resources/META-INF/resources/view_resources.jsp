@@ -189,7 +189,7 @@ if (Validator.isNotNull(keywords)) {
 
 					<c:choose>
 						<c:when test='<%= displayStyle.equals("icon") %>'>
-							<li class="col-md-6 col-sm-6 col-xs-6 drag-content-item lfr-content-item" <%= AUIUtil.buildData(itemData) %>>
+							<li class="col-6 drag-content-item lfr-content-item" <%= AUIUtil.buildData(itemData) %>>
 								<clay:vertical-card
 									verticalCard="<%= new AssetRendererVerticalCard(assetRenderer, liferayPortletRequest) %>"
 								/>
