@@ -99,7 +99,7 @@ com.liferay.portal.kernel.dao.search.SearchContainer<com.liferay.portal.kernel.s
 					</c:if>
 
 					<c:if test="<%= searchResultSummaryDisplayContext.isThumbnailVisible() %>">
-						<img alt="blog cover image" class="img-rounded search-result-thumbnail-img" src="<%= searchResultSummaryDisplayContext.getThumbnailURLString() %>" />
+						<img alt="blog cover image" class="rounded search-result-thumbnail-img" src="<%= searchResultSummaryDisplayContext.getThumbnailURLString() %>" />
 					</c:if>
 
 					<c:if test="<%= searchResultSummaryDisplayContext.isIconVisible() %>">

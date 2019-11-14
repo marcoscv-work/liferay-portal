@@ -206,7 +206,7 @@ if (Validator.isNotNull(keywords)) {
 									<c:choose>
 										<c:when test="<%= Validator.isNotNull(thumbnailPath) %>">
 											<div class="user-icon user-icon-square user-icon-xl">
-												<img alt="thumbnail" class="img-fluid img-rounded" src="<%= thumbnailPath %>" />
+												<img alt="thumbnail" class="img-fluid rounded" src="<%= thumbnailPath %>" />
 											</div>
 										</c:when>
 										<c:otherwise>
