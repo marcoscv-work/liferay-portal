@@ -234,8 +234,12 @@
 
 <#assign the_title = "" />
 
-<#if layout.getHTMLTitle(locale)??>
-	<#assign the_title = layout.getHTMLTitle(locale) />
+<#if !validator.isNull(layout.getName(locale)) >
+	<#assign the_title = layout.getName(locale) />
+</#if>
+
+<#if !validator.isNull(layout.getTitle(locale, false)) >
+	<#assign the_title = layout.getTitle(locale, false) />
 </#if>
 
 <#if pageTitle??>
