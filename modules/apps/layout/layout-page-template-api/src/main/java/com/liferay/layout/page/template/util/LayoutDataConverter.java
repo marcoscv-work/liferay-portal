@@ -107,9 +107,6 @@ public class LayoutDataConverter {
 
 						columnChildrenJSONArray.put(fragmentUUID.toString());
 
-						JSONObject fragmentConfigJSONObject = JSONUtil.put(
-							"fragmentEntryLinkId", fragmentEntryLinkId);
-
 						JSONObject fragmentJSONObject = null;
 
 						if (fragmentEntryLinkId.equals(
@@ -124,6 +121,9 @@ public class LayoutDataConverter {
 								LayoutDataItemTypeConstants.TYPE_DROP_ZONE);
 						}
 						else {
+							JSONObject fragmentConfigJSONObject = JSONUtil.put(
+								"fragmentEntryLinkId", fragmentEntryLinkId);
+
 							fragmentJSONObject = _getItemJSONObject(
 								JSONFactoryUtil.createJSONArray(),
 								fragmentConfigJSONObject,
@@ -167,11 +167,17 @@ public class LayoutDataConverter {
 				JSONObject containerConfigJSONObject = JSONUtil.put(
 					"backgroundColorCssClass",
 					inputRowConfigJSONObject.getString(
-						"backgroundColorCssClass", null)
-				).put(
-					"backgroundImage",
-					inputRowConfigJSONObject.getJSONObject("backgroundImage")
-				).put(
+						"backgroundColorCssClass", null));
+
+				JSONObject backgroundImageJSONObject =
+					_getBackgroundImageJSONObject(inputRowConfigJSONObject);
+
+				if (backgroundImageJSONObject != null) {
+					containerConfigJSONObject.put(
+						"backgroundImage", backgroundImageJSONObject);
+				}
+
+				containerConfigJSONObject.put(
 					"paddingBottom",
 					inputRowConfigJSONObject.getInt("paddingVertical")
 				).put(
@@ -182,7 +188,7 @@ public class LayoutDataConverter {
 					inputRowConfigJSONObject.getInt("paddingVertical")
 				).put(
 					"type",
-					inputRowConfigJSONObject.getString("containerType", null)
+					inputRowConfigJSONObject.getString("containerType", "fluid")
 				);
 
 				JSONObject containerJSONObject = _getItemJSONObject(
@@ -203,14 +209,32 @@ public class LayoutDataConverter {
 				JSONArray fragmentEntryLinkIdsJSONArray =
 					columnJSONObject.getJSONArray("fragmentEntryLinkIds");
 
-				JSONObject fragmentConfigJSONObject = JSONUtil.put(
-					"fragmentEntryLinkId",
-					fragmentEntryLinkIdsJSONArray.get(0));
+				String fragmentEntryLinkId =
+					fragmentEntryLinkIdsJSONArray.getString(0);
 
-				JSONObject fragmentJSONObject = _getItemJSONObject(
-					JSONFactoryUtil.createJSONArray(), fragmentConfigJSONObject,
-					fragmentUUID.toString(), mainUUID.toString(),
-					LayoutDataItemTypeConstants.TYPE_FRAGMENT);
+				JSONObject fragmentJSONObject = null;
+
+				if (fragmentEntryLinkId.equals(
+						LayoutDataItemTypeConstants.TYPE_DROP_ZONE)) {
+
+					dropZoneUUID = fragmentUUID;
+
+					fragmentJSONObject = _getItemJSONObject(
+						JSONFactoryUtil.createJSONArray(),
+						JSONFactoryUtil.createJSONObject(),
+						dropZoneUUID.toString(), mainUUID.toString(),
+						LayoutDataItemTypeConstants.TYPE_DROP_ZONE);
+				}
+				else {
+					JSONObject fragmentConfigJSONObject = JSONUtil.put(
+						"fragmentEntryLinkId", fragmentEntryLinkId);
+
+					fragmentJSONObject = _getItemJSONObject(
+						JSONFactoryUtil.createJSONArray(),
+						fragmentConfigJSONObject, fragmentUUID.toString(),
+						mainUUID.toString(),
+						LayoutDataItemTypeConstants.TYPE_FRAGMENT);
+				}
 
 				itemsJSONObject.put(
 					fragmentUUID.toString(), fragmentJSONObject);
@@ -250,6 +274,23 @@ public class LayoutDataConverter {
 		}
 
 		return false;
+	}
+
+	private static JSONObject _getBackgroundImageJSONObject(
+		JSONObject inputRowConfigJSONObject) {
+
+		if (inputRowConfigJSONObject.isNull("backgroundImage")) {
+			return null;
+		}
+
+		Object backgroundImage = inputRowConfigJSONObject.get(
+			"backgroundImage");
+
+		if (backgroundImage instanceof JSONObject) {
+			return (JSONObject)backgroundImage;
+		}
+
+		return JSONUtil.put("url", backgroundImage);
 	}
 
 	private static JSONObject _getItemJSONObject(

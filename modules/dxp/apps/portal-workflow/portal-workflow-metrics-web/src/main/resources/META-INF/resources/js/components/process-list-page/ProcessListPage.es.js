@@ -12,7 +12,7 @@
 import ClayManagementToolbar from '@clayui/management-toolbar';
 import React, {useMemo} from 'react';
 
-import PromisesResolver from '../../shared/components/request/PromisesResolver.es';
+import PromisesResolver from '../../shared/components/promises-resolver/PromisesResolver.es';
 import ResultsBar from '../../shared/components/results-bar/ResultsBar.es';
 import {parse} from '../../shared/components/router/queryString.es';
 import SearchField from '../../shared/components/search-field/SearchField.es';
@@ -23,7 +23,7 @@ import {Body} from './ProcessListPageBody.es';
 const Header = ({page, pageSize, search, sort, totalCount}) => {
 	return (
 		<>
-			<ClayManagementToolbar>
+			<ClayManagementToolbar className="mb-0">
 				<div className="navbar-form-autofit">
 					<SearchField disabled={!search && totalCount === 0} />
 				</div>
@@ -56,6 +56,7 @@ const ProcessListPage = ({history, query, routeParams}) => {
 
 	usePageTitle(Liferay.Language.get('metrics'));
 
+	const {page, pageSize, sort} = routeParams;
 	const {search = null} = parse(query);
 
 	const {data, fetchData} = useFetch({
@@ -66,7 +67,13 @@ const ProcessListPage = ({history, query, routeParams}) => {
 		url: '/processes'
 	});
 
-	const promises = useMemo(() => [fetchData()], [fetchData]);
+	const promises = useMemo(() => {
+		if (page && pageSize && sort) {
+			return [fetchData()];
+		}
+
+		return [new Promise(() => {})];
+	}, [fetchData, page, pageSize, sort]);
 
 	return (
 		<PromisesResolver promises={promises}>

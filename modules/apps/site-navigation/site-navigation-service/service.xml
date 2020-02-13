@@ -31,14 +31,14 @@
 		<!-- Finder methods -->
 
 		<finder name="GroupId" return-type="Collection">
-			<finder-column name="groupId" />
+			<finder-column arrayable-operator="OR" name="groupId" />
 		</finder>
 		<finder name="G_N" return-type="SiteNavigationMenu" unique="true">
 			<finder-column name="groupId" />
 			<finder-column name="name" />
 		</finder>
 		<finder name="G_LikeN" return-type="Collection">
-			<finder-column name="groupId" />
+			<finder-column arrayable-operator="OR" name="groupId" />
 			<finder-column comparator="LIKE" name="name" />
 		</finder>
 		<finder name="G_T" return-type="Collection">

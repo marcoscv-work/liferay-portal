@@ -130,8 +130,80 @@
 
 <!--APP_CREATION_SCREEN-->
 <tr>
+	<td>APP_NAME</td>
+	<td>//a[contains(text(),'${key_itemName}')]</td>
+	<td></td>
+</tr>
+
+<tr>
 	<td>DEPLOY_APP_TOGGLE</td>
-	<td>//div[contains(@class,'autofit-row ')][descendant::h3[contains(.,'${key_deployOption}')]]//input[contains(@class,'toggle-switch-check')]</td>
+	<td>//div[contains(@class,'autofit-row')][descendant::h3[contains(.,'${key_deployOption}')]]//input[contains(@class,'toggle-switch-check')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>UNDEPLOY_APP_BUTTON</td>
+	<td>//button[@class='btn btn-primary']</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>UNDEPLOY_APP_STATUS</td>
+	<td>//span[@class='label-item label-item-expand']</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>DEPLOYED_AS</td>
+	<td>//td[contains(text(),'${value1}')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>PRODUCT_MENU_DEPLOYED</td>
+	<td>//span[@class='control-menu-level-1-heading text-truncate']</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>STANDALONE_DEPLOYED</td>
+	<td>//h1[contains(@class,'app-builder-standalone-name')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>PORTLET_UNDEPLOYED</td>
+	<td>//div[@class='alert alert-info']</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>WIDGET_DEPLOYED</td>
+	<td>//*[contains(@class,'portlet-title-text')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>DEPLOY_APP_STATUS</td>
+	<td>//span[contains(@class, 'label-item label-item-expand')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>PRODUCT_MENU_PLACE_IT_DROPDOWN</td>
+	<td>//select[@id='scope']</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>PRODUCT_MENU_PLACE_IT_DROPDOWN_OPTION</td>
+	<td>//option[text()='${key_dropdownOption}']</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>PRODUCT_MENU_SITE_DROPDOWN</td>
+	<td>//button[@id='site']</td>
 	<td></td>
 </tr>
 
@@ -196,6 +268,12 @@
 	<td>//*[contains(@class,'lexicon-icon-order-arrow')]</td>
 	<td></td>
 </tr>
+
+ <tr>
+ 	<td>ENTRY_SUCCESS_MESSAGE</td>
+ 	<td>//div[contains(text(),'An entry was added.')]</td>
+ 	<td></td>
+ </tr>
 
 </tbody>
 </table>

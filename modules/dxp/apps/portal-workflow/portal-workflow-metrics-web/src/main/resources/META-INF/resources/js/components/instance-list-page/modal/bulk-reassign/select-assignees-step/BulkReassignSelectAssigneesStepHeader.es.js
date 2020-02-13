@@ -12,10 +12,10 @@
 import {ClayCheckbox, ClayInput} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import ClayManagementToolbar from '@clayui/management-toolbar';
-import React, {useContext, useMemo, useState, useEffect} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 
 import {Autocomplete} from '../../../../../shared/components/autocomplete/Autocomplete.es';
-import PromisesResolver from '../../../../../shared/components/request/PromisesResolver.es';
+import PromisesResolver from '../../../../../shared/components/promises-resolver/PromisesResolver.es';
 import {ModalContext} from '../../ModalContext.es';
 
 const Header = ({data}) => {
@@ -50,11 +50,10 @@ const Header = ({data}) => {
 		reassigning
 	]);
 
-	const spritemap = `${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`;
-
 	const handleCheck = ({target}) => {
 		setBulkModal({
 			...bulkModal,
+			reassignedTasks: [],
 			selectedAssignee: null,
 			useSameAssignee: target.checked
 		});
@@ -70,14 +69,13 @@ const Header = ({data}) => {
 					workflowTaskId: task.id
 				});
 			});
-
-			setBulkModal({
-				...bulkModal,
-				reassignedTasks,
-				selectedAssignee: newAssignee,
-				useSameAssignee: true
-			});
 		}
+
+		setBulkModal({
+			...bulkModal,
+			reassignedTasks,
+			selectedAssignee: newAssignee
+		});
 	};
 
 	return (
@@ -106,13 +104,11 @@ const Header = ({data}) => {
 						placeholder={Liferay.Language.get(
 							'search-for-an-assignee'
 						)}
-						promises={[]}
 					>
 						<ClayInput.GroupInsetItem after tag="span">
 							<ClayIcon
 								className="m-2"
 								displayType="unstyled"
-								spritemap={spritemap}
 								symbol="search"
 							/>
 						</ClayInput.GroupInsetItem>

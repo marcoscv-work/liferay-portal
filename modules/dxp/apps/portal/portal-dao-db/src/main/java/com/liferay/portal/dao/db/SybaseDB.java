@@ -14,16 +14,20 @@
 
 package com.liferay.portal.dao.db;
 
+import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.IOException;
 
 import java.sql.Types;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Alexander Chow
@@ -39,8 +43,7 @@ public class SybaseDB extends BaseDB {
 
 	@Override
 	public String buildSQL(String template) throws IOException {
-		template = convertTimestamp(template);
-		template = replaceTemplate(template, getTemplate());
+		template = replaceTemplate(template);
 
 		template = reword(template);
 		template = StringUtil.replace(template, ");\n", ")\ngo\n");
@@ -58,23 +61,20 @@ public class SybaseDB extends BaseDB {
 	}
 
 	@Override
-	public boolean isSupportsInlineDistinct() {
-		return _SUPPORTS_INLINE_DISTINCT;
+	public String getPopulateSQL(String databaseName, String sqlContent) {
+		StringBundler sb = new StringBundler(4);
+
+		sb.append("use ");
+		sb.append(databaseName);
+		sb.append("\n\n");
+		sb.append(sqlContent);
+
+		return sb.toString();
 	}
 
 	@Override
-	public boolean isSupportsNewUuidFunction() {
-		return _SUPPORTS_NEW_UUID_FUNCTION;
-	}
-
-	@Override
-	protected String buildCreateFileContent(
-			String sqlDir, String databaseName, int population)
-		throws IOException {
-
-		String suffix = getSuffix(population);
-
-		StringBundler sb = new StringBundler(17);
+	public String getRecreateSQL(String databaseName) {
+		StringBundler sb = new StringBundler(9);
 
 		sb.append("use master\n");
 		sb.append("exec sp_dboption '");
@@ -86,23 +86,45 @@ public class SybaseDB extends BaseDB {
 		sb.append("', 'select into/bulkcopy/pllsort' , true\n");
 		sb.append("go\n\n");
 
-		if (population != BARE) {
-			sb.append("use ");
-			sb.append(databaseName);
-			sb.append("\n\n");
-			sb.append(getCreateTablesContent(sqlDir, suffix));
-			sb.append("\n\n");
-			sb.append(readFile(sqlDir + "/indexes/indexes-sybase.sql"));
-			sb.append("\n\n");
-			sb.append(readFile(sqlDir + "/sequences/sequences-sybase.sql"));
-		}
-
 		return sb.toString();
 	}
 
 	@Override
-	protected String getServerName() {
-		return "sybase";
+	public boolean isSupportsInlineDistinct() {
+		return _SUPPORTS_INLINE_DISTINCT;
+	}
+
+	@Override
+	public boolean isSupportsNewUuidFunction() {
+		return _SUPPORTS_NEW_UUID_FUNCTION;
+	}
+
+	@Override
+	protected String applyMaxStringIndexLengthLimitation(String template) {
+		if (!template.contains("[$COLUMN_LENGTH:")) {
+			return template;
+		}
+
+		String[] strings = StringUtil.split(template, CharPool.NEW_LINE);
+
+		Matcher matcher = _columnLengthPattern.matcher(StringPool.BLANK);
+
+		for (int i = 0; i < strings.length; i++) {
+			matcher.reset(strings[i]);
+
+			while (matcher.find()) {
+				int length = Integer.valueOf(matcher.group(1));
+
+				if (length > 1250) {
+					strings[i] = StringPool.BLANK;
+
+					break;
+				}
+			}
+		}
+
+		return super.applyMaxStringIndexLengthLimitation(
+			StringUtil.merge(strings, StringPool.NEW_LINE));
 	}
 
 	@Override
@@ -193,5 +215,8 @@ public class SybaseDB extends BaseDB {
 		" bigdatetime", " float", " int", " decimal(20,0)", " varchar(4000)",
 		" text", " varchar", "  identity(1,1)", "go"
 	};
+
+	private static final Pattern _columnLengthPattern = Pattern.compile(
+		"\\[\\$COLUMN_LENGTH:(\\d+)\\$\\]");
 
 }

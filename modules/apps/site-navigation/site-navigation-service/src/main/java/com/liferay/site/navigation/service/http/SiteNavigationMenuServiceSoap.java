@@ -228,6 +228,52 @@ public class SiteNavigationMenuServiceSoap {
 		}
 	}
 
+	public static com.liferay.site.navigation.model.SiteNavigationMenuSoap[]
+			getSiteNavigationMenus(
+				long[] groupIds, int start, int end,
+				com.liferay.portal.kernel.util.OrderByComparator
+					orderByComparator)
+		throws RemoteException {
+
+		try {
+			java.util.List<com.liferay.site.navigation.model.SiteNavigationMenu>
+				returnValue =
+					SiteNavigationMenuServiceUtil.getSiteNavigationMenus(
+						groupIds, start, end, orderByComparator);
+
+			return com.liferay.site.navigation.model.SiteNavigationMenuSoap.
+				toSoapModels(returnValue);
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	public static com.liferay.site.navigation.model.SiteNavigationMenuSoap[]
+			getSiteNavigationMenus(
+				long[] groupIds, String keywords, int start, int end,
+				com.liferay.portal.kernel.util.OrderByComparator
+					orderByComparator)
+		throws RemoteException {
+
+		try {
+			java.util.List<com.liferay.site.navigation.model.SiteNavigationMenu>
+				returnValue =
+					SiteNavigationMenuServiceUtil.getSiteNavigationMenus(
+						groupIds, keywords, start, end, orderByComparator);
+
+			return com.liferay.site.navigation.model.SiteNavigationMenuSoap.
+				toSoapModels(returnValue);
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
 	public static int getSiteNavigationMenusCount(long groupId)
 		throws RemoteException {
 
@@ -252,6 +298,41 @@ public class SiteNavigationMenuServiceSoap {
 			int returnValue =
 				SiteNavigationMenuServiceUtil.getSiteNavigationMenusCount(
 					groupId, keywords);
+
+			return returnValue;
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	public static int getSiteNavigationMenusCount(long[] groupIds)
+		throws RemoteException {
+
+		try {
+			int returnValue =
+				SiteNavigationMenuServiceUtil.getSiteNavigationMenusCount(
+					groupIds);
+
+			return returnValue;
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	public static int getSiteNavigationMenusCount(
+			long[] groupIds, String keywords)
+		throws RemoteException {
+
+		try {
+			int returnValue =
+				SiteNavigationMenuServiceUtil.getSiteNavigationMenusCount(
+					groupIds, keywords);
 
 			return returnValue;
 		}

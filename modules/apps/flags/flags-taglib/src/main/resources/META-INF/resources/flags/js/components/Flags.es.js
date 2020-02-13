@@ -60,6 +60,7 @@ const Flags = ({
 		if (selectedReason === OTHER_REASON_VALUE) {
 			return otherReason || Liferay.Language.get('no-reason-specified');
 		}
+
 		return selectedReason;
 	};
 
@@ -79,9 +80,11 @@ const Flags = ({
 
 		if (name === 'otherReason') {
 			setOtherReason(value);
-		} else if (name === 'reporterEmailAddress') {
+		}
+		else if (name === 'reporterEmailAddress') {
 			setReporterEmailAddress(value);
-		} else if (name === 'selectedReason') {
+		}
+		else if (name === 'selectedReason') {
 			setSelectedReason(value);
 		}
 	};
@@ -112,7 +115,8 @@ const Flags = ({
 				if (isMounted()) {
 					if (status === Liferay.STATUS_CODE.OK) {
 						setStatus(STATUS_SUCCESS);
-					} else {
+					}
+					else {
 						setStatus(STATUS_ERROR);
 					}
 				}

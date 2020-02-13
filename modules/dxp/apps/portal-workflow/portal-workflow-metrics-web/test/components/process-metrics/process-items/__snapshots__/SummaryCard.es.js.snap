@@ -32,125 +32,61 @@ exports[`Should render component 1`] = `
       }
     }
   >
-    <Route
-      path="/:page/:pageSize/:sort"
-      render={[Function]}
-    >
-      <SummaryCard
-        getTitle={[Function]}
-        history={
-          Object {
-            "action": "POP",
-            "block": [Function],
-            "canGo": [Function],
-            "createHref": [Function],
-            "entries": Array [
-              Object {
-                "hash": "",
-                "pathname": "/1/20/title%3Aasc",
-                "search": "?backPath=%2F",
-              },
-            ],
-            "go": [Function],
-            "goBack": [Function],
-            "goForward": [Function],
-            "index": 0,
-            "length": 1,
-            "listen": [Function],
-            "location": Object {
-              "hash": "",
-              "pathname": "/1/20/title%3Aasc",
-              "search": "?backPath=%2F",
-            },
-            "push": [Function],
-            "replace": [Function],
-          }
-        }
-        iconColor="success"
-        iconName="check-circle"
-        page="1"
-        pageSize="20"
-        processId={12345}
-        query="?backPath=%2F"
-        routeParams={
-          Object {
-            "page": "1",
-            "pageSize": "20",
-            "sort": "title:asc",
-          }
-        }
-        sort="title:asc"
-        total={false}
-        totalValue={55}
-        value={31}
+    <FilterContextProvider>
+      <Route
+        path="/:page/:pageSize/:sort"
+        render={[Function]}
       >
-        <withRouter()
-          className=" process-dashboard-summary-card"
-          onMouseOut={[Function]}
-          onMouseOver={[Function]}
-          query={
+        <SummaryCard
+          getTitle={[Function]}
+          history={
             Object {
-              "filters": Object {
-                "slaStatuses": Array [
-                  undefined,
-                ],
-                "statuses": Array [
-                  "Pending",
-                ],
-              },
-            }
-          }
-          to="/instance/12345/20/1"
-        >
-          <Component
-            className=" process-dashboard-summary-card"
-            history={
-              Object {
-                "action": "POP",
-                "block": [Function],
-                "canGo": [Function],
-                "createHref": [Function],
-                "entries": Array [
-                  Object {
-                    "hash": "",
-                    "pathname": "/1/20/title%3Aasc",
-                    "search": "?backPath=%2F",
-                  },
-                ],
-                "go": [Function],
-                "goBack": [Function],
-                "goForward": [Function],
-                "index": 0,
-                "length": 1,
-                "listen": [Function],
-                "location": Object {
+              "action": "POP",
+              "block": [Function],
+              "canGo": [Function],
+              "createHref": [Function],
+              "entries": Array [
+                Object {
                   "hash": "",
                   "pathname": "/1/20/title%3Aasc",
                   "search": "?backPath=%2F",
                 },
-                "push": [Function],
-                "replace": [Function],
-              }
-            }
-            location={
-              Object {
+              ],
+              "go": [Function],
+              "goBack": [Function],
+              "goForward": [Function],
+              "index": 0,
+              "length": 1,
+              "listen": [Function],
+              "location": Object {
                 "hash": "",
                 "pathname": "/1/20/title%3Aasc",
                 "search": "?backPath=%2F",
-              }
+              },
+              "push": [Function],
+              "replace": [Function],
             }
-            match={
-              Object {
-                "isExact": true,
-                "params": Object {
-                  "page": "1",
-                  "pageSize": "20",
-                  "sort": "title:asc",
-                },
-                "path": "/:page/:pageSize/:sort",
-                "url": "/1/20/title%3Aasc",
-              }
+          }
+          iconColor="success"
+          iconName="check-circle"
+          page="1"
+          pageSize="20"
+          processId={12345}
+          query="?backPath=%2F"
+          routeParams={
+            Object {
+              "page": "1",
+              "pageSize": "20",
+              "sort": "title:asc",
             }
+          }
+          sort="title:asc"
+          total={false}
+          totalValue={55}
+          value={31}
+        >
+          <ChildLink
+            className=" process-dashboard-summary-card"
             onMouseOut={[Function]}
             onMouseOver={[Function]}
             query={
@@ -167,130 +103,78 @@ exports[`Should render component 1`] = `
             }
             to="/instance/12345/20/1"
           >
-            <ChildLinkWrapper
-              backPath="/"
+            <Link
               className=" process-dashboard-summary-card"
-              currentPath="/1/20/title%3Aasc?backPath=%2F"
-              history={
-                Object {
-                  "action": "POP",
-                  "block": [Function],
-                  "canGo": [Function],
-                  "createHref": [Function],
-                  "entries": Array [
-                    Object {
-                      "hash": "",
-                      "pathname": "/1/20/title%3Aasc",
-                      "search": "?backPath=%2F",
-                    },
-                  ],
-                  "go": [Function],
-                  "goBack": [Function],
-                  "goForward": [Function],
-                  "index": 0,
-                  "length": 1,
-                  "listen": [Function],
-                  "location": Object {
-                    "hash": "",
-                    "pathname": "/1/20/title%3Aasc",
-                    "search": "?backPath=%2F",
-                  },
-                  "push": [Function],
-                  "replace": [Function],
-                }
-              }
               onMouseOut={[Function]}
               onMouseOver={[Function]}
-              page="1"
-              pageSize="20"
-              query={
+              to={
                 Object {
-                  "filters": Object {
-                    "slaStatuses": Array [
-                      undefined,
-                    ],
-                    "statuses": Array [
-                      "Pending",
-                    ],
-                  },
+                  "pathname": "/instance/12345/20/1",
+                  "search": "?backPath=%2F1%2F20%2Ftitle%253Aasc%3FbackPath%3D%252F&filters.statuses%5B0%5D=Pending",
                 }
               }
-              sort="title:asc"
-              to="/instance/12345/20/1"
             >
-              <Link
+              <a
                 className=" process-dashboard-summary-card"
+                href="/instance/12345/20/1?backPath=%2F1%2F20%2Ftitle%253Aasc%3FbackPath%3D%252F&filters.statuses%5B0%5D=Pending"
+                onClick={[Function]}
                 onMouseOut={[Function]}
                 onMouseOver={[Function]}
-                to={
-                  Object {
-                    "pathname": "/instance/12345/20/1",
-                    "search": "?backPath=%2F1%2F20%2Ftitle%253Aasc%3FbackPath%3D%252F&filters.statuses%5B0%5D=Pending",
-                  }
-                }
               >
-                <a
-                  className=" process-dashboard-summary-card"
-                  href="/instance/12345/20/1?backPath=%2F1%2F20%2Ftitle%253Aasc%3FbackPath%3D%252F&filters.statuses%5B0%5D=Pending"
-                  onClick={[Function]}
-                  onMouseOut={[Function]}
-                  onMouseOver={[Function]}
-                >
-                  <div>
-                    <div
-                      className="header"
+                <div>
+                  <div
+                    className="header"
+                  >
+                    <span
+                      className="bg-success-light mr-3 sticker sticker-circle"
                     >
                       <span
-                        className="bg-success-light mr-3 sticker sticker-circle"
+                        className="inline-item"
                       >
-                        <span
-                          className="inline-item"
+                        <Icon
+                          elementClasses="text-success"
+                          iconName="check-circle"
                         >
-                          <Icon
-                            elementClasses="text-success"
-                            iconName="check-circle"
-                          >
-                            <svg
-                              className="lexicon-icon lexicon-icon-check-circle text-success"
-                              dangerouslySetInnerHTML={
-                                Object {
-                                  "__html": "<use xlink:href=\\"http://localhost:8080/o/admin-theme/images/lexicon/icons.svg#check-circle\\" />",
-                                }
+                          <svg
+                            className="lexicon-icon lexicon-icon-check-circle text-success"
+                            dangerouslySetInnerHTML={
+                              Object {
+                                "__html": "<use xlink:href=\\"http://localhost:8080/o/admin-theme/images/lexicon/icons.svg#check-circle\\" />",
                               }
-                              data-testid="icon"
-                              focusable="false"
-                              role="presentation"
-                            />
-                          </Icon>
-                        </span>
+                            }
+                            data-testid="icon"
+                            focusable="false"
+                            role="presentation"
+                          />
+                        </Icon>
                       </span>
-                      <span>
-                        On Time
-                      </span>
-                    </div>
-                    <div
-                      className="body"
-                      title={31}
-                    >
-                      31
-                    </div>
-                    <div
-                      className="footer"
-                    >
-                      <span
-                        className=" xsmall"
-                      >
-                        56.36%
-                      </span>
-                    </div>
+                    </span>
+                    <span>
+                      On Time
+                    </span>
                   </div>
-                </a>
-              </Link>
-            </ChildLinkWrapper>
-          </Component>
-        </withRouter()>
-      </SummaryCard>
-    </Route>
+                  <div
+                    className="body"
+                    title={31}
+                  >
+                    31
+                  </div>
+                  <div
+                    className="footer"
+                  >
+                    <span
+                      className=" xsmall"
+                    >
+                      56.36%
+                    </span>
+                  </div>
+                </div>
+              </a>
+            </Link>
+          </ChildLink>
+        </SummaryCard>
+      </Route>
+    </FilterContextProvider>
   </Router>
 </MockRouter>
 `;
@@ -327,124 +211,60 @@ exports[`Should render component with disabled state 1`] = `
       }
     }
   >
-    <Route
-      path="/:page/:pageSize/:sort"
-      render={[Function]}
-    >
-      <SummaryCard
-        getTitle={[Function]}
-        history={
-          Object {
-            "action": "POP",
-            "block": [Function],
-            "canGo": [Function],
-            "createHref": [Function],
-            "entries": Array [
-              Object {
-                "hash": "",
-                "pathname": "/1/20/title%3Aasc",
-                "search": "?backPath=%2F",
-              },
-            ],
-            "go": [Function],
-            "goBack": [Function],
-            "goForward": [Function],
-            "index": 0,
-            "length": 1,
-            "listen": [Function],
-            "location": Object {
-              "hash": "",
-              "pathname": "/1/20/title%3Aasc",
-              "search": "?backPath=%2F",
-            },
-            "push": [Function],
-            "replace": [Function],
-          }
-        }
-        iconColor="success"
-        iconName="check-circle"
-        page="1"
-        pageSize="20"
-        processId={12345}
-        query="?backPath=%2F"
-        routeParams={
-          Object {
-            "page": "1",
-            "pageSize": "20",
-            "sort": "title:asc",
-          }
-        }
-        sort="title:asc"
-        total={false}
-        totalValue={55}
+    <FilterContextProvider>
+      <Route
+        path="/:page/:pageSize/:sort"
+        render={[Function]}
       >
-        <withRouter()
-          className="disabled process-dashboard-summary-card"
-          onMouseOut={[Function]}
-          onMouseOver={[Function]}
-          query={
+        <SummaryCard
+          getTitle={[Function]}
+          history={
             Object {
-              "filters": Object {
-                "slaStatuses": Array [
-                  undefined,
-                ],
-                "statuses": Array [
-                  "Pending",
-                ],
-              },
-            }
-          }
-          to="/instance/12345/20/1"
-        >
-          <Component
-            className="disabled process-dashboard-summary-card"
-            history={
-              Object {
-                "action": "POP",
-                "block": [Function],
-                "canGo": [Function],
-                "createHref": [Function],
-                "entries": Array [
-                  Object {
-                    "hash": "",
-                    "pathname": "/1/20/title%3Aasc",
-                    "search": "?backPath=%2F",
-                  },
-                ],
-                "go": [Function],
-                "goBack": [Function],
-                "goForward": [Function],
-                "index": 0,
-                "length": 1,
-                "listen": [Function],
-                "location": Object {
+              "action": "POP",
+              "block": [Function],
+              "canGo": [Function],
+              "createHref": [Function],
+              "entries": Array [
+                Object {
                   "hash": "",
                   "pathname": "/1/20/title%3Aasc",
                   "search": "?backPath=%2F",
                 },
-                "push": [Function],
-                "replace": [Function],
-              }
-            }
-            location={
-              Object {
+              ],
+              "go": [Function],
+              "goBack": [Function],
+              "goForward": [Function],
+              "index": 0,
+              "length": 1,
+              "listen": [Function],
+              "location": Object {
                 "hash": "",
                 "pathname": "/1/20/title%3Aasc",
                 "search": "?backPath=%2F",
-              }
+              },
+              "push": [Function],
+              "replace": [Function],
             }
-            match={
-              Object {
-                "isExact": true,
-                "params": Object {
-                  "page": "1",
-                  "pageSize": "20",
-                  "sort": "title:asc",
-                },
-                "path": "/:page/:pageSize/:sort",
-                "url": "/1/20/title%3Aasc",
-              }
+          }
+          iconColor="success"
+          iconName="check-circle"
+          page="1"
+          pageSize="20"
+          processId={12345}
+          query="?backPath=%2F"
+          routeParams={
+            Object {
+              "page": "1",
+              "pageSize": "20",
+              "sort": "title:asc",
             }
+          }
+          sort="title:asc"
+          total={false}
+          totalValue={55}
+        >
+          <ChildLink
+            className="disabled process-dashboard-summary-card"
             onMouseOut={[Function]}
             onMouseOver={[Function]}
             query={
@@ -461,115 +281,63 @@ exports[`Should render component with disabled state 1`] = `
             }
             to="/instance/12345/20/1"
           >
-            <ChildLinkWrapper
-              backPath="/"
+            <Link
               className="disabled process-dashboard-summary-card"
-              currentPath="/1/20/title%3Aasc?backPath=%2F"
-              history={
-                Object {
-                  "action": "POP",
-                  "block": [Function],
-                  "canGo": [Function],
-                  "createHref": [Function],
-                  "entries": Array [
-                    Object {
-                      "hash": "",
-                      "pathname": "/1/20/title%3Aasc",
-                      "search": "?backPath=%2F",
-                    },
-                  ],
-                  "go": [Function],
-                  "goBack": [Function],
-                  "goForward": [Function],
-                  "index": 0,
-                  "length": 1,
-                  "listen": [Function],
-                  "location": Object {
-                    "hash": "",
-                    "pathname": "/1/20/title%3Aasc",
-                    "search": "?backPath=%2F",
-                  },
-                  "push": [Function],
-                  "replace": [Function],
-                }
-              }
               onMouseOut={[Function]}
               onMouseOver={[Function]}
-              page="1"
-              pageSize="20"
-              query={
+              to={
                 Object {
-                  "filters": Object {
-                    "slaStatuses": Array [
-                      undefined,
-                    ],
-                    "statuses": Array [
-                      "Pending",
-                    ],
-                  },
+                  "pathname": "/instance/12345/20/1",
+                  "search": "?backPath=%2F1%2F20%2Ftitle%253Aasc%3FbackPath%3D%252F&filters.statuses%5B0%5D=Pending",
                 }
               }
-              sort="title:asc"
-              to="/instance/12345/20/1"
             >
-              <Link
+              <a
                 className="disabled process-dashboard-summary-card"
+                href="/instance/12345/20/1?backPath=%2F1%2F20%2Ftitle%253Aasc%3FbackPath%3D%252F&filters.statuses%5B0%5D=Pending"
+                onClick={[Function]}
                 onMouseOut={[Function]}
                 onMouseOver={[Function]}
-                to={
-                  Object {
-                    "pathname": "/instance/12345/20/1",
-                    "search": "?backPath=%2F1%2F20%2Ftitle%253Aasc%3FbackPath%3D%252F&filters.statuses%5B0%5D=Pending",
-                  }
-                }
               >
-                <a
-                  className="disabled process-dashboard-summary-card"
-                  href="/instance/12345/20/1?backPath=%2F1%2F20%2Ftitle%253Aasc%3FbackPath%3D%252F&filters.statuses%5B0%5D=Pending"
-                  onClick={[Function]}
-                  onMouseOut={[Function]}
-                  onMouseOver={[Function]}
-                >
-                  <div>
-                    <div
-                      className="header"
+                <div>
+                  <div
+                    className="header"
+                  >
+                    <span
+                      className="bg-success-light mr-3 sticker sticker-circle"
                     >
                       <span
-                        className="bg-success-light mr-3 sticker sticker-circle"
+                        className="inline-item"
                       >
-                        <span
-                          className="inline-item"
+                        <Icon
+                          elementClasses="text-success"
+                          iconName="check-circle"
                         >
-                          <Icon
-                            elementClasses="text-success"
-                            iconName="check-circle"
-                          >
-                            <svg
-                              className="lexicon-icon lexicon-icon-check-circle text-success"
-                              dangerouslySetInnerHTML={
-                                Object {
-                                  "__html": "<use xlink:href=\\"http://localhost:8080/o/admin-theme/images/lexicon/icons.svg#check-circle\\" />",
-                                }
+                          <svg
+                            className="lexicon-icon lexicon-icon-check-circle text-success"
+                            dangerouslySetInnerHTML={
+                              Object {
+                                "__html": "<use xlink:href=\\"http://localhost:8080/o/admin-theme/images/lexicon/icons.svg#check-circle\\" />",
                               }
-                              data-testid="icon"
-                              focusable="false"
-                              role="presentation"
-                            />
-                          </Icon>
-                        </span>
+                            }
+                            data-testid="icon"
+                            focusable="false"
+                            role="presentation"
+                          />
+                        </Icon>
                       </span>
-                      <span>
-                        On Time
-                      </span>
-                    </div>
+                    </span>
+                    <span>
+                      On Time
+                    </span>
                   </div>
-                </a>
-              </Link>
-            </ChildLinkWrapper>
-          </Component>
-        </withRouter()>
-      </SummaryCard>
-    </Route>
+                </div>
+              </a>
+            </Link>
+          </ChildLink>
+        </SummaryCard>
+      </Route>
+    </FilterContextProvider>
   </Router>
 </MockRouter>
 `;

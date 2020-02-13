@@ -16,8 +16,10 @@ package com.liferay.app.builder.internal.security.permission.resource;
 
 import com.liferay.app.builder.constants.AppBuilderConstants;
 import com.liferay.app.builder.model.AppBuilderApp;
+import com.liferay.app.builder.service.AppBuilderAppLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
@@ -68,6 +70,13 @@ public class AppBuilderAppModelResourcePermission
 			String actionId)
 		throws PortalException {
 
+		if (_portletResourcePermission.contains(
+				permissionChecker, appBuilderApp.getGroupId(),
+				ActionKeys.MANAGE)) {
+
+			return true;
+		}
+
 		return permissionChecker.hasPermission(
 			null, AppBuilderApp.class.getName(), appBuilderApp.getPrimaryKey(),
 			actionId);
@@ -79,8 +88,10 @@ public class AppBuilderAppModelResourcePermission
 			String actionId)
 		throws PortalException {
 
-		return permissionChecker.hasPermission(
-			null, AppBuilderApp.class.getName(), appBuilderAppId, actionId);
+		return contains(
+			permissionChecker,
+			_appBuilderAppLocalService.getAppBuilderApp(appBuilderAppId),
+			actionId);
 	}
 
 	@Override
@@ -92,6 +103,9 @@ public class AppBuilderAppModelResourcePermission
 	public PortletResourcePermission getPortletResourcePermission() {
 		return _portletResourcePermission;
 	}
+
+	@Reference
+	private AppBuilderAppLocalService _appBuilderAppLocalService;
 
 	@Reference(
 		target = "(resource.name=" + AppBuilderConstants.RESOURCE_NAME + ")"

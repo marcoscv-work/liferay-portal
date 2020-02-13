@@ -124,7 +124,7 @@ DDMNavigationHelper ddmNavigationHelper = ddmDisplay.getDDMNavigationHelper();
 				long imageMaxSize = ddmDisplayContext.smallImageMaxSize();
 				%>
 
-				<liferay-ui:message arguments="<%= TextFormatter.formatStorageSize(imageMaxSize, locale) %>" key="please-enter-a-small-image-with-a-valid-file-size-no-larger-than-x" translateArguments="<%= false %>" />
+				<liferay-ui:message arguments="<%= LanguageUtil.formatStorageSize(imageMaxSize, locale) %>" key="please-enter-a-small-image-with-a-valid-file-size-no-larger-than-x" translateArguments="<%= false %>" />
 			</liferay-ui:error>
 
 			<c:if test="<%= showHeader %>">
@@ -391,7 +391,8 @@ DDMNavigationHelper ddmNavigationHelper = ddmDisplay.getDDMNavigationHelper();
 									values.item(index).attr('disabled', false);
 								}
 							});
-						} else {
+						}
+						else {
 							values.attr('disabled', true);
 						}
 					}

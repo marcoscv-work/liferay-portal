@@ -15,11 +15,19 @@ import React, {useState} from 'react';
 import InstanceListPage from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/InstanceListPage.es';
 import {ModalContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/modal/ModalContext.es';
 import {InstanceListContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/store/InstanceListPageStore.es';
+import ToasterProvider from '../../../../../src/main/resources/META-INF/resources/js/shared/components/toaster/ToasterProvider.es';
 import {MockRouter} from '../../../../mock/MockRouter.es';
 
 import '@testing-library/jest-dom/extend-expect';
 
-const {items, selectedItems, workflowTaskAssignableUsers} = {
+const {
+	assignees,
+	items,
+	processSteps,
+	selectedItems,
+	workflowTaskAssignableUsers
+} = {
+	assignees: [{id: 1, name: 'Test Test'}],
 	items: [
 		{
 			assigneePerson: {
@@ -28,6 +36,8 @@ const {items, selectedItems, workflowTaskAssignableUsers} = {
 			},
 			id: 1,
 			name: 'Review',
+
+			objectReviewed: {assetTitle: 'Blog 1', assetType: 'Blog'},
 			workflowInstanceId: 1
 		},
 		{
@@ -37,21 +47,15 @@ const {items, selectedItems, workflowTaskAssignableUsers} = {
 			},
 			id: 2,
 			name: 'Update',
+			objectReviewed: {assetTitle: 'Blog 2', assetType: 'Blog'},
 			workflowInstanceId: 2
 		}
 	],
-	selectedItems: [
-		{
-			assetTitle: 'Blog 1',
-			assetType: 'Blog',
-			id: 1
-		},
-		{
-			assetTitle: 'Blog 2',
-			assetType: 'Blog',
-			id: 2
-		}
+	processSteps: [
+		{key: 'review', name: 'Review'},
+		{key: 'update', name: 'Update'}
 	],
+	selectedItems: [{id: 1}, {id: 2}],
 	workflowTaskAssignableUsers: [
 		{
 			assignableUsers: [
@@ -94,10 +98,19 @@ const clientMock = {
 	get: jest
 		.fn()
 		.mockRejectedValueOnce(new Error('request-failure'))
-		.mockResolvedValueOnce({data: {items, totalCount: items.length}})
+		.mockResolvedValueOnce({data: {items: processSteps}})
+		.mockResolvedValueOnce({data: {items: assignees}})
+		.mockResolvedValueOnce({data: {items, totalCount: items.length + 1}})
+		.mockResolvedValueOnce({data: {items: processSteps}})
+		.mockResolvedValueOnce({data: {items: assignees}})
+		.mockResolvedValueOnce({data: {items: processSteps}})
+		.mockResolvedValueOnce({data: {items: assignees}})
+		.mockRejectedValueOnce(new Error('request-failure'))
+		.mockResolvedValueOnce({data: {items: [items[0]], totalCount: 1}})
 		.mockRejectedValueOnce(new Error('request-failure'))
 		.mockResolvedValueOnce({data: {workflowTaskAssignableUsers}})
 		.mockResolvedValueOnce({data: {items, totalCount: items.length}})
+		.mockResolvedValueOnce({data: {items: [items[0]], totalCount: 1}})
 		.mockResolvedValue({data: {workflowTaskAssignableUsers}}),
 	patch: jest
 		.fn()
@@ -107,6 +120,7 @@ const clientMock = {
 
 const ContainerMock = ({children}) => {
 	const [bulkModal, setBulkModal] = useState({
+		processId: '12345',
 		reassignedTasks: [],
 		reassigning: false,
 		selectedAssignee: null,
@@ -119,7 +133,7 @@ const ContainerMock = ({children}) => {
 		<MockRouter client={clientMock}>
 			<InstanceListContext.Provider value={{selectedItems}}>
 				<ModalContext.Provider value={{bulkModal, setBulkModal}}>
-					{children}
+					<ToasterProvider>{children}</ToasterProvider>
 				</ModalContext.Provider>
 			</InstanceListContext.Provider>
 		</MockRouter>
@@ -127,10 +141,10 @@ const ContainerMock = ({children}) => {
 };
 
 describe('The BulkReassignModal component should', () => {
-	let getAllByTestId, getByTestId;
+	let getAllByTestId, getByTestId, renderResult;
 
 	beforeAll(() => {
-		const renderResult = render(
+		renderResult = render(
 			<ContainerMock>
 				<InstanceListPage.BulkReassignModal />
 			</ContainerMock>
@@ -148,9 +162,7 @@ describe('The BulkReassignModal component should', () => {
 
 		const retryBtn = emptyState.children[0].children[1];
 
-		expect(alertError).toHaveTextContent(
-			'your-connection-was-unexpectedly-lost'
-		);
+		expect(alertError).toHaveTextContent('your-request-has-failed');
 
 		expect(emptyState.children[0].children[1]).toHaveTextContent('retry');
 		expect(emptyState.children[0].children[0]).toHaveTextContent(
@@ -168,7 +180,9 @@ describe('The BulkReassignModal component should', () => {
 
 		const table = getByTestId('bulkReassignModalTable');
 		const checkbox = getAllByTestId('itemCheckbox');
-		const selectAll = getByTestId('selectAllCheckbox');
+		const checkAllButton = getByTestId('checkAllButton');
+		const processStepFilter = getByTestId('processStepFilter');
+		const assigneeFilter = getByTestId('assigneeFilter');
 
 		const content = modal.children[0].children[0].children[0];
 		const header = content.children[0].children[0];
@@ -177,6 +191,9 @@ describe('The BulkReassignModal component should', () => {
 
 		expect(stepBar.children[0]).toHaveTextContent('select-tasks');
 		expect(stepBar.children[1]).toHaveTextContent('step-x-of-x');
+
+		expect(processStepFilter).not.toBeUndefined();
+		expect(assigneeFilter).not.toBeUndefined();
 
 		expect(cancelBtn).toHaveTextContent('cancel');
 		expect(nextBtn).toHaveTextContent('next');
@@ -196,40 +213,77 @@ describe('The BulkReassignModal component should', () => {
 		expect(items[1].children[3]).toHaveTextContent('Update');
 		expect(items[1].children[4]).toHaveTextContent('Test Test');
 
-		expect(selectAll.checked).toBe(false);
-		fireEvent.click(selectAll);
+		expect(checkAllButton.checked).toBe(false);
+
+		fireEvent.click(checkAllButton);
+
+		let label = getByTestId('toolbarLabel');
 
 		expect(checkbox[0].checked).toBe(true);
 		expect(checkbox[1].checked).toBe(true);
-		expect(selectAll.checked).toBe(true);
+		expect(checkAllButton.checked).toBe(true);
+		expect(label).toHaveTextContent('x-of-x-selected');
 
-		fireEvent.click(selectAll);
+		const clearButton = getByTestId('clear');
+
+		fireEvent.click(clearButton);
 
 		expect(checkbox[0].checked).toBe(false);
 		expect(checkbox[1].checked).toBe(false);
-		expect(selectAll.checked).toBe(false);
+		expect(checkAllButton.checked).toBe(false);
 
 		fireEvent.click(checkbox[0]);
 
+		label = getByTestId('toolbarLabel');
+
 		expect(checkbox[0].checked).toBe(true);
 		expect(checkbox[1].checked).toBe(false);
-		expect(selectAll.checked).toBe(false);
+		expect(checkAllButton.checked).toBe(false);
+		expect(label).toHaveTextContent('x-of-x-selected');
 
-		fireEvent.click(getByTestId('selectRemainingItems'));
+		fireEvent.click(checkbox[0]);
+
+		expect(checkbox[0].checked).toBe(false);
+		expect(checkbox[1].checked).toBe(false);
+		expect(checkAllButton.checked).toBe(false);
+
+		fireEvent.click(checkAllButton);
+
+		label = getByTestId('toolbarLabel');
 
 		expect(checkbox[0].checked).toBe(true);
 		expect(checkbox[1].checked).toBe(true);
-		expect(selectAll.checked).toBe(true);
+		expect(checkAllButton.checked).toBe(true);
+		expect(label).toHaveTextContent('x-of-x-selected');
 
-		fireEvent.click(checkbox[1]);
+		expect(nextBtn).not.toBeDisabled();
 
-		expect(checkbox[0].checked).toBe(true);
-		expect(checkbox[1].checked).toBe(false);
-		expect(selectAll.checked).toBe(false);
+		const selectAllButton = getByTestId('selectAll');
 
-		expect(nextBtn).not.toHaveAttribute('disabled');
+		fireEvent.click(selectAllButton);
+
+		label = getByTestId('toolbarLabel');
+
+		expect(label).toHaveTextContent('all-selected');
+
+		expect(nextBtn).not.toBeDisabled();
 
 		fireEvent.click(nextBtn);
+	});
+
+	test('Render "Select tasks" step with next error and retrying', () => {
+		const alertError = getByTestId('alertError');
+		const nextBtn = getByTestId('nextButton');
+
+		expect(alertError).toHaveTextContent(
+			'your-connection-was-unexpectedly-lost'
+		);
+
+		expect(nextBtn).not.toBeDisabled();
+
+		fireEvent.click(nextBtn);
+
+		expect(nextBtn).toBeDisabled();
 	});
 
 	test('Render "Select assignees" step with fetch error and retrying', () => {
@@ -238,13 +292,11 @@ describe('The BulkReassignModal component should', () => {
 
 		const retryBtn = emptyState.children[0].children[1];
 
-		expect(alertError).toHaveTextContent(
-			'your-connection-was-unexpectedly-lost'
-		);
+		expect(alertError).toHaveTextContent('your-request-has-failed');
 
 		expect(emptyState.children[0].children[1]).toHaveTextContent('retry');
 		expect(emptyState.children[0].children[0]).toHaveTextContent(
-			'unable-to-retrieve-assignees'
+			'failed-to-retrieve-assignees'
 		);
 
 		fireEvent.click(retryBtn);
@@ -315,7 +367,7 @@ describe('The BulkReassignModal component should', () => {
 
 		const dropDownLists = await getAllByTestId('dropDownList');
 
-		await fireEvent.click(dropDownLists[0].children[0].children[0]);
+		await fireEvent.mouseDown(dropDownLists[0].children[0].children[0]);
 
 		expect(assigneeInputs[0].value).toBe('Test Test');
 		expect(assigneeInputs[1].value).toBe('Test Test');
@@ -330,7 +382,7 @@ describe('The BulkReassignModal component should', () => {
 
 		fireEvent.change(assigneeInputs[1], {target: {value: '1test'}});
 
-		fireEvent.click(dropDownLists[1].children[0].children[0]);
+		fireEvent.mouseDown(dropDownLists[1].children[0].children[0]);
 
 		expect(assigneeInputs[1].value).toBe('1test test1');
 
@@ -341,22 +393,20 @@ describe('The BulkReassignModal component should', () => {
 		expect(nextBtn).toHaveAttribute('disabled');
 	});
 
-	test('Render "Select assignees" step with reassignee fetch error and retrying', async () => {
+	test('Render "Select assignees" step with reassign fetch error and retrying', async () => {
 		const alertError = getByTestId('alertError');
 		const nextBtn = getByTestId('nextButton');
 
 		expect(alertError).toHaveTextContent(
-			'your-connection-was-unexpectedly-lost select-reassign-to-retry'
+			'your-request-has-failed select-reassign-to-retry'
 		);
 
 		await fireEvent.click(nextBtn);
 
-		const alertSuccess = await getByTestId('alertSuccess');
-		const alertClose = alertSuccess.children[1];
+		const alertToast = await getByTestId('alertToast');
+		const alertClose = alertToast.children[1];
 
-		expect(alertSuccess).toHaveTextContent(
-			'these-tasks-have-been-reassigned'
-		);
+		expect(alertToast).toHaveTextContent('x-tasks-have-been-reassigned');
 
 		fireEvent.click(alertClose);
 

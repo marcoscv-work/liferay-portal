@@ -301,6 +301,16 @@ public abstract class UserGroupGroupRoleLocalServiceBaseImpl
 	/**
 	 * @throws PortalException
 	 */
+	public PersistedModel createPersistedModel(Serializable primaryKeyObj)
+		throws PortalException {
+
+		return userGroupGroupRolePersistence.create(
+			(UserGroupGroupRolePK)primaryKeyObj);
+	}
+
+	/**
+	 * @throws PortalException
+	 */
 	@Override
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException {
@@ -309,6 +319,9 @@ public abstract class UserGroupGroupRoleLocalServiceBaseImpl
 			(UserGroupGroupRole)persistedModel);
 	}
 
+	/**
+	 * @throws PortalException
+	 */
 	@Override
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException {

@@ -49,11 +49,17 @@ export default function serviceFetch(
 	config,
 	url,
 	{body, method, ...options} = {body: {}},
-	onNetworkStatus
+	onNetworkStatus,
+	{requestGenerateDraft = false} = {requestGenerateDraft: false}
 ) {
-	onNetworkStatus(
-		updateNetwork({status: SERVICE_NETWORK_STATUS_TYPES.Fetching})
-	);
+	if (requestGenerateDraft) {
+		onNetworkStatus(
+			updateNetwork({
+				requestGenerateDraft,
+				status: SERVICE_NETWORK_STATUS_TYPES.savingDraft
+			})
+		);
+	}
 
 	return fetch(url, {
 		...options,
@@ -78,18 +84,23 @@ export default function serviceFetch(
 					onNetworkStatus(
 						updateNetwork({
 							error: body.exception,
-							status: SERVICE_NETWORK_STATUS_TYPES.Error
+							status: SERVICE_NETWORK_STATUS_TYPES.error
 						})
 					);
-					return;
-				} else if ('error' in body) {
+
+					return Promise.reject(
+						Liferay.Language.get('an-unexpected-error-occurred')
+					);
+				}
+				else if ('error' in body) {
 					onNetworkStatus(
 						updateNetwork({
 							error: body.error,
-							status: SERVICE_NETWORK_STATUS_TYPES.Error
+							status: SERVICE_NETWORK_STATUS_TYPES.error
 						})
 					);
-					return;
+
+					return Promise.reject(body.error);
 				}
 			}
 
@@ -100,16 +111,22 @@ export default function serviceFetch(
 						status: SERVICE_NETWORK_STATUS_TYPES.Error
 					})
 				);
-				return;
+
+				return Promise.reject(
+					Liferay.Language.get('an-unexpected-error-occurred')
+				);
 			}
 
-			onNetworkStatus(
-				updateNetwork({
-					error: null,
-					lastFetch: new Date(),
-					status: SERVICE_NETWORK_STATUS_TYPES.Idle
-				})
-			);
+			if (requestGenerateDraft) {
+				onNetworkStatus(
+					updateNetwork({
+						error: null,
+						lastFetch: new Date(),
+						status: SERVICE_NETWORK_STATUS_TYPES.draftSaved
+					})
+				);
+			}
+
 			return body;
 		});
 }

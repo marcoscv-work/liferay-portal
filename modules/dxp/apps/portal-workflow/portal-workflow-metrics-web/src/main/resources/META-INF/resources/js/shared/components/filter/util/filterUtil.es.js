@@ -11,14 +11,29 @@
 
 import pathToRegexp from 'path-to-regexp';
 
+import {capitalize} from '../../../util/util.es';
 import {parse, stringify} from '../../router/queryString.es';
 
-const asFilterObject = (items, key, name, pinned = false) => ({
+const asFilterObject = (items, key, name, pinned) => ({
 	items,
 	key,
 	name,
 	pinned
 });
+
+const buildFilterItem = data => {
+	if (typeof data === 'string') {
+		return {
+			active: true,
+			key: data
+		};
+	}
+
+	return {
+		...data,
+		active: true
+	};
+};
 
 const buildFilterItems = (items, selectedKeys) => {
 	return items.map((item, index) => {
@@ -33,22 +48,29 @@ const buildFilterItems = (items, selectedKeys) => {
 	});
 };
 
+const getFilterKeys = (items = []) => items.map(({key}) => key);
+
 const getFiltersParam = queryString => {
 	const queryParams = parse(queryString);
 
 	return queryParams.filters || {};
 };
 
-const getFilterResults = (filterKeys, filterTitles, filterValues) => {
+const getCapitalizedFilterKey = (prefix, key) => {
+	return prefix ? `${prefix}${capitalize(key)}` : key;
+};
+
+const getFilterResults = (prefixedKeys, pinnedValues, titles, values) => {
 	const filterResults = [];
 
-	filterKeys.forEach((filterKey, index) => {
-		if (filterValues[filterKey]) {
+	prefixedKeys.forEach((prefixedKey, index) => {
+		if (values[prefixedKey]) {
 			filterResults.push(
 				asFilterObject(
-					filterValues[filterKey],
-					filterKey,
-					filterTitles[index]
+					values[prefixedKey],
+					prefixedKey,
+					titles[index],
+					pinnedValues[index]
 				)
 			);
 		}
@@ -57,12 +79,14 @@ const getFilterResults = (filterKeys, filterTitles, filterValues) => {
 	return filterResults;
 };
 
-const getFilterValues = (filterKey, filtersParam) => {
-	let filterValues = filtersParam[filterKey] || [];
+const getFilterValues = filterState => {
+	const filterValues = {};
 
-	if (!Array.isArray(filterValues)) {
-		filterValues = [filterValues];
-	}
+	Object.keys(filterState).forEach(key => {
+		if (filterState[key]) {
+			filterValues[key] = getFilterKeys(filterState[key]);
+		}
+	});
 
 	return filterValues;
 };
@@ -92,6 +116,7 @@ const getSelectedItems = filterResults => {
 
 const mergeItemsArray = (baseItems = [], ...items) => {
 	items = items.filter(value => value !== undefined && value !== null);
+
 	return baseItems.concat(...items);
 };
 
@@ -133,7 +158,7 @@ const removeItem = (filterKey, itemToRemove, queryString) => {
 
 	const filtersParam = queryParams.filters || {};
 
-	const filterValues = getFilterValues(filterKey, filtersParam);
+	const filterValues = filtersParam[filterKey] || [];
 
 	filtersParam[filterKey] = filterValues.filter(
 		filterValue => filterValue != itemToRemove.key
@@ -163,7 +188,10 @@ const replaceHistory = (filterQuery, routerProps) => {
 
 export {
 	asFilterObject,
+	buildFilterItem,
 	buildFilterItems,
+	getCapitalizedFilterKey,
+	getFilterKeys,
 	getFiltersParam,
 	getFilterResults,
 	getFilterValues,

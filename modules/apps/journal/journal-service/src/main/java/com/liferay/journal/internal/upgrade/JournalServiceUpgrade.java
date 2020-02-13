@@ -20,6 +20,7 @@ import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.comment.upgrade.UpgradeDiscussionSubscriptionClassName;
+import com.liferay.counter.kernel.service.CounterLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStorageLinkLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLinkLocalService;
@@ -51,6 +52,7 @@ import com.liferay.journal.internal.upgrade.v1_1_3.UpgradeResourcePermissions;
 import com.liferay.journal.internal.upgrade.v1_1_4.UpgradeUrlTitle;
 import com.liferay.journal.internal.upgrade.v1_1_5.UpgradeContentImages;
 import com.liferay.journal.internal.upgrade.v1_1_6.UpgradeAssetDisplayPageEntry;
+import com.liferay.journal.internal.upgrade.v1_1_8.UpgradeJournalArticle;
 import com.liferay.journal.internal.upgrade.v2_0_0.util.JournalArticleTable;
 import com.liferay.journal.internal.upgrade.v2_0_0.util.JournalFeedTable;
 import com.liferay.journal.internal.upgrade.v2_0_0.util.JournalFolderTable;
@@ -169,7 +171,7 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 			new UpgradeImageTypeContent(
 				_imageLocalService, _journalArticleImageUpgradeHelper,
 				_portletFileRepository),
-			new UpgradeJournalArticleLocalizedValues());
+			new UpgradeJournalArticleLocalizedValues(_counterLocalService));
 
 		registry.register(
 			"1.1.0", "1.1.1",
@@ -200,7 +202,7 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 				_subscriptionLocalService, JournalArticle.class.getName(),
 				UpgradeDiscussionSubscriptionClassName.DeletionMode.ADD_NEW));
 
-		registry.register("1.1.7", "1.1.8", new DummyUpgradeStep());
+		registry.register("1.1.7", "1.1.8", new UpgradeJournalArticle());
 
 		registry.register(
 			"1.1.8", "2.0.0",
@@ -215,10 +217,7 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 			new com.liferay.journal.internal.upgrade.v3_0_0.
 				UpgradeJournalArticleImage(_imageLocalService));
 
-		registry.register(
-			"3.0.0", "3.0.1",
-			new com.liferay.journal.internal.upgrade.v3_0_1.
-				UpgradeJournalArticle());
+		registry.register("3.0.0", "3.0.1", new DummyUpgradeStep());
 
 		registry.register("3.0.1", "3.0.2", new DummyUpgradeStep());
 
@@ -291,6 +290,9 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 
 	@Reference
 	private ConfigurationAdmin _configurationAdmin;
+
+	@Reference
+	private CounterLocalService _counterLocalService;
 
 	@Reference
 	private CTStoreFactory _ctStoreFactory;

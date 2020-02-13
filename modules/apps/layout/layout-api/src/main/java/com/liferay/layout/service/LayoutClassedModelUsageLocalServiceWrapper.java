@@ -89,6 +89,18 @@ public class LayoutClassedModelUsageLocalServiceWrapper
 	}
 
 	/**
+	 * @throws PortalException
+	 */
+	@Override
+	public com.liferay.portal.kernel.model.PersistedModel createPersistedModel(
+			java.io.Serializable primaryKeyObj)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _layoutClassedModelUsageLocalService.createPersistedModel(
+			primaryKeyObj);
+	}
+
+	/**
 	 * Deletes the layout classed model usage from the database. Also notifies the appropriate model listeners.
 	 *
 	 * @param layoutClassedModelUsage the layout classed model usage
@@ -287,6 +299,16 @@ public class LayoutClassedModelUsageLocalServiceWrapper
 	}
 
 	@Override
+	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery
+		getExportActionableDynamicQuery(
+			com.liferay.exportimport.kernel.lar.PortletDataContext
+				portletDataContext) {
+
+		return _layoutClassedModelUsageLocalService.
+			getExportActionableDynamicQuery(portletDataContext);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery
 		getIndexableActionableDynamicQuery() {
 
@@ -388,6 +410,45 @@ public class LayoutClassedModelUsageLocalServiceWrapper
 	}
 
 	/**
+	 * Returns all the layout classed model usages matching the UUID and company.
+	 *
+	 * @param uuid the UUID of the layout classed model usages
+	 * @param companyId the primary key of the company
+	 * @return the matching layout classed model usages, or an empty list if no matches were found
+	 */
+	@Override
+	public java.util.List<com.liferay.layout.model.LayoutClassedModelUsage>
+		getLayoutClassedModelUsagesByUuidAndCompanyId(
+			String uuid, long companyId) {
+
+		return _layoutClassedModelUsageLocalService.
+			getLayoutClassedModelUsagesByUuidAndCompanyId(uuid, companyId);
+	}
+
+	/**
+	 * Returns a range of layout classed model usages matching the UUID and company.
+	 *
+	 * @param uuid the UUID of the layout classed model usages
+	 * @param companyId the primary key of the company
+	 * @param start the lower bound of the range of layout classed model usages
+	 * @param end the upper bound of the range of layout classed model usages (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the range of matching layout classed model usages, or an empty list if no matches were found
+	 */
+	@Override
+	public java.util.List<com.liferay.layout.model.LayoutClassedModelUsage>
+		getLayoutClassedModelUsagesByUuidAndCompanyId(
+			String uuid, long companyId, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.layout.model.LayoutClassedModelUsage>
+					orderByComparator) {
+
+		return _layoutClassedModelUsageLocalService.
+			getLayoutClassedModelUsagesByUuidAndCompanyId(
+				uuid, companyId, start, end, orderByComparator);
+	}
+
+	/**
 	 * Returns the number of layout classed model usages.
 	 *
 	 * @return the number of layout classed model usages
@@ -424,6 +485,9 @@ public class LayoutClassedModelUsageLocalServiceWrapper
 		return _layoutClassedModelUsageLocalService.getOSGiServiceIdentifier();
 	}
 
+	/**
+	 * @throws PortalException
+	 */
 	@Override
 	public com.liferay.portal.kernel.model.PersistedModel getPersistedModel(
 			java.io.Serializable primaryKeyObj)

@@ -17,8 +17,8 @@ package com.liferay.mule.internal.operation;
 import static org.mule.runtime.http.api.HttpConstants.Method;
 
 import com.liferay.mule.internal.connection.LiferayConnection;
-import com.liferay.mule.internal.error.LiferayResponseErrorProvider;
 import com.liferay.mule.internal.error.LiferayResponseValidator;
+import com.liferay.mule.internal.error.provider.LiferayResponseErrorProvider;
 import com.liferay.mule.internal.metadata.input.PATCHEndpointInputTypeResolver;
 import com.liferay.mule.internal.metadata.input.POSTEndpointInputTypeResolver;
 import com.liferay.mule.internal.metadata.key.DELETEEndpointTypeKeysResolver;
@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.mule.runtime.api.util.MultiMap;
@@ -42,12 +43,16 @@ import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.metadata.MetadataKeyId;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
 import org.mule.runtime.extension.api.annotation.metadata.TypeResolver;
+import org.mule.runtime.extension.api.annotation.param.ConfigOverride;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Content;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.NullSafe;
 import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
+import org.mule.runtime.extension.api.annotation.param.display.Placement;
+import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.http.api.domain.entity.HttpEntity;
 import org.mule.runtime.http.api.domain.message.response.HttpResponse;
@@ -61,6 +66,7 @@ import org.slf4j.LoggerFactory;
 @Throws(LiferayResponseErrorProvider.class)
 public class LiferayOperations {
 
+	@DisplayName("Delete Record")
 	@MediaType(MediaType.APPLICATION_JSON)
 	@OutputResolver(output = DELETEEndpointOutputTypeResolver.class)
 	public Result<String, Void> delete(
@@ -76,7 +82,8 @@ public class LiferayOperations {
 		_logEndpointParams(Method.DELETE, endpoint, pathParams, queryParams);
 
 		HttpResponse httpResponse = connection.delete(
-			pathParams, queryParams, endpoint);
+			pathParams, queryParams, endpoint,
+			_connectionTimeoutTimeUnit.toMillis(_connectionTimeout));
 
 		_liferayResponseValidator.validate(httpResponse);
 
@@ -90,6 +97,7 @@ public class LiferayOperations {
 		).build();
 	}
 
+	@DisplayName("Get Records")
 	@MediaType(MediaType.APPLICATION_JSON)
 	@OutputResolver(output = GETEndpointOutputTypeResolver.class)
 	public Result<String, Void> get(
@@ -104,7 +112,8 @@ public class LiferayOperations {
 		_logEndpointParams(Method.GET, endpoint, pathParams, queryParams);
 
 		HttpResponse httpResponse = connection.get(
-			pathParams, queryParams, endpoint);
+			pathParams, queryParams, endpoint,
+			_connectionTimeoutTimeUnit.toMillis(_connectionTimeout));
 
 		_liferayResponseValidator.validate(httpResponse);
 
@@ -118,13 +127,13 @@ public class LiferayOperations {
 		).build();
 	}
 
-	@DisplayName("Update")
+	@DisplayName("Update Record")
 	@MediaType(MediaType.APPLICATION_JSON)
 	@OutputResolver(output = PATCHEndpointOutputTypeResolver.class)
 	public Result<String, Void> patch(
 			@Connection LiferayConnection connection,
 			@MetadataKeyId(PATCHEndpointTypeKeysResolver.class) String endpoint,
-			@Content @DisplayName("Records")
+			@Content @DisplayName("Record")
 			@TypeResolver(value = PATCHEndpointInputTypeResolver.class)
 				InputStream inputStream,
 			@DisplayName("Path Parameters") @NullSafe @Optional
@@ -136,7 +145,8 @@ public class LiferayOperations {
 		_logEndpointParams(Method.PATCH, endpoint, pathParams, queryParams);
 
 		HttpResponse httpResponse = connection.patch(
-			inputStream, pathParams, queryParams, endpoint);
+			inputStream, pathParams, queryParams, endpoint,
+			_connectionTimeoutTimeUnit.toMillis(_connectionTimeout));
 
 		_liferayResponseValidator.validate(httpResponse);
 
@@ -148,13 +158,13 @@ public class LiferayOperations {
 		).build();
 	}
 
-	@DisplayName("Create")
+	@DisplayName("Create Record")
 	@MediaType(MediaType.APPLICATION_JSON)
 	@OutputResolver(output = POSTEndpointOutputTypeResolver.class)
 	public Result<String, Void> post(
 			@Connection LiferayConnection connection,
 			@MetadataKeyId(POSTEndpointTypeKeysResolver.class) String endpoint,
-			@Content @DisplayName("Records")
+			@Content @DisplayName("Record")
 			@TypeResolver(value = POSTEndpointInputTypeResolver.class)
 				InputStream inputStream,
 			@DisplayName("Path Parameters") @NullSafe @Optional
@@ -166,7 +176,8 @@ public class LiferayOperations {
 		_logEndpointParams(Method.POST, endpoint, pathParams, queryParams);
 
 		HttpResponse httpResponse = connection.post(
-			inputStream, pathParams, queryParams, endpoint);
+			inputStream, pathParams, queryParams, endpoint,
+			_connectionTimeoutTimeUnit.toMillis(_connectionTimeout));
 
 		_liferayResponseValidator.validate(httpResponse);
 
@@ -190,6 +201,22 @@ public class LiferayOperations {
 
 	private static final Logger _logger = LoggerFactory.getLogger(
 		LiferayOperations.class);
+
+	@ConfigOverride
+	@DisplayName("Connection Timeout")
+	@Optional
+	@Parameter
+	@Placement(order = 1, tab = Placement.ADVANCED_TAB)
+	@Summary("Socket connection timeout value")
+	private int _connectionTimeout;
+
+	@ConfigOverride
+	@DisplayName("Connection Timeout Unit")
+	@Optional
+	@Parameter
+	@Placement(order = 2, tab = Placement.ADVANCED_TAB)
+	@Summary("Time unit to be used in the timeout configurations")
+	private TimeUnit _connectionTimeoutTimeUnit;
 
 	private final LiferayResponseValidator _liferayResponseValidator =
 		new LiferayResponseValidator();

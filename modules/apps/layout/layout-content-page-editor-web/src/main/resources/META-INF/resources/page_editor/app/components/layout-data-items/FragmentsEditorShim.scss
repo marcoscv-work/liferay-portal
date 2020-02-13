@@ -1,0 +1,6 @@
+@import '../variables';
+
+.page-editor__shim {
+	cursor: col-resize;
+	z-index: $shimZIndex;
+}

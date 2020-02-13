@@ -18,6 +18,7 @@ import com.liferay.headless.admin.workflow.client.dto.v1_0.WorkflowTask;
 import com.liferay.headless.admin.workflow.client.http.HttpInvoker;
 import com.liferay.headless.admin.workflow.client.pagination.Page;
 import com.liferay.headless.admin.workflow.client.pagination.Pagination;
+import com.liferay.headless.admin.workflow.client.problem.Problem;
 import com.liferay.headless.admin.workflow.client.serdes.v1_0.WorkflowTaskSerDes;
 
 import java.text.DateFormat;
@@ -78,18 +79,20 @@ public interface WorkflowTaskResource {
 
 	public Page<WorkflowTask> getWorkflowTasksPage(
 			Boolean andOperator, Long[] assetPrimaryKeys, String assetTitle,
-			String[] assetTypes, Long[] assigneeUserIds, Boolean completed,
+			String[] assetTypes, Long[] assigneeIds, Boolean completed,
 			java.util.Date dateDueEnd, java.util.Date dateDueStart,
-			Boolean searchByUserRoles, String[] taskNames,
+			Boolean searchByRoles, Boolean searchByUserRoles,
+			String[] taskNames, Long workflowDefinitionId,
 			Long[] workflowInstanceIds, Pagination pagination,
 			String sortString)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse getWorkflowTasksPageHttpResponse(
 			Boolean andOperator, Long[] assetPrimaryKeys, String assetTitle,
-			String[] assetTypes, Long[] assigneeUserIds, Boolean completed,
+			String[] assetTypes, Long[] assigneeIds, Boolean completed,
 			java.util.Date dateDueEnd, java.util.Date dateDueStart,
-			Boolean searchByUserRoles, String[] taskNames,
+			Boolean searchByRoles, Boolean searchByUserRoles,
+			String[] taskNames, Long workflowDefinitionId,
 			Long[] workflowInstanceIds, Pagination pagination,
 			String sortString)
 		throws Exception;
@@ -146,6 +149,17 @@ public interface WorkflowTaskResource {
 	public HttpInvoker.HttpResponse
 			getWorkflowTasksAssignedToUserRolesPageHttpResponse(
 				Long assigneeId, Pagination pagination)
+		throws Exception;
+
+	public void patchWorkflowTaskChangeTransition(
+			com.liferay.headless.admin.workflow.client.dto.v1_0.
+				ChangeTransition[] changeTransitions)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse
+			patchWorkflowTaskChangeTransitionHttpResponse(
+				com.liferay.headless.admin.workflow.client.dto.v1_0.
+					ChangeTransition[] changeTransitions)
 		throws Exception;
 
 	public Page<WorkflowTask> getWorkflowTasksSubmittingUserPage(
@@ -304,7 +318,16 @@ public interface WorkflowTaskResource {
 			_logger.fine(
 				"HTTP response status code: " + httpResponse.getStatusCode());
 
-			return Page.of(content, WorkflowTaskSerDes::toDTO);
+			try {
+				return Page.of(content, WorkflowTaskSerDes::toDTO);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
 		}
 
 		public HttpInvoker.HttpResponse
@@ -375,7 +398,16 @@ public interface WorkflowTaskResource {
 			_logger.fine(
 				"HTTP response status code: " + httpResponse.getStatusCode());
 
-			return Page.of(content, WorkflowTaskSerDes::toDTO);
+			try {
+				return Page.of(content, WorkflowTaskSerDes::toDTO);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
 		}
 
 		public HttpInvoker.HttpResponse
@@ -446,7 +478,16 @@ public interface WorkflowTaskResource {
 			_logger.fine(
 				"HTTP response status code: " + httpResponse.getStatusCode());
 
-			return Page.of(content, WorkflowTaskSerDes::toDTO);
+			try {
+				return Page.of(content, WorkflowTaskSerDes::toDTO);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
 		}
 
 		public HttpInvoker.HttpResponse
@@ -505,9 +546,10 @@ public interface WorkflowTaskResource {
 
 		public Page<WorkflowTask> getWorkflowTasksPage(
 				Boolean andOperator, Long[] assetPrimaryKeys, String assetTitle,
-				String[] assetTypes, Long[] assigneeUserIds, Boolean completed,
+				String[] assetTypes, Long[] assigneeIds, Boolean completed,
 				java.util.Date dateDueEnd, java.util.Date dateDueStart,
-				Boolean searchByUserRoles, String[] taskNames,
+				Boolean searchByRoles, Boolean searchByUserRoles,
+				String[] taskNames, Long workflowDefinitionId,
 				Long[] workflowInstanceIds, Pagination pagination,
 				String sortString)
 			throws Exception {
@@ -515,9 +557,10 @@ public interface WorkflowTaskResource {
 			HttpInvoker.HttpResponse httpResponse =
 				getWorkflowTasksPageHttpResponse(
 					andOperator, assetPrimaryKeys, assetTitle, assetTypes,
-					assigneeUserIds, completed, dateDueEnd, dateDueStart,
-					searchByUserRoles, taskNames, workflowInstanceIds,
-					pagination, sortString);
+					assigneeIds, completed, dateDueEnd, dateDueStart,
+					searchByRoles, searchByUserRoles, taskNames,
+					workflowDefinitionId, workflowInstanceIds, pagination,
+					sortString);
 
 			String content = httpResponse.getContent();
 
@@ -527,14 +570,24 @@ public interface WorkflowTaskResource {
 			_logger.fine(
 				"HTTP response status code: " + httpResponse.getStatusCode());
 
-			return Page.of(content, WorkflowTaskSerDes::toDTO);
+			try {
+				return Page.of(content, WorkflowTaskSerDes::toDTO);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
 		}
 
 		public HttpInvoker.HttpResponse getWorkflowTasksPageHttpResponse(
 				Boolean andOperator, Long[] assetPrimaryKeys, String assetTitle,
-				String[] assetTypes, Long[] assigneeUserIds, Boolean completed,
+				String[] assetTypes, Long[] assigneeIds, Boolean completed,
 				java.util.Date dateDueEnd, java.util.Date dateDueStart,
-				Boolean searchByUserRoles, String[] taskNames,
+				Boolean searchByRoles, Boolean searchByUserRoles,
+				String[] taskNames, Long workflowDefinitionId,
 				Long[] workflowInstanceIds, Pagination pagination,
 				String sortString)
 			throws Exception {
@@ -587,10 +640,10 @@ public interface WorkflowTaskResource {
 				}
 			}
 
-			if (assigneeUserIds != null) {
-				for (int i = 0; i < assigneeUserIds.length; i++) {
+			if (assigneeIds != null) {
+				for (int i = 0; i < assigneeIds.length; i++) {
 					httpInvoker.parameter(
-						"assigneeUserIds", String.valueOf(assigneeUserIds[i]));
+						"assigneeIds", String.valueOf(assigneeIds[i]));
 				}
 			}
 
@@ -609,6 +662,11 @@ public interface WorkflowTaskResource {
 					liferayToJSONDateFormat.format(dateDueStart));
 			}
 
+			if (searchByRoles != null) {
+				httpInvoker.parameter(
+					"searchByRoles", String.valueOf(searchByRoles));
+			}
+
 			if (searchByUserRoles != null) {
 				httpInvoker.parameter(
 					"searchByUserRoles", String.valueOf(searchByUserRoles));
@@ -619,6 +677,12 @@ public interface WorkflowTaskResource {
 					httpInvoker.parameter(
 						"taskNames", String.valueOf(taskNames[i]));
 				}
+			}
+
+			if (workflowDefinitionId != null) {
+				httpInvoker.parameter(
+					"workflowDefinitionId",
+					String.valueOf(workflowDefinitionId));
 			}
 
 			if (workflowInstanceIds != null) {
@@ -667,6 +731,17 @@ public interface WorkflowTaskResource {
 			_logger.fine("HTTP response message: " + httpResponse.getMessage());
 			_logger.fine(
 				"HTTP response status code: " + httpResponse.getStatusCode());
+
+			try {
+				return;
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
 		}
 
 		public HttpInvoker.HttpResponse
@@ -732,7 +807,16 @@ public interface WorkflowTaskResource {
 			_logger.fine(
 				"HTTP response status code: " + httpResponse.getStatusCode());
 
-			return Page.of(content, WorkflowTaskSerDes::toDTO);
+			try {
+				return Page.of(content, WorkflowTaskSerDes::toDTO);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
 		}
 
 		public HttpInvoker.HttpResponse
@@ -794,7 +878,16 @@ public interface WorkflowTaskResource {
 			_logger.fine(
 				"HTTP response status code: " + httpResponse.getStatusCode());
 
-			return Page.of(content, WorkflowTaskSerDes::toDTO);
+			try {
+				return Page.of(content, WorkflowTaskSerDes::toDTO);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
 		}
 
 		public HttpInvoker.HttpResponse
@@ -857,7 +950,16 @@ public interface WorkflowTaskResource {
 			_logger.fine(
 				"HTTP response status code: " + httpResponse.getStatusCode());
 
-			return Page.of(content, WorkflowTaskSerDes::toDTO);
+			try {
+				return Page.of(content, WorkflowTaskSerDes::toDTO);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
 		}
 
 		public HttpInvoker.HttpResponse
@@ -924,7 +1026,16 @@ public interface WorkflowTaskResource {
 			_logger.fine(
 				"HTTP response status code: " + httpResponse.getStatusCode());
 
-			return Page.of(content, WorkflowTaskSerDes::toDTO);
+			try {
+				return Page.of(content, WorkflowTaskSerDes::toDTO);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
 		}
 
 		public HttpInvoker.HttpResponse
@@ -991,7 +1102,16 @@ public interface WorkflowTaskResource {
 			_logger.fine(
 				"HTTP response status code: " + httpResponse.getStatusCode());
 
-			return Page.of(content, WorkflowTaskSerDes::toDTO);
+			try {
+				return Page.of(content, WorkflowTaskSerDes::toDTO);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
 		}
 
 		public HttpInvoker.HttpResponse
@@ -1042,6 +1162,83 @@ public interface WorkflowTaskResource {
 			return httpInvoker.invoke();
 		}
 
+		public void patchWorkflowTaskChangeTransition(
+				com.liferay.headless.admin.workflow.client.dto.v1_0.
+					ChangeTransition[] changeTransitions)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				patchWorkflowTaskChangeTransitionHttpResponse(
+					changeTransitions);
+
+			String content = httpResponse.getContent();
+
+			_logger.fine("HTTP response content: " + content);
+
+			_logger.fine("HTTP response message: " + httpResponse.getMessage());
+			_logger.fine(
+				"HTTP response status code: " + httpResponse.getStatusCode());
+
+			try {
+				return;
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse
+				patchWorkflowTaskChangeTransitionHttpResponse(
+					com.liferay.headless.admin.workflow.client.dto.v1_0.
+						ChangeTransition[] changeTransitions)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body(
+				Stream.of(
+					changeTransitions
+				).map(
+					value -> String.valueOf(value)
+				).collect(
+					Collectors.toList()
+				).toString(),
+				"application/json");
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.PATCH);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/headless-admin-workflow/v1.0/workflow-tasks/change-transition");
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
 		public Page<WorkflowTask> getWorkflowTasksSubmittingUserPage(
 				Long creatorId, Pagination pagination)
 			throws Exception {
@@ -1058,7 +1255,16 @@ public interface WorkflowTaskResource {
 			_logger.fine(
 				"HTTP response status code: " + httpResponse.getStatusCode());
 
-			return Page.of(content, WorkflowTaskSerDes::toDTO);
+			try {
+				return Page.of(content, WorkflowTaskSerDes::toDTO);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
 		}
 
 		public HttpInvoker.HttpResponse
@@ -1131,7 +1337,7 @@ public interface WorkflowTaskResource {
 					Level.WARNING,
 					"Unable to process HTTP response: " + content, e);
 
-				throw e;
+				throw new Problem.ProblemException(Problem.toDTO(content));
 			}
 		}
 
@@ -1198,7 +1404,7 @@ public interface WorkflowTaskResource {
 					Level.WARNING,
 					"Unable to process HTTP response: " + content, e);
 
-				throw e;
+				throw new Problem.ProblemException(Problem.toDTO(content));
 			}
 		}
 
@@ -1270,7 +1476,7 @@ public interface WorkflowTaskResource {
 					Level.WARNING,
 					"Unable to process HTTP response: " + content, e);
 
-				throw e;
+				throw new Problem.ProblemException(Problem.toDTO(content));
 			}
 		}
 
@@ -1343,7 +1549,7 @@ public interface WorkflowTaskResource {
 					Level.WARNING,
 					"Unable to process HTTP response: " + content, e);
 
-				throw e;
+				throw new Problem.ProblemException(Problem.toDTO(content));
 			}
 		}
 
@@ -1416,7 +1622,7 @@ public interface WorkflowTaskResource {
 					Level.WARNING,
 					"Unable to process HTTP response: " + content, e);
 
-				throw e;
+				throw new Problem.ProblemException(Problem.toDTO(content));
 			}
 		}
 
@@ -1476,7 +1682,16 @@ public interface WorkflowTaskResource {
 			_logger.fine(
 				"HTTP response status code: " + httpResponse.getStatusCode());
 
-			return content;
+			try {
+				return content;
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
 		}
 
 		public HttpInvoker.HttpResponse
@@ -1543,7 +1758,7 @@ public interface WorkflowTaskResource {
 					Level.WARNING,
 					"Unable to process HTTP response: " + content, e);
 
-				throw e;
+				throw new Problem.ProblemException(Problem.toDTO(content));
 			}
 		}
 

@@ -177,7 +177,8 @@ class ImageEditor extends PortletBase {
 
 				if (canvas.toBlob) {
 					canvas.toBlob(resolve, this.saveMimeType);
-				} else {
+				}
+				else {
 					const data = atob(
 						canvas.toDataURL(this.saveMimeType).split(',')[1]
 					);
@@ -244,7 +245,8 @@ class ImageEditor extends PortletBase {
 			});
 
 			Liferay.Util.getWindow().hide();
-		} else if (result.error) {
+		}
+		else if (result.error) {
 			this.showError_(result.error.message);
 		}
 	}
@@ -391,11 +393,13 @@ class ImageEditor extends PortletBase {
 	submitBlob_(imageBlob) {
 		const saveFileName = this.saveFileName;
 		const saveParamName = this.saveParamName;
+		const saveFileDescription = this.saveFileDescription;
 
 		const promise = new Promise((resolve, reject) => {
 			const formData = new FormData();
 
 			formData.append(saveParamName, imageBlob, saveFileName);
+			formData.append('description', saveFileDescription);
 
 			this.fetch(this.saveURL, formData)
 				.then(response => response.json())
@@ -467,7 +471,8 @@ class ImageEditor extends PortletBase {
 		if (availableAspectRatio > 1) {
 			canvas.height = availableHeight;
 			canvas.width = aspectRatio * availableHeight;
-		} else {
+		}
+		else {
 			canvas.width = availableWidth;
 			canvas.height = availableWidth / aspectRatio;
 		}
@@ -523,6 +528,14 @@ ImageEditor.STATE = {
 	 * @type {String}
 	 */
 	saveEventName: {
+		validator: core.isString
+	},
+
+	/**
+	 * Description of the saved image to send to the server for the save action.
+	 * @type {String}
+	 */
+	saveFileDescription: {
 		validator: core.isString
 	},
 

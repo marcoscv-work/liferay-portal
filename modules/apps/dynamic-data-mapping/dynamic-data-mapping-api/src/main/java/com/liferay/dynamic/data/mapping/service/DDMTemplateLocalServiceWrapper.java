@@ -254,6 +254,17 @@ public class DDMTemplateLocalServiceWrapper
 	}
 
 	/**
+	 * @throws PortalException
+	 */
+	@Override
+	public com.liferay.portal.kernel.model.PersistedModel createPersistedModel(
+			java.io.Serializable primaryKeyObj)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _ddmTemplateLocalService.createPersistedModel(primaryKeyObj);
+	}
+
+	/**
 	 * Deletes the ddm template from the database. Also notifies the appropriate model listeners.
 	 *
 	 * @param ddmTemplate the ddm template
@@ -631,6 +642,9 @@ public class DDMTemplateLocalServiceWrapper
 		return _ddmTemplateLocalService.getOSGiServiceIdentifier();
 	}
 
+	/**
+	 * @throws PortalException
+	 */
 	@Override
 	public com.liferay.portal.kernel.model.PersistedModel getPersistedModel(
 			java.io.Serializable primaryKeyObj)
@@ -810,6 +824,18 @@ public class DDMTemplateLocalServiceWrapper
 
 	@Override
 	public java.util.List<DDMTemplate> getTemplates(
+		long companyId, long[] groupIds, long[] classNameIds, long[] classPKs,
+		long resourceClassNameId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<DDMTemplate>
+			orderByComparator) {
+
+		return _ddmTemplateLocalService.getTemplates(
+			companyId, groupIds, classNameIds, classPKs, resourceClassNameId,
+			start, end, orderByComparator);
+	}
+
+	@Override
+	public java.util.List<DDMTemplate> getTemplates(
 		long[] groupIds, long classNameId, long classPK) {
 
 		return _ddmTemplateLocalService.getTemplates(
@@ -952,6 +978,15 @@ public class DDMTemplateLocalServiceWrapper
 	public int getTemplatesCount(long groupId, long classNameId, long classPK) {
 		return _ddmTemplateLocalService.getTemplatesCount(
 			groupId, classNameId, classPK);
+	}
+
+	@Override
+	public int getTemplatesCount(
+		long companyId, long[] groupIds, long[] classNameIds, long[] classPKs,
+		long resourceClassNameId) {
+
+		return _ddmTemplateLocalService.getTemplatesCount(
+			companyId, groupIds, classNameIds, classPKs, resourceClassNameId);
 	}
 
 	/**

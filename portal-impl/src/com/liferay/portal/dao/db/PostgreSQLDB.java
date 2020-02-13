@@ -102,8 +102,7 @@ public class PostgreSQLDB extends BaseDB {
 
 	@Override
 	public String buildSQL(String template) throws IOException {
-		template = convertTimestamp(template);
-		template = replaceTemplate(template, getTemplate());
+		template = replaceTemplate(template);
 
 		template = reword(template);
 
@@ -153,16 +152,20 @@ public class PostgreSQLDB extends BaseDB {
 	}
 
 	@Override
-	public boolean isSupportsQueryingAfterException() {
-		return _SUPPORTS_QUERYING_AFTER_EXCEPTION;
+	public String getPopulateSQL(String databaseName, String sqlContent) {
+		StringBundler sb = new StringBundler(4);
+
+		sb.append("\\c ");
+		sb.append(databaseName);
+		sb.append(";\n\n");
+		sb.append(sqlContent);
+
+		return sb.toString();
 	}
 
 	@Override
-	protected String buildCreateFileContent(
-			String sqlDir, String databaseName, int population)
-		throws IOException {
-
-		StringBundler sb = new StringBundler(14);
+	public String getRecreateSQL(String databaseName) {
+		StringBundler sb = new StringBundler(6);
 
 		sb.append("drop database ");
 		sb.append(databaseName);
@@ -171,23 +174,12 @@ public class PostgreSQLDB extends BaseDB {
 		sb.append(databaseName);
 		sb.append(" encoding = 'UNICODE';\n");
 
-		if (population != BARE) {
-			sb.append("\\c ");
-			sb.append(databaseName);
-			sb.append(";\n\n");
-			sb.append(getCreateTablesContent(sqlDir, getSuffix(population)));
-			sb.append("\n\n");
-			sb.append(readFile(sqlDir + "/indexes/indexes-postgresql.sql"));
-			sb.append("\n\n");
-			sb.append(readFile(sqlDir + "/sequences/sequences-postgresql.sql"));
-		}
-
 		return sb.toString();
 	}
 
 	@Override
-	protected String getServerName() {
-		return "postgresql";
+	public boolean isSupportsQueryingAfterException() {
+		return _SUPPORTS_QUERYING_AFTER_EXCEPTION;
 	}
 
 	@Override

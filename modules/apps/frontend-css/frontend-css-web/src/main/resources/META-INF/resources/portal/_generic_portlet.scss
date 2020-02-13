@@ -8,12 +8,10 @@
 }
 
 .js {
-	@include media-breakpoint-down(sm) {
-		.controls-hidden {
-			.lfr-meta-actions,
-			.lfr-configurator-visibility {
-				display: none;
-			}
+	.controls-hidden {
+		.lfr-meta-actions,
+		.lfr-configurator-visibility {
+			display: none;
 		}
 	}
 

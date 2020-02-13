@@ -12,8 +12,10 @@
  * details.
  */
 
-import React from 'react';
+import React, {useContext, useEffect} from 'react';
+import {createPortal} from 'react-dom';
 
+import {ConfigContext} from '../config/index';
 import {useSelector} from '../store/index';
 import DisabledArea from './DisabledArea';
 import MasterLayout from './MasterLayout';
@@ -22,14 +24,27 @@ import Sidebar from './Sidebar';
 import Toolbar from './Toolbar';
 
 export default function App() {
+	const {languageDirection} = useContext(ConfigContext);
+
 	const masterLayoutData = useSelector(state => state.masterLayoutData);
+	const languageId = useSelector(state => state.languageId);
+
+	useEffect(() => {
+		const currentLanguageDirection = languageDirection[languageId];
+		const wrapper = document.getElementById('wrapper');
+
+		if (wrapper) {
+			wrapper.dir = currentLanguageDirection;
+			wrapper.lang = languageId;
+		}
+	}, [languageDirection, languageId]);
 
 	return (
 		<>
 			<DisabledArea />
 			<Toolbar />
 			{masterLayoutData.items ? <MasterLayout /> : <PageEditor />}
-			<Sidebar />
+			{createPortal(<Sidebar />, document.body)}
 		</>
 	);
 }

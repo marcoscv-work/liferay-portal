@@ -11,71 +11,127 @@
 
 import {ClayCheckbox} from '@clayui/form';
 import ClayTable from '@clayui/table';
-import React, {useContext, useState, useCallback, useEffect} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 
+import Icon from '../../shared/components/Icon.es';
 import QuickActionKebab from '../../shared/components/quick-action-kebab/QuickActionKebab.es';
 import moment from '../../shared/util/moment.es';
 import {ModalContext} from './modal/ModalContext.es';
 import {InstanceListContext} from './store/InstanceListPageStore.es';
 
-const Item = taskItem => {
-	const {selectedItems = [], setInstanceId, setSelectedItems} = useContext(
-		InstanceListContext
-	);
-	const [checked, setChecked] = useState(false);
+const getSLAStatusIcon = slaStatus => {
+	const items = {
+		OnTime: {
+			bgColor: 'bg-success-light',
+			iconColor: 'text-success',
+			iconName: 'check-circle'
+		},
+		Overdue: {
+			bgColor: 'bg-danger-light',
+			iconColor: 'text-danger',
+			iconName: 'exclamation-circle'
+		},
+		Untracked: {
+			bgColor: 'bg-info-light',
+			iconColor: 'text-info',
+			iconName: 'hr'
+		}
+	};
 
-	useEffect(() => {
-		setChecked(selectedItems.find(item => item.id === id) !== undefined);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedItems]);
+	return items[slaStatus] || items.Untracked;
+};
+
+const Item = ({totalCount, ...taskItem}) => {
+	const {
+		selectedItems = [],
+		setInstanceId,
+		setSelectAll,
+		setSelectedItems
+	} = useContext(InstanceListContext);
+	const {instanceDetailsModal, setInstanceDetailsModal} = useContext(
+		ModalContext
+	);
+
+	const [checked, setChecked] = useState(false);
 
 	const {
 		assetTitle,
 		assetType,
-		assigneeUsers,
+		assigneeUsers = [],
 		creatorUser,
 		dateCreated,
 		id,
 		status,
+		slaStatus,
 		taskNames = []
 	} = taskItem;
 
+	useEffect(() => {
+		setChecked(!!selectedItems.find(item => item.id === id));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [selectedItems]);
+
 	const completed = status === 'Completed';
+	const slaStatusIcon = getSLAStatusIcon(slaStatus);
+
+	const assigneeUserNames = assigneeUsers
+		.map(assigneeUser => assigneeUser.name)
+		.join(', ');
+
 	const formattedAssignees = !completed
-		? assigneeUsers && assigneeUsers.length
-			? assigneeUsers.map(assigneeUser => assigneeUser.name).join(', ')
-			: Liferay.Language.get('unassigned')
+		? assigneeUserNames || Liferay.Language.get('unassigned')
 		: Liferay.Language.get('not-available');
 
 	const handleCheck = ({target}) => {
 		setChecked(target.checked);
 
-		if (target.checked) {
-			setSelectedItems([...selectedItems, taskItem]);
-		} else {
-			setSelectedItems(selectedItems.filter(item => item.id !== id));
-		}
+		const updatedItems = target.checked
+			? [...selectedItems, taskItem]
+			: selectedItems.filter(item => item.id !== id);
+
+		setSelectAll(totalCount > 0 && totalCount === updatedItems.length);
+		setSelectedItems(updatedItems);
 	};
 
-	const updateInstanceId = () => setInstanceId(id);
-
 	return (
-		<ClayTable.Row data-testid="instanceRow">
+		<ClayTable.Row
+			className={checked ? 'table-active' : ''}
+			data-testid="instanceRow"
+		>
 			<ClayTable.Cell>
-				<ClayCheckbox
-					checked={checked}
-					data-testid="instanceCheckbox"
-					onChange={handleCheck}
-				/>
+				<div className="table-first-element-group">
+					<ClayCheckbox
+						checked={checked}
+						data-testid="instanceCheckbox"
+						disabled={completed}
+						onChange={handleCheck}
+					/>
+
+					<span
+						className={`sticker sticker-sm ${slaStatusIcon.bgColor}`}
+					>
+						<span className="inline-item">
+							<Icon
+								elementClasses={slaStatusIcon.iconColor}
+								iconName={slaStatusIcon.iconName}
+							/>
+						</span>
+					</span>
+				</div>
 			</ClayTable.Cell>
 
 			<ClayTable.Cell>
 				<span
 					className="link-text"
-					data-target="#instanceDetailModal"
 					data-testid="instanceIdLink"
-					data-toggle="modal"
-					onClick={updateInstanceId}
+					onClick={() => {
+						setInstanceId(id);
+
+						setInstanceDetailsModal(() => ({
+							...instanceDetailsModal,
+							visible: true
+						}));
+					}}
 					tabIndex="-1"
 				>
 					<strong>{id}</strong>
@@ -107,20 +163,28 @@ const Item = taskItem => {
 			</ClayTable.Cell>
 
 			<ClayTable.Cell style={{paddingRight: '0rem'}}>
-				<QuickActionMenu taskItem={taskItem} />
+				<QuickActionMenu disabled={completed} taskItem={taskItem} />
 			</ClayTable.Cell>
 		</ClayTable.Row>
 	);
 };
 
-const QuickActionMenu = ({taskItem}) => {
-	const {setSingleModal} = useContext(ModalContext);
-	const handleClickReassigneeTask = useCallback(
+const QuickActionMenu = ({disabled, taskItem}) => {
+	const {bulkModal, setBulkModal, setSingleModal} = useContext(ModalContext);
+
+	const handleClickReassignTask = useCallback(
 		() => {
-			setSingleModal({
-				selectedItem: taskItem,
-				visible: true
-			});
+			if (taskItem.taskNames.length > 1) {
+				setBulkModal({...bulkModal, visible: true});
+
+				setSingleModal({selectedItem: taskItem});
+			}
+			else {
+				setSingleModal({
+					selectedItem: taskItem,
+					visible: true
+				});
+			}
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[taskItem]
@@ -128,7 +192,7 @@ const QuickActionMenu = ({taskItem}) => {
 
 	const kebabItems = [
 		{
-			action: handleClickReassigneeTask,
+			action: handleClickReassignTask,
 			icon: 'change',
 			title: Liferay.Language.get('reassign-task')
 		}
@@ -136,7 +200,7 @@ const QuickActionMenu = ({taskItem}) => {
 
 	return (
 		<div className="autofit-col">
-			<QuickActionKebab items={kebabItems} />
+			<QuickActionKebab disabled={disabled} items={kebabItems} />
 		</div>
 	);
 };

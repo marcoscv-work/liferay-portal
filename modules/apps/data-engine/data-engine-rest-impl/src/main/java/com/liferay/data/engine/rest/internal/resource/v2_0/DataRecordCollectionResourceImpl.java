@@ -16,8 +16,9 @@ package com.liferay.data.engine.rest.internal.resource.v2_0;
 
 import com.liferay.data.engine.rest.dto.v2_0.DataRecordCollection;
 import com.liferay.data.engine.rest.internal.constants.DataActionKeys;
+import com.liferay.data.engine.rest.internal.content.type.DataDefinitionContentTypeTracker;
 import com.liferay.data.engine.rest.internal.dto.v2_0.util.DataRecordCollectionUtil;
-import com.liferay.data.engine.rest.internal.resource.util.DataEnginePermissionUtil;
+import com.liferay.data.engine.rest.internal.security.permission.resource.DataDefinitionModelResourcePermission;
 import com.liferay.data.engine.rest.internal.security.permission.resource.DataRecordCollectionModelResourcePermission;
 import com.liferay.data.engine.rest.resource.v2_0.DataRecordCollectionResource;
 import com.liferay.data.engine.spi.resource.SPIDataRecordCollectionResource;
@@ -35,9 +36,13 @@ import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+import com.liferay.portal.vulcan.permission.ModelPermissionsUtil;
+import com.liferay.portal.vulcan.permission.Permission;
+import com.liferay.portal.vulcan.permission.PermissionUtil;
 
 import java.util.List;
 
@@ -94,10 +99,9 @@ public class DataRecordCollectionResourceImpl
 			spiDataRecordCollectionResource =
 				_getSPIDataRecordCollectionResource();
 
-		return spiDataRecordCollectionResource.
-			getDataDefinitionDataRecordCollectionsPage(
-				contextAcceptLanguage, contextCompany, dataDefinitionId,
-				keywords, pagination);
+		return spiDataRecordCollectionResource.getDataRecordCollections(
+			dataDefinitionId, keywords,
+			contextAcceptLanguage.getPreferredLocale(), pagination);
 	}
 
 	@Override
@@ -148,6 +152,37 @@ public class DataRecordCollectionResourceImpl
 	}
 
 	@Override
+	public Page<Permission> getDataRecordCollectionPermissionsPage(
+			Long dataRecordCollectionId, String roleNames)
+		throws Exception {
+
+		SPIDataRecordCollectionResource<DataRecordCollection>
+			spiDataRecordCollectionResource =
+				_getSPIDataRecordCollectionResource();
+
+		DataRecordCollection dataRecordCollection =
+			spiDataRecordCollectionResource.getDataRecordCollection(
+				dataRecordCollectionId);
+
+		_dataDefinitionModelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			dataRecordCollection.getDataDefinitionId(), ActionKeys.PERMISSIONS);
+
+		String resourceName = getPermissionCheckerResourceName(
+			dataRecordCollectionId);
+
+		return Page.of(
+			transform(
+				PermissionUtil.getRoles(
+					contextCompany, roleLocalService,
+					StringUtil.split(roleNames)),
+				role -> PermissionUtil.toPermission(
+					contextCompany.getCompanyId(), dataRecordCollectionId,
+					resourceActionLocalService.getResourceActions(resourceName),
+					resourceName, resourcePermissionLocalService, role)));
+	}
+
+	@Override
 	public DataRecordCollection
 			getSiteDataRecordCollectionByDataRecordCollectionKey(
 				Long siteId, String dataRecordCollectionKey)
@@ -169,9 +204,9 @@ public class DataRecordCollectionResourceImpl
 		DDMStructure ddmStructure = _ddmStructureLocalService.getDDMStructure(
 			dataDefinitionId);
 
-		DataEnginePermissionUtil.checkPermission(
-			DataActionKeys.ADD_DATA_RECORD_COLLECTION, groupLocalService,
-			ddmStructure.getGroupId());
+		_dataDefinitionModelResourcePermission.checkPortletPermission(
+			PermissionThreadLocal.getPermissionChecker(), ddmStructure,
+			DataActionKeys.ADD_DATA_RECORD_COLLECTION);
 
 		String dataRecordCollectionKey =
 			dataRecordCollection.getDataRecordCollectionKey();
@@ -184,11 +219,10 @@ public class DataRecordCollectionResourceImpl
 			spiDataRecordCollectionResource =
 				_getSPIDataRecordCollectionResource();
 
-		return spiDataRecordCollectionResource.
-			postDataDefinitionDataRecordCollection(
-				contextCompany, dataDefinitionId, dataRecordCollectionKey,
-				dataRecordCollection.getDescription(),
-				dataRecordCollection.getName());
+		return spiDataRecordCollectionResource.addDataRecordCollection(
+			dataDefinitionId, dataRecordCollectionKey,
+			dataRecordCollection.getDescription(),
+			dataRecordCollection.getName());
 	}
 
 	@Override
@@ -205,9 +239,39 @@ public class DataRecordCollectionResourceImpl
 			spiDataRecordCollectionResource =
 				_getSPIDataRecordCollectionResource();
 
-		return spiDataRecordCollectionResource.putDataRecordCollection(
+		return spiDataRecordCollectionResource.updateDataRecordCollection(
 			dataRecordCollectionId, dataRecordCollection.getDescription(),
 			dataRecordCollection.getName());
+	}
+
+	@Override
+	public void putDataRecordCollectionPermission(
+			Long dataRecordCollectionId, Permission[] permissions)
+		throws Exception {
+
+		SPIDataRecordCollectionResource<DataRecordCollection>
+			spiDataRecordCollectionResource =
+				_getSPIDataRecordCollectionResource();
+
+		DataRecordCollection dataRecordCollection =
+			spiDataRecordCollectionResource.getDataRecordCollection(
+				dataRecordCollectionId);
+
+		_dataDefinitionModelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			dataRecordCollection.getDataDefinitionId(), ActionKeys.PERMISSIONS);
+
+		String resourceName = getPermissionCheckerResourceName(
+			dataRecordCollectionId);
+
+		resourcePermissionLocalService.updateResourcePermissions(
+			contextCompany.getCompanyId(), 0, resourceName,
+			String.valueOf(dataRecordCollectionId),
+			ModelPermissionsUtil.toModelPermissions(
+				contextCompany.getCompanyId(), permissions,
+				dataRecordCollectionId, resourceName,
+				resourceActionLocalService, resourcePermissionLocalService,
+				roleLocalService));
 	}
 
 	@Override
@@ -246,6 +310,13 @@ public class DataRecordCollectionResourceImpl
 			_resourceLocalService,
 			DataRecordCollectionUtil::toDataRecordCollection);
 	}
+
+	@Reference
+	private DataDefinitionContentTypeTracker _dataDefinitionContentTypeTracker;
+
+	@Reference
+	private DataDefinitionModelResourcePermission
+		_dataDefinitionModelResourcePermission;
 
 	@Reference
 	private DataRecordCollectionModelResourcePermission

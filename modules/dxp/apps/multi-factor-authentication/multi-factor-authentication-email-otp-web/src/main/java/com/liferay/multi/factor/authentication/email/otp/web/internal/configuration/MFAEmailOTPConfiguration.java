@@ -16,9 +16,16 @@ package com.liferay.multi.factor.authentication.email.otp.web.internal.configura
 
 import aQute.bnd.annotation.metatype.Meta;
 
+import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
+import com.liferay.portal.kernel.settings.LocalizedValuesMap;
+
 /**
  * @author Tomas Polesovsky
  */
+@ExtendedObjectClassDefinition(
+	category = "multi-factor-authentication",
+	scope = ExtendedObjectClassDefinition.Scope.COMPANY
+)
 @Meta.OCD(
 	id = "com.liferay.multi.factor.authentication.email.otp.web.internal.configuration.MFAEmailOTPConfiguration",
 	localization = "content/Language", name = "mfa-email-otp-configuration-name"
@@ -41,34 +48,32 @@ public interface MFAEmailOTPConfiguration {
 
 	@Meta.AD(
 		deflt = "${server-property://com.liferay.portal/admin.email.from.address}",
-		name = "email-template-from", required = false
+		name = "email-from-address", required = false
 	)
-	public String emailTemplateFrom();
+	public String emailFromAddress();
 
 	@Meta.AD(
 		deflt = "${server-property://com.liferay.portal/admin.email.from.name}",
-		name = "email-template-from-sender", required = false
+		name = "email-from-name", required = false
 	)
-	public String emailTemplateFromName();
+	public String emailFromName();
 
-	@Meta.AD(deflt = "", name = "email-template-subject", required = false)
-	public String emailTemplateSubject();
+	@Meta.AD(
+		deflt = "${resource:com/liferay/multi/factor/authentication/email/otp/web/internal/configuration/dependencies/email_otp_sent_subject.tmpl}",
+		name = "email-otp-sent-subject", required = false
+	)
+	public LocalizedValuesMap emailOTPSentSubject();
 
-	@Meta.AD(deflt = "", name = "email-template-body", required = false)
-	public String emailTemplateBody();
+	@Meta.AD(
+		deflt = "${resource:com/liferay/multi/factor/authentication/email/otp/web/internal/configuration/dependencies/email_otp_sent_body.tmpl}",
+		name = "email-otp-sent-body", required = false
+	)
+	public LocalizedValuesMap emailOTPSentBody();
 
 	@Meta.AD(deflt = "-1", name = "failed-attempts-allowed", required = false)
 	public int failedAttemptsAllowed();
 
 	@Meta.AD(deflt = "6", name = "otp-size", required = false)
 	public int otpSize();
-
-	public final String DEFAULT_EMAIL_OTP_BODY =
-		"/META-INF/resources/dependencies" +
-			"/email_multi_factor_authentication_email_otp_body.tmpl";
-
-	public final String DEFAULT_EMAIL_OTP_SUBJECT =
-		"/META-INF/resources/dependencies" +
-			"/email_multi_factor_authentication_email_otp_subject.tmpl";
 
 }

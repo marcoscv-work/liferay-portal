@@ -14,43 +14,160 @@ import ClayButton from '@clayui/button';
 import ClayModal, {useModal} from '@clayui/modal';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 
+import {useToaster} from '../../../../shared/components/toaster/hooks/useToaster.es';
+import {useFetch} from '../../../../shared/hooks/useFetch.es';
+import {useFilter} from '../../../../shared/hooks/useFilter.es';
 import {usePatch} from '../../../../shared/hooks/usePatch.es';
 import {sub} from '../../../../shared/util/lang.es';
+import {InstanceListContext} from '../../store/InstanceListPageStore.es';
 import {ModalContext} from '../ModalContext.es';
 import {BulkReassignSelectAssigneesStep} from './select-assignees-step/BulkReassignSelectAssigneesStep.es';
 import {BulkReassignSelectTasksStep} from './select-tasks-step/BulkReassignSelectTasksStep.es';
 
 const BulkReassignModal = () => {
-	const {bulkModal, setBulkModal} = useContext(ModalContext);
+	const {bulkModal, setBulkModal, setSingleModal, singleModal} = useContext(
+		ModalContext
+	);
+	const {
+		selectAll: selectAllInstances,
+		selectedItems,
+		setSelectAll,
+		setSelectedItems
+	} = useContext(InstanceListContext);
 
-	const {reassignedTasks, reassigning, selectedTasks, visible} = bulkModal;
+	const {
+		dispatch,
+		filterState,
+		filterValues: {bulkAssigneeUserIds: userIds, bulkTaskKeys: taskNames}
+	} = useFilter({withoutRouteParams: true});
+
+	const {
+		processId,
+		reassignedTasks,
+		reassigning,
+		selectAll,
+		selectedTasks,
+		visible
+	} = bulkModal;
 
 	const [currentStep, setCurrentStep] = useState('selectTasks');
 	const [errorToast, setErrorToast] = useState(null);
-	const [successToast, setSuccessToast] = useState([]);
+	const [fetching, setFetching] = useState(false);
 
-	const onClose = () => {
-		setBulkModal({
-			reassignedTasks: [],
-			reassigning: false,
-			selectedAssignee: null,
-			selectedTasks: [],
-			useSameAssignee: false,
-			visible: false
-		});
+	const toaster = useToaster();
 
-		setCurrentStep('selectTasks');
+	const {observer, onClose} = useModal({
+		onClose: () => {
+			setBulkModal({
+				processId,
+				reassignedTasks: [],
+				reassigning: false,
+				selectAll: false,
+				selectedAssignee: null,
+				selectedTasks: [],
+				useSameAssignee: false,
+				visible: false
+			});
 
-		setErrorToast(false);
-	};
+			dispatch({
+				...filterState,
+				bulkAssigneeUserIds: [],
+				bulkTaskKeys: []
+			});
 
-	const {observer} = useModal({onClose});
+			setCurrentStep('selectTasks');
+
+			setErrorToast(false);
+
+			setSingleModal({selectedItem: undefined});
+		}
+	});
 
 	const {patchData} = usePatch({
 		admin: true,
 		body: reassignedTasks,
 		url: 'workflow-tasks/assign-to-user'
 	});
+
+	const params = useMemo(() => {
+		const filterByUser = userIds && userIds.length;
+
+		const assigneeIds = filterByUser
+			? userIds.filter(id => id !== '-1')
+			: undefined;
+
+		const searchByRoles = filterByUser && userIds.includes('-1');
+
+		const params = {
+			assigneeIds,
+			completed: false,
+			page: 1,
+			pageSize: -1,
+			searchByRoles,
+			sort: 'workflowInstanceId:asc',
+			taskNames
+		};
+
+		if (visible) {
+			if (selectAllInstances) {
+				params.workflowDefinitionId = processId;
+			}
+			else {
+				params.workflowInstanceIds = selectedItems.length
+					? selectedItems.map(item => item.id)
+					: singleModal.selectedItem.id;
+			}
+		}
+
+		return params;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [taskNames, userIds, visible]);
+
+	const {fetchData} = useFetch({
+		admin: true,
+		params,
+		url: '/workflow-tasks'
+	});
+
+	const handleNext = useCallback(() => {
+		if (selectAll) {
+			setFetching(true);
+			fetchData()
+				.then(({items}) => {
+					setBulkModal({
+						...bulkModal,
+						selectAll: true,
+						selectedTasks: items
+					});
+					setCurrentStep('selectAssignees');
+					setFetching(false);
+				})
+				.catch(() => {
+					setErrorToast(
+						Liferay.Language.get(
+							'your-connection-was-unexpectedly-lost'
+						)
+					);
+					setFetching(false);
+				});
+		}
+		else {
+			setCurrentStep('selectAssignees');
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [bulkModal, fetchData, selectAll]);
+
+	const handlePrevious = () => {
+		setBulkModal({
+			...bulkModal,
+			reassignedTasks: [],
+			reassigning: false,
+			selectedAssignee: null,
+			useSameAssignee: false
+		});
+		setCurrentStep('selectTasks');
+		setErrorToast(false);
+	};
 
 	const handleReassign = useCallback(() => {
 		if (
@@ -68,14 +185,21 @@ const BulkReassignModal = () => {
 				.then(() => {
 					onClose();
 
-					setSuccessToast([
-						...successToast,
-						Liferay.Language.get('these-tasks-have-been-reassigned')
-					]);
+					toaster.success(
+						sub(
+							Liferay.Language.get(
+								'x-tasks-have-been-reassigned'
+							),
+							[reassignedTasks.length]
+						)
+					);
+
+					setSelectedItems([]);
+					setSelectAll(false);
 				})
 				.catch(() => {
 					const error = `${Liferay.Language.get(
-						'your-connection-was-unexpectedly-lost'
+						'your-request-has-failed'
 					)} ${Liferay.Language.get('select-reassign-to-retry')}`;
 
 					setBulkModal({
@@ -108,8 +232,8 @@ const BulkReassignModal = () => {
 				selectTasks: {
 					component: BulkReassignSelectTasksStep,
 					nextBtn: {
-						disabled: selectedTasks.length === 0,
-						handle: () => setCurrentStep('selectAssignees'),
+						disabled: selectedTasks.length === 0 || fetching,
+						handle: handleNext,
 						text: Liferay.Language.get('next')
 					},
 					order: 1,
@@ -121,53 +245,24 @@ const BulkReassignModal = () => {
 
 			return steps[step];
 		},
-		[handleReassign, reassignedTasks.length, selectedTasks.length]
+		[
+			fetching,
+			handleNext,
+			handleReassign,
+			reassignedTasks.length,
+			selectedTasks.length
+		]
 	);
 
 	const step = useMemo(() => getStep(currentStep), [currentStep, getStep]);
 
-	const handlePrevious = () => {
-		setBulkModal({
-			...bulkModal,
-			reassignedTasks: [],
-			reassigning: false,
-			selectedAssignee: null,
-			useSameAssignee: false
-		});
-		setCurrentStep('selectTasks');
-		setErrorToast(false);
-	};
-
-	const spritemap = `${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`;
-
 	return (
 		<>
-			<ClayAlert.ToastContainer data-testid="alertContainer">
-				{successToast.map((message, index) => (
-					<ClayAlert
-						autoClose={5000}
-						data-testid="alertSuccess"
-						displayType={'success'}
-						key={index}
-						onClose={() => {
-							setSuccessToast(prevItems =>
-								prevItems.filter(item => item !== message)
-							);
-						}}
-						spritemap={spritemap}
-						title={Liferay.Language.get('success')}
-					>
-						{message}
-					</ClayAlert>
-				))}
-			</ClayAlert.ToastContainer>
-
 			{visible && (
 				<ClayModal
 					data-testid="bulkReassignModal"
 					observer={observer}
 					size="lg"
-					spritemap={spritemap}
 				>
 					<ClayModal.Header>{step.title}</ClayModal.Header>
 
@@ -176,7 +271,6 @@ const BulkReassignModal = () => {
 							className="mb-0"
 							data-testid="alertError"
 							displayType="danger"
-							spritemap={spritemap}
 							title={Liferay.Language.get('error')}
 						>
 							{errorToast}
@@ -189,7 +283,10 @@ const BulkReassignModal = () => {
 						total={2}
 					/>
 
-					{<step.component setErrorToast={setErrorToast} />}
+					<step.component
+						processId={processId}
+						setErrorToast={setErrorToast}
+					/>
 
 					<ClayModal.Footer
 						first={

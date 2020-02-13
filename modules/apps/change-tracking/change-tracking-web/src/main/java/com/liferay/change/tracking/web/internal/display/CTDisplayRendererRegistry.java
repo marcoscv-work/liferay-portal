@@ -14,19 +14,24 @@
 
 package com.liferay.change.tracking.web.internal.display;
 
-import com.liferay.asset.kernel.model.AssetRendererFactory;
+import com.liferay.change.tracking.constants.CTConstants;
 import com.liferay.change.tracking.display.CTDisplayRenderer;
 import com.liferay.change.tracking.model.CTEntry;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
+import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.lang.SafeClosable;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.ClassName;
 import com.liferay.portal.kernel.model.change.tracking.CTModel;
 import com.liferay.portal.kernel.security.permission.ResourceActions;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.change.tracking.CTService;
-import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.taglib.servlet.PipingServletResponse;
 
 import java.util.Locale;
 
@@ -34,15 +39,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
  * @author Samuel Trong Tran
@@ -81,15 +81,50 @@ public class CTDisplayRendererRegistry {
 		}
 	}
 
-	public String getTypeName(Locale locale, CTEntry ctEntry) {
-		CTDisplayRenderer<?> ctDisplayRenderer =
+	public <T extends CTModel<T>> String getTypeName(
+		Locale locale, CTEntry ctEntry) {
+
+		CTDisplayRenderer<T> ctDisplayRenderer =
 			_ctDisplayServiceTrackerMap.getService(
 				ctEntry.getModelClassNameId());
 
 		String name = null;
 
 		if (ctDisplayRenderer != null) {
-			name = ctDisplayRenderer.getTypeName(locale);
+			CTService<T> ctService = _ctServiceServiceTrackerMap.getService(
+				ctEntry.getModelClassNameId());
+
+			long ctCollectionId = ctEntry.getCtCollectionId();
+
+			if (ctEntry.getChangeType() ==
+					CTConstants.CT_CHANGE_TYPE_DELETION) {
+
+				ctCollectionId = CTConstants.CT_COLLECTION_ID_PRODUCTION;
+			}
+
+			try (SafeClosable safeClosable =
+					CTCollectionThreadLocal.setCTCollectionId(ctCollectionId)) {
+
+				T ctModel = ctService.updateWithUnsafeFunction(
+					ctPersistence -> ctPersistence.fetchByPrimaryKey(
+						ctEntry.getModelClassPK()));
+
+				if (ctModel == null) {
+					name = ctDisplayRenderer.getTypeName(locale);
+				}
+				else {
+					try {
+						name = ctDisplayRenderer.getTypeName(locale, ctModel);
+					}
+					catch (PortalException portalException) {
+						if (_log.isWarnEnabled()) {
+							_log.warn(portalException, portalException);
+						}
+
+						name = ctDisplayRenderer.getTypeName(locale);
+					}
+				}
+			}
 		}
 
 		if (name == null) {
@@ -99,6 +134,12 @@ public class CTDisplayRendererRegistry {
 			if (className != null) {
 				name = _resourceActions.getModelResource(
 					locale, className.getClassName());
+
+				if (name.startsWith(
+						_resourceActions.getModelResourceNamePrefix())) {
+
+					name = className.getClassName();
+				}
 			}
 		}
 
@@ -131,21 +172,42 @@ public class CTDisplayRendererRegistry {
 
 			if (ctDisplayRenderer == null) {
 				ctDisplayRenderer = CTModelDisplayRendererAdapter.getInstance();
+
+				ctDisplayRenderer.render(
+					httpServletRequest, httpServletResponse, ctModel);
+
+				return;
 			}
 
-			ctDisplayRenderer.render(
-				httpServletRequest, httpServletResponse, ctModel);
+			try (UnsyncStringWriter unsyncStringWriter =
+					new UnsyncStringWriter()) {
+
+				PipingServletResponse pipingServletResponse =
+					new PipingServletResponse(
+						httpServletResponse, unsyncStringWriter);
+
+				ctDisplayRenderer.render(
+					httpServletRequest, pipingServletResponse, ctModel);
+
+				StringBundler sb = unsyncStringWriter.getStringBundler();
+
+				sb.writeTo(httpServletResponse.getWriter());
+			}
+			catch (Exception exception) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(exception, exception);
+				}
+
+				ctDisplayRenderer = CTModelDisplayRendererAdapter.getInstance();
+
+				ctDisplayRenderer.render(
+					httpServletRequest, httpServletResponse, ctModel);
+			}
 		}
 	}
 
 	@Activate
 	protected void activate(BundleContext bundleContext) {
-		_assetRendererFactoryServiceTracker = new ServiceTracker<>(
-			bundleContext, AssetRendererFactory.class,
-			new AssetRendererFactoryServiceTrackerCustomizer(bundleContext));
-
-		_assetRendererFactoryServiceTracker.open();
-
 		_ctDisplayServiceTrackerMap =
 			ServiceTrackerMapFactory.openSingleValueMap(
 				bundleContext, CTDisplayRenderer.class, null,
@@ -162,7 +224,6 @@ public class CTDisplayRendererRegistry {
 						bundleContext.ungetService(serviceReference);
 					}
 				});
-
 		_ctServiceServiceTrackerMap =
 			ServiceTrackerMapFactory.openSingleValueMap(
 				bundleContext, CTService.class, null,
@@ -178,12 +239,12 @@ public class CTDisplayRendererRegistry {
 
 	@Deactivate
 	protected void deactivate() {
-		_assetRendererFactoryServiceTracker.close();
 		_ctDisplayServiceTrackerMap.close();
 		_ctServiceServiceTrackerMap.close();
 	}
 
-	private ServiceTracker<?, ?> _assetRendererFactoryServiceTracker;
+	private static final Log _log = LogFactoryUtil.getLog(
+		CTDisplayRendererRegistry.class);
 
 	@Reference
 	private ClassNameLocalService _classNameLocalService;
@@ -194,72 +255,5 @@ public class CTDisplayRendererRegistry {
 
 	@Reference
 	private ResourceActions _resourceActions;
-
-	private static class AssetRendererFactoryServiceTrackerCustomizer
-		implements ServiceTrackerCustomizer
-			<AssetRendererFactory, ServiceRegistration> {
-
-		@Override
-		public ServiceRegistration addingService(
-			ServiceReference<AssetRendererFactory> serviceReference) {
-
-			AssetRendererFactory<?> assetRendererFactory =
-				_bundleContext.getService(serviceReference);
-
-			Class<?> clazz = assetRendererFactory.getClass();
-
-			ClassLoader classLoader = clazz.getClassLoader();
-
-			try {
-				clazz = classLoader.loadClass(
-					assetRendererFactory.getClassName());
-			}
-			catch (ClassNotFoundException classNotFoundException) {
-				return null;
-			}
-
-			if (!CTModel.class.isAssignableFrom(clazz)) {
-				return null;
-			}
-
-			return _registerService(assetRendererFactory, clazz);
-		}
-
-		@Override
-		public void modifiedService(
-			ServiceReference<AssetRendererFactory> serviceReference,
-			ServiceRegistration serviceRegistration) {
-		}
-
-		@Override
-		public void removedService(
-			ServiceReference<AssetRendererFactory> serviceReference,
-			ServiceRegistration serviceRegistration) {
-
-			serviceRegistration.unregister();
-
-			_bundleContext.ungetService(serviceReference);
-		}
-
-		private AssetRendererFactoryServiceTrackerCustomizer(
-			BundleContext bundleContext) {
-
-			_bundleContext = bundleContext;
-		}
-
-		private <T extends CTModel<T>> ServiceRegistration _registerService(
-			AssetRendererFactory<?> assetRendererFactory, Class<?> clazz) {
-
-			return _bundleContext.registerService(
-				CTDisplayRenderer.class,
-				new CTDisplayRendererAssetRendererAdapter<>(
-					(AssetRendererFactory<T>)assetRendererFactory,
-					(Class<T>)clazz),
-				MapUtil.singletonDictionary(Constants.SERVICE_RANKING, -100));
-		}
-
-		private final BundleContext _bundleContext;
-
-	}
 
 }

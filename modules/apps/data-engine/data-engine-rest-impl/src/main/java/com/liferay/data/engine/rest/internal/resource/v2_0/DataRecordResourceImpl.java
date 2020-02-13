@@ -66,6 +66,7 @@ import com.liferay.portal.vulcan.resource.EntityModelResource;
 import com.liferay.portal.vulcan.util.SearchUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -184,6 +185,7 @@ public class DataRecordResourceImpl
 			dataRecordCollectionId);
 
 		return SearchUtil.search(
+			Collections.emptyMap(),
 			booleanQuery -> {
 			},
 			_getBooleanFilter(dataListViewId, ddlRecordSet), DDLRecord.class,
@@ -198,10 +200,10 @@ public class DataRecordResourceImpl
 				searchContext.setCompanyId(contextCompany.getCompanyId());
 				searchContext.setUserId(0);
 			},
+			sorts,
 			document -> _toDataRecord(
 				_ddlRecordLocalService.getRecord(
-					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))),
-			sorts);
+					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
 	}
 
 	@Override
@@ -328,6 +330,16 @@ public class DataRecordResourceImpl
 			ddlRecordSet.getRecordSetId(), dataRecord.getDataRecordValues(),
 			ddlRecord.getGroupId());
 
+		DDLRecordSetVersion ddlRecordSetVersion =
+			ddlRecordSet.getRecordSetVersion();
+
+		DDMStructureVersion ddmStructureVersion =
+			ddlRecordSetVersion.getDDMStructureVersion();
+
+		_ddmStorageLinkLocalService.addStorageLink(
+			_portal.getClassNameId(DataRecord.class.getName()), ddmStorageId,
+			ddmStructureVersion.getStructureVersionId(), new ServiceContext());
+
 		_ddlRecordLocalService.updateRecord(
 			PrincipalThreadLocal.getUserId(), dataRecordId, ddmStorageId,
 			new ServiceContext());
@@ -361,18 +373,20 @@ public class DataRecordResourceImpl
 				continue;
 			}
 
-			DDMStructure ddmStructure = ddlRecordSet.getDDMStructure();
+			BooleanFilter fieldBooleanFilter = new BooleanFilter();
 
-			String indexFieldName = _getIndexFieldName(
-				ddmStructure.getStructureId(), fieldName,
-				contextAcceptLanguage.getPreferredLocale());
+			for (String value : JSONUtil.toStringArray(jsonArray)) {
+				DDMStructure ddmStructure = ddlRecordSet.getDDMStructure();
 
-			String[] values = JSONUtil.toStringArray(jsonArray);
+				String indexFieldName = _getIndexFieldName(
+					ddmStructure.getStructureId(), fieldName,
+					contextAcceptLanguage.getPreferredLocale());
 
-			for (String value : values) {
-				booleanFilter.addTerm(
-					indexFieldName, value, BooleanClauseOccur.MUST);
+				fieldBooleanFilter.addTerm(
+					indexFieldName, value, BooleanClauseOccur.SHOULD);
 			}
+
+			booleanFilter.add(fieldBooleanFilter, BooleanClauseOccur.MUST);
 		}
 
 		return booleanFilter;

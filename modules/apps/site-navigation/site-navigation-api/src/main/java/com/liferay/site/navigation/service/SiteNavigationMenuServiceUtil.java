@@ -119,6 +119,28 @@ public class SiteNavigationMenuServiceUtil {
 			groupId, keywords, start, end, orderByComparator);
 	}
 
+	public static java.util.List
+		<com.liferay.site.navigation.model.SiteNavigationMenu>
+			getSiteNavigationMenus(
+				long[] groupIds, int start, int end,
+				com.liferay.portal.kernel.util.OrderByComparator
+					orderByComparator) {
+
+		return getService().getSiteNavigationMenus(
+			groupIds, start, end, orderByComparator);
+	}
+
+	public static java.util.List
+		<com.liferay.site.navigation.model.SiteNavigationMenu>
+			getSiteNavigationMenus(
+				long[] groupIds, String keywords, int start, int end,
+				com.liferay.portal.kernel.util.OrderByComparator
+					orderByComparator) {
+
+		return getService().getSiteNavigationMenus(
+			groupIds, keywords, start, end, orderByComparator);
+	}
+
 	public static int getSiteNavigationMenusCount(long groupId) {
 		return getService().getSiteNavigationMenusCount(groupId);
 	}
@@ -127,6 +149,16 @@ public class SiteNavigationMenuServiceUtil {
 		long groupId, String keywords) {
 
 		return getService().getSiteNavigationMenusCount(groupId, keywords);
+	}
+
+	public static int getSiteNavigationMenusCount(long[] groupIds) {
+		return getService().getSiteNavigationMenusCount(groupIds);
+	}
+
+	public static int getSiteNavigationMenusCount(
+		long[] groupIds, String keywords) {
+
+		return getService().getSiteNavigationMenusCount(groupIds, keywords);
 	}
 
 	public static com.liferay.site.navigation.model.SiteNavigationMenu

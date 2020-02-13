@@ -18,14 +18,16 @@ import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.ViewTypeItemList;
 import com.liferay.item.selector.taglib.servlet.taglib.RepositoryEntryBrowserTag;
+import com.liferay.item.selector.taglib.servlet.taglib.util.RepositoryEntryBrowserTagUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.portlet.PortalPreferences;
+import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletURLUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.ParamUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -53,6 +55,9 @@ public class ItemSelectorRepositoryEntryManagementToolbarDisplayContext {
 
 		_currentURLObj = PortletURLUtil.getCurrent(
 			_liferayPortletRequest, _liferayPortletResponse);
+
+		_portalPreferences = PortletPreferencesFactoryUtil.getPortalPreferences(
+			liferayPortletRequest);
 	}
 
 	public List<DropdownItem> getFilterDropdownItems() {
@@ -70,7 +75,14 @@ public class ItemSelectorRepositoryEntryManagementToolbarDisplayContext {
 	}
 
 	public String getOrderByType() {
-		return ParamUtil.getString(_httpServletRequest, "orderByType", "asc");
+		if (_orderByType != null) {
+			return _orderByType;
+		}
+
+		_orderByType = RepositoryEntryBrowserTagUtil.getOrderByType(
+			_httpServletRequest, _portalPreferences);
+
+		return _orderByType;
 	}
 
 	public PortletURL getSearchURL() throws PortletException {
@@ -99,15 +111,15 @@ public class ItemSelectorRepositoryEntryManagementToolbarDisplayContext {
 
 		return new ViewTypeItemList(displayStyleURL, _getDisplayStyle()) {
 			{
-				if (ArrayUtil.contains(_getDisplayViews(), "icon")) {
+				if (ArrayUtil.contains(_getDisplayStyles(), "icon")) {
 					addCardViewTypeItem();
 				}
 
-				if (ArrayUtil.contains(_getDisplayViews(), "descriptive")) {
+				if (ArrayUtil.contains(_getDisplayStyles(), "descriptive")) {
 					addListViewTypeItem();
 				}
 
-				if (ArrayUtil.contains(_getDisplayViews(), "list")) {
+				if (ArrayUtil.contains(_getDisplayStyles(), "list")) {
 					addTableViewTypeItem();
 				}
 			}
@@ -134,12 +146,19 @@ public class ItemSelectorRepositoryEntryManagementToolbarDisplayContext {
 				"liferay-item-selector:repository-entry-browser:displayStyle"));
 	}
 
-	private String[] _getDisplayViews() {
+	private String[] _getDisplayStyles() {
 		return RepositoryEntryBrowserTag.DISPLAY_STYLES;
 	}
 
 	private String _getOrderByCol() {
-		return ParamUtil.getString(_httpServletRequest, "orderByCol", "title");
+		if (_orderByCol != null) {
+			return _orderByCol;
+		}
+
+		_orderByCol = RepositoryEntryBrowserTagUtil.getOrderByCol(
+			_httpServletRequest, _portalPreferences);
+
+		return _orderByCol;
 	}
 
 	private List<DropdownItem> _getOrderByDropdownItems() {
@@ -185,5 +204,8 @@ public class ItemSelectorRepositoryEntryManagementToolbarDisplayContext {
 	private final HttpServletRequest _httpServletRequest;
 	private final LiferayPortletRequest _liferayPortletRequest;
 	private final LiferayPortletResponse _liferayPortletResponse;
+	private String _orderByCol;
+	private String _orderByType;
+	private final PortalPreferences _portalPreferences;
 
 }

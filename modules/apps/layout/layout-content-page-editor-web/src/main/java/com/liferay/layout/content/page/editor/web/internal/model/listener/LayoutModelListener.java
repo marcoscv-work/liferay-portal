@@ -17,7 +17,6 @@ package com.liferay.layout.content.page.editor.web.internal.model.listener;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.layout.model.LayoutClassedModelUsage;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
-import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
 import com.liferay.layout.service.LayoutClassedModelUsageLocalService;
@@ -36,6 +35,8 @@ import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.UnicodeProperties;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.List;
 
@@ -106,37 +107,32 @@ public class LayoutModelListener extends BaseModelListener<Layout> {
 		Layout draftLayout = _layoutLocalService.fetchLayout(
 			_portal.getClassNameId(Layout.class), layout.getPlid());
 
-		Layout pagetTemplateLayout = _layoutLocalService.getLayout(
+		Layout pageTemplateLayout = _layoutLocalService.getLayout(
 			layoutPageTemplateEntry.getPlid());
 
-		LayoutPageTemplateStructure layoutPageTemplateStructure =
-			_layoutPageTemplateStructureLocalService.
-				fetchLayoutPageTemplateStructure(
-					pagetTemplateLayout.getGroupId(),
-					_portal.getClassNameId(Layout.class),
-					pagetTemplateLayout.getPlid());
-
-		if (layoutPageTemplateStructure == null) {
-			_layoutPageTemplateStructureLocalService.
-				rebuildLayoutPageTemplateStructure(
-					pagetTemplateLayout.getGroupId(),
-					_portal.getClassNameId(Layout.class),
-					pagetTemplateLayout.getPlid());
-		}
+		_layoutPageTemplateStructureLocalService.
+			fetchLayoutPageTemplateStructure(
+				pageTemplateLayout.getGroupId(),
+				_portal.getClassNameId(Layout.class),
+				pageTemplateLayout.getPlid(), true);
 
 		draftLayout = _layoutCopyHelper.copyLayout(
-			pagetTemplateLayout, draftLayout);
+			pageTemplateLayout, draftLayout);
 
-		_layoutLocalService.updateLayout(
-			draftLayout.getGroupId(), draftLayout.isPrivateLayout(),
-			draftLayout.getLayoutId(), draftLayout.getTypeSettings());
+		draftLayout.setStatus(WorkflowConstants.STATUS_APPROVED);
+
+		UnicodeProperties properties = draftLayout.getTypeSettingsProperties();
+
+		properties.put("published", Boolean.FALSE.toString());
+
+		_layoutLocalService.updateLayout(draftLayout);
+
+		ServiceContext serviceContext = new ServiceContext();
 
 		List<LayoutClassedModelUsage> layoutClassedModelUsages =
 			_layoutClassedModelUsageLocalService.
 				getLayoutClassedModelUsagesByPlid(
 					layoutPageTemplateEntry.getPlid());
-
-		ServiceContext serviceContext = new ServiceContext();
 
 		layoutClassedModelUsages.forEach(
 			layoutClassedModelUsage ->

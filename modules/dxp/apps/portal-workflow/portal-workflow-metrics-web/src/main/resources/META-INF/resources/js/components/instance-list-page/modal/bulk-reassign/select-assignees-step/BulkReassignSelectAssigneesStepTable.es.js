@@ -12,32 +12,25 @@
 import ClayIcon from '@clayui/icon';
 import ClayTable from '@clayui/table';
 import {ClayTooltipProvider} from '@clayui/tooltip';
-import React, {useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 
 import {Autocomplete} from '../../../../../shared/components/autocomplete/Autocomplete.es';
 import {ModalContext} from '../../ModalContext.es';
 
 const Item = ({
-	assetTitle,
-	assetType,
 	assigneePerson,
 	data,
 	id,
 	name,
+	objectReviewed: {assetTitle, assetType},
 	workflowInstanceId
 }) => {
 	const {bulkModal, setBulkModal} = useContext(ModalContext);
+	const {reassignedTasks, reassigning, useSameAssignee} = bulkModal;
 
-	const {
-		reassignedTasks,
-		reassigning,
-		selectedAssignee,
-		useSameAssignee
-	} = bulkModal;
-
-	const defaultValue = useMemo(
-		() => (selectedAssignee ? selectedAssignee.name : ''),
-		[selectedAssignee]
+	const {assigneeId} = useMemo(
+		() => reassignedTasks.find(task => task.workflowTaskId === id) || {},
+		[id, reassignedTasks]
 	);
 
 	const assignees = useMemo(() => {
@@ -52,25 +45,34 @@ const Item = ({
 
 		return [];
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [data]);
+	}, [id, data]);
 
-	const handleSelect = newAssignee => {
-		const filteredTasks = reassignedTasks.filter(
-			task => task.workflowTaskId !== id
-		);
+	const {name: assigneeName} = useMemo(
+		() => assignees.find(assignee => assignee.id === assigneeId) || {},
+		[assigneeId, assignees]
+	);
 
-		if (newAssignee) {
-			filteredTasks.push({
-				assigneeId: newAssignee.id,
-				workflowTaskId: id
+	const handleSelect = useCallback(
+		newAssignee => {
+			const filteredTasks = reassignedTasks.filter(
+				task => task.workflowTaskId !== id
+			);
+
+			if (newAssignee) {
+				filteredTasks.push({
+					assigneeId: newAssignee.id,
+					workflowTaskId: id
+				});
+			}
+
+			setBulkModal({
+				...bulkModal,
+				reassignedTasks: filteredTasks
 			});
-		}
-
-		setBulkModal({
-			...bulkModal,
-			reassignedTasks: filteredTasks
-		});
-	};
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[reassignedTasks]
+	);
 
 	return (
 		<ClayTable.Row>
@@ -90,11 +92,10 @@ const Item = ({
 
 			<ClayTable.Cell>
 				<Autocomplete
-					defaultValue={defaultValue}
+					defaultValue={assigneeName}
 					disabled={reassigning || useSameAssignee}
 					items={assignees}
 					onSelect={handleSelect}
-					promises={[]}
 				/>
 			</ClayTable.Cell>
 		</ClayTable.Row>
@@ -102,10 +103,8 @@ const Item = ({
 };
 
 const Table = ({data, items}) => {
-	const spritemap = `${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`;
-
 	return (
-		<ClayTable borderless={true} data-testid="bulkReassignModalTable">
+		<ClayTable data-testid="bulkReassignModalTable">
 			<ClayTable.Head>
 				<ClayTable.Row>
 					<ClayTable.Cell
@@ -113,7 +112,7 @@ const Table = ({data, items}) => {
 						style={{
 							color: 'inherit',
 							fontWeight: 'bold',
-							width: '8%'
+							width: '10%'
 						}}
 					>
 						{Liferay.Language.get('id')}
@@ -155,7 +154,7 @@ const Table = ({data, items}) => {
 						style={{
 							color: 'inherit',
 							fontWeight: 'bold',
-							width: '20%'
+							width: '25%'
 						}}
 					>
 						{`${Liferay.Language.get('new-assignee')} `}
@@ -163,7 +162,6 @@ const Table = ({data, items}) => {
 						<ClayTooltipProvider>
 							<ClayIcon
 								data-tooltip-align="top"
-								spritemap={spritemap}
 								style={{color: '#6B6C7E'}}
 								symbol="question-circle-full"
 								title={Liferay.Language.get(
@@ -178,8 +176,8 @@ const Table = ({data, items}) => {
 			<ClayTable.Body>
 				{items &&
 					items.length > 0 &&
-					items.map((item, index) => (
-						<Table.Item data={data} {...item} key={index} />
+					items.map(item => (
+						<Table.Item data={data} {...item} key={item.id} />
 					))}
 			</ClayTable.Body>
 		</ClayTable>

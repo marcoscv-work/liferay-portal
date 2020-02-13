@@ -190,11 +190,23 @@ module.framework.properties.osgi.console=11312</echo>
 			<if>
 				<matches pattern=".*\.7z$" string="${archive.basename}" />
 				<then>
-					<execute>
-						<![CDATA[
-							7z x @{src} -o@{dest} -aoa
-						]]>
-					</execute>
+					<if>
+						<os family="mac" />
+						<then>
+							<execute>
+								<![CDATA[
+									unar @{src} -o @{dest} -f
+								]]>
+							</execute>
+						</then>
+						<else>
+							<execute>
+								<![CDATA[
+									7z x @{src} -o@{dest} -aoa
+								]]>
+							</execute>
+						</else>
+					</if>
 				</then>
 				<elseif>
 					<matches pattern=".*\.tar\.gz$" string="${archive.basename}" />
@@ -1314,7 +1326,7 @@ war.path=${app.server.portal.dir}/</echo>
 
 					<get-poshi-java-jdk-opts />
 
-					<gradle-execute failonerror="@{failonerror}" gradleopts="${poshi.java.jdk.opts}" task="@{task}">
+					<gradle-execute failonerror="@{failonerror}" gradleopts="${poshi.java.jdk.opts}" stacktrace="false" task="@{task}">
 						<arg value="--build-file=portal-web/build-test.gradle" />
 						<arg value="-Plocal=${test.poshi.runner.local.release}" />
 						<arg value="-PposhiRunnerExtProperties=${test.ext.properties.file}" />
@@ -1324,7 +1336,7 @@ war.path=${app.server.portal.dir}/</echo>
 					</gradle-execute>
 				</then>
 				<else>
-					<gradle-execute failonerror="@{failonerror}" task="@{task}">
+					<gradle-execute failonerror="@{failonerror}" stacktrace="false" task="@{task}">
 						<arg value="--build-file=portal-web/build-test.gradle" />
 						<arg value="-Plocal=${test.poshi.runner.local.release}" />
 						<arg value="-PposhiRunnerExtProperties=${test.ext.properties.file}" />
@@ -4475,7 +4487,7 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 					then
 						docker kill ${docker_rm_list}
 
-						docker rm ${docker_rm_list}
+						docker rm -f ${docker_rm_list}
 					fi
 				]]>
 			</echo>
@@ -7646,6 +7658,7 @@ mail.send.blacklist=
 
 mail.session.jndi.name=
 
+module.framework.properties.dependency.manager.sync.timeout=1800
 module.framework.properties.initial.system.check.enabled=true
 
 sprite.root.dir=/tmp/sprite

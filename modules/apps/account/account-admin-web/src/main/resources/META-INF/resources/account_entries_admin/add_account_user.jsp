@@ -43,7 +43,11 @@ renderResponse.setTitle(LanguageUtil.format(request, "add-new-user-to-x", accoun
 	action="<%= addAccountUsersURL %>"
 >
 	<liferay-frontend:edit-form-body>
-		<aui:input name="redirect" type="hidden" value="<%= backURL %>" />
+		<portlet:renderURL var="redirect">
+			<portlet:param name="mvcPath" value="/account_users_admin/edit_account_user.jsp" />
+		</portlet:renderURL>
+
+		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 		<aui:input name="accountEntryId" type="hidden" value="<%= String.valueOf(accountEntryDisplay.getAccountEntryId()) %>" />
 
 		<h2 class="sheet-title">

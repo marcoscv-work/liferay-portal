@@ -41,6 +41,7 @@ Lagrange.prototype.addPoint = function(x, y) {
 	this.xs.push(x);
 	this.ys.push(y);
 	this._updateWeights();
+
 	return this.xs.length - 1;
 };
 
@@ -86,7 +87,8 @@ Lagrange.prototype.valueOf = function(x) {
 			a = this.ws[j] / (x - this.xs[j]);
 			b += a * this.ys[j];
 			c += a;
-		} else {
+		}
+		else {
 			return this.ys[j];
 		}
 	}

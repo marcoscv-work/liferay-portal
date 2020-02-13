@@ -33,7 +33,7 @@
 </div>
 
 <aui:script use="aui-base,aui-io-request">
-	<liferay-portlet:resourceURL id="/mfa/send_email_otp" portletName="<%= MFAEmailOTPPortletKeys.MFA_EMAIL_OTP_VERIFY_PORTLET %>" var="sendEmailOTPURL" />
+	<liferay-portlet:resourceURL id="/mfa_email_otp_verify/send_mfa_email_otp" portletName="<%= MFAEmailOTPPortletKeys.MFA_EMAIL_OTP_VERIFY_PORTLET %>" var="sendEmailOTPURL" />
 
 	A.one('#<portlet:namespace />sendEmailButton').on('click', function(event) {
 		var sendEmailButton = A.one('#<portlet:namespace />sendEmailButton');
@@ -51,7 +51,8 @@
 				sendEmailButton.removeAttribute('disabled');
 
 				clearInterval(interval);
-			} else {
+			}
+			else {
 				sendEmailButton.text(--resendDuration);
 			}
 		}, 1000);

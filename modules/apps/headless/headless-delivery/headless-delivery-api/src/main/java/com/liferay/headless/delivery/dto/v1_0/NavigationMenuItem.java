@@ -184,7 +184,7 @@ public class NavigationMenuItem {
 	}
 
 	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	protected String link;
 
 	@Schema
@@ -210,22 +210,23 @@ public class NavigationMenuItem {
 	}
 
 	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	protected String name;
 
 	@Schema
 	@Valid
-	public Object getName_i18n() {
+	public Map<String, String> getName_i18n() {
 		return name_i18n;
 	}
 
-	public void setName_i18n(Object name_i18n) {
+	public void setName_i18n(Map<String, String> name_i18n) {
 		this.name_i18n = name_i18n;
 	}
 
 	@JsonIgnore
 	public void setName_i18n(
-		UnsafeSupplier<Object, Exception> name_i18nUnsafeSupplier) {
+		UnsafeSupplier<Map<String, String>, Exception>
+			name_i18nUnsafeSupplier) {
 
 		try {
 			name_i18n = name_i18nUnsafeSupplier.get();
@@ -239,8 +240,8 @@ public class NavigationMenuItem {
 	}
 
 	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Object name_i18n;
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected Map<String, String> name_i18n;
 
 	@Schema
 	@Valid
@@ -299,7 +300,7 @@ public class NavigationMenuItem {
 	}
 
 	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	protected Long parentNavigationMenuId;
 
 	@Schema
@@ -325,7 +326,7 @@ public class NavigationMenuItem {
 	}
 
 	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	protected String type;
 
 	@Schema
@@ -351,7 +352,7 @@ public class NavigationMenuItem {
 	}
 
 	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	protected String url;
 
 	@Override
@@ -467,11 +468,7 @@ public class NavigationMenuItem {
 
 			sb.append("\"name_i18n\": ");
 
-			sb.append("\"");
-
-			sb.append(_escape(name_i18n));
-
-			sb.append("\"");
+			sb.append(_toJSON(name_i18n));
 		}
 
 		if (navigationMenuItems != null) {

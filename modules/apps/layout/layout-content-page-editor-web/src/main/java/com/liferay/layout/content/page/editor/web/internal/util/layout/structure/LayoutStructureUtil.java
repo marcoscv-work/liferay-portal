@@ -16,24 +16,47 @@ package com.liferay.layout.content.page.editor.web.internal.util.layout.structur
 
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalServiceUtil;
+import com.liferay.layout.util.structure.FragmentLayoutStructureItem;
+import com.liferay.layout.util.structure.LayoutStructure;
+import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Víctor Galán
  */
 public class LayoutStructureUtil {
+
+	public static long[] getFragmentEntryLinkIds(
+		List<LayoutStructureItem> layoutStructureItems) {
+
+		List<Long> fragmentEntryLinkIds = new ArrayList<>();
+
+		for (LayoutStructureItem layoutStructureItem : layoutStructureItems) {
+			if (!(layoutStructureItem instanceof FragmentLayoutStructureItem)) {
+				continue;
+			}
+
+			FragmentLayoutStructureItem fragmentLayoutStructureItem =
+				(FragmentLayoutStructureItem)layoutStructureItem;
+
+			if (fragmentLayoutStructureItem.getFragmentEntryLinkId() <= 0) {
+				continue;
+			}
+
+			fragmentEntryLinkIds.add(
+				fragmentLayoutStructureItem.getFragmentEntryLinkId());
+		}
+
+		return ArrayUtil.toLongArray(fragmentEntryLinkIds);
+	}
 
 	public static JSONObject updateLayoutPageTemplateData(
 			long groupId, long segmentsExperienceId, long plid,
@@ -46,7 +69,7 @@ public class LayoutStructureUtil {
 					groupId, PortalUtil.getClassNameId(Layout.class.getName()),
 					plid, true);
 
-		LayoutStructure layoutStructure = _parse(
+		LayoutStructure layoutStructure = LayoutStructure.of(
 			layoutPageTemplateStructure.getData(segmentsExperienceId));
 
 		unsafeConsumer.accept(layoutStructure);
@@ -59,45 +82,6 @@ public class LayoutStructureUtil {
 				plid, segmentsExperienceId, dataJSONObject.toString());
 
 		return dataJSONObject;
-	}
-
-	private static LayoutStructure _parse(String layoutStructure)
-		throws JSONException {
-
-		JSONObject layoutStructureJSONObject = JSONFactoryUtil.createJSONObject(
-			layoutStructure);
-
-		JSONObject rootItemsJSONObject =
-			layoutStructureJSONObject.getJSONObject("rootItems");
-
-		JSONObject itemsJSONObject = layoutStructureJSONObject.getJSONObject(
-			"items");
-
-		Map<String, LayoutStructureItem> layoutStructureItems = new HashMap<>(
-			itemsJSONObject.length());
-
-		for (String key : itemsJSONObject.keySet()) {
-			layoutStructureItems.put(
-				key, _toItem(itemsJSONObject.getJSONObject(key)));
-		}
-
-		return new LayoutStructure(
-			layoutStructureItems, rootItemsJSONObject.getString("main"));
-	}
-
-	private static LayoutStructureItem _toItem(JSONObject jsonObject) {
-		JSONObject configJSONObject = jsonObject.getJSONObject("config");
-		String itemId = jsonObject.getString("itemId");
-		String parentId = jsonObject.getString("parentId");
-		String type = jsonObject.getString("type");
-
-		List<String> childrenItemIds = new ArrayList<>();
-
-		JSONUtil.addToStringCollection(
-			childrenItemIds, jsonObject.getJSONArray("children"));
-
-		return new LayoutStructureItem(
-			childrenItemIds, configJSONObject, itemId, parentId, type);
 	}
 
 }

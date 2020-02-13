@@ -14,6 +14,7 @@
 
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import {ClayPaginationWithBasicItems} from '@clayui/pagination';
+import parser from 'bbcode-to-react';
 import React, {useContext, useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
 
@@ -24,7 +25,11 @@ import UserIcon from '../../components/UserIcon.es';
 import {getThreads} from '../../utils/client.es';
 import {dateToInternationalHuman} from '../../utils/utils.es';
 
-export default () => {
+export default ({
+	match: {
+		params: {creatorId, keyword}
+	}
+}) => {
 	const context = useContext(AppContext);
 
 	const [loading, setLoading] = useState(true);
@@ -33,10 +38,16 @@ export default () => {
 	const [questions, setQuestions] = useState([]);
 
 	useEffect(() => {
-		getThreads({page, pageSize, siteKey: context.siteKey})
+		getThreads({
+			creatorId,
+			keyword,
+			page,
+			pageSize,
+			siteKey: context.siteKey
+		})
 			.then(data => setQuestions(data))
 			.then(() => setLoading(false));
-	}, [page, pageSize, context.siteKey]);
+	}, [keyword, page, pageSize, context.siteKey, creatorId]);
 
 	const hasValidAnswer = question =>
 		question.messageBoardMessages.items.filter(
@@ -98,7 +109,7 @@ export default () => {
 						<div className="autofit-padded autofit-row">
 							<div className="autofit-col autofit-col-expand">
 								<p className="text-truncate">
-									{question.articleBody}
+									{parser.toReact(question.articleBody)}
 								</p>
 							</div>
 						</div>
@@ -113,9 +124,16 @@ export default () => {
 										userId={String(question.creator.id)}
 									/>
 									<span>
-										<strong>
-											{' ' + question.creator.name}
-										</strong>
+										<Link
+											to={
+												'/questions/creator/' +
+												question.creator.id
+											}
+										>
+											<strong>
+												{' ' + question.creator.name}
+											</strong>
+										</Link>
 									</span>
 									<span>
 										{' - ' +

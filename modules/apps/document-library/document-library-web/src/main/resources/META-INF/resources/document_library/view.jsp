@@ -26,6 +26,9 @@ String navigation = ParamUtil.getString(request, "navigation");
 	<c:when test='<%= navigation.equals("file_entry_types") %>'>
 		<liferay-util:include page="/document_library/view_file_entry_types.jsp" servletContext="<%= application %>" />
 	</c:when>
+	<c:when test='<%= navigation.equals("file_entry_metadata_sets") %>'>
+		<liferay-util:include page="/document_library/view_file_entry_metadata_sets.jsp" servletContext="<%= application %>" />
+	</c:when>
 	<c:otherwise>
 		<liferay-util:dynamic-include key="com.liferay.document.library.web#/document_library/view.jsp#pre" />
 
@@ -315,8 +318,6 @@ String navigation = ParamUtil.getString(request, "navigation");
 
 		Map<String, Object> editTagsProps = new HashMap<>();
 
-		editTagsProps.put("componentId", liferayPortletResponse.getNamespace() + "EditTagsComponent");
-
 		long[] groupIds = PortalUtil.getCurrentAndAncestorSiteGroupIds(scopeGroupId);
 
 		editTagsProps.put("groupIds", groupIds);
@@ -341,7 +342,6 @@ String navigation = ParamUtil.getString(request, "navigation");
 
 		Map<String, Object> editCategoriesProps = new HashMap<>();
 
-		editCategoriesProps.put("componentId", liferayPortletResponse.getNamespace() + "EditCategoriesComponent");
 		editCategoriesProps.put("groupIds", groupIds);
 		editCategoriesProps.put("pathModule", PortalUtil.getPathModule());
 		editCategoriesProps.put("repositoryId", String.valueOf(repositoryId));

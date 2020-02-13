@@ -15,6 +15,8 @@
 package com.liferay.data.engine.taglib.servlet.taglib;
 
 import com.liferay.data.engine.renderer.DataLayoutRendererContext;
+import com.liferay.data.engine.rest.client.dto.v2_0.DataDefinition;
+import com.liferay.data.engine.rest.client.dto.v2_0.DataLayout;
 import com.liferay.data.engine.taglib.servlet.taglib.base.BaseDataLayoutRendererTag;
 import com.liferay.data.engine.taglib.servlet.taglib.util.DataLayoutTaglibUtil;
 import com.liferay.petra.string.StringPool;
@@ -22,6 +24,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import javax.portlet.RenderResponse;
 
@@ -50,7 +53,7 @@ public class DataLayoutRendererTag extends BaseDataLayoutRendererTag {
 
 			dataLayoutRendererContext.setContainerId(getContainerId());
 
-			if (getDataRecordId() != null) {
+			if (Validator.isNotNull(getDataRecordId())) {
 				dataLayoutRendererContext.setDataRecordValues(
 					DataLayoutTaglibUtil.getDataRecordValues(
 						getDataRecordId(), request));
@@ -67,8 +70,22 @@ public class DataLayoutRendererTag extends BaseDataLayoutRendererTag {
 						JavaConstants.JAVAX_PORTLET_RESPONSE)));
 			dataLayoutRendererContext.setPortletNamespace(getNamespace());
 
-			content = DataLayoutTaglibUtil.renderDataLayout(
-				getDataLayoutId(), dataLayoutRendererContext);
+			if (Validator.isNotNull(getDataLayoutId())) {
+				content = DataLayoutTaglibUtil.renderDataLayout(
+					getDataLayoutId(), dataLayoutRendererContext);
+			}
+			else if (Validator.isNotNull(getDataDefinitionId())) {
+				DataDefinition dataDefinition =
+					DataLayoutTaglibUtil.getDataDefinition(
+						getDataDefinitionId(), request);
+
+				DataLayout dataLayout = dataDefinition.getDefaultDataLayout();
+
+				if (dataLayout != null) {
+					content = DataLayoutTaglibUtil.renderDataLayout(
+						dataLayout.getId(), dataLayoutRendererContext);
+				}
+			}
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {

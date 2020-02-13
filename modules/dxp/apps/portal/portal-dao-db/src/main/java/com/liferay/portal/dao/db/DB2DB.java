@@ -15,11 +15,11 @@
 package com.liferay.portal.dao.db;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.IOException;
@@ -48,16 +48,41 @@ public class DB2DB extends BaseDB {
 
 	@Override
 	public String buildSQL(String template) throws IOException {
-		template = convertTimestamp(template);
-		template = replaceTemplate(template, getTemplate());
+		template = replaceTemplate(template);
 
 		template = reword(template);
-		template = removeLongInserts(template);
-		template = removeNull(template);
+		template = _removeNull(template);
 		template = StringUtil.replace(template, "\\'", "''");
 		template = StringUtil.replace(template, "\\n", "'||CHR(10)||'");
 
 		return template;
+	}
+
+	@Override
+	public String getPopulateSQL(String databaseName, String sqlContent) {
+		StringBundler sb = new StringBundler(4);
+
+		sb.append("connect to ");
+		sb.append(databaseName);
+		sb.append(";\n");
+		sb.append(sqlContent);
+
+		return sb.toString();
+	}
+
+	@Override
+	public String getRecreateSQL(String databaseName) {
+		StringBundler sb = new StringBundler(7);
+
+		sb.append("drop database ");
+		sb.append(databaseName);
+		sb.append(";\n");
+		sb.append("create database ");
+		sb.append(databaseName);
+		sb.append(" pagesize 32768 temporary tablespace managed by automatic ");
+		sb.append("storage;\n");
+
+		return sb.toString();
 	}
 
 	@Override
@@ -102,42 +127,6 @@ public class DB2DB extends BaseDB {
 		else {
 			super.runSQL(template);
 		}
-	}
-
-	@Override
-	protected String buildCreateFileContent(
-			String sqlDir, String databaseName, int population)
-		throws IOException {
-
-		String suffix = getSuffix(population);
-
-		StringBundler sb = new StringBundler(15);
-
-		sb.append("drop database ");
-		sb.append(databaseName);
-		sb.append(";\n");
-		sb.append("create database ");
-		sb.append(databaseName);
-		sb.append(" pagesize 32768 temporary tablespace managed by automatic ");
-		sb.append("storage;\n");
-
-		if (population != BARE) {
-			sb.append("connect to ");
-			sb.append(databaseName);
-			sb.append(";\n");
-			sb.append(getCreateTablesContent(sqlDir, suffix));
-			sb.append("\n\n");
-			sb.append(readFile(sqlDir + "/indexes/indexes-db2.sql"));
-			sb.append("\n\n");
-			sb.append(readFile(sqlDir + "/sequences/sequences-db2.sql"));
-		}
-
-		return sb.toString();
-	}
-
-	@Override
-	protected String getServerName() {
-		return "db2";
 	}
 
 	@Override
@@ -271,6 +260,16 @@ public class DB2DB extends BaseDB {
 
 			return sb.toString();
 		}
+	}
+
+	private String _removeNull(String content) {
+		content = StringUtil.replace(content, " = null", " = NULL");
+		content = StringUtil.replace(content, " is null", " IS NULL");
+		content = StringUtil.replace(content, " not null", " not_null");
+		content = StringUtil.removeSubstring(content, " null");
+		content = StringUtil.replace(content, " not_null", " not null");
+
+		return content;
 	}
 
 	private static final String[] _DB2 = {

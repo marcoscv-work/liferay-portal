@@ -46,7 +46,13 @@ export default function getAlloyEditorProcessor(
 	let _element;
 
 	return {
-		createEditor: (element, changeCallback, destroyCallback, config) => {
+		createEditor: (
+			element,
+			changeCallback,
+			destroyCallback,
+			config,
+			event
+		) => {
 			const {portletNamespace} = config;
 
 			const {editorConfig} = config.defaultEditorConfigurations[
@@ -102,7 +108,13 @@ export default function getAlloyEditorProcessor(
 
 				nativeEditor.on('instanceReady', () => {
 					nativeEditor.focus();
-					nativeEditor.execCommand('selectAll');
+
+					if (event) {
+						_selectRange(event, nativeEditor);
+					}
+					else {
+						nativeEditor.execCommand('selectAll');
+					}
 				}),
 
 				_stopEventPropagation(element, 'keydown'),
@@ -160,4 +172,49 @@ function _stopEventPropagation(element, eventName) {
 			element.removeEventListener(eventName, handler);
 		}
 	};
+}
+
+/**
+ * Place the caret in the click position
+ * @param {Event} event
+ * @param {CKEditor} nativeEditor
+ */
+function _selectRange(event, nativeEditor) {
+	const ckRange = nativeEditor.getSelection().getRanges()[0];
+
+	if (document.caretPositionFromPoint) {
+		const range = document.caretPositionFromPoint(
+			event.clientX,
+			event.clientY
+		);
+
+		const node = range.offsetNode;
+
+		if (isTextNode(node)) {
+			ckRange.setStart(CKEDITOR.dom.node(node), range.offset);
+			ckRange.setEnd(CKEDITOR.dom.node(node), range.offset);
+		}
+	}
+	else if (document.caretRangeFromPoint) {
+		const range = document.caretRangeFromPoint(
+			event.clientX,
+			event.clientY
+		);
+
+		const offset = range.startOffset || 0;
+
+		if (
+			isTextNode(range.startContainer) &&
+			isTextNode(range.endContainer)
+		) {
+			ckRange.setStart(CKEDITOR.dom.node(range.startContainer), offset);
+			ckRange.setEnd(CKEDITOR.dom.node(range.endContainer), offset);
+		}
+	}
+
+	nativeEditor.getSelection().selectRanges([ckRange]);
+}
+
+function isTextNode(node) {
+	return node.nodeType === Node.TEXT_NODE;
 }

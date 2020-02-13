@@ -14,7 +14,6 @@
 
 package com.liferay.portal.tools.rest.builder.internal.freemarker.tool;
 
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.tools.rest.builder.internal.freemarker.tool.java.JavaMethodParameter;
@@ -171,26 +170,8 @@ public class FreeMarkerTool {
 		Map<String, String> properties = getDTOProperties(
 			configYAML, openAPIYAML, schemaName);
 
-		String parameterName = StringUtil.toLowerCase(
-			javaMethodParameter.getParameterName());
-
-		schemaName = StringUtil.toLowerCase(schemaName);
-
-		String shortParameterName = StringUtil.replace(
-			parameterName, schemaName, StringPool.BLANK);
-
-		shortParameterName = StringUtil.replace(
-			shortParameterName, "parent", StringPool.BLANK);
-
-		for (String propertyKey : properties.keySet()) {
-			if (StringUtil.equalsIgnoreCase(parameterName, propertyKey) ||
-				StringUtil.equalsIgnoreCase(shortParameterName, propertyKey)) {
-
-				return StringUtil.upperCaseFirstLetter(propertyKey);
-			}
-		}
-
-		return null;
+		return _getParentProperty(
+			schemaName, javaMethodParameter, properties.keySet());
 	}
 
 	public String getGraphQLMethodAnnotations(
@@ -296,41 +277,43 @@ public class FreeMarkerTool {
 			List<JavaMethodParameter> javaMethodParameters =
 				javaMethodSignature.getJavaMethodParameters();
 
-			if (!javaMethodParameters.isEmpty()) {
-				JavaMethodParameter javaMethodParameter =
-					javaMethodParameters.get(0);
+			if (javaMethodParameters.isEmpty()) {
+				continue;
+			}
 
-				String parameterName = javaMethodParameter.getParameterName();
+			JavaMethodParameter javaMethodParameter = javaMethodParameters.get(
+				0);
 
-				String methodName = javaMethodSignature.getMethodName();
+			String parameterName = javaMethodParameter.getParameterName();
 
-				JavaMethodSignature relationJavaMethodSignature =
-					_getGraphQLPathRelation(
-						javaMethodSignature, javaMethodSignatures,
-						parameterName, schemas);
+			String methodName = javaMethodSignature.getMethodName();
 
-				if (relationJavaMethodSignature != null) {
-					javaMethodSignatureMap.put(
-						methodName, relationJavaMethodSignature);
-				}
+			JavaMethodSignature relationJavaMethodSignature =
+				_getGraphQLPathRelation(
+					javaMethodSignature, javaMethodSignatures, parameterName,
+					schemas);
 
-				for (Map.Entry<String, Schema> entry : schemas.entrySet()) {
-					Schema schema = entry.getValue();
+			if (relationJavaMethodSignature != null) {
+				javaMethodSignatureMap.put(
+					methodName, relationJavaMethodSignature);
+			}
 
-					Map<String, Schema> propertySchemas =
-						schema.getPropertySchemas();
+			for (Map.Entry<String, Schema> entry : schemas.entrySet()) {
+				Schema schema = entry.getValue();
 
-					if (propertySchemas != null) {
-						for (String propertyName : propertySchemas.keySet()) {
-							if (_isGraphQLPropertyRelation(
-									javaMethodSignature, parameterName,
-									propertyName)) {
+				Map<String, Schema> propertySchemas =
+					schema.getPropertySchemas();
 
-								javaMethodSignatureMap.put(
-									methodName,
-									_getJavaMethodSignature(
-										javaMethodSignature, entry.getKey()));
-							}
+				if (propertySchemas != null) {
+					for (String propertyName : propertySchemas.keySet()) {
+						if (_isGraphQLPropertyRelation(
+								javaMethodSignature, parameterName,
+								propertyName)) {
+
+							javaMethodSignatureMap.put(
+								methodName,
+								_getJavaMethodSignature(
+									javaMethodSignature, entry.getKey()));
 						}
 					}
 				}
@@ -800,6 +783,25 @@ public class FreeMarkerTool {
 					return null;
 				}
 
+				if ((relationJavaMethodSignature.getParentSchemaName() !=
+						null) &&
+					!returnType.contains("Collection<")) {
+
+					Schema parentSchema = schemas.get(
+						relationJavaMethodSignature.getParentSchemaName());
+
+					Map<String, Schema> parentPropertySchemas =
+						parentSchema.getPropertySchemas();
+
+					String parentProperty = _getParentProperty(
+						relationJavaMethodSignature.getParentSchemaName(),
+						javaMethodParameter, parentPropertySchemas.keySet());
+
+					if (parentProperty == null) {
+						continue;
+					}
+				}
+
 				return relationJavaMethodSignature;
 			}
 		}
@@ -818,6 +820,32 @@ public class FreeMarkerTool {
 			javaMethodSignature.getJavaMethodParameters(),
 			javaMethodSignature.getMethodName(),
 			javaMethodSignature.getReturnType(), parentSchemaName);
+	}
+
+	private String _getParentProperty(
+		String schemaName, JavaMethodParameter javaMethodParameter,
+		Set<String> properties) {
+
+		String parameterName = StringUtil.toLowerCase(
+			javaMethodParameter.getParameterName());
+
+		schemaName = StringUtil.toLowerCase(schemaName);
+
+		String shortParameterName = StringUtil.removeSubstring(
+			parameterName, schemaName);
+
+		shortParameterName = StringUtil.removeSubstring(
+			shortParameterName, "parent");
+
+		for (String propertyKey : properties) {
+			if (StringUtil.equalsIgnoreCase(parameterName, propertyKey) ||
+				StringUtil.equalsIgnoreCase(shortParameterName, propertyKey)) {
+
+				return StringUtil.upperCaseFirstLetter(propertyKey);
+			}
+		}
+
+		return null;
 	}
 
 	private String _getRESTBody(
@@ -907,7 +935,7 @@ public class FreeMarkerTool {
 
 		String returnType = StringUtil.toLowerCase(
 			javaMethodSignature.getReturnType());
-		String schemaName = StringUtil.replace(parameterName, "Id", "");
+		String schemaName = StringUtil.removeSubstring(parameterName, "Id");
 
 		if (propertyName.equals(parameterName) &&
 			returnType.endsWith(StringUtil.toLowerCase(schemaName))) {

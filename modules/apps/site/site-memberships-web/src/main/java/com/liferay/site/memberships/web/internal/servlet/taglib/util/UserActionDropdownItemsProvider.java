@@ -18,7 +18,10 @@ import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.security.membershippolicy.SiteMembershipPolicyUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
@@ -28,6 +31,7 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.util.List;
+import java.util.Objects;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.PortletURL;
@@ -61,7 +65,7 @@ public class UserActionDropdownItemsProvider {
 						_themeDisplay.getSiteGroupIdOrLiveGroupId(),
 						ActionKeys.ASSIGN_USER_ROLES)) {
 
-					add(_getAssignSiteRolesActionUnsafeConsumer());
+					add(_getAssignRolesActionUnsafeConsumer());
 				}
 
 				if (GroupPermissionUtil.contains(
@@ -82,18 +86,28 @@ public class UserActionDropdownItemsProvider {
 	}
 
 	private UnsafeConsumer<DropdownItem, Exception>
-			_getAssignSiteRolesActionUnsafeConsumer()
+			_getAssignRolesActionUnsafeConsumer()
 		throws Exception {
 
-		PortletURL assignSiteRolesURL = _renderResponse.createRenderURL();
+		PortletURL assignRolesURL = _renderResponse.createRenderURL();
 
-		assignSiteRolesURL.setParameter(
+		assignRolesURL.setParameter(
 			"p_u_i_d", String.valueOf(_user.getUserId()));
-		assignSiteRolesURL.setParameter("mvcPath", "/users_roles.jsp");
-		assignSiteRolesURL.setParameter(
+		assignRolesURL.setParameter("mvcPath", "/users_roles.jsp");
+		assignRolesURL.setParameter(
 			"groupId",
 			String.valueOf(_themeDisplay.getSiteGroupIdOrLiveGroupId()));
-		assignSiteRolesURL.setWindowState(LiferayWindowState.POP_UP);
+
+		Group group = _themeDisplay.getScopeGroup();
+
+		if (!group.isSite() &&
+			Objects.equals(group.getType(), GroupConstants.TYPE_DEPOT)) {
+
+			assignRolesURL.setParameter(
+				"roleType", String.valueOf(RoleConstants.TYPE_DEPOT));
+		}
+
+		assignRolesURL.setWindowState(LiferayWindowState.POP_UP);
 
 		PortletURL editUserGroupRoleURL = _renderResponse.createActionURL();
 
@@ -103,13 +117,12 @@ public class UserActionDropdownItemsProvider {
 			"p_u_i_d", String.valueOf(_user.getUserId()));
 
 		return dropdownItem -> {
-			dropdownItem.putData("action", "assignSiteRoles");
-			dropdownItem.putData(
-				"assignSiteRolesURL", assignSiteRolesURL.toString());
+			dropdownItem.putData("action", "assignRoles");
+			dropdownItem.putData("assignRolesURL", assignRolesURL.toString());
 			dropdownItem.putData(
 				"editUserGroupRoleURL", editUserGroupRoleURL.toString());
 			dropdownItem.setLabel(
-				LanguageUtil.get(_httpServletRequest, "assign-site-roles"));
+				LanguageUtil.get(_httpServletRequest, "assign-roles"));
 		};
 	}
 

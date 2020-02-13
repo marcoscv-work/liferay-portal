@@ -30,6 +30,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -481,40 +482,65 @@ public class ExportImportConfigurationParameterMapFactoryImpl
 			portletDataHandlerInstance.getExportControls();
 
 		for (PortletDataHandlerControl exportControl : exportControls) {
-			if (exportControl instanceof PortletDataHandlerBoolean) {
-				PortletDataHandlerBoolean portletDataHandlerBoolean =
-					(PortletDataHandlerBoolean)exportControl;
+			if (!(exportControl instanceof PortletDataHandlerBoolean)) {
+				continue;
+			}
 
-				boolean controlValue =
-					portletDataHandlerBoolean.getDefaultState();
+			PortletDataHandlerBoolean portletDataHandlerBoolean =
+				(PortletDataHandlerBoolean)exportControl;
 
-				if (!portletDataHandlerBoolean.isDisabled()) {
-					controlValue = MapUtil.getBoolean(
-						parameterMap,
-						portletDataHandlerBoolean.getNamespacedControlName(),
-						true);
+			boolean controlValue = portletDataHandlerBoolean.getDefaultState();
+
+			if (!portletDataHandlerBoolean.isDisabled()) {
+				controlValue = MapUtil.getBoolean(
+					parameterMap,
+					portletDataHandlerBoolean.getNamespacedControlName(), true);
+			}
+
+			if ((portletDataAll || controlValue) &&
+				(portletDataHandlerBoolean.getClassName() != null)) {
+
+				String referrerClassName =
+					portletDataHandlerBoolean.getReferrerClassName();
+
+				if (referrerClassName == null) {
+					parameterMap.put(
+						portletDataHandlerBoolean.getClassName(),
+						new String[] {Boolean.TRUE.toString()});
 				}
-
-				if ((portletDataAll || controlValue) &&
-					(portletDataHandlerBoolean.getClassName() != null)) {
-
-					String referrerClassName =
-						portletDataHandlerBoolean.getReferrerClassName();
-
-					if (referrerClassName == null) {
-						parameterMap.put(
-							portletDataHandlerBoolean.getClassName(),
-							new String[] {Boolean.TRUE.toString()});
-					}
-					else {
-						parameterMap.put(
-							portletDataHandlerBoolean.getClassName() +
-								StringPool.POUND + referrerClassName,
-							new String[] {Boolean.TRUE.toString()});
-					}
+				else {
+					parameterMap.put(
+						portletDataHandlerBoolean.getClassName() +
+							StringPool.POUND + referrerClassName,
+						new String[] {Boolean.TRUE.toString()});
 				}
 			}
 		}
+	}
+
+	private void _populatePortletResourceNames(
+		Map<String, String[]> parameterMap, Portlet dataSiteLevelPortlet) {
+
+		PortletDataHandler portletDataHandler =
+			dataSiteLevelPortlet.getPortletDataHandlerInstance();
+
+		String resourceName = portletDataHandler.getResourceName();
+
+		if (resourceName == null) {
+			return;
+		}
+
+		if (!parameterMap.containsKey("portletResourceNames")) {
+			parameterMap.put("portletResourceNames", new String[0]);
+		}
+
+		String[] portletResourceNames = parameterMap.get(
+			"portletResourceNames");
+
+		portletResourceNames = ArrayUtil.append(
+			portletResourceNames, resourceName);
+
+		parameterMap.put("portletResourceNames", portletResourceNames);
 	}
 
 	private void _populateStagedModelTypes(
@@ -614,6 +640,9 @@ public class ExportImportConfigurationParameterMapFactoryImpl
 				if (portletDataAll ||
 					((portletDataValues != null) &&
 					 GetterUtil.getBoolean(portletDataValues[0]))) {
+
+					_populatePortletResourceNames(
+						parameterMap, dataSiteLevelPortlet);
 
 					_populateStagedModelTypes(
 						parameterMap, dataSiteLevelPortlet);

@@ -61,6 +61,7 @@ export default () => {
 		}
 
 		const regex = new RegExp(searchText, 'ig');
+
 		return regex.test(item.name);
 	});
 
@@ -102,7 +103,8 @@ export default () => {
 
 			if (site) {
 				return site.name;
-			} else {
+			}
+			else {
 				return '';
 			}
 		})

@@ -12,52 +12,116 @@
  * details.
  */
 
+import {useModal} from '@clayui/modal';
 import classNames from 'classnames';
-import React from 'react';
+import {useIsMounted} from 'frontend-js-react-web';
+import React, {useContext, useState} from 'react';
 
 import {LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS} from '../../config/constants/layoutDataFloatingToolbarButtons';
 import {LAYOUT_DATA_ITEM_TYPES} from '../../config/constants/layoutDataItemTypes';
-import FloatingToolbar from '../FloatingToolbar';
+import {ConfigContext} from '../../config/index';
+import selectShowLayoutItemTopper from '../../selectors/selectShowLayoutItemTopper';
+import {useDispatch, useSelector} from '../../store/index';
+import duplicateItem from '../../thunks/duplicateItem';
+import {useSelectItem} from '../Controls';
 import Topper from '../Topper';
+import FloatingToolbar from '../floating-toolbar/FloatingToolbar';
+import SaveFragmentCompositionModal from '../floating-toolbar/SaveFragmentCompositionModal';
 import Container from './Container';
 
 const ContainerWithControls = React.forwardRef(
 	({children, item, layoutData}, ref) => {
-		return (
+		const config = useContext(ConfigContext);
+		const dispatch = useDispatch();
+		const isMounted = useIsMounted();
+		const [
+			openSaveFragmentCompositionModal,
+			setOpenSaveFragmentCompositionModal
+		] = useState(false);
+		const {observer, onClose} = useModal({
+			onClose: () => {
+				if (isMounted()) {
+					setOpenSaveFragmentCompositionModal(false);
+				}
+			}
+		});
+
+		const segmentsExperienceId = useSelector(
+			state => state.segmentsExperienceId
+		);
+		const selectItem = useSelectItem();
+		const showLayoutItemTopper = useSelector(selectShowLayoutItemTopper);
+
+		const handleButtonClick = id => {
+			if (id === LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS.duplicateItem.id) {
+				dispatch(
+					duplicateItem({
+						config,
+						itemId: item.itemId,
+						selectItem,
+						store: {segmentsExperienceId}
+					})
+				);
+			}
+			else if (
+				id ===
+				LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS.saveFragmentComposition.id
+			) {
+				setOpenSaveFragmentCompositionModal(true);
+			}
+		};
+
+		const content = (
+			<Container
+				className={classNames(
+					'container-fluid page-editor__container',
+					{
+						empty: !item.children.length
+					}
+				)}
+				item={item}
+				ref={ref}
+			>
+				<FloatingToolbar
+					buttons={[
+						LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS.duplicateItem,
+						LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS.saveFragmentComposition,
+						LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS.containerConfiguration
+					]}
+					item={item}
+					itemRef={ref}
+					onButtonClick={handleButtonClick}
+				/>
+
+				{children}
+
+				{openSaveFragmentCompositionModal && (
+					<SaveFragmentCompositionModal
+						errorMessage={''}
+						observer={observer}
+						onClose={onClose}
+						onErrorDismiss={() => true}
+					/>
+				)}
+			</Container>
+		);
+
+		return showLayoutItemTopper ? (
 			<Topper
 				acceptDrop={[
 					LAYOUT_DATA_ITEM_TYPES.dropZone,
+					LAYOUT_DATA_ITEM_TYPES.container,
 					LAYOUT_DATA_ITEM_TYPES.fragment,
 					LAYOUT_DATA_ITEM_TYPES.row
 				]}
-				active
+				dropNestedAndSibling
 				item={item}
 				layoutData={layoutData}
-				name={Liferay.Language.get('container')}
 			>
-				{() => (
-					<Container
-						className={classNames(
-							'container-fluid page-editor__container',
-							{
-								empty: !item.children.length
-							}
-						)}
-						item={item}
-						ref={ref}
-					>
-						<FloatingToolbar
-							buttons={[
-								LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS.containerConfiguration
-							]}
-							item={item}
-							itemRef={ref}
-						/>
-
-						{children}
-					</Container>
-				)}
+				{() => content}
 			</Topper>
+		) : (
+			content
 		);
 	}
 );

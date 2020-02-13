@@ -298,6 +298,28 @@ public class AccountUsersAdminManagementToolbarDisplayContext
 					}
 				}
 
+				if (Objects.equals(
+						_getAccountEntriesNavigation(),
+						"no-assigned-account")) {
+
+					add(
+						labelItem -> {
+							PortletURL removeLabelURL = getPortletURL();
+
+							removeLabelURL.setParameter(
+								"accountEntriesNavigation", (String)null);
+
+							labelItem.putData(
+								"removeLabelURL", removeLabelURL.toString());
+
+							labelItem.setCloseable(true);
+
+							labelItem.setLabel(
+								LanguageUtil.get(
+									request, "no-assigned-account"));
+						});
+				}
+
 				if (!Objects.equals(getNavigation(), "active")) {
 					add(
 						labelItem -> {

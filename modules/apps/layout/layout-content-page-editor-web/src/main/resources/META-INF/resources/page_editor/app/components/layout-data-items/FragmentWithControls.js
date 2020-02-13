@@ -31,16 +31,20 @@ import React, {useContext} from 'react';
 import {LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS} from '../../config/constants/layoutDataFloatingToolbarButtons';
 import {LAYOUT_DATA_ITEM_TYPES} from '../../config/constants/layoutDataItemTypes';
 import {ConfigContext} from '../../config/index';
-import {useSelector, useDispatch} from '../../store/index';
-import duplicateFragment from '../../thunks/duplicateFragment';
-import FloatingToolbar from '../FloatingToolbar';
+import selectShowLayoutItemTopper from '../../selectors/selectShowLayoutItemTopper';
+import {useDispatch, useSelector} from '../../store/index';
+import duplicateItem from '../../thunks/duplicateItem';
+import {useSelectItem} from '../Controls';
 import Topper from '../Topper';
+import FloatingToolbar from '../floating-toolbar/FloatingToolbar';
 import FragmentContent from './FragmentContent';
 
 const FragmentWithControls = React.forwardRef(({item, layoutData}, ref) => {
 	const config = useContext(ConfigContext);
 	const dispatch = useDispatch();
+	const selectItem = useSelectItem();
 	const state = useSelector(state => state);
+	const showLayoutItemTopper = useSelector(selectShowLayoutItemTopper);
 
 	const {fragmentEntryLinks} = state;
 
@@ -48,55 +52,98 @@ const FragmentWithControls = React.forwardRef(({item, layoutData}, ref) => {
 		fragmentEntryLinks[item.config.fragmentEntryLinkId];
 
 	const handleButtonClick = id => {
-		if (id === LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS.duplicateFragment.id) {
+		if (id === LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS.duplicateItem.id) {
 			dispatch(
-				duplicateFragment({
+				duplicateItem({
 					config,
 					fragmentEntryLinkId: item.config.fragmentEntryLinkId,
 					itemId: item.itemId,
+					selectItem,
 					store: state
 				})
 			);
 		}
 	};
 
-	const portletId = fragmentEntryLink.portletId;
+	const floatingToolbarButtons = [];
 
-	const floatingToolbarButtons = [
-		LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS.duplicateFragment
-	];
+	const portletId = fragmentEntryLink.editableValues.portletId;
 
-	if (!portletId) {
+	const widget = portletId && getWidget(state.widgets, portletId);
+
+	if (!widget || widget.instanceable) {
+		floatingToolbarButtons.push(
+			LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS.duplicateItem
+		);
+	}
+
+	const configuration = fragmentEntryLink.configuration;
+
+	if (
+		configuration &&
+		Array.isArray(configuration.fieldSets) &&
+		configuration.fieldSets.length
+	) {
 		floatingToolbarButtons.push(
 			LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS.fragmentConfiguration
 		);
 	}
 
-	return (
+	const content = (
+		<>
+			<FloatingToolbar
+				buttons={floatingToolbarButtons}
+				item={item}
+				itemRef={ref}
+				onButtonClick={handleButtonClick}
+			/>
+
+			<FragmentContent
+				fragmentEntryLink={fragmentEntryLink}
+				itemId={item.itemId}
+				ref={ref}
+			/>
+		</>
+	);
+
+	return showLayoutItemTopper ? (
 		<Topper
-			acceptDrop={[LAYOUT_DATA_ITEM_TYPES.fragment]}
-			active
+			acceptDrop={[
+				LAYOUT_DATA_ITEM_TYPES.container,
+				LAYOUT_DATA_ITEM_TYPES.fragment
+			]}
 			item={item}
 			layoutData={layoutData}
-			name={fragmentEntryLink.name}
 		>
-			{() => (
-				<>
-					<FloatingToolbar
-						buttons={floatingToolbarButtons}
-						item={item}
-						itemRef={ref}
-						onButtonClick={handleButtonClick}
-					/>
-
-					<FragmentContent
-						fragmentEntryLink={fragmentEntryLink}
-						ref={ref}
-					/>
-				</>
-			)}
+			{() => content}
 		</Topper>
+	) : (
+		content
 	);
 });
+
+function getWidget(widgets, portletId) {
+	let widget = null;
+
+	const widgetsLength = widgets.length;
+
+	for (let i = 0; i < widgetsLength; i++) {
+		const {categories = [], portlets = []} = widgets[i];
+		const categoryPortlet = portlets.find(
+			_portlet => _portlet.portletId === portletId
+		);
+		const subCategoryPortlet = getWidget(categories, portletId);
+
+		if (categoryPortlet) {
+			widget = categoryPortlet;
+		}
+
+		if (subCategoryPortlet) {
+			widget = subCategoryPortlet;
+		}
+	}
+
+	return widget;
+}
 
 export default FragmentWithControls;

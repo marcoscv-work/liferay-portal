@@ -84,6 +84,7 @@ function getUniqueSelector(element) {
 			const isIdentifying = IDENTITY_ATTRIBUTES.some(regExp => {
 				return regExp.test(name);
 			});
+
 			return isIdentifying ? `[${name}=${JSON.stringify(value)}]` : null;
 		})
 		.filter(Boolean)
@@ -120,7 +121,8 @@ function setClasses(element, classes) {
 			className.split(/\s+/).forEach(name => {
 				if (present) {
 					element.classList.add(name);
-				} else {
+				}
+				else {
 					element.classList.remove(name);
 				}
 			});
@@ -153,12 +155,14 @@ function setStyles(element, styles) {
 function px(dimension) {
 	if (typeof dimension === 'number') {
 		return dimension + 'px';
-	} else if (
+	}
+	else if (
 		typeof dimension === 'string' &&
 		dimension.match(/^\s*\d+\s*$/)
 	) {
 		return dimension.trim() + 'px';
-	} else {
+	}
+	else {
 		return dimension;
 	}
 }
@@ -304,7 +308,8 @@ SideNavigation.prototype = {
 
 		if (desktop && type === 'fixed-push') {
 			return 'desktop-fixed-push';
-		} else if (!desktop && typeMobile === 'fixed-push') {
+		}
+		else if (!desktop && typeMobile === 'fixed-push') {
 			return 'mobile-fixed-push';
 		}
 
@@ -358,6 +363,7 @@ SideNavigation.prototype = {
 					if (!response.ok) {
 						throw new Error(`Failed to fetch ${url}`);
 					}
+
 					return response.text();
 				})
 				.then(text => {
@@ -404,7 +410,8 @@ SideNavigation.prototype = {
 					[positionDirection]: px(width)
 				});
 			}
-		} else {
+		}
+		else {
 			instance.showSidenav();
 			instance.setHeight();
 		}
@@ -537,7 +544,8 @@ SideNavigation.prototype = {
 
 		if (instance.useDataAttribute) {
 			instance.hideSimpleSidenav();
-		} else {
+		}
+		else {
 			instance.toggleNavigation(false);
 		}
 	},
@@ -733,7 +741,8 @@ SideNavigation.prototype = {
 
 		if (instance.useDataAttribute) {
 			instance.showSimpleSidenav();
-		} else {
+		}
+		else {
 			instance.toggleNavigation(true);
 		}
 	},
@@ -799,7 +808,8 @@ SideNavigation.prototype = {
 				if (navigationStartX > contentStartX) {
 					padding = navigationStartX - contentStartX;
 				}
-			} else if (
+			}
+			else if (
 				(options.rtl && options.position === 'left') ||
 				(!options.rtl && sidenavRight)
 			) {
@@ -872,7 +882,8 @@ SideNavigation.prototype = {
 
 		if (instance.useDataAttribute) {
 			instance.toggleSimpleSidenav();
-		} else {
+		}
+		else {
 			instance.toggleNavigation();
 		}
 	},
@@ -893,7 +904,8 @@ SideNavigation.prototype = {
 
 		if (closed) {
 			instance._emit('openStart.lexicon.sidenav');
-		} else {
+		}
+		else {
 			instance._emit('closedStart.lexicon.sidenav');
 		}
 
@@ -909,7 +921,8 @@ SideNavigation.prototype = {
 				});
 
 				instance._emit('closed.lexicon.sidenav');
-			} else {
+			}
+			else {
 				setClasses(toggler, {
 					open: true,
 					'sidenav-transition': false
@@ -945,7 +958,8 @@ SideNavigation.prototype = {
 
 		if (closed) {
 			instance.showSidenav();
-		} else {
+		}
+		else {
 			instance.hideSidenav();
 		}
 
@@ -967,7 +981,8 @@ SideNavigation.prototype = {
 
 		if (simpleSidenavClosed) {
 			instance.showSimpleSidenav();
-		} else {
+		}
+		else {
 			instance.hideSimpleSidenav();
 		}
 	},
@@ -979,7 +994,8 @@ SideNavigation.prototype = {
 
 		if (instance.useDataAttribute) {
 			closed = instance._isSimpleSidenavClosed();
-		} else {
+		}
+		else {
 			const container = document.querySelector(
 				instance.options.container
 			);
@@ -1064,7 +1080,8 @@ function onReady() {
 if (document.readyState !== 'loading') {
 	// readyState is "interactive" or "complete".
 	onReady();
-} else {
+}
+else {
 	document.addEventListener('DOMContentLoaded', () => {
 		onReady();
 	});

@@ -60,6 +60,7 @@ import com.liferay.portal.kernel.search.filter.TermFilter;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -141,6 +142,7 @@ public class MessageBoardThreadResourceImpl
 			messageBoardSectionId);
 
 		return _getSiteMessageBoardThreadsPage(
+			_getMessageBoardSectionListActions(mbCategory),
 			booleanQuery -> {
 				BooleanFilter booleanFilter =
 					booleanQuery.getPreBooleanFilter();
@@ -201,6 +203,7 @@ public class MessageBoardThreadResourceImpl
 		throws Exception {
 
 		return _getSiteMessageBoardThreadsPage(
+			_getSiteListActions(siteId),
 			booleanQuery -> {
 				BooleanFilter booleanFilter =
 					booleanQuery.getPreBooleanFilter();
@@ -338,6 +341,16 @@ public class MessageBoardThreadResourceImpl
 		return _toMessageBoardThread(mbMessage);
 	}
 
+	private Map<String, Map<String, String>> _getActions(MBMessage mbMessage) {
+		return HashMapBuilder.<String, Map<String, String>>put(
+			"delete", addAction("DELETE", mbMessage, "deleteMessageBoardThread")
+		).put(
+			"get", addAction("VIEW", mbMessage, "getMessageBoardThread")
+		).put(
+			"replace", addAction("UPDATE", mbMessage, "putMessageBoardThread")
+		).build();
+	}
+
 	private DynamicQuery _getDynamicQuery(
 		Date dateCreated, Date dateModified, Pagination pagination,
 		Sort[] sorts) {
@@ -376,7 +389,7 @@ public class MessageBoardThreadResourceImpl
 			for (Sort sort : sorts) {
 				String fieldName = sort.getFieldName();
 
-				fieldName = StringUtil.replace(fieldName, "_sortable", "");
+				fieldName = StringUtil.removeSubstring(fieldName, "_sortable");
 
 				if (sort.isReverse()) {
 					dynamicQuery.addOrder(OrderFactoryUtil.desc(fieldName));
@@ -399,25 +412,58 @@ public class MessageBoardThreadResourceImpl
 			contextAcceptLanguage.getPreferredLocale());
 	}
 
+	private Map<String, Map<String, String>> _getMessageBoardSectionListActions(
+		MBCategory mbCategory) {
+
+		return HashMapBuilder.<String, Map<String, String>>put(
+			"create",
+			addAction(
+				"ADD_MESSAGE", mbCategory.getCategoryId(),
+				"postMessageBoardSectionMessageBoardThread",
+				"com.liferay.message.boards", mbCategory.getGroupId())
+		).put(
+			"get",
+			addAction(
+				"VIEW", mbCategory.getCategoryId(),
+				"getMessageBoardSectionMessageBoardThreadsPage",
+				"com.liferay.message.boards", mbCategory.getGroupId())
+		).build();
+	}
+
+	private Map<String, Map<String, String>> _getSiteListActions(long groupId) {
+		return HashMapBuilder.<String, Map<String, String>>put(
+			"create",
+			addAction(
+				"ADD_MESSAGE", "postSiteMessageBoardThread",
+				"com.liferay.message.boards", groupId)
+		).put(
+			"get",
+			addAction(
+				"VIEW", "getSiteMessageBoardThreadsPage",
+				"com.liferay.message.boards", groupId)
+		).build();
+	}
+
 	private Page<MessageBoardThread> _getSiteMessageBoardThreadsPage(
+			Map<String, Map<String, String>> actions,
 			UnsafeConsumer<BooleanQuery, Exception> booleanQueryUnsafeConsumer,
 			Long siteId, String search, Filter filter, Pagination pagination,
 			Sort[] sorts)
 		throws Exception {
 
 		return SearchUtil.search(
-			booleanQueryUnsafeConsumer, filter, MBMessage.class, search,
-			pagination,
+			actions, booleanQueryUnsafeConsumer, filter, MBMessage.class,
+			search, pagination,
 			queryConfig -> queryConfig.setSelectedFieldNames(
 				Field.ENTRY_CLASS_PK),
 			searchContext -> {
 				searchContext.setCompanyId(contextCompany.getCompanyId());
 				searchContext.setGroupIds(new long[] {siteId});
 			},
+			sorts,
 			document -> _toMessageBoardThread(
 				_mbMessageService.getMessage(
-					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))),
-			sorts);
+					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
 	}
 
 	private SPIRatingResource<Rating> _getSPIRatingResource() {
@@ -442,6 +488,7 @@ public class MessageBoardThreadResourceImpl
 
 		return new MessageBoardThread() {
 			{
+				actions = _getActions(mbMessage);
 				aggregateRating = AggregateRatingUtil.toAggregateRating(
 					_ratingsStatsLocalService.fetchStats(
 						MBMessage.class.getName(), mbMessage.getMessageId()));

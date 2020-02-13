@@ -24,7 +24,8 @@ import {
 	useSelectItem
 } from '../../../app/components/Controls';
 import {ConfigContext} from '../../../app/config/index';
-import {useSelector, useDispatch} from '../../../app/store/index';
+import selectShowLayoutItemRemoveButton from '../../../app/selectors/selectShowLayoutItemRemoveButton';
+import {useDispatch, useSelector} from '../../../app/store/index';
 import deleteItem from '../../../app/thunks/deleteItem';
 
 const NameButton = ({id, name}) => {
@@ -47,7 +48,7 @@ const NameButton = ({id, name}) => {
 	);
 };
 
-const RemoveButton = ({id}) => {
+const RemoveButton = ({node}) => {
 	const config = useContext(ConfigContext);
 	const dispatch = useDispatch();
 	const store = useSelector(state => state);
@@ -58,7 +59,8 @@ const RemoveButton = ({id}) => {
 			displayType="unstyled"
 			onClick={event => {
 				event.stopPropagation();
-				dispatch(deleteItem({config, itemId: id, store}));
+
+				dispatch(deleteItem({config, itemId: node.id, store}));
 			}}
 		>
 			<ClayIcon symbol="times-circle" />
@@ -69,7 +71,11 @@ const RemoveButton = ({id}) => {
 export default function StructureTreeNode({node}) {
 	const hoverItem = useHoverItem();
 	const isHovered = useIsHovered();
+	const isSelected = useIsSelected();
 	const selectItem = useSelectItem();
+	const showLayoutItemRemoveButton = useSelector(
+		selectShowLayoutItemRemoveButton
+	);
 
 	return (
 		<div
@@ -92,7 +98,11 @@ export default function StructureTreeNode({node}) {
 			}}
 		>
 			<NameButton id={node.id} name={node.name} />
-			{node.removable && <RemoveButton id={node.id} />}
+			{showLayoutItemRemoveButton &&
+				node.removable &&
+				(isHovered(node.id) || isSelected(node.id)) && (
+					<RemoveButton node={node} />
+				)}
 		</div>
 	);
 }

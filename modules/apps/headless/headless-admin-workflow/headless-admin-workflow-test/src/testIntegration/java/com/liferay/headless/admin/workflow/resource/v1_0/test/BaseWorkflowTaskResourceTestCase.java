@@ -183,10 +183,11 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 
 		WorkflowTask workflowTask = randomWorkflowTask();
 
-		workflowTask.setDefinitionName(regex);
-		workflowTask.setDefinitionVersion(regex);
 		workflowTask.setDescription(regex);
+		workflowTask.setLabel(regex);
 		workflowTask.setName(regex);
+		workflowTask.setWorkflowDefinitionName(regex);
+		workflowTask.setWorkflowDefinitionVersion(regex);
 
 		String json = WorkflowTaskSerDes.toJSON(workflowTask);
 
@@ -194,10 +195,11 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 
 		workflowTask = WorkflowTaskSerDes.toDTO(json);
 
-		Assert.assertEquals(regex, workflowTask.getDefinitionName());
-		Assert.assertEquals(regex, workflowTask.getDefinitionVersion());
 		Assert.assertEquals(regex, workflowTask.getDescription());
+		Assert.assertEquals(regex, workflowTask.getLabel());
 		Assert.assertEquals(regex, workflowTask.getName());
+		Assert.assertEquals(regex, workflowTask.getWorkflowDefinitionName());
+		Assert.assertEquals(regex, workflowTask.getWorkflowDefinitionVersion());
 	}
 
 	@Test
@@ -599,7 +601,7 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 		Page<WorkflowTask> page = workflowTaskResource.getWorkflowTasksPage(
 			null, null, RandomTestUtil.randomString(), null, null, null,
 			RandomTestUtil.nextDate(), RandomTestUtil.nextDate(), null, null,
-			null, Pagination.of(1, 2), null);
+			null, null, null, Pagination.of(1, 2), null);
 
 		Assert.assertEquals(0, page.getTotalCount());
 
@@ -611,7 +613,7 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 
 		page = workflowTaskResource.getWorkflowTasksPage(
 			null, null, null, null, null, null, null, null, null, null, null,
-			Pagination.of(1, 2), null);
+			null, null, Pagination.of(1, 2), null);
 
 		Assert.assertEquals(2, page.getTotalCount());
 
@@ -634,7 +636,7 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 
 		Page<WorkflowTask> page1 = workflowTaskResource.getWorkflowTasksPage(
 			null, null, null, null, null, null, null, null, null, null, null,
-			Pagination.of(1, 2), null);
+			null, null, Pagination.of(1, 2), null);
 
 		List<WorkflowTask> workflowTasks1 =
 			(List<WorkflowTask>)page1.getItems();
@@ -644,7 +646,7 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 
 		Page<WorkflowTask> page2 = workflowTaskResource.getWorkflowTasksPage(
 			null, null, null, null, null, null, null, null, null, null, null,
-			Pagination.of(2, 2), null);
+			null, null, Pagination.of(2, 2), null);
 
 		Assert.assertEquals(3, page2.getTotalCount());
 
@@ -656,7 +658,7 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 
 		Page<WorkflowTask> page3 = workflowTaskResource.getWorkflowTasksPage(
 			null, null, null, null, null, null, null, null, null, null, null,
-			Pagination.of(1, 3), null);
+			null, null, Pagination.of(1, 3), null);
 
 		assertEqualsIgnoringOrder(
 			Arrays.asList(workflowTask1, workflowTask2, workflowTask3),
@@ -742,7 +744,8 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 			Page<WorkflowTask> ascPage =
 				workflowTaskResource.getWorkflowTasksPage(
 					null, null, null, null, null, null, null, null, null, null,
-					null, Pagination.of(1, 2), entityField.getName() + ":asc");
+					null, null, null, Pagination.of(1, 2),
+					entityField.getName() + ":asc");
 
 			assertEquals(
 				Arrays.asList(workflowTask1, workflowTask2),
@@ -751,7 +754,8 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 			Page<WorkflowTask> descPage =
 				workflowTaskResource.getWorkflowTasksPage(
 					null, null, null, null, null, null, null, null, null, null,
-					null, Pagination.of(1, 2), entityField.getName() + ":desc");
+					null, null, null, Pagination.of(1, 2),
+					entityField.getName() + ":desc");
 
 			assertEquals(
 				Arrays.asList(workflowTask2, workflowTask1),
@@ -1096,6 +1100,31 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 	protected WorkflowTask
 			testGetWorkflowTasksAssignedToUserRolesPage_addWorkflowTask(
 				WorkflowTask workflowTask)
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
+	public void testPatchWorkflowTaskChangeTransition() throws Exception {
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		WorkflowTask workflowTask =
+			testPatchWorkflowTaskChangeTransition_addWorkflowTask();
+
+		assertHttpResponseStatusCode(
+			204,
+			workflowTaskResource.patchWorkflowTaskChangeTransitionHttpResponse(
+				null));
+
+		assertHttpResponseStatusCode(
+			404,
+			workflowTaskResource.patchWorkflowTaskChangeTransitionHttpResponse(
+				null));
+	}
+
+	protected WorkflowTask
+			testPatchWorkflowTaskChangeTransition_addWorkflowTask()
 		throws Exception {
 
 		throw new UnsupportedOperationException(
@@ -1465,34 +1494,16 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 				continue;
 			}
 
-			if (Objects.equals("definitionId", additionalAssertFieldName)) {
-				if (workflowTask.getDefinitionId() == null) {
-					valid = false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("definitionName", additionalAssertFieldName)) {
-				if (workflowTask.getDefinitionName() == null) {
-					valid = false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals(
-					"definitionVersion", additionalAssertFieldName)) {
-
-				if (workflowTask.getDefinitionVersion() == null) {
-					valid = false;
-				}
-
-				continue;
-			}
-
 			if (Objects.equals("description", additionalAssertFieldName)) {
 				if (workflowTask.getDescription() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("label", additionalAssertFieldName)) {
+				if (workflowTask.getLabel() == null) {
 					valid = false;
 				}
 
@@ -1509,6 +1520,36 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 
 			if (Objects.equals("objectReviewed", additionalAssertFieldName)) {
 				if (workflowTask.getObjectReviewed() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"workflowDefinitionId", additionalAssertFieldName)) {
+
+				if (workflowTask.getWorkflowDefinitionId() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"workflowDefinitionName", additionalAssertFieldName)) {
+
+				if (workflowTask.getWorkflowDefinitionName() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"workflowDefinitionVersion", additionalAssertFieldName)) {
+
+				if (workflowTask.getWorkflowDefinitionVersion() == null) {
 					valid = false;
 				}
 
@@ -1646,41 +1687,6 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 				continue;
 			}
 
-			if (Objects.equals("definitionId", additionalAssertFieldName)) {
-				if (!Objects.deepEquals(
-						workflowTask1.getDefinitionId(),
-						workflowTask2.getDefinitionId())) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("definitionName", additionalAssertFieldName)) {
-				if (!Objects.deepEquals(
-						workflowTask1.getDefinitionName(),
-						workflowTask2.getDefinitionName())) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals(
-					"definitionVersion", additionalAssertFieldName)) {
-
-				if (!Objects.deepEquals(
-						workflowTask1.getDefinitionVersion(),
-						workflowTask2.getDefinitionVersion())) {
-
-					return false;
-				}
-
-				continue;
-			}
-
 			if (Objects.equals("description", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						workflowTask1.getDescription(),
@@ -1702,6 +1708,16 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("label", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						workflowTask1.getLabel(), workflowTask2.getLabel())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("name", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						workflowTask1.getName(), workflowTask2.getName())) {
@@ -1716,6 +1732,45 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 				if (!Objects.deepEquals(
 						workflowTask1.getObjectReviewed(),
 						workflowTask2.getObjectReviewed())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"workflowDefinitionId", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						workflowTask1.getWorkflowDefinitionId(),
+						workflowTask2.getWorkflowDefinitionId())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"workflowDefinitionName", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						workflowTask1.getWorkflowDefinitionName(),
+						workflowTask2.getWorkflowDefinitionName())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"workflowDefinitionVersion", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						workflowTask1.getWorkflowDefinitionVersion(),
+						workflowTask2.getWorkflowDefinitionVersion())) {
 
 					return false;
 				}
@@ -1759,39 +1814,6 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 				continue;
 			}
 
-			if (Objects.equals("definitionId", fieldName)) {
-				if (!Objects.deepEquals(
-						workflowTask.getDefinitionId(),
-						jsonObject.getLong("definitionId"))) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("definitionName", fieldName)) {
-				if (!Objects.deepEquals(
-						workflowTask.getDefinitionName(),
-						jsonObject.getString("definitionName"))) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("definitionVersion", fieldName)) {
-				if (!Objects.deepEquals(
-						workflowTask.getDefinitionVersion(),
-						jsonObject.getString("definitionVersion"))) {
-
-					return false;
-				}
-
-				continue;
-			}
-
 			if (Objects.equals("description", fieldName)) {
 				if (!Objects.deepEquals(
 						workflowTask.getDescription(),
@@ -1813,9 +1835,53 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("label", fieldName)) {
+				if (!Objects.deepEquals(
+						workflowTask.getLabel(),
+						jsonObject.getString("label"))) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("name", fieldName)) {
 				if (!Objects.deepEquals(
 						workflowTask.getName(), jsonObject.getString("name"))) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("workflowDefinitionId", fieldName)) {
+				if (!Objects.deepEquals(
+						workflowTask.getWorkflowDefinitionId(),
+						jsonObject.getLong("workflowDefinitionId"))) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("workflowDefinitionName", fieldName)) {
+				if (!Objects.deepEquals(
+						workflowTask.getWorkflowDefinitionName(),
+						jsonObject.getString("workflowDefinitionName"))) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("workflowDefinitionVersion", fieldName)) {
+				if (!Objects.deepEquals(
+						workflowTask.getWorkflowDefinitionVersion(),
+						jsonObject.getString("workflowDefinitionVersion"))) {
 
 					return false;
 				}
@@ -2003,27 +2069,6 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 			return sb.toString();
 		}
 
-		if (entityFieldName.equals("definitionId")) {
-			throw new IllegalArgumentException(
-				"Invalid entity field " + entityFieldName);
-		}
-
-		if (entityFieldName.equals("definitionName")) {
-			sb.append("'");
-			sb.append(String.valueOf(workflowTask.getDefinitionName()));
-			sb.append("'");
-
-			return sb.toString();
-		}
-
-		if (entityFieldName.equals("definitionVersion")) {
-			sb.append("'");
-			sb.append(String.valueOf(workflowTask.getDefinitionVersion()));
-			sb.append("'");
-
-			return sb.toString();
-		}
-
 		if (entityFieldName.equals("description")) {
 			sb.append("'");
 			sb.append(String.valueOf(workflowTask.getDescription()));
@@ -2037,6 +2082,14 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("label")) {
+			sb.append("'");
+			sb.append(String.valueOf(workflowTask.getLabel()));
+			sb.append("'");
+
+			return sb.toString();
+		}
+
 		if (entityFieldName.equals("name")) {
 			sb.append("'");
 			sb.append(String.valueOf(workflowTask.getName()));
@@ -2048,6 +2101,28 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 		if (entityFieldName.equals("objectReviewed")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("workflowDefinitionId")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("workflowDefinitionName")) {
+			sb.append("'");
+			sb.append(String.valueOf(workflowTask.getWorkflowDefinitionName()));
+			sb.append("'");
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("workflowDefinitionVersion")) {
+			sb.append("'");
+			sb.append(
+				String.valueOf(workflowTask.getWorkflowDefinitionVersion()));
+			sb.append("'");
+
+			return sb.toString();
 		}
 
 		if (entityFieldName.equals("workflowInstanceId")) {
@@ -2083,12 +2158,13 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 				dateCompletion = RandomTestUtil.nextDate();
 				dateCreated = RandomTestUtil.nextDate();
 				dateDue = RandomTestUtil.nextDate();
-				definitionId = RandomTestUtil.randomLong();
-				definitionName = RandomTestUtil.randomString();
-				definitionVersion = RandomTestUtil.randomString();
 				description = RandomTestUtil.randomString();
 				id = RandomTestUtil.randomLong();
+				label = RandomTestUtil.randomString();
 				name = RandomTestUtil.randomString();
+				workflowDefinitionId = RandomTestUtil.randomLong();
+				workflowDefinitionName = RandomTestUtil.randomString();
+				workflowDefinitionVersion = RandomTestUtil.randomString();
 				workflowInstanceId = RandomTestUtil.randomLong();
 			}
 		};

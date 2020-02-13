@@ -50,7 +50,6 @@ portletURL.setParameter("kaleoProcessId", String.valueOf(kaleoProcess.getKaleoPr
 	clearResultsURL="<%= kaleoFormsViewRecordsDisplayContext.getClearResultsURL() %>"
 	componentId="kaleoFormsRecordsManagementToolbar"
 	creationMenu="<%= kaleoFormsViewRecordsDisplayContext.getCreationMenu() %>"
-	disabled="<%= kaleoFormsViewRecordsDisplayContext.isDisabledManagementBar() %>"
 	filterDropdownItems="<%= kaleoFormsViewRecordsDisplayContext.getFilterItemsDropdownItems() %>"
 	itemsTotal="<%= kaleoFormsViewRecordsDisplayContext.getTotalItems() %>"
 	namespace="<%= renderResponse.getNamespace() %>"
@@ -176,7 +175,8 @@ portletURL.setParameter("kaleoProcessId", String.valueOf(kaleoProcess.getKaleoPr
 					id: '<portlet:namespace />previewDialog',
 					title: Liferay.Language.get('preview')
 				});
-			} else {
+			}
+			else {
 				dialog.show();
 
 				dialog.set('bodyContent', content);

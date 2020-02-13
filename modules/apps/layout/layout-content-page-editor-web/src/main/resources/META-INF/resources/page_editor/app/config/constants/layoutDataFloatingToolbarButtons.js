@@ -24,11 +24,11 @@ export const LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS = {
 		type: 'panel'
 	},
 
-	duplicateFragment: {
+	duplicateItem: {
 		icon: 'paste',
-		id: 'duplicate_fragment',
+		id: 'duplicate_item',
 		panelId: '',
-		title: Liferay.Language.get('duplicate-fragment'),
+		title: Liferay.Language.get('duplicate'),
 		type: 'panel'
 	},
 
@@ -53,6 +53,14 @@ export const LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS = {
 		id: 'row_configuration',
 		panelId: 'row_configuration',
 		title: Liferay.Language.get('row-configuration'),
+		type: 'panel'
+	},
+
+	saveFragmentComposition: {
+		icon: 'download',
+		id: 'save_fragment_composition',
+		panelId: 'save_fragment_compositionn',
+		title: Liferay.Language.get('save-as-fragment'),
 		type: 'panel'
 	}
 };

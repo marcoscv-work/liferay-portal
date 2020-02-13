@@ -11,9 +11,9 @@
 
 import ClayAutocomplete from '@clayui/autocomplete';
 import {ClayInput} from '@clayui/form';
-import React, {useState, useCallback, useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 
-import PromisesResolver from '../request/PromisesResolver.es';
+import PromisesResolver from '../promises-resolver/PromisesResolver.es';
 import {DropDown} from './AutocompleteDropDown.es';
 
 const Autocomplete = ({
@@ -24,17 +24,78 @@ const Autocomplete = ({
 	onChange,
 	onSelect,
 	placeholder = '',
-	promises
+	promises = []
 }) => {
+	const [activeItem, setActiveItem] = useState(-1);
 	const [dropDownItems, setDropDownItems] = useState([]);
-	const [dropDownVisible, setDropDownVisible] = useState(() => false);
-	const [value, setValue] = useState(() => '');
-	const handleChange = useCallback(value => {
-		setValue(() => value);
-		setDropDownVisible(() => value.length > 0);
+	const [value, setValue] = useState(defaultValue);
+	const [dropDownVisible, setDropDownVisible] = useState(false);
+	const [selected, setSelected] = useState(false);
+	const keyArrowDown = 38;
+	const keyArrowUp = 40;
+	const keyEnter = 13;
 
+	const handleBlur = useCallback(() => {
+		setDropDownVisible(false);
+		setActiveItem(-1);
+
+		if (!selected) {
+			setValue('');
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [selected]);
+
+	const handleChange = useCallback(
+		({target: {value}}) => {
+			if (selected) {
+				onSelect();
+				setSelected(false);
+			}
+
+			setDropDownVisible(true);
+			setValue(value);
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[onSelect, selected]
+	);
+
+	const handleFocus = () => {
+		setDropDownVisible(true);
+	};
+
+	const handleKeyDown = useCallback(
+		({keyCode}) => {
+			const item = dropDownItems[activeItem];
+
+			if (keyCode === keyEnter && item) {
+				handleSelect(item);
+			}
+
+			if (keyCode === keyArrowDown && activeItem > 0) {
+				setActiveItem(activeItem - 1);
+			}
+
+			if (
+				keyCode === keyArrowUp &&
+				activeItem < dropDownItems.length - 1
+			) {
+				setActiveItem(activeItem + 1);
+			}
+		},
+		[activeItem, dropDownItems, handleSelect]
+	);
+
+	const handleSelect = useCallback(
+		item => {
+			onSelect(item);
+			setActiveItem(-1);
+			setDropDownVisible(false);
+			setSelected(true);
+			setValue(item.name);
+		},
+		[onSelect]
+	);
 
 	useEffect(() => {
 		setDropDownItems(items);
@@ -47,7 +108,8 @@ const Autocomplete = ({
 			setDropDownItems(
 				items ? items.filter(item => item.name.match(match)) : []
 			);
-		} else {
+		}
+		else {
 			onChange(value);
 		}
 
@@ -55,8 +117,11 @@ const Autocomplete = ({
 	}, [value]);
 
 	useEffect(() => {
-		setValue(defaultValue);
-	}, [defaultValue]);
+		if (disabled) {
+			setValue('');
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [disabled]);
 
 	return (
 		<PromisesResolver promises={promises}>
@@ -71,9 +136,12 @@ const Autocomplete = ({
 							}`}
 							data-testid="autocompleteInput"
 							disabled={disabled}
-							onChange={({target}) => handleChange(target.value)}
+							onBlur={handleBlur}
+							onChange={handleChange}
+							onFocus={handleFocus}
+							onKeyDown={handleKeyDown}
 							placeholder={placeholder}
-							value={value}
+							value={defaultValue || value}
 						/>
 
 						{children}
@@ -82,11 +150,12 @@ const Autocomplete = ({
 
 				<Autocomplete.DropDown
 					active={dropDownVisible}
+					activeItem={activeItem}
 					items={dropDownItems}
 					match={value}
-					onSelect={onSelect}
-					setActive={setDropDownVisible}
-					setValue={setValue}
+					onSelect={handleSelect}
+					setActiveItem={setActiveItem}
+					setSelected={setSelected}
 				/>
 			</ClayAutocomplete>
 		</PromisesResolver>

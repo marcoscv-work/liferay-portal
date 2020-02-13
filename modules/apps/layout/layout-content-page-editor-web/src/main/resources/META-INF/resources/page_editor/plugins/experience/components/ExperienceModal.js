@@ -59,9 +59,14 @@ const ExperienceModal = ({
 		const validSegmentId = _getValidValue(selectedSegmentId);
 
 		if (!validName || !validSegmentId) {
-			if (!validName) setRequiredNameError(true);
-			if (!validSegmentId) setRequiredSegmentError(true);
-		} else {
+			if (!validName) {
+				setRequiredNameError(true);
+			}
+			if (!validSegmentId) {
+				setRequiredSegmentError(true);
+			}
+		}
+		else {
 			setLoading(true);
 
 			onSubmit({
@@ -80,7 +85,8 @@ const ExperienceModal = ({
 
 		if (!_getValidValue(value)) {
 			setRequiredNameError(true);
-		} else {
+		}
+		else {
 			setRequiredNameError(false);
 		}
 
@@ -91,7 +97,8 @@ const ExperienceModal = ({
 
 		if (!_getValidValue(value)) {
 			setRequiredSegmentError(true);
-		} else {
+		}
+		else {
 			setRequiredSegmentError(false);
 		}
 

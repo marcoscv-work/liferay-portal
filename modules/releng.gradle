@@ -1249,6 +1249,49 @@ private InputStream _getCommitFileStream(String commitId, String fileName) {
 	}
 }
 
+private List<String> _getExcludes(File jarFile) {
+	List<String> excludes = new ArrayList<>()
+
+	if (jarFile.name.startsWith("com.liferay")) {
+		excludes.add("*.jar")
+		excludes.add("**/javadocs-*.xml")
+		excludes.add("**/node_modules/**")
+	}
+
+	return excludes
+}
+
+private List<String> _getIncludes(File jarFile) {
+	List<String> includes = new ArrayList<>()
+
+	if (!jarFile.name.startsWith("com.liferay")) {
+		return includes
+	}
+
+	includes.add("*")
+	includes.add("META-INF/**")
+	includes.add("OSGI-INF/**")
+	includes.add("WEB-INF/**")
+
+	FileTree jarFileTree = zipTree(jarFile)
+
+	aQute.bnd.osgi.Jar jar = new aQute.bnd.osgi.Jar(jarFile)
+
+	jarFileTree.visit {
+		if (!it.isDirectory()) {
+			return
+		}
+
+		String path = it.path
+
+		if (path.startsWith("com/liferay/") && (jar.getResource(path + "/packageinfo") != null)) {
+			includes.add(path + "/*")
+		}
+	}
+
+	return includes
+}
+
 private File _getModuleDir(String name) {
 	File moduleDir = null
 
@@ -1298,8 +1341,6 @@ private List<Dependency> _getPortalArtifactsDependencies(List<File> relengProper
 		artifactURLs.add(artifactProperties.getProperty("artifact.url"))
 	}
 
-	XmlSlurper xmlSlurper = new XmlSlurper()
-
 	File sourceFormatterPropertiesFile = new File(projectDir, "source-formatter.properties")
 
 	if (sourceFormatterPropertiesFile.exists()) {
@@ -1309,6 +1350,15 @@ private List<Dependency> _getPortalArtifactsDependencies(List<File> relengProper
 
 		if (enforceVersionArtifacts != null) {
 			for (String artifact : enforceVersionArtifacts.split(",")) {
+				if (!artifact.startsWith("com.fasterxml") &&
+					!artifact.startsWith("io.swagger") &&
+					!artifact.startsWith("javax") &&
+					!artifact.startsWith("org.jsoup") &&
+					!artifact.startsWith("org.osgi")) {
+
+					continue
+				}
+
 				String[] array = artifact.split(":")
 
 				if (array.length != 3) {
@@ -1341,7 +1391,11 @@ private List<Dependency> _getPortalArtifactsDependencies(List<File> relengProper
 		File dir = new File(portalArtifactsDir, jarFile.name[0 .. -5])
 
 		copy {
-			from zipTree(jarFile)
+			from zipTree(jarFile).matching {
+				exclude _getExcludes(jarFile)
+				include _getIncludes(jarFile)
+			}
+
 			into dir
 		}
 
@@ -1516,7 +1570,7 @@ private List<File> _getRelengPropertiesFiles() {
 
 	List<File> artifactPropertiesFiles = new ArrayList<>()
 
-	fileTree(dir: file(".releng"), exclude: "**/test/**", include: "**/*.properties").each {
+	fileTree(dir: file(".releng"), excludes: ["/sdk/**", "**/test/**", "/third-party/**", "/util/**"], include: "**/*.properties").each {
 		File relengFile ->
 
 		Properties relengProperties = GUtil.loadProperties(relengFile)

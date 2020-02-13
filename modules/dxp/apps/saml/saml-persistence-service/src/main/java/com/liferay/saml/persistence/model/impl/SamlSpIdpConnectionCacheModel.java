@@ -64,7 +64,7 @@ public class SamlSpIdpConnectionCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(39);
+		StringBundler sb = new StringBundler(41);
 
 		sb.append("{samlSpIdpConnectionId=");
 		sb.append(samlSpIdpConnectionId);
@@ -90,18 +90,20 @@ public class SamlSpIdpConnectionCacheModel
 		sb.append(forceAuthn);
 		sb.append(", ldapImportEnabled=");
 		sb.append(ldapImportEnabled);
+		sb.append(", metadataUpdatedDate=");
+		sb.append(metadataUpdatedDate);
 		sb.append(", metadataUrl=");
 		sb.append(metadataUrl);
 		sb.append(", metadataXml=");
 		sb.append(metadataXml);
-		sb.append(", metadataUpdatedDate=");
-		sb.append(metadataUpdatedDate);
 		sb.append(", name=");
 		sb.append(name);
 		sb.append(", nameIdFormat=");
 		sb.append(nameIdFormat);
 		sb.append(", signAuthnRequest=");
 		sb.append(signAuthnRequest);
+		sb.append(", unknownUsersAreStrangers=");
+		sb.append(unknownUsersAreStrangers);
 		sb.append(", userAttributeMappings=");
 		sb.append(userAttributeMappings);
 		sb.append("}");
@@ -153,6 +155,14 @@ public class SamlSpIdpConnectionCacheModel
 		samlSpIdpConnectionImpl.setForceAuthn(forceAuthn);
 		samlSpIdpConnectionImpl.setLdapImportEnabled(ldapImportEnabled);
 
+		if (metadataUpdatedDate == Long.MIN_VALUE) {
+			samlSpIdpConnectionImpl.setMetadataUpdatedDate(null);
+		}
+		else {
+			samlSpIdpConnectionImpl.setMetadataUpdatedDate(
+				new Date(metadataUpdatedDate));
+		}
+
 		if (metadataUrl == null) {
 			samlSpIdpConnectionImpl.setMetadataUrl("");
 		}
@@ -165,14 +175,6 @@ public class SamlSpIdpConnectionCacheModel
 		}
 		else {
 			samlSpIdpConnectionImpl.setMetadataXml(metadataXml);
-		}
-
-		if (metadataUpdatedDate == Long.MIN_VALUE) {
-			samlSpIdpConnectionImpl.setMetadataUpdatedDate(null);
-		}
-		else {
-			samlSpIdpConnectionImpl.setMetadataUpdatedDate(
-				new Date(metadataUpdatedDate));
 		}
 
 		if (name == null) {
@@ -190,6 +192,8 @@ public class SamlSpIdpConnectionCacheModel
 		}
 
 		samlSpIdpConnectionImpl.setSignAuthnRequest(signAuthnRequest);
+		samlSpIdpConnectionImpl.setUnknownUsersAreStrangers(
+			unknownUsersAreStrangers);
 
 		if (userAttributeMappings == null) {
 			samlSpIdpConnectionImpl.setUserAttributeMappings("");
@@ -225,13 +229,15 @@ public class SamlSpIdpConnectionCacheModel
 		forceAuthn = objectInput.readBoolean();
 
 		ldapImportEnabled = objectInput.readBoolean();
+		metadataUpdatedDate = objectInput.readLong();
 		metadataUrl = objectInput.readUTF();
 		metadataXml = objectInput.readUTF();
-		metadataUpdatedDate = objectInput.readLong();
 		name = objectInput.readUTF();
 		nameIdFormat = objectInput.readUTF();
 
 		signAuthnRequest = objectInput.readBoolean();
+
+		unknownUsersAreStrangers = objectInput.readBoolean();
 		userAttributeMappings = objectInput.readUTF();
 	}
 
@@ -269,6 +275,7 @@ public class SamlSpIdpConnectionCacheModel
 		objectOutput.writeBoolean(forceAuthn);
 
 		objectOutput.writeBoolean(ldapImportEnabled);
+		objectOutput.writeLong(metadataUpdatedDate);
 
 		if (metadataUrl == null) {
 			objectOutput.writeUTF("");
@@ -283,8 +290,6 @@ public class SamlSpIdpConnectionCacheModel
 		else {
 			objectOutput.writeUTF(metadataXml);
 		}
-
-		objectOutput.writeLong(metadataUpdatedDate);
 
 		if (name == null) {
 			objectOutput.writeUTF("");
@@ -301,6 +306,8 @@ public class SamlSpIdpConnectionCacheModel
 		}
 
 		objectOutput.writeBoolean(signAuthnRequest);
+
+		objectOutput.writeBoolean(unknownUsersAreStrangers);
 
 		if (userAttributeMappings == null) {
 			objectOutput.writeUTF("");
@@ -322,12 +329,13 @@ public class SamlSpIdpConnectionCacheModel
 	public boolean enabled;
 	public boolean forceAuthn;
 	public boolean ldapImportEnabled;
+	public long metadataUpdatedDate;
 	public String metadataUrl;
 	public String metadataXml;
-	public long metadataUpdatedDate;
 	public String name;
 	public String nameIdFormat;
 	public boolean signAuthnRequest;
+	public boolean unknownUsersAreStrangers;
 	public String userAttributeMappings;
 
 }

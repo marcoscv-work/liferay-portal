@@ -66,11 +66,17 @@ definition {
 
 		PageEditor.expandFragmentCollection(collectionName = "Content Display");
 
-		DragAndDrop(
+		DragAndDrop.javaScriptDragAndDropToObject(
 			fragmentName = "${fragmentName}",
 			locator1 = "PageEditor#SECTION_BUILDER_FRAGMENTS",
 			locator2 = "PageEditor#FRAGMENT_DROP_TARGET",
 			value1 = "");
+
+		// Refresh and pause step is a workaround for LPS-108417
+
+		Refresh();
+
+		Pause(locator1 = "3000");
 
 		AssertTextEquals(
 			locator1 = "Fragment#CONFIGURABLE_FIELD",
@@ -114,17 +120,23 @@ definition {
 
 		PageEditor.expandFragmentCollection(collectionName = "${collectionName}");
 
-		DragAndDrop(
+		DragAndDrop.javaScriptDragAndDropToObject(
 			fragmentName = "${fragmentName}",
 			locator1 = "PageEditor#SECTION_BUILDER_FRAGMENTS",
 			locator2 = "PageEditor#FRAGMENT_DROP_TARGET",
 			value1 = "");
 
+		PageEditor.waitForAutoSave();
+
+		// Refresh and pause step is a workaround for LPS-108417
+
+		Refresh();
+
+		Pause(locator1 = "3000");
+
 		AssertElementPresent(
 			key_fragmentName = "${fragmentName}",
 			locator1 = "Fragment#FRAGMENT_HEADER");
-
-		PageEditor.waitForAutoSave();
 	}
 
 	macro addLayoutSection {
@@ -132,10 +144,16 @@ definition {
 
 		PageEditor.expandFragmentCollection(collectionName = "Layouts");
 
-		DragAndDrop(
+		DragAndDrop.javaScriptDragAndDropToObject(
 			locator1 = "PageEditor#SECTION_BUILDER_LAYOUTS_${columnCount}_COLUMN",
 			locator2 = "PageEditor#FRAGMENT_DROP_TARGET",
 			value1 = "");
+
+		// Refresh and pause step is a workaround for LPS-108417
+
+		Refresh();
+
+		Pause(locator1 = "3000");
 
 		AssertVisible(
 			key_position = "1",
@@ -161,12 +179,18 @@ definition {
 
 		var key_portletName = "${portletName}";
 
-		DragAndDrop(
-			locator1 = "PageEditor#WIDGETS_ADD_PORTLET_DRAG_LINK",
+		DragAndDrop.javaScriptDragAndDropToObject(
+			locator1 = "PageEditor#WIDGETS_ADD_PORTLET_DRAG_BUTTON",
 			locator2 = "PageEditor#FRAGMENT_DROP_TARGET",
 			value1 = "${portletName}");
 
 		Pause(locator1 = "5000");
+
+		// Refresh and pause step is a workaround for LPS-108417
+
+		Refresh();
+
+		Pause(locator1 = "3000");
 
 		AssertElementPresent(
 			key_fragmentName = "${portletName}",
@@ -176,6 +200,8 @@ definition {
 	}
 
 	macro assertFragmentSidebarLoaded {
+		Pause(locator1 = "3000");
+
 		AssertVisible(locator1 = "PageEditor#FRAGMENT_SIDEBAR_LOADED");
 	}
 
@@ -231,11 +257,11 @@ definition {
 	}
 
 	macro closeSidebar {
-		Click(
-			key_tabName = "${tabName}",
-			locator1 = "PageEditor#FRAGMENT_SIDEBAR_TAB_BUTTON");
+		var key_tabName = "${tabName}";
 
-		AssertElementPresent(locator1 = "PageEditor#FRAGMENT_SIDEBAR_COLLAPSED");
+		Click(locator1 = "PageEditor#FRAGMENT_SIDEBAR_TAB_BUTTON");
+
+		AssertElementPresent(locator1 = "PageEditor#FRAGMENT_SIDEBAR_TAB_COLLAPSED");
 	}
 
 	macro configureFragment {
@@ -707,7 +733,10 @@ definition {
 
 	macro gotoTab {
 		if (IsElementNotPresent(key_tabName = "${tabName}", locator1 = "PageEditor#FRAGMENT_SIDEBAR_TAB_BUTTON_ACTIVE")) {
-			Click(
+
+			Pause(locator1 = "3000");
+
+			Click.clickNoMouseOver(
 				key_tabName = "${tabName}",
 				locator1 = "PageEditor#FRAGMENT_SIDEBAR_TAB_BUTTON");
 		}

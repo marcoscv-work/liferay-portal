@@ -80,7 +80,7 @@ public interface BatchEngineExportTaskLocalService
 	public BatchEngineExportTask addBatchEngineExportTask(
 		long companyId, long userId, String callbackURL, String className,
 		String contentType, String executeStatus, List<String> fieldNamesList,
-		Map<String, Serializable> parameters, String version);
+		Map<String, Serializable> parameters);
 
 	/**
 	 * Creates a new batch engine export task with the primary key. Does not add the batch engine export task to the database.
@@ -91,6 +91,12 @@ public interface BatchEngineExportTaskLocalService
 	@Transactional(enabled = false)
 	public BatchEngineExportTask createBatchEngineExportTask(
 		long batchEngineExportTaskId);
+
+	/**
+	 * @throws PortalException
+	 */
+	public PersistedModel createPersistedModel(Serializable primaryKeyObj)
+		throws PortalException;
 
 	/**
 	 * Deletes the batch engine export task from the database. Also notifies the appropriate model listeners.
@@ -275,6 +281,9 @@ public interface BatchEngineExportTaskLocalService
 	 */
 	public String getOSGiServiceIdentifier();
 
+	/**
+	 * @throws PortalException
+	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)

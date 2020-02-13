@@ -12,11 +12,15 @@
  * details.
  */
 
+import ClayButton from '@clayui/button';
 import ClayForm from '@clayui/form';
 import {ClayPaginationWithBasicItems} from '@clayui/pagination';
-import CKEditor from 'ckeditor4-react';
-import React, {useCallback, useEffect, useState} from 'react';
+import parser from 'bbcode-to-react';
+import {Editor} from 'frontend-editor-ckeditor-web';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
+import {Link} from 'react-router-dom';
 
+import {AppContext} from '../../AppContext.es';
 import Answer from '../../components/Answer.es';
 import CreatorRow from '../../components/CreatorRow.es';
 import KeywordList from '../../components/KeywordList.es';
@@ -38,6 +42,8 @@ export default ({
 		params: {questionId}
 	}
 }) => {
+	const context = useContext(AppContext);
+
 	const [answers, setAnswers] = useState([]);
 	const [articleBody, setArticleBody] = useState();
 	const [page, setPage] = useState(1);
@@ -59,6 +65,7 @@ export default ({
 	const postAnswer = () => {
 		createAnswer(articleBody, question.id).then(() => {
 			setArticleBody('');
+
 			return loadThread();
 		});
 	};
@@ -84,6 +91,7 @@ export default ({
 						...answers.map(otherAnswer => {
 							otherAnswer.showAsAnswer =
 								otherAnswer.id === answerId;
+
 							return otherAnswer;
 						})
 					]);
@@ -140,19 +148,31 @@ export default ({
 									</p>
 								</div>
 								<div>
-									<Subscription
-										onSubscription={subscribed =>
-											setQuestion({
-												...question,
-												subscribed
-											})
-										}
-										question={question}
-									/>
+									<ClayButton.Group spaced={true}>
+										<ClayButton displayType="unstyled">
+											<Subscription
+												onSubscription={subscribed =>
+													setQuestion({
+														...question,
+														subscribed
+													})
+												}
+												question={question}
+											/>
+										</ClayButton>
+
+										<ClayButton className="btn btn-secondary">
+											<Link
+												to={`/questions/${questionId}/edit`}
+											>
+												{Liferay.Language.get('edit')}
+											</Link>
+										</ClayButton>
+									</ClayButton.Group>
 								</div>
 							</div>
 							<div>
-								<p>{question.articleBody}</p>
+								<p>{parser.toReact(question.articleBody)}</p>
 							</div>
 
 							<KeywordList keywords={question.keywords} />
@@ -178,7 +198,6 @@ export default ({
 							<Answer
 								answer={answer}
 								answerChange={answerChange}
-								creatorId={question.creator.id}
 								deleteAnswer={deleteAnswer}
 								key={answer.id}
 							/>
@@ -196,38 +215,48 @@ export default ({
 								/>
 							)}
 
-						<ClayForm>
-							<ClayForm.Group className="form-group-sm">
-								<label htmlFor="basicInput">
-									{Liferay.Language.get('your-answer')}
-								</label>
+						{context.canCreateThread && (
+							<>
+								<ClayForm>
+									<ClayForm.Group className="form-group-sm">
+										<label htmlFor="basicInput">
+											{Liferay.Language.get(
+												'your-answer'
+											)}
+										</label>
 
-								<CKEditor
-									config={getCKEditorConfig()}
-									data={articleBody}
-									onBeforeLoad={CKEDITOR => {
-										CKEDITOR.disableAutoInline = true;
-									}}
-									onChange={event =>
-										setArticleBody(event.editor.getData())
-									}
-								/>
-							</ClayForm.Group>
-						</ClayForm>
+										<Editor
+											config={getCKEditorConfig()}
+											data={articleBody}
+											onBeforeLoad={CKEDITOR => {
+												CKEDITOR.disableAutoInline = true;
+											}}
+											onChange={event =>
+												setArticleBody(
+													event.editor.getData()
+												)
+											}
+										/>
+									</ClayForm.Group>
+								</ClayForm>
 
-						<div className="sheet-footer">
-							<div className="btn-group-item">
-								<div className="btn-group-item">
-									<button
-										className="btn btn-primary"
-										disabled={!articleBody}
-										onClick={postAnswer}
-									>
-										{Liferay.Language.get('post-answer')}
-									</button>
+								<div className="sheet-footer">
+									<div className="btn-group-item">
+										<div className="btn-group-item">
+											<button
+												className="btn btn-primary"
+												disabled={!articleBody}
+												onClick={postAnswer}
+											>
+												{Liferay.Language.get(
+													'post-answer'
+												)}
+											</button>
+										</div>
+									</div>
 								</div>
-							</div>
-						</div>
+							</>
+						)}
 					</div>
 				</div>
 			)}

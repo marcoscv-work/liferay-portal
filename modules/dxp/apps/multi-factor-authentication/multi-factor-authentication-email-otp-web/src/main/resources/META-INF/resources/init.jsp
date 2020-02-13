@@ -27,7 +27,6 @@ page import="com.liferay.multi.factor.authentication.email.otp.web.internal.conf
 page import="com.liferay.multi.factor.authentication.email.otp.web.internal.constants.MFAEmailOTPPortletKeys" %><%@
 page import="com.liferay.multi.factor.authentication.email.otp.web.internal.constants.MFAEmailOTPWebKeys" %><%@
 page import="com.liferay.portal.kernel.module.configuration.ConfigurationProviderUtil" %><%@
-page import="com.liferay.portal.kernel.settings.LocalizedValuesMap" %><%@
 page import="com.liferay.portal.kernel.util.HtmlUtil" %><%@
 page import="com.liferay.portal.kernel.util.ParamUtil" %>
 

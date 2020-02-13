@@ -610,7 +610,7 @@ public class GitWorkingDirectory {
 
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("git fetch --progress -v -f ");
+		sb.append("git fetch -f ");
 
 		if (noTags) {
 			sb.append("--no-tags ");
@@ -639,6 +639,10 @@ public class GitWorkingDirectory {
 			3, GitUtil.MILLIS_RETRY_DELAY, 1000 * 60 * 15, sb.toString());
 
 		if (executionResult.getExitValue() != 0) {
+			System.out.println(executionResult.getStandardOut());
+
+			System.out.println(executionResult.getStandardError());
+
 			System.out.println(gitBranchesSHAReportStringBuilder.toString());
 
 			throw new RuntimeException(

@@ -90,6 +90,12 @@ public interface AccountEntryOrganizationRelLocalService
 		long accountEntryOrganizationRelId);
 
 	/**
+	 * @throws PortalException
+	 */
+	public PersistedModel createPersistedModel(Serializable primaryKeyObj)
+		throws PortalException;
+
+	/**
 	 * Deletes the account entry organization rel from the database. Also notifies the appropriate model listeners.
 	 *
 	 * @param accountEntryOrganizationRel the account entry organization rel
@@ -109,6 +115,14 @@ public interface AccountEntryOrganizationRelLocalService
 	@Indexable(type = IndexableType.DELETE)
 	public AccountEntryOrganizationRel deleteAccountEntryOrganizationRel(
 			long accountEntryOrganizationRelId)
+		throws PortalException;
+
+	public void deleteAccountEntryOrganizationRel(
+			long accountEntryId, long organizationId)
+		throws PortalException;
+
+	public void deleteAccountEntryOrganizationRels(
+			long accountEntryId, long[] organizationIds)
 		throws PortalException;
 
 	/**
@@ -219,6 +233,10 @@ public interface AccountEntryOrganizationRelLocalService
 	public List<AccountEntryOrganizationRel> getAccountEntryOrganizationRels(
 		long accountEntryId);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AccountEntryOrganizationRel>
+		getAccountEntryOrganizationRelsByOrganizationId(long organizationId);
+
 	/**
 	 * Returns the number of account entry organization rels.
 	 *
@@ -243,6 +261,9 @@ public interface AccountEntryOrganizationRelLocalService
 	 */
 	public String getOSGiServiceIdentifier();
 
+	/**
+	 * @throws PortalException
+	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)

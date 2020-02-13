@@ -143,7 +143,6 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
@@ -1109,7 +1108,7 @@ public class StagingImpl implements Staging {
 					locale,
 					"please-enter-a-file-with-a-valid-file-size-no-larger-" +
 						"than-x",
-					TextFormatter.formatStorageSize(
+					LanguageUtil.formatStorageSize(
 						_dlValidator.getMaxAllowableSize(), locale),
 					false);
 			}
@@ -1845,17 +1844,25 @@ public class StagingImpl implements Staging {
 			return StringPool.BLANK;
 		}
 
-		PermissionChecker permissionChecker =
-			PermissionThreadLocal.getPermissionChecker();
-
-		User user = permissionChecker.getUser();
-
 		if (stagingGroup.isLayout()) {
 			stagingGroup = stagingGroup.getParentGroup();
 		}
 
 		UnicodeProperties typeSettingsProperties =
 			stagingGroup.getTypeSettingsProperties();
+
+		boolean overrideRemoteSiteURL = GetterUtil.getBoolean(
+			typeSettingsProperties.getProperty("overrideRemoteSiteURL"));
+
+		if (overrideRemoteSiteURL) {
+			return GetterUtil.getString(
+				typeSettingsProperties.getProperty("remoteSiteURL"));
+		}
+
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		User user = permissionChecker.getUser();
 
 		HttpPrincipal httpPrincipal = new HttpPrincipal(
 			_stagingURLHelper.buildRemoteURL(typeSettingsProperties),
@@ -3045,6 +3052,31 @@ public class StagingImpl implements Staging {
 
 		setRecentLayoutSetBranchId(
 			user.getUserId(), layoutSetId, layoutSetBranchId);
+	}
+
+	@Override
+	public void setRemoteSiteURL(
+			Group stagingGroup, boolean overrideRemoteSiteURL,
+			String remoteSiteURL)
+		throws PortalException {
+
+		UnicodeProperties typeSettingsProperties =
+			stagingGroup.getTypeSettingsProperties();
+
+		typeSettingsProperties.setProperty(
+			"overrideRemoteSiteURL", String.valueOf(overrideRemoteSiteURL));
+
+		if (overrideRemoteSiteURL) {
+			typeSettingsProperties.setProperty(
+				"remoteSiteURL", String.valueOf(remoteSiteURL));
+		}
+		else {
+			typeSettingsProperties.setProperty(
+				"remoteSiteURL", StringPool.BLANK);
+		}
+
+		_groupLocalService.updateGroup(
+			stagingGroup.getGroupId(), typeSettingsProperties.toString());
 	}
 
 	@Override

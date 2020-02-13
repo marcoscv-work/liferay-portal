@@ -35,7 +35,8 @@ export function getCKEditorConfig() {
 		}
 	];
 	config.removeButtons =
-		'About,Anchor,BGColor,BidiLtr,BidiRtl,Button,Checkbox,CopyFormatting,Find,Flash,Font,FontSize,Form,Format,HiddenField,HorizontalRule,Iframe,Image,ImageButton,JustifyBlock,JustifyCenter,JustifyLeft,JustifyRight,Language,Maximize,NewPage,PageBreak,PasteFromWord,PasteText,Preview,Print,Radio,RemoveFormat,Replace,Save,Select,SelectAll,ShowBlocks,Smiley,SpecialChar,Styles,Subscript,Superscript,Table,Templates,TextColor,TextField,Textarea';
+		'About,Anchor,BGColor,BidiLtr,BidiRtl,Button,Checkbox,Copy,CopyFormatting,CreateDiv,Cut,Find,Flash,Font,FontSize,Form,Format,HiddenField,HorizontalRule,Iframe,Image,ImageButton,JustifyBlock,JustifyCenter,JustifyLeft,JustifyRight,Language,Maximize,NewPage,PageBreak,Paste,PasteFromWord,PasteText,Preview,Print,Radio,RemoveFormat,Replace,Save,Select,SelectAll,ShowBlocks,Smiley,Source,SpecialChar,Styles,Subscript,Superscript,Table,Templates,TextColor,TextField,Textarea';
+
 	return config;
 }
 
@@ -85,23 +86,28 @@ export function timeDifference(previous, current = new Date()) {
 		return lang.sub(Liferay.Language.get('asked-x-seconds-ago-by'), [
 			Math.round(elapsed / 1000)
 		]);
-	} else if (elapsed < msPerHour) {
+	}
+	else if (elapsed < msPerHour) {
 		return lang.sub(Liferay.Language.get('asked-x-minutes-ago-by'), [
 			Math.round(elapsed / msPerMinute)
 		]);
-	} else if (elapsed < msPerDay) {
+	}
+	else if (elapsed < msPerDay) {
 		return lang.sub(Liferay.Language.get('asked-x-hours-ago-by'), [
 			Math.round(elapsed / msPerHour)
 		]);
-	} else if (elapsed < msPerMonth) {
+	}
+	else if (elapsed < msPerMonth) {
 		return lang.sub(Liferay.Language.get('asked-x-days-ago-by'), [
 			Math.round(elapsed / msPerDay)
 		]);
-	} else if (elapsed < msPerYear) {
+	}
+	else if (elapsed < msPerYear) {
 		return lang.sub(Liferay.Language.get('asked-x-months-ago-by'), [
 			Math.round(elapsed / msPerMonth)
 		]);
-	} else {
+	}
+	else {
 		return lang.sub(Liferay.Language.get('asked-x-years-ago-by'), [
 			Math.round(elapsed / msPerYear)
 		]);

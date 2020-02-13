@@ -14,9 +14,12 @@
 
 import ClayPopover from '@clayui/popover';
 import {useEventListener} from 'frontend-js-react-web';
+import {match} from 'metal-dom';
 import {Align} from 'metal-position';
-import React, {useRef, useLayoutEffect, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
+
+import {useSelector} from '../store/index';
 
 const DEFAULT_DISABLED_AREA_CLASS = 'page-editor__disabled-area';
 const DEFAULT_ORIGIN = 'layout-content';
@@ -44,6 +47,7 @@ const DisabledArea = () => {
 	const [currentElementClicked, setCurrentElementClicked] = useState(null);
 	const [show, setShow] = useState(false);
 	const [position, setPosition] = useState('bottom');
+	const sidebarOpen = useSelector(state => state.sidebarOpen);
 
 	const isDisabled = element => {
 		const {height} = element.getBoundingClientRect();
@@ -58,11 +62,26 @@ const DisabledArea = () => {
 			!hasAbsolutePosition &&
 			!DEFAULT_WHITELIST.some(
 				selector =>
-					element.matches(`.${selector}`) ||
+					match(element, `.${selector}`) ||
 					element.querySelector(`.${selector}`)
 			)
 		);
 	};
+
+	useEffect(() => {
+		const element = document.querySelector(
+			`.${DEFAULT_DISABLED_AREA_CLASS}`
+		);
+
+		if (element) {
+			if (sidebarOpen) {
+				element.classList.add('collapsed');
+			}
+			else {
+				element.classList.remove('collapsed');
+			}
+		}
+	}, [sidebarOpen]);
 
 	useEventListener(
 		'scroll',
@@ -86,7 +105,8 @@ const DisabledArea = () => {
 			) {
 				setCurrentElementClicked(event.target);
 				setShow(true);
-			} else if (show) {
+			}
+			else if (show) {
 				setCurrentElementClicked(null);
 				setShow(false);
 			}

@@ -2150,12 +2150,20 @@ public class SitesImpl implements Sites {
 				if (!layoutSetPrototypeLinkEnabled &&
 					(layoutSetPrototypeId > 0)) {
 
-					Map<String, String[]> parameterMap =
-						getLayoutSetPrototypesParameters(true);
+					boolean mergeLayoutPrototypesThreadLocalInProgress =
+						MergeLayoutPrototypesThreadLocal.isInProgress();
 
-					importLayoutSetPrototype(
-						layoutSetPrototype, groupId, privateLayout,
-						parameterMap, true);
+					try {
+						MergeLayoutPrototypesThreadLocal.setInProgress(true);
+
+						importLayoutSetPrototype(
+							layoutSetPrototype, groupId, privateLayout,
+							getLayoutSetPrototypesParameters(true), true);
+					}
+					finally {
+						MergeLayoutPrototypesThreadLocal.setInProgress(
+							mergeLayoutPrototypesThreadLocalInProgress);
+					}
 				}
 			}
 		}

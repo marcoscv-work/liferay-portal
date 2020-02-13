@@ -393,6 +393,7 @@ public class WorkflowTaskDisplayContext {
 
 		PortletURL portletURL = liferayPortletResponse.createRenderURL();
 
+		portletURL.setParameter("navigation", _getNavigation());
 		portletURL.setParameter("tabs1", _getTabs1());
 		portletURL.setParameter("orderByCol", _getOrderByCol());
 
@@ -716,14 +717,6 @@ public class WorkflowTaskDisplayContext {
 		if ((user != null) &&
 			(workflowLog.getAuditUserId() == user.getUserId())) {
 
-			return true;
-		}
-
-		return false;
-	}
-
-	public boolean isDisabled() throws PortalException {
-		if (getTotalItems() == 0) {
 			return true;
 		}
 

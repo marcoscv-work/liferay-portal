@@ -19,6 +19,7 @@ import java.lang.reflect.Type;
 
 /**
  * @author Jorge Ferrer
+ * @see com.liferay.analytics.reports.internal.util.GenericsUtil
  */
 public class GenericsUtil {
 
@@ -42,9 +43,9 @@ public class GenericsUtil {
 	}
 
 	public static Class<?> getItemClass(Object object) {
-		Class<?> infoListProviderClass = object.getClass();
+		Class<?> clazz = object.getClass();
 
-		return getItemClass(infoListProviderClass);
+		return getItemClass(clazz);
 	}
 
 	public static String getItemClassName(Object object) {

@@ -14,7 +14,7 @@
 
 import {EventHandler} from 'metal-events';
 import PropTypes from 'prop-types';
-import React, {useEffect, useRef, useState, useContext} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 
 import {ConfigContext} from '../../app/config/index';
 
@@ -95,14 +95,16 @@ export default function Editor({
 				if (ready) {
 					newEditor.destroy();
 					setEditor(null);
-				} else {
+				}
+				else {
 					instanceReadyEventHandler.removeListener();
 
 					newEditor.get('nativeEditor').once('instanceReady', () => {
 						newEditor.destroy();
 					});
 				}
-			} catch (_err) {
+			}
+			catch (_err) {
 				// https://github.com/liferay/alloy-editor/issues/1306
 			}
 		};

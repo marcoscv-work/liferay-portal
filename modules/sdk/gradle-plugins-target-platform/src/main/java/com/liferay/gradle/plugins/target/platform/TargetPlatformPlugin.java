@@ -17,6 +17,7 @@ package com.liferay.gradle.plugins.target.platform;
 import com.liferay.gradle.plugins.target.platform.extensions.TargetPlatformExtension;
 import com.liferay.gradle.plugins.target.platform.internal.util.GradleUtil;
 import com.liferay.gradle.plugins.target.platform.internal.util.TargetPlatformPluginUtil;
+import com.liferay.gradle.plugins.target.platform.tasks.DependencyManagementTask;
 import com.liferay.gradle.plugins.target.platform.tasks.ResolveTask;
 
 import groovy.lang.Closure;
@@ -28,16 +29,19 @@ import java.util.List;
 import java.util.Set;
 
 import org.gradle.api.Action;
+import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.invocation.Gradle;
 import org.gradle.api.logging.Logger;
+import org.gradle.api.plugins.HelpTasksPlugin;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.util.VersionNumber;
 
 /**
  * @author Gregory Amerson
@@ -45,6 +49,9 @@ import org.gradle.api.tasks.TaskContainer;
  * @author Raymond Augé
  */
 public class TargetPlatformPlugin implements Plugin<Project> {
+
+	public static final String DEPENDENCY_MANAGEMENT_TASK_NAME =
+		"dependencyManagement";
 
 	public static final String PLATFORM_BNDRUN_FILE_NAME = "platform.bndrun";
 
@@ -61,6 +68,16 @@ public class TargetPlatformPlugin implements Plugin<Project> {
 	@Override
 	@SuppressWarnings("serial")
 	public void apply(final Project project) {
+		Gradle gradle = project.getGradle();
+
+		VersionNumber versionNumber = VersionNumber.parse(
+			gradle.getGradleVersion());
+
+		if (versionNumber.getMajor() < 5) {
+			throw new GradleException(
+				"This plugin requires Gradle 5.0 or greater");
+		}
+
 		final TargetPlatformExtension targetPlatformExtension =
 			GradleUtil.addExtension(
 				project, PLUGIN_NAME, TargetPlatformExtension.class);
@@ -88,8 +105,6 @@ public class TargetPlatformPlugin implements Plugin<Project> {
 
 		final Set<Project> subprojects =
 			targetPlatformExtension.getSubprojects();
-
-		Gradle gradle = project.getGradle();
 
 		gradle.afterProject(
 			new Closure<Void>(project) {
@@ -141,6 +156,20 @@ public class TargetPlatformPlugin implements Plugin<Project> {
 		return configuration;
 	}
 
+	private DependencyManagementTask _addTaskDependencyManagement(
+		Project project) {
+
+		DependencyManagementTask dependencyManagementTask = GradleUtil.addTask(
+			project, DEPENDENCY_MANAGEMENT_TASK_NAME,
+			DependencyManagementTask.class);
+
+		dependencyManagementTask.setDescription(
+			"Displays the target platform dependencies for the project.");
+		dependencyManagementTask.setGroup(HelpTasksPlugin.HELP_GROUP);
+
+		return dependencyManagementTask;
+	}
+
 	private ResolveTask _addTaskResolve(Project project) {
 		final ResolveTask resolveTask = GradleUtil.addTask(
 			project, RESOLVE_TASK_NAME, ResolveTask.class);
@@ -190,6 +219,8 @@ public class TargetPlatformPlugin implements Plugin<Project> {
 			logger.info(
 				"Explicitly excluding {} from resolution", afterProject);
 		}
+
+		_addTaskDependencyManagement(afterProject);
 	}
 
 	private void _configureTaskResolve(

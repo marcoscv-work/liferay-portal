@@ -13,12 +13,19 @@
  */
 
 import classNames from 'classnames';
-import {useIsMounted} from 'frontend-js-react-web';
-import React, {useEffect, useRef} from 'react';
+import {useEventListener, useIsMounted} from 'frontend-js-react-web';
+import React, {useCallback, useContext, useEffect, useRef} from 'react';
 
+import {
+	ARROW_DOWN_KEYCODE,
+	ARROW_UP_KEYCODE
+} from '../config/constants/keycodes';
 import {LAYOUT_DATA_ITEM_TYPES} from '../config/constants/layoutDataItemTypes';
-import {useSelector} from '../store/index';
-import {useIsActive} from './Controls';
+import {MOVE_ITEM_DIRECTIONS} from '../config/constants/moveItemDirections';
+import {ConfigContext} from '../config/index';
+import {useDispatch, useSelector} from '../store/index';
+import moveItem from '../thunks/moveItem';
+import {useActiveItemId, useIsActive, useSelectItem} from './Controls';
 import DragPreview from './DragPreview';
 import {
 	ColumnWithControls,
@@ -28,6 +35,7 @@ import {
 	Root,
 	RowWithControls
 } from './layout-data-items/index';
+import {DragDropManager} from './useDragAndDrop';
 
 const LAYOUT_DATA_ITEMS = {
 	[LAYOUT_DATA_ITEM_TYPES.column]: ColumnWithControls,
@@ -39,13 +47,93 @@ const LAYOUT_DATA_ITEMS = {
 };
 
 export default function PageEditor({withinMasterPage = false}) {
+	const activeItemId = useActiveItemId();
+	const config = useContext(ConfigContext);
+	const dispatch = useDispatch();
 	const fragmentEntryLinks = useSelector(state => state.fragmentEntryLinks);
 	const layoutData = useSelector(state => state.layoutData);
+	const selectItem = useSelectItem();
 	const sidebarOpen = useSelector(
 		state => state.sidebarPanelId && state.sidebarOpen
 	);
+	const store = useSelector(state => state);
 
 	const mainItem = layoutData.items[layoutData.rootItems.main];
+
+	const onClick = event => {
+		if (event.target === event.currentTarget) {
+			selectItem(null, {multiSelect: event.shiftKey});
+		}
+	};
+
+	const getDirection = keycode => {
+		let direction = null;
+
+		if (keycode === ARROW_UP_KEYCODE) {
+			direction = MOVE_ITEM_DIRECTIONS.UP;
+		}
+		else if (keycode === ARROW_DOWN_KEYCODE) {
+			direction = MOVE_ITEM_DIRECTIONS.DOWN;
+		}
+
+		return direction;
+	};
+
+	const onKeyUp = useCallback(
+		event => {
+			event.preventDefault();
+
+			if (!activeItemId) {
+				return;
+			}
+
+			const item = layoutData.items[activeItemId];
+
+			if (!item) {
+				return;
+			}
+
+			const {itemId, parentId} = item;
+
+			const direction = getDirection(event.keyCode);
+			const parentItem = layoutData.items[parentId];
+
+			if (direction) {
+				const numChildren = parentItem.children.length;
+				const currentPosition = parentItem.children.indexOf(itemId);
+
+				if (
+					(direction === MOVE_ITEM_DIRECTIONS.UP &&
+						currentPosition === 0) ||
+					(direction === MOVE_ITEM_DIRECTIONS.DOWN &&
+						currentPosition === numChildren - 1)
+				) {
+					return;
+				}
+
+				let position;
+				if (direction === MOVE_ITEM_DIRECTIONS.UP) {
+					position = currentPosition - 1;
+				}
+				else if (direction === MOVE_ITEM_DIRECTIONS.DOWN) {
+					position = currentPosition + 1;
+				}
+
+				dispatch(
+					moveItem({
+						config,
+						itemId,
+						parentItemId: parentId,
+						position,
+						store
+					})
+				);
+			}
+		},
+		[activeItemId, config, dispatch, layoutData.items, store]
+	);
+
+	useEventListener('keyup', onKeyUp, false, document.body);
 
 	return (
 		<div
@@ -56,19 +144,22 @@ export default function PageEditor({withinMasterPage = false}) {
 				'pt-4': !withinMasterPage
 			})}
 			id="page-editor"
+			onClick={onClick}
 		>
 			<DragPreview />
 
-			<LayoutDataItem
-				fragmentEntryLinks={fragmentEntryLinks}
-				item={mainItem}
-				layoutData={layoutData}
-			/>
+			<DragDropManager>
+				<LayoutDataItem
+					fragmentEntryLinks={fragmentEntryLinks}
+					item={mainItem}
+					layoutData={layoutData}
+				/>
+			</DragDropManager>
 		</div>
 	);
 }
 
-function LayoutDataItem({fragmentEntryLinks, item, layoutData}) {
+function LayoutDataItem({fragmentEntryLinks, item, layoutData, ...otherProps}) {
 	const Component = LAYOUT_DATA_ITEMS[item.type];
 	const isActive = useIsActive()(item.itemId);
 	const isMounted = useIsMounted();
@@ -89,6 +180,7 @@ function LayoutDataItem({fragmentEntryLinks, item, layoutData}) {
 			{item.children.map(childId => {
 				return (
 					<LayoutDataItem
+						{...otherProps}
 						fragmentEntryLinks={fragmentEntryLinks}
 						item={layoutData.items[childId]}
 						key={childId}

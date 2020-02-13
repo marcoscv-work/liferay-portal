@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.site.navigation.menu.item.layout.constants.SiteNavigationMenuItemTypeConstants;
@@ -92,20 +93,12 @@ public class LayoutModelListener extends BaseModelListener<Layout> {
 			return;
 		}
 
-		UnicodeProperties typeSettingsProperties =
-			layout.getTypeSettingsProperties();
+		long[] siteNavigationMenuIds = GetterUtil.getLongValues(
+			StringUtil.split(
+				layout.getTypeSettingsProperty("siteNavigationMenuId"),
+				CharPool.COMMA));
 
-		boolean published = GetterUtil.getBoolean(
-			typeSettingsProperties.getProperty("published"));
-
-		if (!published) {
-			long[] siteNavigationMenuIds = GetterUtil.getLongValues(
-				StringUtil.split(
-					layout.getTypeSettingsProperty("siteNavigationMenuId"),
-					CharPool.COMMA));
-
-			_addLayoutSiteNavigationMenuItems(siteNavigationMenuIds, layout);
-		}
+		_addLayoutSiteNavigationMenuItems(siteNavigationMenuIds, layout);
 	}
 
 	private void _addLayoutSiteNavigationMenuItems(
@@ -210,19 +203,23 @@ public class LayoutModelListener extends BaseModelListener<Layout> {
 	}
 
 	private boolean _isVisible(Layout layout) {
-		UnicodeProperties typeSettingsProperties =
-			layout.getTypeSettingsProperties();
+		if (!layout.isTypeContent()) {
+			return true;
+		}
 
-		boolean visible = GetterUtil.getBoolean(
-			typeSettingsProperties.getProperty("visible"), true);
-
-		if (layout.isHidden() || !visible ||
-			(!layout.isSystem() && layout.isTypeContent())) {
-
+		if (layout.isHidden() || layout.isSystem()) {
 			return false;
 		}
 
-		return true;
+		Layout draftLayout = _layoutLocalService.fetchLayout(
+			_portal.getClassNameId(Layout.class), layout.getPlid());
+
+		if (draftLayout == null) {
+			return false;
+		}
+
+		return GetterUtil.getBoolean(
+			draftLayout.getTypeSettingsProperty("published"));
 	}
 
 	private boolean _menuItemExists(long siteNavigationMenuId, Layout layout) {
@@ -250,6 +247,9 @@ public class LayoutModelListener extends BaseModelListener<Layout> {
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;
+
+	@Reference
+	private Portal _portal;
 
 	@Reference
 	private SiteNavigationMenuItemLocalService

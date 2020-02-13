@@ -31,15 +31,16 @@ import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortlet
 import com.liferay.layout.content.page.editor.web.internal.util.FragmentEntryLinkItemSelectorUtil;
 import com.liferay.layout.content.page.editor.web.internal.util.FragmentEntryLinkUtil;
 import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureUtil;
+import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
@@ -123,6 +124,9 @@ public class AddFragmentEntryLinkReactMVCActionCommand
 	private FragmentEntryLink _addFragmentEntryLink(ActionRequest actionRequest)
 		throws PortalException {
 
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
 		long groupId = ParamUtil.getLong(actionRequest, "groupId");
 		String fragmentEntryKey = ParamUtil.getString(
 			actionRequest, "fragmentEntryKey");
@@ -141,9 +145,6 @@ public class AddFragmentEntryLinkReactMVCActionCommand
 			throw new NoSuchEntryException();
 		}
 
-		long classNameId = ParamUtil.getLong(actionRequest, "classNameId");
-		long classPK = ParamUtil.getLong(actionRequest, "classPK");
-
 		if (fragmentEntry != null) {
 			String contributedRendererKey = null;
 
@@ -153,14 +154,16 @@ public class AddFragmentEntryLinkReactMVCActionCommand
 
 			return _fragmentEntryLinkService.addFragmentEntryLink(
 				serviceContext.getScopeGroupId(), 0,
-				fragmentEntry.getFragmentEntryId(), classNameId, classPK,
+				fragmentEntry.getFragmentEntryId(),
+				_portal.getClassNameId(Layout.class), themeDisplay.getPlid(),
 				fragmentEntry.getCss(), fragmentEntry.getHtml(),
 				fragmentEntry.getJs(), fragmentEntry.getConfiguration(), null,
 				StringPool.BLANK, 0, contributedRendererKey, serviceContext);
 		}
 
 		return _fragmentEntryLinkService.addFragmentEntryLink(
-			serviceContext.getScopeGroupId(), 0, 0, classNameId, classPK,
+			serviceContext.getScopeGroupId(), 0, 0,
+			_portal.getClassNameId(Layout.class), themeDisplay.getPlid(),
 			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
 			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK, 0,
 			fragmentEntryKey, serviceContext);
@@ -180,11 +183,22 @@ public class AddFragmentEntryLinkReactMVCActionCommand
 			actionRequest, "parentItemId");
 		int position = ParamUtil.getInteger(actionRequest, "position");
 
-		return LayoutStructureUtil.updateLayoutPageTemplateData(
-			themeDisplay.getScopeGroupId(), segmentsExperienceId,
-			themeDisplay.getPlid(),
-			layoutStructure -> layoutStructure.addFragmentLayoutStructureItem(
-				fragmentEntryLinkId, parentItemId, position));
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+
+		JSONObject layoutDataJSONObject =
+			LayoutStructureUtil.updateLayoutPageTemplateData(
+				themeDisplay.getScopeGroupId(), segmentsExperienceId,
+				themeDisplay.getPlid(),
+				layoutStructure -> {
+					LayoutStructureItem layoutStructureItem =
+						layoutStructure.addFragmentLayoutStructureItem(
+							fragmentEntryLinkId, parentItemId, position);
+
+					jsonObject.put(
+						"addedItemId", layoutStructureItem.getItemId());
+				});
+
+		return jsonObject.put("layoutData", layoutDataJSONObject);
 	}
 
 	private JSONObject _processAddFragmentEntryLink(
@@ -214,19 +228,17 @@ public class AddFragmentEntryLinkReactMVCActionCommand
 			_portal.getLiferayPortletResponse(actionResponse),
 			configurationJSONObject);
 
-		return JSONUtil.put(
+		JSONObject jsonObject = _addFragmentEntryLinkToLayoutDataJSONObject(
+			actionRequest, fragmentEntryLink.getFragmentEntryLinkId());
+
+		return jsonObject.put(
 			"fragmentEntryLink",
 			FragmentEntryLinkUtil.getFragmentEntryLinkJSONObject(
 				actionRequest, actionResponse,
 				_fragmentEntryConfigurationParser, fragmentEntryLink,
 				_fragmentCollectionContributorTracker,
 				_fragmentRendererController, _fragmentRendererTracker,
-				StringPool.BLANK)
-		).put(
-			"layoutData",
-			_addFragmentEntryLinkToLayoutDataJSONObject(
-				actionRequest, fragmentEntryLink.getFragmentEntryLinkId())
-		);
+				StringPool.BLANK));
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

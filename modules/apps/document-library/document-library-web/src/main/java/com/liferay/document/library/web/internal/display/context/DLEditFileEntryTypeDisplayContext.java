@@ -14,13 +14,13 @@
 
 package com.liferay.document.library.web.internal.display.context;
 
-import com.liferay.document.library.web.internal.dynamic.data.mapping.util.DLDDMDisplay;
-import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
+import com.liferay.document.library.web.internal.configuration.FFDocumentLibraryDDMEditorConfiguration;
+import com.liferay.dynamic.data.mapping.constants.DDMConstants;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStorageLinkLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.util.DDM;
-import com.liferay.dynamic.data.mapping.util.DDMDisplay;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.bean.BeanParamUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -47,26 +47,22 @@ public class DLEditFileEntryTypeDisplayContext {
 
 	public DLEditFileEntryTypeDisplayContext(
 		DDM ddm, DDMStorageLinkLocalService ddmStorageLinkLocalService,
-		DDMStructureLocalService ddmStructureLocalService, Language language,
-		LiferayPortletRequest liferayPortletRequest) {
+		DDMStructureLocalService ddmStructureLocalService,
+		FFDocumentLibraryDDMEditorConfiguration
+			ffDocumentLibraryDDMEditorConfiguration,
+		Language language, LiferayPortletRequest liferayPortletRequest) {
 
 		_ddm = ddm;
 		_ddmStorageLinkLocalService = ddmStorageLinkLocalService;
 		_ddmStructureLocalService = ddmStructureLocalService;
+		_ffDocumentLibraryDDMEditorConfiguration =
+			ffDocumentLibraryDDMEditorConfiguration;
 		_language = language;
 		_liferayPortletRequest = liferayPortletRequest;
 	}
 
 	public String getAvailableFields() {
-		if (_availableFields != null) {
-			return _availableFields;
-		}
-
-		DDMDisplay ddmDisplay = new DLDDMDisplay();
-
-		_availableFields = ddmDisplay.getAvailableFields();
-
-		return _availableFields;
+		return DDMConstants.AVAILABLE_FIELDS;
 	}
 
 	public Locale[] getAvailableLocales() throws PortalException {
@@ -185,6 +181,10 @@ public class DLEditFileEntryTypeDisplayContext {
 		return false;
 	}
 
+	public boolean useDataEngineEditor() {
+		return _ffDocumentLibraryDDMEditorConfiguration.useDataEngineEditor();
+	}
+
 	private DDMForm _getDDMForm() throws PortalException {
 		if (_ddmForm != null) {
 			return _ddmForm;
@@ -205,12 +205,13 @@ public class DLEditFileEntryTypeDisplayContext {
 			WebKeys.DOCUMENT_LIBRARY_DYNAMIC_DATA_MAPPING_STRUCTURE);
 	}
 
-	private String _availableFields;
 	private Locale[] _availableLocales;
 	private final DDM _ddm;
 	private DDMForm _ddmForm;
 	private final DDMStorageLinkLocalService _ddmStorageLinkLocalService;
 	private final DDMStructureLocalService _ddmStructureLocalService;
+	private final FFDocumentLibraryDDMEditorConfiguration
+		_ffDocumentLibraryDDMEditorConfiguration;
 	private String _fieldsJSONArrayString;
 	private final Language _language;
 	private final LiferayPortletRequest _liferayPortletRequest;

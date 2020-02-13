@@ -46,26 +46,19 @@ public abstract class BaseWorkflowMetricsTestCase {
 	protected String getInitialNodeKey(KaleoDefinition kaleoDefinition)
 		throws Exception {
 
-		KaleoDefinitionVersion latestKaleoDefinitionVersion =
+		return _getInitialNodeKey(
 			_kaleoDefinitionVersionLocalService.getLatestKaleoDefinitionVersion(
-				kaleoDefinition.getCompanyId(), kaleoDefinition.getName());
+				kaleoDefinition.getCompanyId(), kaleoDefinition.getName()));
+	}
 
-		List<KaleoNode> kaleoNodes =
-			_kaleoNodeLocalService.getKaleoDefinitionVersionKaleoNodes(
-				latestKaleoDefinitionVersion.getKaleoDefinitionVersionId());
+	protected String getInitialNodeKey(
+			KaleoDefinition kaleoDefinition, String version)
+		throws Exception {
 
-		Stream<KaleoNode> stream = kaleoNodes.stream();
-
-		return stream.filter(
-			KaleoNode::isInitial
-		).findFirst(
-		).map(
-			KaleoNode::getKaleoNodeId
-		).map(
-			String::valueOf
-		).orElseGet(
-			() -> StringPool.BLANK
-		);
+		return _getInitialNodeKey(
+			_kaleoDefinitionVersionLocalService.getKaleoDefinitionVersion(
+				kaleoDefinition.getCompanyId(), kaleoDefinition.getName(),
+				version));
 	}
 
 	protected String getTaskKey(
@@ -110,26 +103,19 @@ public abstract class BaseWorkflowMetricsTestCase {
 	protected String getTerminalNodeKey(KaleoDefinition kaleoDefinition)
 		throws PortalException {
 
-		KaleoDefinitionVersion latestKaleoDefinitionVersion =
+		return _getTerminalNodeKey(
 			_kaleoDefinitionVersionLocalService.getLatestKaleoDefinitionVersion(
-				kaleoDefinition.getCompanyId(), kaleoDefinition.getName());
+				kaleoDefinition.getCompanyId(), kaleoDefinition.getName()));
+	}
 
-		List<KaleoNode> kaleoNodes =
-			_kaleoNodeLocalService.getKaleoDefinitionVersionKaleoNodes(
-				latestKaleoDefinitionVersion.getKaleoDefinitionVersionId());
+	protected String getTerminalNodeKey(
+			KaleoDefinition kaleoDefinition, String version)
+		throws PortalException {
 
-		Stream<KaleoNode> stream = kaleoNodes.stream();
-
-		return stream.filter(
-			KaleoNode::isTerminal
-		).findFirst(
-		).map(
-			KaleoNode::getKaleoNodeId
-		).map(
-			String::valueOf
-		).orElseGet(
-			() -> StringPool.BLANK
-		);
+		return _getTerminalNodeKey(
+			_kaleoDefinitionVersionLocalService.getKaleoDefinitionVersion(
+				kaleoDefinition.getCompanyId(), kaleoDefinition.getName(),
+				version));
 	}
 
 	protected void retryAssertCount(
@@ -141,44 +127,45 @@ public abstract class BaseWorkflowMetricsTestCase {
 			return;
 		}
 
-		if (parameters != null) {
-			if ((parameters.length % 2) != 0) {
-				throw new IllegalArgumentException(
-					"Parameters length is not an even number");
-			}
-
-			IdempotentRetryAssert.retryAssert(
-				15, TimeUnit.SECONDS, 1, TimeUnit.SECONDS,
-				() -> {
-					CountSearchRequest countSearchRequest =
-						new CountSearchRequest();
-
-					countSearchRequest.setIndexNames(indexName);
-
-					BooleanQuery booleanQuery = queries.booleanQuery();
-
-					for (int i = 0; i < parameters.length; i = i + 2) {
-						booleanQuery.addMustQueryClauses(
-							queries.term(
-								String.valueOf(parameters[i]),
-								parameters[i + 1]));
-					}
-
-					countSearchRequest.setQuery(booleanQuery);
-
-					countSearchRequest.setTypes(indexType);
-
-					CountSearchResponse countSearchResponse =
-						searchEngineAdapter.execute(countSearchRequest);
-
-					Assert.assertEquals(
-						indexName + " " + indexType + " " +
-							countSearchResponse.getSearchRequestString(),
-						expectedCount, countSearchResponse.getCount());
-
-					return null;
-				});
+		if (parameters == null) {
+			return;
 		}
+
+		if ((parameters.length % 2) != 0) {
+			throw new IllegalArgumentException(
+				"Parameters length is not an even number");
+		}
+
+		IdempotentRetryAssert.retryAssert(
+			15, TimeUnit.SECONDS, 1, TimeUnit.SECONDS,
+			() -> {
+				CountSearchRequest countSearchRequest =
+					new CountSearchRequest();
+
+				countSearchRequest.setIndexNames(indexName);
+
+				BooleanQuery booleanQuery = queries.booleanQuery();
+
+				for (int i = 0; i < parameters.length; i = i + 2) {
+					booleanQuery.addMustQueryClauses(
+						queries.term(
+							String.valueOf(parameters[i]), parameters[i + 1]));
+				}
+
+				countSearchRequest.setQuery(booleanQuery);
+
+				countSearchRequest.setTypes(indexType);
+
+				CountSearchResponse countSearchResponse =
+					searchEngineAdapter.execute(countSearchRequest);
+
+				Assert.assertEquals(
+					indexName + " " + indexType + " " +
+						countSearchResponse.getSearchRequestString(),
+					expectedCount, countSearchResponse.getCount());
+
+				return null;
+			});
 	}
 
 	protected void retryAssertCount(
@@ -193,6 +180,50 @@ public abstract class BaseWorkflowMetricsTestCase {
 
 	@Inject(blocking = false, filter = "search.engine.impl=Elasticsearch")
 	protected SearchEngineAdapter searchEngineAdapter;
+
+	private String _getInitialNodeKey(
+			KaleoDefinitionVersion kaleoDefinitionVersion)
+		throws Exception {
+
+		List<KaleoNode> kaleoNodes =
+			_kaleoNodeLocalService.getKaleoDefinitionVersionKaleoNodes(
+				kaleoDefinitionVersion.getKaleoDefinitionVersionId());
+
+		Stream<KaleoNode> stream = kaleoNodes.stream();
+
+		return stream.filter(
+			KaleoNode::isInitial
+		).findFirst(
+		).map(
+			KaleoNode::getKaleoNodeId
+		).map(
+			String::valueOf
+		).orElseGet(
+			() -> StringPool.BLANK
+		);
+	}
+
+	private String _getTerminalNodeKey(
+			KaleoDefinitionVersion kaleoDefinitionVersion)
+		throws PortalException {
+
+		List<KaleoNode> kaleoNodes =
+			_kaleoNodeLocalService.getKaleoDefinitionVersionKaleoNodes(
+				kaleoDefinitionVersion.getKaleoDefinitionVersionId());
+
+		Stream<KaleoNode> stream = kaleoNodes.stream();
+
+		return stream.filter(
+			KaleoNode::isTerminal
+		).findFirst(
+		).map(
+			KaleoNode::getKaleoNodeId
+		).map(
+			String::valueOf
+		).orElseGet(
+			() -> StringPool.BLANK
+		);
+	}
 
 	@Inject
 	private KaleoDefinitionVersionLocalService

@@ -17,8 +17,14 @@ package com.liferay.layout.content.page.editor.web.internal.portlet.action;
 import com.liferay.fragment.processor.PortletRegistry;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.content.page.editor.web.internal.util.FragmentEntryLinkUtil;
-import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureItem;
 import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureUtil;
+import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
+import com.liferay.layout.page.template.model.LayoutPageTemplateStructureRel;
+import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
+import com.liferay.layout.page.template.service.LayoutPageTemplateStructureRelLocalService;
+import com.liferay.layout.util.structure.FragmentLayoutStructureItem;
+import com.liferay.layout.util.structure.LayoutStructure;
+import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -27,12 +33,14 @@ import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.segments.constants.SegmentsExperienceConstants;
 
@@ -80,26 +88,25 @@ public class DeleteItemReactMVCActionCommand
 			LayoutStructureUtil.updateLayoutPageTemplateData(
 				groupId, segmentsExperienceId, plid,
 				layoutStructure -> {
-					List<LayoutStructureItem> deleteLayoutStructureItems =
+					List<LayoutStructureItem> deletedLayoutStructureItems =
 						layoutStructure.deleteLayoutStructureItem(itemId);
 
-					for (LayoutStructureItem layoutStructureItem :
-							deleteLayoutStructureItems) {
+					for (long fragmentEntryLinkId :
+							LayoutStructureUtil.getFragmentEntryLinkIds(
+								deletedLayoutStructureItems)) {
 
-						JSONObject itemConfigJSONObject =
-							layoutStructureItem.getItemConfigJSONObject();
+						if (_isFragmentEntryLinkInAnotherSegmentsExperience(
+								fragmentEntryLinkId, groupId, plid,
+								segmentsExperienceId)) {
 
-						long fragmentEntryLinkId = itemConfigJSONObject.getLong(
-							"fragmentEntryLinkId");
-
-						if (fragmentEntryLinkId > 0) {
-							FragmentEntryLinkUtil.deleteFragmentEntryLink(
-								companyId, fragmentEntryLinkId, plid,
-								_portletRegistry);
-
-							deletedFragmentEntryLinkIds.add(
-								fragmentEntryLinkId);
+							continue;
 						}
+
+						FragmentEntryLinkUtil.deleteFragmentEntryLink(
+							companyId, fragmentEntryLinkId, plid,
+							_portletRegistry);
+
+						deletedFragmentEntryLinkIds.add(fragmentEntryLinkId);
 					}
 				});
 
@@ -145,8 +152,70 @@ public class DeleteItemReactMVCActionCommand
 			actionRequest, actionResponse, jsonObject);
 	}
 
+	private boolean _isFragmentEntryLinkInAnotherSegmentsExperience(
+		long fragmentEntryLinkId, long groupId, long plid,
+		long segmentsExperienceId) {
+
+		LayoutPageTemplateStructure layoutPageTemplateStructure =
+			_layoutPageTemplateStructureLocalService.
+				fetchLayoutPageTemplateStructure(
+					groupId, _portal.getClassNameId(Layout.class.getName()),
+					plid);
+
+		List<LayoutPageTemplateStructureRel> layoutPageTemplateStructureRels =
+			_layoutPageTemplateStructureRelLocalService.
+				getLayoutPageTemplateStructureRels(
+					layoutPageTemplateStructure.
+						getLayoutPageTemplateStructureId());
+
+		for (LayoutPageTemplateStructureRel layoutPageTemplateStructureRel :
+				layoutPageTemplateStructureRels) {
+
+			if (layoutPageTemplateStructureRel.getSegmentsExperienceId() ==
+					segmentsExperienceId) {
+
+				continue;
+			}
+
+			LayoutStructure layoutStructure = LayoutStructure.of(
+				layoutPageTemplateStructureRel.getData());
+
+			for (LayoutStructureItem layoutStructureItem :
+					layoutStructure.getLayoutStructureItems()) {
+
+				if (!(layoutStructureItem instanceof
+						FragmentLayoutStructureItem)) {
+
+					continue;
+				}
+
+				FragmentLayoutStructureItem fragmentLayoutStructureItem =
+					(FragmentLayoutStructureItem)layoutStructureItem;
+
+				if (fragmentLayoutStructureItem.getFragmentEntryLinkId() ==
+						fragmentEntryLinkId) {
+
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		DeleteItemReactMVCActionCommand.class);
+
+	@Reference
+	private LayoutPageTemplateStructureLocalService
+		_layoutPageTemplateStructureLocalService;
+
+	@Reference
+	private LayoutPageTemplateStructureRelLocalService
+		_layoutPageTemplateStructureRelLocalService;
+
+	@Reference
+	private Portal _portal;
 
 	@Reference
 	private PortletRegistry _portletRegistry;

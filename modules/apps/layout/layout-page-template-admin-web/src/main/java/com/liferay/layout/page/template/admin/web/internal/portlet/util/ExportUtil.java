@@ -14,23 +14,45 @@
 
 package com.liferay.layout.page.template.admin.web.internal.portlet.util;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+
+import com.liferay.fragment.contributor.FragmentCollectionContributorTracker;
+import com.liferay.fragment.renderer.FragmentRendererTracker;
+import com.liferay.fragment.util.configuration.FragmentEntryConfigurationParser;
+import com.liferay.headless.delivery.dto.v1_0.PageDefinition;
+import com.liferay.headless.delivery.dto.v1_0.PageTemplate;
+import com.liferay.layout.page.template.admin.web.internal.headless.delivery.dto.v1_0.PageDefinitionConverterUtil;
+import com.liferay.layout.page.template.admin.web.internal.headless.delivery.dto.v1_0.PageTemplateConverterUtil;
 import com.liferay.layout.page.template.model.LayoutPageTemplateCollection;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
-import com.liferay.layout.page.template.service.LayoutPageTemplateCollectionService;
+import com.liferay.layout.page.template.service.LayoutPageTemplateCollectionLocalService;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.zip.ZipWriter;
 import com.liferay.portal.kernel.zip.ZipWriterFactoryUtil;
 
 import java.io.File;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.portlet.PortletException;
 
@@ -43,25 +65,25 @@ import org.osgi.service.component.annotations.Reference;
 @Component(immediate = true, service = ExportUtil.class)
 public class ExportUtil {
 
-	public File exportLayoutPageTemplateEntries(
+	public File exportPageTemplateDefinitions(
 			List<LayoutPageTemplateEntry> layoutPageTemplateEntries)
 		throws PortletException {
 
 		ZipWriter zipWriter = ZipWriterFactoryUtil.getZipWriter();
 
+		Map<Long, String> layoutPageTemplateCollectionKeyMap = new HashMap<>();
+
 		try {
 			for (LayoutPageTemplateEntry layoutPageTemplateEntry :
 					layoutPageTemplateEntries) {
 
-				LayoutPageTemplateCollection layoutPageTemplateCollection =
-					_layoutPageTemplateCollectionService.
-						fetchLayoutPageTemplateCollection(
-							layoutPageTemplateEntry.
-								getLayoutPageTemplateCollectionId());
+				_populateLayoutPageTemplateCollectionKeyMap(
+					layoutPageTemplateCollectionKeyMap,
+					layoutPageTemplateEntry);
 
 				_populateZipWriter(
-					layoutPageTemplateEntry, zipWriter,
-					layoutPageTemplateCollection.getName());
+					layoutPageTemplateEntry, layoutPageTemplateCollectionKeyMap,
+					zipWriter);
 			}
 
 			zipWriter.finish();
@@ -73,16 +95,14 @@ public class ExportUtil {
 		}
 	}
 
-	private FileEntry _getPreviewFileEntry(
-		LayoutPageTemplateEntry layoutPageTemplateEntry) {
-
-		if (layoutPageTemplateEntry.getPreviewFileEntryId() <= 0) {
+	private FileEntry _getPreviewFileEntry(long previewFileEntryId) {
+		if (previewFileEntryId <= 0) {
 			return null;
 		}
 
 		try {
 			return PortletFileRepositoryUtil.getPortletFileEntry(
-				layoutPageTemplateEntry.getPreviewFileEntryId());
+				previewFileEntryId);
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {
@@ -93,27 +113,78 @@ public class ExportUtil {
 		return null;
 	}
 
-	private void _populateZipWriter(
-			LayoutPageTemplateEntry layoutPageTemplateEntry,
-			ZipWriter zipWriter, String path)
-		throws Exception {
+	private void _populateLayoutPageTemplateCollectionKeyMap(
+			Map<Long, String> layoutPageTemplateCollectionKeyMap,
+			LayoutPageTemplateEntry layoutPageTemplateEntry)
+		throws PortalException {
 
-		path = path + StringPool.SLASH + layoutPageTemplateEntry.getName();
+		long layoutPageTemplateCollectionId =
+			layoutPageTemplateEntry.getLayoutPageTemplateCollectionId();
 
-		JSONObject jsonObject = JSONUtil.put(
-			"name", layoutPageTemplateEntry.getName());
+		if (layoutPageTemplateCollectionKeyMap.containsKey(
+				layoutPageTemplateCollectionId)) {
 
-		FileEntry previewFileEntry = _getPreviewFileEntry(
-			layoutPageTemplateEntry);
-
-		if (previewFileEntry != null) {
-			jsonObject.put(
-				"thumbnailPath",
-				"thumbnail." + previewFileEntry.getExtension());
+			return;
 		}
 
+		LayoutPageTemplateCollection layoutPageTemplateCollection =
+			_layoutPageTemplateCollectionLocalService.
+				getLayoutPageTemplateCollection(layoutPageTemplateCollectionId);
+
+		layoutPageTemplateCollectionKeyMap.put(
+			layoutPageTemplateCollectionId,
+			layoutPageTemplateCollection.getLayoutPageTemplateCollectionKey());
+	}
+
+	private void _populateZipWriter(
+			LayoutPageTemplateEntry layoutPageTemplateEntry,
+			Map<Long, String> layoutPageTemplateCollectionKeyMap,
+			ZipWriter zipWriter)
+		throws Exception {
+
+		PageTemplate pageTemplate = PageTemplateConverterUtil.toPageTemplate(
+			layoutPageTemplateEntry);
+
+		String layoutPageTemplateCollectionKey =
+			layoutPageTemplateCollectionKeyMap.get(
+				layoutPageTemplateEntry.getLayoutPageTemplateCollectionId());
+
+		StringBundler sb = new StringBundler(3);
+
+		sb.append(_ROOT_FOLDER + StringPool.SLASH);
+		sb.append(layoutPageTemplateCollectionKey + StringPool.SLASH);
+		sb.append(layoutPageTemplateEntry.getLayoutPageTemplateEntryKey());
+
+		String path = sb.toString();
+
+		SimpleFilterProvider simpleFilterProvider = new SimpleFilterProvider();
+
+		FilterProvider filterProvider = simpleFilterProvider.addFilter(
+			"Liferay.Vulcan", SimpleBeanPropertyFilter.serializeAll());
+
+		ObjectWriter objectWriter = _objectMapper.writer(filterProvider);
+
 		zipWriter.addEntry(
-			path + "/layout-template.json", jsonObject.toString());
+			path + "/page-template.json",
+			objectWriter.writeValueAsString(pageTemplate));
+
+		Layout layout = _layoutLocalService.fetchLayout(
+			layoutPageTemplateEntry.getPlid());
+
+		if (layout != null) {
+			PageDefinition pageDefinition =
+				PageDefinitionConverterUtil.toPageDefinition(
+					_fragmentCollectionContributorTracker,
+					_fragmentEntryConfigurationParser, _fragmentRendererTracker,
+					layout);
+
+			zipWriter.addEntry(
+				path + "/page-definition.json",
+				objectWriter.writeValueAsString(pageDefinition));
+		}
+
+		FileEntry previewFileEntry = _getPreviewFileEntry(
+			layoutPageTemplateEntry.getPreviewFileEntryId());
 
 		if (previewFileEntry != null) {
 			zipWriter.addEntry(
@@ -122,10 +193,39 @@ public class ExportUtil {
 		}
 	}
 
+	private static final String _ROOT_FOLDER = "page-templates";
+
 	private static final Log _log = LogFactoryUtil.getLog(ExportUtil.class);
 
+	private static final ObjectMapper _objectMapper = new ObjectMapper() {
+		{
+			configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+			configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+			enable(SerializationFeature.INDENT_OUTPUT);
+			setDateFormat(new ISO8601DateFormat());
+			setSerializationInclusion(JsonInclude.Include.NON_NULL);
+			setVisibility(
+				PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+			setVisibility(
+				PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+		}
+	};
+
 	@Reference
-	private LayoutPageTemplateCollectionService
-		_layoutPageTemplateCollectionService;
+	private FragmentCollectionContributorTracker
+		_fragmentCollectionContributorTracker;
+
+	@Reference
+	private FragmentEntryConfigurationParser _fragmentEntryConfigurationParser;
+
+	@Reference
+	private FragmentRendererTracker _fragmentRendererTracker;
+
+	@Reference
+	private LayoutLocalService _layoutLocalService;
+
+	@Reference
+	private LayoutPageTemplateCollectionLocalService
+		_layoutPageTemplateCollectionLocalService;
 
 }

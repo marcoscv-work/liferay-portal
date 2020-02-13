@@ -613,6 +613,23 @@ public class KaleoTaskInstanceTokenLocalServiceImpl
 		OrderByComparator<KaleoTaskInstanceToken> orderByComparator,
 		ServiceContext serviceContext) {
 
+		return search(
+			assetTitle, taskNames, assetTypes, assetPrimaryKeys, null,
+			assigneeClassPKs, dueDateGT, dueDateLT, completed, null,
+			kaleoInstanceIds, searchByUserRoles, andOperator, start, end,
+			orderByComparator, serviceContext);
+	}
+
+	@Override
+	public List<KaleoTaskInstanceToken> search(
+		String assetTitle, String[] taskNames, String[] assetTypes,
+		Long[] assetPrimaryKeys, String assigneeClassName,
+		Long[] assigneeClassPKs, Date dueDateGT, Date dueDateLT,
+		Boolean completed, Long kaleoDefinitionId, Long[] kaleoInstanceIds,
+		Boolean searchByUserRoles, boolean andOperator, int start, int end,
+		OrderByComparator<KaleoTaskInstanceToken> orderByComparator,
+		ServiceContext serviceContext) {
+
 		KaleoTaskInstanceTokenQuery kaleoTaskInstanceTokenQuery =
 			new KaleoTaskInstanceTokenQuery(serviceContext);
 
@@ -620,11 +637,13 @@ public class KaleoTaskInstanceTokenLocalServiceImpl
 		kaleoTaskInstanceTokenQuery.setAssetTitle(assetTitle);
 		kaleoTaskInstanceTokenQuery.setAssetTypes(assetTypes);
 		kaleoTaskInstanceTokenQuery.setAssetPrimaryKeys(assetPrimaryKeys);
+		kaleoTaskInstanceTokenQuery.setAssigneeClassName(assigneeClassName);
 		kaleoTaskInstanceTokenQuery.setAssigneeClassPKs(assigneeClassPKs);
 		kaleoTaskInstanceTokenQuery.setCompleted(completed);
 		kaleoTaskInstanceTokenQuery.setDueDateGT(dueDateGT);
 		kaleoTaskInstanceTokenQuery.setDueDateLT(dueDateLT);
 		kaleoTaskInstanceTokenQuery.setEnd(end);
+		kaleoTaskInstanceTokenQuery.setKaleoDefinitionId(kaleoDefinitionId);
 		kaleoTaskInstanceTokenQuery.setKaleoInstanceIds(kaleoInstanceIds);
 		kaleoTaskInstanceTokenQuery.setOrderByComparator(orderByComparator);
 		kaleoTaskInstanceTokenQuery.setSearchByUserRoles(searchByUserRoles);
@@ -703,6 +722,21 @@ public class KaleoTaskInstanceTokenLocalServiceImpl
 		Boolean searchByUserRoles, boolean andOperator,
 		ServiceContext serviceContext) {
 
+		return searchCount(
+			assetTitle, taskNames, assetTypes, assetPrimaryKeys, null,
+			assigneeClassPKs, dueDateGT, dueDateLT, completed, null,
+			kaleoInstanceIds, searchByUserRoles, andOperator, serviceContext);
+	}
+
+	@Override
+	public int searchCount(
+		String assetTitle, String[] taskNames, String[] assetTypes,
+		Long[] assetPrimaryKeys, String assigneeClassName,
+		Long[] assigneeClassPKs, Date dueDateGT, Date dueDateLT,
+		Boolean completed, Long kaleoDefinitionId, Long[] kaleoInstanceIds,
+		Boolean searchByUserRoles, boolean andOperator,
+		ServiceContext serviceContext) {
+
 		KaleoTaskInstanceTokenQuery kaleoTaskInstanceTokenQuery =
 			new KaleoTaskInstanceTokenQuery(serviceContext);
 
@@ -710,10 +744,12 @@ public class KaleoTaskInstanceTokenLocalServiceImpl
 		kaleoTaskInstanceTokenQuery.setAssetTitle(assetTitle);
 		kaleoTaskInstanceTokenQuery.setAssetTypes(assetTypes);
 		kaleoTaskInstanceTokenQuery.setAssetPrimaryKeys(assetPrimaryKeys);
+		kaleoTaskInstanceTokenQuery.setAssigneeClassName(assigneeClassName);
 		kaleoTaskInstanceTokenQuery.setAssigneeClassPKs(assigneeClassPKs);
 		kaleoTaskInstanceTokenQuery.setCompleted(completed);
 		kaleoTaskInstanceTokenQuery.setDueDateGT(dueDateGT);
 		kaleoTaskInstanceTokenQuery.setDueDateLT(dueDateLT);
+		kaleoTaskInstanceTokenQuery.setKaleoDefinitionId(kaleoDefinitionId);
 		kaleoTaskInstanceTokenQuery.setKaleoInstanceIds(kaleoInstanceIds);
 		kaleoTaskInstanceTokenQuery.setSearchByUserRoles(searchByUserRoles);
 		kaleoTaskInstanceTokenQuery.setTaskNames(taskNames);
@@ -954,36 +990,42 @@ public class KaleoTaskInstanceTokenLocalServiceImpl
 
 	private static final Map<String, String> _fieldNameOrderByCols =
 		HashMapBuilder.put(
-			"completed",
+			Field.CREATE_DATE,
+			_getSortableFieldName(Field.CREATE_DATE, "Number")
+		).put(
+			Field.MODIFIED_DATE,
+			_getSortableFieldName(Field.MODIFIED_DATE, "Number")
+		).put(
+			Field.USER_ID, _getSortableFieldName(Field.USER_ID, "Number")
+		).put(
+			KaleoTaskInstanceTokenField.COMPLETED,
 			_getSortableFieldName(
 				KaleoTaskInstanceTokenField.COMPLETED, "String")
 		).put(
-			"completionDate",
+			KaleoTaskInstanceTokenField.COMPLETION_DATE,
 			_getSortableFieldName(
 				KaleoTaskInstanceTokenField.COMPLETION_DATE, "Number")
 		).put(
-			"createDate", _getSortableFieldName(Field.CREATE_DATE, "Number")
-		).put(
-			"dueDate",
+			KaleoTaskInstanceTokenField.DUE_DATE,
 			_getSortableFieldName(
 				KaleoTaskInstanceTokenField.DUE_DATE, "Number")
 		).put(
-			"kaleoTaskId",
+			KaleoTaskInstanceTokenField.KALEO_INSTANCE_ID,
+			_getSortableFieldName(
+				KaleoTaskInstanceTokenField.KALEO_INSTANCE_ID, "Number")
+		).put(
+			KaleoTaskInstanceTokenField.KALEO_TASK_ID,
 			_getSortableFieldName(
 				KaleoTaskInstanceTokenField.KALEO_TASK_ID, "Number")
 		).put(
-			"kaleoTaskInstanceTokenId",
+			KaleoTaskInstanceTokenField.KALEO_TASK_INSTANCE_TOKEN_ID,
 			_getSortableFieldName(
 				KaleoTaskInstanceTokenField.KALEO_TASK_INSTANCE_TOKEN_ID,
 				"Number")
 		).put(
-			"modifiedDate", _getSortableFieldName(Field.MODIFIED_DATE, "Number")
-		).put(
 			"name",
 			_getSortableFieldName(
 				KaleoTaskInstanceTokenField.TASK_NAME, "String")
-		).put(
-			"userId", _getSortableFieldName(Field.USER_ID, "Number")
 		).build();
 	private static final Map<String, Integer> _fieldNameSortTypes =
 		HashMapBuilder.put(

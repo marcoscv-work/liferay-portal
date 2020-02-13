@@ -24,6 +24,7 @@ import com.liferay.fragment.util.configuration.FragmentEntryConfigurationParser;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.content.page.editor.web.internal.util.FragmentEntryLinkUtil;
 import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureUtil;
+import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
@@ -31,7 +32,6 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.PortletIdException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -103,11 +103,22 @@ public class AddPortletReactMVCActionCommand
 			actionRequest, "parentItemId");
 		int position = ParamUtil.getInteger(actionRequest, "position");
 
-		return LayoutStructureUtil.updateLayoutPageTemplateData(
-			themeDisplay.getScopeGroupId(), segmentsExperienceId,
-			themeDisplay.getPlid(),
-			layoutStructure -> layoutStructure.addFragmentLayoutStructureItem(
-				fragmentEntryLinkId, parentItemId, position));
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+
+		JSONObject layoutDataJSONObject =
+			LayoutStructureUtil.updateLayoutPageTemplateData(
+				themeDisplay.getScopeGroupId(), segmentsExperienceId,
+				themeDisplay.getPlid(),
+				layoutStructure -> {
+					LayoutStructureItem layoutStructureItem =
+						layoutStructure.addFragmentLayoutStructureItem(
+							fragmentEntryLinkId, parentItemId, position);
+
+					jsonObject.put(
+						"addedItemId", layoutStructureItem.getItemId());
+				});
+
+		return jsonObject.put("layoutData", layoutDataJSONObject);
 	}
 
 	@Override
@@ -155,24 +166,18 @@ public class AddPortletReactMVCActionCommand
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		long classPK = ParamUtil.getLong(actionRequest, "classPK");
-
-		Layout layout = _layoutLocalService.getLayout(classPK);
-
 		String portletId = PortletIdCodec.decodePortletName(
 			ParamUtil.getString(actionRequest, "portletId"));
 
 		PortletPermissionUtil.check(
-			themeDisplay.getPermissionChecker(), layout.getGroupId(), layout,
-			portletId, ActionKeys.ADD_TO_PAGE);
+			themeDisplay.getPermissionChecker(), themeDisplay.getScopeGroupId(),
+			themeDisplay.getLayout(), portletId, ActionKeys.ADD_TO_PAGE);
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			actionRequest);
 
-		long classNameId = ParamUtil.getLong(actionRequest, "classNameId");
-
 		String instanceId = _getPortletInstanceId(
-			layout, portletId,
+			themeDisplay.getLayout(), portletId,
 			ParamUtil.getLong(actionRequest, "segmentsExperienceId"));
 
 		JSONObject editableValueJSONObject =
@@ -188,24 +193,22 @@ public class AddPortletReactMVCActionCommand
 		FragmentEntryLink fragmentEntryLink =
 			_fragmentEntryLinkLocalService.addFragmentEntryLink(
 				serviceContext.getUserId(), serviceContext.getScopeGroupId(), 0,
-				0, classNameId, classPK, StringPool.BLANK, StringPool.BLANK,
-				StringPool.BLANK, StringPool.BLANK,
-				editableValueJSONObject.toString(), StringPool.BLANK, 0, null,
-				serviceContext);
+				0, _portal.getClassNameId(Layout.class), themeDisplay.getPlid(),
+				StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
+				StringPool.BLANK, editableValueJSONObject.toString(),
+				StringPool.BLANK, 0, null, serviceContext);
 
-		return JSONUtil.put(
+		JSONObject jsonObject = addFragmentEntryLinkToLayoutData(
+			actionRequest, fragmentEntryLink.getFragmentEntryLinkId());
+
+		return jsonObject.put(
 			"fragmentEntryLink",
 			FragmentEntryLinkUtil.getFragmentEntryLinkJSONObject(
 				actionRequest, actionResponse,
 				_fragmentEntryConfigurationParser, fragmentEntryLink,
 				_fragmentCollectionContributorTracker,
 				_fragmentRendererController, _fragmentRendererTracker,
-				portletId)
-		).put(
-			"layoutData",
-			addFragmentEntryLinkToLayoutData(
-				actionRequest, fragmentEntryLink.getFragmentEntryLinkId())
-		);
+				portletId));
 	}
 
 	private String _getPortletInstanceId(

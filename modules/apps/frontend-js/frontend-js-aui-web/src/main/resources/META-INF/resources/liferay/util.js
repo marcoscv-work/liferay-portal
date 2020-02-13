@@ -42,8 +42,6 @@
 		src: 'hideLink'
 	};
 
-	var STR_CHECKED = 'checked';
-
 	var STR_RIGHT_SQUARE_BRACKET = ']';
 
 	var TPL_LEXICON_ICON =
@@ -105,7 +103,8 @@
 						Util.enableFormButtons,
 						[inputs, form]
 					);
-				} else {
+				}
+				else {
 					Util._submitLocked = true;
 				}
 
@@ -116,7 +115,8 @@
 				if (searchParamsIndex === -1) {
 					baseURL = action;
 					queryString = '';
-				} else {
+				}
+				else {
 					baseURL = action.slice(0, searchParamsIndex);
 					queryString = action.slice(searchParamsIndex + 1);
 				}
@@ -255,7 +255,8 @@
 						);
 					})
 					.join('&');
-			} else {
+			}
+			else {
 				params = String(params).trim();
 			}
 
@@ -275,7 +276,8 @@
 
 				if (loc.indexOf('?') == -1) {
 					params = '?' + params;
-				} else {
+				}
+				else {
 					params = '&' + params;
 				}
 
@@ -315,7 +317,8 @@
 						'input[name=' +
 						name.join('], input[name=') +
 						STR_RIGHT_SQUARE_BRACKET;
-				} else {
+				}
+				else {
 					selector = 'input[name=' + name + STR_RIGHT_SQUARE_BRACKET;
 				}
 
@@ -336,7 +339,8 @@
 
 					if (allBoxChecked) {
 						selectItem.classList.add('info');
-					} else {
+					}
+					else {
 						selectItem.classList.remove('info');
 					}
 				}
@@ -402,7 +406,7 @@
 		},
 
 		disableElements(el) {
-			var currentElement = $(el)[0];
+			const currentElement = Util.getElement(el);
 
 			if (currentElement) {
 				var children = currentElement.getElementsByTagName('*');
@@ -426,8 +430,6 @@
 					item.disabled = true;
 					item.href = 'javascript:;';
 					item.onsubmit = emptyFnFalse;
-
-					$(item).off();
 				}
 			}
 		},
@@ -446,7 +448,8 @@
 				A.getWin().on('unload', () => {
 					inputs.attr('disabled', false);
 				});
-			} else if (A.UA.safari) {
+			}
+			else if (A.UA.safari) {
 				A.use('node-event-html5', A => {
 					A.getWin().on('pagehide', () => {
 						Util.enableFormButtons(inputs, form);
@@ -480,7 +483,8 @@
 
 				if (match == ']]>') {
 					str = ']]&gt;';
-				} else if (match == '<![CDATA[') {
+				}
+				else if (match == '<![CDATA[') {
 					str = '&lt;![CDATA[';
 				}
 
@@ -489,38 +493,58 @@
 		},
 
 		focusFormField(el) {
-			var doc = $(document);
+			let interacting = false;
 
-			var interacting = false;
+			el = Util.getElement(el);
 
-			el = Util.getDOM(el);
-
-			el = $(el);
-
-			doc.on('click.focusFormField', () => {
+			const handler = () => {
 				interacting = true;
 
-				doc.off('click.focusFormField');
-			});
+				document.body.removeEventListener('click', handler);
+			};
+
+			document.body.addEventListener('click', handler);
 
 			if (!interacting && Util.inBrowserView(el)) {
-				var form = el.closest('form');
+				const getDisabledParents = function(el) {
+					let result = [];
 
-				var focusable =
-					!el.is(':disabled') &&
-					!el.is(':hidden') &&
-					!el.parents(':disabled').length;
+					if (el.parentElement) {
+						if (el.parentElement.getAttribute('disabled')) {
+							result = [el.parentElement];
+						}
 
-				if (!form.length || focusable) {
+						result = [
+							...result,
+							...getDisabledParents(el.parentElement)
+						];
+					}
+
+					return result;
+				};
+
+				const disabledParents = getDisabledParents(el);
+
+				const focusable =
+					!el.getAttribute('disabled') &&
+					el.offsetWidth > 0 &&
+					el.offsetHeight > 0 &&
+					!disabledParents.length;
+
+				const form = el.closest('form');
+
+				if (!form || focusable) {
 					el.focus();
-				} else {
-					var portletName = form.data('fm-namespace');
+				}
+				else if (form) {
+					const portletName = form.getAttribute('data-fm-namespace');
 
-					var formReadyEventName = portletName + 'formReady';
+					const formReadyEventName = portletName + 'formReady';
 
-					var formReadyHandler = function(event) {
-						var elFormName = form.attr('name');
-						var formName = event.formName;
+					const formReadyHandler = event => {
+						const elFormName = form.getAttribute('name');
+
+						const formName = event.formName;
 
 						if (elFormName === formName) {
 							el.focus();
@@ -538,19 +562,18 @@
 		},
 
 		forcePost(link) {
-			link = Util.getDOM(link);
+			const currentElement = Util.getElement(link);
 
-			link = $(link);
+			if (currentElement) {
+				const url = currentElement.getAttribute('href');
 
-			if (link.length) {
-				var url = link.attr('href');
+				const newWindow =
+					currentElement.getAttribute('target') == '_blank';
 
-				var newWindow = link.attr('target') == '_blank';
-
-				var hrefFm = $(document.hrefFm);
+				const hrefFm = document.hrefFm;
 
 				if (newWindow) {
-					hrefFm.attr('target', '_blank');
+					hrefFm.setAttribute('target', '_blank');
 				}
 
 				submitForm(hrefFm, url, !newWindow);
@@ -585,10 +608,12 @@
 					if (getterString) {
 						if (name.indexOf(attributeGetter) === 0) {
 							name = name.substr(attributeGetter.length);
-						} else {
+						}
+						else {
 							continue;
 						}
-					} else if (getterFn) {
+					}
+					else if (getterFn) {
 						value = attributeGetter(value, name, attrs);
 
 						if (value === false) {
@@ -617,6 +642,16 @@
 			return el;
 		},
 
+		getElement(el) {
+			const currentElement = Util.getDOM(el);
+
+			return typeof currentElement === 'string'
+				? document.querySelector(currentElement)
+				: currentElement.jquery
+				? currentElement[0]
+				: currentElement;
+		},
+
 		getGeolocation(success, fallback, options) {
 			if (success && navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition(
@@ -630,7 +665,8 @@
 					fallback,
 					options
 				);
-			} else if (fallback) {
+			}
+			else if (fallback) {
 				fallback();
 			}
 		},
@@ -638,7 +674,11 @@
 		getLexiconIcon(icon, cssClass) {
 			var instance = this;
 
-			return $(instance.getLexiconIconTpl(icon, cssClass))[0];
+			const tempElement = document.createElement('div');
+
+			tempElement.innerHTML = instance.getLexiconIconTpl(icon, cssClass);
+
+			return tempElement.firstChild;
 		},
 
 		getLexiconIconTpl(icon, cssClass) {
@@ -684,7 +724,8 @@
 						}
 
 						parentThemeDisplay = parentWindow.themeDisplay;
-					} catch (e) {
+					}
+					catch (e) {
 						break;
 					}
 
@@ -693,7 +734,8 @@
 						window.name === 'simulationDeviceIframe'
 					) {
 						break;
-					} else if (
+					}
+					else if (
 						!parentThemeDisplay.isStatePopUp() ||
 						parentWindow == parentWindow.parent
 					) {
@@ -769,31 +811,36 @@
 		},
 
 		inBrowserView(node, win, nodeRegion) {
-			var viewable = false;
+			let viewable = false;
 
-			node = $(node);
+			node = Util.getElement(node);
 
-			if (node.length) {
+			if (node) {
 				if (!nodeRegion) {
-					nodeRegion = node.offset();
+					nodeRegion = node.getBoundingClientRect();
 
-					nodeRegion.bottom = nodeRegion.top + node.outerHeight();
-					nodeRegion.right = nodeRegion.left + node.outerWidth();
+					nodeRegion = {
+						left: nodeRegion.left + window.scrollX,
+						top: nodeRegion.top + window.scrollY
+					};
+
+					nodeRegion.bottom = nodeRegion.top + node.offsetHeight;
+					nodeRegion.right = nodeRegion.left + node.offsetWidth;
 				}
 
 				if (!win) {
 					win = window;
 				}
 
-				win = $(win);
+				win = Util.getElement(win);
 
-				var winRegion = {};
+				const winRegion = {};
 
-				winRegion.left = win.scrollLeft();
-				winRegion.right = winRegion.left + win.width();
+				winRegion.left = win.scrollX;
+				winRegion.right = winRegion.left + win.innerWidth;
 
-				winRegion.top = win.scrollTop();
-				winRegion.bottom = winRegion.top + win.height();
+				winRegion.top = win.scrollY;
+				winRegion.bottom = winRegion.top + win.innerHeight;
 
 				viewable =
 					nodeRegion.bottom <= winRegion.bottom &&
@@ -802,10 +849,15 @@
 					nodeRegion.top >= winRegion.top;
 
 				if (viewable) {
-					var frameEl = $(win.prop('frameElement'));
+					const frameEl = win.frameElement;
 
-					if (frameEl.length) {
-						var frameOffset = frameEl.offset();
+					if (frameEl) {
+						let frameOffset = frameEl.getBoundingClientRect();
+
+						frameOffset = {
+							left: frameOffset.left + window.scrollX,
+							top: frameOffset.top + window.scrollY
+						};
 
 						var xOffset = frameOffset.left - winRegion.left;
 
@@ -819,7 +871,7 @@
 
 						viewable = Util.inBrowserView(
 							node,
-							win.prop('parent'),
+							win.parent,
 							nodeRegion
 						);
 					}
@@ -883,13 +935,11 @@
 		},
 
 		listSelect(select, delimeter) {
-			select = Util.getDOM(select);
+			select = Util.getElement(select);
 
-			return $(select)
-				.find('option')
-				.toArray()
+			return Array.from(select.querySelectorAll('option'))
 				.reduce((prev, item) => {
-					var val = $(item).val();
+					const val = item.value;
 
 					if (val) {
 						prev.push(val);
@@ -919,19 +969,18 @@
 		openInDialog(event, config) {
 			event.preventDefault();
 
-			var currentTarget = Util.getDOM(event.currentTarget);
+			var currentTarget = Util.getElement(event.currentTarget);
 
-			currentTarget = $(currentTarget);
-
-			config = A.mix(A.merge({}, currentTarget.data()), config);
+			config = A.mix(A.merge({}, currentTarget.dataset), config);
 
 			if (!config.uri) {
 				config.uri =
-					currentTarget.data('href') || currentTarget.attr('href');
+					currentTarget.dataset.href ||
+					currentTarget.getAttribute('href');
 			}
 
 			if (!config.title) {
-				config.title = currentTarget.attr('title');
+				config.title = currentTarget.getAttribute('title');
 			}
 
 			Liferay.Util.openWindow(config);
@@ -962,9 +1011,21 @@
 			removeEntityButton,
 			namespace
 		) {
-			$('#' + namespace + entityIdString).val(0);
+			const elementByEntityId = document.getElementById(
+				`${namespace}${entityIdString}`
+			);
 
-			$('#' + namespace + entityNameString).val('');
+			if (elementByEntityId) {
+				elementByEntityId.value = 0;
+			}
+
+			const elementByEntityName = document.getElementById(
+				`${namespace}${entityNameString}`
+			);
+
+			if (elementByEntityName) {
+				elementByEntityName.value = '';
+			}
 
 			Liferay.Util.toggleDisabled(removeEntityButton, true);
 
@@ -972,44 +1033,51 @@
 		},
 
 		reorder(box, down) {
-			box = Util.getDOM(box);
+			box = Util.getElement(box);
 
-			box = $(box);
+			if (box) {
+				if (box.getAttribute('selectedIndex') == -1) {
+					box.setAttribute('selectedIndex', 0);
+				}
+				else {
+					const selectedItems = Array.from(
+						box.querySelectorAll('option:checked')
+					);
 
-			if (box.prop('selectedIndex') == -1) {
-				box.prop('selectedIndex', 0);
-			} else {
-				var selectedItems = box.find('option:selected');
+					const items = Array.from(box.querySelectorAll('option'));
 
-				if (down) {
-					selectedItems
-						.get()
-						.reverse()
-						.forEach(item => {
-							item = $(item);
+					if (down) {
+						selectedItems.reverse().forEach(item => {
+							const itemIndex = items.indexOf(item);
 
-							var itemIndex = item.prop('index');
-
-							var lastIndex = box.find('option').length - 1;
+							const lastIndex = items.length - 1;
 
 							if (itemIndex === lastIndex) {
-								box.prepend(item);
-							} else {
-								item.insertAfter(item.next());
+								box.insertBefore(item, box.firstChild);
+							}
+							else {
+								const nextItem =
+									item.nextElementSibling.nextElementSibling;
+
+								box.insertBefore(item, nextItem);
 							}
 						});
-				} else {
-					selectedItems.get().forEach(item => {
-						item = $(item);
+					}
+					else {
+						selectedItems.forEach(item => {
+							const itemIndex = items.indexOf(item);
 
-						var itemIndex = item.prop('index');
-
-						if (itemIndex === 0) {
-							box.append(item);
-						} else {
-							item.insertBefore(item.prev());
-						}
-					});
+							if (itemIndex === 0) {
+								box.appendChild(item);
+							}
+							else {
+								box.insertBefore(
+									item,
+									item.previousElementSibling
+								);
+							}
+						});
+					}
 				}
 			}
 		},
@@ -1053,56 +1121,30 @@
 			});
 		},
 
-		selectEntityHandler(container, selectEventName, disableButton) {
-			container = $(container);
-
-			var openingLiferay = Util.getOpener().Liferay;
-
-			var selectorButtons = container.find('.selector-button');
-
-			container.on('click', '.selector-button', event => {
-				var target = $(event.target);
-
-				if (!target.attr('data-prevent-selection')) {
-					var currentTarget = $(event.currentTarget);
-
-					var confirmSelection =
-						currentTarget.attr('data-confirm-selection') === 'true';
-					var confirmSelectionMessage = currentTarget.attr(
-						'data-confirm-selection-message'
-					);
-
-					if (!confirmSelection || confirm(confirmSelectionMessage)) {
-						if (disableButton !== false) {
-							selectorButtons.prop('disabled', false);
-
-							currentTarget.prop('disabled', true);
-						}
-
-						var result = Util.getAttributes(currentTarget, 'data-');
-
-						openingLiferay.fire(selectEventName, result);
-
-						Util.getWindow().hide();
-					}
-				}
-			});
-
-			openingLiferay.on('entitySelectionRemoved', () => {
-				selectorButtons.prop('disabled', false);
-			});
-		},
-
 		selectFolder(folderData, namespace) {
-			$('#' + namespace + folderData.idString).val(folderData.idValue);
+			const folderDataElement = document.getElementById(
+				namespace + folderData.idString
+			);
 
-			var name = Liferay.Util.unescape(folderData.nameValue);
+			if (folderDataElement) {
+				folderDataElement.value = folderData.idValue;
+			}
 
-			$('#' + namespace + folderData.nameString).val(name);
+			const folderNameElement = document.getElementById(
+				namespace + folderData.nameString
+			);
 
-			var button = $('#' + namespace + 'removeFolderButton');
+			if (folderNameElement) {
+				folderNameElement.value = this.unescape(folderData.nameValue);
+			}
 
-			Liferay.Util.toggleDisabled(button, false);
+			const removeFolderButton = document.getElementById(
+				`${namespace}removeFolderButton`
+			);
+
+			if (removeFolderButton) {
+				this.toggleDisabled(removeFolderButton, false);
+			}
 		},
 
 		setCursorPosition(el, position) {
@@ -1122,7 +1164,8 @@
 				el.focus();
 
 				el.setSelectionRange(selectionStart, selectionEnd);
-			} else if (el.createTextRange) {
+			}
+			else if (el.createTextRange) {
 				var textRange = el.createTextRange();
 
 				textRange.collapse(true);
@@ -1134,23 +1177,27 @@
 			}
 		},
 
-		showCapsLock(event, span) {
-			var keyCode = event.keyCode ? event.keyCode : event.which;
+		showCapsLock(event, spanId) {
+			const span = document.getElementById(spanId);
 
-			var shiftKeyCode = keyCode === 16;
+			if (span) {
+				var keyCode = event.keyCode ? event.keyCode : event.which;
 
-			var shiftKey = event.shiftKey ? event.shiftKey : shiftKeyCode;
+				var shiftKeyCode = keyCode === 16;
 
-			var display = 'none';
+				var shiftKey = event.shiftKey ? event.shiftKey : shiftKeyCode;
 
-			if (
-				(keyCode >= 65 && keyCode <= 90 && !shiftKey) ||
-				(keyCode >= 97 && keyCode <= 122 && shiftKey)
-			) {
-				display = '';
+				var display = 'none';
+
+				if (
+					(keyCode >= 65 && keyCode <= 90 && !shiftKey) ||
+					(keyCode >= 97 && keyCode <= 122 && shiftKey)
+				) {
+					display = '';
+				}
+
+				span.style.display = display;
 			}
-
-			$('#' + span).css('display', display);
 		},
 
 		sortByAscending(a, b) {
@@ -1199,112 +1246,161 @@
 			displayWhenUnchecked,
 			toggleChildCheckboxes
 		) {
-			var checkBox = $('#' + checkBoxId);
-			var toggleBox = $('#' + toggleBoxId);
+			const checkBox = document.getElementById(checkBoxId);
+			const toggleBox = document.getElementById(toggleBoxId);
 
-			var checked = checkBox.prop(STR_CHECKED);
+			if (checkBox && toggleBox) {
+				let checked = checkBox.checked;
 
-			if (displayWhenUnchecked) {
-				checked = !checked;
-			}
-
-			toggleBox.toggleClass('hide', !checked);
-
-			checkBox.on(EVENT_CLICK, () => {
-				toggleBox.toggleClass('hide');
-
-				if (toggleChildCheckboxes) {
-					var childCheckboxes = toggleBox.find(
-						'input[type=checkbox]'
-					);
-
-					childCheckboxes.prop(
-						STR_CHECKED,
-						checkBox.prop(STR_CHECKED)
-					);
+				if (displayWhenUnchecked) {
+					checked = !checked;
 				}
-			});
+
+				if (checked) {
+					toggleBox.classList.remove('hide');
+				}
+				else {
+					toggleBox.classList.add('hide');
+				}
+
+				checkBox.addEventListener(EVENT_CLICK, () => {
+					toggleBox.classList.toggle('hide');
+
+					if (toggleChildCheckboxes) {
+						const childCheckboxes = toggleBox.querySelectorAll(
+							'input[type=checkbox]'
+						);
+
+						childCheckboxes.forEach(childCheckbox => {
+							childCheckbox.checked = checkBox.checked;
+						});
+					}
+				});
+			}
 		},
 
-		toggleDisabled(button, state) {
-			button = Util.getDOM(button);
+		toggleDisabled(nodes, state) {
+			if (typeof nodes === 'string') {
+				nodes = document.querySelectorAll(nodes);
+			}
+			else if (nodes._node) {
+				nodes = [nodes.getDOM()];
+			}
+			else if (nodes._nodes) {
+				nodes = nodes.getDOM();
+			}
+			else if (nodes.nodeType === 1) {
+				nodes = [nodes];
+			}
 
-			button = $(button);
+			nodes.forEach(node => {
+				node.disabled = state;
 
-			button.each((index, item) => {
-				item = $(item);
-
-				item.prop('disabled', state);
-
-				item.toggleClass('disabled', state);
+				if (state) {
+					node.classList.add('disabled');
+				}
+				else {
+					node.classList.remove('disabled');
+				}
 			});
 		},
 
 		toggleRadio(radioId, showBoxIds, hideBoxIds) {
-			var radioButton = $('#' + radioId);
+			const radioButton = document.getElementById(radioId);
 
-			var showBoxes;
+			if (radioButton) {
+				let showBoxes;
 
-			if (showBoxIds) {
-				if (Array.isArray(showBoxIds)) {
-					showBoxIds = showBoxIds.join(',#');
-				}
-
-				showBoxes = $('#' + showBoxIds);
-
-				showBoxes.toggleClass('hide', !radioButton.prop(STR_CHECKED));
-			}
-
-			radioButton.on('change', () => {
-				if (showBoxes) {
-					showBoxes.removeClass('hide');
-				}
-
-				if (hideBoxIds) {
-					if (Array.isArray(hideBoxIds)) {
-						hideBoxIds = hideBoxIds.join(',#');
+				if (showBoxIds) {
+					if (Array.isArray(showBoxIds)) {
+						showBoxIds = showBoxIds.join(',#');
 					}
 
-					$('#' + hideBoxIds).addClass('hide');
+					showBoxes = document.querySelectorAll('#' + showBoxIds);
+
+					showBoxes.forEach(showBox => {
+						if (radioButton.checked) {
+							showBox.classList.remove('hide');
+						}
+						else {
+							showBox.classList.add('hide');
+						}
+					});
 				}
-			});
+
+				radioButton.addEventListener('change', () => {
+					if (showBoxes) {
+						showBoxes.forEach(showBox => {
+							showBox.classList.remove('hide');
+						});
+					}
+
+					if (hideBoxIds) {
+						if (Array.isArray(hideBoxIds)) {
+							hideBoxIds = hideBoxIds.join(',#');
+						}
+
+						const hideBoxes = document.querySelectorAll(
+							'#' + hideBoxIds
+						);
+
+						hideBoxes.forEach(hideBox => {
+							hideBox.classList.add('hide');
+						});
+					}
+				});
+			}
 		},
 
+		/*
+		 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+		 */
 		toggleSearchContainerButton(
 			buttonId,
 			searchContainerId,
 			form,
 			ignoreFieldName
 		) {
-			$(searchContainerId).on(EVENT_CLICK, 'input[type=checkbox]', () => {
-				Util.toggleDisabled(
-					buttonId,
-					!Util.listCheckedExcept(form, ignoreFieldName)
-				);
-			});
+			A.one(searchContainerId).delegate(
+				EVENT_CLICK,
+				() => {
+					Util.toggleDisabled(
+						buttonId,
+						!Util.listCheckedExcept(form, ignoreFieldName)
+					);
+				},
+				'input[type=checkbox]'
+			);
 		},
 
 		toggleSelectBox(selectBoxId, value, toggleBoxId) {
-			var selectBox = $('#' + selectBoxId);
-			var toggleBox = $('#' + toggleBoxId);
+			var selectBox = document.getElementById(selectBoxId);
+			var toggleBox = document.getElementById(toggleBoxId);
 
-			var dynamicValue = this.isFunction(value);
+			if (selectBox && toggleBox) {
+				var dynamicValue = this.isFunction(value);
 
-			var toggle = function() {
-				var currentValue = selectBox.val();
+				var toggle = function() {
+					var currentValue = selectBox.value;
 
-				var visible = value == currentValue;
+					var visible = value == currentValue;
 
-				if (dynamicValue) {
-					visible = value(currentValue, value);
-				}
+					if (dynamicValue) {
+						visible = value(currentValue, value);
+					}
 
-				toggleBox.toggleClass('hide', !visible);
-			};
+					if (visible) {
+						toggleBox.classList.remove('hide');
+					}
+					else {
+						toggleBox.classList.add('hide');
+					}
+				};
 
-			toggle();
+				toggle();
 
-			selectBox.on('change', toggle);
+				selectBox.addEventListener('change', toggle);
+			}
 		}
 	};
 
@@ -1512,12 +1608,80 @@
 					if (Lang.isFunction(onSuccess)) {
 						onSuccess();
 					}
-				} catch (e) {
+				}
+				catch (e) {
 					if (Lang.isFunction(onError)) {
 						onError(e);
 					}
 				}
 			}
+		},
+		['aui-base']
+	);
+
+	Liferay.provide(
+		Util,
+		'selectEntityHandler',
+		(containerSelector, selectEventName, disableButton) => {
+			const container = A.one(containerSelector);
+
+			if (!container) {
+				return;
+			}
+
+			const openingLiferay = Util.getOpener().Liferay;
+
+			const selectorButtons = container
+				.getDOM()
+				.querySelectorAll('.selector-button');
+
+			container.delegate(
+				EVENT_CLICK,
+				event => {
+					const currentTarget = event.currentTarget.getDOM();
+
+					if (
+						currentTarget.disabled ||
+						currentTarget.dataset['preventSelection']
+					) {
+						return;
+					}
+
+					const confirmSelection =
+						currentTarget.dataset['confirmSelection'] === 'true';
+
+					if (
+						!confirmSelection ||
+						confirm(
+							currentTarget.dataset['confirmSelectionMessage']
+						)
+					) {
+						if (disableButton) {
+							selectorButtons.forEach(selectorButton => {
+								selectorButton.disabled = false;
+							});
+
+							currentTarget.disabled = true;
+						}
+
+						const result = Util.getAttributes(
+							currentTarget,
+							'data-'
+						);
+
+						openingLiferay.fire(selectEventName, result);
+
+						Util.getWindow().hide();
+					}
+				},
+				'.selector-button'
+			);
+
+			openingLiferay.on('entitySelectionRemoved', () => {
+				selectorButtons.forEach(selectorButton => {
+					selectorButton.disabled = false;
+				});
+			});
 		},
 		['aui-base']
 	);
@@ -1600,7 +1764,8 @@
 				);
 
 				dialog.show();
-			} else {
+			}
+			else {
 				var destroyDialog = function(event) {
 					var dialogId = config.id;
 
@@ -1712,7 +1877,8 @@
 				);
 
 				dialog.show();
-			} else {
+			}
+			else {
 				var destroyDialog = function(event) {
 					var dialogId = config.id;
 
@@ -1872,7 +2038,8 @@
 
 			if (redirect) {
 				openingWindow.Liferay.Util.navigate(redirect);
-			} else {
+			}
+			else {
 				var refresh = event.refresh;
 
 				if (refresh && openingWindow) {

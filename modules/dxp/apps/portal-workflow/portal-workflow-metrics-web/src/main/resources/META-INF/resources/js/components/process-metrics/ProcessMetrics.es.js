@@ -9,22 +9,19 @@
  * distribution rights of the Software.
  */
 
-import React from 'react';
-import {Route, HashRouter as Router, Switch} from 'react-router-dom';
+import React, {useContext, useMemo} from 'react';
+import {Route, Switch} from 'react-router-dom';
 
+import HeaderKebab from '../../shared/components/header/HeaderKebab.es';
 import {parse, stringify} from '../../shared/components/router/queryString.es';
 import {
 	getPathname,
 	withParams
 } from '../../shared/components/router/routerUtil.es';
-import {ChildLink} from '../../shared/components/router/routerWrapper.es';
 import Tabs from '../../shared/components/tabs/Tabs.es';
-import {sub} from '../../shared/util/lang.es';
-import {openErrorToast} from '../../shared/util/toast.es';
 import {AppContext} from '../AppContext.es';
 import {useTimeRangeFetch} from '../filter/hooks/useTimeRangeFetch.es';
-import AlertMessage from './AlertMessage.es';
-import DropDownHeader from './DropDownHeader.es';
+import SLAInfo from './SLAInfo.es';
 import CompletionVelocityCard from './completion-velocity/CompletionVelocityCard.es';
 import PerformanceByAssigneeCard from './performance-by-assignee-card/PerformanceByAssigneeCard.es';
 import PerformanceByStepCard from './performance-by-step-card/PerformanceByStepCard.es';
@@ -32,164 +29,6 @@ import CompletedItemsCard from './process-items/CompletedItemsCard.es';
 import PendingItemsCard from './process-items/PendingItemsCard.es';
 import WorkloadByAssigneeCard from './workload-by-assignee-card/WorkloadByAssigneeCard.es';
 import WorkloadByStepCard from './workload-by-step-card/WorkloadByStepCard.es';
-
-class ProcessMetrics extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {blockedSLACount: 0, slaCount: null};
-	}
-
-	componentDidMount() {
-		Promise.all([this.loadBlockedSLACount(), this.loadSLACount()])
-			.then(([blockedSLACount, slaCount]) =>
-				this.setState({blockedSLACount, slaCount})
-			)
-			.catch(this.showLoadingError);
-	}
-
-	loadBlockedSLACount() {
-		return this.context.client
-			.get(
-				`/processes/${this.props.processId}/slas?page=1&pageSize=1&status=2`
-			)
-			.then(({data: {totalCount}}) => totalCount)
-			.catch(this.showLoadingError);
-	}
-
-	loadSLACount() {
-		return this.context.client
-			.get(`/processes/${this.props.processId}/slas?page=1&pageSize=1`)
-			.then(({data: {totalCount}}) => totalCount)
-			.catch(this.showLoadingError);
-	}
-
-	showLoadingError() {
-		openErrorToast({
-			message: Liferay.Language.get(
-				'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
-			)
-		});
-	}
-
-	render() {
-		const {blockedSLACount = 0, slaCount} = this.state;
-		const {history, processId, query} = this.props;
-		const {defaultDelta} = this.context;
-
-		let blockedSLAText = Liferay.Language.get('x-sla-is-blocked');
-
-		if (blockedSLACount !== 1) {
-			blockedSLAText = Liferay.Language.get('x-slas-are-blocked');
-		}
-
-		const dashboardTab = {
-			key: 'dashboard',
-			name: Liferay.Language.get('dashboard'),
-			params: {
-				page: 1,
-				pageSize: defaultDelta,
-				processId,
-				sort: encodeURIComponent('overdueInstanceCount:asc')
-			},
-			path: '/metrics/:processId/dashboard/:pageSize/:page/:sort'
-		};
-		const performanceTab = {
-			key: 'performance',
-			name: Liferay.Language.get('performance'),
-			params: {
-				processId
-			},
-			path: '/metrics/:processId/performance'
-		};
-
-		if (history.location.pathname === `/metrics/${processId}`) {
-			const pathname = getPathname(
-				dashboardTab.params,
-				dashboardTab.path
-			);
-
-			const search = stringify({
-				...parse(query),
-				filters: {taskKeys: ['allSteps']}
-			});
-
-			history.replace({pathname, search});
-		}
-
-		return (
-			<div className="workflow-process-dashboard">
-				<DropDownHeader>
-					<DropDownHeader.Item>
-						<ChildLink
-							className="dropdown-item"
-							to={`/slas/${processId}/${defaultDelta}/1`}
-						>
-							{Liferay.Language.get('sla-settings')}
-						</ChildLink>
-					</DropDownHeader.Item>
-				</DropDownHeader>
-
-				<Tabs tabs={[dashboardTab, performanceTab]} />
-
-				{!!blockedSLACount && (
-					<AlertMessage className="mb-0" iconName="exclamation-full">
-						<>
-							{`${sub(blockedSLAText, [
-								blockedSLACount
-							])} ${Liferay.Language.get(
-								'fix-the-sla-configuration-to-resume-accurate-reporting'
-							)} `}
-
-							<ChildLink
-								to={`/slas/${processId}/${defaultDelta}/1`}
-							>
-								<strong>
-									{Liferay.Language.get('set-up-slas')}
-								</strong>
-							</ChildLink>
-						</>
-					</AlertMessage>
-				)}
-
-				{slaCount === 0 && (
-					<AlertMessage
-						className="mb-0"
-						iconName="warning-full"
-						type="warning"
-					>
-						<>
-							{`${Liferay.Language.get(
-								'no-slas-are-defined-for-this-process'
-							)} `}
-
-							<ChildLink to={`/sla/new/${processId}`}>
-								<strong>
-									{Liferay.Language.get('add-a-new-sla')}
-								</strong>
-							</ChildLink>
-						</>
-					</AlertMessage>
-				)}
-
-				<Router>
-					<Switch>
-						<Route
-							exact
-							path={dashboardTab.path}
-							render={withParams(DashboardTab)}
-						/>
-
-						<Route
-							exact
-							path={performanceTab.path}
-							render={withParams(PerformanceTab)}
-						/>
-					</Switch>
-				</Router>
-			</div>
-		);
-	}
-}
 
 const DashboardTab = props => {
 	return (
@@ -222,5 +61,79 @@ const PerformanceTab = props => {
 	);
 };
 
-ProcessMetrics.contextType = AppContext;
+const ProcessMetrics = ({history, processId, query}) => {
+	const {defaultDelta} = useContext(AppContext);
+
+	const dashboardTab = useMemo(
+		() => ({
+			key: 'dashboard',
+			name: Liferay.Language.get('dashboard'),
+			params: {
+				page: 1,
+				pageSize: defaultDelta,
+				processId,
+				sort: encodeURIComponent('overdueInstanceCount:asc')
+			},
+			path: '/metrics/:processId/dashboard/:pageSize/:page/:sort'
+		}),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[processId]
+	);
+
+	const performanceTab = useMemo(
+		() => ({
+			key: 'performance',
+			name: Liferay.Language.get('performance'),
+			params: {processId},
+			path: '/metrics/:processId/performance'
+		}),
+		[processId]
+	);
+
+	if (history.location.pathname === `/metrics/${processId}`) {
+		const pathname = getPathname(dashboardTab.params, dashboardTab.path);
+
+		const search = stringify({
+			...parse(query),
+			filters: {taskKeys: ['allSteps']}
+		});
+
+		history.replace({pathname, search});
+	}
+
+	return (
+		<div
+			className="workflow-process-dashboard"
+			data-testid="processMetricsDashBoard"
+		>
+			<HeaderKebab
+				kebabItems={[
+					{
+						label: Liferay.Language.get('sla-settings'),
+						link: `/slas/${processId}/${defaultDelta}/1`
+					}
+				]}
+			/>
+
+			<Tabs tabs={[dashboardTab, performanceTab]} />
+
+			<SLAInfo processId={processId} />
+
+			<Switch>
+				<Route
+					exact
+					path={dashboardTab.path}
+					render={withParams(DashboardTab)}
+				/>
+
+				<Route
+					exact
+					path={performanceTab.path}
+					render={withParams(PerformanceTab)}
+				/>
+			</Switch>
+		</div>
+	);
+};
+
 export default ProcessMetrics;

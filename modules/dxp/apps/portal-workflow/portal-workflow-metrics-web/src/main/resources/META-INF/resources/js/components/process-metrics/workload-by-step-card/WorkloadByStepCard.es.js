@@ -9,159 +9,39 @@
  * distribution rights of the Software.
  */
 
-import {ClayTooltipProvider} from '@clayui/tooltip';
-import React from 'react';
+import React, {useMemo} from 'react';
 
-import Icon from '../../../shared/components/Icon.es';
 import Panel from '../../../shared/components/Panel.es';
-import ListView from '../../../shared/components/list/ListView.es';
-import ReloadButton from '../../../shared/components/list/ReloadButton.es';
-import PaginationBar from '../../../shared/components/pagination-bar/PaginationBar.es';
-import {AppContext} from '../../AppContext.es';
-import WorkloadByStepCardTable from './WorkloadByStepCardTable.es';
+import PromisesResolver from '../../../shared/components/promises-resolver/PromisesResolver.es';
+import {useFetch} from '../../../shared/hooks/useFetch.es';
+import {Body} from './WorkloadByStepCardBody.es';
 
-class WorkloadByStepCard extends React.Component {
-	constructor(props) {
-		super(props);
+const WorkloadByStepCard = ({processId, routeParams}) => {
+	const {data, fetchData} = useFetch({
+		params: routeParams,
+		url: `/processes/${processId}/tasks`
+	});
 
-		this.state = {
-			error: null,
-			items: [],
-			loading: false,
-			totalCount: 0
-		};
-	}
+	const promises = useMemo(() => [fetchData()], [fetchData]);
 
-	componentDidMount() {
-		return this.loadData(this.props);
-	}
-
-	componentWillUnmount() {
-		this.unmounted = true;
-	}
-
-	componentWillReceiveProps(nextProps) {
-		const {page, pageSize, processId, sort} = this.props;
-
-		if (
-			nextProps.page !== page ||
-			nextProps.pageSize !== pageSize ||
-			nextProps.processId !== processId ||
-			nextProps.sort !== sort
-		) {
-			return this.loadData(nextProps);
-		}
-	}
-
-	loadData(props = this.props) {
-		const {loading} = this.state;
-
-		if (loading) {
-			return;
-		}
-
-		return this.requestData(props)
-			.then(({items, totalCount}) =>
-				this.setState({
-					error: null,
-					items,
-					totalCount
-				})
-			)
-			.catch(() =>
-				this.setState({
-					error: Liferay.Language.get(
-						'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
-					),
-					loading: false
-				})
-			);
-	}
-
-	requestData({page, pageSize, processId, sort}) {
-		const {client} = this.context;
-
-		this.setState({
-			loading: true
-		});
-
-		return client
-			.get(
-				`/processes/${processId}/tasks?page=${page}&pageSize=${pageSize}&sort=${sort}`
-			)
-			.then(({data}) => {
-				this.setState({
-					loading: false
-				});
-
-				return data;
-			});
-	}
-
-	setState(newState) {
-		if (!this.unmounted) {
-			super.setState(newState);
-		}
-	}
-
-	render() {
-		const emptyMessageText = Liferay.Language.get(
-			'there-are-no-pending-items-at-the-moment'
-		);
-		const {error, items = [], loading, totalCount} = this.state;
-		const {page, pageSize, processId} = this.props;
-
-		const fetching = !loading && !totalCount;
-
-		return (
+	return (
+		<PromisesResolver promises={promises}>
 			<Panel className="container-fluid-1280 mt-4">
-				<Panel.Header elementClasses={'dashboard-panel-header'}>
-					<div>
-						<span className={'mr-2'}>
-							{Liferay.Language.get('workload-by-step')}
-						</span>
-						<ClayTooltipProvider>
-							<span>
-								<span
-									className="workflow-tooltip"
-									data-tooltip-align={'right'}
-									title={Liferay.Language.get(
-										'workload-by-step-description'
-									)}
-								>
-									<Icon iconName={'question-circle-full'} />
-								</span>
-							</span>
-						</ClayTooltipProvider>
-					</div>
-				</Panel.Header>
-				<Panel.Body>
-					<ListView
-						className="border-0"
-						emptyActionButton={<ReloadButton />}
-						emptyMessageClassName="small"
-						emptyMessageText={emptyMessageText}
-						errorMessageText={error}
-						fetching={fetching}
-						hideAnimation
-						loading={loading}
-					>
-						<WorkloadByStepCardTable
-							items={items}
-							processId={processId}
-						/>
+				<Panel.HeaderWithOptions
+					description={Liferay.Language.get(
+						'workload-by-step-description'
+					)}
+					elementClasses="dashboard-panel-header"
+					title={Liferay.Language.get('workload-by-step')}
+					tooltipPosition="bottom"
+				/>
 
-						<PaginationBar
-							page={page}
-							pageSize={pageSize}
-							totalCount={totalCount}
-						/>
-					</ListView>
-				</Panel.Body>
+				<WorkloadByStepCard.Body {...data} {...routeParams} />
 			</Panel>
-		);
-	}
-}
+		</PromisesResolver>
+	);
+};
 
-WorkloadByStepCard.contextType = AppContext;
+WorkloadByStepCard.Body = Body;
+
 export default WorkloadByStepCard;

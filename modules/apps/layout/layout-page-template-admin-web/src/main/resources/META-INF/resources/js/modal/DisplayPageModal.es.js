@@ -17,7 +17,7 @@ import ClayButton from '@clayui/button';
 import ClayModal, {useModal} from '@clayui/modal';
 import {fetch, navigate} from 'frontend-js-web';
 import PropTypes from 'prop-types';
-import React, {useState, useCallback, useRef} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 
 import DisplayPageModalForm from './DisplayPageModalForm.es';
 
@@ -67,6 +67,7 @@ const DisplayPageModal = props => {
 
 			if (Object.keys(error).length !== 0) {
 				setError(error);
+
 				return;
 			}
 
@@ -81,7 +82,8 @@ const DisplayPageModal = props => {
 					if (responseContent.error) {
 						setLoading(false);
 						setError(responseContent.error);
-					} else if (responseContent.redirectURL) {
+					}
+					else if (responseContent.redirectURL) {
 						navigate(responseContent.redirectURL, {
 							beforeScreenFlip: onClose
 						});

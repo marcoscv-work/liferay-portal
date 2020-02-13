@@ -30,13 +30,11 @@ import com.liferay.gradle.plugins.defaults.internal.util.GitRepo;
 import com.liferay.gradle.plugins.defaults.internal.util.GitUtil;
 import com.liferay.gradle.plugins.defaults.internal.util.GradlePluginsDefaultsUtil;
 import com.liferay.gradle.plugins.defaults.internal.util.GradleUtil;
-import com.liferay.gradle.plugins.defaults.internal.util.spec.SkipIfMatchesIgnoreProjectRegexTaskSpec;
+import com.liferay.gradle.plugins.defaults.internal.util.LiferayRelengUtil;
 import com.liferay.gradle.plugins.defaults.tasks.MergeFilesTask;
 import com.liferay.gradle.plugins.defaults.tasks.ReplaceRegexTask;
 import com.liferay.gradle.plugins.defaults.tasks.WriteArtifactPublishCommandsTask;
 import com.liferay.gradle.plugins.defaults.tasks.WritePropertiesTask;
-import com.liferay.gradle.plugins.js.transpiler.JSTranspilerBasePlugin;
-import com.liferay.gradle.plugins.js.transpiler.JSTranspilerPlugin;
 import com.liferay.gradle.plugins.node.NodePlugin;
 import com.liferay.gradle.util.Validator;
 
@@ -46,14 +44,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-import java.lang.reflect.Method;
-
-import java.nio.file.Files;
-
 import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.gradle.StartParameter;
 import org.gradle.api.Action;
@@ -63,11 +57,8 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.artifacts.PublishArtifactSet;
-import org.gradle.api.artifacts.dsl.RepositoryHandler;
-import org.gradle.api.artifacts.maven.MavenDeployer;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.invocation.Gradle;
@@ -76,16 +67,13 @@ import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.MavenPlugin;
-import org.gradle.api.plugins.MavenRepositoryHandlerConvention;
 import org.gradle.api.plugins.WarPlugin;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskOutputs;
-import org.gradle.api.tasks.Upload;
 import org.gradle.util.CollectionUtils;
-import org.gradle.util.GUtil;
 
 /**
  * @author Andrea Di Giorgi
@@ -113,25 +101,9 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 	public static final String WRITE_ARTIFACT_PUBLISH_COMMANDS =
 		"writeArtifactPublishCommands";
 
-	public static File getRelengDir(File projectDir) {
-		File rootDir = GradleUtil.getRootDir(projectDir, _RELENG_DIR_NAME);
-
-		if (rootDir == null) {
-			return null;
-		}
-
-		File relengDir = new File(rootDir, _RELENG_DIR_NAME);
-
-		return new File(relengDir, FileUtil.relativize(projectDir, rootDir));
-	}
-
-	public static File getRelengDir(Project project) {
-		return getRelengDir(project.getProjectDir());
-	}
-
 	@Override
 	public void apply(final Project project) {
-		File relengDir = getRelengDir(project);
+		File relengDir = LiferayRelengUtil.getRelengDir(project);
 
 		if (relengDir == null) {
 			return;
@@ -321,25 +293,39 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 
 			});
 
-		task.onlyIf(
-			new Spec<Task>() {
+		Spec<Task> onlyIfSpec = new Spec<Task>() {
 
-				@Override
-				public boolean isSatisfiedBy(Task task) {
-					Project project = task.getProject();
+			@Override
+			public boolean isSatisfiedBy(Task task) {
+				Project project = task.getProject();
 
-					if (!GradlePluginsDefaultsUtil.isTestProject(project) &&
-						_hasStaleProjectDependencies(project)) {
+				String ignoreProjectRegex = GradleUtil.getTaskPrefixedProperty(
+					task, "ignore.project.regex");
 
-						return true;
+				if (Validator.isNotNull(ignoreProjectRegex)) {
+					Pattern pattern = Pattern.compile(ignoreProjectRegex);
+
+					Matcher matcher = pattern.matcher(project.getName());
+
+					if (matcher.find()) {
+						return false;
 					}
+				}
 
+				if (GradlePluginsDefaultsUtil.isTestProject(project)) {
 					return false;
 				}
 
-			});
+				if (!LiferayRelengUtil.hasUnpublishedDependencies(project)) {
+					return false;
+				}
 
-		task.onlyIf(_skipIfMatchesIgnoreProjectRegexTaskSpec);
+				return true;
+			}
+
+		};
+
+		task.onlyIf(onlyIfSpec);
 
 		task.setDescription(
 			"Prints the project directory if this project contains " +
@@ -350,7 +336,7 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 	}
 
 	private Task _addTaskPrintStaleArtifact(
-		Project project, final WritePropertiesTask recordArtifactTask) {
+		Project project, WritePropertiesTask recordArtifactTask) {
 
 		final Task task = project.task(PRINT_STALE_ARTIFACT_TASK_NAME);
 
@@ -373,7 +359,8 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 				"since the last publish.");
 		task.setGroup(JavaBasePlugin.VERIFICATION_GROUP);
 
-		_configureTaskEnabledIfStale(task, recordArtifactTask);
+		_configureTaskPrintStaleArtifactOnlyIf(
+			project, task, recordArtifactTask);
 
 		GradleUtil.withPlugin(
 			project, LiferayOSGiDefaultsPlugin.class,
@@ -465,7 +452,7 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 
 						@Override
 						public String call() throws Exception {
-							return _getArtifactRemoteURL(
+							return LiferayRelengUtil.getArtifactRemoteURL(
 								writePropertiesTask.getProject(),
 								publishArtifact, false);
 						}
@@ -534,32 +521,8 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 			CollectionUtils.first(
 				cleanArtifactsPublishCommandsTask.getDelete()));
 
-		_configureTaskEnabledIfStale(
-			writeArtifactPublishCommandsTask, recordArtifactTask);
-
-		String projectPath = project.getPath();
-
-		if (projectPath.startsWith(":apps:") ||
-			projectPath.startsWith(":dxp:apps:") ||
-			projectPath.startsWith(":dxp:util:") ||
-			projectPath.startsWith(":private:apps:") ||
-			projectPath.startsWith(":private:util:") ||
-			projectPath.startsWith(":util:")) {
-
-			writeArtifactPublishCommandsTask.onlyIf(
-				new Spec<Task>() {
-
-					@Override
-					public boolean isSatisfiedBy(Task task) {
-						if (_hasStaleProjectDependencies(task.getProject())) {
-							return false;
-						}
-
-						return true;
-					}
-
-				});
-		}
+		_configureTaskWriteArtifactPublishCommandsOnlyIf(
+			project, writeArtifactPublishCommandsTask, recordArtifactTask);
 
 		GradleUtil.withPlugin(
 			project, LiferayOSGiDefaultsPlugin.class,
@@ -710,100 +673,95 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 			});
 	}
 
-	private void _configureTaskEnabledIfStale(
-		Task task, final WritePropertiesTask recordArtifactTask) {
-
-		String force = GradleUtil.getTaskPrefixedProperty(task, "force");
-
-		if (Boolean.parseBoolean(force)) {
-			return;
-		}
-
-		Project project = task.getProject();
-
-		if (GradleUtil.hasPlugin(project, LiferayThemeDefaultsPlugin.class) &&
-			GradlePluginsDefaultsUtil.hasNPMParentThemesDependencies(project)) {
-
-			task.dependsOn(NodePlugin.NPM_INSTALL_TASK_NAME);
-		}
-
-		task.onlyIf(
-			new Spec<Task>() {
-
-				@Override
-				public boolean isSatisfiedBy(Task task) {
-					Project project = task.getProject();
-
-					File projectDir = project.getProjectDir();
-
-					String result = GitUtil.getGitResult(
-						project, "ls-files",
-						FileUtil.getAbsolutePath(projectDir));
-
-					if (Validator.isNotNull(result)) {
-						return true;
-					}
-
-					return false;
-				}
-
-			});
-
-		task.onlyIf(
-			new Spec<Task>() {
-
-				@Override
-				public boolean isSatisfiedBy(Task task) {
-					File gitRepoDir = GradleUtil.getRootDir(
-						task.getProject(), GitRepo.GIT_REPO_FILE_NAME);
-
-					if (gitRepoDir != null) {
-						File file = new File(
-							gitRepoDir, GitRepo.GIT_REPO_FILE_NAME);
-
-						try {
-							if (!FileUtil.contains(file, "mode = push")) {
-								return false;
-							}
-						}
-						catch (IOException ioException) {
-							throw new UncheckedIOException(ioException);
-						}
-					}
-
-					File relengIgnoreDir = GradleUtil.getRootDir(
-						task.getProject(), RELENG_IGNORE_FILE_NAME);
-
-					if (relengIgnoreDir != null) {
-						return false;
-					}
-
-					return true;
-				}
-
-			});
-
-		task.onlyIf(
-			new Spec<Task>() {
-
-				@Override
-				public boolean isSatisfiedBy(Task task) {
-					Project project = recordArtifactTask.getProject();
-
-					return _isStale(
-						project, project.getProjectDir(),
-						recordArtifactTask.getOutputFile());
-				}
-
-			});
-
-		task.onlyIf(_skipIfMatchesIgnoreProjectRegexTaskSpec);
-	}
-
 	private void _configureTaskPrintStaleArtifactForOSGi(Task task) {
 		if (GradlePluginsDefaultsUtil.isTestProject(task.getProject())) {
 			task.setEnabled(false);
 		}
+	}
+
+	private void _configureTaskPrintStaleArtifactOnlyIf(
+		Project project, Task printStaleArtifactTask,
+		final WritePropertiesTask recordArtifactTask) {
+
+		final boolean liferayThemeProject = GradleUtil.hasPlugin(
+			project, LiferayThemeDefaultsPlugin.class);
+
+		if (liferayThemeProject &&
+			GradlePluginsDefaultsUtil.hasNPMParentThemesDependencies(project)) {
+
+			printStaleArtifactTask.dependsOn(NodePlugin.NPM_INSTALL_TASK_NAME);
+		}
+
+		Spec<Task> onlyIfSpec = new Spec<Task>() {
+
+			@Override
+			public boolean isSatisfiedBy(Task task) {
+				Project project = task.getProject();
+
+				String ignoreProjectRegex = GradleUtil.getTaskPrefixedProperty(
+					task, "ignore.project.regex");
+
+				if (Validator.isNotNull(ignoreProjectRegex)) {
+					Pattern pattern = Pattern.compile(ignoreProjectRegex);
+
+					Matcher matcher = pattern.matcher(project.getName());
+
+					if (matcher.find()) {
+						return false;
+					}
+				}
+
+				File gitRepoDir = GradleUtil.getRootDir(
+					project, GitRepo.GIT_REPO_FILE_NAME);
+
+				if (gitRepoDir != null) {
+					File file = new File(
+						gitRepoDir, GitRepo.GIT_REPO_FILE_NAME);
+
+					try {
+						if (!FileUtil.contains(file, "mode = push")) {
+							return false;
+						}
+					}
+					catch (IOException ioException) {
+						throw new UncheckedIOException(ioException);
+					}
+				}
+
+				File relengIgnoreDir = GradleUtil.getRootDir(
+					project, RELENG_IGNORE_FILE_NAME);
+
+				if (relengIgnoreDir != null) {
+					return false;
+				}
+
+				String result = GitUtil.getGitResult(
+					project, "ls-files",
+					FileUtil.getAbsolutePath(project.getProjectDir()));
+
+				if (Validator.isNull(result)) {
+					return false;
+				}
+
+				if (liferayThemeProject &&
+					LiferayRelengUtil.hasStaleParentTheme(project)) {
+
+					return true;
+				}
+
+				if (LiferayRelengUtil.hasUnpublishedCommits(
+						project, project.getProjectDir(),
+						recordArtifactTask.getOutputFile())) {
+
+					return true;
+				}
+
+				return false;
+			}
+
+		};
+
+		printStaleArtifactTask.onlyIf(onlyIfSpec);
 	}
 
 	@SuppressWarnings("serial")
@@ -856,331 +814,103 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 			LiferayOSGiDefaultsPlugin.UPDATE_FILE_VERSIONS_TASK_NAME);
 	}
 
-	private StringBuilder _getArtifactRemoteBaseURL(
-			Project project, boolean cdn)
-		throws Exception {
+	private void _configureTaskWriteArtifactPublishCommandsOnlyIf(
+		Project project,
+		WriteArtifactPublishCommandsTask writeArtifactPublishCommandsTask,
+		final WritePropertiesTask recordArtifactTask) {
 
-		Upload upload = (Upload)GradleUtil.getTask(
-			project, BasePlugin.UPLOAD_ARCHIVES_TASK_NAME);
+		String force = GradleUtil.getTaskPrefixedProperty(
+			writeArtifactPublishCommandsTask, "force");
 
-		RepositoryHandler repositoryHandler = upload.getRepositories();
-
-		MavenDeployer mavenDeployer = (MavenDeployer)repositoryHandler.getAt(
-			MavenRepositoryHandlerConvention.DEFAULT_MAVEN_DEPLOYER_NAME);
-
-		Object repository = mavenDeployer.getRepository();
-
-		// org.apache.maven.artifact.ant.RemoteRepository is not in the
-		// classpath
-
-		Class<?> repositoryClass = repository.getClass();
-
-		Method getUrlMethod = repositoryClass.getMethod("getUrl");
-
-		String url = (String)getUrlMethod.invoke(repository);
-
-		if (cdn) {
-			url = url.replace("http://", "http://cdn.");
-			url = url.replace("https://", "https://cdn.");
+		if (Boolean.parseBoolean(force)) {
+			return;
 		}
 
-		StringBuilder sb = new StringBuilder(url);
+		final boolean liferayThemeProject = GradleUtil.hasPlugin(
+			project, LiferayThemeDefaultsPlugin.class);
 
-		if (sb.charAt(sb.length() - 1) != '/') {
-			sb.append('/');
+		if (liferayThemeProject &&
+			GradlePluginsDefaultsUtil.hasNPMParentThemesDependencies(project)) {
+
+			writeArtifactPublishCommandsTask.dependsOn(
+				NodePlugin.NPM_INSTALL_TASK_NAME);
 		}
 
-		String group = String.valueOf(project.getGroup());
+		Spec<Task> onlyIfSpec = new Spec<Task>() {
 
-		sb.append(group.replace('.', '/'));
+			@Override
+			public boolean isSatisfiedBy(Task task) {
+				Project project = task.getProject();
 
-		sb.append('/');
+				String ignoreProjectRegex = GradleUtil.getTaskPrefixedProperty(
+					task, "ignore.project.regex");
 
-		return sb;
-	}
+				if (Validator.isNotNull(ignoreProjectRegex)) {
+					Pattern pattern = Pattern.compile(ignoreProjectRegex);
 
-	private String _getArtifactRemoteURL(
-			Project project, PublishArtifact publishArtifact, boolean cdn)
-		throws Exception {
+					Matcher matcher = pattern.matcher(project.getName());
 
-		StringBuilder sb = _getArtifactRemoteBaseURL(project, cdn);
+					if (matcher.find()) {
+						return false;
+					}
+				}
 
-		String name = GradleUtil.getArchivesBaseName(project);
+				File gitRepoDir = GradleUtil.getRootDir(
+					project, GitRepo.GIT_REPO_FILE_NAME);
 
-		sb.append(name);
+				if (gitRepoDir != null) {
+					File file = new File(
+						gitRepoDir, GitRepo.GIT_REPO_FILE_NAME);
 
-		sb.append('/');
-		sb.append(project.getVersion());
-		sb.append('/');
-		sb.append(name);
-		sb.append('-');
-		sb.append(project.getVersion());
+					try {
+						if (!FileUtil.contains(file, "mode = push")) {
+							return false;
+						}
+					}
+					catch (IOException ioException) {
+						throw new UncheckedIOException(ioException);
+					}
+				}
 
-		String classifier = publishArtifact.getClassifier();
+				File relengIgnoreDir = GradleUtil.getRootDir(
+					project, RELENG_IGNORE_FILE_NAME);
 
-		if (Validator.isNotNull(classifier)) {
-			sb.append('-');
-			sb.append(classifier);
-		}
+				if (relengIgnoreDir != null) {
+					return false;
+				}
 
-		sb.append('.');
-		sb.append(publishArtifact.getExtension());
+				String result = GitUtil.getGitResult(
+					project, "ls-files",
+					FileUtil.getAbsolutePath(project.getProjectDir()));
 
-		return sb.toString();
-	}
+				if (Validator.isNull(result)) {
+					return false;
+				}
 
-	private File _getPortalProjectDir(Project project, Dependency dependency) {
-		File portalRootDir = GradleUtil.getRootDir(
-			project.getRootProject(), "portal-impl");
-
-		if (portalRootDir == null) {
-			return null;
-		}
-
-		String dependencyGroup = dependency.getGroup();
-
-		if (!Objects.equals(dependencyGroup, "com.liferay.portal")) {
-			return null;
-		}
-
-		String dependencyName = dependency.getName();
-
-		if ((dependencyName == null) ||
-			!dependencyName.startsWith("com.liferay.")) {
-
-			return null;
-		}
-
-		String s = dependencyName.substring(12);
-
-		File portalProjectDir = new File(portalRootDir, s.replace('.', '-'));
-
-		if (!portalProjectDir.exists()) {
-			return null;
-		}
-
-		return portalProjectDir;
-	}
-
-	private boolean _hasStaleProjectDependencies(Project project) {
-		for (Configuration configuration : project.getConfigurations()) {
-			String name = configuration.getName();
-
-			if (name.equals(
-					JSTranspilerBasePlugin.JS_COMPILE_CONFIGURATION_NAME) ||
-				name.equals(
-					JSTranspilerPlugin.SOY_COMPILE_CONFIGURATION_NAME) ||
-				name.startsWith("test")) {
-
-				continue;
-			}
-
-			for (Dependency dependency : configuration.getDependencies()) {
-				if (_isStaleProjectDependency(
-						project, configuration, dependency)) {
+				if (liferayThemeProject &&
+					LiferayRelengUtil.hasStaleParentTheme(project)) {
 
 					return true;
 				}
-			}
-		}
 
-		return false;
-	}
+				if (LiferayRelengUtil.hasUnpublishedCommits(
+						project, project.getProjectDir(),
+						recordArtifactTask.getOutputFile())) {
 
-	private boolean _isStale(
-		Project project, File artifactProjectDir, File artifactPropertiesFile) {
-
-		Logger logger = project.getLogger();
-
-		Properties artifactProperties = new Properties();
-
-		if (artifactPropertiesFile.exists()) {
-			artifactProperties = GUtil.loadProperties(artifactPropertiesFile);
-		}
-
-		String artifactGitId = artifactProperties.getProperty(
-			"artifact.git.id");
-
-		if (Validator.isNull(artifactGitId)) {
-			if (logger.isInfoEnabled()) {
-				logger.info("{} has never been published", artifactProjectDir);
-			}
-
-			return true;
-		}
-
-		if (_isStale(project, artifactProjectDir, artifactGitId)) {
-			return true;
-		}
-
-		if (GradleUtil.hasPlugin(project, LiferayThemeDefaultsPlugin.class)) {
-			WriteDigestTask writeDigestTask =
-				(WriteDigestTask)GradleUtil.getTask(
-					project,
-					LiferayThemeDefaultsPlugin.
-						WRITE_PARENT_THEMES_DIGEST_TASK_NAME);
-
-			String digest = writeDigestTask.getDigest();
-			String oldDigest = writeDigestTask.getOldDigest();
-
-			if (logger.isInfoEnabled()) {
-				logger.info(
-					"Digest for {} is {}, old digest is {}", writeDigestTask,
-					digest, oldDigest);
-			}
-
-			if (!Objects.equals(digest, oldDigest)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	private boolean _isStale(
-		Project project, File artifactProjectDir, String artifactGitId) {
-
-		Logger logger = project.getLogger();
-
-		Project rootProject = project.getRootProject();
-
-		String gitId = GitUtil.getGitResult(
-			project, rootProject.getProjectDir(), "rev-parse", "--short",
-			"HEAD");
-
-		File gitResultsDir = new File(
-			rootProject.getBuildDir(), "releng/git-results/" + gitId);
-
-		StringBuilder sb = new StringBuilder();
-
-		sb.append(artifactProjectDir.getName());
-		sb.append('-');
-		sb.append(artifactGitId);
-		sb.append('-');
-
-		File file = new File(gitResultsDir, sb.toString() + "true");
-
-		if (file.exists()) {
-			return true;
-		}
-
-		file = new File(gitResultsDir, sb.toString() + "false");
-
-		if (file.exists()) {
-			return false;
-		}
-
-		String result = GitUtil.getGitResult(
-			project, artifactProjectDir, "log", "--format=%s",
-			artifactGitId + "..HEAD", ".");
-
-		String[] lines = result.split("\\r?\\n");
-
-		for (String line : lines) {
-			if (logger.isInfoEnabled()) {
-				logger.info(line);
-			}
-
-			if (Validator.isNull(line)) {
-				continue;
-			}
-
-			if (!line.contains(_IGNORED_MESSAGE_PATTERN)) {
-				try {
-					Files.createDirectories(gitResultsDir.toPath());
-
-					file = new File(gitResultsDir, sb.toString() + "true");
-
-					file.createNewFile();
-
-					return true;
-				}
-				catch (IOException ioException) {
-					throw new UncheckedIOException(ioException);
-				}
-			}
-		}
-
-		try {
-			Files.createDirectories(gitResultsDir.toPath());
-
-			file = new File(gitResultsDir, sb.toString() + "false");
-
-			file.createNewFile();
-
-			return false;
-		}
-		catch (IOException ioException) {
-			throw new UncheckedIOException(ioException);
-		}
-	}
-
-	private boolean _isStaleProjectDependency(
-		Project project, Configuration configuration, Dependency dependency) {
-
-		if (dependency instanceof ProjectDependency) {
-			ProjectDependency projectDependency = (ProjectDependency)dependency;
-
-			Project dependencyProject =
-				projectDependency.getDependencyProject();
-
-			File artifactPropertiesFile = new File(
-				getRelengDir(dependencyProject), "artifact.properties");
-
-			if (_isStale(
-					project, dependencyProject.getProjectDir(),
-					artifactPropertiesFile)) {
-
-				Logger logger = project.getLogger();
-
-				if (logger.isQuietEnabled()) {
-					logger.quiet(
-						"{} has stale project dependency {}.", project,
-						dependencyProject.getName());
-				}
-
-				return true;
-			}
-		}
-
-		String configurationName = configuration.getName();
-
-		if (configurationName.startsWith("compile") &&
-			Objects.equals(dependency.getVersion(), "default")) {
-
-			File dir = _getPortalProjectDir(project, dependency);
-
-			if (dir != null) {
-				StringBuilder sb = new StringBuilder();
-
-				sb.append("modules/");
-				sb.append(_RELENG_DIR_NAME);
-				sb.append('/');
-				sb.append(dir.getName());
-				sb.append(".properties");
-
-				File artifactPropertiesFile = new File(
-					dir.getParent(), sb.toString());
-
-				if (_isStale(project, dir, artifactPropertiesFile)) {
-					Logger logger = project.getLogger();
-
-					if (logger.isQuietEnabled()) {
-						logger.quiet(
-							"{} has stale portal project dependency {}.",
-							project, dir.getName());
+					if (LiferayRelengUtil.hasUnpublishedDependencies(project)) {
+						return false;
 					}
 
 					return true;
 				}
+
+				return false;
 			}
-		}
 
-		return false;
+		};
+
+		writeArtifactPublishCommandsTask.onlyIf(onlyIfSpec);
 	}
-
-	private static final String _IGNORED_MESSAGE_PATTERN =
-		WriteArtifactPublishCommandsTask.IGNORED_MESSAGE_PATTERN;
 
 	private static final String _LIFERAY_RELENG_APP_TITLE_PREFIX =
 		"liferay.releng.app.title.prefix";
@@ -1190,10 +920,5 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 
 	private static final String _LIFERAY_RELENG_SUPPORTED =
 		"liferay.releng.supported";
-
-	private static final String _RELENG_DIR_NAME = ".releng";
-
-	private static final Spec<Task> _skipIfMatchesIgnoreProjectRegexTaskSpec =
-		new SkipIfMatchesIgnoreProjectRegexTaskSpec();
 
 }

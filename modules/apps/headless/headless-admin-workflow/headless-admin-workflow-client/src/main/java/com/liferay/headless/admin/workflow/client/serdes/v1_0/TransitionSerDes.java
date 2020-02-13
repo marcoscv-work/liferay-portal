@@ -53,16 +53,30 @@ public class TransitionSerDes {
 
 		sb.append("{");
 
-		if (transition.getTransitionName() != null) {
+		if (transition.getLabel() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"transitionName\": ");
+			sb.append("\"label\": ");
 
 			sb.append("\"");
 
-			sb.append(_escape(transition.getTransitionName()));
+			sb.append(_escape(transition.getLabel()));
+
+			sb.append("\"");
+		}
+
+		if (transition.getName() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"name\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(transition.getName()));
 
 			sb.append("\"");
 		}
@@ -85,13 +99,18 @@ public class TransitionSerDes {
 
 		Map<String, String> map = new TreeMap<>();
 
-		if (transition.getTransitionName() == null) {
-			map.put("transitionName", null);
+		if (transition.getLabel() == null) {
+			map.put("label", null);
 		}
 		else {
-			map.put(
-				"transitionName",
-				String.valueOf(transition.getTransitionName()));
+			map.put("label", String.valueOf(transition.getLabel()));
+		}
+
+		if (transition.getName() == null) {
+			map.put("name", null);
+		}
+		else {
+			map.put("name", String.valueOf(transition.getName()));
 		}
 
 		return map;
@@ -115,9 +134,14 @@ public class TransitionSerDes {
 			Transition transition, String jsonParserFieldName,
 			Object jsonParserFieldValue) {
 
-			if (Objects.equals(jsonParserFieldName, "transitionName")) {
+			if (Objects.equals(jsonParserFieldName, "label")) {
 				if (jsonParserFieldValue != null) {
-					transition.setTransitionName((String)jsonParserFieldValue);
+					transition.setLabel((String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "name")) {
+				if (jsonParserFieldValue != null) {
+					transition.setName((String)jsonParserFieldValue);
 				}
 			}
 			else {

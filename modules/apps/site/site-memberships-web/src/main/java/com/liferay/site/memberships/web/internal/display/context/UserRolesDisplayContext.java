@@ -79,87 +79,6 @@ public class UserRolesDisplayContext {
 		return _eventName;
 	}
 
-	public long getGroupId() {
-		if (_groupId != null) {
-			return _groupId;
-		}
-
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)_httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
-		_groupId = ParamUtil.getLong(
-			_httpServletRequest, "groupId",
-			themeDisplay.getSiteGroupIdOrLiveGroupId());
-
-		return _groupId;
-	}
-
-	public String getKeywords() {
-		if (_keywords != null) {
-			return _keywords;
-		}
-
-		_keywords = ParamUtil.getString(_renderRequest, "keywords");
-
-		return _keywords;
-	}
-
-	public String getOrderByCol() {
-		if (_orderByCol != null) {
-			return _orderByCol;
-		}
-
-		_orderByCol = ParamUtil.getString(
-			_renderRequest, "orderByCol", "title");
-
-		return _orderByCol;
-	}
-
-	public String getOrderByType() {
-		if (_orderByType != null) {
-			return _orderByType;
-		}
-
-		_orderByType = ParamUtil.getString(
-			_renderRequest, "orderByType", "asc");
-
-		return _orderByType;
-	}
-
-	public PortletURL getPortletURL() throws PortalException {
-		PortletURL portletURL = _renderResponse.createRenderURL();
-
-		portletURL.setParameter("p_u_i_d", String.valueOf(getUserId()));
-		portletURL.setParameter("mvcPath", "/users_roles.jsp");
-
-		String displayStyle = getDisplayStyle();
-
-		if (Validator.isNotNull(displayStyle)) {
-			portletURL.setParameter("displayStyle", displayStyle);
-		}
-
-		String keywords = getKeywords();
-
-		if (Validator.isNotNull(keywords)) {
-			portletURL.setParameter("keywords", keywords);
-		}
-
-		String orderByCol = getOrderByCol();
-
-		if (Validator.isNotNull(orderByCol)) {
-			portletURL.setParameter("orderByCol", orderByCol);
-		}
-
-		String orderByType = getOrderByType();
-
-		if (Validator.isNotNull(orderByType)) {
-			portletURL.setParameter("orderByType", orderByType);
-		}
-
-		return portletURL;
-	}
-
 	public SearchContainer getRoleSearchSearchContainer()
 		throws PortalException {
 
@@ -171,9 +90,10 @@ public class UserRolesDisplayContext {
 			(ThemeDisplay)_httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-		RoleSearch roleSearch = new RoleSearch(_renderRequest, getPortletURL());
+		RoleSearch roleSearch = new RoleSearch(
+			_renderRequest, _getPortletURL());
 
-		Group group = GroupLocalServiceUtil.fetchGroup(getGroupId());
+		Group group = GroupLocalServiceUtil.fetchGroup(_getGroupId());
 
 		roleSearch.setRowChecker(
 			new UserGroupRoleRoleChecker(
@@ -185,11 +105,11 @@ public class UserRolesDisplayContext {
 
 		List<Role> roles = RoleLocalServiceUtil.search(
 			themeDisplay.getCompanyId(), searchTerms.getKeywords(),
-			new Integer[] {RoleConstants.TYPE_SITE}, QueryUtil.ALL_POS,
+			new Integer[] {_getRoleType()}, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, roleSearch.getOrderByComparator());
 
 		roles = UsersAdminUtil.filterGroupRoles(
-			themeDisplay.getPermissionChecker(), getGroupId(), roles);
+			themeDisplay.getPermissionChecker(), _getGroupId(), roles);
 
 		int rolesCount = roles.size();
 
@@ -205,7 +125,75 @@ public class UserRolesDisplayContext {
 		return _roleSearch;
 	}
 
-	public long getUserId() throws PortalException {
+	private long _getGroupId() {
+		if (_groupId != null) {
+			return _groupId;
+		}
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)_httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		_groupId = ParamUtil.getLong(
+			_httpServletRequest, "groupId",
+			themeDisplay.getSiteGroupIdOrLiveGroupId());
+
+		return _groupId;
+	}
+
+	private PortletURL _getPortletURL() throws PortalException {
+		PortletURL portletURL = _renderResponse.createRenderURL();
+
+		portletURL.setParameter("p_u_i_d", String.valueOf(_getUserId()));
+		portletURL.setParameter("mvcPath", "/users_roles.jsp");
+
+		String displayStyle = getDisplayStyle();
+
+		if (Validator.isNotNull(displayStyle)) {
+			portletURL.setParameter("displayStyle", displayStyle);
+		}
+
+		String keywords = ParamUtil.getString(_renderRequest, "keywords");
+
+		if (Validator.isNotNull(keywords)) {
+			portletURL.setParameter("keywords", keywords);
+		}
+
+		String orderByCol = ParamUtil.getString(
+			_renderRequest, "orderByCol", "title");
+
+		if (Validator.isNotNull(orderByCol)) {
+			portletURL.setParameter("orderByCol", orderByCol);
+		}
+
+		String orderByType = ParamUtil.getString(
+			_renderRequest, "orderByType", "asc");
+
+		if (Validator.isNotNull(orderByType)) {
+			portletURL.setParameter("orderByType", orderByType);
+		}
+
+		int roleType = _getRoleType();
+
+		if (roleType > 0) {
+			portletURL.setParameter("roleType", String.valueOf(roleType));
+		}
+
+		return portletURL;
+	}
+
+	private int _getRoleType() {
+		if (_roleType != null) {
+			return _roleType;
+		}
+
+		_roleType = ParamUtil.getInteger(
+			_httpServletRequest, "roleType", RoleConstants.TYPE_SITE);
+
+		return _roleType;
+	}
+
+	private long _getUserId() throws PortalException {
 		User selUser = PortalUtil.getSelectedUser(_httpServletRequest, false);
 
 		if (selUser != null) {
@@ -219,11 +207,9 @@ public class UserRolesDisplayContext {
 	private String _eventName;
 	private Long _groupId;
 	private final HttpServletRequest _httpServletRequest;
-	private String _keywords;
-	private String _orderByCol;
-	private String _orderByType;
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
 	private RoleSearch _roleSearch;
+	private Integer _roleType;
 
 }

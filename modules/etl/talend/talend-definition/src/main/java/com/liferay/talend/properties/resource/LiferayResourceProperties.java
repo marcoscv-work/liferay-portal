@@ -135,6 +135,12 @@ public class LiferayResourceProperties extends ComponentPropertiesImpl {
 		return endpointURI.toASCIIString();
 	}
 
+	public Schema getInboundSchema() {
+		Property<Schema> inboundSchemaProperty = inboundSchemaProperties.schema;
+
+		return inboundSchemaProperty.getValue();
+	}
+
 	public LiferayConnectionProperties getLiferayConnectionProperties() {
 		return connection.getEffectiveLiferayConnectionProperties();
 	}
@@ -145,10 +151,11 @@ public class LiferayResourceProperties extends ComponentPropertiesImpl {
 		return openAPIURI.toASCIIString();
 	}
 
-	public Schema getSchema() {
-		Property<Schema> schemaProperty = flowSchemaProperties.schema;
+	public Schema getOutboundSchema() {
+		Property<Schema> outboundSchemaProperty =
+			outboundSchemaProperties.schema;
 
-		return schemaProperty.getValue();
+		return outboundSchemaProperty.getValue();
 	}
 
 	public void setAllowedOperations(String... operations) {
@@ -167,8 +174,21 @@ public class LiferayResourceProperties extends ComponentPropertiesImpl {
 		_displayOperations = display;
 	}
 
+	public void setInboundSchema(Schema schema) {
+		Property<Schema> inboundSchemaProperty = inboundSchemaProperties.schema;
+
+		inboundSchemaProperty.setValue(schema);
+	}
+
 	public void setIncludeLiferayOASParameters(boolean include) {
 		_includeLiferayOASParameters = include;
+	}
+
+	public void setOutboundSchema(Schema schema) {
+		Property<Schema> outboundSchemaProperty =
+			outboundSchemaProperties.schema;
+
+		outboundSchemaProperty.setValue(schema);
 	}
 
 	@Override
@@ -204,7 +224,9 @@ public class LiferayResourceProperties extends ComponentPropertiesImpl {
 
 		mainForm.addRow(requestParametersWidget);
 
-		mainForm.addRow(flowSchemaProperties.getForm(Form.REFERENCE));
+		mainForm.addRow(outboundSchemaProperties.getForm(Form.REFERENCE));
+
+		_setupEndpointInfoForm();
 	}
 
 	@Override
@@ -227,13 +249,15 @@ public class LiferayResourceProperties extends ComponentPropertiesImpl {
 	public LiferayConnectionProperties connection =
 		new LiferayConnectionProperties("connection");
 	public StringProperty endpoint = new StringProperty("endpoint");
-	public SchemaProperties flowSchemaProperties = new SchemaProperties(
-		"flowSchemaProperties");
-	public SchemaProperties mainSchemaProperties = new SchemaProperties(
-		"mainSchemaProperties");
+	public SchemaProperties entitySchemaProperties = new SchemaProperties(
+		"entitySchemaProperties");
+	public SchemaProperties inboundSchemaProperties = new SchemaProperties(
+		"inboundSchemaProperties");
 	public StringProperty openAPIModule = new StringProperty("openAPIModule");
 	public Property<Operation> operations = new EnumProperty<>(
 		Operation.class, "operations");
+	public SchemaProperties outboundSchemaProperties = new SchemaProperties(
+		"outboundSchemaProperties");
 	public RequestParameterProperties parameters =
 		new RequestParameterProperties("parameters");
 	public SchemaProperties rejectSchemaProperties = new SchemaProperties(
@@ -382,15 +406,27 @@ public class LiferayResourceProperties extends ComponentPropertiesImpl {
 	}
 
 	private void _resetProperties() {
-		mainSchemaProperties.schema.setValue(SchemaProperties.EMPTY_SCHEMA);
+		entitySchemaProperties.schema.setValue(SchemaProperties.EMPTY_SCHEMA);
 
-		flowSchemaProperties.schema.setValue(SchemaProperties.EMPTY_SCHEMA);
+		outboundSchemaProperties.schema.setValue(SchemaProperties.EMPTY_SCHEMA);
 
 		rejectSchemaProperties.schema.setValue(SchemaProperties.EMPTY_SCHEMA);
 
 		operations.setValue(null);
 
 		_setupRequestParameterProperties();
+	}
+
+	private void _setupEndpointInfoForm() {
+		Form mainForm = new Form(this, "EndpointInfo");
+
+		Widget openAPIModuleWidget = Widget.widget(openAPIModule);
+
+		openAPIModuleWidget.setWidgetType(Widget.DEFAULT_WIDGET_TYPE);
+
+		mainForm.addRow(openAPIModuleWidget);
+
+		mainForm.addRow(inboundSchemaProperties.getForm(Form.REFERENCE));
 	}
 
 	private void _setupOperations() throws TalendRuntimeException {
@@ -461,13 +497,13 @@ public class LiferayResourceProperties extends ComponentPropertiesImpl {
 			openAPIEntityOperationPath, operation.getHttpMethod(),
 			oasJsonObject);
 
-		flowSchemaProperties.schema.setValue(endpointSchema);
+		outboundSchemaProperties.schema.setValue(endpointSchema);
 
 		if (!_displayOperations) {
 			return;
 		}
 
-		mainSchemaProperties.schema.setValue(endpointSchema);
+		entitySchemaProperties.schema.setValue(endpointSchema);
 
 		rejectSchemaProperties.schema.setValue(
 			SchemaUtils.createRejectSchema(endpointSchema));

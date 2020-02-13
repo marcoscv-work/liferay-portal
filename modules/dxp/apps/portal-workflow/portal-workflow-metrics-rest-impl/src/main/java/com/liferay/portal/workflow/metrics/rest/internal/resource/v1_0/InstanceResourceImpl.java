@@ -29,6 +29,9 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
+import com.liferay.portal.kernel.workflow.WorkflowException;
+import com.liferay.portal.kernel.workflow.WorkflowInstanceManager;
 import com.liferay.portal.search.aggregation.AggregationResult;
 import com.liferay.portal.search.aggregation.Aggregations;
 import com.liferay.portal.search.aggregation.bucket.Bucket;
@@ -61,6 +64,7 @@ import com.liferay.portal.workflow.metrics.rest.dto.v1_0.AssigneeUser;
 import com.liferay.portal.workflow.metrics.rest.dto.v1_0.CreatorUser;
 import com.liferay.portal.workflow.metrics.rest.dto.v1_0.Instance;
 import com.liferay.portal.workflow.metrics.rest.dto.v1_0.SLAResult;
+import com.liferay.portal.workflow.metrics.rest.dto.v1_0.Transition;
 import com.liferay.portal.workflow.metrics.rest.internal.resource.helper.ResourceHelper;
 import com.liferay.portal.workflow.metrics.rest.resource.v1_0.InstanceResource;
 import com.liferay.portal.workflow.metrics.service.WorkflowMetricsSLADefinitionLocalService;
@@ -186,6 +190,7 @@ public class InstanceResourceImpl extends BaseInstanceResourceImpl {
 						_setSLAResults(bucket, instance);
 						_setSLAStatus(bucket, instance);
 						_setTaskNames(bucket, instance);
+						_setTransitions(instance);
 					}
 				);
 
@@ -341,24 +346,13 @@ public class InstanceResourceImpl extends BaseInstanceResourceImpl {
 				assetTitle = document.getString(
 					_getLocalizedName("assetTitle"));
 				assetType = document.getString(_getLocalizedName("assetType"));
+				creatorUser = _toCreatorUser(document.getLong("userId"));
 				dateCompletion = _toDate(document.getDate("completionDate"));
 				dateCreated = _toDate(document.getDate("createDate"));
 				id = document.getLong("instanceId");
 				processId = document.getLong("processId");
 				status = _getStatus(
 					GetterUtil.getBoolean(document.getString("completed")));
-
-				setCreatorUser(
-					() -> {
-						CreatorUser creatorUser = _toCreatorUser(
-							document.getLong("userId"));
-
-						if (creatorUser == null) {
-							return null;
-						}
-
-						return creatorUser;
-					});
 			}
 		};
 	}
@@ -370,6 +364,8 @@ public class InstanceResourceImpl extends BaseInstanceResourceImpl {
 					sourcesMap.get(_getLocalizedName("assetTitle")));
 				assetType = GetterUtil.getString(
 					sourcesMap.get(_getLocalizedName("assetType")));
+				creatorUser = _toCreatorUser(
+					GetterUtil.getLong(sourcesMap.get("userId")));
 				dateCompletion = _toDate(
 					GetterUtil.getString(sourcesMap.get("completionDate")));
 				dateCreated = _toDate(
@@ -378,18 +374,6 @@ public class InstanceResourceImpl extends BaseInstanceResourceImpl {
 				processId = GetterUtil.getLong(sourcesMap.get("processId"));
 				status = _getStatus(
 					GetterUtil.getBoolean(sourcesMap.get("completed")));
-
-				setCreatorUser(
-					() -> {
-						CreatorUser creatorUser = _toCreatorUser(
-							GetterUtil.getLong(sourcesMap.get("userId")));
-
-						if (creatorUser == null) {
-							return null;
-						}
-
-						return creatorUser;
-					});
 			}
 		};
 	}
@@ -596,6 +580,7 @@ public class InstanceResourceImpl extends BaseInstanceResourceImpl {
 					_setAssigneeUsers(bucket, instance);
 					_setSLAStatus(bucket, instance);
 					_setTaskNames(bucket, instance);
+					_setTransitions(instance);
 
 					return instance;
 				}
@@ -685,8 +670,9 @@ public class InstanceResourceImpl extends BaseInstanceResourceImpl {
 			Bucket::getKey
 		).map(
 			taskName -> _language.get(
-				_resourceHelper.getResourceBundle(
-					contextAcceptLanguage.getPreferredLocale()),
+				ResourceBundleUtil.getModuleAndPortalResourceBundle(
+					contextAcceptLanguage.getPreferredLocale(),
+					InstanceResourceImpl.class),
 				taskName)
 		).collect(
 			Collectors.toList()
@@ -712,7 +698,7 @@ public class InstanceResourceImpl extends BaseInstanceResourceImpl {
 	private void _setAssigneeUsers(Bucket bucket, Instance instance) {
 		List<AssigneeUser> assigneeUsers = _getAssigneeUsers(bucket);
 
-		if (assigneeUsers == null) {
+		if (ListUtil.isNull(assigneeUsers)) {
 			return;
 		}
 
@@ -766,11 +752,21 @@ public class InstanceResourceImpl extends BaseInstanceResourceImpl {
 	private void _setTaskNames(Bucket bucket, Instance instance) {
 		List<String> taskNames = _getTaskNames(bucket);
 
-		if (taskNames == null) {
+		if (ListUtil.isNull(taskNames)) {
 			return;
 		}
 
 		instance.setTaskNames(taskNames.toArray(new String[0]));
+	}
+
+	private void _setTransitions(Instance instance) {
+		if (ArrayUtil.isEmpty(instance.getAssigneeUsers()) ||
+			(ArrayUtil.getLength(instance.getTaskNames()) != 1)) {
+
+			return;
+		}
+
+		instance.setTransitions(_toTransitions(instance.getId()));
 	}
 
 	private AssigneeUser _toAssigneeUser(long userId) {
@@ -848,6 +844,37 @@ public class InstanceResourceImpl extends BaseInstanceResourceImpl {
 		}
 	}
 
+	private Transition _toTransition(String name) {
+		Transition transition = new Transition();
+
+		transition.setLabel(
+			_language.get(
+				ResourceBundleUtil.getModuleAndPortalResourceBundle(
+					contextAcceptLanguage.getPreferredLocale(),
+					InstanceResourceImpl.class),
+				name));
+		transition.setName(name);
+
+		return transition;
+	}
+
+	private Transition[] _toTransitions(long instanceId) {
+		try {
+			return transformToArray(
+				_workflowInstanceManager.getNextTransitionNames(
+					contextCompany.getCompanyId(), contextUser.getUserId(),
+					instanceId),
+				this::_toTransition, Transition.class);
+		}
+		catch (WorkflowException workflowException) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(workflowException, workflowException);
+			}
+
+			return null;
+		}
+	}
+
 	private static final String _INDEX_DATE_FORMAT_PATTERN = PropsUtil.get(
 		PropsKeys.INDEX_DATE_FORMAT_PATTERN);
 
@@ -880,6 +907,9 @@ public class InstanceResourceImpl extends BaseInstanceResourceImpl {
 
 	@Reference
 	private UserService _userService;
+
+	@Reference
+	private WorkflowInstanceManager _workflowInstanceManager;
 
 	@Reference
 	private WorkflowMetricsSLADefinitionLocalService

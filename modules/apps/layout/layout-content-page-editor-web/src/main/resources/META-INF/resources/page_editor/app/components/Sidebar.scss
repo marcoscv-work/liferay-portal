@@ -1,3 +1,5 @@
+@import 'atlas-variables';
+
 @import './variables';
 
 $sidebarButtonHeight: $sidebarButtonWidth;
@@ -7,7 +9,7 @@ $sidebarButtonHeight: $sidebarButtonWidth;
 $zIndexButtons: 1;
 $zIndexContent: 0;
 
-.page-editor-sidebar {
+.page-editor__sidebar {
 	display: flex;
 	height: calc(100vh - #{$toolbarHeight});
 	position: fixed;
@@ -15,12 +17,34 @@ $zIndexContent: 0;
 	top: $toolbarHeight;
 	z-index: $zIndexSidebar;
 
-	&-buttons {
+	&__buttons {
 		background-color: $sidebarButtonBackgroundColor;
 		flex-direction: column;
 		padding-top: 16px;
 		width: $sidebarButtonWidth;
 		z-index: $zIndexButtons;
+
+		a {
+			align-items: center;
+			border-radius: 0.25rem;
+			color: #a7a9bc;
+			display: flex;
+			height: 2.5em;
+			justify-content: center;
+
+			&.active,
+			&:active,
+			&:focus,
+			&:hover {
+				color: $sidebarButtonHoverColor;
+			}
+
+			&:focus {
+				box-shadow: 0 0 0 0.125rem #fff, 0 0 0 0.25rem #80acff,
+					inset 0 0 rgba(0, 0, 0, 0);
+				outline: none;
+			}
+		}
 
 		button {
 			color: $sidebarButtonColor;
@@ -39,7 +63,7 @@ $zIndexContent: 0;
 		}
 	}
 
-	&-content {
+	&__content {
 		background-color: $sidebarContentBackgroundColor;
 		border-left: 1px solid $sidebarBorderColor;
 		height: calc(100vh - #{$controlMenuHeight + $toolbarHeight});
@@ -50,22 +74,19 @@ $zIndexContent: 0;
 		transition: transform ease $defaultTransitionDuration;
 		width: $sidebarContentWidth;
 		z-index: $zIndexContent;
-	}
 
-	&-content-open {
-		transform: translateX(0);
+		&--open {
+			transform: translateX(0);
+		}
 	}
 
 	body.has-control-menu & {
-		height: calc(100vh - #{$controlMenuHeight + $toolbarHeight});
-		top: $controlMenuHeight + $toolbarHeight;
+		height: calc(100vh - #{$controlMenuHeight + $managementBarHeight});
+		top: $controlMenuHeight + $managementBarHeight;
+
+		@include media-breakpoint-up(lg) {
+			height: calc(100vh - #{$desktopControlMenuHeight + $toolbarHeight});
+			top: $desktopControlMenuHeight + $toolbarHeight;
+		}
 	}
-}
-
-#wrapper.page-editor-sidebar-padding {
-	padding-right: $sidebarButtonWidth;
-}
-
-#wrapper.page-editor-sidebar-padding-open {
-	padding-right: $sidebarButtonWidth + $sidebarContentWidth;
 }

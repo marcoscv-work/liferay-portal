@@ -17,8 +17,8 @@ package com.liferay.layout.content.page.editor.web.internal.portlet.action;
 import com.liferay.fragment.processor.PortletRegistry;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.content.page.editor.web.internal.util.FragmentEntryLinkUtil;
-import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureItem;
 import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureUtil;
+import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -85,25 +85,17 @@ public class UpdateRowColumnsReactMVCActionCommand
 							layoutStructure.updateRowColumnsLayoutStructureItem(
 								itemId, numberOfColumns);
 
-						for (LayoutStructureItem layoutStructureItem :
-								deletedLayoutStructureItems) {
+						for (long fragmentEntryLinkId :
+								LayoutStructureUtil.getFragmentEntryLinkIds(
+									deletedLayoutStructureItems)) {
 
-							JSONObject itemConfigJSONObject =
-								layoutStructureItem.getItemConfigJSONObject();
+							FragmentEntryLinkUtil.deleteFragmentEntryLink(
+								themeDisplay.getCompanyId(),
+								fragmentEntryLinkId, themeDisplay.getPlid(),
+								_portletRegistry);
 
-							long fragmentEntryLinkId =
-								itemConfigJSONObject.getLong(
-									"fragmentEntryLinkId");
-
-							if (fragmentEntryLinkId > 0) {
-								FragmentEntryLinkUtil.deleteFragmentEntryLink(
-									themeDisplay.getCompanyId(),
-									fragmentEntryLinkId, themeDisplay.getPlid(),
-									_portletRegistry);
-
-								deletedFragmentEntryLinkIds.add(
-									fragmentEntryLinkId);
-							}
+							deletedFragmentEntryLinkIds.add(
+								fragmentEntryLinkId);
 						}
 					});
 

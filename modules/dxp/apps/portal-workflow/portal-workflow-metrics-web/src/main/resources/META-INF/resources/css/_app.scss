@@ -11,20 +11,10 @@
 	}
 
 	.management-bar {
-		&.show-quick-actions-on-hover:hover {
+		&.show-quick-actions-on-hover {
 			.quick-action-menu {
 				display: flex;
 			}
-		}
-	}
-
-	.modal {
-		.modal-dialog.modal-lg {
-			max-width: 800px;
-		}
-
-		&.show {
-			display: block;
 		}
 	}
 
@@ -75,5 +65,48 @@
 
 	small {
 		color: #6b6c7e;
+	}
+}
+
+.show-quick-actions-on-hover {
+	tr.table-active {
+		&:hover {
+			.quick-action-menu {
+				display: flex;
+			}
+		}
+	}
+	tr:not(.table-disabled) {
+		&:hover {
+			.quick-action-menu.disabled {
+				display: none;
+			}
+		}
+	}
+}
+
+.modal-metrics-content {
+	background-color: #f1f2f5;
+
+	&.fixed-height {
+		height: 35rem;
+		overflow: auto;
+	}
+
+	.modal-body {
+		margin-top: 1.5rem;
+		padding: 0 1.5rem;
+	}
+}
+
+.modal-open .modal {
+	overflow: auto !important;
+}
+
+.dropdown-item {
+	cursor: pointer;
+
+	&.active {
+		font-weight: normal;
 	}
 }

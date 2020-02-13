@@ -171,7 +171,7 @@ String successMessageKey = KaleoDesignerPortletKeys.KALEO_DESIGNER + "requestPro
 								<div class="tab-content">
 									<c:if test="<%= kaleoDefinitionVersion != null %>">
 										<liferay-ui:section>
-											<div style="margin-top:1.5rem;">
+											<div style="margin-top: 1.5rem;">
 
 												<%
 												String creatorUserName = kaleoDesignerDisplayContext.getCreatorUserName(kaleoDefinitionVersion);
@@ -319,7 +319,7 @@ String successMessageKey = KaleoDesignerPortletKeys.KALEO_DESIGNER + "requestPro
 																<liferay-ui:message arguments="<%= importFileMark %>" key="write-your-definition-or-x" translateArguments="<%= false %>" />
 															</c:if>
 
-															<input id="<portlet:namespace />upload" style="display:none" type="file" />
+															<input id="<portlet:namespace />upload" style="display: none;" type="file" />
 
 															<div class="lfr-template-editor-wrapper" id="<portlet:namespace />editorWrapper"></div>
 														</div>
@@ -410,7 +410,8 @@ String successMessageKey = KaleoDesignerPortletKeys.KALEO_DESIGNER + "requestPro
 
 											if (activeTab === <portlet:namespace />kaleoDesigner.sourceNode) {
 												content.val(<portlet:namespace />kaleoDesigner.editor.get('value'));
-											} else {
+											}
+											else {
 												content.val(<portlet:namespace />kaleoDesigner.getContent());
 											}
 										},
@@ -667,7 +668,8 @@ String successMessageKey = KaleoDesignerPortletKeys.KALEO_DESIGNER + "requestPro
 														roleId.val(data.roleId);
 													}
 												});
-											} else if (inputName == 'fullName') {
+											}
+											else if (inputName == 'fullName') {
 												createUserAutocomplete(inputNode, inputName, function(event) {
 													var data = event.result.raw;
 

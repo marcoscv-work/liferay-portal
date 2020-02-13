@@ -54,6 +54,10 @@ class CollapseProvider {
 	}
 
 	hide = ({panel, trigger}) => {
+		if (panel && !trigger) {
+			trigger = this._getTrigger(panel);
+		}
+
 		if (!panel) {
 			panel = this._getPanel(trigger);
 		}
@@ -96,6 +100,10 @@ class CollapseProvider {
 	};
 
 	show = ({panel, trigger}) => {
+		if (panel && !trigger) {
+			trigger = this._getTrigger(panel);
+		}
+
 		if (!panel) {
 			panel = this._getPanel(trigger);
 		}
@@ -166,6 +174,10 @@ class CollapseProvider {
 		return document.querySelector(trigger.getAttribute('href'));
 	}
 
+	_getTrigger(panel) {
+		return document.querySelector(`[href="#${panel.getAttribute('id')}"]`);
+	}
+
 	_onTriggerClick = event => {
 		const trigger = event.delegateTarget;
 
@@ -178,7 +190,8 @@ class CollapseProvider {
 		if (panel) {
 			if (panel.classList.contains(CssClass.SHOW)) {
 				this.hide({panel, trigger});
-			} else {
+			}
+			else {
 				this.show({panel, trigger});
 			}
 		}
@@ -199,6 +212,7 @@ class CollapseProvider {
 		Object.keys(transitionEndEvents).some(name => {
 			if (sampleElement.style[name] !== undefined) {
 				eventName = transitionEndEvents[name];
+
 				return true;
 			}
 		});

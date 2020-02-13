@@ -90,7 +90,7 @@ public class ToggleControlsProductNavigationControlMenuEntry
 
 	@Override
 	public String getLinkCssClass(HttpServletRequest httpServletRequest) {
-		return "d-block d-sm-none toggle-controls";
+		return "d-block toggle-controls";
 	}
 
 	@Override
@@ -108,7 +108,9 @@ public class ToggleControlsProductNavigationControlMenuEntry
 
 		Layout layout = themeDisplay.getLayout();
 
-		if (layout.isTypeControlPanel()) {
+		if (layout.isTypeAssetDisplay() || layout.isTypeContent() ||
+			layout.isTypeControlPanel()) {
+
 			return false;
 		}
 

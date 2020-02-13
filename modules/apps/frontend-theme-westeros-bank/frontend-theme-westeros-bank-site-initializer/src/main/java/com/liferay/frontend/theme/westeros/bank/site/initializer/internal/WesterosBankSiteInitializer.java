@@ -582,10 +582,6 @@ public class WesterosBankSiteInitializer implements SiteInitializer {
 
 		if (draftLayout != null) {
 			_layoutCopyHelper.copyLayout(draftLayout, layout);
-
-			draftLayout.setStatus(WorkflowConstants.STATUS_APPROVED);
-
-			_layoutLocalService.updateLayout(draftLayout);
 		}
 	}
 

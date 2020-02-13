@@ -14,47 +14,54 @@
 
 import {useEventListener} from 'frontend-js-react-web';
 import {openToast} from 'frontend-js-web';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {SERVICE_NETWORK_STATUS_TYPES} from '../config/constants/serviceNetworkStatusTypes';
 
 const getStatus = (isOnline, status, lastSaveDate) => {
 	if (!isOnline) {
 		return `${Liferay.Language.get('trying-to-reconnect')}...`;
-	} else if (status === SERVICE_NETWORK_STATUS_TYPES.Fetching) {
+	}
+	else if (status === SERVICE_NETWORK_STATUS_TYPES.savingDraft) {
 		return Liferay.Language.get('saving-changes');
-	} else if (lastSaveDate) {
+	}
+	else if (lastSaveDate) {
 		return lastSaveDate;
 	}
 
 	return null;
 };
 
-const NetworkStatusBar = ({lastFetch, status}) => {
+const parseDate = date => {
+	if (!date) {
+		return null;
+	}
+
+	const lastSaveDateText = Liferay.Language.get('draft-saved-at-x');
+
+	return lastSaveDateText.replace(
+		'{0}',
+		date.toLocaleTimeString(Liferay.ThemeDisplay.getBCP47LanguageId())
+	);
+};
+
+const NetworkStatusBar = ({error, lastFetch, status}) => {
 	const [isOnline, setIsOnline] = useState(true);
+	const [lastSaveDate, setLastSaveDate] = useState(parseDate(lastFetch));
 
-	const lastSaveDate = useMemo(() => {
-		if (!lastFetch) return null;
-
-		const lastSaveDateText = Liferay.Language.get('draft-saved-at-x');
-
-		return lastSaveDateText.replace(
-			'{0}',
-			lastFetch.toLocaleTimeString(
-				Liferay.ThemeDisplay.getBCP47LanguageId()
-			)
-		);
+	useEffect(() => {
+		setLastSaveDate(parseDate(lastFetch));
 	}, [lastFetch]);
 
 	useEffect(() => {
-		if (status === SERVICE_NETWORK_STATUS_TYPES.Error) {
+		if (status === SERVICE_NETWORK_STATUS_TYPES.error) {
 			openToast({
-				message: Liferay.Language.get('an-unexpected-error-occurred'),
+				message: error,
 				title: Liferay.Language.get('error'),
 				type: 'danger'
 			});
 		}
-	}, [status]);
+	}, [error, status]);
 
 	useEventListener('online', () => setIsOnline(true), true, window);
 
@@ -68,7 +75,9 @@ const NetworkStatusBar = ({lastFetch, status}) => {
 
 	return (
 		<li className="d-inline nav-item text-truncate">
-			<span className="lfr-portal-tooltip navbar-text">{statusText}</span>
+			<span className="my-0 navbar-text" data-title={statusText}>
+				{statusText}
+			</span>
 		</li>
 	);
 };

@@ -38,20 +38,20 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 		return _componentId;
 	}
 
-	public java.lang.Long getDataDefinitionId() {
-		return _dataDefinitionId;
+	public java.lang.String getContentType() {
+		return _contentType;
 	}
 
-	public java.lang.String getDataDefinitionInputId() {
-		return _dataDefinitionInputId;
+	public java.lang.Long getDataDefinitionId() {
+		return _dataDefinitionId;
 	}
 
 	public java.lang.Long getDataLayoutId() {
 		return _dataLayoutId;
 	}
 
-	public java.lang.String getDataLayoutInputId() {
-		return _dataLayoutInputId;
+	public java.lang.Long getGroupId() {
+		return _groupId;
 	}
 
 	public boolean getLocalizable() {
@@ -70,20 +70,20 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 		_componentId = componentId;
 	}
 
-	public void setDataDefinitionId(java.lang.Long dataDefinitionId) {
-		_dataDefinitionId = dataDefinitionId;
+	public void setContentType(java.lang.String contentType) {
+		_contentType = contentType;
 	}
 
-	public void setDataDefinitionInputId(java.lang.String dataDefinitionInputId) {
-		_dataDefinitionInputId = dataDefinitionInputId;
+	public void setDataDefinitionId(java.lang.Long dataDefinitionId) {
+		_dataDefinitionId = dataDefinitionId;
 	}
 
 	public void setDataLayoutId(java.lang.Long dataLayoutId) {
 		_dataLayoutId = dataLayoutId;
 	}
 
-	public void setDataLayoutInputId(java.lang.String dataLayoutInputId) {
-		_dataLayoutInputId = dataLayoutInputId;
+	public void setGroupId(java.lang.Long groupId) {
+		_groupId = groupId;
 	}
 
 	public void setLocalizable(boolean localizable) {
@@ -110,10 +110,10 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 		super.cleanUp();
 
 		_componentId = null;
+		_contentType = null;
 		_dataDefinitionId = null;
-		_dataDefinitionInputId = null;
 		_dataLayoutId = null;
-		_dataLayoutInputId = null;
+		_groupId = null;
 		_localizable = false;
 		_namespace = null;
 		_scopes = null;
@@ -132,10 +132,10 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
 		setNamespacedAttribute(request, "componentId", _componentId);
+		setNamespacedAttribute(request, "contentType", _contentType);
 		setNamespacedAttribute(request, "dataDefinitionId", _dataDefinitionId);
-		setNamespacedAttribute(request, "dataDefinitionInputId", _dataDefinitionInputId);
 		setNamespacedAttribute(request, "dataLayoutId", _dataLayoutId);
-		setNamespacedAttribute(request, "dataLayoutInputId", _dataLayoutInputId);
+		setNamespacedAttribute(request, "groupId", _groupId);
 		setNamespacedAttribute(request, "localizable", _localizable);
 		setNamespacedAttribute(request, "namespace", _namespace);
 		setNamespacedAttribute(request, "scopes", _scopes);
@@ -150,10 +150,10 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 		"/data_layout_builder/start.jsp";
 
 	private java.lang.String _componentId = null;
+	private java.lang.String _contentType = null;
 	private java.lang.Long _dataDefinitionId = null;
-	private java.lang.String _dataDefinitionInputId = null;
 	private java.lang.Long _dataLayoutId = null;
-	private java.lang.String _dataLayoutInputId = null;
+	private java.lang.Long _groupId = null;
 	private boolean _localizable = false;
 	private java.lang.String _namespace = null;
 	private java.util.Set _scopes = null;

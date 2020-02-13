@@ -1,3 +1,4 @@
+@import 'atlas-variables';
 @import 'mixins';
 
 .lfr-analytics-reports-panel {
@@ -50,5 +51,9 @@
 			padding-left: 24px;
 			padding-top: 12px;
 		}
+	}
+
+	.recharts-tooltip-label {
+		font-weight: bold;
 	}
 }

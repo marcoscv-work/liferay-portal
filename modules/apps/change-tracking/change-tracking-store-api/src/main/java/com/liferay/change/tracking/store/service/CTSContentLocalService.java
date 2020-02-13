@@ -91,6 +91,12 @@ public interface CTSContentLocalService
 	public CTSContent createCTSContent(long ctsContentId);
 
 	/**
+	 * @throws PortalException
+	 */
+	public PersistedModel createPersistedModel(Serializable primaryKeyObj)
+		throws PortalException;
+
+	/**
 	 * Deletes the cts content from the database. Also notifies the appropriate model listeners.
 	 *
 	 * @param ctsContent the cts content
@@ -255,6 +261,9 @@ public interface CTSContentLocalService
 	 */
 	public String getOSGiServiceIdentifier();
 
+	/**
+	 * @throws PortalException
+	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)

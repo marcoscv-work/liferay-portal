@@ -15,7 +15,9 @@
 package com.liferay.layout.seo.service.impl;
 
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
+import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.StorageEngine;
 import com.liferay.dynamic.data.mapping.util.DDM;
@@ -30,11 +32,16 @@ import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.Validator;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -210,6 +217,60 @@ public class LayoutSEOEntryLocalServiceImpl
 		return layoutSEOEntryPersistence.update(layoutSEOEntry);
 	}
 
+	private DDMFormValues _getDDMFormValues(
+			long structureId, ServiceContext serviceContext)
+		throws PortalException {
+
+		DDMFormValues ddmFormValues = _ddm.getDDMFormValues(
+			structureId, String.valueOf(structureId), serviceContext);
+
+		Set<Locale> availableLocales = new HashSet<>();
+		Set<DDMFormFieldValue> ddmFormFieldValues = new LinkedHashSet<>();
+
+		for (DDMFormFieldValue ddmFormFieldValue :
+				ddmFormValues.getDDMFormFieldValues()) {
+
+			Value value = ddmFormFieldValue.getValue();
+
+			if (value == null) {
+				continue;
+			}
+
+			for (Locale locale : ddmFormValues.getAvailableLocales()) {
+				if (!Validator.isBlank(value.getString(locale))) {
+					availableLocales.add(locale);
+
+					ddmFormFieldValues.add(ddmFormFieldValue);
+
+					continue;
+				}
+
+				for (DDMFormFieldValue nestedDDMFormFieldValue :
+						ddmFormFieldValue.getNestedDDMFormFieldValues()) {
+
+					Value nestedDDMFormFieldValueValue =
+						nestedDDMFormFieldValue.getValue();
+
+					if (!Validator.isBlank(
+							nestedDDMFormFieldValueValue.getString(locale))) {
+
+						availableLocales.add(locale);
+
+						ddmFormFieldValues.add(ddmFormFieldValue);
+
+						break;
+					}
+				}
+			}
+		}
+
+		ddmFormValues.setAvailableLocales(availableLocales);
+		ddmFormValues.setDDMFormFieldValues(
+			new ArrayList<>(ddmFormFieldValues));
+
+		return ddmFormValues;
+	}
+
 	private DDMStructure _getDDMStructure(Group group) throws PortalException {
 		Group companyGroup = _groupLocalService.getCompanyGroup(
 			group.getCompanyId());
@@ -226,11 +287,15 @@ public class LayoutSEOEntryLocalServiceImpl
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		DDMFormValues ddmFormValues = _ddm.getDDMFormValues(
-			structureId, String.valueOf(structureId), serviceContext);
+		DDMFormValues ddmFormValues = _getDDMFormValues(
+			structureId, serviceContext);
 
 		if (ListUtil.isEmpty(ddmFormValues.getDDMFormFieldValues())) {
-			return ddmStorageId;
+			if (ddmStorageId != 0) {
+				_storageEngine.deleteByClass(ddmStorageId);
+			}
+
+			return 0;
 		}
 
 		if (ddmStorageId == 0) {

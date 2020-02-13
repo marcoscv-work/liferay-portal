@@ -9,11 +9,14 @@
  * distribution rights of the Software.
  */
 
-import {cleanup, fireEvent, render} from '@testing-library/react';
+import {fireEvent, render} from '@testing-library/react';
 import React from 'react';
 
 import InstanceListPage from '../../../src/main/resources/META-INF/resources/js/components/instance-list-page/InstanceListPage.es';
+import ToasterProvider from '../../../src/main/resources/META-INF/resources/js/shared/components/toaster/ToasterProvider.es';
 import {MockRouter} from '../../mock/MockRouter.es';
+
+import '@testing-library/jest-dom/extend-expect';
 
 const items = [
 	{
@@ -35,36 +38,43 @@ const items = [
 	}
 ];
 
+const routeParams = {
+	page: 1,
+	pageSize: 2,
+	query: '',
+	sort: 'overdueInstanceCount%3Adesc'
+};
+
 describe('The instance list card should', () => {
 	const clientMock = {
 		get: jest
 			.fn()
-			.mockResolvedValue({data: {items, totalCount: items.length}})
+			.mockResolvedValue({data: {items, totalCount: items.length + 1}})
 	};
 	let getByTestId, getAllByTestId;
 
-	afterEach(cleanup);
-
-	beforeEach(() => {
+	beforeAll(() => {
 		const renderResult = render(
 			<MockRouter client={clientMock}>
-				<InstanceListPage />
-			</MockRouter>
+				<InstanceListPage routeParams={routeParams} />
+			</MockRouter>,
+			{wrapper: ToasterProvider}
 		);
 
 		getByTestId = renderResult.getByTestId;
 		getAllByTestId = renderResult.getAllByTestId;
 	});
 
-	test('Be rendered with "sla-status", "process-status", and "process-step" filters', () => {
+	test('Be rendered with "sla-status", "process-status", "process-step" and "assignee" filters', () => {
 		const filterNames = getAllByTestId('filterName');
 
 		expect(filterNames[0].innerHTML).toBe('sla-status');
 		expect(filterNames[1].innerHTML).toBe('process-status');
 		expect(filterNames[2].innerHTML).toBe('process-step');
+		expect(filterNames[3].innerHTML).toBe('assignee');
 	});
 
-	test('Select all instances by clicking on check all button', () => {
+	test('Select all page by clicking on check all button', () => {
 		const checkAllButton = getByTestId('checkAllButton');
 		const instanceCheckbox = getAllByTestId('instanceCheckbox');
 
@@ -74,7 +84,10 @@ describe('The instance list card should', () => {
 
 		fireEvent.click(checkAllButton);
 
+		const label = getByTestId('toolbarLabel');
+
 		expect(checkAllButton.checked).toEqual(true);
+		expect(label).toHaveTextContent('x-of-x-selected');
 		expect(instanceCheckbox[0].checked).toEqual(true);
 		expect(instanceCheckbox[1].checked).toEqual(true);
 
@@ -85,7 +98,7 @@ describe('The instance list card should', () => {
 		expect(instanceCheckbox[1].checked).toEqual(false);
 	});
 
-	test('Select remaining instances by clicking on select remaining button', () => {
+	test('Select all instances by clicking on select all button', () => {
 		const checkAllButton = getByTestId('checkAllButton');
 		const instanceCheckbox = getAllByTestId('instanceCheckbox');
 
@@ -95,15 +108,33 @@ describe('The instance list card should', () => {
 
 		fireEvent.click(instanceCheckbox[0]);
 
+		let label = getByTestId('toolbarLabel');
+
 		expect(checkAllButton.checked).toEqual(false);
 		expect(instanceCheckbox[0].checked).toEqual(true);
 		expect(instanceCheckbox[1].checked).toEqual(false);
 
-		const selectRemainingButton = getByTestId('selectRemainingButton');
-		fireEvent.click(selectRemainingButton);
+		const clearButton = getByTestId('clear');
+
+		fireEvent.click(clearButton);
+
+		expect(checkAllButton.checked).toEqual(false);
+		expect(instanceCheckbox[0].checked).toEqual(false);
+		expect(instanceCheckbox[1].checked).toEqual(false);
+
+		fireEvent.click(checkAllButton);
 
 		expect(checkAllButton.checked).toEqual(true);
+		expect(label).toHaveTextContent('x-of-x-selected');
 		expect(instanceCheckbox[0].checked).toEqual(true);
 		expect(instanceCheckbox[1].checked).toEqual(true);
+
+		const selectAllButton = getByTestId('selectAll');
+
+		fireEvent.click(selectAllButton);
+
+		label = getByTestId('toolbarLabel');
+
+		expect(label).toHaveTextContent('all-selected');
 	});
 });

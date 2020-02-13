@@ -250,7 +250,9 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 		typeSettingsProperties.remove("remoteGroupId");
 		typeSettingsProperties.remove("remotePathContext");
 		typeSettingsProperties.remove("remotePort");
+		typeSettingsProperties.remove("remoteSiteURL");
 		typeSettingsProperties.remove("secureConnection");
+		typeSettingsProperties.remove("overrideRemoteSiteURL");
 		typeSettingsProperties.remove("staged");
 		typeSettingsProperties.remove("stagedRemotely");
 
@@ -342,30 +344,30 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 		groupLocalService.updateGroup(
 			liveGroup.getGroupId(), typeSettingsProperties.toString());
 
-		if (!hasStagingGroup) {
-			Group stagingGroup = liveGroup.getStagingGroup();
+		if (hasStagingGroup) {
+			return;
+		}
 
-			Map<String, String[]> parameterMap =
+		Group stagingGroup = liveGroup.getStagingGroup();
+
+		Map<String, String[]> parameterMap =
+			ExportImportConfigurationParameterMapFactoryUtil.
+				buildFullPublishParameterMap();
+
+		if (liveGroup.hasPrivateLayouts()) {
+			StagingUtil.publishLayouts(
+				userId, liveGroup.getGroupId(), stagingGroup.getGroupId(), true,
+				parameterMap);
+
+			parameterMap =
 				ExportImportConfigurationParameterMapFactoryUtil.
-					buildFullPublishParameterMap();
+					buildParameterMap();
+		}
 
-			if (liveGroup.hasPrivateLayouts()) {
-				StagingUtil.publishLayouts(
-					userId, liveGroup.getGroupId(), stagingGroup.getGroupId(),
-					true, parameterMap);
-
-				parameterMap =
-					ExportImportConfigurationParameterMapFactoryUtil.
-						buildParameterMap();
-			}
-
-			if (liveGroup.hasPublicLayouts() ||
-				!liveGroup.hasPrivateLayouts()) {
-
-				StagingUtil.publishLayouts(
-					userId, liveGroup.getGroupId(), stagingGroup.getGroupId(),
-					false, parameterMap);
-			}
+		if (liveGroup.hasPublicLayouts() || !liveGroup.hasPrivateLayouts()) {
+			StagingUtil.publishLayouts(
+				userId, liveGroup.getGroupId(), stagingGroup.getGroupId(),
+				false, parameterMap);
 		}
 	}
 

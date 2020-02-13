@@ -80,6 +80,16 @@ public class AccountRoleLocalServiceUtil {
 	}
 
 	/**
+	 * @throws PortalException
+	 */
+	public static com.liferay.portal.kernel.model.PersistedModel
+			createPersistedModel(java.io.Serializable primaryKeyObj)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().createPersistedModel(primaryKeyObj);
+	}
+
+	/**
 	 * Deletes the account role from the database. Also notifies the appropriate model listeners.
 	 *
 	 * @param accountRole the account role
@@ -301,6 +311,9 @@ public class AccountRoleLocalServiceUtil {
 		return getService().getOSGiServiceIdentifier();
 	}
 
+	/**
+	 * @throws PortalException
+	 */
 	public static com.liferay.portal.kernel.model.PersistedModel
 			getPersistedModel(java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -315,6 +328,15 @@ public class AccountRoleLocalServiceUtil {
 
 		return getService().searchAccountRoles(
 			accountEntryId, keywords, start, end, obc);
+	}
+
+	public static com.liferay.portal.kernel.search.BaseModelSearchResult
+		<com.liferay.account.model.AccountRole> searchAccountRoles(
+			long[] accountEntryIds, String keywords, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator obc) {
+
+		return getService().searchAccountRoles(
+			accountEntryIds, keywords, start, end, obc);
 	}
 
 	public static void unassociateUser(

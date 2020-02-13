@@ -27,10 +27,10 @@ import removeExperience from '../thunks/removeExperience';
 import updateExperience from '../thunks/updateExperience';
 import updateExperiencePriority from '../thunks/updateExperiencePriority';
 import {
-	storeModalExperienceState,
 	recoverModalExperienceState,
+	storeModalExperienceState,
 	useDebounceCallback
-} from '../utils.js';
+} from '../utils';
 import ExperienceModal from './ExperienceModal';
 import ExperiencesList from './ExperiencesList';
 
@@ -51,7 +51,8 @@ function getUpdateExperiencePriorityTargets(
 
 	if (direction === 'up') {
 		subtargetIndex = targetIndex - 1;
-	} else {
+	}
+	else {
 		subtargetIndex = targetIndex + 1;
 	}
 
@@ -86,9 +87,12 @@ const ExperienceSelector = ({
 		defaultSegmentsExperienceId,
 		editSegmentsEntryURL,
 		hasEditSegmentsEntryPermission,
-		hasUpdatePermissions,
 		selectedSegmentsEntryId
 	} = config;
+
+	const hasUpdatePermissions = useSelector(
+		({permissions}) => permissions.UPDATE
+	);
 
 	const isMounted = useIsMounted();
 	const [open, setOpen] = useState(false);
@@ -184,7 +188,8 @@ const ExperienceSelector = ({
 						});
 					}
 				});
-		} else {
+		}
+		else {
 			return dispatch(
 				createExperience(
 					{

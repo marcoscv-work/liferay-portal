@@ -138,6 +138,7 @@ export const deleteMessage = messageBoardMessage =>
 				)
 			);
 		}
+
 		return data;
 	});
 
@@ -177,6 +178,7 @@ export const getThread = (
 	request(gql`
         query {
             messageBoardThread(messageBoardThreadId: ${messageBoardThreadId}){
+            	actions
                 aggregateRating {
                     ratingAverage
                     ratingCount
@@ -194,6 +196,7 @@ export const getThread = (
                 keywords 
                 messageBoardMessages(page: ${page}, pageSize: 20, sort: ${sort}) {
                     items {
+                    	actions
                         aggregateRating {
                             ratingAverage
                             ratingCount
@@ -207,6 +210,7 @@ export const getThread = (
                         id
                         messageBoardMessages {
                             items {
+                            	actions
                                 articleBody
                                 creator {
                                     id
@@ -286,15 +290,32 @@ export const getThreadContent = messageBoardThreadId =>
             }
         }`);
 
+export const hasListPermissions = (permission, siteKey) =>
+	request(gql`
+			query {
+				messageBoardThreads(siteKey: ${siteKey}) {
+					actions
+				}
+			}`).then(data => Boolean(data.actions[permission]));
+
 export const getThreads = ({
-	filter = '',
+	creatorId = '',
+	keyword = '',
 	page = 1,
 	pageSize = 30,
 	search = '',
 	siteKey,
 	sort = 'dateModified:desc'
-}) =>
-	request(gql`
+}) => {
+	let filter = '';
+	if (keyword) {
+		filter = `keywords/any(x:x eq '${keyword}')`;
+	}
+	else if (creatorId) {
+		filter = `creator/id eq ${creatorId}`;
+	}
+
+	return request(gql`
         query {
             messageBoardThreads(filter: ${filter}, page: ${page}, pageSize: ${pageSize}, search: ${search}, siteKey: ${siteKey}, sort: ${sort}){
                 items {
@@ -325,6 +346,7 @@ export const getThreads = ({
                 totalCount
             }
         }`);
+};
 
 export const getRankedThreads = (dateModified, page = 1, pageSize = 30, sort) =>
 	request(gql`

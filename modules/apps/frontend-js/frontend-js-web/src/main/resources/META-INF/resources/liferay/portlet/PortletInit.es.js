@@ -179,6 +179,7 @@ class PortletInit {
 					listener.handler('portlet.onError', err);
 				});
 			}
+
 			return false;
 		});
 	}
@@ -257,7 +258,8 @@ class PortletInit {
 					if (newValue === undefined) {
 						delete pageRenderState.portlets[portletId].state
 							.parameters[parameterName];
-					} else {
+					}
+					else {
 						pageRenderState.portlets[portletId].state.parameters[
 							parameterName
 						] = [...newValue];
@@ -352,10 +354,12 @@ class PortletInit {
 
 				if (replace) {
 					history.replaceState(token, '');
-				} else {
+				}
+				else {
 					try {
 						history.pushState(token, '', url);
-					} catch (e) {
+					}
+					catch (e) {
 						// Do nothing
 					}
 				}
@@ -382,7 +386,8 @@ class PortletInit {
 				);
 
 				resolve(updatedIds);
-			} catch (e) {
+			}
+			catch (e) {
 				reject(new Error(`Partial Action decode status: ${e.message}`));
 			}
 		});
@@ -441,7 +446,8 @@ class PortletInit {
 		return new Promise(resolve => {
 			if (updatedIds.length === 0) {
 				busy = false;
-			} else {
+			}
+			else {
 				updatedIds.forEach(updatedId => {
 					this._updateStateForPortlet(updatedId);
 				});
@@ -466,7 +472,8 @@ class PortletInit {
 				message: 'Operation in progress',
 				name: 'AccessDeniedException'
 			};
-		} else if (!this._hasListener(this._portletId)) {
+		}
+		else if (!this._hasListener(this._portletId)) {
 			throw {
 				message: `No onStateChange listener registered for portlet: ${this._portletId}`,
 				name: 'NotInitializedException'
@@ -535,7 +542,8 @@ class PortletInit {
 							renderState,
 							renderData
 						);
-					} else {
+					}
+					else {
 						handler('portlet.onStateChange', renderState);
 					}
 				}
@@ -573,7 +581,8 @@ class PortletInit {
 				}
 
 				el = arg;
-			} else if (isObject(arg)) {
+			}
+			else if (isObject(arg)) {
 				validateParameters(arg);
 
 				if (actionParameters !== null) {
@@ -581,7 +590,8 @@ class PortletInit {
 				}
 
 				actionParameters = arg;
-			} else if (arg !== undefined) {
+			}
+			else if (arg !== undefined) {
 				const type = Object.prototype.toString.call(arg);
 
 				throw new TypeError(
@@ -682,7 +692,8 @@ class PortletInit {
 		if (parameters) {
 			if (isObject(parameters)) {
 				validateParameters(parameters);
-			} else {
+			}
+			else {
 				throw new TypeError(
 					'Invalid argument type. Resource parameters must be a parameters object.'
 				);
@@ -699,12 +710,14 @@ class PortletInit {
 					cache === 'cacheLevelFull'
 				) {
 					cacheability = cache;
-				} else {
+				}
+				else {
 					throw new TypeError(
 						`Invalid cacheability argument: ${cache}`
 					);
 				}
-			} else {
+			}
+			else {
 				throw new TypeError(
 					'Invalid argument type. Cacheability argument must be a string.'
 				);
@@ -755,6 +768,7 @@ class PortletInit {
 				listener.handler(type, payload);
 				amount++;
 			}
+
 			return amount;
 		}, 0);
 	}
@@ -786,6 +800,7 @@ class PortletInit {
 				newParameters[key] = [...optParameters[key]];
 			}
 		});
+
 		return newParameters;
 	}
 
@@ -901,12 +916,14 @@ class PortletInit {
 
 		if (arguments.length > 1) {
 			throw new TypeError('Too many arguments. 1 arguments are allowed');
-		} else if (actionParameters !== undefined) {
+		}
+		else if (actionParameters !== undefined) {
 			if (isObject(actionParameters)) {
 				validateParameters(actionParameters);
 
 				parameters = actionParameters;
-			} else {
+			}
+			else {
 				throw new TypeError(
 					`Invalid argument type. Argument is of type ${typeof actionParameters}`
 				);
@@ -918,7 +935,8 @@ class PortletInit {
 				message: 'Operation in progress',
 				name: 'AccessDeniedException'
 			};
-		} else if (!this._hasListener(this._portletId)) {
+		}
+		else if (!this._hasListener(this._portletId)) {
 			throw {
 				message: `No onStateChange listener registered for portlet: ${this._portletId}`,
 				name: 'NotInitializedException'
@@ -941,6 +959,7 @@ class PortletInit {
 			parameters
 		).then(url => {
 			partialActionInitObject.url = url;
+
 			return partialActionInitObject;
 		});
 	}

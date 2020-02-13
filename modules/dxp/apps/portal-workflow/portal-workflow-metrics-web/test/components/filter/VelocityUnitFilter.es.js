@@ -9,7 +9,7 @@
  * distribution rights of the Software.
  */
 
-import {cleanup, render, findByTestId} from '@testing-library/react';
+import {cleanup, findByTestId, render} from '@testing-library/react';
 import React from 'react';
 
 import VelocityUnitFilter from '../../../src/main/resources/META-INF/resources/js/components/filter/VelocityUnitFilter.es';
@@ -29,7 +29,6 @@ describe('The velocity unit filter component should', () => {
 	beforeEach(() => {
 		const renderResult = render(
 			<VelocityUnitFilter
-				dispatch={() => {}}
 				processId={12345}
 				timeRange={{
 					dateEnd: '2019-12-10T20:19:34Z',

@@ -16,6 +16,8 @@ package com.liferay.layout.seo.web.internal.servlet.taglib.ui;
 
 import com.liferay.frontend.taglib.servlet.taglib.ScreenNavigationEntry;
 import com.liferay.layout.seo.web.internal.constants.LayoutSEOScreenNavigationEntryConstants;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.User;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -32,6 +34,15 @@ public class LayoutSEOScreenNavigationEntry
 	@Override
 	public String getEntryKey() {
 		return LayoutSEOScreenNavigationEntryConstants.ENTRY_KEY_SEO;
+	}
+
+	@Override
+	public boolean isVisible(User user, Layout layout) {
+		if (layout.isTypeAssetDisplay()) {
+			return true;
+		}
+
+		return super.isVisible(user, layout);
 	}
 
 	@Override

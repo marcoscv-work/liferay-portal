@@ -53,6 +53,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeMap;
@@ -61,6 +62,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.maven.archetype.ArchetypeGenerationResult;
 
@@ -100,62 +103,75 @@ public class ProjectTemplates {
 								ProjectTemplatesUtil.getTemplateName(
 									bundleSymbolicName);
 
-							if (!templateName.startsWith(
+							if (templateName.startsWith(
 									WorkspaceUtil.WORKSPACE)) {
 
-								String bundleDescription =
-									FileUtil.getManifestProperty(
-										path.toFile(), "Bundle-Description");
+								continue;
+							}
 
-								templates.put(templateName, bundleDescription);
+							String bundleDescription =
+								FileUtil.getManifestProperty(
+									path.toFile(), "Bundle-Description");
+
+							if (bundleDescription == null) {
+								continue;
+							}
+
+							try (ZipFile zipFile = new ZipFile(path.toFile())) {
+								ZipEntry zipEntry = zipFile.getEntry(
+									_ARCHETYPE_METADATA_XML);
+
+								if (Objects.nonNull(zipEntry)) {
+									templates.put(
+										templateName, bundleDescription);
+								}
 							}
 						}
 						catch (IOException ioException) {
 						}
 					}
 				}
+
+				continue;
 			}
-			else {
-				try (JarFile jarFile = new JarFile(templatesFile)) {
-					Enumeration<JarEntry> enumeration = jarFile.entries();
 
-					while (enumeration.hasMoreElements()) {
-						JarEntry jarEntry = enumeration.nextElement();
+			try (JarFile jarFile = new JarFile(templatesFile)) {
+				Enumeration<JarEntry> enumeration = jarFile.entries();
 
-						if (jarEntry.isDirectory()) {
-							continue;
-						}
+				while (enumeration.hasMoreElements()) {
+					JarEntry jarEntry = enumeration.nextElement();
 
-						String template = jarEntry.getName();
+					if (jarEntry.isDirectory()) {
+						continue;
+					}
 
-						if (!template.startsWith(
-								ProjectTemplatesConstants.
-									TEMPLATE_BUNDLE_PREFIX)) {
+					String template = jarEntry.getName();
 
-							continue;
-						}
+					if (!template.startsWith(
+							ProjectTemplatesConstants.TEMPLATE_BUNDLE_PREFIX)) {
 
-						template = ProjectTemplatesUtil.getTemplateName(
-							template);
+						continue;
+					}
 
-						if (!template.startsWith(WorkspaceUtil.WORKSPACE)) {
-							try (InputStream inputStream =
-									jarFile.getInputStream(jarEntry);
-								JarInputStream jarInputStream =
-									new JarInputStream(inputStream)) {
+					template = ProjectTemplatesUtil.getTemplateName(template);
 
-								Manifest manifest =
-									jarInputStream.getManifest();
+					if (!template.startsWith(WorkspaceUtil.WORKSPACE)) {
+						continue;
+					}
 
-								Attributes attributes =
-									manifest.getMainAttributes();
+					try (InputStream inputStream = jarFile.getInputStream(
+							jarEntry);
+						JarInputStream jarInputStream = new JarInputStream(
+							inputStream)) {
 
-								String bundleDescription = attributes.getValue(
-									"Bundle-Description");
+						Manifest manifest = jarInputStream.getManifest();
 
-								templates.put(template, bundleDescription);
-							}
-						}
+						Attributes attributes = manifest.getMainAttributes();
+
+						String bundleDescription = attributes.getValue(
+							"Bundle-Description");
+
+						templates.put(template, bundleDescription);
 					}
 				}
 			}
@@ -610,6 +626,9 @@ public class ProjectTemplates {
 			}
 		}
 	}
+
+	private static final String _ARCHETYPE_METADATA_XML =
+		"META-INF/maven/archetype-metadata.xml";
 
 	private static final Set<PosixFilePermission> _wrapperPosixFilePermissions =
 		PosixFilePermissions.fromString("rwxrwxr--");

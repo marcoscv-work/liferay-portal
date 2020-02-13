@@ -214,6 +214,11 @@ public class DDMStructureWrapper
 	}
 
 	@Override
+	public DDMStructureLayout fetchDDMStructureLayout() {
+		return model.fetchDDMStructureLayout();
+	}
+
+	@Override
 	public String[] getAvailableLanguageIds() {
 		return model.getAvailableLanguageIds();
 	}

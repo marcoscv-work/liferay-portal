@@ -196,55 +196,57 @@ public interface BaseProjectTemplatesTestCase {
 			File mavenOutputDir, String... gradleTaskPath)
 		throws Exception {
 
-		if (isBuildProjects()) {
-			executeGradle(gradleProjectDir, gradleDistribution, gradleTaskPath);
+		if (!isBuildProjects()) {
+			return;
+		}
 
-			Path gradleOutputPath = FileTestUtil.getFile(
-				gradleOutputDir.toPath(), OUTPUT_FILENAME_GLOB_REGEX, 1);
+		executeGradle(gradleProjectDir, gradleDistribution, gradleTaskPath);
 
-			Assert.assertNotNull(gradleOutputPath);
+		Path gradleOutputPath = FileTestUtil.getFile(
+			gradleOutputDir.toPath(), OUTPUT_FILENAME_GLOB_REGEX, 1);
 
-			Assert.assertTrue(Files.exists(gradleOutputPath));
+		Assert.assertNotNull(gradleOutputPath);
 
-			File gradleOutputFile = gradleOutputPath.toFile();
+		Assert.assertTrue(Files.exists(gradleOutputPath));
 
-			String gradleOutputFileName = gradleOutputFile.getName();
+		File gradleOutputFile = gradleOutputPath.toFile();
 
-			executeMaven(mavenProjectDir, mavenExecutor, MAVEN_GOAL_PACKAGE);
+		String gradleOutputFileName = gradleOutputFile.getName();
 
-			Path mavenOutputPath = FileTestUtil.getFile(
-				mavenOutputDir.toPath(), OUTPUT_FILENAME_GLOB_REGEX, 1);
+		executeMaven(mavenProjectDir, mavenExecutor, MAVEN_GOAL_PACKAGE);
 
-			Assert.assertNotNull(mavenOutputPath);
+		Path mavenOutputPath = FileTestUtil.getFile(
+			mavenOutputDir.toPath(), OUTPUT_FILENAME_GLOB_REGEX, 1);
 
-			Assert.assertTrue(Files.exists(mavenOutputPath));
+		Assert.assertNotNull(mavenOutputPath);
 
-			File mavenOutputFile = mavenOutputPath.toFile();
+		Assert.assertTrue(Files.exists(mavenOutputPath));
 
-			String mavenOutputFileName = mavenOutputFile.getName();
+		File mavenOutputFile = mavenOutputPath.toFile();
 
-			try {
-				if (gradleOutputFileName.endsWith(".jar")) {
-					testBundlesDiff(gradleOutputFile, mavenOutputFile);
-				}
-				else if (gradleOutputFileName.endsWith(".war")) {
-					testWarsDiff(gradleOutputFile, mavenOutputFile);
-				}
+		String mavenOutputFileName = mavenOutputFile.getName();
+
+		try {
+			if (gradleOutputFileName.endsWith(".jar")) {
+				testBundlesDiff(gradleOutputFile, mavenOutputFile);
 			}
-			catch (Throwable t) {
-				if (TEST_DEBUG_BUNDLE_DIFFS) {
-					Path dirPath = Paths.get("build");
-
-					Files.copy(
-						gradleOutputFile.toPath(),
-						dirPath.resolve(gradleOutputFileName));
-					Files.copy(
-						mavenOutputFile.toPath(),
-						dirPath.resolve(mavenOutputFileName));
-				}
-
-				throw t;
+			else if (gradleOutputFileName.endsWith(".war")) {
+				testWarsDiff(gradleOutputFile, mavenOutputFile);
 			}
+		}
+		catch (Throwable t) {
+			if (TEST_DEBUG_BUNDLE_DIFFS) {
+				Path dirPath = Paths.get("build");
+
+				Files.copy(
+					gradleOutputFile.toPath(),
+					dirPath.resolve(gradleOutputFileName));
+				Files.copy(
+					mavenOutputFile.toPath(),
+					dirPath.resolve(mavenOutputFileName));
+			}
+
+			throw t;
 		}
 	}
 
@@ -445,13 +447,15 @@ public interface BaseProjectTemplatesTestCase {
 			mavenDir, mavenDir, template, name, groupId, mavenExecutor, args);
 	}
 
-	public default File buildWorkspace(TemporaryFolder temporaryFolder)
+	public default File buildWorkspace(
+			TemporaryFolder temporaryFolder, String liferayVersion)
 		throws Exception {
 
 		File destinationDir = temporaryFolder.newFolder("workspace");
 
 		return buildTemplateWithGradle(
-			destinationDir, WorkspaceUtil.WORKSPACE, "test-workspace");
+			destinationDir, WorkspaceUtil.WORKSPACE, "test-workspace",
+			"--liferay-version", liferayVersion);
 	}
 
 	public default void editXml(File xmlFile, Consumer<Document> consumer)
@@ -724,18 +728,29 @@ public interface BaseProjectTemplatesTestCase {
 			String template, String name, String jarFilePath, String... args)
 		throws Exception {
 
-		File workspaceDir = buildWorkspace(temporaryFolder);
-
 		List<String> argsList = Arrays.asList(args);
 
+		File workspaceDir = null;
+
 		if (argsList.contains("7.0.6")) {
+			workspaceDir = buildWorkspace(temporaryFolder, "7.0.6");
+
 			enableTargetPlatformInWorkspace(workspaceDir, "7.0.6");
 		}
 		else if (argsList.contains("7.1.3")) {
+			workspaceDir = buildWorkspace(temporaryFolder, "7.1.3");
+
 			enableTargetPlatformInWorkspace(workspaceDir, "7.1.3");
 		}
-		else {
+		else if (argsList.contains("7.2.1")) {
+			workspaceDir = buildWorkspace(temporaryFolder, "7.2.1");
+
 			enableTargetPlatformInWorkspace(workspaceDir, "7.2.1");
+		}
+		else {
+			workspaceDir = buildWorkspace(temporaryFolder, "7.3.0");
+
+			enableTargetPlatformInWorkspace(workspaceDir, "7.3.0");
 		}
 
 		File modulesDir = new File(workspaceDir, "modules");

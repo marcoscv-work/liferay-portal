@@ -17,7 +17,7 @@ package com.liferay.saml.persistence.internal.upgrade.v1_1_0.util;
 import java.sql.Types;
 
 /**
- * @author Mika Koivisto
+ * @author Brian Wing Shun Chan
  */
 public class SamlSpSessionTable {
 
@@ -25,21 +25,19 @@ public class SamlSpSessionTable {
 		{"samlSpSessionId", Types.BIGINT}, {"companyId", Types.BIGINT},
 		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
 		{"createDate", Types.TIMESTAMP}, {"modifiedDate", Types.TIMESTAMP},
-		{"samlSpSessionKey", Types.VARCHAR}, {"assertionXml", Types.CLOB},
 		{"jSessionId", Types.VARCHAR}, {"nameIdFormat", Types.VARCHAR},
-		{"nameIdValue", Types.VARCHAR}, {"sessionIndex", Types.VARCHAR},
-		{"terminated_", Types.BOOLEAN}
+		{"nameIdValue", Types.VARCHAR}, {"terminated_", Types.BOOLEAN}
 	};
 
 	public static final String TABLE_NAME = "SamlSpSession";
 
 	public static final String[] TABLE_SQL_ADD_INDEXES = {
-		"create unique index IX_C66E4319 on SamlSpSession (samlSpSessionKey)",
-		"create index IX_2001B382 on SamlSpSession (sessionIndex)"
+		"create index IX_85F532ED on SamlSpSession (jSessionId)",
+		"create index IX_1040A689 on SamlSpSession (nameIdValue)"
 	};
 
 	public static final String TABLE_SQL_CREATE =
-		"create table SamlSpSession (samlSpSessionId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,samlSpSessionKey VARCHAR(75) null,assertionXml TEXT null,jSessionId VARCHAR(75) null,nameIdFormat VARCHAR(1024) null,nameIdValue VARCHAR(1024) null,sessionIndex VARCHAR(75) null,terminated_ BOOLEAN)";
+		"create table SamlSpSession (samlSpSessionId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,jSessionId VARCHAR(75) null,nameIdFormat VARCHAR(75) null,nameIdValue VARCHAR(75) null,terminated_ BOOLEAN)";
 
 	public static final String TABLE_SQL_DROP = "drop table SamlSpSession";
 

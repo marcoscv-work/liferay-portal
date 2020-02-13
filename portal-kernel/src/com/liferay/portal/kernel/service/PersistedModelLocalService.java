@@ -24,6 +24,13 @@ import java.io.Serializable;
  */
 public interface PersistedModelLocalService {
 
+	public default PersistedModel createPersistedModel(
+			Serializable primaryKeyObj)
+		throws PortalException {
+
+		throw new UnsupportedOperationException();
+	}
+
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
 

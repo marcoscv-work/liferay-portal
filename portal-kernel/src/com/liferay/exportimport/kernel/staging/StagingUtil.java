@@ -454,6 +454,15 @@ public class StagingUtil {
 			user, layoutSetId, layoutSetBranchId);
 	}
 
+	public static void setRemoteSiteURL(
+			Group stagingGroup, boolean overrideRemoteSiteURL,
+			String remoteSiteURL)
+		throws PortalException {
+
+		_staging.setRemoteSiteURL(
+			stagingGroup, overrideRemoteSiteURL, remoteSiteURL);
+	}
+
 	public static String stripProtocolFromRemoteAddress(String remoteAddress) {
 		return _staging.stripProtocolFromRemoteAddress(remoteAddress);
 	}

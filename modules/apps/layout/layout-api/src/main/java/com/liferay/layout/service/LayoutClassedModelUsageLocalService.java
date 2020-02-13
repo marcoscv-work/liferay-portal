@@ -14,9 +14,11 @@
 
 package com.liferay.layout.service;
 
+import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.layout.model.LayoutClassedModelUsage;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -88,6 +90,12 @@ public interface LayoutClassedModelUsageLocalService
 	@Transactional(enabled = false)
 	public LayoutClassedModelUsage createLayoutClassedModelUsage(
 		long layoutClassedModelUsageId);
+
+	/**
+	 * @throws PortalException
+	 */
+	public PersistedModel createPersistedModel(Serializable primaryKeyObj)
+		throws PortalException;
 
 	/**
 	 * Deletes the layout classed model usage from the database. Also notifies the appropriate model listeners.
@@ -215,6 +223,10 @@ public interface LayoutClassedModelUsageLocalService
 	public ActionableDynamicQuery getActionableDynamicQuery();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		PortletDataContext portletDataContext);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
 
 	/**
@@ -276,6 +288,34 @@ public interface LayoutClassedModelUsageLocalService
 		long plid);
 
 	/**
+	 * Returns all the layout classed model usages matching the UUID and company.
+	 *
+	 * @param uuid the UUID of the layout classed model usages
+	 * @param companyId the primary key of the company
+	 * @return the matching layout classed model usages, or an empty list if no matches were found
+	 */
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<LayoutClassedModelUsage>
+		getLayoutClassedModelUsagesByUuidAndCompanyId(
+			String uuid, long companyId);
+
+	/**
+	 * Returns a range of layout classed model usages matching the UUID and company.
+	 *
+	 * @param uuid the UUID of the layout classed model usages
+	 * @param companyId the primary key of the company
+	 * @param start the lower bound of the range of layout classed model usages
+	 * @param end the upper bound of the range of layout classed model usages (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the range of matching layout classed model usages, or an empty list if no matches were found
+	 */
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<LayoutClassedModelUsage>
+		getLayoutClassedModelUsagesByUuidAndCompanyId(
+			String uuid, long companyId, int start, int end,
+			OrderByComparator<LayoutClassedModelUsage> orderByComparator);
+
+	/**
 	 * Returns the number of layout classed model usages.
 	 *
 	 * @return the number of layout classed model usages
@@ -297,6 +337,9 @@ public interface LayoutClassedModelUsageLocalService
 	 */
 	public String getOSGiServiceIdentifier();
 
+	/**
+	 * @throws PortalException
+	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)

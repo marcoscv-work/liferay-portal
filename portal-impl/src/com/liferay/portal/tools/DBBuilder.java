@@ -15,7 +15,6 @@
 package com.liferay.portal.tools;
 
 import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
@@ -97,6 +96,18 @@ public class DBBuilder {
 		_buildCreateFile(sqlDir);
 	}
 
+	private void _appendFile(
+			StringBundler sb, String sqlDir, String pathPrefix, DBType dbType)
+		throws IOException {
+
+		String fileName = StringBundler.concat(
+			sqlDir, pathPrefix, dbType, ".sql");
+
+		if (FileUtil.exists(fileName)) {
+			sb.append(FileUtil.read(fileName));
+		}
+	}
+
 	private void _buildCreateFile(String sqlDir) throws IOException {
 		for (DBType dbType : _dbTypes) {
 			if (dbType == DBType.HYPERSONIC) {
@@ -106,11 +117,45 @@ public class DBBuilder {
 			DB db = DBManagerUtil.getDB(dbType, null);
 
 			if (db != null) {
+				String recreateSQL = db.getRecreateSQL(_databaseName);
+
 				if (!sqlDir.endsWith("/WEB-INF/sql")) {
-					db.buildCreateFile(sqlDir, _databaseName);
+					FileUtil.write(
+						StringBundler.concat(
+							sqlDir, "/create-bare/create-bare-", db.getDBType(),
+							".sql"),
+						recreateSQL);
 				}
-				else {
-					db.buildCreateFile(sqlDir, _databaseName, DB.DEFAULT);
+
+				StringBundler sb = new StringBundler(6);
+
+				String tablesPrefix = "/portal/portal-";
+
+				if (sqlDir.endsWith("/WEB-INF/sql")) {
+					tablesPrefix = "/tables/tables-";
+				}
+
+				_appendFile(sb, sqlDir, tablesPrefix, db.getDBType());
+
+				sb.append("\n\n");
+
+				_appendFile(sb, sqlDir, "/indexes/indexes-", db.getDBType());
+
+				sb.append("\n\n");
+
+				_appendFile(
+					sb, sqlDir, "/sequences/sequences-", db.getDBType());
+
+				sb.append("\n");
+
+				String content = db.getPopulateSQL(
+					_databaseName, sb.toString());
+
+				if (!content.isEmpty()) {
+					FileUtil.write(
+						StringBundler.concat(
+							sqlDir, "/create/create-", db.getDBType(), ".sql"),
+						recreateSQL.concat(content));
 				}
 			}
 		}
@@ -140,8 +185,7 @@ public class DBBuilder {
 				String fileName = fileNamePath.toString();
 
 				_generateSQLFile(
-					sqlDir,
-					StringUtil.replace(fileName, ".sql", StringPool.BLANK));
+					sqlDir, StringUtil.removeSubstring(fileName, ".sql"));
 			}
 		}
 	}

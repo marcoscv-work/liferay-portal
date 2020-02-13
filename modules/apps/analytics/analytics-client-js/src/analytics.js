@@ -50,16 +50,19 @@ const getItem = key => {
 	const item = localStorage.getItem(key);
 	try {
 		data = JSON.parse(item);
-	} catch (e) {
+	}
+	catch (e) {
 		return;
 	}
+
 	return data;
 };
 
 const setItem = (key, value) => {
 	try {
 		localStorage.setItem(key, JSON.stringify(value));
-	} catch (e) {
+	}
+	catch (e) {
 		return;
 	}
 };
@@ -200,9 +203,11 @@ class Analytics {
 				})
 				.then(() => {
 					this.isFlushInProgress = false;
+
 					return this.isFlushInProgress;
 				});
-		} else {
+		}
+		else {
 			result = Promise.resolve();
 		}
 
@@ -254,7 +259,8 @@ class Analytics {
 					return this._getEventKey(evt) === eventKey;
 				});
 			});
-		} else {
+		}
+		else {
 			this.events.length = 0;
 		}
 
@@ -386,6 +392,7 @@ class Analytics {
 		if (!hasStoredContext) {
 			this.contexts = [...this.contexts, currentContext];
 		}
+
 		return currentContextHash;
 	}
 
@@ -405,6 +412,16 @@ class Analytics {
 		);
 
 		return context;
+	}
+
+	_getIdentityHash(dataSourceId, identity, userId) {
+		const bodyData = {
+			dataSourceId,
+			identity,
+			userId
+		};
+
+		return hash(bodyData);
 	}
 
 	/**
@@ -438,16 +455,34 @@ class Analytics {
 	}
 
 	_isNewUserIdRequired() {
-		const identityHash = getItem(STORAGE_KEY_IDENTITY_HASH);
+		const {dataSourceId} = this.config;
+		const {identity} = this.config;
+
+		const storedIdentityHash = getItem(STORAGE_KEY_IDENTITY_HASH);
 		const storedUserId = getItem(STORAGE_KEY_USER_ID);
 
 		let newUserIdRequired = false;
 
-		// During logout or session expiration, identiy object becomes undefined
-		// because the client object is being instatiated on every page navigation,
+		// During logout or session expiration, identity object becomes undefined
+		// because the client object is being instantiated on every page navigation,
 		// in such cases, we force a new user ID token.
 
-		if (!storedUserId || (identityHash && !this.config.identity)) {
+		if (!storedUserId || (storedIdentityHash && !identity)) {
+			newUserIdRequired = true;
+		}
+
+		// After logout or session expiration, it is not guaranteed a new user ID
+		// is generated. The login/logout process can redirect the user to page
+		// where the analytics.js is not loaded. In such cases, we must verify
+		// the identity hashes match and generate a new user ID token otherwise.
+
+		if (
+			storedUserId &&
+			identity &&
+			storedIdentityHash &&
+			storedIdentityHash !==
+				this._getIdentityHash(dataSourceId, identity, storedUserId)
+		) {
 			newUserIdRequired = true;
 		}
 
@@ -485,13 +520,11 @@ class Analytics {
 	_sendIdentity(identity, userId) {
 		const {dataSourceId} = this.config;
 
-		const bodyData = {
+		const newIdentityHash = this._getIdentityHash(
 			dataSourceId,
 			identity,
 			userId
-		};
-
-		const newIdentityHash = hash(bodyData);
+		);
 		const storedIdentityHash = getItem(STORAGE_KEY_IDENTITY_HASH);
 
 		let identyHash = Promise.resolve(storedIdentityHash);
@@ -499,7 +532,11 @@ class Analytics {
 		if (newIdentityHash !== storedIdentityHash) {
 			instance._persist(STORAGE_KEY_IDENTITY_HASH, newIdentityHash);
 
-			const body = JSON.stringify(bodyData);
+			const body = JSON.stringify({
+				dataSourceId,
+				identity,
+				userId
+			});
 			const headers = new Headers();
 
 			headers.append('Content-Type', 'application/json');

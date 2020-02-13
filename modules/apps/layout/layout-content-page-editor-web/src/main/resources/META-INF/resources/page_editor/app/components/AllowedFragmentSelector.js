@@ -15,7 +15,7 @@
 import {ClayCheckbox, ClayInput} from '@clayui/form';
 import {Treeview} from 'frontend-js-components-web';
 import PropTypes from 'prop-types';
-import React, {useState, useEffect, useMemo, useContext} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 
 import {ConfigContext} from '../config/index';
 import {useSelector} from '../store/index';
@@ -136,11 +136,11 @@ const AllowedFragmentSelector = ({onSelectedFragment}) => {
 					type="text"
 				/>
 
-				<div className="fragments-editor__allowed-fragment__tree">
+				<div className="page-editor__allowed-fragment__tree">
 					<Treeview
 						filterQuery={filter}
 						inheritSelection
-						initialSelectedNodeIds={fragmentEntryKeys}
+						initialSelectedNodeIds={[...fragmentEntryKeys]}
 						NodeComponent={AllowedFragmentTreeNode}
 						nodes={nodes}
 						onSelectedNodesChange={setFragmentEntryKeys}
@@ -148,7 +148,7 @@ const AllowedFragmentSelector = ({onSelectedFragment}) => {
 				</div>
 			</div>
 
-			<div className="fragments-editor__allowed-fragment__new-fragments-checkbox">
+			<div className="page-editor__allowed-fragment__new-fragments-checkbox">
 				<ClayCheckbox
 					aria-label={Liferay.Language.get(
 						'select-new-fragments-automatically'

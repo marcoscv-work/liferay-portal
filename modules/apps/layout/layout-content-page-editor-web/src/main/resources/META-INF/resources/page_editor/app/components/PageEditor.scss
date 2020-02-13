@@ -1,6 +1,6 @@
 @import 'atlas-variables';
 
-@import './variables';
+@import 'variables';
 
 .page-editor {
 	transition: padding-right ease $defaultTransitionDuration;
@@ -11,13 +11,34 @@
 	}
 
 	&--with-sidebar-open {
-		padding-right: $sidebarButtonWidth + $sidebarContentWidth;
+		@include media-breakpoint-up(sm) {
+			padding-right: $sidebarButtonWidth + $sidebarContentWidth;
+		}
 	}
 
-	&__col.col:after {
-		box-shadow: inset 0 0 0 1px rgba(11, 95, 255, 0.2);
-		left: 12px;
-		width: calc(100% - 24px);
+	&__col {
+		&.col:after {
+			box-shadow: inset 0 0 0 1px rgba(11, 95, 255, 0.2);
+			left: 12px;
+			width: calc(100% - 24px);
+		}
+		&__resizer {
+			border-radius: 50%;
+			height: 16px;
+			left: 100%;
+			padding: 0;
+			position: absolute;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			width: 16px;
+			z-index: 1;
+			html.rtl & {
+				transform: translate(50%, -50%);
+			}
+		}
+		&__resizer:not(:disabled):not(.disabled) {
+			cursor: col-resize;
+		}
 	}
 	&__container,
 	&__container > .container,
@@ -30,6 +51,11 @@
 	&__container.empty > .container-fluid,
 	&__row.empty {
 		min-height: 10em;
+	}
+
+	&__editable {
+		cursor: pointer;
+		display: block;
 	}
 
 	&__fragment {
@@ -78,14 +104,20 @@
 		width: 100%;
 	}
 
-	&__root {
-		box-shadow: inset 0 0 0 0 $colorPrimary;
-		min-height: 50vh;
+	&__no-fragments-message {
+		background: #f7faff;
+		box-shadow: inset 0 0 0 2px #b3cdff;
+		padding: 10vh 0;
 		transition: box-shadow ease 0.3s;
 		will-change: box-shadow;
 
 		&--active {
 			box-shadow: inset 0 0 0 4px $colorPrimary;
+		}
+
+		.taglib-empty-result-message-header {
+			max-width: 120px;
+			padding-top: 160px;
 		}
 	}
 }

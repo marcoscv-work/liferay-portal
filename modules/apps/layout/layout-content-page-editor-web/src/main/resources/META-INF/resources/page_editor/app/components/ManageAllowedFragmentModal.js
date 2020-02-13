@@ -15,7 +15,7 @@
 import ClayButton from '@clayui/button';
 import ClayModal from '@clayui/modal';
 import PropTypes from 'prop-types';
-import React, {useState, useCallback, useContext} from 'react';
+import React, {useCallback, useContext, useState} from 'react';
 
 import {ConfigContext} from '../config/index';
 import {useDispatch} from '../store/index';
@@ -61,7 +61,7 @@ const ManageAllowedFragmentModal = ({item, observer, onClose}) => {
 
 	return (
 		<ClayModal
-			className="fragments-editor__allowed-fragment__modal"
+			className="page-editor__allowed-fragment__modal"
 			observer={observer}
 			size="md"
 		>

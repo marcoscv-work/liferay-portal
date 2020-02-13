@@ -15,10 +15,13 @@
 package com.liferay.portal.servlet;
 
 import com.liferay.petra.reflect.ReflectionUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.servlet.DirectServletRegistry;
+import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
 
 import java.io.File;
@@ -78,7 +81,9 @@ public class DirectServletRegistryImpl implements DirectServletRegistry {
 
 	@Override
 	public void putServlet(String path, Servlet servlet) {
-		if (path.startsWith("/o/") || _servletInfos.containsKey(path)) {
+		if (path.startsWith(PathModulePrefixHolder._PATH_MODULE_PREFIX) ||
+			_servletInfos.containsKey(path)) {
+
 			return;
 		}
 
@@ -213,6 +218,14 @@ public class DirectServletRegistryImpl implements DirectServletRegistry {
 	private boolean _reloadDependants = true;
 	private final Map<String, ServletInfo> _servletInfos =
 		new ConcurrentHashMap<>();
+
+	private static class PathModulePrefixHolder {
+
+		private static final String _PATH_MODULE_PREFIX = StringBundler.concat(
+			PortalUtil.getPathProxy(), PortalUtil.getPathContext(),
+			Portal.PATH_MODULE, StringPool.SLASH);
+
+	}
 
 	private static class ServletInfo {
 

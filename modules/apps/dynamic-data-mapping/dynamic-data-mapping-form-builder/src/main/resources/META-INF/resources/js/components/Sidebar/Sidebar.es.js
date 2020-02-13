@@ -17,10 +17,9 @@ import ClayButton from 'clay-button';
 import {ClayActionsDropdown, ClayDropdownBase} from 'clay-dropdown';
 import {ClayIcon} from 'clay-icon';
 import ClayModal from 'clay-modal';
-import * as FormSupport from 'dynamic-data-mapping-form-renderer/js/components/FormRenderer/FormSupport.es';
+import {FormSupport, PagesVisitor} from 'dynamic-data-mapping-form-renderer';
 import Form from 'dynamic-data-mapping-form-renderer/js/containers/Form/Form.es';
 import {makeFetch} from 'dynamic-data-mapping-form-renderer/js/util/fetch.es';
-import {PagesVisitor} from 'dynamic-data-mapping-form-renderer/js/util/visitors.es';
 import dom from 'metal-dom';
 import {Drag, DragDrop} from 'metal-drag-drop';
 import {EventHandler} from 'metal-events';
@@ -33,7 +32,7 @@ import {
 	getFieldProperties,
 	normalizeSettingsContextPages
 } from '../../util/fieldSupport.es';
-import FieldTypeBox from '../FieldTypeBox/FieldTypeBox.es.js';
+import FieldTypeBox from '../FieldTypeBox/FieldTypeBox.es';
 
 /**
  * Sidebar is a tooling to mount forms.
@@ -55,6 +54,7 @@ class Sidebar extends Component {
 			fieldTypes,
 			focusedField
 		} = this.props;
+		const {activeTab} = this.state;
 		const {dispatch} = this.context;
 		const newFieldType = fieldTypes.find(({name}) => name === type);
 		const newSettingsContext = {
@@ -66,6 +66,7 @@ class Sidebar extends Component {
 				focusedField.fieldName
 			)
 		};
+		const sidebarTabIndex = newSettingsContext.pages.length - 1;
 		let {settingsContext} = focusedField;
 
 		if (type !== focusedField.type) {
@@ -73,6 +74,11 @@ class Sidebar extends Component {
 				settingsContext,
 				newSettingsContext
 			);
+			if (sidebarTabIndex < activeTab) {
+				this.setState({
+					activeTab: sidebarTabIndex
+				});
+			}
 		}
 
 		dispatch('focusedFieldUpdated', {
@@ -240,7 +246,7 @@ class Sidebar extends Component {
 								aria-expanded="false"
 								aria-label="Toggle Navigation"
 								class="collapsed navbar-toggler navbar-toggler-link"
-								data-toggle="collapse"
+								data-toggle="liferay-collapse"
 								href="#sidebarLightCollapse00"
 								role="button"
 							>
@@ -439,7 +445,8 @@ class Sidebar extends Component {
 			if (next.group && !next.system) {
 				if (next.group === 'interface') {
 					prev.basic.fields.push(next);
-				} else {
+				}
+				else {
 					prev[next.group].fields.push(next);
 				}
 			}
@@ -474,6 +481,7 @@ class Sidebar extends Component {
 		Object.keys(transitionEndEvents).some(name => {
 			if (el.style[name] !== undefined) {
 				eventName = transitionEndEvents[name];
+
 				return true;
 			}
 		});
@@ -555,7 +563,8 @@ class Sidebar extends Component {
 					indexes
 				});
 			});
-		} else {
+		}
+		else {
 			const fieldType = fieldTypes.find(({name}) => {
 				return name === data.source.dataset.fieldTypeName;
 			});
@@ -607,9 +616,11 @@ class Sidebar extends Component {
 		if (!item.disabled) {
 			if (settingsItem === 'duplicate-field') {
 				this._duplicateField(indexes);
-			} else if (settingsItem === 'delete-field') {
+			}
+			else if (settingsItem === 'delete-field') {
 				this._deleteField(indexes);
-			} else if (settingsItem === 'cancel-field-changes') {
+			}
+			else if (settingsItem === 'cancel-field-changes') {
 				this._cancelFieldChanges(indexes);
 			}
 		}
@@ -757,27 +768,29 @@ class Sidebar extends Component {
 		return {
 			...newSettingsContext,
 			pages: newVisitor.mapFields(newField => {
-				const previousField = getPreviousField(newField);
+				if (newField.visible) {
+					const previousField = getPreviousField(newField);
 
-				if (previousField) {
-					newField.value = previousField.value;
+					if (previousField) {
+						newField.value = previousField.value;
 
-					if (newField.localizable && previousField.localizable) {
-						newField.localizedValue = {
-							...previousField.localizedValue
-						};
+						if (newField.localizable && previousField.localizable) {
+							newField.localizedValue = {
+								...previousField.localizedValue
+							};
+						}
 					}
-				}
 
-				if (newField.fieldName == 'predefinedValue') {
-					delete newField.value;
+					if (newField.fieldName == 'predefinedValue') {
+						delete newField.value;
 
-					newField.localizedValue = {};
+						newField.localizedValue = {};
 
-					if (newField.options) {
-						newField.options = this._getPredefinedOptions(
-							newVisitor
-						);
+						if (newField.options) {
+							newField.options = this._getPredefinedOptions(
+								newVisitor
+							);
+						}
 					}
 				}
 
@@ -808,7 +821,8 @@ class Sidebar extends Component {
 
 		if (groups.length > 0) {
 			elementSetsArea = this._renderElementSetsGroups(groups);
-		} else {
+		}
+		else {
 			elementSetsArea = this._renderEmptyElementSets();
 		}
 
@@ -817,6 +831,7 @@ class Sidebar extends Component {
 
 	_renderElementSetsGroups(groups) {
 		const {fieldSets, spritemap} = this.props;
+
 		return (
 			<div
 				aria-orientation="vertical"
@@ -928,7 +943,7 @@ class Sidebar extends Component {
 							aria-expanded="true"
 							class="collapse-icon panel-header panel-header-link"
 							data-parent="#accordion03"
-							data-toggle="collapse"
+							data-toggle="liferay-collapse"
 							href={`#ddm-field-types-${key}-body`}
 							id={`ddm-field-types-${key}-header`}
 							role="tab"
@@ -998,7 +1013,7 @@ class Sidebar extends Component {
 					<a
 						aria-controls="sidebarLightDetails"
 						class={style}
-						data-toggle="tab"
+						data-toggle="liferay-tab"
 						href="javascript:;"
 						role="tab"
 					>

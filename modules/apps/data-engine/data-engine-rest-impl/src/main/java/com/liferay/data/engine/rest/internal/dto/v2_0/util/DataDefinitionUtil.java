@@ -54,8 +54,9 @@ import java.util.stream.Stream;
 public class DataDefinitionUtil {
 
 	public static DataDefinition toDataDefinition(
-		DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker,
-		DDMStructure ddmStructure) {
+			DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker,
+			DDMStructure ddmStructure)
+		throws Exception {
 
 		DDMForm ddmForm = ddmStructure.getDDMForm();
 
@@ -69,6 +70,8 @@ public class DataDefinitionUtil {
 				dataDefinitionKey = ddmStructure.getStructureKey();
 				dateCreated = ddmStructure.getCreateDate();
 				dateModified = ddmStructure.getModifiedDate();
+				defaultDataLayout = DataLayoutUtil.toDataLayout(
+					ddmStructure.fetchDDMStructureLayout());
 				defaultLanguageId = LanguageUtil.getLanguageId(
 					ddmForm.getDefaultLocale());
 				description = LocalizedValueUtil.toStringObjectMap(
@@ -114,44 +117,45 @@ public class DataDefinitionUtil {
 		Map<String, Object> customProperties = new HashMap<>();
 
 		for (Map.Entry<String, Object> entry : properties.entrySet()) {
-			if (!ArrayUtil.contains(_PREDEFINED_PROPERTIES, entry.getKey())) {
-				DDMFormField settingsDDMFormField =
-					settingsDDMFormFieldsMap.get(entry.getKey());
+			if (ArrayUtil.contains(_PREDEFINED_PROPERTIES, entry.getKey())) {
+				continue;
+			}
 
-				if (settingsDDMFormField != null) {
-					if (settingsDDMFormField.isLocalizable()) {
-						customProperties.put(
-							entry.getKey(),
-							LocalizedValueUtil.toLocalizedValuesMap(
-								(LocalizedValue)entry.getValue()));
-					}
-					else if (Objects.equals(
-								settingsDDMFormField.getDataType(),
-								"boolean")) {
+			DDMFormField settingsDDMFormField = settingsDDMFormFieldsMap.get(
+				entry.getKey());
 
-						customProperties.put(
-							entry.getKey(),
-							GetterUtil.getBoolean(entry.getValue()));
-					}
-					else if (Objects.equals(
-								settingsDDMFormField.getDataType(),
-								"ddm-options")) {
+			if (settingsDDMFormField == null) {
+				continue;
+			}
 
-						customProperties.put(
-							entry.getKey(),
-							_toMap((DDMFormFieldOptions)entry.getValue()));
-					}
-					else if (Objects.equals(
-								settingsDDMFormField.getType(), "validation")) {
+			if (settingsDDMFormField.isLocalizable()) {
+				customProperties.put(
+					entry.getKey(),
+					LocalizedValueUtil.toLocalizedValuesMap(
+						(LocalizedValue)entry.getValue()));
+			}
+			else if (Objects.equals(
+						settingsDDMFormField.getDataType(), "boolean")) {
 
-						customProperties.put(
-							entry.getKey(),
-							_toMap((DDMFormFieldValidation)entry.getValue()));
-					}
-					else {
-						customProperties.put(entry.getKey(), entry.getValue());
-					}
-				}
+				customProperties.put(
+					entry.getKey(), GetterUtil.getBoolean(entry.getValue()));
+			}
+			else if (Objects.equals(
+						settingsDDMFormField.getDataType(), "ddm-options")) {
+
+				customProperties.put(
+					entry.getKey(),
+					_toMap((DDMFormFieldOptions)entry.getValue()));
+			}
+			else if (Objects.equals(
+						settingsDDMFormField.getType(), "validation")) {
+
+				customProperties.put(
+					entry.getKey(),
+					_toMap((DDMFormFieldValidation)entry.getValue()));
+			}
+			else {
+				customProperties.put(entry.getKey(), entry.getValue());
 			}
 		}
 
@@ -340,43 +344,43 @@ public class DataDefinitionUtil {
 				DDMFormField settingsDDMFormField =
 					settingsDDMFormFieldsMap.get(entry.getKey());
 
-				if (settingsDDMFormField != null) {
-					if (settingsDDMFormField.isLocalizable()) {
-						ddmFormField.setProperty(
-							entry.getKey(),
-							LocalizedValueUtil.toLocalizedValue(
-								(Map<String, Object>)entry.getValue()));
-					}
-					else if (Objects.equals(
-								settingsDDMFormField.getDataType(),
-								"boolean")) {
+				if (settingsDDMFormField == null) {
+					continue;
+				}
 
-						ddmFormField.setProperty(
-							entry.getKey(),
-							GetterUtil.getBoolean(entry.getValue()));
-					}
-					else if (Objects.equals(
-								settingsDDMFormField.getDataType(),
-								"ddm-options")) {
+				if (settingsDDMFormField.isLocalizable()) {
+					ddmFormField.setProperty(
+						entry.getKey(),
+						LocalizedValueUtil.toLocalizedValue(
+							(Map<String, Object>)entry.getValue()));
+				}
+				else if (Objects.equals(
+							settingsDDMFormField.getDataType(), "boolean")) {
 
-						ddmFormField.setProperty(
-							entry.getKey(),
-							_getDDMFormFieldOptions(
-								(Map<String, List<Map<String, String>>>)
-									entry.getValue()));
-					}
-					else if (Objects.equals(
-								settingsDDMFormField.getType(), "validation")) {
+					ddmFormField.setProperty(
+						entry.getKey(),
+						GetterUtil.getBoolean(entry.getValue()));
+				}
+				else if (Objects.equals(
+							settingsDDMFormField.getDataType(),
+							"ddm-options")) {
 
-						ddmFormField.setProperty(
-							entry.getKey(),
-							_getDDMFormFieldValidation(
-								(Map<String, Object>)entry.getValue()));
-					}
-					else {
-						ddmFormField.setProperty(
-							entry.getKey(), entry.getValue());
-					}
+					ddmFormField.setProperty(
+						entry.getKey(),
+						_getDDMFormFieldOptions(
+							(Map<String, List<Map<String, String>>>)
+								entry.getValue()));
+				}
+				else if (Objects.equals(
+							settingsDDMFormField.getType(), "validation")) {
+
+					ddmFormField.setProperty(
+						entry.getKey(),
+						_getDDMFormFieldValidation(
+							(Map<String, Object>)entry.getValue()));
+				}
+				else {
+					ddmFormField.setProperty(entry.getKey(), entry.getValue());
 				}
 			}
 		}

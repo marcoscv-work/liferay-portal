@@ -11,17 +11,18 @@
 
 import React from 'react';
 
-import EmptyState from '../../shared/components/list/EmptyState.es';
+import EmptyState from '../../shared/components/empty-state/EmptyState.es';
 import ReloadButton from '../../shared/components/list/ReloadButton.es';
 import LoadingState from '../../shared/components/loading/LoadingState.es';
 import PaginationBar from '../../shared/components/pagination-bar/PaginationBar.es';
-import PromisesResolver from '../../shared/components/request/PromisesResolver.es';
+import PromisesResolver from '../../shared/components/promises-resolver/PromisesResolver.es';
 import {Table} from './ProcessListPageTable.es';
 
 const Body = ({data, search}) => {
 	const {items, page, pageSize, totalCount} = data;
+
 	return (
-		<div className="container-fluid-1280">
+		<div className="container-fluid-1280 mt-4">
 			<PromisesResolver.Pending>
 				<Body.Loading />
 			</PromisesResolver.Pending>

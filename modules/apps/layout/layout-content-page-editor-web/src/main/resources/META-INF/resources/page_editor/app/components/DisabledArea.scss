@@ -1,6 +1,13 @@
+@import 'atlas-variables';
+
+@import './variables';
+
 .page-editor__disabled-area {
 	cursor: not-allowed;
+	padding-right: 40px;
 	position: relative;
+	transition: padding-right ease $defaultTransitionDuration;
+	will-change: padding-right;
 
 	&::after {
 		background-color: rgba(255, 255, 255, 0);
@@ -16,5 +23,11 @@
 
 	&:hover:after {
 		background-color: rgba(255, 255, 255, 0.4);
+	}
+
+	&.collapsed {
+		@include media-breakpoint-up(sm) {
+			padding-right: $sidebarButtonWidth + $sidebarContentWidth;
+		}
 	}
 }

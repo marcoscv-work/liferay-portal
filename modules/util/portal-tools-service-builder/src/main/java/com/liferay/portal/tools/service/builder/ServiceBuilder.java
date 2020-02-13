@@ -1439,40 +1439,37 @@ public class ServiceBuilder {
 				for (int i = 0; i < parameters.size(); i++) {
 					JavaParameter parameter = parameters.get(i);
 
-					if (Objects.equals(
+					if (!Objects.equals(
 							getParameterType(parameter), args.get(i))) {
 
-						exceptions = ListUtil.copy(exceptions);
+						continue;
+					}
 
-						List<JavaClass> methodExceptions =
-							method.getExceptions();
+					exceptions = ListUtil.copy(exceptions);
 
-						for (JavaClass methodException : methodExceptions) {
-							String exception = methodException.getValue();
+					List<JavaClass> methodExceptions = method.getExceptions();
 
-							if (exception.equals(
-									PortalException.class.getName())) {
+					for (JavaClass methodException : methodExceptions) {
+						String exception = methodException.getValue();
 
-								exception = "PortalException";
-							}
-
-							if (exception.equals(
-									SystemException.class.getName())) {
-
-								exception = "SystemException";
-							}
-
-							if (!exceptions.contains(exception)) {
-								exceptions.add(exception);
-							}
+						if (exception.equals(PortalException.class.getName())) {
+							exception = "PortalException";
 						}
 
-						Collections.sort(exceptions);
+						if (exception.equals(SystemException.class.getName())) {
+							exception = "SystemException";
+						}
 
-						foundMethod = true;
-
-						break;
+						if (!exceptions.contains(exception)) {
+							exceptions.add(exception);
+						}
 					}
+
+					Collections.sort(exceptions);
+
+					foundMethod = true;
+
+					break;
 				}
 			}
 
@@ -1952,6 +1949,16 @@ public class ServiceBuilder {
 	public boolean isVersionGTE_7_3_0() {
 		if (_dtdVersion.isLaterVersionThan("7.3.0") ||
 			_dtdVersion.isSameVersionAs("7.3.0")) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public boolean isVersionGTE_7_4_0() {
+		if (_dtdVersion.isLaterVersionThan("7.4.0") ||
+			_dtdVersion.isSameVersionAs("7.4.0")) {
 
 			return true;
 		}
@@ -2595,11 +2602,10 @@ public class ServiceBuilder {
 		if (finderImplFile.exists()) {
 			String content = _read(finderImplFile);
 
-			content = StringUtil.replace(
+			content = StringUtil.removeSubstring(
 				content,
 				"import com.liferay.portal.service.persistence.impl." +
-					"BasePersistenceImpl;\n",
-				"");
+					"BasePersistenceImpl;\n");
 
 			content = StringUtil.replace(
 				content, "BasePersistenceImpl<" + entity.getName() + ">",

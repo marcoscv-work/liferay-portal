@@ -18,12 +18,10 @@ import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalServiceUtil;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalServiceUtil;
-import com.liferay.layout.page.template.util.LayoutDataConverter;
 import com.liferay.layout.taglib.internal.servlet.ServletContextUtil;
-import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
-import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.layout.util.structure.DropZoneLayoutStructureItem;
+import com.liferay.layout.util.structure.LayoutStructure;
+import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
@@ -97,9 +95,9 @@ public class RenderFragmentLayoutTag extends IncludeTag {
 	protected void cleanUp() {
 		super.cleanUp();
 
-		_dataJSONObject = null;
 		_fieldValues = null;
 		_groupId = 0;
+		_layoutStructure = null;
 		_mode = null;
 		_plid = 0;
 		_showPreview = false;
@@ -115,10 +113,10 @@ public class RenderFragmentLayoutTag extends IncludeTag {
 		super.setAttributes(httpServletRequest);
 
 		httpServletRequest.setAttribute(
-			"liferay-layout:render-fragment-layout:dataJSONObject",
-			_getDataJSONObject());
-		httpServletRequest.setAttribute(
 			"liferay-layout:render-fragment-layout:fieldValues", _fieldValues);
+		httpServletRequest.setAttribute(
+			"liferay-layout:render-fragment-layout:layoutStructure",
+			_getLayoutStructure());
 		httpServletRequest.setAttribute(
 			"liferay-layout:render-fragment-layout:mode", _mode);
 		httpServletRequest.setAttribute(
@@ -135,9 +133,9 @@ public class RenderFragmentLayoutTag extends IncludeTag {
 			_getSegmentsExperienceIds());
 	}
 
-	private JSONObject _getDataJSONObject() {
-		if (_dataJSONObject != null) {
-			return _dataJSONObject;
+	private LayoutStructure _getLayoutStructure() {
+		if (_layoutStructure != null) {
+			return _layoutStructure;
 		}
 
 		try {
@@ -151,58 +149,23 @@ public class RenderFragmentLayoutTag extends IncludeTag {
 			String data = layoutPageTemplateStructure.getData(
 				_getSegmentsExperienceIds());
 
-			JSONObject dataJSONObject = JSONFactoryUtil.createJSONObject(data);
-
-			if (LayoutDataConverter.isLatestVersion(dataJSONObject)) {
-				String masterLayoutData = _getMasterLayoutData();
-
-				if (Validator.isNull(masterLayoutData)) {
-					_dataJSONObject = dataJSONObject;
-
-					return _dataJSONObject;
-				}
-
-				JSONObject masterLayoutDataJSONObject =
-					JSONFactoryUtil.createJSONObject(masterLayoutData);
-
-				_dataJSONObject = _mergeLayoutDataJSONObject(
-					dataJSONObject, masterLayoutDataJSONObject);
-
-				return _dataJSONObject;
-			}
-
 			String masterLayoutData = _getMasterLayoutData();
 
 			if (Validator.isNull(masterLayoutData)) {
-				_dataJSONObject = _getDefaultDataJSONObject();
+				_layoutStructure = LayoutStructure.of(data);
 
-				return _dataJSONObject;
+				return _layoutStructure;
 			}
 
-			_dataJSONObject = JSONFactoryUtil.createJSONObject(
-				masterLayoutData);
+			_layoutStructure = _mergeLayoutStructure(data, masterLayoutData);
 
-			return _dataJSONObject;
+			return _layoutStructure;
 		}
 		catch (Exception exception) {
-			_log.error("Unable to get data JSON object", exception);
+			_log.error("Unable to get layout structure", exception);
 
 			return null;
 		}
-	}
-
-	private JSONObject _getDefaultDataJSONObject() {
-		return JSONUtil.put(
-			"structure",
-			JSONUtil.putAll(
-				JSONUtil.put(
-					"columns",
-					JSONUtil.putAll(
-						JSONUtil.put(
-							"fragmentEntryLinkIds", JSONUtil.put("drop-zone")
-						).put(
-							"size", 12
-						)))));
 	}
 
 	private String _getMasterLayoutData() {
@@ -258,40 +221,28 @@ public class RenderFragmentLayoutTag extends IncludeTag {
 			new long[] {SegmentsExperienceConstants.ID_DEFAULT});
 	}
 
-	private JSONObject _mergeLayoutDataJSONObject(
-		JSONObject dataJSONObject, JSONObject masterLayoutDataJSONObject) {
+	private LayoutStructure _mergeLayoutStructure(
+		String data, String masterLayoutData) {
 
-		JSONObject masterLayoutItemsJSONObject =
-			masterLayoutDataJSONObject.getJSONObject("items");
+		LayoutStructure masterLayoutStructure = LayoutStructure.of(
+			masterLayoutData);
 
-		JSONObject itemsJSONObject = dataJSONObject.getJSONObject("items");
+		LayoutStructure layoutStructure = LayoutStructure.of(data);
 
-		for (String key : itemsJSONObject.keySet()) {
-			JSONObject itemJSONObject = itemsJSONObject.getJSONObject(key);
+		for (LayoutStructureItem layoutStructureItem :
+				layoutStructure.getLayoutStructureItems()) {
 
-			masterLayoutItemsJSONObject.put(key, itemJSONObject);
+			masterLayoutStructure.addLayoutStructureItem(layoutStructureItem);
 		}
 
-		JSONObject masterLayoutDataRootItemsJSONObject =
-			masterLayoutDataJSONObject.getJSONObject("rootItems");
+		DropZoneLayoutStructureItem dropZoneLayoutStructureItem =
+			(DropZoneLayoutStructureItem)
+				masterLayoutStructure.getDropZoneLayoutStructureItem();
 
-		String dropZoneItemId = masterLayoutDataRootItemsJSONObject.getString(
-			"dropZone");
+		dropZoneLayoutStructureItem.addChildrenItem(
+			layoutStructure.getMainItemId());
 
-		JSONObject dropZoneJSONObject =
-			masterLayoutItemsJSONObject.getJSONObject(dropZoneItemId);
-
-		JSONArray dropZoneChildrenJSONArray = dropZoneJSONObject.getJSONArray(
-			"children");
-
-		JSONObject rootItemsJSONObject = dataJSONObject.getJSONObject(
-			"rootItems");
-
-		String mainItemId = rootItemsJSONObject.getString("main");
-
-		dropZoneChildrenJSONArray.put(mainItemId);
-
-		return masterLayoutDataJSONObject;
+		return masterLayoutStructure;
 	}
 
 	private static final String _PAGE = "/render_fragment_layout/page.jsp";
@@ -299,9 +250,9 @@ public class RenderFragmentLayoutTag extends IncludeTag {
 	private static final Log _log = LogFactoryUtil.getLog(
 		RenderFragmentLayoutTag.class);
 
-	private JSONObject _dataJSONObject;
 	private Map<String, Object> _fieldValues;
 	private long _groupId;
+	private LayoutStructure _layoutStructure;
 	private String _mode;
 	private long _plid;
 	private boolean _showPreview;

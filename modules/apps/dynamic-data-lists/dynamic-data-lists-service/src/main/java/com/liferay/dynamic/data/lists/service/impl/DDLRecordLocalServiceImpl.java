@@ -790,18 +790,12 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		// Record
-
 		User user = userLocalService.getUser(userId);
 
 		DDLRecord record = ddlRecordPersistence.findByPrimaryKey(recordId);
 
 		record.setModifiedDate(serviceContext.getModifiedDate(null));
 		record.setDDMStorageId(ddmStorageId);
-
-		record = ddlRecordPersistence.update(record);
-
-		// Record version
 
 		DDLRecordVersion ddlRecordVersion = record.getLatestRecordVersion();
 
@@ -814,6 +808,10 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 			WorkflowConstants.STATUS_APPROVED);
 
 		addRecordVersion(user, record, ddmStorageId, version, 0, status);
+
+		record.setVersion(version);
+
+		record = ddlRecordPersistence.update(record);
 
 		return record;
 	}

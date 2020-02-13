@@ -12,56 +12,73 @@
  * details.
  */
 
-import React, {useCallback, useContext, useReducer, useRef} from 'react';
+import React, {useCallback, useContext, useReducer} from 'react';
+
+import {ITEM_TYPES} from '../config/constants/itemTypes';
 
 const INITIAL_STATE = {
 	activeItemId: null,
+	editingItemId: null,
 	hoveredItemId: null,
 	selectedItemsIds: []
 };
 
 const HOVER_ITEM = 'HOVER_ITEM';
+const SELECT_EDITING_ITEM = 'SELECT_EDITING_ITEM';
 const SELECT_ITEM = 'SELECT_ITEM';
-const FLOATING_TOOLBAR_REFERENCE = 'FLOATING_TOOLBAR_REFERENCE';
 
 const ControlsContext = React.createContext([INITIAL_STATE, () => {}]);
 const ControlsConsumer = ControlsContext.Consumer;
 
 const reducer = (state, action) => {
-	const {floatingToolbarRef, itemId, multiSelect, type} = action;
+	const {itemId, itemType, multiSelect, type} = action;
 	let nextState = state;
 
 	if (type === HOVER_ITEM && itemId !== nextState.hoveredItemId) {
-		nextState = {...nextState, hoveredItemId: itemId};
-	} else if (type === SELECT_ITEM) {
+		nextState = {
+			...nextState,
+			hoveredItemId: itemId,
+			hoveredItemType: itemType
+		};
+	}
+	else if (
+		type === SELECT_EDITING_ITEM &&
+		itemId !== nextState.editingItemId
+	) {
+		nextState = {...nextState, editingItemId: itemId};
+	}
+	else if (type === SELECT_ITEM) {
 		if (multiSelect && itemId) {
 			const wasSelected = state.selectedItemsIds.includes(itemId);
 
 			nextState = {
 				...nextState,
 				activeItemId: wasSelected ? null : itemId,
+				activeItemType: itemType,
 				selectedItemsIds: wasSelected
 					? state.selectedItemsIds.filter(id => id !== itemId)
 					: state.selectedItemsIds.concat([itemId])
 			};
-		} else if (itemId && itemId !== nextState.activeItemId) {
+		}
+		else if (itemId && itemId !== nextState.activeItemId) {
 			nextState = {
 				...nextState,
 				activeItemId: itemId,
+				activeItemType: itemType,
 				selectedItemsIds: [itemId]
 			};
-		} else if (
+		}
+		else if (
 			nextState.activeItemId ||
 			nextState.selectedItemsIds.length
 		) {
 			nextState = {
 				...nextState,
 				activeItemId: null,
+				activeItemType: null,
 				selectedItemsIds: []
 			};
 		}
-	} else if (type === FLOATING_TOOLBAR_REFERENCE) {
-		nextState = {...state, floatingToolbarRef};
 	}
 
 	return nextState;
@@ -83,13 +100,37 @@ const useActiveItemId = () => {
 	return state.activeItemId;
 };
 
+const useEditingItemId = () => {
+	const [state] = useContext(ControlsContext);
+
+	return state.editingItemId;
+};
+
+const useHoveredItemId = () => {
+	const [state] = useContext(ControlsContext);
+
+	return state.hoveredItemId;
+};
+
+const useHoveredItemType = () => {
+	const [state] = useContext(ControlsContext);
+
+	return state.hoveredItemType;
+};
+
 const useHoverItem = () => {
 	const [, dispatch] = useContext(ControlsContext);
 
 	return useCallback(
-		itemId =>
+		(
+			itemId,
+			{itemType = ITEM_TYPES.layoutDataItem} = {
+				itemType: ITEM_TYPES.layoutDataItem
+			}
+		) =>
 			dispatch({
 				itemId,
+				itemType,
 				type: HOVER_ITEM
 			}),
 		[dispatch]
@@ -120,13 +161,33 @@ const useIsSelected = () => {
 	]);
 };
 
+const useSelectEditingItem = () => {
+	const [, dispatch] = useContext(ControlsContext);
+
+	return useCallback(
+		itemId =>
+			dispatch({
+				itemId,
+				type: SELECT_EDITING_ITEM
+			}),
+		[dispatch]
+	);
+};
+
 const useSelectItem = () => {
 	const [, dispatch] = useContext(ControlsContext);
 
 	return useCallback(
-		(itemId, {multiSelect = false} = {multiSelect: false}) =>
+		(
+			itemId,
+			{multiSelect = false, itemType = ITEM_TYPES.layoutDataItem} = {
+				itemType: ITEM_TYPES.layoutDataItem,
+				multiSelect: false
+			}
+		) =>
 			dispatch({
 				itemId,
+				itemType,
 				multiSelect,
 				type: SELECT_ITEM
 			}),
@@ -134,36 +195,17 @@ const useSelectItem = () => {
 	);
 };
 
-const useFloatingToolbar = () => {
-	const [, dispatch] = useContext(ControlsContext);
-
-	return useCallback(
-		floatingToolbarRef =>
-			dispatch({
-				floatingToolbarRef,
-				type: FLOATING_TOOLBAR_REFERENCE
-			}),
-		[dispatch]
-	);
-};
-
-const useCurrentFloatingToolbar = () => {
-	const [state] = useContext(ControlsContext);
-
-	const fallback = useRef(null);
-
-	return state.floatingToolbarRef || fallback;
-};
-
 export {
 	ControlsConsumer,
 	ControlsProvider,
 	useActiveItemId,
-	useCurrentFloatingToolbar,
-	useFloatingToolbar,
+	useEditingItemId,
+	useHoveredItemId,
+	useHoveredItemType,
 	useHoverItem,
 	useIsActive,
 	useIsHovered,
 	useIsSelected,
+	useSelectEditingItem,
 	useSelectItem
 };

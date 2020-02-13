@@ -29,7 +29,7 @@ const createItems = size => {
 
 export const ACTIONS = [
 	{
-		callback: () => {},
+		action: () => {},
 		name: 'Delete'
 	}
 ];

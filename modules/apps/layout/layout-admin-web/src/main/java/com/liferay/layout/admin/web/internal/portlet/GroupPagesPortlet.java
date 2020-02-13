@@ -21,6 +21,7 @@ import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.dynamic.data.mapping.validator.DDMFormValuesValidationException;
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
 import com.liferay.layout.admin.web.internal.configuration.LayoutConverterConfiguration;
+import com.liferay.layout.admin.web.internal.configuration.LayoutEditorTypeConfiguration;
 import com.liferay.layout.admin.web.internal.constants.LayoutAdminWebKeys;
 import com.liferay.layout.admin.web.internal.display.context.LayoutsAdminDisplayContext;
 import com.liferay.layout.page.template.exception.DuplicateLayoutPageTemplateCollectionException;
@@ -48,7 +49,6 @@ import com.liferay.portal.kernel.exception.SitemapIncludeException;
 import com.liferay.portal.kernel.exception.SitemapPagePriorityException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.LayoutPrototype;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
@@ -75,6 +75,8 @@ import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
@@ -84,7 +86,10 @@ import org.osgi.service.component.annotations.Reference;
  * @author Jorge Ferrer
  */
 @Component(
-	configurationPid = "com.liferay.layout.admin.web.internal.configuration.LayoutConverterConfiguration",
+	configurationPid = {
+		"com.liferay.layout.admin.web.internal.configuration.LayoutConverterConfiguration",
+		"com.liferay.layout.admin.web.internal.configuration.LayoutEditorTypeConfiguration"
+	},
 	immediate = true,
 	property = {
 		"com.liferay.portlet.add-default-resource=true",
@@ -129,6 +134,9 @@ public class GroupPagesPortlet extends MVCPortlet {
 	protected void activate(Map<String, Object> properties) {
 		_layoutConverterConfiguration = ConfigurableUtil.createConfigurable(
 			LayoutConverterConfiguration.class, properties);
+
+		_layoutEditorTypeConfiguration = ConfigurableUtil.createConfigurable(
+			LayoutEditorTypeConfiguration.class, properties);
 	}
 
 	@Override
@@ -136,10 +144,11 @@ public class GroupPagesPortlet extends MVCPortlet {
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws IOException, PortletException {
 
-		Group group = _groupProvider.getGroup(
-			_portal.getHttpServletRequest(renderRequest));
+		HttpServletRequest httpServletRequest = _portal.getHttpServletRequest(
+			renderRequest);
 
-		renderRequest.setAttribute(WebKeys.GROUP, group);
+		renderRequest.setAttribute(
+			WebKeys.GROUP, _groupProvider.getGroup(httpServletRequest));
 
 		if (SessionErrors.contains(
 				renderRequest, NoSuchGroupException.class.getName()) ||
@@ -184,6 +193,9 @@ public class GroupPagesPortlet extends MVCPortlet {
 				_layoutConverterRegistry);
 			renderRequest.setAttribute(
 				LayoutAdminWebKeys.LAYOUT_COPY_HELPER, _layoutCopyHelper);
+			renderRequest.setAttribute(
+				LayoutEditorTypeConfiguration.class.getName(),
+				_layoutEditorTypeConfiguration);
 			renderRequest.setAttribute(
 				StagingGroupHelper.class.getName(), _stagingGroupHelper);
 
@@ -249,6 +261,9 @@ public class GroupPagesPortlet extends MVCPortlet {
 
 	@Reference
 	private LayoutCopyHelper _layoutCopyHelper;
+
+	private volatile LayoutEditorTypeConfiguration
+		_layoutEditorTypeConfiguration;
 
 	@Reference
 	private LayoutPageTemplateEntryLocalService

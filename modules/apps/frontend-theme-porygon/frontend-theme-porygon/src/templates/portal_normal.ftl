@@ -4,7 +4,7 @@
 
 <html class="${root_css_class}" dir="<@liferay.language key="lang.dir" />" lang="${w3c_language_id}">
 	<head>
-		<title>${the_title} - ${company_name}</title>
+		<title>${html_title}</title>
 
 		<meta content="initial-scale=1.0, width=device-width" name="viewport" />
 
@@ -32,7 +32,7 @@
 						</div>
 
 						<#if has_navigation>
-							<button aria-controls="navigation" aria-expanded="false" class="btn-monospaced ml-auto navbar-toggler" data-target="#navigationCollapse" data-toggle="collapse" type="button">
+							<button aria-controls="navigation" aria-expanded="false" class="btn-monospaced ml-auto navbar-toggler" data-target="#navigationCollapse" data-toggle="liferay-collapse" type="button">
 								<span class="navbar-toggler-icon"></span>
 							</button>
 

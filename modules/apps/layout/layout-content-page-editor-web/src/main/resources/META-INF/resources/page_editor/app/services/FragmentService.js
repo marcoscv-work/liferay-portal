@@ -81,15 +81,13 @@ export default {
 		position,
 		segmentsExperienceId
 	}) {
-		const {addFragmentEntryLinkURL, classNameId, classPK} = config;
+		const {addFragmentEntryLinkURL} = config;
 
 		return serviceFetch(
 			config,
 			addFragmentEntryLinkURL,
 			{
 				body: {
-					classNameId,
-					classPK,
 					fragmentEntryKey,
 					groupId,
 					parentItemId,
@@ -97,7 +95,8 @@ export default {
 					segmentsExperienceId
 				}
 			},
-			onNetworkStatus
+			onNetworkStatus,
+			{requestGenerateDraft: true}
 		);
 	},
 
@@ -125,30 +124,23 @@ export default {
 	 * Duplicates a fragmentEntryLink
 	 * @param {object} options
 	 * @param {object} options.config Application config
-	 * @param {string} options.fragmentEntryLinkId Id of the fragmentEntryLink
 	 * @param {string} options.itemId id of the item
 	 * @param {string} options.segmentsExperienceId Experience id
 	 */
-	duplicateFragmentEntryLink({
-		config,
-		fragmentEntryLinkId,
-		itemId,
-		onNetworkStatus,
-		segmentsExperienceId
-	}) {
-		const {duplicateFragmentEntryLinkURL} = config;
+	duplicateItem({config, itemId, onNetworkStatus, segmentsExperienceId}) {
+		const {duplicateItemURL} = config;
 
 		return serviceFetch(
 			config,
-			duplicateFragmentEntryLinkURL,
+			duplicateItemURL,
 			{
 				body: {
-					fragmentEntryLinkId,
 					itemId,
 					segmentsExperienceId
 				}
 			},
-			onNetworkStatus
+			onNetworkStatus,
+			{requestGenerateDraft: true}
 		);
 	},
 
@@ -231,7 +223,8 @@ export default {
 					updateClassedModel: true
 				}
 			},
-			onNetworkStatus
+			onNetworkStatus,
+			{requestGenerateDraft: true}
 		);
 	}
 };

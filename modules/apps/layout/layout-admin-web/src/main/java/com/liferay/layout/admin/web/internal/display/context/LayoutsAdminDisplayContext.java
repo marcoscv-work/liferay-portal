@@ -22,6 +22,7 @@ import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
 import com.liferay.layout.admin.web.internal.configuration.LayoutConverterConfiguration;
+import com.liferay.layout.admin.web.internal.configuration.LayoutEditorTypeConfiguration;
 import com.liferay.layout.admin.web.internal.constants.LayoutAdminWebKeys;
 import com.liferay.layout.page.template.model.LayoutPageTemplateCollection;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
@@ -70,6 +71,7 @@ import com.liferay.portal.kernel.servlet.taglib.ui.BreadcrumbEntry;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -133,7 +135,10 @@ public class LayoutsAdminDisplayContext {
 		_layoutConverterRegistry =
 			(LayoutConverterRegistry)_liferayPortletRequest.getAttribute(
 				LayoutAdminWebKeys.LAYOUT_CONVERTER_REGISTRY);
-		_themeDisplay = (ThemeDisplay)liferayPortletRequest.getAttribute(
+		_layoutEditorTypeConfiguration =
+			(LayoutEditorTypeConfiguration)_liferayPortletRequest.getAttribute(
+				LayoutEditorTypeConfiguration.class.getName());
+		_themeDisplay = (ThemeDisplay)_liferayPortletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
 
@@ -590,6 +595,10 @@ public class LayoutsAdminDisplayContext {
 		return _layoutDescriptions;
 	}
 
+	public String getLayoutEditorType() {
+		return _layoutEditorTypeConfiguration.type();
+	}
+
 	public Long getLayoutId() {
 		if (_layoutId != null) {
 			return _layoutId;
@@ -653,11 +662,16 @@ public class LayoutsAdminDisplayContext {
 				Layout draftLayout = LayoutLocalServiceUtil.fetchLayout(
 					PortalUtil.getClassNameId(Layout.class), layout.getPlid());
 
+				boolean published = GetterUtil.getBoolean(
+					draftLayout.getTypeSettingsProperty("published"));
+
 				layoutJSONObject.put(
 					"conversionPreview", false
 				).put(
 					"draft",
-					draftLayout.getStatus() == WorkflowConstants.STATUS_DRAFT
+					(draftLayout.getStatus() ==
+						WorkflowConstants.STATUS_DRAFT) ||
+					!published
 				);
 			}
 			else {
@@ -1287,7 +1301,7 @@ public class LayoutsAdminDisplayContext {
 
 		LayoutPageTemplateEntry layoutPageTemplateEntry =
 			LayoutPageTemplateEntryLocalServiceUtil.
-				fetchLayoutPageTemplateEntryByPlid(layout.getClassPK());
+				fetchLayoutPageTemplateEntryByPlid(layout.getPlid());
 
 		if (layout.isTypeAssetDisplay() ||
 			((layoutPageTemplateEntry != null) && layout.isSystem())) {
@@ -1587,7 +1601,12 @@ public class LayoutsAdminDisplayContext {
 			jsonObject.put("permissionsURL", getPermissionsURL(layout));
 		}
 
-		jsonObject.put("viewLayoutURL", getViewLayoutURL(layout));
+		if (layout.isPending()) {
+			jsonObject.put("previewLayoutURL", getViewLayoutURL(layout));
+		}
+		else {
+			jsonObject.put("viewLayoutURL", getViewLayoutURL(layout));
+		}
 
 		return jsonObject;
 	}
@@ -1974,6 +1993,7 @@ public class LayoutsAdminDisplayContext {
 	private final LayoutConverterRegistry _layoutConverterRegistry;
 	private final LayoutCopyHelper _layoutCopyHelper;
 	private List<LayoutDescription> _layoutDescriptions;
+	private final LayoutEditorTypeConfiguration _layoutEditorTypeConfiguration;
 	private Long _layoutId;
 	private SearchContainer _layoutsSearchContainer;
 	private final LiferayPortletRequest _liferayPortletRequest;

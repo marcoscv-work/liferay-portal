@@ -20,6 +20,7 @@ import com.liferay.application.list.constants.ApplicationListWebKeys;
 import com.liferay.application.list.constants.PanelCategoryKeys;
 import com.liferay.application.list.display.context.logic.PanelCategoryHelper;
 import com.liferay.application.list.display.context.logic.PersonalMenuEntryHelper;
+import com.liferay.item.selector.ItemSelector;
 import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerList;
 import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerListFactory;
 import com.liferay.osgi.service.tracker.collections.map.PropertyServiceReferenceComparator;
@@ -65,8 +66,8 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.product.navigation.personal.menu.PersonalMenuEntry;
 import com.liferay.roles.admin.constants.RolesAdminPortletKeys;
+import com.liferay.roles.admin.role.type.contributor.RoleTypeContributor;
 import com.liferay.roles.admin.web.internal.constants.RolesAdminWebKeys;
-import com.liferay.roles.admin.web.internal.role.type.contributor.RoleTypeContributor;
 import com.liferay.roles.admin.web.internal.role.type.contributor.provider.RoleTypeContributorProvider;
 import com.liferay.segments.service.SegmentsEntryRoleLocalService;
 
@@ -452,7 +453,8 @@ public class RolesAdminPortlet extends MVCPortlet {
 
 				int scope = ResourceConstants.SCOPE_COMPANY;
 
-				if ((role.getType() == RoleConstants.TYPE_ORGANIZATION) ||
+				if ((role.getType() == RoleConstants.TYPE_DEPOT) ||
+					(role.getType() == RoleConstants.TYPE_ORGANIZATION) ||
 					(role.getType() == RoleConstants.TYPE_PROVIDER) ||
 					(role.getType() == RoleConstants.TYPE_SITE)) {
 
@@ -626,6 +628,8 @@ public class RolesAdminPortlet extends MVCPortlet {
 			RolesAdminWebKeys.CURRENT_ROLE_TYPE,
 			_roleTypeContributorProvider.getRoleTypeContributor(type));
 		portletRequest.setAttribute(
+			RolesAdminWebKeys.ITEM_SELECTOR, _itemSelector);
+		portletRequest.setAttribute(
 			RolesAdminWebKeys.ROLE_TYPES,
 			_roleTypeContributorProvider.getRoleTypeContributors());
 	}
@@ -777,6 +781,9 @@ public class RolesAdminPortlet extends MVCPortlet {
 
 	@Reference
 	private Http _http;
+
+	@Reference
+	private ItemSelector _itemSelector;
 
 	private PanelAppRegistry _panelAppRegistry;
 	private PanelCategoryRegistry _panelCategoryRegistry;

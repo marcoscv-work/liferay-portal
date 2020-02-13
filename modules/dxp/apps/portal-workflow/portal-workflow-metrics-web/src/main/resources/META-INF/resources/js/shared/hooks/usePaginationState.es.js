@@ -9,7 +9,7 @@
  * distribution rights of the Software.
  */
 
-import {useContext, useState, useMemo} from 'react';
+import {useContext, useMemo, useState} from 'react';
 
 import {AppContext} from '../../components/AppContext.es';
 import {paginateArray} from '../util/array.es';
@@ -21,8 +21,11 @@ const usePaginationState = props => {
 		initialPageSize = defaultDelta,
 		items = false
 	} = props;
+
+	const defaultPageSize =
+		initialPageSize <= defaultDelta ? initialPageSize : defaultDelta;
 	const [page, setPage] = useState(initialPage);
-	const [pageSize, setPageSize] = useState(initialPageSize);
+	const [pageSize, setPageSize] = useState(defaultPageSize);
 
 	const pagination = useMemo(
 		() => ({

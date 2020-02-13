@@ -15,13 +15,17 @@
 import {Treeview} from 'frontend-js-components-web';
 import React from 'react';
 
+import {useActiveItemId} from '../../../app/components/Controls';
 import {EDITABLE_FRAGMENT_ENTRY_PROCESSOR} from '../../../app/config/constants/editableFragmentEntryProcessor';
+import {LAYOUT_DATA_ITEM_TYPE_LABELS} from '../../../app/config/constants/layoutDataItemTypeLabels';
 import {LAYOUT_DATA_ITEM_TYPES} from '../../../app/config/constants/layoutDataItemTypes';
 import {useSelector} from '../../../app/store/index';
 import SidebarPanelHeader from '../../../common/components/SidebarPanelHeader';
 import StructureTreeNode from './StructureTreeNode';
 
 export default function PageStructureSidebar() {
+	const activeItemId = useActiveItemId();
+
 	const fragmentEntryLinks = useSelector(state => state.fragmentEntryLinks);
 	const layoutData = useSelector(state => state.layoutData);
 
@@ -30,14 +34,18 @@ export default function PageStructureSidebar() {
 
 		if (item.type === LAYOUT_DATA_ITEM_TYPES.fragment) {
 			name = fragmentEntryLinks[item.config.fragmentEntryLinkId].name;
-		} else if (item.type === LAYOUT_DATA_ITEM_TYPES.container) {
-			name = Liferay.Language.get('container');
-		} else if (item.type === LAYOUT_DATA_ITEM_TYPES.column) {
-			name = Liferay.Language.get('column');
-		} else if (item.type === LAYOUT_DATA_ITEM_TYPES.dropZone) {
-			name = Liferay.Language.get('drop-zone');
-		} else if (item.type === LAYOUT_DATA_ITEM_TYPES.row) {
-			name = Liferay.Language.get('row');
+		}
+		else if (item.type === LAYOUT_DATA_ITEM_TYPES.container) {
+			name = LAYOUT_DATA_ITEM_TYPE_LABELS.container;
+		}
+		else if (item.type === LAYOUT_DATA_ITEM_TYPES.column) {
+			name = LAYOUT_DATA_ITEM_TYPE_LABELS.column;
+		}
+		else if (item.type === LAYOUT_DATA_ITEM_TYPES.dropZone) {
+			name = LAYOUT_DATA_ITEM_TYPE_LABELS.dropZone;
+		}
+		else if (item.type === LAYOUT_DATA_ITEM_TYPES.row) {
+			name = LAYOUT_DATA_ITEM_TYPE_LABELS.row;
 		}
 
 		return name;
@@ -51,15 +59,19 @@ export default function PageStructureSidebar() {
 				fragmentEntryLinks[item.config.fragmentEntryLinkId]
 					.editableValues[EDITABLE_FRAGMENT_ENTRY_PROCESSOR];
 
-			Object.keys(fragmentChildren).forEach(childId => {
+			Object.keys(fragmentChildren).forEach(editableId => {
+				const childId = `${item.config.fragmentEntryLinkId}-${editableId}`;
+
 				children.push({
 					children: [],
+					expanded: childId === activeItemId,
 					id: childId,
-					name: childId,
+					name: editableId,
 					removable: false
 				});
 			});
-		} else {
+		}
+		else {
 			item.children.forEach(childId => {
 				const childItem = items[childId];
 
@@ -69,12 +81,15 @@ export default function PageStructureSidebar() {
 			});
 		}
 
-		return {
+		const node = {
 			children,
+			expanded: item.itemId === activeItemId,
 			id: item.itemId,
 			name: getName(item, fragmentEntryLinks),
 			removable: isRemovable(item, layoutData)
 		};
+
+		return node;
 	};
 
 	const nodes = visit(
@@ -89,7 +104,11 @@ export default function PageStructureSidebar() {
 			</SidebarPanelHeader>
 
 			<div className="page-editor__page-structure px-4">
-				<Treeview NodeComponent={StructureTreeNode} nodes={nodes} />
+				<Treeview
+					NodeComponent={StructureTreeNode}
+					nodes={nodes}
+					selectedNodeIds={[activeItemId]}
+				/>
 			</div>
 		</>
 	);

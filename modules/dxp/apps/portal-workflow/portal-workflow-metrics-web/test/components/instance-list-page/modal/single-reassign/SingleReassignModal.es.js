@@ -9,12 +9,13 @@
  * distribution rights of the Software.
  */
 
-import {render, fireEvent} from '@testing-library/react';
+import {fireEvent, render} from '@testing-library/react';
 import React, {useState} from 'react';
 
 import {ModalContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/modal/ModalContext.es';
 import {SingleReassignModal} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/modal/single-reassign/SingleReassignModal.es';
 import {InstanceListContext} from '../../../../../src/main/resources/META-INF/resources/js/components/instance-list-page/store/InstanceListPageStore.es';
+import ToasterProvider from '../../../../../src/main/resources/META-INF/resources/js/shared/components/toaster/ToasterProvider.es';
 import {MockRouter} from '../../../../mock/MockRouter.es';
 
 import '@testing-library/jest-dom/extend-expect';
@@ -35,7 +36,7 @@ const ContainerMock = ({children}) => {
 	return (
 		<InstanceListContext.Provider value={{setInstanceId: jest.fn()}}>
 			<ModalContext.Provider value={{setSingleModal, singleModal}}>
-				{children}
+				<ToasterProvider>{children}</ToasterProvider>
 			</ModalContext.Provider>
 		</InstanceListContext.Provider>
 	);
@@ -63,7 +64,7 @@ describe('The SingleReassignModal component should', () => {
 					totalCount: items.length
 				}
 			})
-			.mockResolvedValueOnce({data: {items}}),
+			.mockResolvedValue({data: {items}}),
 		post: jest
 			.fn()
 			.mockRejectedValueOnce(new Error('Request failed'))
@@ -73,7 +74,7 @@ describe('The SingleReassignModal component should', () => {
 	beforeAll(() => {
 		const renderResult = render(
 			<MockRouter client={clientMock}>
-				<SingleReassignModal></SingleReassignModal>
+				<SingleReassignModal />
 			</MockRouter>,
 			{
 				wrapper: ContainerMock
@@ -89,9 +90,7 @@ describe('The SingleReassignModal component should', () => {
 		const emptyState = getByTestId('emptyState');
 		const retryBtn = getByTestId('retryButton');
 
-		expect(alertError).toHaveTextContent(
-			'your-connection-was-unexpectedly-lost'
-		);
+		expect(alertError).toHaveTextContent('your-request-has-failed');
 		expect(retryBtn).toHaveTextContent('retry');
 		expect(emptyState.children[0]).toHaveTextContent(
 			'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
@@ -118,7 +117,7 @@ describe('The SingleReassignModal component should', () => {
 
 		fireEvent.change(autocompleteInput, {target: {value: 'test'}});
 
-		fireEvent.click(getByTestId('dropDownListItem'));
+		fireEvent.mouseDown(getByTestId('dropDownListItem'));
 
 		expect(reassignBtn).not.toHaveAttribute('disabled');
 
@@ -132,19 +131,17 @@ describe('The SingleReassignModal component should', () => {
 		const alertError = getByTestId('alertError');
 		const reassignBtn = getByTestId('reassignButton');
 
-		expect(alertError).toHaveTextContent(
-			'your-connection-was-unexpectedly-lost'
-		);
+		expect(alertError).toHaveTextContent('your-request-has-failed');
 		expect(reassignBtn).not.toHaveAttribute('disabled');
 
 		fireEvent.click(reassignBtn);
 	});
 
 	test('Render alert with success message and close modal', () => {
-		const alertSuccess = getByTestId('alertSuccess');
-		const alertClose = alertSuccess.children[1];
+		const alertToast = getByTestId('alertToast');
+		const alertClose = alertToast.children[1];
 
-		expect(alertSuccess).toHaveTextContent('this-task-has-been-reassigned');
+		expect(alertToast).toHaveTextContent('this-task-has-been-reassigned');
 
 		fireEvent.click(alertClose);
 

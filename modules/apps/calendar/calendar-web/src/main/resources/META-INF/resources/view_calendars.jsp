@@ -76,7 +76,7 @@ portletURL.setParameter("calendarResourceId", String.valueOf(calendarResource.ge
 				align="center"
 				name="color"
 			>
-				<span class="calendar-portlet-color-box" style="background-color:<%= ColorUtil.toHexString(calendar.getColor()) %>;">&nbsp;</span>
+				<span class="calendar-portlet-color-box" style="background-color: <%= ColorUtil.toHexString(calendar.getColor()) %>;">&nbsp;</span>
 			</liferay-ui:search-container-column-text>
 
 			<liferay-ui:search-container-column-text
@@ -156,7 +156,8 @@ portletURL.setParameter("calendarResourceId", String.valueOf(calendarResource.ge
 
 										try {
 											responseData = JSON.parse(data);
-										} catch (e) {}
+										}
+										catch (e) {}
 
 										var portletErrorMessage = A.one(
 											'#<portlet:namespace />portletErrorMessage'
@@ -174,7 +175,8 @@ portletURL.setParameter("calendarResourceId", String.valueOf(calendarResource.ge
 											portletSuccessMessage.hide();
 
 											portletErrorMessage.html(error);
-										} else {
+										}
+										else {
 											portletErrorMessage.hide();
 											portletSuccessMessage.show();
 										}

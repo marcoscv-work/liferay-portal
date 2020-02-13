@@ -26,6 +26,7 @@ task setUpPortalTools
 task setUpYarnOfflineCache
 task updateYarnBinariesCache
 task wrapperPortal(type: Wrapper)
+task wrapperProjectTemplates(type: Wrapper)
 task wrapperSubrepo(type: Wrapper)
 
 FileTree libDependenciesFileTree = fileTree(dir: "../lib", include: "*/dependencies.properties")
@@ -192,6 +193,19 @@ set DEFAULT_JVM_OPTS=%DEFAULT_JVM_OPTS% "-Dgradle.user.home=%APP_HOME%\\.gradle"
 	scriptFile = new File(wrapperDir, "gradlew")
 }
 
+wrapperProjectTemplates {
+	File wrapperDir = new File(projectDir.parentFile, "modules/sdk/project-templates/project-templates/src/main/resources/gradle-wrapper")
+
+	jarFile = new File(wrapperDir, "gradle/wrapper/gradle-wrapper.jar")
+	scriptFile = new File(wrapperDir, "gradlew")
+
+	doLast {
+		File gradleWrapperPropertiesFile = new File(wrapperDir, "gradle/wrapper/gradle-wrapper.properties")
+
+		gradleWrapperPropertiesFile.text = gradleWrapperPropertiesFile.text.trim()
+	}
+}
+
 wrapperSubrepo {
 	File wrapperDir = new File(projectDir.parentFile, "tools/subrepo")
 
@@ -279,8 +293,6 @@ private void _createSetUpLibTasks(Map<File, Properties> libDependenciesMap) {
 
 private void _createSetUpPortalToolTasks() {
 	FileTree ivyXmlFileTree = fileTree(dir: "../tools/sdk", includes: ["ivy.xml", "dependencies/*/ivy.xml"])
-
-	XmlSlurper xmlSlurper = new XmlSlurper()
 
 	ivyXmlFileTree.each {
 		File ivyXmlFile ->

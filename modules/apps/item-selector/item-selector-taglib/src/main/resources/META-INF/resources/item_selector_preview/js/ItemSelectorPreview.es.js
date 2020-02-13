@@ -39,6 +39,7 @@ const ItemSelectorPreview = ({
 }) => {
 	const [currentItemIndex, setCurrentItemIndex] = useState(currentIndex);
 	const [itemList, setItemList] = useState(items);
+	const [reloadOnHide, setReloadOnHide] = useState(false);
 
 	const infoButtonRef = React.createRef();
 
@@ -82,6 +83,18 @@ const ItemSelectorPreview = ({
 		ReactDOM.unmountComponentAtNode(container);
 	}, [container]);
 
+	const handleClickBack = () => {
+		if (reloadOnHide) {
+			const frame = window.frameElement;
+
+			if (frame) {
+				frame.contentWindow.location.reload();
+			}
+		}
+
+		close();
+	};
+
 	const handleClickDone = () => {
 		handleSelectedItem(currentItem);
 		close();
@@ -117,6 +130,7 @@ const ItemSelectorPreview = ({
 				uri: editItemURL,
 				urlParams: {
 					entityURL: currentItem.url,
+					saveFileDescription: currentItem.description,
 					saveFileName: itemTitle,
 					saveParamName: 'imageSelectorFileName',
 					saveURL: uploadItemURL
@@ -131,6 +145,7 @@ const ItemSelectorPreview = ({
 			setCurrentItemIndex(index => {
 				const lastIndex = itemList.length - 1;
 				const shouldResetIndex = index === lastIndex;
+
 				return shouldResetIndex ? 0 : index + 1;
 			});
 		}
@@ -141,6 +156,7 @@ const ItemSelectorPreview = ({
 			setCurrentItemIndex(index => {
 				const lastIndex = itemList.length - 1;
 				const shouldResetIndex = index === 0;
+
 				return shouldResetIndex ? lastIndex : index - 1;
 			});
 		}
@@ -148,7 +164,9 @@ const ItemSelectorPreview = ({
 
 	const handleOnKeyDown = useCallback(
 		e => {
-			if (!isMounted()) return;
+			if (!isMounted()) {
+				return;
+			}
 
 			switch (e.which || e.keyCode) {
 				case KEY_CODE.LEFT:
@@ -168,6 +186,11 @@ const ItemSelectorPreview = ({
 		},
 		[close, handleClickNext, handleClickPrevious, isMounted]
 	);
+
+	const updateItemList = newItemList => {
+		setItemList(newItemList);
+		setReloadOnHide(true);
+	};
 
 	const handleSaveEdit = e => {
 		const itemData = e.data.file;
@@ -199,7 +222,7 @@ const ItemSelectorPreview = ({
 		};
 
 		const updatedItemList = [...itemList, editedItem];
-		setItemList(updatedItemList);
+		updateItemList(updatedItemList);
 		setCurrentItemIndex(updatedItemList.length - 1);
 	};
 
@@ -210,7 +233,7 @@ const ItemSelectorPreview = ({
 
 				newItemList[currentItemIndex] = {...currentItem, url, value};
 
-				setItemList(newItemList);
+				updateItemList(newItemList);
 			}
 		},
 		[currentItem, currentItemIndex, isMounted, itemList]
@@ -223,7 +246,7 @@ const ItemSelectorPreview = ({
 			<Header
 				disabledAddButton={!currentItem.url}
 				handleClickAdd={handleClickDone}
-				handleClickClose={close}
+				handleClickBack={handleClickBack}
 				handleClickEdit={handleClickEdit}
 				headerTitle={headerTitle}
 				infoButtonRef={infoButtonRef}

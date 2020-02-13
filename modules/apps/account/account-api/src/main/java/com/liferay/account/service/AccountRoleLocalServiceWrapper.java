@@ -80,6 +80,17 @@ public class AccountRoleLocalServiceWrapper
 	}
 
 	/**
+	 * @throws PortalException
+	 */
+	@Override
+	public com.liferay.portal.kernel.model.PersistedModel createPersistedModel(
+			java.io.Serializable primaryKeyObj)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _accountRoleLocalService.createPersistedModel(primaryKeyObj);
+	}
+
+	/**
 	 * Deletes the account role from the database. Also notifies the appropriate model listeners.
 	 *
 	 * @param accountRole the account role
@@ -320,6 +331,9 @@ public class AccountRoleLocalServiceWrapper
 		return _accountRoleLocalService.getOSGiServiceIdentifier();
 	}
 
+	/**
+	 * @throws PortalException
+	 */
 	@Override
 	public com.liferay.portal.kernel.model.PersistedModel getPersistedModel(
 			java.io.Serializable primaryKeyObj)
@@ -336,6 +350,16 @@ public class AccountRoleLocalServiceWrapper
 
 		return _accountRoleLocalService.searchAccountRoles(
 			accountEntryId, keywords, start, end, obc);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.search.BaseModelSearchResult
+		<com.liferay.account.model.AccountRole> searchAccountRoles(
+			long[] accountEntryIds, String keywords, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator obc) {
+
+		return _accountRoleLocalService.searchAccountRoles(
+			accountEntryIds, keywords, start, end, obc);
 	}
 
 	@Override

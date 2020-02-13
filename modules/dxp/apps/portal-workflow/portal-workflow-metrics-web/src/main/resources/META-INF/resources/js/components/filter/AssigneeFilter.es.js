@@ -18,7 +18,6 @@ import filterConstants from '../../shared/components/filter/util/filterConstants
 
 const AssigneeFilter = ({
 	className,
-	dispatch,
 	filterKey = filterConstants.assignee.key,
 	options = {},
 	prefixKey = '',
@@ -28,18 +27,33 @@ const AssigneeFilter = ({
 		hideControl: false,
 		multiple: true,
 		position: 'left',
-		withSelectionTitle: false
+		withSelectionTitle: false,
+		withoutRouteParams: false
 	};
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	options = useMemo(() => ({...defaultOptions, ...options}), [options]);
 
+	const staticItems = useMemo(
+		() => [
+			{
+				dividerAfter: true,
+				id: -1,
+				key: '-1',
+				name: Liferay.Language.get('unassigned')
+			}
+		],
+		[]
+	);
+
 	const {items, selectedItems} = useFilterFetch({
-		dispatch,
 		filterKey,
 		prefixKey,
 		requestUrl: `/processes/${processId}/assignee-users?page=0&pageSize=0`,
-		staticItems: [unassignedItem]
+		staticItems,
+		withoutRouteParams: options.withoutRouteParams
 	});
+
+	const defaultItem = useMemo(() => (items ? items[0] : undefined), [items]);
 
 	const filterName = useFilterName(
 		options.multiple,
@@ -51,6 +65,7 @@ const AssigneeFilter = ({
 	return (
 		<Filter
 			dataTestId="assigneeFilter"
+			defaultItem={defaultItem}
 			elementClasses={className}
 			filterKey={filterKey}
 			items={items}
@@ -59,13 +74,6 @@ const AssigneeFilter = ({
 			{...options}
 		/>
 	);
-};
-
-const unassignedItem = {
-	dividerAfter: true,
-	id: -1,
-	key: '-1',
-	name: Liferay.Language.get('unassigned')
 };
 
 export default AssigneeFilter;

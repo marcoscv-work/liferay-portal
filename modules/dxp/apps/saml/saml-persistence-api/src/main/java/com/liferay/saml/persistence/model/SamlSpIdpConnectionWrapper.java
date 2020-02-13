@@ -55,12 +55,14 @@ public class SamlSpIdpConnectionWrapper
 		attributes.put("enabled", isEnabled());
 		attributes.put("forceAuthn", isForceAuthn());
 		attributes.put("ldapImportEnabled", isLdapImportEnabled());
+		attributes.put("metadataUpdatedDate", getMetadataUpdatedDate());
 		attributes.put("metadataUrl", getMetadataUrl());
 		attributes.put("metadataXml", getMetadataXml());
-		attributes.put("metadataUpdatedDate", getMetadataUpdatedDate());
 		attributes.put("name", getName());
 		attributes.put("nameIdFormat", getNameIdFormat());
 		attributes.put("signAuthnRequest", isSignAuthnRequest());
+		attributes.put(
+			"unknownUsersAreStrangers", isUnknownUsersAreStrangers());
 		attributes.put("userAttributeMappings", getUserAttributeMappings());
 
 		return attributes;
@@ -143,6 +145,12 @@ public class SamlSpIdpConnectionWrapper
 			setLdapImportEnabled(ldapImportEnabled);
 		}
 
+		Date metadataUpdatedDate = (Date)attributes.get("metadataUpdatedDate");
+
+		if (metadataUpdatedDate != null) {
+			setMetadataUpdatedDate(metadataUpdatedDate);
+		}
+
 		String metadataUrl = (String)attributes.get("metadataUrl");
 
 		if (metadataUrl != null) {
@@ -153,12 +161,6 @@ public class SamlSpIdpConnectionWrapper
 
 		if (metadataXml != null) {
 			setMetadataXml(metadataXml);
-		}
-
-		Date metadataUpdatedDate = (Date)attributes.get("metadataUpdatedDate");
-
-		if (metadataUpdatedDate != null) {
-			setMetadataUpdatedDate(metadataUpdatedDate);
 		}
 
 		String name = (String)attributes.get("name");
@@ -177,6 +179,13 @@ public class SamlSpIdpConnectionWrapper
 
 		if (signAuthnRequest != null) {
 			setSignAuthnRequest(signAuthnRequest);
+		}
+
+		Boolean unknownUsersAreStrangers = (Boolean)attributes.get(
+			"unknownUsersAreStrangers");
+
+		if (unknownUsersAreStrangers != null) {
+			setUnknownUsersAreStrangers(unknownUsersAreStrangers);
 		}
 
 		String userAttributeMappings = (String)attributes.get(
@@ -358,6 +367,16 @@ public class SamlSpIdpConnectionWrapper
 	}
 
 	/**
+	 * Returns the unknown users are strangers of this saml sp idp connection.
+	 *
+	 * @return the unknown users are strangers of this saml sp idp connection
+	 */
+	@Override
+	public boolean getUnknownUsersAreStrangers() {
+		return model.getUnknownUsersAreStrangers();
+	}
+
+	/**
 	 * Returns the user attribute mappings of this saml sp idp connection.
 	 *
 	 * @return the user attribute mappings of this saml sp idp connection
@@ -445,6 +464,16 @@ public class SamlSpIdpConnectionWrapper
 	@Override
 	public boolean isSignAuthnRequest() {
 		return model.isSignAuthnRequest();
+	}
+
+	/**
+	 * Returns <code>true</code> if this saml sp idp connection is unknown users are strangers.
+	 *
+	 * @return <code>true</code> if this saml sp idp connection is unknown users are strangers; <code>false</code> otherwise
+	 */
+	@Override
+	public boolean isUnknownUsersAreStrangers() {
+		return model.isUnknownUsersAreStrangers();
 	}
 
 	@Override
@@ -622,6 +651,16 @@ public class SamlSpIdpConnectionWrapper
 	@Override
 	public void setSignAuthnRequest(boolean signAuthnRequest) {
 		model.setSignAuthnRequest(signAuthnRequest);
+	}
+
+	/**
+	 * Sets whether this saml sp idp connection is unknown users are strangers.
+	 *
+	 * @param unknownUsersAreStrangers the unknown users are strangers of this saml sp idp connection
+	 */
+	@Override
+	public void setUnknownUsersAreStrangers(boolean unknownUsersAreStrangers) {
+		model.setUnknownUsersAreStrangers(unknownUsersAreStrangers);
 	}
 
 	/**

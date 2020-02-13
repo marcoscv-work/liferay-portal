@@ -15,11 +15,6 @@
 module.exports = {
 	globals: {
 		__CONFIG__: true,
-		__dirname: true,
-		IncrementalDOM: true,
-		global: true,
-		module: true,
-		process: true,
-		require: true
+		global: true
 	}
 };

@@ -14,15 +14,15 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<name>contentType</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
 			<name>dataDefinitionId</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 			<type>java.lang.Long</type>
-		</attribute>
-		<attribute>
-			<name>dataDefinitionInputId</name>
-			<required>true</required>
-			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
 			<name>dataLayoutId</name>
@@ -31,9 +31,10 @@
 			<type>java.lang.Long</type>
 		</attribute>
 		<attribute>
-			<name>dataLayoutInputId</name>
-			<required>true</required>
+			<name>groupId</name>
+			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.Long</type>
 		</attribute>
 		<attribute>
 			<name>localizable</name>
@@ -64,8 +65,14 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<name>dataDefinitionId</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.Long</type>
+		</attribute>
+		<attribute>
 			<name>dataLayoutId</name>
-			<required>true</required>
+			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 			<type>java.lang.Long</type>
 		</attribute>

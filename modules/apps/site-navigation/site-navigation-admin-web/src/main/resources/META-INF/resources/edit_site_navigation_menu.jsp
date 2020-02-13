@@ -31,11 +31,19 @@ renderResponse.setTitle(siteNavigationAdminDisplayContext.getSiteNavigationMenuN
 			<ul class="navbar-nav"></ul>
 
 			<ul class="navbar-nav">
-				<li class="nav-item">
-					<button class="btn btn-unstyled nav-link nav-link-monospaced" id="<portlet:namespace />showSiteNavigationMenuSettings" type="button">
-						<aui:icon cssClass="icon-monospaced" image="cog" markupView="lexicon" />
-					</button>
-				</li>
+
+				<%
+				Group scopeGroup = themeDisplay.getScopeGroup();
+				%>
+
+				<c:if test="<%= !scopeGroup.isCompany() %>">
+					<li class="nav-item">
+						<button class="btn btn-unstyled nav-link nav-link-monospaced" id="<portlet:namespace />showSiteNavigationMenuSettings" type="button">
+							<aui:icon cssClass="icon-monospaced" image="cog" markupView="lexicon" />
+						</button>
+					</li>
+				</c:if>
+
 				<li class="nav-item">
 					<div class="dropdown">
 						<button class="btn btn-primary dropdown-toggle nav-btn nav-btn-monospaced" type="button">

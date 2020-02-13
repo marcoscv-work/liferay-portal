@@ -11,9 +11,9 @@
 
 import {
 	cleanup,
-	render,
 	findAllByTestId,
-	findByTestId
+	findByTestId,
+	render
 } from '@testing-library/react';
 import React from 'react';
 
@@ -25,7 +25,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 const {processId, query} = {
 	processId: 12345,
-	query: '?filters.completedtimeRange%5B0%5D=7'
+	query: '?filters.completedTimeRange%5B0%5D=7'
 };
 
 const data = {

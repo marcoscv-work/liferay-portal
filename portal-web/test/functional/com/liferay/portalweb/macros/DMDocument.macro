@@ -539,7 +539,7 @@ definition {
 			else if ("${revision}" == "Current") {
 				Click(locator1 = "Radio#CURRENT_VERSION");
 
-				AssertNotVisible(
+				AssertElementNotPresent(
 					key_fieldLabel = "Version Notes",
 					locator1 = "TextInput#GENERIC_TEXT_INPUT");
 			}
@@ -2259,7 +2259,7 @@ definition {
 
 		Click(locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_CHECKBOX");
 
-		AssertVisible(locator1 = "Icon#DELETE");
+		AssertVisible(locator1 = "Icon#MOVE_TO_RECYCLE_BIN");
 	}
 
 	macro viewTag {

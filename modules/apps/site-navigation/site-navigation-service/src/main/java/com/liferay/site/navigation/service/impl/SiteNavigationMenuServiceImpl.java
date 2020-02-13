@@ -118,8 +118,8 @@ public class SiteNavigationMenuServiceImpl
 	public List<SiteNavigationMenu> getSiteNavigationMenus(
 		long groupId, int start, int end, OrderByComparator orderByComparator) {
 
-		return siteNavigationMenuPersistence.filterFindByGroupId(
-			groupId, start, end, orderByComparator);
+		return getSiteNavigationMenus(
+			new long[] {groupId}, start, end, orderByComparator);
 	}
 
 	@Override
@@ -127,21 +127,49 @@ public class SiteNavigationMenuServiceImpl
 		long groupId, String keywords, int start, int end,
 		OrderByComparator orderByComparator) {
 
+		return getSiteNavigationMenus(
+			new long[] {groupId}, keywords, start, end, orderByComparator);
+	}
+
+	@Override
+	public List<SiteNavigationMenu> getSiteNavigationMenus(
+		long[] groupIds, int start, int end,
+		OrderByComparator orderByComparator) {
+
+		return siteNavigationMenuPersistence.filterFindByGroupId(
+			groupIds, start, end, orderByComparator);
+	}
+
+	@Override
+	public List<SiteNavigationMenu> getSiteNavigationMenus(
+		long[] groupIds, String keywords, int start, int end,
+		OrderByComparator orderByComparator) {
+
 		return siteNavigationMenuPersistence.filterFindByG_LikeN(
-			groupId,
+			groupIds,
 			_customSQL.keywords(keywords, false, WildcardMode.SURROUND)[0],
 			start, end, orderByComparator);
 	}
 
 	@Override
 	public int getSiteNavigationMenusCount(long groupId) {
-		return siteNavigationMenuPersistence.filterCountByGroupId(groupId);
+		return getSiteNavigationMenusCount(new long[] {groupId});
 	}
 
 	@Override
 	public int getSiteNavigationMenusCount(long groupId, String keywords) {
+		return getSiteNavigationMenusCount(new long[] {groupId}, keywords);
+	}
+
+	@Override
+	public int getSiteNavigationMenusCount(long[] groupIds) {
+		return siteNavigationMenuPersistence.filterCountByGroupId(groupIds);
+	}
+
+	@Override
+	public int getSiteNavigationMenusCount(long[] groupIds, String keywords) {
 		return siteNavigationMenuPersistence.filterCountByG_LikeN(
-			groupId,
+			groupIds,
 			_customSQL.keywords(keywords, false, WildcardMode.SURROUND)[0]);
 	}
 

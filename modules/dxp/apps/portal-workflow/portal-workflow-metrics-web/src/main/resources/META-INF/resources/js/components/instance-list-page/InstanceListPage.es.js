@@ -9,94 +9,147 @@
  * distribution rights of the Software.
  */
 
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useMemo, useState} from 'react';
 
-import {getFiltersParam} from '../../shared/components/filter/util/filterUtil.es';
-import EmptyState from '../../shared/components/list/EmptyState.es';
+import EmptyState from '../../shared/components/empty-state/EmptyState.es';
 import ReloadButton from '../../shared/components/list/ReloadButton.es';
 import LoadingState from '../../shared/components/loading/LoadingState.es';
 import PaginationBar from '../../shared/components/pagination-bar/PaginationBar.es';
-import PromisesResolver from '../../shared/components/request/PromisesResolver.es';
-import Request from '../../shared/components/request/Request.es';
+import PromisesResolver from '../../shared/components/promises-resolver/PromisesResolver.es';
+import {useFetch} from '../../shared/hooks/useFetch.es';
+import {useFilter} from '../../shared/hooks/useFilter.es';
 import {useProcessTitle} from '../../shared/hooks/useProcessTitle.es';
+import {processStatusConstants} from '../filter/ProcessStatusFilter.es';
+import {useTimeRangeFetch} from '../filter/hooks/useTimeRangeFetch.es';
+import {isValidDate} from '../filter/util/timeRangeUtil.es';
 import {Header} from './InstanceListPageHeader.es';
-import {ItemDetail} from './InstanceListPageItemDetail.es';
 import {Table} from './InstanceListPageTable.es';
 import {ModalContext} from './modal/ModalContext.es';
 import {BulkReassignModal} from './modal/bulk-reassign/BulkReassignModal.es';
+import {InstanceDetailsModal} from './modal/instance-details/InstanceDetailsModal.es';
 import {SingleReassignModal} from './modal/single-reassign/SingleReassignModal.es';
-import {InstanceFiltersProvider} from './store/InstanceListPageFiltersStore.es';
-import {
-	InstanceListProvider,
-	InstanceListContext
-} from './store/InstanceListPageStore.es';
+import {InstanceListProvider} from './store/InstanceListPageStore.es';
 
-const InstanceListPage = ({page, pageSize, processId, query}) => {
-	const {
-		assigneeUserIds = [],
-		slaStatuses = [],
-		statuses = [],
-		taskKeys = [],
-		timeRange = []
-	} = getFiltersParam(query);
+const InstanceListPage = ({routeParams}) => {
+	useTimeRangeFetch();
 
+	const {page, pageSize, processId} = routeParams;
 	const [singleModal, setSingleModal] = useState({
 		selectedItem: undefined,
 		visible: false
 	});
 
 	const [bulkModal, setBulkModal] = useState({
+		processId,
 		reassignedTasks: [],
 		reassigning: false,
+		selectAll: false,
 		selectedAssignee: null,
 		selectedTasks: [],
 		useSameAssignee: false,
 		visible: false
 	});
 
-	const modalState = {bulkModal, setBulkModal, setSingleModal, singleModal};
+	const [instanceDetailsModal, setInstanceDetailsModal] = useState({
+		processId,
+		visible: false
+	});
+
+	const modalState = {
+		bulkModal,
+		instanceDetailsModal,
+		setBulkModal,
+		setInstanceDetailsModal,
+		setSingleModal,
+		singleModal
+	};
 
 	useProcessTitle(processId, Liferay.Language.get('all-items'));
 
-	return (
-		<Request>
-			<ModalContext.Provider value={modalState}>
-				<InstanceFiltersProvider
-					assigneeKeys={assigneeUserIds}
-					processId={processId}
-					processStatusKeys={statuses}
-					processStepKeys={taskKeys}
-					slaStatusKeys={slaStatuses}
-					timeRangeKeys={timeRange}
-				>
-					<InstanceListProvider
-						page={page}
-						pageSize={pageSize}
-						processId={processId}
-						query={query}
-					>
-						<InstanceListPage.Header />
+	const filterKeys = [
+		'assignee',
+		'processStep',
+		'processStatus',
+		'slaStatus',
+		'timeRange'
+	];
 
-						<InstanceListPage.Body
-							page={page}
-							pageSize={pageSize}
-							processId={processId}
-							query={query}
-							singleModal={singleModal}
-						/>
-					</InstanceListProvider>
-				</InstanceFiltersProvider>
-			</ModalContext.Provider>
-		</Request>
+	const {
+		filterState: {timeRange},
+		filterValues: {assigneeUserIds, slaStatuses, statuses = [], taskKeys},
+		prefixedKeys,
+		selectedFilters
+	} = useFilter({filterKeys});
+
+	const {dateEnd, dateStart} =
+		timeRange && timeRange.length ? timeRange[0] : {};
+
+	const completedStatus = statuses.some(
+		status => status === processStatusConstants.completed
+	);
+
+	let completedAndDate = !completedStatus;
+
+	let timeRangeParams = {};
+
+	if (completedStatus && isValidDate(dateEnd) && isValidDate(dateStart)) {
+		timeRangeParams = {
+			dateEnd: dateEnd.toISOString(),
+			dateStart: dateStart.toISOString()
+		};
+		completedAndDate = true;
+	}
+
+	const {data, fetchData} = useFetch({
+		params: {
+			assigneeUserIds,
+			page,
+			pageSize,
+			slaStatuses,
+			statuses,
+			taskKeys,
+			...timeRangeParams
+		},
+		url: `/processes/${processId}/instances`
+	});
+
+	const promises = useMemo(() => {
+		if (!bulkModal.visible && !singleModal.visible && completedAndDate) {
+			return [fetchData()];
+		}
+
+		return [];
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [bulkModal.visible, completedAndDate, fetchData, singleModal.visible]);
+
+	return (
+		<ModalContext.Provider value={modalState}>
+			<InstanceListProvider>
+				<InstanceListPage.Header
+					filterKeys={prefixedKeys}
+					items={data.items}
+					processId={processId}
+					routeParams={routeParams}
+					selectedFilters={selectedFilters}
+					totalCount={data.totalCount}
+				/>
+
+				<PromisesResolver promises={promises}>
+					<InstanceListPage.Body
+						data={data}
+						filtered={selectedFilters.length > 0}
+						routeParams={routeParams}
+					/>
+				</PromisesResolver>
+			</InstanceListProvider>
+		</ModalContext.Provider>
 	);
 };
 
-const Body = ({page, pageSize, processId, singleModal}) => {
-	const {fetchInstances, items, searching, totalCount} = useContext(
-		InstanceListContext
-	);
+const Body = ({data, filtered, routeParams}) => {
+	const {items, totalCount} = data;
 
-	const emptyMessageText = searching
+	const emptyMessageText = filtered
 		? Liferay.Language.get('no-results-were-found')
 		: Liferay.Language.get(
 				'once-there-are-active-processes-metrics-will-appear-here'
@@ -105,59 +158,55 @@ const Body = ({page, pageSize, processId, singleModal}) => {
 		'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
 	);
 
-	const promises = useMemo(() => {
-		if (!singleModal.visible) {
-			return [fetchInstances()];
-		}
-
-		return [];
-	}, [fetchInstances, singleModal.visible]);
-
 	return (
 		<>
 			<div className="container-fluid-1280 mt-4">
-				<PromisesResolver promises={promises}>
-					<PromisesResolver.Pending>
-						<LoadingState />
-					</PromisesResolver.Pending>
+				<PromisesResolver.Pending>
+					<LoadingState />
+				</PromisesResolver.Pending>
 
-					<PromisesResolver.Resolved>
-						{items && items.length ? (
-							<>
-								<InstanceListPage.Body.Table items={items} />
-
-								<PaginationBar
-									page={page}
-									pageBuffer={3}
-									pageSize={pageSize}
-									totalCount={totalCount}
-								/>
-							</>
-						) : (
-							<EmptyState
-								className="border-1"
-								hideAnimation={false}
-								message={emptyMessageText}
-								type="not-found"
+				<PromisesResolver.Resolved>
+					{items && items.length ? (
+						<>
+							<InstanceListPage.Body.Table
+								items={items}
+								totalCount={totalCount}
 							/>
-						)}
-					</PromisesResolver.Resolved>
 
-					<PromisesResolver.Rejected>
+							<PaginationBar
+								pageBuffer={3}
+								pageCount={items.length}
+								{...routeParams}
+								totalCount={totalCount}
+							/>
+						</>
+					) : (
 						<EmptyState
-							actionButton={<ReloadButton />}
 							className="border-1"
-							hideAnimation={true}
-							message={errorMessageText}
-							messageClassName="small"
-							type="error"
+							hideAnimation={false}
+							message={emptyMessageText}
+							type="not-found"
 						/>
-					</PromisesResolver.Rejected>
-				</PromisesResolver>
+					)}
+				</PromisesResolver.Resolved>
+
+				<PromisesResolver.Rejected>
+					<EmptyState
+						actionButton={<ReloadButton />}
+						className="border-1"
+						hideAnimation={true}
+						message={errorMessageText}
+						messageClassName="small"
+						type="error"
+					/>
+				</PromisesResolver.Rejected>
 			</div>
-			<InstanceListPage.SingleReassignModal></InstanceListPage.SingleReassignModal>
-			<InstanceListPage.BulkReassignModal></InstanceListPage.BulkReassignModal>
-			<ItemDetail processId={processId} />
+
+			<InstanceListPage.SingleReassignModal />
+
+			<InstanceListPage.BulkReassignModal />
+
+			<InstanceListPage.InstanceDetailsModal />
 		</>
 	);
 };
@@ -166,6 +215,7 @@ InstanceListPage.Body = Body;
 InstanceListPage.Body.Table = Table;
 InstanceListPage.BulkReassignModal = BulkReassignModal;
 InstanceListPage.Header = Header;
+InstanceListPage.InstanceDetailsModal = InstanceDetailsModal;
 InstanceListPage.SingleReassignModal = SingleReassignModal;
 
 export default InstanceListPage;

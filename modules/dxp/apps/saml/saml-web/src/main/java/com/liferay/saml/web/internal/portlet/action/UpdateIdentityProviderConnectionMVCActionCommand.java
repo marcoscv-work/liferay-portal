@@ -68,6 +68,8 @@ public class UpdateIdentityProviderConnectionMVCActionCommand
 			uploadPortletRequest, "forceAuthn");
 		boolean ldapImportEnabled = ParamUtil.getBoolean(
 			uploadPortletRequest, "ldapImportEnabled");
+		boolean unknownUsersAreStrangers = ParamUtil.getBoolean(
+			uploadPortletRequest, "unknownUsersAreStrangers");
 		String metadataUrl = ParamUtil.getString(
 			uploadPortletRequest, "metadataUrl");
 		InputStream metadataXmlInputStream =
@@ -88,15 +90,16 @@ public class UpdateIdentityProviderConnectionMVCActionCommand
 				samlIdpEntityId, assertionSignatureRequired, clockSkew, enabled,
 				forceAuthn, ldapImportEnabled, metadataUrl,
 				metadataXmlInputStream, name, nameIdFormat, signAuthnRequest,
-				userAttributeMappings, serviceContext);
+				unknownUsersAreStrangers, userAttributeMappings,
+				serviceContext);
 		}
 		else {
 			_samlSpIdpConnectionLocalService.updateSamlSpIdpConnection(
 				samlSpIdpConnectionId, samlIdpEntityId,
 				assertionSignatureRequired, clockSkew, enabled, forceAuthn,
 				ldapImportEnabled, metadataUrl, metadataXmlInputStream, name,
-				nameIdFormat, signAuthnRequest, userAttributeMappings,
-				serviceContext);
+				nameIdFormat, signAuthnRequest, unknownUsersAreStrangers,
+				userAttributeMappings, serviceContext);
 		}
 	}
 

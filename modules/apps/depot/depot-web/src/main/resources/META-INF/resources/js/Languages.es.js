@@ -18,17 +18,17 @@ import ClayDropDown from '@clayui/drop-down';
 import {ClayRadio, ClayRadioGroup} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import ClayLabel from '@clayui/label';
+import {useModal} from '@clayui/modal';
 import ClayTable from '@clayui/table';
 import PropTypes from 'prop-types';
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
-/**
- * @class Languages
- */
+import ManageLanguages from './ManageLanguages.es';
+
 const Languages = ({
 	availableLocales,
 	defaultLocaleId,
-	inheritLocales = false,
+	inheritLocales = true,
 	portletNamespace,
 	siteAvailableLocales,
 	siteDefaultLocaleId,
@@ -42,13 +42,38 @@ const Languages = ({
 		siteDefaultLocaleId
 	);
 
+	const [customLocales, setCustomLocales] = useState(siteAvailableLocales);
+
 	const [languageWarning, setLanguageWarning] = useState(false);
 	const [
 		languageTranslationWarning,
 		setLanguageTranslationWarning
 	] = useState(false);
 
-	const form = document[`_${portletNamespace}_fm`];
+	const [showModal, setShowModal] = useState(false);
+
+	const handleOnCloseModal = () => {
+		setShowModal(false);
+	};
+
+	const {observer, onClose} = useModal({
+		onClose: handleOnCloseModal
+	});
+
+	const handleOnSaveModal = selectedLocales => {
+		setCustomLocales(selectedLocales);
+		onClose();
+	};
+
+	const customLocalesInputRef = useRef();
+
+	useEffect(() => {
+		if (!selectedRadioGroupValue) {
+			const localesIds = customLocales.map(({localeId}) => localeId);
+
+			customLocalesInputRef.current.value = localesIds.join(',');
+		}
+	}, [customLocales, selectedRadioGroupValue]);
 
 	const Language = ({displayName, isDefault, localeId, showActions}) => {
 		const [active, setActive] = useState(false);
@@ -64,17 +89,12 @@ const Languages = ({
 			Liferay.fire('inputLocalized:defaultLocaleChanged', {
 				item: event.currentTarget
 			});
-
-			Liferay.Util.setFormValues(form, {
-				languageId: localeId
-			});
 		};
 
 		return (
 			<ClayTable.Row>
 				<ClayTable.Cell expanded>
 					{displayName}
-					<span className="hide"> {localeId} </span>
 					{isDefault && (
 						<ClayLabel className="ml-3" displayType="info">
 							{Liferay.Language.get('default')}
@@ -114,7 +134,11 @@ const Languages = ({
 
 	const LanguagesList = ({defaultLocaleId, locales, showActions = false}) => {
 		return (
-			<ClayTable borderless headVerticalAlignment="middle">
+			<ClayTable
+				borderless
+				headVerticalAlignment="middle"
+				hover={showActions}
+			>
 				<ClayTable.Head>
 					<ClayTable.Row>
 						<ClayTable.Cell expanded headingCell headingTitle>
@@ -123,8 +147,14 @@ const Languages = ({
 
 						{showActions && (
 							<ClayTable.Cell align="center">
-								<ClayButton displayType="secondary" small>
-									{Liferay.Language.get('add')}
+								<ClayButton
+									displayType="secondary"
+									onClick={() => {
+										setShowModal(true);
+									}}
+									small
+								>
+									{Liferay.Language.get('manage')}
 								</ClayButton>
 							</ClayTable.Cell>
 						)}
@@ -177,10 +207,35 @@ const Languages = ({
 			)}
 
 			{!selectedRadioGroupValue && (
-				<LanguagesList
-					defaultLocaleId={customDefaultLocaleId}
-					locales={siteAvailableLocales}
-					showActions
+				<>
+					<input
+						name={`_${portletNamespace}_TypeSettingsProperties--languageId--`}
+						type="hidden"
+						value={customDefaultLocaleId}
+					/>
+
+					<input
+						name={`_${portletNamespace}_TypeSettingsProperties--locales--`}
+						ref={customLocalesInputRef}
+						type="hidden"
+					/>
+
+					<LanguagesList
+						defaultLocaleId={customDefaultLocaleId}
+						locales={customLocales}
+						showActions
+					/>
+				</>
+			)}
+
+			{showModal && (
+				<ManageLanguages
+					availableLocales={availableLocales}
+					customDefaultLocaleId={customDefaultLocaleId}
+					customLocales={customLocales}
+					observer={observer}
+					onModalClose={onClose}
+					onModalSave={handleOnSaveModal}
 				/>
 			)}
 

@@ -195,7 +195,8 @@ const Body = ({id, processId, query}) => {
 			errors[ALERT_MESSAGE] = '';
 			errors[HOURS] = '';
 			setErrors({...errors});
-		} else {
+		}
+		else {
 			const beforeHoursError = errors[HOURS];
 
 			errors[ALERT_MESSAGE] = '';
@@ -576,10 +577,12 @@ const Footer = ({id, onReloadNodes, processId, query}) => {
 				onReloadNodes(true);
 				fetchNodes(processId).then(() => onReloadNodes(false));
 				setErrors({...errors});
-			} else {
+			}
+			else {
 				setErrors({...errors});
 			}
-		} else {
+		}
+		else {
 			openErrorToast({
 				message: Liferay.Language.get(
 					'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
@@ -609,16 +612,16 @@ const Footer = ({id, onReloadNodes, processId, query}) => {
 				'please-fill-in-the-required-fields'
 			);
 			setErrors({...errors});
-		} else {
+		}
+		else {
 			saveCallback(processId, id, calendarStore.defaultCalendar.key)
 				.then(() => {
 					const status = id
 						? AppStatus.slaUpdated
 						: AppStatus.slaSaved;
 
-					setStatus(status, () => {
-						setRedirectToSLAList(true);
-					});
+					setStatus(status);
+					setRedirectToSLAList(true);
 				})
 				.catch(result => {
 					const {

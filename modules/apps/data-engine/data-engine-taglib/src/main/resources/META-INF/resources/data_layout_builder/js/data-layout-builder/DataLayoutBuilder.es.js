@@ -13,11 +13,12 @@
  */
 
 import FormBuilderWithLayoutProvider from 'dynamic-data-mapping-form-builder';
-import {PagesVisitor} from 'dynamic-data-mapping-form-renderer/js/util/visitors.es';
+import {PagesVisitor} from 'dynamic-data-mapping-form-renderer';
 import core from 'metal';
 import React from 'react';
 
 import EventEmitter from './EventEmitter.es';
+import saveDefinitionAndLayout from './saveDefinitionAndLayout.es';
 
 /**
  * Data Layout Builder.
@@ -38,24 +39,10 @@ class DataLayoutBuilder extends React.Component {
 			editingLanguageId,
 			fieldTypes,
 			localizable,
-			portletNamespace,
-			spritemap
+			portletNamespace
 		} = this.props;
 
 		const context = this._setContext(this.props.context);
-
-		const layoutProviderProps = {
-			...this.props,
-			context,
-			defaultLanguageId,
-			editingLanguageId,
-			events: {
-				pagesChanged: this._handlePagesChanged.bind(this)
-			},
-			initialPages: context.pages,
-			initialPaginationMode: context.paginationMode,
-			ref: 'layoutProvider'
-		};
 
 		this.formBuilderWithLayoutProvider = new FormBuilderWithLayoutProvider(
 			{
@@ -67,15 +54,20 @@ class DataLayoutBuilder extends React.Component {
 					}
 				},
 				formBuilderProps: {
-					defaultLanguageId,
-					editingLanguageId,
 					fieldTypes,
 					paginationMode: 'wizard',
 					portletNamespace,
-					ref: 'builder',
-					spritemap
+					ref: 'builder'
 				},
-				layoutProviderProps
+				layoutProviderProps: {
+					...this.props,
+					context,
+					defaultLanguageId,
+					editingLanguageId,
+					initialPages: context.pages,
+					initialPaginationMode: context.paginationMode,
+					ref: 'layoutProvider'
+				}
 			},
 			this.containerRef.current
 		);
@@ -86,33 +78,26 @@ class DataLayoutBuilder extends React.Component {
 					this._translationManagerHandles = [
 						translationManager.on(
 							'availableLocales',
-							({newValue}) => {
+							({newValue, previousValue}) => {
 								this.props.availableLanguageIds = [
 									...newValue.keys()
 								];
+
+								this.onAvailableLocalesRemoved({
+									newValue,
+									previousValue
+								});
 							}
 						),
 						translationManager.on('editingLocale', ({newValue}) => {
-							// this.props.editingLanguageId = newValue;
+							this.props.editingLanguageId = newValue;
 
-							// const {
-							// 	editingLanguageId
-							// } = this.props;
-
-							this.setState({
+							this.formBuilderWithLayoutProvider.props.layoutProviderProps = {
+								...this.formBuilderWithLayoutProvider.props
+									.layoutProviderProps,
 								editingLanguageId: newValue
-							});
-
-							// metalFormBuilder.props.editg = mewLa
-
-							// useEffect(() => {
-							// 	metal.props.editingLocale = editingLanguageId
-							// }, [editingLanguageId])
-						}),
-						translationManager.on(
-							'availableLocales',
-							this.onAvailableLocalesRemoved.bind(this)
-						)
+							};
+						})
 					];
 				}
 			);
@@ -180,7 +165,8 @@ class DataLayoutBuilder extends React.Component {
 			({fieldName, localizable, localizedValue, value}) => {
 				if (fieldName === 'predefinedValue') {
 					fieldName = 'defaultValue';
-				} else if (fieldName === 'type') {
+				}
+				else if (fieldName === 'type') {
 					fieldName = 'fieldType';
 				}
 
@@ -189,13 +175,16 @@ class DataLayoutBuilder extends React.Component {
 						fieldConfig.customProperties[
 							fieldName
 						] = localizedValue;
-					} else {
+					}
+					else {
 						fieldConfig[fieldName] = localizedValue;
 					}
-				} else {
+				}
+				else {
 					if (this._isCustomProperty(fieldName)) {
 						fieldConfig.customProperties[fieldName] = value;
-					} else {
+					}
+					else {
 						fieldConfig[fieldName] = value;
 					}
 				}
@@ -207,7 +196,9 @@ class DataLayoutBuilder extends React.Component {
 	}
 
 	getDefinitionAndLayout(pages) {
-		const {availableLanguageIds, defaultLanguageId} = this.props;
+		const {
+			defaultLanguageId = themeDisplay.getDefaultLanguageId()
+		} = this.props;
 		const fieldDefinitions = [];
 		const pagesVisitor = new PagesVisitor(pages);
 
@@ -219,7 +210,7 @@ class DataLayoutBuilder extends React.Component {
 
 		return {
 			definition: {
-				availableLanguageIds,
+				availableLanguageIds: this.getAvailableLanguageIds(),
 				dataDefinitionFields: fieldDefinitions,
 				defaultLanguageId
 			},
@@ -250,6 +241,7 @@ class DataLayoutBuilder extends React.Component {
 	}
 
 	getFieldSettingsContext(dataDefinitionField) {
+		const {editingLanguageId = themeDisplay.getLanguageId()} = this.props;
 		const fieldTypes = this.getFieldTypes();
 		const fieldType = fieldTypes.find(({name}) => {
 			return name === dataDefinitionField.fieldType;
@@ -264,29 +256,34 @@ class DataLayoutBuilder extends React.Component {
 				const propertyName = this._getDataDefinitionFieldPropertyName(
 					fieldName
 				);
-				let propertyValue = this._getDataDefinitionFieldPropertyValue(
+				const propertyValue = this._getDataDefinitionFieldPropertyValue(
 					dataDefinitionField,
 					propertyName
 				);
+
+				let value = propertyValue;
 
 				if (
 					localizable &&
 					propertyValue &&
 					Object.prototype.hasOwnProperty.call(
 						propertyValue,
-						themeDisplay.getLanguageId()
+						editingLanguageId
 					)
 				) {
-					propertyValue = propertyValue[themeDisplay.getLanguageId()];
+					value = propertyValue[editingLanguageId];
+				}
+
+				let localizedValue = {};
+
+				if (localizable) {
+					localizedValue = {...propertyValue};
 				}
 
 				return {
 					...field,
-					localizedValue: {
-						...field.localizedValue,
-						[themeDisplay.getLanguageId()]: propertyValue
-					},
-					value: propertyValue
+					localizedValue,
+					value
 				};
 			})
 		};
@@ -312,6 +309,16 @@ class DataLayoutBuilder extends React.Component {
 		};
 	}
 
+	getAvailableLanguageIds() {
+		const translationManager = Liferay.component('translationManager');
+
+		if (!translationManager) {
+			return [themeDisplay.getDefaultLanguageId()];
+		}
+
+		return [...translationManager.get('availableLocales').keys()];
+	}
+
 	onAvailableLocalesRemoved({newValue, previousValue}) {
 		const removedItems = new Map();
 
@@ -335,6 +342,30 @@ class DataLayoutBuilder extends React.Component {
 		);
 	}
 
+	save(params = {}) {
+		const {
+			contentType,
+			dataDefinitionId,
+			dataLayoutId,
+			groupId
+		} = this.props;
+		const {pages} = this.getStore();
+		const {
+			definition: dataDefinition,
+			layout: dataLayout
+		} = this.getDefinitionAndLayout(pages);
+
+		return saveDefinitionAndLayout({
+			contentType,
+			dataDefinition,
+			dataDefinitionId,
+			dataLayout,
+			dataLayoutId,
+			groupId,
+			params
+		});
+	}
+
 	serialize(pages) {
 		const {definition, layout} = this.getDefinitionAndLayout(pages);
 
@@ -342,24 +373,6 @@ class DataLayoutBuilder extends React.Component {
 			definition: JSON.stringify(definition),
 			layout: JSON.stringify(layout)
 		};
-	}
-
-	_handlePagesChanged({newVal}) {
-		const {dataDefinitionInputId, dataLayoutInputId} = this.props;
-
-		if (dataDefinitionInputId && dataLayoutInputId) {
-			const dataDefinitionInput = document.querySelector(
-				`#${dataDefinitionInputId}`
-			);
-			const dataLayoutInput = document.querySelector(
-				`#${dataLayoutInputId}`
-			);
-
-			const data = this.serialize(newVal);
-
-			dataLayoutInput.value = data.layout;
-			dataDefinitionInput.value = data.definition;
-		}
 	}
 
 	_isCustomProperty(name) {

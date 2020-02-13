@@ -185,20 +185,27 @@ definition {
 		Portlet.viewNoSpecificPG(portletName = "Notifications");
 	}
 
-	@description = "This is a use case for LPS-101973."
+	@description = "This is a use case for LPS-106534."
 	@priority = "4"
-	test UpdateUserInUserPersonalSite {
-		Navigator.gotoPersonalSite();
+	test UpdateAddressFromUserProfile {
+		UserBar.viewUserDefaultIcon();
 
-		AssertElementPresent(
-			key_portletName = "Profile",
-			locator1 = "Home#PORTLET");
+		UserBar.gotoDropdownItem(dropdownItem = "Account Settings");
 
-		User.editDetailsViaProfile(userFirstNameEdit = "userfnEdit");
+		UserNavigator.gotoContact();
 
-		SearchPortlets.viewUserResultDetails(
-			pageName = "My Profile",
-			userName = "userfnEdit Test");
+		User.addAddressViaMyAccount(
+			userAddressCity = "Diamond Bar",
+			userAddressCountry = "United States",
+			userAddressPostalCode = "91765",
+			userAddressRegion = "California",
+			userAddressStreet1 = "1400 Montefino Ave");
+
+		UserBar.gotoDropdownItem(dropdownItem = "My Profile");
+
+		User.editDetailsViaProfile(
+			addressType = "Personal",
+			userContact = "edit");
 	}
 
 	@description = "This is a use case for LPS-105387."

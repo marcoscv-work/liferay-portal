@@ -83,7 +83,7 @@ public class ViewAccountUsersManagementToolbarDisplayContext
 				dropdownItem.putData(
 					"removeUsersURL", removeUsersURL.toString());
 
-				dropdownItem.setIcon("minus-circle");
+				dropdownItem.setIcon("times-circle");
 				dropdownItem.setLabel(LanguageUtil.get(request, "remove"));
 				dropdownItem.setQuickAction(true);
 
@@ -103,15 +103,6 @@ public class ViewAccountUsersManagementToolbarDisplayContext
 
 	public CreationMenu getCreationMenu() {
 		return CreationMenuUtil.addPrimaryDropdownItem(
-			dropdownItem -> {
-				dropdownItem.setHref(
-					liferayPortletResponse.createRenderURL(),
-					"mvcRenderCommandName", "/account_admin/add_account_user",
-					"accountEntryId",
-					ParamUtil.getLong(liferayPortletRequest, "accountEntryId"));
-				dropdownItem.setLabel(LanguageUtil.get(request, "add-user"));
-			}
-		).addDropdownItem(
 			dropdownItem -> {
 				dropdownItem.putData("action", "selectAccountUsers");
 
@@ -154,8 +145,7 @@ public class ViewAccountUsersManagementToolbarDisplayContext
 
 				dropdownItem.setLabel(
 					LanguageUtil.get(request, "assign-users"));
-			}
-		);
+			});
 	}
 
 	@Override

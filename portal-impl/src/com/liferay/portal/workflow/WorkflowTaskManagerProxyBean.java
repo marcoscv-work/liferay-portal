@@ -221,9 +221,9 @@ public class WorkflowTaskManagerProxyBean
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #search(long,
-	 *             long, String, String[], String[], Long[], Long[], Date, Date,
-	 *             Boolean, Boolean, Long[], Boolean, int, int,
-	 *             OrderByComparator)}
+	 *             long, String, String[], String[], Long[], String, Long[],
+	 *             Date, Date, Boolean, Boolean, Long, Long[], Boolean, int,
+	 *             int, OrderByComparator)}
 	 */
 	@Deprecated
 	@Override
@@ -237,9 +237,9 @@ public class WorkflowTaskManagerProxyBean
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #search(long,
-	 *             long, String, String[], String[], Long[], Long[], Date, Date,
-	 *             Boolean, Boolean, Long[], Boolean, int, int,
-	 *             OrderByComparator)}
+	 *             long, String, String[], String[], Long[], String, Long[],
+	 *             Date, Date, Boolean, Boolean, Long, Long[], Boolean, int,
+	 *             int, OrderByComparator)}
 	 */
 	@Deprecated
 	@Override
@@ -254,9 +254,9 @@ public class WorkflowTaskManagerProxyBean
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #search(long,
-	 *             long, String, String[], String[], Long[], Long[], Date, Date,
-	 *             Boolean, Boolean, Long[], Boolean, int, int,
-	 *             OrderByComparator)}
+	 *             long, String, String[], String[], Long[], String, Long[],
+	 *             Date, Date, Boolean, Boolean, Long, Long[], Boolean, int,
+	 *             int, OrderByComparator)}
 	 */
 	@Deprecated
 	@Override
@@ -272,9 +272,9 @@ public class WorkflowTaskManagerProxyBean
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #search(long,
-	 *             long, String, String[], String[], Long[], Long[], Date, Date,
-	 *             Boolean, Boolean, Long[], Boolean, int, int,
-	 *             OrderByComparator)}
+	 *             long, String, String[], String[], Long[], String, Long[],
+	 *             Date, Date, Boolean, Boolean, Long, Long[], Boolean, int,
+	 *             int, OrderByComparator)}
 	 */
 	@Deprecated
 	@Override
@@ -286,13 +286,32 @@ public class WorkflowTaskManagerProxyBean
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #search(long,
+	 *             long, String, String[], String[], Long[], String, Long[],
+	 *             Date, Date, Boolean, Boolean, Long, Long[], Boolean, int,
+	 *             int, OrderByComparator)}
+	 */
+	@Deprecated
 	@Override
 	public List<WorkflowTask> search(
 		long companyId, long userId, String assetTitle, String[] taskNames,
-		String[] assetTypes, Long[] assetPrimaryKeys, Long[] assigneeUserIds,
+		String[] assetTypes, Long[] assetPrimaryKeys, Long[] assigneeIds,
 		Date dueDateGT, Date dueDateLT, Boolean completed,
-		Boolean searchByUserRoles, Long[] workflowInstanceIds,
+		Boolean searchByUserRoles, Long[] workflowInstanceId,
 		Boolean andOperator, int start, int end,
+		OrderByComparator<WorkflowTask> orderByComparator) {
+
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List<WorkflowTask> search(
+		long companyId, long userId, String assetTitle, String[] taskNames,
+		String[] assetTypes, Long[] assetPrimaryKeys, String assigneeClassName,
+		Long[] assigneeIds, Date dueDateGT, Date dueDateLT, Boolean completed,
+		Boolean searchByUserRoles, Long workflowDefinitionId,
+		Long[] workflowInstanceIds, Boolean andOperator, int start, int end,
 		OrderByComparator<WorkflowTask> orderByComparator) {
 
 		throw new UnsupportedOperationException();
@@ -301,7 +320,8 @@ public class WorkflowTaskManagerProxyBean
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
 	 *             #searchCount(long, long, String, String[], String[], Long[],
-	 *             Long[], Date, Date, Boolean, Boolean, Long[], Boolean)}
+	 *             String, Long[], Date, Date, Boolean, Boolean, Long, Long[],
+	 *             Boolean)}
 	 */
 	@Deprecated
 	@Override
@@ -315,7 +335,8 @@ public class WorkflowTaskManagerProxyBean
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
 	 *             #searchCount(long, long, String, String[], String[], Long[],
-	 *             Long[], Date, Date, Boolean, Boolean, Long[], Boolean)}
+	 *             String, Long[], Date, Date, Boolean, Boolean, Long, Long[],
+	 *             Boolean)}
 	 */
 	@Deprecated
 	@Override
@@ -330,7 +351,8 @@ public class WorkflowTaskManagerProxyBean
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
 	 *             #searchCount(long, long, String, String[], String[], Long[],
-	 *             Long[], Date, Date, Boolean, Boolean, Long[], Boolean)}
+	 *             String, Long[], Date, Date, Boolean, Boolean, Long, Long[],
+	 *             Boolean)}
 	 */
 	@Deprecated
 	@Override
@@ -346,7 +368,8 @@ public class WorkflowTaskManagerProxyBean
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
 	 *             #searchCount(long, long, String, String[], String[], Long[],
-	 *             Long[], Date, Date, Boolean, Boolean, Long[], Boolean)}
+	 *             String, Long[], Date, Date, Boolean, Boolean, Long, Long[],
+	 *             Boolean)}
 	 */
 	@Deprecated
 	@Override
@@ -357,13 +380,31 @@ public class WorkflowTaskManagerProxyBean
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #searchCount(long, long, String, String[], String[], Long[],
+	 *             String, Long[], Date, Date, Boolean, Boolean, Long, Long[],
+	 *             Boolean)}
+	 */
+	@Deprecated
 	@Override
 	public int searchCount(
 		long companyId, long userId, String assetTitle, String[] taskNames,
-		String[] assetTypes, Long[] assetPrimaryKeys, Long[] assigneeUserIds,
+		String[] assetTypes, Long[] assetPrimaryKeys, Long[] assigneeIds,
 		Date dueDateGT, Date dueDateLT, Boolean completed,
 		Boolean searchByUserRoles, Long[] workflowInstanceIds,
 		Boolean andOperator) {
+
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int searchCount(
+		long companyId, long userId, String assetTitle, String[] taskNames,
+		String[] assetTypes, Long[] assetPrimaryKeys, String assigneeClassName,
+		Long[] assigneeIds, Date dueDateGT, Date dueDateLT, Boolean completed,
+		Boolean searchByUserRoles, Long workflowDefinitionId,
+		Long[] workflowInstanceIds, Boolean andOperator) {
 
 		throw new UnsupportedOperationException();
 	}

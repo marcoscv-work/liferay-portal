@@ -92,6 +92,12 @@ public interface AccountRoleLocalService
 	public AccountRole createAccountRole(long accountRoleId);
 
 	/**
+	 * @throws PortalException
+	 */
+	public PersistedModel createPersistedModel(Serializable primaryKeyObj)
+		throws PortalException;
+
+	/**
 	 * Deletes the account role from the database. Also notifies the appropriate model listeners.
 	 *
 	 * @param accountRole the account role
@@ -252,6 +258,9 @@ public interface AccountRoleLocalService
 	 */
 	public String getOSGiServiceIdentifier();
 
+	/**
+	 * @throws PortalException
+	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
@@ -260,6 +269,11 @@ public interface AccountRoleLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public BaseModelSearchResult<AccountRole> searchAccountRoles(
 		long accountEntryId, String keywords, int start, int end,
+		OrderByComparator obc);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public BaseModelSearchResult<AccountRole> searchAccountRoles(
+		long[] accountEntryIds, String keywords, int start, int end,
 		OrderByComparator obc);
 
 	public void unassociateUser(

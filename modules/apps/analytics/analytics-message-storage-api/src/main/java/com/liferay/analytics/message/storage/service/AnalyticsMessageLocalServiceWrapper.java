@@ -73,6 +73,18 @@ public class AnalyticsMessageLocalServiceWrapper
 	}
 
 	/**
+	 * @throws PortalException
+	 */
+	@Override
+	public com.liferay.portal.kernel.model.PersistedModel createPersistedModel(
+			java.io.Serializable primaryKeyObj)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _analyticsMessageLocalService.createPersistedModel(
+			primaryKeyObj);
+	}
+
+	/**
 	 * Deletes the analytics message from the database. Also notifies the appropriate model listeners.
 	 *
 	 * @param analyticsMessage the analytics message
@@ -323,6 +335,9 @@ public class AnalyticsMessageLocalServiceWrapper
 		return _analyticsMessageLocalService.getOSGiServiceIdentifier();
 	}
 
+	/**
+	 * @throws PortalException
+	 */
 	@Override
 	public com.liferay.portal.kernel.model.PersistedModel getPersistedModel(
 			java.io.Serializable primaryKeyObj)

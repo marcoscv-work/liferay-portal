@@ -13,6 +13,7 @@
  */
 
 import {ClayButtonWithIcon, default as ClayButton} from '@clayui/button';
+import ClayIcon from '@clayui/icon';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import classNames from 'classnames';
@@ -25,7 +26,10 @@ import usePlugins from '../../core/hooks/usePlugins';
 import useStateSafe from '../../core/hooks/useStateSafe';
 import * as Actions from '../actions/index';
 import {ConfigContext} from '../config/index';
-import {useSelector, useDispatch} from '../store/index';
+import selectAvailablePanels from '../selectors/selectAvailablePanels';
+import selectAvailableSidebarPanels from '../selectors/selectAvailableSidebarPanels';
+import {useDispatch, useSelector} from '../store/index';
+import {useSelectItem} from './Controls';
 
 const {Suspense, useCallback, useContext, useEffect} = React;
 
@@ -39,21 +43,22 @@ export default function Sidebar() {
 	const config = useContext(ConfigContext);
 	const dispatch = useDispatch();
 	const store = useSelector(state => state);
-
 	const [hasError, setHasError] = useStateSafe(false);
-
-	const {panels, sidebarPanels} = config;
-	const {sidebarOpen, sidebarPanelId} = store;
-
 	const isMounted = useIsMounted();
-
+	const selectItem = useSelectItem();
 	const load = useLoad();
-
 	const {getInstance, register} = usePlugins();
 
-	const panel = sidebarPanels[sidebarPanelId];
+	const panels = useSelector(selectAvailablePanels(config.panels));
+	const sidebarPanels = useSelector(
+		selectAvailableSidebarPanels(config.sidebarPanels)
+	);
+	const {sidebarOpen, sidebarPanelId} = store;
 
-	const promise = load(sidebarPanelId, panel.pluginEntryPoint);
+	const panel = sidebarPanels[sidebarPanelId];
+	const promise = panel
+		? load(sidebarPanelId, panel.pluginEntryPoint)
+		: Promise.resolve();
 
 	const app = {
 		Actions,
@@ -62,33 +67,86 @@ export default function Sidebar() {
 		store
 	};
 
-	const registerPanel = register(sidebarPanelId, promise, {app, panel});
+	let registerPanel;
+
+	if (sidebarPanelId) {
+		registerPanel = register(sidebarPanelId, promise, {app, panel});
+	}
 
 	useEffect(
 		() => {
 			if (panel) {
 				togglePlugin(panel);
-			} else {
-				adjustWrapperPadding({sidebarOpen: false});
+			}
+			else if (sidebarPanelId) {
+				dispatch(
+					Actions.switchSidebarPanel({
+						sidebarOpen: false,
+						sidebarPanelId: null
+					})
+				);
 			}
 		},
 		/* eslint-disable react-hooks/exhaustive-deps */
 		[panel, sidebarOpen, sidebarPanelId]
 	);
 
+	useEffect(() => {
+		const productMenuOpen = document.querySelector('.product-menu-open');
+		const sideNavigation = Liferay.SideNavigation.instance(
+			document.querySelector('.product-menu-toggle')
+		);
+
+		const onCloseSidebar = () => {
+			dispatch(
+				Actions.switchSidebarPanel({
+					sidebarOpen: false,
+					sidebarPanelId: null
+				})
+			);
+		};
+
+		if (productMenuOpen && sidebarOpen) {
+			onCloseSidebar();
+		}
+
+		const sideNavigationListener = sideNavigation.on(
+			'openStart.lexicon.sidenav',
+			onCloseSidebar
+		);
+
+		return () => {
+			sideNavigationListener.removeListener();
+		};
+	}, []);
+
 	const SidebarPanel = useLazy(
 		useCallback(({instance}) => {
 			if (typeof instance.renderSidebar === 'function') {
 				return instance.renderSidebar();
-			} else {
+			}
+			else {
 				return null;
 			}
 		}, [])
 	);
 
+	const deselectItem = event => {
+		if (event.target === event.currentTarget) {
+			selectItem(null, {multiSelect: event.shiftKey});
+		}
+	};
+
 	const handleClick = panel => {
 		const open =
 			panel.sidebarPanelId === sidebarPanelId ? !sidebarOpen : true;
+		const productMenuToggle = document.querySelector(
+			'.product-menu-toggle'
+		);
+
+		if (productMenuToggle && !sidebarOpen) {
+			Liferay.SideNavigation.hide(productMenuToggle);
+		}
 
 		dispatch(
 			Actions.switchSidebarPanel({
@@ -103,32 +161,53 @@ export default function Sidebar() {
 			setHasError(false);
 		}
 
-		getInstance(sidebarPanelId);
-
-		registerPanel.then(plugin => {
-			if (
-				plugin &&
-				typeof plugin.activate === 'function' &&
-				isMounted()
-			) {
-				plugin.activate();
-			} else if (!plugin) {
-				setHasError(true);
-			}
-		});
+		if (registerPanel) {
+			registerPanel.then(plugin => {
+				if (
+					plugin &&
+					typeof plugin.activate === 'function' &&
+					isMounted()
+				) {
+					plugin.activate();
+				}
+				else if (!plugin) {
+					setHasError(true);
+				}
+			});
+		}
 	};
 
 	return (
 		<ClayTooltipProvider>
-			<div className="page-editor-sidebar">
-				<div className="page-editor-sidebar-buttons">
+			<div className="page-editor__sidebar">
+				<div
+					className="page-editor__sidebar__buttons"
+					onClick={deselectItem}
+				>
 					{panels.reduce((elements, group, groupIndex) => {
 						const buttons = group.map(panelId => {
 							const panel = sidebarPanels[panelId];
 
 							const active =
 								sidebarOpen && sidebarPanelId === panelId;
-							const {icon, label, pluginEntryPoint} = panel;
+							const {
+								icon,
+								isLink,
+								label,
+								pluginEntryPoint,
+								url
+							} = panel;
+
+							if (isLink) {
+								return (
+									<a
+										className={classNames({active})}
+										href={url}
+									>
+										<ClayIcon symbol={icon} />
+									</a>
+								);
+							}
 
 							const prefetch = () =>
 								load(
@@ -137,26 +216,39 @@ export default function Sidebar() {
 								).then(...swallow);
 
 							return (
-								<ClayButtonWithIcon
-									aria-pressed={active}
-									className={classNames({active})}
-									data-tooltip-align="left"
-									displayType="unstyled"
-									id={panel.sidebarPanelId}
-									key={panel.sidebarPanelId}
-									onClick={() => handleClick(panel)}
-									onFocus={prefetch}
-									onMouseEnter={prefetch}
-									symbol={icon}
-									title={label}
-								/>
+								<>
+									{isLink ? (
+										<a
+											className={classNames({active})}
+											href={url}
+										>
+											<ClayIcon symbol={icon} />
+										</a>
+									) : (
+										<ClayButtonWithIcon
+											aria-pressed={active}
+											className={classNames({active})}
+											data-tooltip-align="left"
+											displayType="unstyled"
+											id={panel.sidebarPanelId}
+											key={panel.sidebarPanelId}
+											onClick={() => handleClick(panel)}
+											onFocus={prefetch}
+											onMouseEnter={prefetch}
+											symbol={icon}
+											title={label}
+										/>
+									)}
+									);
+								</>
 							);
 						});
 
 						// Add separator between groups.
-						if (groupIndex === sidebarPanels.length - 1) {
+						if (groupIndex === panels.length - 1) {
 							return elements.concat(buttons);
-						} else {
+						}
+						else {
 							return elements.concat([
 								...buttons,
 								<hr key={`separator-${groupIndex}`} />
@@ -166,9 +258,10 @@ export default function Sidebar() {
 				</div>
 				<div
 					className={classNames({
-						'page-editor-sidebar-content': true,
-						'page-editor-sidebar-content-open': sidebarOpen
+						'page-editor__sidebar__content': true,
+						'page-editor__sidebar__content--open': sidebarOpen
 					})}
+					onClick={deselectItem}
 				>
 					{hasError ? (
 						<div>
@@ -230,24 +323,9 @@ class ErrorBoundary extends React.Component {
 	render() {
 		if (this.state.hasError) {
 			return null;
-		} else {
-			return this.props.children;
 		}
-	}
-}
-
-function adjustWrapperPadding({sidebarOpen}) {
-	const wrapper = document.getElementById('wrapper');
-
-	if (wrapper) {
-		const classList = wrapper.classList;
-
-		if (sidebarOpen) {
-			classList.add('page-editor-sidebar-padding-open');
-			classList.remove('page-editor-sidebar-padding');
-		} else {
-			classList.add('page-editor-sidebar-padding');
-			classList.remove('page-editor-sidebar-padding-open');
+		else {
+			return this.props.children;
 		}
 	}
 }

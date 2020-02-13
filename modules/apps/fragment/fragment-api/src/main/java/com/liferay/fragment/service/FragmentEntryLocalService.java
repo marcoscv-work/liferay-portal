@@ -84,6 +84,14 @@ public interface FragmentEntryLocalService
 	public FragmentEntry addFragmentEntry(
 			long userId, long groupId, long fragmentCollectionId,
 			String fragmentEntryKey, String name, String css, String html,
+			String js, boolean cacheable, String configuration,
+			long previewFileEntryId, int type, int status,
+			ServiceContext serviceContext)
+		throws PortalException;
+
+	public FragmentEntry addFragmentEntry(
+			long userId, long groupId, long fragmentCollectionId,
+			String fragmentEntryKey, String name, String css, String html,
 			String js, String configuration, long previewFileEntryId, int type,
 			int status, ServiceContext serviceContext)
 		throws PortalException;
@@ -101,6 +109,12 @@ public interface FragmentEntryLocalService
 	 */
 	@Transactional(enabled = false)
 	public FragmentEntry createFragmentEntry(long fragmentEntryId);
+
+	/**
+	 * @throws PortalException
+	 */
+	public PersistedModel createPersistedModel(Serializable primaryKeyObj)
+		throws PortalException;
 
 	/**
 	 * Deletes the fragment entry from the database. Also notifies the appropriate model listeners.
@@ -331,6 +345,9 @@ public interface FragmentEntryLocalService
 	 */
 	public String getOSGiServiceIdentifier();
 
+	/**
+	 * @throws PortalException
+	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
@@ -356,6 +373,12 @@ public interface FragmentEntryLocalService
 
 	public FragmentEntry updateFragmentEntry(
 			long fragmentEntryId, long previewFileEntryId)
+		throws PortalException;
+
+	public FragmentEntry updateFragmentEntry(
+			long userId, long fragmentEntryId, String name, String css,
+			String html, String js, boolean cacheable, String configuration,
+			long previewFileEntryId, int status)
 		throws PortalException;
 
 	public FragmentEntry updateFragmentEntry(

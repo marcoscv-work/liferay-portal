@@ -83,7 +83,8 @@ name = HtmlUtil.escapeJS(name);
 
 		if (window['<%= HtmlUtil.escapeJS(namespace + initMethod) %>']) {
 			data = <%= HtmlUtil.escapeJS(namespace + initMethod) %>();
-		} else {
+		}
+		else {
 			data =
 				'<%= (contents != null) ? HtmlUtil.escapeJS(contents) : StringPool.BLANK %>';
 		}
@@ -146,8 +147,17 @@ name = HtmlUtil.escapeJS(name);
 					itemSelectorDialog.eventName = '<%= name %>selectItem';
 					itemSelectorDialog.singleSelect = true;
 					itemSelectorDialog.url = url;
-					itemSelectorDialog.zIndex =
-						tinymce.activeEditor.windowManager.windows[0].zIndex + 10;
+
+					var tinymceDialogContainer = document.querySelector(
+						'.tox-tinymce-aux'
+					);
+
+					if (tinymceDialogContainer) {
+						var zIndex = window.getComputedStyle(tinymceDialogContainer)
+							.zIndex;
+
+						itemSelectorDialog.zIndex = parseInt(zIndex) + 10;
+					}
 
 					itemSelectorDialog.on('selectedItemChange', function(event) {
 						var selectedItem = event.selectedItem
@@ -168,8 +178,10 @@ name = HtmlUtil.escapeJS(name);
 								selectedItem = attachmentPrefix
 									? attachmentPrefix + itemValue.title
 									: itemValue.url;
-							} catch (e) {}
-						} else {
+							}
+							catch (e) {}
+						}
+						else {
 							selectedItem = selectedItem.value;
 						}
 
@@ -183,7 +195,8 @@ name = HtmlUtil.escapeJS(name);
 
 				if (itemSelectorDialog) {
 					openItemSelectorDialog(itemSelectorDialog);
-				} else {
+				}
+				else {
 					Liferay.Loader.require(
 						'frontend-js-web/liferay/ItemSelectorDialog.es',
 						function(ItemSelectorDialog) {
@@ -203,7 +216,8 @@ name = HtmlUtil.escapeJS(name);
 		focus: function() {
 			if (window['<%= name %>'].instanceReady) {
 				tinyMCE.editors['<%= name %>'].focus();
-			} else {
+			}
+			else {
 				window['<%= name %>'].pendingFocus = true;
 			}
 		},
@@ -213,7 +227,8 @@ name = HtmlUtil.escapeJS(name);
 
 			if (!window['<%= name %>'].instanceReady) {
 				data = getInitialContent();
-			} else {
+			}
+			else {
 				data = tinyMCE.editors['<%= name %>'].getBody().innerHTML;
 			}
 
@@ -229,7 +244,8 @@ name = HtmlUtil.escapeJS(name);
 
 			if (!window['<%= name %>'].instanceReady) {
 				data = getInitialContent();
-			} else {
+			}
+			else {
 				var editorBody = tinyMCE.editors['<%= name %>'].getBody();
 
 				data = editorBody.textContent;
@@ -252,7 +268,9 @@ name = HtmlUtil.escapeJS(name);
 
 			var defaultConfig = {
 				file_picker_callback: window['<%= name %>'].filePickerCallback,
-				init_instance_callback: window['<%= name %>'].initInstanceCallback
+				height: 400,
+				init_instance_callback: window['<%= name %>'].initInstanceCallback,
+				paste_data_images: true
 			};
 
 			<c:if test="<%= Validator.isNotNull(onChangeMethod) %>">
@@ -331,7 +349,8 @@ name = HtmlUtil.escapeJS(name);
 						.$()
 						.context.setAttribute('dir', this.contentsLanguageDir);
 				}
-			} else {
+			}
+			else {
 				editor = document.getElementById('<%= name %>');
 				editor.innerHTML = value;
 

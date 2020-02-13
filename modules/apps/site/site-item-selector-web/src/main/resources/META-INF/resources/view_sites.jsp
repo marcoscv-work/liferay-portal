@@ -21,7 +21,10 @@ SitesItemSelectorViewDisplayContext siteItemSelectorViewDisplayContext = (SitesI
 GroupURLProvider groupURLProvider = (GroupURLProvider)request.getAttribute(SiteWebKeys.GROUP_URL_PROVIDER);
 
 String displayStyle = siteItemSelectorViewDisplayContext.getDisplayStyle();
-String target = ParamUtil.getString(request, "target");
+
+GroupItemSelectorCriterion groupItemSelectorCriterion = siteItemSelectorViewDisplayContext.getGroupItemSelectorCriterion();
+
+String target = ParamUtil.getString(request, "target", groupItemSelectorCriterion.getTarget());
 
 GroupSearch groupSearch = siteItemSelectorViewDisplayContext.getGroupSearch();
 %>
@@ -92,7 +95,9 @@ GroupSearch groupSearch = siteItemSelectorViewDisplayContext.getGroupSearch();
 								<%= HtmlUtil.escape(siteItemSelectorViewDisplayContext.getGroupName(group)) %>
 							</aui:a>
 
-							<aui:a href="<%= groupURLProvider.getGroupURL(group, liferayPortletRequest) %>" target="_blank" />
+							<c:if test="<%= groupItemSelectorCriterion.isAllowNavigation() %>">
+								<aui:a href="<%= groupURLProvider.getGroupURL(group, liferayPortletRequest) %>" target="_blank" />
+							</c:if>
 						</h5>
 
 						<h6 class="text-default">
@@ -139,7 +144,9 @@ GroupSearch groupSearch = siteItemSelectorViewDisplayContext.getGroupSearch();
 															</aui:a>
 														</p>
 
-														<aui:a cssClass="col-auto" href="<%= siteVerticalCard.getHref() %>" target="_blank" />
+														<c:if test="<%= groupItemSelectorCriterion.isAllowNavigation() %>">
+															<aui:a cssClass="col-auto" href="<%= siteVerticalCard.getHref() %>" target="_blank" />
+														</c:if>
 													</div>
 												</div>
 
@@ -176,7 +183,9 @@ GroupSearch groupSearch = siteItemSelectorViewDisplayContext.getGroupSearch();
 															</aui:a>
 														</p>
 
-														<aui:a cssClass="col-auto" href="<%= siteVerticalCard.getHref() %>" target="_blank" />
+														<c:if test="<%= groupItemSelectorCriterion.isAllowNavigation() %>">
+															<aui:a cssClass="col-auto" href="<%= siteVerticalCard.getHref() %>" target="_blank" />
+														</c:if>
 													</div>
 												</div>
 
@@ -204,7 +213,9 @@ GroupSearch groupSearch = siteItemSelectorViewDisplayContext.getGroupSearch();
 							<%= HtmlUtil.escape(siteItemSelectorViewDisplayContext.getGroupName(group)) %>
 						</aui:a>
 
-						<aui:a href="<%= groupURLProvider.getGroupURL(group, liferayPortletRequest) %>" target="_blank" />
+						<c:if test="<%= groupItemSelectorCriterion.isAllowNavigation() %>">
+							<aui:a href="<%= groupURLProvider.getGroupURL(group, liferayPortletRequest) %>" target="_blank" />
+						</c:if>
 					</liferay-ui:search-container-column-text>
 
 					<c:if test="<%= siteItemSelectorViewDisplayContext.isShowChildSitesLink() %>">

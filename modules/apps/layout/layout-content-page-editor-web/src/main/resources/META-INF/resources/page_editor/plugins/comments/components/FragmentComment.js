@@ -19,11 +19,11 @@ import classNames from 'classnames';
 import {useIsMounted} from 'frontend-js-react-web';
 import {openToast} from 'frontend-js-web';
 import PropTypes from 'prop-types';
-import React, {useEffect, useState, useContext} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 
 import {ConfigContext} from '../../../app/config/index';
 import FragmentService from '../../../app/services/FragmentService';
-import {useSelector, useDispatch} from '../../../app/store/index';
+import {useDispatch, useSelector} from '../../../app/store/index';
 import deleteFragmentComment from '../../../app/thunks/deleteFragmentComment';
 import InlineConfirm from '../../../common/components/InlineConfirm';
 import UserIcon from '../../../common/components/UserIcon';
@@ -80,7 +80,7 @@ export default function FragmentComment({
 			body,
 			commentId,
 			config,
-			fragmentEntryLinkId,
+			onNetworkStatus: dispatch,
 			resolved: !resolved
 		})
 			.then(comment => {
@@ -88,7 +88,8 @@ export default function FragmentComment({
 
 				if (showResolvedComments) {
 					onEdit(comment);
-				} else if (!resolved) {
+				}
+				else if (!resolved) {
 					setShowResolveMask(true);
 					hideComment(() => onEdit(comment));
 				}

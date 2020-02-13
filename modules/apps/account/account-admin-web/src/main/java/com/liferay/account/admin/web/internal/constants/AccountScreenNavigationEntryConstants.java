@@ -25,7 +25,11 @@ public class AccountScreenNavigationEntryConstants {
 
 	public static final String CATEGORY_KEY_GENERAL = "general";
 
+	public static final String CATEGORY_KEY_ORGANIZATIONS = "organizations";
+
 	public static final String CATEGORY_KEY_PREFERENCES = "preferences";
+
+	public static final String CATEGORY_KEY_ROLES = "roles";
 
 	public static final String CATEGORY_KEY_USERS = "users";
 
@@ -43,12 +47,19 @@ public class AccountScreenNavigationEntryConstants {
 
 	public static final String ENTRY_KEY_INFORMATION = "information";
 
+	public static final String ENTRY_KEY_ORGANIZATIONS = "organizations";
+
 	public static final String ENTRY_KEY_PASSWORD = "password";
+
+	public static final String ENTRY_KEY_ROLES = "roles";
 
 	public static final String ENTRY_KEY_USERS = "users";
 
 	public static final String SCREEN_NAVIGATION_KEY_ACCOUNT_ENTRY =
 		"edit.account.entry.form";
+
+	public static final String SCREEN_NAVIGATION_KEY_ACCOUNT_ROLE =
+		"edit.account.role.form";
 
 	public static final String SCREEN_NAVIGATION_KEY_ACCOUNT_USER =
 		"edit.account.user.form";

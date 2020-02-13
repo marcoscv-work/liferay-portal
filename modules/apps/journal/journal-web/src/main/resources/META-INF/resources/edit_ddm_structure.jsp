@@ -31,21 +31,26 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle((ddmStructure != null) ? LanguageUtil.format(request, "edit-x", ddmStructure.getName(locale), false) : LanguageUtil.get(request, "new-structure"));
 
 DDMForm ddmForm = null;
+long ddmStructureId = 0L;
 
 if (ddmStructure != null) {
 	ddmForm = ddmStructure.getDDMForm();
+	ddmStructureId = ddmStructure.getStructureId();
 }
+
+PortletURL editDDMStructureURL = renderResponse.createActionURL();
+
+if (ddmStructure == null) {
+	editDDMStructureURL.setParameter(ActionRequest.ACTION_NAME, "/journal/add_ddm_structure");
+}
+else {
+	editDDMStructureURL.setParameter(ActionRequest.ACTION_NAME, "/journal/update_ddm_structure");
+}
+
+editDDMStructureURL.setParameter("mvcPath", "/edit_ddm_structure.jsp");
 %>
 
-<portlet:actionURL name="/journal/add_ddm_structure" var="addDDMStructureURL">
-	<portlet:param name="mvcPath" value="/edit_ddm_structure.jsp" />
-</portlet:actionURL>
-
-<portlet:actionURL name="/journal/update_ddm_structure" var="updateDDMStructureURL">
-	<portlet:param name="mvcPath" value="/edit_ddm_structure.jsp" />
-</portlet:actionURL>
-
-<aui:form action="<%= (ddmStructure == null) ? addDDMStructureURL : updateDDMStructureURL %>" cssClass="edit-article-form" enctype="multipart/form-data" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveDDMStructure();" %>'>
+<aui:form action="<%= journalDisplayContext.useDataEngineEditor() ? StringPool.BLANK : editDDMStructureURL.toString() %>" cssClass="edit-article-form" enctype="multipart/form-data" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveDDMStructure();" %>'>
 	<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 	<aui:input name="groupId" type="hidden" value="<%= groupId %>" />
 	<aui:input name="ddmStructureId" type="hidden" value="<%= journalEditDDMStructuresDisplayContext.getDDMStructureId() %>" />
@@ -177,12 +182,12 @@ if (ddmStructure != null) {
 				<c:when test="<%= journalDisplayContext.useDataEngineEditor() %>">
 					<liferay-data-engine:data-layout-builder
 						componentId='<%= renderResponse.getNamespace() + "dataLayoutBuilder" %>'
-						dataDefinitionInputId="dataDefinition"
-						dataLayoutId="<%= 0L %>"
-						dataLayoutInputId="dataLayout"
+						contentType="journal"
+						dataDefinitionId="<%= ddmStructureId %>"
+						groupId="<%= groupId %>"
+						localizable="<%= true %>"
 						namespace="<%= renderResponse.getNamespace() %>"
-					>
-					</liferay-data-engine:data-layout-builder>
+					/>
 				</c:when>
 				<c:otherwise>
 					<div class="sheet">
@@ -251,11 +256,51 @@ if (ddmStructure != null) {
 	}
 
 	function <portlet:namespace />saveDDMStructure() {
-		Liferay.Util.postForm(document.<portlet:namespace />fm, {
-			data: {
-				definition: <portlet:namespace />formBuilder.getContentValue()
-			}
-		});
+		<c:choose>
+			<c:when test="<%= journalDisplayContext.useDataEngineEditor() %>">
+				Liferay.componentReady(
+					'<%= renderResponse.getNamespace() + "dataLayoutBuilder" %>'
+				).then(function(dataLayoutBuilder) {
+					var name =
+						document.<portlet:namespace />fm[
+							'<portlet:namespace />name_' + themeDisplay.getLanguageId()
+						].value;
+					var description =
+						document.<portlet:namespace />fm['<portlet:namespace />description']
+							.value;
+
+					dataLayoutBuilder
+						.save({
+							dataDefinition: {
+								description: {
+									value: description
+								},
+								name: {
+									value: name
+								}
+							},
+							dataLayout: {
+								description: {
+									value: description
+								},
+								name: {
+									value: name
+								}
+							}
+						})
+						.then(function(dataLayout) {
+							Liferay.Util.navigate('<%= HtmlUtil.escapeJS(redirect) %>');
+						});
+				});
+			</c:when>
+			<c:otherwise>
+				Liferay.Util.postForm(document.<portlet:namespace />fm, {
+					data: {
+						definition: <portlet:namespace />formBuilder.getContentValue()
+					}
+				});
+			</c:otherwise>
+		</c:choose>
 	}
 
 	var contextualSidebarButton = document.getElementById(
@@ -282,7 +327,8 @@ if (ddmStructure != null) {
 				contextualSidebarContainer.classList.remove(
 					'contextual-sidebar-visible'
 				);
-			} else {
+			}
+			else {
 				contextualSidebarContainer.classList.add(
 					'contextual-sidebar-visible'
 				);

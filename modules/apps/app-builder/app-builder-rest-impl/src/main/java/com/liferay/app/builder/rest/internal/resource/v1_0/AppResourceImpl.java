@@ -15,6 +15,7 @@
 package com.liferay.app.builder.rest.internal.resource.v1_0;
 
 import com.liferay.app.builder.constants.AppBuilderAppConstants;
+import com.liferay.app.builder.constants.AppBuilderConstants;
 import com.liferay.app.builder.deploy.AppDeployer;
 import com.liferay.app.builder.deploy.AppDeployerTracker;
 import com.liferay.app.builder.exception.AppBuilderAppStatusException;
@@ -42,7 +43,6 @@ import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -67,6 +67,7 @@ import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
 import com.liferay.portal.vulcan.util.SearchUtil;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -96,14 +97,18 @@ public class AppResourceImpl
 
 	@Override
 	public void deleteApp(Long appId) throws Exception {
-		_checkPermissions(appId, ActionKeys.DELETE);
+		_modelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(), appId,
+			ActionKeys.DELETE);
 
 		_appBuilderAppLocalService.deleteAppBuilderApp(appId);
 	}
 
 	@Override
 	public App getApp(Long appId) throws Exception {
-		_checkPermissions(appId, ActionKeys.VIEW);
+		_modelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(), appId,
+			ActionKeys.VIEW);
 
 		return _toApp(_appBuilderAppLocalService.getAppBuilderApp(appId));
 	}
@@ -151,6 +156,7 @@ public class AppResourceImpl
 		}
 
 		return SearchUtil.search(
+			Collections.emptyMap(),
 			booleanQuery -> {
 			},
 			null, AppBuilderApp.class, keywords, pagination,
@@ -166,10 +172,10 @@ public class AppResourceImpl
 				searchContext.setGroupIds(
 					new long[] {ddmStructure.getGroupId()});
 			},
+			sorts,
 			document -> _toApp(
 				_appBuilderAppLocalService.getAppBuilderApp(
-					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))),
-			sorts);
+					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
 	}
 
 	@Override
@@ -213,6 +219,7 @@ public class AppResourceImpl
 		}
 
 		return SearchUtil.search(
+			Collections.emptyMap(),
 			booleanQuery -> {
 			},
 			null, AppBuilderApp.class, keywords, pagination,
@@ -226,17 +233,24 @@ public class AppResourceImpl
 				searchContext.setCompanyId(contextCompany.getCompanyId());
 				searchContext.setGroupIds(new long[] {siteId});
 			},
+			sorts,
 			document -> _toApp(
 				_appBuilderAppLocalService.getAppBuilderApp(
-					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))),
-			sorts);
+					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
 	}
 
 	@Override
 	public App postDataDefinitionApp(Long dataDefinitionId, App app)
 		throws Exception {
 
-		_checkPortletPermissions();
+		if (!_portletResourcePermission.contains(
+				PermissionThreadLocal.getPermissionChecker(),
+				contextCompany.getGroupId(), ActionKeys.MANAGE)) {
+
+			_portletResourcePermission.check(
+				PermissionThreadLocal.getPermissionChecker(),
+				contextCompany.getGroupId(), AppBuilderActionKeys.ADD_APP);
+		}
 
 		_validate(
 			app.getDataLayoutId(), app.getDataListViewId(), app.getName(),
@@ -279,7 +293,9 @@ public class AppResourceImpl
 
 	@Override
 	public App putApp(Long appId, App app) throws Exception {
-		_checkPermissions(appId, ActionKeys.UPDATE);
+		_modelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(), appId,
+			ActionKeys.UPDATE);
 
 		_validate(
 			app.getDataLayoutId(), app.getDataListViewId(), app.getName(),
@@ -335,7 +351,9 @@ public class AppResourceImpl
 			Long appId, DeploymentAction deploymentAction)
 		throws Exception {
 
-		_checkPermissions(appId, ActionKeys.UPDATE);
+		_modelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(), appId,
+			ActionKeys.UPDATE);
 
 		List<AppBuilderAppDeployment> appBuilderAppDeployments =
 			_appBuilderAppDeploymentLocalService.getAppBuilderAppDeployments(
@@ -362,33 +380,6 @@ public class AppResourceImpl
 		return responseBuilder.build();
 	}
 
-	private void _checkPermissions(long appId, String actionId)
-		throws PortalException {
-
-		if (_portletResourcePermission.contains(
-				PermissionThreadLocal.getPermissionChecker(),
-				contextCompany.getGroupId(), ActionKeys.MANAGE)) {
-
-			return;
-		}
-
-		_modelResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(), appId, actionId);
-	}
-
-	private void _checkPortletPermissions() throws PortalException {
-		if (_portletResourcePermission.contains(
-				PermissionThreadLocal.getPermissionChecker(),
-				contextCompany.getGroupId(), ActionKeys.MANAGE)) {
-
-			return;
-		}
-
-		_portletResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(),
-			contextCompany.getGroupId(), AppBuilderActionKeys.ADD_APP);
-	}
-
 	@Reference(
 		target = "(model.class.name=com.liferay.app.builder.model.AppBuilderApp)",
 		unbind = "-"
@@ -399,7 +390,7 @@ public class AppResourceImpl
 		_modelResourcePermission = modelResourcePermission;
 	}
 
-	private App _toApp(AppBuilderApp appBuilderApp) throws Exception {
+	private App _toApp(AppBuilderApp appBuilderApp) {
 		AppBuilderAppConstants.Status appBuilderAppConstantsStatus =
 			AppBuilderAppConstants.Status.parse(appBuilderApp.getStatus());
 
@@ -569,7 +560,9 @@ public class AppResourceImpl
 	@Reference
 	private Portal _portal;
 
-	@Reference(target = "(resource.name=com.liferay.app.builder)")
+	@Reference(
+		target = "(resource.name=" + AppBuilderConstants.RESOURCE_NAME + ")"
+	)
 	private PortletResourcePermission _portletResourcePermission;
 
 	@Reference

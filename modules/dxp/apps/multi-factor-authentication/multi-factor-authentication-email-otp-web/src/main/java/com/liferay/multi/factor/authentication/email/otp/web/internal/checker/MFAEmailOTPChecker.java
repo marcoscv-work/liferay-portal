@@ -16,13 +16,16 @@ package com.liferay.multi.factor.authentication.email.otp.web.internal.checker;
 
 import com.liferay.multi.factor.authentication.email.otp.model.MFAEmailOTPEntry;
 import com.liferay.multi.factor.authentication.email.otp.service.MFAEmailOTPEntryLocalService;
+import com.liferay.multi.factor.authentication.email.otp.web.internal.audit.MFAEmailOTPAuditMessageBuilder;
 import com.liferay.multi.factor.authentication.email.otp.web.internal.configuration.MFAEmailOTPConfiguration;
 import com.liferay.multi.factor.authentication.email.otp.web.internal.constants.MFAEmailOTPWebKeys;
+import com.liferay.portal.kernel.audit.AuditMessage;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProviderUtil;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -45,6 +48,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 
 /**
  * @author Arthur Chan
@@ -62,7 +66,7 @@ public class MFAEmailOTPChecker {
 		if (user == null) {
 			if (_log.isWarnEnabled()) {
 				_log.warn(
-					"Requested one-time password email verification for a " +
+					"Requested one-time password email verification for " +
 						"nonexistent user " + userId);
 			}
 
@@ -118,9 +122,15 @@ public class MFAEmailOTPChecker {
 		if (user == null) {
 			if (_log.isWarnEnabled()) {
 				_log.warn(
-					"Requested one-time password email verification for a " +
+					"Requested one-time password email verification for " +
 						"nonexistent user " + userId);
 			}
+
+			_routeAuditMessage(
+				_mfaEmailOTPAuditMessageBuilder.
+					buildNonexistentUserVerificationFailureAuditMessage(
+						CompanyThreadLocal.getCompanyId(), userId,
+						_getClassName()));
 
 			return false;
 		}
@@ -151,6 +161,12 @@ public class MFAEmailOTPChecker {
 				_mfaEmailOTPEntryLocalService.resetFailedAttempts(userId);
 			}
 			else {
+				_routeAuditMessage(
+					_mfaEmailOTPAuditMessageBuilder.
+						buildVerificationFailureAuditMessage(
+							user, _getClassName(),
+							"Reached maximum allowed attempts"));
+
 				return false;
 			}
 		}
@@ -172,8 +188,19 @@ public class MFAEmailOTPChecker {
 			_mfaEmailOTPEntryLocalService.updateAttempts(
 				userId, originalHttpServletRequest.getRemoteAddr(), true);
 
+			_routeAuditMessage(
+				_mfaEmailOTPAuditMessageBuilder.
+					buildVerificationSuccessAuditMessage(
+						user, _getClassName()));
+
 			return true;
 		}
+
+		_routeAuditMessage(
+			_mfaEmailOTPAuditMessageBuilder.
+				buildVerificationFailureAuditMessage(
+					user, _getClassName(),
+					"Incorrect email one-time password"));
 
 		_mfaEmailOTPEntryLocalService.updateAttempts(
 			userId, originalHttpServletRequest.getRemoteAddr(), false);
@@ -218,14 +245,47 @@ public class MFAEmailOTPChecker {
 	}
 
 	protected boolean isVerified(HttpSession httpSession, long userId) {
-		if (httpSession == null) {
+		User user = _userLocalService.fetchUser(userId);
+
+		if (user == null) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Requested one-time password email verification for " +
+						"nonexistent user " + userId);
+			}
+
+			_routeAuditMessage(
+				_mfaEmailOTPAuditMessageBuilder.
+					buildNonexistentUserVerificationFailureAuditMessage(
+						CompanyThreadLocal.getCompanyId(), userId,
+						_getClassName()));
+
 			return false;
 		}
 
-		if (!Objects.equals(
-				httpSession.getAttribute(
-					MFAEmailOTPWebKeys.MFA_EMAIL_OTP_VALIDATED_USER_ID),
-				userId)) {
+		if (httpSession == null) {
+			_routeAuditMessage(
+				_mfaEmailOTPAuditMessageBuilder.buildNotVerifiedAuditMessage(
+					user, _getClassName(), "Empty session"));
+
+			return false;
+		}
+
+		Object mfaEmailOTPValidatedUserID = httpSession.getAttribute(
+			MFAEmailOTPWebKeys.MFA_EMAIL_OTP_VALIDATED_USER_ID);
+
+		if (mfaEmailOTPValidatedUserID == null) {
+			_routeAuditMessage(
+				_mfaEmailOTPAuditMessageBuilder.buildNotVerifiedAuditMessage(
+					user, _getClassName(), "Not verified yet"));
+
+			return false;
+		}
+
+		if (!Objects.equals(mfaEmailOTPValidatedUserID, userId)) {
+			_routeAuditMessage(
+				_mfaEmailOTPAuditMessageBuilder.buildNotVerifiedAuditMessage(
+					user, _getClassName(), "Not the same user"));
 
 			return false;
 		}
@@ -233,23 +293,36 @@ public class MFAEmailOTPChecker {
 		MFAEmailOTPConfiguration mfaEmailOTPConfiguration =
 			_getMFAEmailOTPConfiguration(userId);
 
-		long validationExpirationTime =
-			mfaEmailOTPConfiguration.validationExpirationTime();
-
-		if (validationExpirationTime < 0) {
+		if (mfaEmailOTPConfiguration.validationExpirationTime() < 0) {
 			return true;
 		}
 
-		long validatedAtTime = (long)httpSession.getAttribute(
+		long mfaEmailOTPValidatedAtTime = (long)httpSession.getAttribute(
 			MFAEmailOTPWebKeys.MFA_EMAIL_OTP_VALIDATED_AT_TIME);
 
-		long time = (validationExpirationTime * 1000) + validatedAtTime;
+		long time =
+			(mfaEmailOTPConfiguration.validationExpirationTime() * 1000) +
+				mfaEmailOTPValidatedAtTime;
 
 		if (time > System.currentTimeMillis()) {
+			_routeAuditMessage(
+				_mfaEmailOTPAuditMessageBuilder.buildVerifiedAuditMessage(
+					user, _getClassName()));
+
 			return true;
 		}
 
+		_routeAuditMessage(
+			_mfaEmailOTPAuditMessageBuilder.buildNotVerifiedAuditMessage(
+				user, _getClassName(), "Expired verification"));
+
 		return false;
+	}
+
+	private String _getClassName() {
+		Class<?> clazz = getClass();
+
+		return clazz.getName();
 	}
 
 	private MFAEmailOTPConfiguration _getMFAEmailOTPConfiguration(long userId) {
@@ -257,7 +330,7 @@ public class MFAEmailOTPChecker {
 
 		if (user == null) {
 			throw new IllegalStateException(
-				"Requested one-time password email verification for a " +
+				"Requested one-time password email verification for " +
 					"nonexistent user " + userId);
 		}
 
@@ -270,11 +343,17 @@ public class MFAEmailOTPChecker {
 		}
 	}
 
+	private void _routeAuditMessage(AuditMessage auditMessage) {
+		if (_mfaEmailOTPAuditMessageBuilder != null) {
+			_mfaEmailOTPAuditMessageBuilder.routeAuditMessage(auditMessage);
+		}
+	}
+
 	private boolean _verify(HttpSession httpSession, String otp) {
-		String expectedOtp = (String)httpSession.getAttribute(
+		String expectedMFAEmailOTP = (String)httpSession.getAttribute(
 			MFAEmailOTPWebKeys.MFA_EMAIL_OTP);
 
-		if ((expectedOtp == null) || !expectedOtp.equals(otp)) {
+		if ((expectedMFAEmailOTP == null) || !expectedMFAEmailOTP.equals(otp)) {
 			return false;
 		}
 
@@ -290,6 +369,9 @@ public class MFAEmailOTPChecker {
 	private static final Log _log = LogFactoryUtil.getLog(
 		MFAEmailOTPChecker.class);
 
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
+	private MFAEmailOTPAuditMessageBuilder _mfaEmailOTPAuditMessageBuilder;
+
 	@Reference
 	private MFAEmailOTPEntryLocalService _mfaEmailOTPEntryLocalService;
 
@@ -297,7 +379,7 @@ public class MFAEmailOTPChecker {
 	private Portal _portal;
 
 	@Reference(
-		target = "(osgi.web.symbolicname=com.liferay.multi.factor.authentication.checker.email.otp.web)"
+		target = "(osgi.web.symbolicname=com.liferay.multi.factor.authentication.email.otp.web)"
 	)
 	private ServletContext _servletContext;
 

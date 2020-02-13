@@ -29,11 +29,10 @@ public class UpgradeSamlSpSession extends UpgradeProcess {
 	protected void doUpgrade() throws Exception {
 		try {
 			runSQL(
-				"alter_column_type SamlSpSession samlSpSessionKey " +
-					"VARCHAR(75) null");
-			runSQL("alter_column_type SamlSpSession assertionXml TEXT null");
+				"alter_column_type SamlSpSession nameIdFormat VARCHAR(1024) " +
+					"null");
 			runSQL(
-				"alter_column_type SamlSpSession sessionIndex VARCHAR(75) " +
+				"alter_column_type SamlSpSession nameIdValue VARCHAR(1024) " +
 					"null");
 		}
 		catch (SQLException sqlException) {

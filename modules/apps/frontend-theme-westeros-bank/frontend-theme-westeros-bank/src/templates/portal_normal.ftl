@@ -4,7 +4,7 @@
 
 <html class="${root_css_class}" dir="<@liferay.language key="lang.dir" />" lang="${w3c_language_id}">
 	<head>
-		<title>${the_title} - ${company_name}</title>
+		<title>${html_title}</title>
 
 		<meta content="initial-scale=1.0, width=device-width" name="viewport" />
 
@@ -53,7 +53,7 @@
 				<header class="container-fluid container-fluid-max-xl" id="banner" role="banner">
 					<div class="navbar-header" id="heading">
 						<#if has_navigation>
-							<button aria-controls="navigation" aria-expanded="false" class="collapsed navbar-toggle" data-target="#navigationCollapse" data-toggle="collapse" type="button">
+							<button aria-controls="navigation" aria-expanded="false" class="collapsed navbar-toggle" data-target="#navigationCollapse" data-toggle="liferay-collapse" type="button">
 								<span class="icon-bar"></span>
 								<span class="icon-bar"></span>
 								<span class="icon-bar"></span>

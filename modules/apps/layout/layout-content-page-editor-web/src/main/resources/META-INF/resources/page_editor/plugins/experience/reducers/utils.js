@@ -188,7 +188,8 @@ function updateUsedWidgets(widgets, portletIds) {
 				!portlet.instanceable
 			) {
 				portlet.used = true;
-			} else {
+			}
+			else {
 				portlet.used = false;
 			}
 
@@ -197,6 +198,18 @@ function updateUsedWidgets(widgets, portletIds) {
 	});
 
 	return filteredWidgets;
+}
+
+/**
+ * Attaches to the state a the experiment status of a experience
+ */
+function setExperimentStatus(state, experienceId) {
+	const selectedExperience = state.availableSegmentsExperiences[experienceId];
+
+	return {
+		...state,
+		segmentsExperimentStatus: selectedExperience.segmentsExperimentStatus
+	};
 }
 
 /**
@@ -220,6 +233,7 @@ export {
 	removeLayoutDataItemById,
 	selectExperience,
 	setExperienceLock,
+	setExperimentStatus,
 	setUsedWidgets,
 	storeNewLayoutData,
 	switchLayoutData,

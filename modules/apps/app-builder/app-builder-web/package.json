@@ -28,6 +28,9 @@
 	},
 	"description": "",
 	"jest": {
+		"collectCoverageFrom": [
+			"src/main/resources/META-INF/resources/js/**/*.es.js"
+		],
 		"setupFiles": [
 			"<rootDir>/jest-setup.config.js"
 		],
@@ -45,5 +48,5 @@
 		"test": "env TZ=utc liferay-npm-scripts test",
 		"test:watch": "env TZ=utc liferay-npm-scripts test --watch"
 	},
-	"version": "1.0.8"
+	"version": "1.0.9"
 }

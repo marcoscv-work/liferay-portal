@@ -46,12 +46,14 @@ public class SamlSpIdpConnectionSoap implements Serializable {
 		soapModel.setEnabled(model.isEnabled());
 		soapModel.setForceAuthn(model.isForceAuthn());
 		soapModel.setLdapImportEnabled(model.isLdapImportEnabled());
+		soapModel.setMetadataUpdatedDate(model.getMetadataUpdatedDate());
 		soapModel.setMetadataUrl(model.getMetadataUrl());
 		soapModel.setMetadataXml(model.getMetadataXml());
-		soapModel.setMetadataUpdatedDate(model.getMetadataUpdatedDate());
 		soapModel.setName(model.getName());
 		soapModel.setNameIdFormat(model.getNameIdFormat());
 		soapModel.setSignAuthnRequest(model.isSignAuthnRequest());
+		soapModel.setUnknownUsersAreStrangers(
+			model.isUnknownUsersAreStrangers());
 		soapModel.setUserAttributeMappings(model.getUserAttributeMappings());
 
 		return soapModel;
@@ -229,6 +231,14 @@ public class SamlSpIdpConnectionSoap implements Serializable {
 		_ldapImportEnabled = ldapImportEnabled;
 	}
 
+	public Date getMetadataUpdatedDate() {
+		return _metadataUpdatedDate;
+	}
+
+	public void setMetadataUpdatedDate(Date metadataUpdatedDate) {
+		_metadataUpdatedDate = metadataUpdatedDate;
+	}
+
 	public String getMetadataUrl() {
 		return _metadataUrl;
 	}
@@ -243,14 +253,6 @@ public class SamlSpIdpConnectionSoap implements Serializable {
 
 	public void setMetadataXml(String metadataXml) {
 		_metadataXml = metadataXml;
-	}
-
-	public Date getMetadataUpdatedDate() {
-		return _metadataUpdatedDate;
-	}
-
-	public void setMetadataUpdatedDate(Date metadataUpdatedDate) {
-		_metadataUpdatedDate = metadataUpdatedDate;
 	}
 
 	public String getName() {
@@ -281,6 +283,18 @@ public class SamlSpIdpConnectionSoap implements Serializable {
 		_signAuthnRequest = signAuthnRequest;
 	}
 
+	public boolean getUnknownUsersAreStrangers() {
+		return _unknownUsersAreStrangers;
+	}
+
+	public boolean isUnknownUsersAreStrangers() {
+		return _unknownUsersAreStrangers;
+	}
+
+	public void setUnknownUsersAreStrangers(boolean unknownUsersAreStrangers) {
+		_unknownUsersAreStrangers = unknownUsersAreStrangers;
+	}
+
 	public String getUserAttributeMappings() {
 		return _userAttributeMappings;
 	}
@@ -301,12 +315,13 @@ public class SamlSpIdpConnectionSoap implements Serializable {
 	private boolean _enabled;
 	private boolean _forceAuthn;
 	private boolean _ldapImportEnabled;
+	private Date _metadataUpdatedDate;
 	private String _metadataUrl;
 	private String _metadataXml;
-	private Date _metadataUpdatedDate;
 	private String _name;
 	private String _nameIdFormat;
 	private boolean _signAuthnRequest;
+	private boolean _unknownUsersAreStrangers;
 	private String _userAttributeMappings;
 
 }

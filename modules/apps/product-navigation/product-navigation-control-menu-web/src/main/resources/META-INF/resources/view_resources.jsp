@@ -36,7 +36,7 @@ if (Validator.isNotNull(keywords)) {
 
 <div class="display-style-bar">
 	<span class="dropdown" id="<portlet:namespace />numItemsContainer">
-		<a aria-expanded="true" class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">
+		<a aria-expanded="true" class="dropdown-toggle" data-toggle="liferay-dropdown" href="javascript:;">
 			<span class="item-title"><%= delta %></span>
 
 			<liferay-ui:icon
@@ -113,11 +113,11 @@ if (Validator.isNotNull(keywords)) {
 </div>
 
 <div class="lfr-content-category panel-page-category">
-	<a class="collapse-icon list-group-heading panel-header panel-header-link" data-toggle="collapse" href="#manageRecentPanel">
+	<a class="collapse-icon list-group-heading panel-header panel-header-link" data-toggle="liferay-collapse" href="#manageRecentPanel">
 		<liferay-ui:message key="<%= panelTitle %>" />
 	</a>
 
-	<div class="collapse in list-group-panel" id="manageRecentPanel">
+	<div class="collapse list-group-panel show" id="manageRecentPanel">
 		<div class="list-group-item">
 			<ul class="<%= displayStyle.equals("descriptive") ? "tabular-list-group" : "list-unstyled row" %>">
 

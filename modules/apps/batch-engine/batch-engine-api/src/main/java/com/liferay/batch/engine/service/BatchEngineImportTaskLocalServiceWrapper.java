@@ -56,13 +56,12 @@ public class BatchEngineImportTaskLocalServiceWrapper
 			String className, byte[] content, String contentType,
 			String executeStatus,
 			java.util.Map<String, String> fieldNameMappingMap, String operation,
-			java.util.Map<String, java.io.Serializable> parameters,
-			String version) {
+			java.util.Map<String, java.io.Serializable> parameters) {
 
 		return _batchEngineImportTaskLocalService.addBatchEngineImportTask(
 			companyId, userId, batchSize, callbackURL, className, content,
 			contentType, executeStatus, fieldNameMappingMap, operation,
-			parameters, version);
+			parameters);
 	}
 
 	/**
@@ -77,6 +76,18 @@ public class BatchEngineImportTaskLocalServiceWrapper
 
 		return _batchEngineImportTaskLocalService.createBatchEngineImportTask(
 			batchEngineImportTaskId);
+	}
+
+	/**
+	 * @throws PortalException
+	 */
+	@Override
+	public com.liferay.portal.kernel.model.PersistedModel createPersistedModel(
+			java.io.Serializable primaryKeyObj)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _batchEngineImportTaskLocalService.createPersistedModel(
+			primaryKeyObj);
 	}
 
 	/**
@@ -354,6 +365,9 @@ public class BatchEngineImportTaskLocalServiceWrapper
 		return _batchEngineImportTaskLocalService.getOSGiServiceIdentifier();
 	}
 
+	/**
+	 * @throws PortalException
+	 */
 	@Override
 	public com.liferay.portal.kernel.model.PersistedModel getPersistedModel(
 			java.io.Serializable primaryKeyObj)

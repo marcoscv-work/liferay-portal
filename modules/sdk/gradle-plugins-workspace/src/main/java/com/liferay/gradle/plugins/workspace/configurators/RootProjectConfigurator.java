@@ -555,35 +555,11 @@ public class RootProjectConfigurator implements Plugin<Project> {
 					try {
 						File destinationDir = workspaceExtension.getDockerDir();
 
-						File dir = new File(destinationDir, "deploy");
+						_createTouchFile(new File(destinationDir, "deploy"));
+						_createTouchFile(new File(destinationDir, "scripts"));
+						_createTouchFile(new File(destinationDir, "work"));
 
-						if (!dir.exists()) {
-							dir.mkdirs();
-						}
-
-						File file = new File(dir, ".touch");
-
-						file.createNewFile();
-
-						dir = new File(destinationDir, "scripts");
-
-						if (!dir.exists()) {
-							dir.mkdirs();
-						}
-
-						file = new File(dir, ".touch");
-
-						dir = new File(destinationDir, "work");
-
-						if (!dir.exists()) {
-							dir.mkdirs();
-						}
-
-						file = new File(dir, ".touch");
-
-						file.createNewFile();
-
-						file = new File(
+						File file = new File(
 							destinationDir, _LIFERAY_IMAGE_SETUP_SCRIPT);
 
 						try {
@@ -1315,6 +1291,16 @@ public class RootProjectConfigurator implements Plugin<Project> {
 				}
 
 			});
+	}
+
+	private void _createTouchFile(File dir) throws IOException {
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+
+		File file = new File(dir, ".touch");
+
+		file.createNewFile();
 	}
 
 	private String _getDockerContainerId(Project project) {

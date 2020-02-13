@@ -12,51 +12,34 @@
 import ClayIcon from '@clayui/icon';
 import ClayTable from '@clayui/table';
 import {ClayTooltipProvider} from '@clayui/tooltip';
-import React, {useState, useEffect, useMemo, useContext} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 
 import {Autocomplete} from '../../../../shared/components/autocomplete/Autocomplete.es';
 import {useFetch} from '../../../../shared/hooks/useFetch.es';
 import {ModalContext} from '../ModalContext.es';
 
-const AssigneeInput = ({reassignedTasks, setReassignedTasks, taskId}) => {
-	const [newAssignee, setNewAssignee] = useState(() => ({}));
-
+const AssigneeInput = ({setAssigneeId, taskId}) => {
 	const {data, fetchData} = useFetch({
 		admin: true,
 		params: {page: -1, pageSize: -1},
 		url: `/workflow-tasks/${taskId}/assignable-users`
 	});
 
-	const tasks = useMemo(() => reassignedTasks.tasks, [reassignedTasks.tasks]);
+	const handleSelect = useCallback(
+		newAssignee => {
+			const assigneeId = newAssignee ? newAssignee.id : undefined;
 
-	useEffect(() => {
-		if (newAssignee && newAssignee.id !== undefined) {
-			const selectedTaskIndex = tasks.findIndex(
-				task => task.id === taskId
-			);
-
-			if (selectedTaskIndex === -1) {
-				tasks.push({assigneeId: newAssignee.id, id: taskId});
-
-				setReassignedTasks({
-					tasks
-				});
-			} else {
-				tasks[selectedTaskIndex].assigneeId = newAssignee.id;
-				setReassignedTasks({
-					tasks
-				});
-			}
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [newAssignee]);
+			setAssigneeId(assigneeId);
+		},
+		[setAssigneeId]
+	);
 
 	const promises = useMemo(() => [fetchData()], [fetchData]);
 
 	return (
 		<Autocomplete
 			items={data.items}
-			onSelect={setNewAssignee}
+			onSelect={handleSelect}
 			promises={promises}
 		/>
 	);
@@ -68,8 +51,7 @@ const Item = ({
 	completed,
 	index,
 	item,
-	reassignedTasks,
-	setReassignedTasks,
+	setAssigneeId,
 	taskNames
 }) => {
 	const {singleModal} = useContext(ModalContext);
@@ -96,8 +78,7 @@ const Item = ({
 
 			<ClayTable.Cell>
 				<Table.AssigneeInput
-					reassignedTasks={reassignedTasks}
-					setReassignedTasks={setReassignedTasks}
+					setAssigneeId={setAssigneeId}
 					taskId={item.id}
 				/>
 			</ClayTable.Cell>
@@ -109,17 +90,15 @@ const Table = ({
 	assetTitle,
 	assetType,
 	data,
-	reassignedTasks,
-	setReassignedTasks,
+	setAssigneeId,
 	status,
 	taskNames = []
 }) => {
 	const completed = status === 'Completed';
 	const {items} = data;
-	const spritemap = `${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`;
 
 	return (
-		<ClayTable borderless={true} data-testid="singleReassignModalTable">
+		<ClayTable data-testid="singleReassignModalTable">
 			<ClayTable.Head>
 				<ClayTable.Row>
 					<ClayTable.Cell
@@ -127,7 +106,7 @@ const Table = ({
 						style={{
 							color: 'inherit',
 							fontWeight: 'bold',
-							width: '8%'
+							width: '10%'
 						}}
 					>
 						{Liferay.Language.get('id')}
@@ -169,7 +148,7 @@ const Table = ({
 						style={{
 							color: 'inherit',
 							fontWeight: 'bold',
-							width: '20%'
+							width: '25%'
 						}}
 					>
 						{`${Liferay.Language.get('new-assignee')} `}
@@ -177,7 +156,6 @@ const Table = ({
 						<ClayTooltipProvider>
 							<ClayIcon
 								data-tooltip-align="top"
-								spritemap={spritemap}
 								style={{color: '#6B6C7E'}}
 								symbol="question-circle-full"
 								title={Liferay.Language.get(
@@ -200,8 +178,7 @@ const Table = ({
 							index={index}
 							item={item}
 							key={index}
-							reassignedTasks={reassignedTasks}
-							setReassignedTasks={setReassignedTasks}
+							setAssigneeId={setAssigneeId}
 							taskNames={taskNames}
 						/>
 					))}

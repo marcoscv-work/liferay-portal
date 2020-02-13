@@ -28,26 +28,45 @@ import javax.annotation.Generated;
 @Generated("")
 public class Transition {
 
-	public String getTransitionName() {
-		return transitionName;
+	public String getLabel() {
+		return label;
 	}
 
-	public void setTransitionName(String transitionName) {
-		this.transitionName = transitionName;
+	public void setLabel(String label) {
+		this.label = label;
 	}
 
-	public void setTransitionName(
-		UnsafeSupplier<String, Exception> transitionNameUnsafeSupplier) {
+	public void setLabel(
+		UnsafeSupplier<String, Exception> labelUnsafeSupplier) {
 
 		try {
-			transitionName = transitionNameUnsafeSupplier.get();
+			label = labelUnsafeSupplier.get();
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	protected String transitionName;
+	protected String label;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setName(UnsafeSupplier<String, Exception> nameUnsafeSupplier) {
+		try {
+			name = nameUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String name;
 
 	@Override
 	public boolean equals(Object object) {

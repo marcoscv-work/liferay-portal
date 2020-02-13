@@ -14,7 +14,7 @@
 
 import {getIndexes} from 'dynamic-data-mapping-form-renderer/js/components/FormRenderer/FormSupport.es';
 import dom from 'metal-dom';
-import {useEffect, useCallback, useContext} from 'react';
+import {useCallback, useContext, useEffect} from 'react';
 import {useDrop} from 'react-dnd';
 
 import AppContext from '../AppContext.es';
@@ -44,7 +44,8 @@ export default ({dataLayoutBuilder, node}) => {
 						indexes
 					})
 				);
-			} else if (type === DRAG_DATA_DEFINITION_FIELD) {
+			}
+			else if (type === DRAG_DATA_DEFINITION_FIELD) {
 				dataLayoutBuilder.dispatch(
 					'fieldAdded',
 					dropCustomObjectField({
@@ -80,13 +81,15 @@ export default ({dataLayoutBuilder, node}) => {
 
 		if (canDrop && classList.contains('ddm-empty-page')) {
 			classList.add('target-droppable');
-		} else {
+		}
+		else {
 			classList.remove('target-droppable');
 		}
 
 		if (overTarget) {
 			classList.add('target-over');
-		} else {
+		}
+		else {
 			classList.remove('target-over');
 		}
 	}, [canDrop, node, overTarget]);

@@ -15,37 +15,35 @@
 import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import classNames from 'classnames';
-import React, {useContext, useRef, useState, useEffect, useMemo} from 'react';
-import {useDrag, useDrop} from 'react-dnd';
-import {getEmptyImage} from 'react-dnd-html5-backend';
+import React, {useContext, useMemo, useRef} from 'react';
 
-import useOnClickOutside from '../../core/hooks/useOnClickOutside';
 import {switchSidebarPanel} from '../actions/index';
-import {LAYOUT_DATA_ALLOWED_PARENT_TYPES} from '../config/constants/layoutDataAllowedParentTypes';
+import {LAYOUT_DATA_ITEM_TYPE_LABELS} from '../config/constants/layoutDataItemTypeLabels';
 import {LAYOUT_DATA_ITEM_TYPES} from '../config/constants/layoutDataItemTypes';
 import {ConfigContext} from '../config/index';
+import selectShowLayoutItemRemoveButton from '../selectors/selectShowLayoutItemRemoveButton';
 import {useDispatch, useSelector} from '../store/index';
 import deleteItem from '../thunks/deleteItem';
 import moveItem from '../thunks/moveItem';
 import {
-	useCurrentFloatingToolbar,
-	useIsSelected,
+	useActiveItemId,
+	useHoverItem,
+	useHoveredItemId,
 	useIsHovered,
-	useSelectItem,
-	useHoverItem
+	useIsSelected,
+	useSelectItem
 } from './Controls';
-
-const EDGE = {
-	BOTTOM: 1,
-	TOP: 0
-};
+import useDragAndDrop, {
+	DragDropManagerImpl,
+	TARGET_POSITION
+} from './useDragAndDrop';
 
 const TopperListItem = React.forwardRef(
 	({children, className, expand, ...props}, ref) => (
 		<li
 			{...props}
 			className={classNames(
-				'page-editor-topper__item',
+				'page-editor__topper__item',
 				'tbar-item',
 				{'tbar-item-expand': expand},
 				className
@@ -59,198 +57,50 @@ const TopperListItem = React.forwardRef(
 
 export default function Topper({
 	acceptDrop,
-	active: activeTopper,
 	children,
+	dropNestedAndSibling,
 	item,
 	layoutData
 }) {
-	const [edge, setEdge] = useState(null);
 	const containerRef = useRef(null);
 	const config = useContext(ConfigContext);
 	const dispatch = useDispatch();
 	const store = useSelector(state => state);
+	const activeItemId = useActiveItemId();
+	const hoveredItemId = useHoveredItemId();
 	const hoverItem = useHoverItem();
 	const isHovered = useIsHovered();
 	const isSelected = useIsSelected();
 	const selectItem = useSelectItem();
 
-	const floatingToolbarRef = useCurrentFloatingToolbar();
+	const {
+		store: {dropTargetItemId, targetPosition}
+	} = useContext(DragDropManagerImpl);
 
-	const [{isDragging}, drag, preview] = useDrag({
-		collect: monitor => ({
-			isDragging: monitor.isDragging()
-		}),
-		end(_item, _monitor) {
-			const result = _monitor.getDropResult();
-
-			if (!result) {
-				return;
-			}
-
-			const {itemId, parentId, position} = result;
-
-			if (itemId !== parentId) {
-				dispatch(
-					moveItem({
-						config,
-						itemId,
-						parentItemId: parentId,
-						position,
-						store
-					})
-				);
-			}
-		},
-		item
-	});
-
-	const [{canDrop, isOver}, drop] = useDrop({
+	const {canDrop, drag, drop, isDragging, isOver} = useDragAndDrop({
 		accept: acceptDrop,
-		collect(_monitor) {
-			return {
-				canDrop: _monitor.canDrop(),
-				isOver: _monitor.isOver({shallow: true})
-			};
-		},
-		drop(_item, _monitor) {
-			if (!_monitor.didDrop()) {
-				const {parentId, position} = getParentItemIdAndPositon({
-					edge,
-					item: _item,
-					items: layoutData.items,
-					siblingOrParentId: item.itemId
-				});
-
-				return {
-					itemId: _item.itemId,
-					itemType: _monitor.getItemType(),
-					parentId,
-					position
-				};
-			}
-		},
-		hover(_item, _monitor) {
-			const dragId = _item.itemId;
-			const dragParentId = _item.parentId;
-			const hoverId = item.itemId;
-
-			// Don't replace items with themselves
-			if (dragId === hoverId) {
-				setEdge(null);
-
-				return;
-			}
-
-			// Determine rectangle on screen
-			const hoverBoundingRect = containerRef.current.getBoundingClientRect();
-
-			// Get vertical middle
-			const hoverMiddleY =
-				(hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-
-			// Determine mouse position
-			const clientOffset = _monitor.getClientOffset();
-
-			// Get pixels to the top
-			const hoverClientY = clientOffset.y - hoverBoundingRect.top;
-
-			if (dragParentId) {
-				const parentChildren = layoutData.items[dragParentId].children;
-
-				const dragIndex = parentChildren.findIndex(
-					child => child === dragId
-				);
-
-				// When dragging downwards, only move when the cursor is below 50%
-				// When dragging upwards, only move when the cursor is above 50%
-				// Dragging downwards
-				if (
-					parentChildren[dragIndex + 1] !== hoverId &&
-					hoverClientY < hoverMiddleY
-				) {
-					setEdge(EDGE.TOP);
-					return;
-				}
-
-				// Dragging upwards
-				if (
-					parentChildren[dragIndex - 1] !== hoverId &&
-					hoverClientY > hoverMiddleY
-				) {
-					setEdge(EDGE.BOTTOM);
-					return;
-				}
-			} else {
-				if (hoverClientY < hoverMiddleY) {
-					setEdge(EDGE.TOP);
-					return;
-				}
-
-				if (hoverClientY > hoverMiddleY) {
-					setEdge(EDGE.BOTTOM);
-					return;
-				}
-			}
-
-			setEdge(null);
-		}
+		containerRef,
+		dropNestedAndSibling,
+		item,
+		layoutData,
+		onDragEnd: data =>
+			dispatch(
+				moveItem({
+					...data,
+					config,
+					store
+				})
+			)
 	});
 
-	useEffect(() => {
-		preview(getEmptyImage(), {captureDraggingState: true});
-	}, [preview]);
-
-	useOnClickOutside(
-		[containerRef.current, floatingToolbarRef.current],
-		event => {
-			if (!event.shiftKey) {
-				selectItem(null);
-			}
-		}
-	);
-
-	const showDeleteButton = useMemo(() => isRemovable(item, layoutData), [
+	const itemIsRemovable = useMemo(() => isRemovable(item, layoutData), [
 		item,
 		layoutData
 	]);
-
-	const styles = {
-		active: isSelected(item.itemId),
-		'drag-over-bottom': edge === 1 && isOver,
-		'drag-over-top': edge === 0 && isOver,
-		dragged: isDragging,
-		hovered: isHovered(item.itemId),
-		'page-editor-topper': true
-	};
+	const showRemoveButton =
+		useSelector(selectShowLayoutItemRemoveButton) && itemIsRemovable;
 
 	const childrenElement = children({canDrop, isOver});
-
-	if (!activeTopper) {
-		const isFragment = childrenElement.type === React.Fragment;
-		const realChildren = isFragment
-			? childrenElement.props.children
-			: childrenElement;
-
-		return React.Children.map(realChildren, child => {
-			if (!child) {
-				return child;
-			}
-
-			return React.cloneElement(child, {
-				...child.props,
-				className: classNames(child.props.className, styles),
-				ref: node => {
-					containerRef.current = node;
-					drop(node);
-
-					// Call the original ref, if any.
-					if (typeof child.props.ref === 'function') {
-						child.props.ref(node);
-					}
-				}
-			});
-		});
-	}
 
 	const {sidebarPanels} = config;
 
@@ -263,30 +113,65 @@ export default function Topper({
 
 		if (item.type === LAYOUT_DATA_ITEM_TYPES.fragment) {
 			name = fragmentEntryLinks[item.config.fragmentEntryLinkId].name;
-		} else if (item.type === LAYOUT_DATA_ITEM_TYPES.container) {
-			name = Liferay.Language.get('section');
-		} else if (item.type === LAYOUT_DATA_ITEM_TYPES.column) {
-			name = Liferay.Language.get('column');
-		} else if (item.type === LAYOUT_DATA_ITEM_TYPES.dropZone) {
-			name = Liferay.Language.get('drop-zone');
-		} else if (item.type === LAYOUT_DATA_ITEM_TYPES.row) {
-			name = Liferay.Language.get('row');
+		}
+		else if (item.type === LAYOUT_DATA_ITEM_TYPES.container) {
+			name = LAYOUT_DATA_ITEM_TYPE_LABELS.container;
+		}
+		else if (item.type === LAYOUT_DATA_ITEM_TYPES.column) {
+			name = LAYOUT_DATA_ITEM_TYPE_LABELS.column;
+		}
+		else if (item.type === LAYOUT_DATA_ITEM_TYPES.dropZone) {
+			name = LAYOUT_DATA_ITEM_TYPE_LABELS.dropZone;
+		}
+		else if (item.type === LAYOUT_DATA_ITEM_TYPES.row) {
+			name = LAYOUT_DATA_ITEM_TYPE_LABELS.row;
 		}
 
 		return name;
 	};
 
+	const fragmentShouldBeHovered = () => {
+		const [activeItemfragmentEntryLinkId] = activeItemId
+			? activeItemId.split('-')
+			: '';
+		const [hoveredItemfragmentEntryLinkId] = hoveredItemId
+			? hoveredItemId.split('-')
+			: '';
+
+		const childIsActive =
+			Number(activeItemfragmentEntryLinkId) ===
+			item.config.fragmentEntryLinkId;
+		const childIsHovered =
+			Number(hoveredItemfragmentEntryLinkId) ===
+			item.config.fragmentEntryLinkId;
+
+		return (
+			item.type === LAYOUT_DATA_ITEM_TYPES.fragment &&
+			(hoveredItemId === item.itemId || (childIsActive && childIsHovered))
+		);
+	};
+
 	return (
 		<div
-			className={classNames(styles)}
+			className={classNames({
+				active: isSelected(item.itemId),
+				'drag-over-bottom':
+					targetPosition === TARGET_POSITION.BOTTOM &&
+					dropTargetItemId === item.itemId,
+				'drag-over-middle':
+					targetPosition === TARGET_POSITION.MIDDLE &&
+					dropTargetItemId === item.itemId,
+				'drag-over-top':
+					targetPosition === TARGET_POSITION.TOP &&
+					dropTargetItemId === item.itemId,
+				dragged: isDragging,
+				hovered: isHovered(item.itemId) || fragmentShouldBeHovered(),
+				'page-editor__topper': true
+			})}
 			onClick={event => {
 				event.stopPropagation();
 
-				if (
-					!acceptDrop.length ||
-					isDragging ||
-					floatingToolbarRef.current
-				) {
+				if (!acceptDrop.length || isDragging) {
 					return;
 				}
 
@@ -316,19 +201,19 @@ export default function Topper({
 			}}
 			ref={containerRef}
 		>
-			<div className="page-editor-topper__bar tbar">
+			<div className="page-editor__topper__bar tbar">
 				<ul className="tbar-nav">
 					<TopperListItem
-						className="page-editor-topper__drag-handler"
+						className="page-editor__topper__drag-handler"
 						ref={drag}
 					>
 						<ClayIcon
-							className="page-editor-topper__drag-icon page-editor-topper__icon"
+							className="page-editor__topper__drag-icon page-editor__topper__icon"
 							symbol="drag"
 						/>
 					</TopperListItem>
 					<TopperListItem
-						className="page-editor-topper__title"
+						className="page-editor__topper__title"
 						expand
 					>
 						{getName(item, fragmentEntryLinks) ||
@@ -342,7 +227,7 @@ export default function Topper({
 								title={Liferay.Language.get('comments')}
 							>
 								<ClayIcon
-									className="page-editor-topper__icon"
+									className="page-editor__topper__icon"
 									onClick={() => {
 										dispatch(
 											switchSidebarPanel({
@@ -356,12 +241,13 @@ export default function Topper({
 							</ClayButton>
 						</TopperListItem>
 					)}
-					{showDeleteButton && (
+					{showRemoveButton && (
 						<TopperListItem>
 							<ClayButton
 								displayType="unstyled"
 								onClick={event => {
 									event.stopPropagation();
+
 									dispatch(
 										deleteItem({
 											config,
@@ -374,7 +260,7 @@ export default function Topper({
 								title={Liferay.Language.get('remove')}
 							>
 								<ClayIcon
-									className="page-editor-topper__icon"
+									className="page-editor__topper__icon"
 									symbol="times-circle"
 								/>
 							</ClayButton>
@@ -383,44 +269,11 @@ export default function Topper({
 				</ul>
 			</div>
 
-			<div className="page-editor-topper__content" ref={drop}>
+			<div className="page-editor__topper__content" ref={drop}>
 				{childrenElement}
 			</div>
 		</div>
 	);
-}
-
-function getParentItemIdAndPositon({edge, item, items, siblingOrParentId}) {
-	const siblingOrParent = items[siblingOrParentId];
-
-	if (isNestingSupported(item.type, siblingOrParent.type)) {
-		return {
-			parentId: siblingOrParentId,
-			position: siblingOrParent.children.length
-		};
-	} else {
-		const parent = items[siblingOrParent.parentId];
-
-		const siblingIndex = parent.children.indexOf(siblingOrParentId);
-
-		let position = edge === EDGE.TOP ? siblingIndex : siblingIndex + 1;
-
-		// Moving an item in the same parent
-		if (parent.children.includes(item.itemId)) {
-			const itemIndex = parent.children.indexOf(item.itemId);
-
-			position = itemIndex < siblingIndex ? position - 1 : position;
-		}
-
-		return {
-			parentId: parent.itemId,
-			position
-		};
-	}
-}
-
-function isNestingSupported(itemType, parentType) {
-	return LAYOUT_DATA_ALLOWED_PARENT_TYPES[itemType].includes(parentType);
 }
 
 function isRemovable(item, layoutData) {

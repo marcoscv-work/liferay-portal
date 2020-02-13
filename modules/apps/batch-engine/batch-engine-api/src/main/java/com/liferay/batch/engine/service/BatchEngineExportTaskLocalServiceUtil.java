@@ -57,12 +57,11 @@ public class BatchEngineExportTaskLocalServiceUtil {
 			long companyId, long userId, String callbackURL, String className,
 			String contentType, String executeStatus,
 			java.util.List<String> fieldNamesList,
-			java.util.Map<String, java.io.Serializable> parameters,
-			String version) {
+			java.util.Map<String, java.io.Serializable> parameters) {
 
 		return getService().addBatchEngineExportTask(
 			companyId, userId, callbackURL, className, contentType,
-			executeStatus, fieldNamesList, parameters, version);
+			executeStatus, fieldNamesList, parameters);
 	}
 
 	/**
@@ -76,6 +75,16 @@ public class BatchEngineExportTaskLocalServiceUtil {
 
 		return getService().createBatchEngineExportTask(
 			batchEngineExportTaskId);
+	}
+
+	/**
+	 * @throws PortalException
+	 */
+	public static com.liferay.portal.kernel.model.PersistedModel
+			createPersistedModel(java.io.Serializable primaryKeyObj)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().createPersistedModel(primaryKeyObj);
 	}
 
 	/**
@@ -326,6 +335,9 @@ public class BatchEngineExportTaskLocalServiceUtil {
 		return getService().getOSGiServiceIdentifier();
 	}
 
+	/**
+	 * @throws PortalException
+	 */
 	public static com.liferay.portal.kernel.model.PersistedModel
 			getPersistedModel(java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {

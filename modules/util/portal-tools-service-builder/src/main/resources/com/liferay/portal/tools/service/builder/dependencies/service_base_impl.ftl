@@ -706,6 +706,34 @@ import org.osgi.service.component.annotations.Reference;
 			</#if>
 		</#if>
 
+		<#if serviceBuilder.isVersionGTE_7_3_0()>
+			/**
+			 * @throws PortalException
+			 */
+		</#if>
+		<#if serviceBuilder.isVersionGTE_7_4_0()>
+			@Override
+		</#if>
+		<#if serviceBuilder.isVersionGTE_7_3_0()>
+			public PersistedModel createPersistedModel(Serializable primaryKeyObj) throws PortalException {
+				return ${entity.varName}Persistence.create(
+
+				<#if entity.hasPrimitivePK()>
+					((${serviceBuilder.getPrimitiveObj("${entity.PKClassName}")})
+				<#else>
+					(${entity.PKClassName})
+				</#if>
+
+				primaryKeyObj
+
+				<#if entity.hasPrimitivePK()>
+					)${serviceBuilder.getPrimitiveObjValue(serviceBuilder.getPrimitiveObj("${entity.PKClassName}"))}
+				</#if>
+
+				);
+			}
+		</#if>
+
 		/**
 		 * @throws PortalException
 		 */
@@ -714,6 +742,9 @@ import org.osgi.service.component.annotations.Reference;
 			return ${entity.varName}LocalService.delete${entity.name}((${entity.name})persistedModel);
 		}
 
+		/**
+		 * @throws PortalException
+		 */
 		@Override
 		public PersistedModel getPersistedModel(Serializable primaryKeyObj) throws PortalException {
 			return ${entity.varName}Persistence.findByPrimaryKey(primaryKeyObj);

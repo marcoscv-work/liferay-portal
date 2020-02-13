@@ -11,7 +11,7 @@
 
 import {ClayPaginationBarWithBasicItems} from '@clayui/pagination-bar';
 import pathToRegexp from 'path-to-regexp';
-import React, {useContext, useMemo, useCallback} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 
 import {AppContext} from '../../../components/AppContext.es';
 import {useRouter} from '../../hooks/useRouter.es';
@@ -57,7 +57,8 @@ const PaginationBar = ({
 				});
 
 				history.push({pathname, search});
-			} else {
+			}
+			else {
 				setPage(1);
 				setPageSize(newPageSize);
 			}
@@ -75,7 +76,8 @@ const PaginationBar = ({
 				});
 
 				history.push({pathname, search});
-			} else {
+			}
+			else {
 				setPage(newPage);
 			}
 		},

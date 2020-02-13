@@ -18,7 +18,7 @@ import ClayLoadingIndicator from '@clayui/loading-indicator';
 import {useIsMounted, useTimeout} from 'frontend-js-react-web';
 import {fetch, objectToFormData} from 'frontend-js-web';
 import {globalEval} from 'metal-dom';
-import React, {useEffect, useState, useCallback, useRef} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 
 import SiteNavigationMenuEditor from './SiteNavigationMenuEditor';
 
@@ -106,28 +106,30 @@ function ContextualSidebar({
 	]);
 
 	useEffect(() => {
-		const handleSettingButtonClick = () => {
-			openSidebar(
-				siteNavigationMenuName,
-				editSiteNavigationMenuSettingsURL,
-				{
-					redirect,
-					siteNavigationMenuId
-				}
-			);
-		};
-
 		const settingsButton = document.getElementById(
 			`${namespace}showSiteNavigationMenuSettings`
 		);
 
-		settingsButton.addEventListener('click', handleSettingButtonClick);
+		if (settingsButton) {
+			const handleSettingButtonClick = () => {
+				openSidebar(
+					siteNavigationMenuName,
+					editSiteNavigationMenuSettingsURL,
+					{
+						redirect,
+						siteNavigationMenuId
+					}
+				);
+			};
 
-		return () =>
-			settingsButton.removeEventListener(
-				'click',
-				handleSettingButtonClick
-			);
+			settingsButton.addEventListener('click', handleSettingButtonClick);
+
+			return () =>
+				settingsButton.removeEventListener(
+					'click',
+					handleSettingButtonClick
+				);
+		}
 	}, [
 		editSiteNavigationMenuSettingsURL,
 		namespace,

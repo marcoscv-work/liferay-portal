@@ -284,6 +284,20 @@ public interface SamlSpIdpConnectionModel
 	public void setLdapImportEnabled(boolean ldapImportEnabled);
 
 	/**
+	 * Returns the metadata updated date of this saml sp idp connection.
+	 *
+	 * @return the metadata updated date of this saml sp idp connection
+	 */
+	public Date getMetadataUpdatedDate();
+
+	/**
+	 * Sets the metadata updated date of this saml sp idp connection.
+	 *
+	 * @param metadataUpdatedDate the metadata updated date of this saml sp idp connection
+	 */
+	public void setMetadataUpdatedDate(Date metadataUpdatedDate);
+
+	/**
 	 * Returns the metadata url of this saml sp idp connection.
 	 *
 	 * @return the metadata url of this saml sp idp connection
@@ -312,20 +326,6 @@ public interface SamlSpIdpConnectionModel
 	 * @param metadataXml the metadata xml of this saml sp idp connection
 	 */
 	public void setMetadataXml(String metadataXml);
-
-	/**
-	 * Returns the metadata updated date of this saml sp idp connection.
-	 *
-	 * @return the metadata updated date of this saml sp idp connection
-	 */
-	public Date getMetadataUpdatedDate();
-
-	/**
-	 * Sets the metadata updated date of this saml sp idp connection.
-	 *
-	 * @param metadataUpdatedDate the metadata updated date of this saml sp idp connection
-	 */
-	public void setMetadataUpdatedDate(Date metadataUpdatedDate);
 
 	/**
 	 * Returns the name of this saml sp idp connection.
@@ -377,6 +377,27 @@ public interface SamlSpIdpConnectionModel
 	 * @param signAuthnRequest the sign authn request of this saml sp idp connection
 	 */
 	public void setSignAuthnRequest(boolean signAuthnRequest);
+
+	/**
+	 * Returns the unknown users are strangers of this saml sp idp connection.
+	 *
+	 * @return the unknown users are strangers of this saml sp idp connection
+	 */
+	public boolean getUnknownUsersAreStrangers();
+
+	/**
+	 * Returns <code>true</code> if this saml sp idp connection is unknown users are strangers.
+	 *
+	 * @return <code>true</code> if this saml sp idp connection is unknown users are strangers; <code>false</code> otherwise
+	 */
+	public boolean isUnknownUsersAreStrangers();
+
+	/**
+	 * Sets whether this saml sp idp connection is unknown users are strangers.
+	 *
+	 * @param unknownUsersAreStrangers the unknown users are strangers of this saml sp idp connection
+	 */
+	public void setUnknownUsersAreStrangers(boolean unknownUsersAreStrangers);
 
 	/**
 	 * Returns the user attribute mappings of this saml sp idp connection.

@@ -15,8 +15,8 @@ import MaskedInput from 'react-text-mask';
 import Icon from '../../shared/components/Icon.es';
 import {
 	addClickOutsideListener,
-	removeClickOutsideListener,
-	handleClickOutside
+	handleClickOutside,
+	removeClickOutsideListener
 } from '../../shared/components/filter/util/filterEvents.es';
 import {sub} from '../../shared/util/lang.es';
 import {useCustomTimeRange} from './hooks/useCustomTimeRange.es';
@@ -25,7 +25,8 @@ const CustomTimeRangeForm = ({
 	filterKey,
 	items,
 	prefixKey = '',
-	setFormVisible
+	setFormVisible,
+	withoutRouteParams
 }) => {
 	const {
 		applyCustomFilter,
@@ -35,7 +36,7 @@ const CustomTimeRangeForm = ({
 		setDateEnd,
 		setDateStart,
 		validate
-	} = useCustomTimeRange(filterKey, prefixKey);
+	} = useCustomTimeRange(filterKey, prefixKey, withoutRouteParams);
 	const wrapperRef = useRef();
 
 	const dateFormat = 'MM/DD/YYYY';
@@ -59,9 +60,9 @@ const CustomTimeRangeForm = ({
 	};
 
 	const onApply = () => {
-		const errors = validate();
+		const {dateEnd: dateEndError, dateStart: dateStartError} = errors || {};
 
-		if (!errors) {
+		if (!dateEndError && !dateStartError) {
 			activeCustomFilter();
 			applyCustomFilter();
 			setFormVisible(false);

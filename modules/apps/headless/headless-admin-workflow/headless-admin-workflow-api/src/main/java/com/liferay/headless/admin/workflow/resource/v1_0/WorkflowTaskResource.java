@@ -63,9 +63,10 @@ public interface WorkflowTaskResource {
 
 	public Page<WorkflowTask> getWorkflowTasksPage(
 			Boolean andOperator, Long[] assetPrimaryKeys, String assetTitle,
-			String[] assetTypes, Long[] assigneeUserIds, Boolean completed,
-			Date dateDueEnd, Date dateDueStart, Boolean searchByUserRoles,
-			String[] taskNames, Long[] workflowInstanceIds,
+			String[] assetTypes, Long[] assigneeIds, Boolean completed,
+			Date dateDueEnd, Date dateDueStart, Boolean searchByRoles,
+			Boolean searchByUserRoles, String[] taskNames,
+			Long workflowDefinitionId, Long[] workflowInstanceIds,
 			Pagination pagination, Sort[] sorts)
 		throws Exception;
 
@@ -91,6 +92,10 @@ public interface WorkflowTaskResource {
 
 	public Page<WorkflowTask> getWorkflowTasksAssignedToUserRolesPage(
 			Long assigneeId, Pagination pagination)
+		throws Exception;
+
+	public void patchWorkflowTaskChangeTransition(
+			ChangeTransition[] changeTransitions)
 		throws Exception;
 
 	public Page<WorkflowTask> getWorkflowTasksSubmittingUserPage(

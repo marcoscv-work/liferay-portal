@@ -34,8 +34,10 @@ function getConfig() {
 
 	try {
 		config = require('liferay-npm-scripts/src/config/prettier');
-	} catch (error) {
+	}
+	catch (error) {
 		console.log(`info: using fallback config in ${__filename}`);
+
 		return FALLBACK_CONFIG;
 	}
 

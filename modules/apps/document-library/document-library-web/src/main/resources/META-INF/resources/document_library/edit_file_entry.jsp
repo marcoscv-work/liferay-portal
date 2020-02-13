@@ -203,7 +203,7 @@ renderResponse.setTitle(headerTitle);
 			<liferay-ui:error exception="<%= DuplicateFolderNameException.class %>" message="please-enter-a-unique-document-name" />
 
 			<liferay-ui:error exception="<%= LiferayFileItemException.class %>">
-				<liferay-ui:message arguments="<%= TextFormatter.formatStorageSize(LiferayFileItem.THRESHOLD_SIZE, locale) %>" key="please-enter-valid-content-with-valid-content-size-no-larger-than-x" translateArguments="<%= false %>" />
+				<liferay-ui:message arguments="<%= LanguageUtil.formatStorageSize(LiferayFileItem.THRESHOLD_SIZE, locale) %>" key="please-enter-valid-content-with-valid-content-size-no-larger-than-x" translateArguments="<%= false %>" />
 			</liferay-ui:error>
 
 			<liferay-ui:error exception="<%= FileExtensionException.class %>">
@@ -226,11 +226,11 @@ renderResponse.setTitle(headerTitle);
 			%>
 
 			<liferay-ui:error exception="<%= FileSizeException.class %>">
-				<liferay-ui:message arguments="<%= TextFormatter.formatStorageSize(fileMaxSize, locale) %>" key="please-enter-a-file-with-a-valid-file-size-no-larger-than-x" translateArguments="<%= false %>" />
+				<liferay-ui:message arguments="<%= LanguageUtil.formatStorageSize(fileMaxSize, locale) %>" key="please-enter-a-file-with-a-valid-file-size-no-larger-than-x" translateArguments="<%= false %>" />
 			</liferay-ui:error>
 
 			<liferay-ui:error exception="<%= UploadRequestSizeException.class %>">
-				<liferay-ui:message arguments="<%= TextFormatter.formatStorageSize(dlEditFileEntryDisplayContext.getMaximumUploadRequestSize(), locale) %>" key="request-is-larger-than-x-and-could-not-be-processed" translateArguments="<%= false %>" />
+				<liferay-ui:message arguments="<%= LanguageUtil.formatStorageSize(dlEditFileEntryDisplayContext.getMaximumUploadRequestSize(), locale) %>" key="request-is-larger-than-x-and-could-not-be-processed" translateArguments="<%= false %>" />
 			</liferay-ui:error>
 
 			<liferay-asset:asset-categories-error />
@@ -243,7 +243,7 @@ renderResponse.setTitle(headerTitle);
 				<aui:fieldset>
 					<c:if test="<%= fileMaxSize != 0 %>">
 						<div class="alert alert-info">
-							<liferay-ui:message arguments="<%= TextFormatter.formatStorageSize(fileMaxSize, locale) %>" key="upload-documents-no-larger-than-x" translateArguments="<%= false %>" />
+							<liferay-ui:message arguments="<%= LanguageUtil.formatStorageSize(fileMaxSize, locale) %>" key="upload-documents-no-larger-than-x" translateArguments="<%= false %>" />
 						</div>
 					</c:if>
 
@@ -576,7 +576,8 @@ renderResponse.setTitle(headerTitle);
 
 		if (<%= dlAdminDisplayContext.isVersioningStrategyOverridable() %>) {
 			<portlet:namespace />showVersionDetailsDialog(form);
-		} else {
+		}
+		else {
 			submitForm(form);
 		}
 	}
@@ -610,25 +611,21 @@ renderResponse.setTitle(headerTitle);
 		});
 	}
 
-	Liferay.provide(
-		window,
-		'<portlet:namespace />showVersionDetailsDialog',
-		function(form) {
-			Liferay.DocumentLibraryCheckin.showDialog(
-				'<portlet:namespace />',
-				function(versionIncrease, changeLog) {
-					Liferay.Util.postForm(form, {
-						data: {
-							changeLog: changeLog,
-							updateVersionDetails: true,
-							versionIncrease: versionIncrease
-						}
-					});
-				}
-			);
-		},
-		['document-library-checkin']
-	);
+	function <portlet:namespace />showVersionDetailsDialog() {
+		Liferay.componentReady(
+			'<portlet:namespace />DocumentLibraryCheckinModal'
+		).then(function(documentLibraryCheckinModal) {
+			documentLibraryCheckinModal.open(function(versionIncrease, changeLog) {
+				Liferay.Util.postForm(form, {
+					data: {
+						changeLog: changeLog,
+						updateVersionDetails: true,
+						versionIncrease: versionIncrease
+					}
+				});
+			});
+		});
+	}
 
 	function <portlet:namespace />updateTitle() {
 		var titleElement = document.getElementById('<portlet:namespace />title');

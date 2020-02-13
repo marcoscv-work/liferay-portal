@@ -17,13 +17,13 @@
 <%@ include file="/init.jsp" %>
 
 <%
-WorkflowTask workflowTask = workflowTaskDisplayContext.getWorkflowTask();
-
-boolean hasAssignableUsers = workflowTaskDisplayContext.hasAssignableUsers(workflowTask);
+String redirect = ParamUtil.getString(request, "redirect");
 
 long assigneeUserId = ParamUtil.getLong(renderRequest, "assigneeUserId");
 
-String redirect = ParamUtil.getString(request, "redirect");
+WorkflowTask workflowTask = workflowTaskDisplayContext.getWorkflowTask();
+
+boolean hasAssignableUsers = workflowTaskDisplayContext.hasAssignableUsers(workflowTask);
 %>
 
 <liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" id="assignWorkflowTask" var="assignURL" />
@@ -44,7 +44,7 @@ String redirect = ParamUtil.getString(request, "redirect");
 						for (User assignableUser : workflowTaskDisplayContext.getAssignableUsers(workflowTask)) {
 						%>
 
-							<aui:option label="<%= assignableUser.getFullName() %>" selected="<%= workflowTask.getAssigneeUserId() == assignableUser.getUserId() %>" value="<%= String.valueOf(assignableUser.getUserId()) %>" />
+							<aui:option label="<%= HtmlUtil.escape(assignableUser.getFullName()) %>" selected="<%= workflowTask.getAssigneeUserId() == assignableUser.getUserId() %>" value="<%= String.valueOf(assignableUser.getUserId()) %>" />
 
 						<%
 						}

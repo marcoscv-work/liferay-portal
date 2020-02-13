@@ -132,7 +132,7 @@ AUI.add(
 			'<dt class="{dtClassName}">{dt}</dt><dd class="{ddClassName}">{dd}</dd>';
 
 		var TPL_INFO_TAB_TITLE =
-			'<li><a aria-expanded="false" class="{className}" data-toggle="tab" href="#{tabId}">{tabTitle}</a></li>';
+			'<li><a aria-expanded="false" class="{className}" data-toggle="liferay-tab" href="#{tabId}">{tabTitle}</a></li>';
 
 		var LiferayItemViewer = A.Component.create({
 			ATTRS: {
@@ -558,9 +558,11 @@ AUI.add(
 
 					if (val instanceof A.NodeList) {
 						links = val;
-					} else if (A.Lang.isString(val)) {
+					}
+					else if (A.Lang.isString(val)) {
 						links = A.all(val);
-					} else {
+					}
+					else {
 						links = new A.NodeList([val]);
 					}
 
@@ -801,13 +803,15 @@ AUI.add(
 							Liferay.ThemeDisplay.getPathThemeImages() +
 								'/file_system/large/default.png'
 						);
-					} else {
+					}
+					else {
 						image.attr('src', itemFileURL);
 					}
 
 					if (itemFile.resolvedValue) {
 						link.setData('value', itemFile.resolvedValue);
-					} else {
+					}
+					else {
 						var imageValue = {
 							fileEntryId: itemFile.fileEntryId,
 							groupId: itemFile.groupId,

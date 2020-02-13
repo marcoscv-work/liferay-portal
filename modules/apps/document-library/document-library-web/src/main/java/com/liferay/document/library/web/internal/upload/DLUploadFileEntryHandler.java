@@ -70,6 +70,7 @@ public class DLUploadFileEntryHandler implements UploadFileEntryHandler {
 
 		String contentType = uploadPortletRequest.getContentType(
 			_PARAMETER_NAME);
+		String description = uploadPortletRequest.getParameter("description");
 
 		try (InputStream inputStream = uploadPortletRequest.getFileAsStream(
 				_PARAMETER_NAME)) {
@@ -84,7 +85,7 @@ public class DLUploadFileEntryHandler implements UploadFileEntryHandler {
 
 			return _dlAppService.addFileEntry(
 				themeDisplay.getScopeGroupId(), folderId, uniqueFileName,
-				contentType, uniqueFileName, StringPool.BLANK, StringPool.BLANK,
+				contentType, uniqueFileName, description, StringPool.BLANK,
 				inputStream, size, serviceContext);
 		}
 	}

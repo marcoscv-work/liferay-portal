@@ -9,7 +9,7 @@
  * distribution rights of the Software.
  */
 
-import {cleanup, render, findByTestId} from '@testing-library/react';
+import {cleanup, findByTestId, render} from '@testing-library/react';
 import React from 'react';
 
 import PerformanceByStepCard from '../../../../src/main/resources/META-INF/resources/js/components/process-metrics/performance-by-step-card/PerformanceByStepCard.es';
@@ -20,7 +20,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 const {processId, query} = {
 	processId: 12345,
-	query: '?filters.steptimeRange%5B0%5D=7'
+	query: '?filters.stepTimeRange%5B0%5D=7'
 };
 
 const items = [

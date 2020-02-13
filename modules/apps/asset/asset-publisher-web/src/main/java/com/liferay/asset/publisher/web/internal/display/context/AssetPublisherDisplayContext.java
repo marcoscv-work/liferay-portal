@@ -50,6 +50,9 @@ import com.liferay.info.display.contributor.InfoDisplayObjectProvider;
 import com.liferay.info.list.provider.DefaultInfoListProviderContext;
 import com.liferay.info.list.provider.InfoListProvider;
 import com.liferay.info.list.provider.InfoListProviderTracker;
+import com.liferay.item.selector.ItemSelector;
+import com.liferay.item.selector.criteria.InfoListItemSelectorReturnType;
+import com.liferay.item.selector.criteria.info.item.criterion.InfoListItemSelectorCriterion;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
@@ -65,6 +68,7 @@ import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.portlet.PortletProviderUtil;
+import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
@@ -135,7 +139,8 @@ public class AssetPublisherDisplayContext {
 			AssetPublisherWebConfiguration assetPublisherWebConfiguration,
 			AssetPublisherWebUtil assetPublisherWebUtil,
 			InfoListProviderTracker infoListProviderTracker,
-			PortletRequest portletRequest, PortletResponse portletResponse,
+			ItemSelector itemSelector, PortletRequest portletRequest,
+			PortletResponse portletResponse,
 			PortletPreferences portletPreferences)
 		throws ConfigurationException {
 
@@ -147,6 +152,7 @@ public class AssetPublisherDisplayContext {
 		_assetPublisherWebConfiguration = assetPublisherWebConfiguration;
 		_assetPublisherWebUtil = assetPublisherWebUtil;
 		_infoListProviderTracker = infoListProviderTracker;
+		_itemSelector = itemSelector;
 		_portletRequest = portletRequest;
 		_portletResponse = portletResponse;
 		_portletPreferences = portletPreferences;
@@ -439,21 +445,16 @@ public class AssetPublisherDisplayContext {
 		return _assetLinkBehavior;
 	}
 
-	public String getAssetListPortletNamespace() {
-		String assetListPortletId = PortletProviderUtil.getPortletId(
-			AssetListEntry.class.getName(), PortletProvider.Action.BROWSE);
+	public String getAssetListSelectorURL() {
+		InfoListItemSelectorCriterion infoListItemSelectorCriterion =
+			new InfoListItemSelectorCriterion();
 
-		return PortalUtil.getPortletNamespace(assetListPortletId);
-	}
+		infoListItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
+			new InfoListItemSelectorReturnType());
 
-	public String getAssetListSelectorURL() throws Exception {
-		PortletURL portletURL = PortletProviderUtil.getPortletURL(
-			_httpServletRequest, AssetListEntry.class.getName(),
-			PortletProvider.Action.BROWSE);
-
-		portletURL.setParameter("eventName", getSelectAssetListEventName());
-
-		portletURL.setWindowState(LiferayWindowState.POP_UP);
+		PortletURL portletURL = _itemSelector.getItemSelectorURL(
+			RequestBackedPortletURLFactoryUtil.create(_portletRequest),
+			getSelectAssetListEventName(), infoListItemSelectorCriterion);
 
 		return portletURL.toString();
 	}
@@ -2023,6 +2024,7 @@ public class AssetPublisherDisplayContext {
 	private long[] _groupIds;
 	private final HttpServletRequest _httpServletRequest;
 	private final InfoListProviderTracker _infoListProviderTracker;
+	private final ItemSelector _itemSelector;
 	private Boolean _mergeURLTags;
 	private String[] _metadataFields;
 	private String _orderByColumn1;

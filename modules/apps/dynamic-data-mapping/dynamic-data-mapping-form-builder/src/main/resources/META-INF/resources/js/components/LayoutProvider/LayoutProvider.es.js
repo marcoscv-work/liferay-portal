@@ -12,14 +12,12 @@
  * details.
  */
 
-import * as FormSupport from 'dynamic-data-mapping-form-renderer/js/components/FormRenderer/FormSupport.es';
-import handlePaginationItemClicked from 'dynamic-data-mapping-form-renderer/js/store/actions/handlePaginationItemClicked.es';
-import handlePaginationNextClicked from 'dynamic-data-mapping-form-renderer/js/store/actions/handlePaginationNextClicked.es';
-import handlePaginationPreviousClicked from 'dynamic-data-mapping-form-renderer/js/store/actions/handlePaginationPreviousClicked.es';
 import {
+	FormSupport,
 	PagesVisitor,
 	RulesVisitor
-} from 'dynamic-data-mapping-form-renderer/js/util/visitors.es';
+} from 'dynamic-data-mapping-form-renderer';
+import handlePaginationItemClicked from 'dynamic-data-mapping-form-renderer/js/store/actions/handlePaginationItemClicked.es';
 import Component from 'metal-jsx';
 import {Config} from 'metal-state';
 
@@ -148,7 +146,8 @@ class LayoutProvider extends Component {
 				if (localizedValue !== undefined) {
 					value = localizedValue;
 				}
-			} else if (
+			}
+			else if (
 				field.dataType === 'ddm-options' &&
 				value[editingLanguageId] === undefined
 			) {
@@ -205,13 +204,15 @@ class LayoutProvider extends Component {
 
 			if (page.localizedDescription[editingLanguageId]) {
 				description = page.localizedDescription[editingLanguageId];
-			} else if (page.localizedDescription[defaultLanguageId]) {
+			}
+			else if (page.localizedDescription[defaultLanguageId]) {
 				description = page.localizedDescription[defaultLanguageId];
 			}
 
 			if (page.localizedTitle[editingLanguageId]) {
 				title = page.localizedTitle[editingLanguageId];
-			} else if (page.localizedTitle[defaultLanguageId]) {
+			}
+			else if (page.localizedTitle[defaultLanguageId]) {
 				title = page.localizedTitle[defaultLanguageId];
 			}
 
@@ -461,20 +462,14 @@ class LayoutProvider extends Component {
 
 	_handlePaginationNextClicked() {
 		const {activePage, pages} = this.state;
-
-		handlePaginationNextClicked(
-			{
-				activePage,
-				pages
-			},
-			this.dispatch.bind(this)
-		);
+		const pageIndex = Math.min(activePage + 1, pages.length - 1);
+		handlePaginationItemClicked({pageIndex}, this.dispatch.bind(this));
 	}
 
 	_handlePaginationPreviousClicked() {
 		const {activePage} = this.state;
-
-		handlePaginationPreviousClicked({activePage}, this.dispatch.bind(this));
+		const pageIndex = Math.max(activePage - 1, 0);
+		handlePaginationItemClicked({pageIndex}, this.dispatch.bind(this));
 	}
 
 	_handleRuleAdded(rule) {

@@ -145,6 +145,19 @@ public class DDMTemplateFinderImpl
 	}
 
 	@Override
+	public int countByC_G_C_C_R_T_M_S(
+		long companyId, long[] groupIds, long[] classNameIds, long[] classPKs,
+		long resourceClassNameId, String type, String mode, int status) {
+
+		String[] types = _customSQL.keywords(type, false);
+		String[] modes = _customSQL.keywords(mode, false);
+
+		return doCountByC_G_C_C_R_N_D_T_M_L_S(
+			companyId, groupIds, classNameIds, classPKs, resourceClassNameId,
+			null, null, types, modes, null, status, true, false);
+	}
+
+	@Override
 	public int countByC_G_C_C_R_N_D_T_M_L_S(
 		long companyId, long groupId, long classNameId, long classPK,
 		long resourceClassNameId, String name, String description, String type,
@@ -290,6 +303,19 @@ public class DDMTemplateFinderImpl
 
 		long[] classNameIds = {classNameId};
 		long[] classPKs = {classPK};
+		String[] types = _customSQL.keywords(type, false);
+		String[] modes = _customSQL.keywords(mode, false);
+
+		return doCountByC_G_C_C_R_N_D_T_M_L_S(
+			companyId, groupIds, classNameIds, classPKs, resourceClassNameId,
+			null, null, types, modes, null, status, true, true);
+	}
+
+	@Override
+	public int filterCountByC_G_C_C_R_T_M_S(
+		long companyId, long[] groupIds, long[] classNameIds, long[] classPKs,
+		long resourceClassNameId, String type, String mode, int status) {
+
 		String[] types = _customSQL.keywords(type, false);
 		String[] modes = _customSQL.keywords(mode, false);
 
@@ -462,6 +488,21 @@ public class DDMTemplateFinderImpl
 	}
 
 	@Override
+	public List<DDMTemplate> filterFindByC_G_C_C_R_T_M_S(
+		long companyId, long[] groupIds, long[] classNameIds, long[] classPKs,
+		long resourceClassNameId, String type, String mode, int status,
+		int start, int end, OrderByComparator<DDMTemplate> orderByComparator) {
+
+		String[] types = _customSQL.keywords(type, false);
+		String[] modes = _customSQL.keywords(mode, false);
+
+		return doFindByC_G_C_C_R_N_D_T_M_L_S(
+			companyId, groupIds, classNameIds, classPKs, resourceClassNameId,
+			null, null, types, modes, null, status, true, start, end,
+			orderByComparator, true);
+	}
+
+	@Override
 	public List<DDMTemplate> filterFindByC_G_C_C_R_N_D_T_M_L_S(
 		long companyId, long groupId, long classNameId, long classPK,
 		long resourceClassNameId, String name, String description, String type,
@@ -622,6 +663,21 @@ public class DDMTemplateFinderImpl
 
 		long[] classNameIds = {classNameId};
 		long[] classPKs = {classPK};
+		String[] types = _customSQL.keywords(type, false);
+		String[] modes = _customSQL.keywords(mode, false);
+
+		return doFindByC_G_C_C_R_N_D_T_M_L_S(
+			companyId, groupIds, classNameIds, classPKs, resourceClassNameId,
+			null, null, types, modes, null, status, true, start, end,
+			orderByComparator, false);
+	}
+
+	@Override
+	public List<DDMTemplate> findByC_G_C_C_R_T_M_S(
+		long companyId, long[] groupIds, long[] classNameIds, long[] classPKs,
+		long resourceClassNameId, String type, String mode, int status,
+		int start, int end, OrderByComparator<DDMTemplate> orderByComparator) {
+
 		String[] types = _customSQL.keywords(type, false);
 		String[] modes = _customSQL.keywords(mode, false);
 

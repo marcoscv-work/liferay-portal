@@ -25,7 +25,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
-import {useState, useEffect, useRef} from 'react';
+import {useEffect, useRef, useState} from 'react';
 
 export const toQuery = (string, defaultQuery = {}) => {
 	const query = {...defaultQuery};
@@ -44,7 +44,8 @@ export const toQueryString = (object, queryString = '') => {
 	Object.keys(object).forEach(key => {
 		if (object[key]) {
 			params.set(key, object[key]);
-		} else {
+		}
+		else {
 			params.delete(key);
 		}
 	});

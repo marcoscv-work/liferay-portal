@@ -29,7 +29,6 @@ import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyCategoryResourc
 import com.liferay.headless.common.spi.service.context.ServiceContextUtil;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.search.BooleanClauseOccur;
 import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Field;
@@ -292,7 +291,7 @@ public class TaxonomyCategoryResourceImpl
 	}
 
 	private AssetCategory _getAssetCategory(String taxonomyCategoryId)
-		throws PortalException {
+		throws Exception {
 
 		AssetCategory assetCategory =
 			_assetCategoryLocalService.fetchAssetCategoryByReferenceCode(
@@ -324,16 +323,17 @@ public class TaxonomyCategoryResourceImpl
 		throws Exception {
 
 		return SearchUtil.search(
-			booleanQueryUnsafeConsumer, filter, AssetCategory.class, search,
-			pagination,
+			Collections.emptyMap(), booleanQueryUnsafeConsumer, filter,
+			AssetCategory.class, search, pagination,
 			queryConfig -> queryConfig.setSelectedFieldNames(
 				Field.ASSET_CATEGORY_ID),
 			searchContext -> searchContext.setCompanyId(
 				contextCompany.getCompanyId()),
+			sorts,
 			document -> _toTaxonomyCategory(
 				_assetCategoryService.getCategory(
-					GetterUtil.getLong(document.get(Field.ASSET_CATEGORY_ID)))),
-			sorts);
+					GetterUtil.getLong(
+						document.get(Field.ASSET_CATEGORY_ID)))));
 	}
 
 	private ParentTaxonomyCategory _toParentTaxonomyCategory(

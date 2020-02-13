@@ -13,12 +13,12 @@
  */
 
 import React, {
-	useReducer,
 	useCallback,
-	useRef,
-	useEffect,
 	useContext,
+	useEffect,
 	useMemo,
+	useReducer,
+	useRef,
 	useState
 } from 'react';
 
@@ -37,11 +37,10 @@ const INITIAL_STATE = {
 	network: {
 		error: null,
 		lastFetch: null,
-		status: SERVICE_NETWORK_STATUS_TYPES.Idle
+		status: SERVICE_NETWORK_STATUS_TYPES.draftSaved
 	},
 	reducers: {},
-	sidebarOpen: true,
-	singleSegmentsExperienceMode: false
+	sidebarOpen: true
 };
 
 /**

@@ -66,8 +66,6 @@ definition {
 	@description = "This is a use case for LPS-104569."
 	@priority = "5"
 	test AddMultipleFormViewsToTheSameObject {
-		property portal.acceptance = "false";
-
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "my custom object 1",
 			isCreatingFormView = "false",
@@ -117,8 +115,6 @@ definition {
 	@description = "Add a Form View with a Date field"
 	@priority = "5"
 	test AddSimpleFormViewWithDateField {
-		property portal.acceptance = "false";
-
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "my custom object",
 			isCreatingFormView = "true",
@@ -133,8 +129,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test AddSimpleFormViewWithGridField {
-		property portal.acceptance = "false";
-
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "my custom object",
 			isCreatingFormView = "true",
@@ -148,7 +142,6 @@ definition {
 	@description = "Add a Form View with a Multiple Selection field"
 	@priority = "5"
 	test AddSimpleFormViewWithMultipleSelectionField {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "my custom object",
@@ -163,7 +156,6 @@ definition {
 	@description = "Add a Form View with a Numeric field"
 	@priority = "5"
 	test AddSimpleFormViewWithNumericField {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "my custom object",
@@ -178,7 +170,6 @@ definition {
 	@description = "Add a Form View with a Select From List field"
 	@priority = "5"
 	test AddSimpleFormViewWithSelectFromListField {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "my custom object",
@@ -193,7 +184,6 @@ definition {
 	@description = "Add a Form View with a Single Selection field"
 	@priority = "5"
 	test AddSimpleFormViewWithSingleSelectionField {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "my custom object",
@@ -223,7 +213,6 @@ definition {
 	@description = "Add a Form View with a Upload field"
 	@priority = "5"
 	test AddSimpleFormViewWithUploadField {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "my custom object",
@@ -273,7 +262,6 @@ definition {
 	@description = "Attempt to add a Custom Object without a valid name"
 	@priority = "5"
 	test AttemptToAddCustomObjectWithoutValidName {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "",
@@ -307,7 +295,6 @@ definition {
 	@description = "Change order of list from default most recent on top to oldest."
 	@priority = "5"
 	test ChangeFormViewsListOrderByDate {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "Custom Object Title",
@@ -346,7 +333,6 @@ definition {
 	@description = "Order the list of Form Views by Name/Title (Asc or Desc)"
 	@priority = "5"
 	test ChangeFormViewsListOrderByName {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "Custom Object Title",
@@ -385,7 +371,6 @@ definition {
 	@description = "Change order of Table Views list from the default of most recent on top to oldest."
 	@priority = "5"
 	test ChangeTableViewsListOrderByDate {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "Custom Object Title",
@@ -426,7 +411,6 @@ definition {
 	@description = "Order the list of Table Views by Name/Title (Asc or Desc)"
 	@priority = "5"
 	test ChangeTableViewsListOrderByName {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "Custom Object Title",
@@ -467,7 +451,7 @@ definition {
 	@description = "Create, Remove, Update and Delete entries of an application deployed as Product Menu"
 	@priority = "5"
 	test CreateRemoveUpdateDeleteEntriesOfProductMenuApp {
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
 
 		var myFormViewName = "My Registration form";
 		var myTableViewName = "My display table";
@@ -720,7 +704,7 @@ definition {
 	@description = "Create, Remove, Update and Delete entries of an application deployed as a Standalone"
 	@priority = "5"
 	test CreateRemoveUpdateDeleteEntriesOfStandaloneApp {
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
 
 		var myFormViewName = "My Registration form";
 		var myTableViewName = "My display table";
@@ -973,7 +957,7 @@ definition {
 	@description = "Create, Remove, Update and Delete entries of an application deployed as a Widget"
 	@priority = "5"
 	test CreateRemoveUpdateDeleteEntriesOfWidgetApp {
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
 
 		var myFormViewName = "My Registration form";
 		var myTableViewName = "My display table";
@@ -1148,7 +1132,6 @@ definition {
 	@description = "Delete an existing custom object with no associated relationships"
 	@priority = "5"
 	test DeleteCustomObjectWithAssociatedRelationship {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "my custom object",
@@ -1192,7 +1175,6 @@ definition {
 	@description = "Delete an existing custom object with no associated relationships"
 	@priority = "5"
 	test DeleteCustomObjectWithNoAssociatedRelationship {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "my custom object",
@@ -1207,7 +1189,6 @@ definition {
 	@description = "Delete an existing Form View with no active publishing through the kebab/action menu"
 	@priority = "5"
 	test DeleteFormViewThroughActionMenu {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "my custom object",
@@ -1219,6 +1200,39 @@ definition {
 			formViewName = "My Form View 1");
 
 		AppBuilderAdmin.deleteEntry(itemName = "My Form View 1");
+	}
+
+	@description = "Delete a publishing"
+	@priority = "5"
+	test DeletePublishing {
+
+		AppBuilderAdmin.addCustomObject(
+			customObjectName = "my custom object",
+			isCreatingFormView = "true",
+			isCreatingViaPlusIcon = "true");
+
+		AppBuilderAdmin.createFormViewAndTableView(
+			fieldType = "Text",
+			formViewName = "Form View Title",
+			tableViewName = "Table View Title");
+
+		App.add(
+			appTitle = "Test App",
+			deployOption = "Product Menu",
+			formViewName = "Form View Title",
+			tableViewName = "Table View Title");
+
+		App.add(
+			appTitle = "Test App 2",
+			deployOption = "Product Menu",
+			formViewName = "Form View Title",
+			tableViewName = "Table View Title");
+
+		AppBuilderAdmin.undeployApp(itemName = "Test App");
+
+		AppBuilderAdmin.deleteApp(itemName = "Test App 2");
+
+		AppBuilderAdmin.deleteApp(itemName = "Test App");
 	}
 
 	@description = "Delete an existing Table View with no active publishing through the kebab/action menu"
@@ -1244,7 +1258,6 @@ definition {
 	@description = "Choose between the existing Form Views of an object when deploying an app"
 	@priority = "5"
 	test DeployAnAppChoosingBetweenTheExistingFormViews {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "my custom object",
@@ -1311,7 +1324,6 @@ definition {
 	@description = "Clear search results when clicking the Clear button on the search results banner"
 	@priority = "5"
 	test FormViewClearSearchResults {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "Custom Object Title",
@@ -1346,7 +1358,6 @@ definition {
 	@description = "Validate returns by search engine using a search term"
 	@priority = "5"
 	test FormViewSearchByTerm {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "Custom Object Title",
@@ -1372,7 +1383,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test FormViewSearchNoResultsFound {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "Custom Object Title",
@@ -1392,6 +1402,82 @@ definition {
 		AppBuilderAdmin.searchByItem(itemName = "Apple");
 
 		AppBuilderAdmin.validateIfSearchItemIsNotFound(itemName = "Apple");
+	}
+
+	@description = "Place a widget in my page with only a Form View of my App"
+	@priority = "5"
+	test PlaceFormViewWidget {
+		var myFormViewName = "My Registration form";
+		var myTableViewName = "My display table";
+		var myAppName = "My Registration app";
+
+		AppBuilderAdmin.addCustomObject(
+			customObjectName = "my custom object",
+			isCreatingFormView = "true",
+			isCreatingViaPlusIcon = "true");
+
+		FormViewBuilder.addFieldByDoubleClick(fieldType = "Text");
+		FormViewBuilder.setFieldLabel(fieldLabel = "Full name");
+		FormViewBuilder.setFieldRequired();
+		FormViewBuilder.closeSidebar();
+
+		FormViewBuilder.addFieldByDoubleClick(fieldType = "Text");
+		FormViewBuilder.setFieldLabel(fieldLabel = "Nickname");
+		FormViewBuilder.closeSidebar();
+
+		FormViewBuilder.setName(formViewName = "${myFormViewName}");
+
+		FormViewBuilder.save();
+
+		AppBuilderAdmin.validateItemNameOnTable(itemName = "${myFormViewName}");
+
+		AppBuilderAdmin.switchTab(tabName = "Table Views");
+
+		AppBuilderAdmin.add();
+
+		TableViewBuilder.addColumnByDoubleClick(fieldType = "Full name");
+		TableViewBuilder.addColumnByDoubleClick(fieldType = "Nickname");
+
+		TableViewBuilder.setName(tableViewName = "${myTableViewName}");
+
+		TableViewBuilder.save();
+
+		AppBuilderAdmin.validateItemNameOnTable(itemName = "${myTableViewName}");
+
+		App.add(
+			appTitle = "${myAppName}",
+			deployOption = "Widget",
+			formViewName = "${myFormViewName}",
+			tableViewName = "${myTableViewName}");
+
+		JSONLayout.addPublicLayout(
+			groupName = "App Builder Site Name",
+			layoutName = "App Builder Test Page");
+
+		JSONLayout.updateLayoutTemplateOfPublicLayout(
+			groupName = "App Builder Site Name",
+			layoutName = "App Builder Test Page",
+			layoutTemplate = "1 Column");
+
+		Navigator.gotoSitePage(
+			pageName = "App Builder Test Page",
+			siteName = "App Builder Site Name");
+
+		Portlet.addPG(
+			pageName = "App Builder Test Page",
+			portletName = "My Registration app (Form View)");
+
+		FormViewBuilder.editText(
+			fieldName = "FullName",
+			fieldValue = "Test");
+
+		FormViewBuilder.editText(
+			fieldName = "Nickname",
+			fieldValue = "Tester");
+
+		AppBuilderAdmin.save();
+
+		AppBuilderAdmin.validateSuccessMessage();
 	}
 
 	@description = "Publish my app as a widget and submit entry"
@@ -1440,6 +1526,282 @@ definition {
 		AppBuilderAdmin.save();
 
 		AppBuilderAdmin.validateItemNameOnTable(itemName = "Content of form deployed as widget.");
+	}
+
+	@description = "Publish my app as a widget with only a Table View"
+	@priority = "5"
+	test PublishAppAsWidgetWithOnlyTableView {
+
+		AppBuilderAdmin.addCustomObject(
+			customObjectName = "my custom object",
+			isCreatingFormView = "true",
+			isCreatingViaPlusIcon = "true");
+
+		FormViewBuilder.addFieldByDoubleClick(fieldType = "Text");
+		FormViewBuilder.closeSidebar();
+
+		FormViewBuilder.addFieldByDoubleClick(fieldType = "Numeric");
+		FormViewBuilder.closeSidebar();
+
+		FormViewBuilder.setName(formViewName = "My Form View");
+		FormViewBuilder.save();
+
+		TableViewBuilder.addBasicTableView(
+			fieldType = "Text",
+			tableViewName = "My Table View");
+
+		App.add(
+			appTitle = "Widget App",
+			deployOption = "Widget",
+			formViewName = "My Form View",
+			tableViewName = "My Table View");
+
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			panel = "Site Administration",
+			portlet = "Pages");
+
+		SitePages.addPublicPage(pageName = "App Builder Page");
+
+		Navigator.gotoPage(pageName = "App Builder Page");
+
+		Portlet.addPG(
+			pageName = "App Builder Page",
+			portletName = "Widget App");
+
+		AppBuilderAdmin.add();
+
+		FormFields.editText(
+			fieldName = "Text",
+			fieldValue = "Content of form deployed as widget");
+
+		FormFields.editText(
+			fieldName = "Numeric",
+			fieldValue = "1987");
+
+		AppBuilderAdmin.save();
+
+		Portlet.deletePG(portletName = "Widget App");
+
+		Portlet.addPG(
+			pageName = "App Builder Page",
+			portletName = "Widget App (Table View)");
+
+		Portlet.viewSpecificPG(portletName = "Widget App (Table View)");
+		AppBuilderAdmin.validateItemNameOnTable(itemName = "Content of form deployed as widget");
+		AppBuilderAdmin.validateNewButtonIsNotPresent(buttonValue = "New Entry");
+		AppBuilderAdmin.validateNewButtonIconIsNotPresent();
+
+		AppBuilderAdmin.openItem(itemName = "Content of form deployed as widget");
+
+		DetailsView.validateEntry(entry = "Content of form deployed as widget");
+		DetailsView.validateEntry(entry = "1987");
+	}
+
+	@description = "Publish apps in the product menu and reuse its views"
+	@priority = "5"
+	test PublishAppsInProductMenuAndReuseItsViews {
+
+		var myFormViewName_1 = "My Form View 1";
+		var myFormViewName_2 = "My Form View 2";
+
+		var myTextFieldName_1 = "Text1";
+		var myTextFieldName_2 = "Text2";
+
+		var myTableViewName_1 = "My Table View 1";
+		var myTableViewName_2 = "My Table View 2";
+
+		var myAppName_1 = "Product Menu App 1";
+		var myAppName_2 = "Product Menu App 2";
+		var myAppName_3 = "Product Menu App 3";
+
+		AppBuilderAdmin.addCustomObject(
+			customObjectName = "my custom object",
+			isCreatingFormView = "true",
+			isCreatingViaPlusIcon = "true");
+
+		FormViewBuilder.addFieldByDoubleClick(fieldType = "Text");
+		FormViewBuilder.setFieldLabel(fieldLabel = "${myTextFieldName_1}");
+		FormViewBuilder.closeSidebar();
+		FormViewBuilder.setName(formViewName = "${myFormViewName_1}");
+		FormViewBuilder.save();
+
+		AppBuilderAdmin.add();
+		FormViewBuilder.addFieldByDoubleClick(fieldType = "Text");
+		FormViewBuilder.setFieldLabel(fieldLabel = "${myTextFieldName_2}");
+		FormViewBuilder.closeSidebar();
+		FormViewBuilder.setName(formViewName = "${myFormViewName_2}");
+		FormViewBuilder.save();
+
+		TableViewBuilder.addBasicTableView(
+			fieldType = "${myTextFieldName_1}",
+			tableViewName = "${myTableViewName_1}");
+
+		TableViewBuilder.addBasicTableView(
+			fieldType = "${myTextFieldName_2}",
+			tableViewName = "${myTableViewName_2}");
+
+		AppBuilderAdmin.switchTab(tabName = "Apps");
+		AppBuilderAdmin.add();
+		AppBuilderAdmin.setName(title = "${myAppName_1}");
+		App.selectFormView(formViewName = "${myFormViewName_1}");
+		App.selectTableView(tableViewName = "${myTableViewName_1}");
+		App.toggleDeploy(deployOption = "Product Menu");
+		App.openProductMenuPlaceItDropdown();
+		App.validadeProductMenuPlaceItDropdownList(itemName = "Control Panel");
+		App.validadeProductMenuPlaceItDropdownList(itemName = "Site Menu");
+		App.validadeProductMenuPlaceItDropdownList(itemName = "Control Panel and Site Menu");
+
+		App.selectProductMenuPlaceItDropdownOption(itemName = "Site Menu");
+		App.validadeProductMenuSiteDropdownPresent();
+		App.selectProductMenuPlaceItDropdownOption(itemName = "Control Panel and Site Menu");
+		App.validadeProductMenuSiteDropdownPresent();
+
+		App.selectProductMenuPlaceItDropdownOption(itemName = "Control Panel");
+		Button.click(button = "Deploy");
+
+		App.add(
+			appTitle = "${myAppName_2}",
+			deployOption = "Product Menu",
+			formViewName = "${myFormViewName_2}",
+			tableViewName = "${myTableViewName_2}");
+
+		App.add(
+			appTitle = "${myAppName_3}",
+			deployOption = "Product Menu",
+			formViewName = "${myFormViewName_1}",
+			tableViewName = "${myTableViewName_2}");
+
+		AppBuilderAdmin.gotoCustomAppCP(
+			panel = "Control Panel",
+			portlet = "${myAppName_1}");
+
+		AppBuilderAdmin.add();
+
+		FormViewBuilder.editText(
+			fieldName = "${myTextFieldName_1}",
+			fieldValue = "Content from Form 1");
+
+		AppBuilderAdmin.save();
+
+		AppBuilderAdmin.gotoCustomAppCP(
+			panel = "Control Panel",
+			portlet = "${myAppName_2}");
+
+		AppBuilderAdmin.add();
+
+		FormViewBuilder.editText(
+			fieldName = "${myTextFieldName_2}",
+			fieldValue = "Content from Form 2");
+
+		AppBuilderAdmin.save();
+
+		AppBuilderAdmin.gotoCustomAppCP(
+			panel = "Control Panel",
+			portlet = "${myAppName_3}");
+
+		AppBuilderAdmin.validateItemNameOnTable(itemName = "Content from Form 2");
+
+		AppBuilderAdmin.add();
+
+		FormViewBuilder.validateFieldLabel(fieldLabel = "${myTextFieldName_1}");
+	}
+
+	@description = "Search for a deployment in the deployment lists"
+	@priority = "5"
+	test SearchForDeployedItem {
+
+		AppBuilderAdmin.addCustomObject(
+			customObjectName = "my custom object",
+			isCreatingFormView = "true",
+			isCreatingViaPlusIcon = "true");
+
+		AppBuilderAdmin.createFormViewAndTableView(
+			fieldType = "Text",
+			formViewName = "My Form View",
+			tableViewName = "My Table View");
+
+		App.add(
+			appTitle = "First App",
+			deployOption = "Product Menu",
+			formViewName = "My Form View",
+			tableViewName = "My Table View");
+
+		App.add(
+			appTitle = "Second App",
+			deployOption = "Product Menu",
+			formViewName = "My Form View",
+			tableViewName = "My Table View");
+
+		App.add(
+			appTitle = "Third App",
+			deployOption = "Product Menu",
+			formViewName = "My Form View",
+			tableViewName = "My Table View");
+
+		AppBuilderAdmin.validateListTitleAtRow(
+			rowNumber = "1",
+			title = "Third App");
+
+		AppBuilderAdmin.validateListTitleAtRow(
+			rowNumber = "3",
+			title = "First App");
+
+		AppBuilderAdmin.searchByItem(itemName = "App");
+
+		AppBuilderAdmin.validateListTitleAtRow(
+			rowNumber = "1",
+			title = "Third App");
+
+		AppBuilderAdmin.validateListTitleAtRow(
+			rowNumber = "3",
+			title = "First App");
+
+		AppBuilderAdmin.clearSearch();
+
+		AppBuilderAdmin.chooseSearchFilterByOption(filterOption = "Modified Date");
+
+		AppBuilderAdmin.validateListTitleAtRow(
+			rowNumber = "1",
+			title = "Third App");
+
+		AppBuilderAdmin.validateListTitleAtRow(
+			rowNumber = "3",
+			title = "First App");
+
+		AppBuilderAdmin.searchByItem(itemName = "First");
+
+		AppBuilderAdmin.validateIfSearchItemIsFound(itemName = "First");
+
+		AppBuilderAdmin.validateListTitleAtRow(
+			rowNumber = "1",
+			title = "First App");
+
+		AppBuilderAdmin.clearSearch();
+
+		AppBuilderAdmin.searchByItem(itemName = "!@#");
+
+		AppBuilderAdmin.validateIfSearchItemIsNotFound(itemName = "!@#");
+
+		AppBuilderAdmin.clearSearch();
+
+		AppBuilderAdmin.validateListTitleAtRow(
+			rowNumber = "1",
+			title = "Third App");
+
+		AppBuilderAdmin.validateListTitleAtRow(
+			rowNumber = "3",
+			title = "First App");
+
+		AppBuilderAdmin.chooseSearchFilterByOption(filterOption = "Name");
+
+		AppBuilderAdmin.validateListTitleAtRow(
+			rowNumber = "1",
+			title = "Third App");
+
+		AppBuilderAdmin.validateListTitleAtRow(
+			rowNumber = "3",
+			title = "First App");
 	}
 
 	@description = "Search for an object in the object list"
@@ -1494,7 +1856,6 @@ definition {
 	@description = "Clear Table View search results when clicking the Clear button on the search results banner"
 	@priority = "5"
 	test TableViewClearSearchResults {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "Custom Object Title",
@@ -1522,7 +1883,6 @@ definition {
 	@description = "Validate Table View search returns by search engine using a search term"
 	@priority = "5"
 	test TableViewSearchByTerm {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "My custom object",
@@ -1549,7 +1909,6 @@ definition {
 	@description = "No results found screen is shown when the Table View search doesn't retrieve any results"
 	@priority = "5"
 	test TableViewSearchNoResultsFound {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "Custom Object Title",
@@ -1575,10 +1934,375 @@ definition {
 		AppBuilderAdmin.validateIfSearchItemIsNotFound(itemName = "Apple");
 	}
 
+	@description = "Unpublish and Republish an App"
+	@priority = "5"
+	test UnpublishAndRepublish {
+
+		AppBuilderAdmin.addCustomObject(
+			customObjectName = "my custom object",
+			isCreatingFormView = "true",
+			isCreatingViaPlusIcon = "true");
+
+		AppBuilderAdmin.createFormViewAndTableView(
+			fieldType = "Text",
+			formViewName = "Form View Title",
+			tableViewName = "Table View Title");
+
+		App.add(
+			appTitle = "Test App A",
+			deployOption = "Product Menu",
+			formViewName = "Form View Title",
+			tableViewName = "Table View Title");
+
+		App.add(
+			appTitle = "Test App B",
+			deployOption = "Widget",
+			formViewName = "Form View Title",
+			tableViewName = "Table View Title");
+
+		App.add(
+			appTitle = "Test App C",
+			deployOption = "Standalone",
+			formViewName = "Form View Title",
+			tableViewName = "Table View Title");
+
+		AppBuilderAdmin.gotoCustomAppCP(
+			panel = "Control Panel",
+			portlet = "Test App A");
+
+		AppBuilderAdmin.validateProductMenuApp(appName = "Test App A");
+
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			panel = "Site Administration",
+			portlet = "Pages");
+
+		SitePages.addPublicPage(pageName = "App Builder Page");
+
+		Navigator.gotoPage(pageName = "App Builder Page");
+
+		Portlet.addPG(
+			pageName = "App Builder Page",
+			portletName = "Test App B");
+
+		AppBuilderAdmin.validateWidgetApp(appName = "Test App B");
+
+		ProductMenu.gotoPortlet(
+			category = "App Builder",
+			panel = "Control Panel",
+			portlet = "Custom Objects");
+
+		AppBuilderAdmin.openItem(itemName = "my custom object");
+
+		AppBuilderAdmin.switchTab(tabName = "Apps");
+
+		AppBuilderAdmin.openStandAloneApp(itemName = "Test App C");
+
+		SelectWindow.selectPopUp(locator1 = "null");
+
+		AppBuilderAdmin.validateStandAloneApp();
+
+		Navigator.closeWindow();
+
+		ProductMenu.gotoPortlet(
+			category = "App Builder",
+			panel = "Control Panel",
+			portlet = "Custom Objects");
+
+		AppBuilderAdmin.openItem(itemName = "my custom object");
+
+		AppBuilderAdmin.switchTab(tabName = "Apps");
+
+		AppBuilderAdmin.undeployApp(itemName = "Test App A");
+
+		AppBuilderAdmin.gotoCustomAppCP(
+			panel = "Control Panel",
+			portlet = "Test App A");
+
+		AppBuilderAdmin.validateUndeployedApp();
+
+		ProductMenu.gotoPortlet(
+			category = "App Builder",
+			panel = "Control Panel",
+			portlet = "Custom Objects");
+
+		AppBuilderAdmin.openItem(itemName = "my custom object");
+
+		AppBuilderAdmin.switchTab(tabName = "Apps");
+
+		AppBuilderAdmin.deployApp(itemName = "Test App A");
+
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			panel = "Site Administration",
+			portlet = "Pages");
+
+		AppBuilderAdmin.gotoCustomAppCP(
+			panel = "Control Panel",
+			portlet = "Test App A");
+
+		AppBuilderAdmin.validateProductMenuApp(appName = "Test App A");
+
+		ProductMenu.gotoPortlet(
+			category = "App Builder",
+			panel = "Control Panel",
+			portlet = "Custom Objects");
+
+		AppBuilderAdmin.openItem(itemName = "my custom object");
+
+		AppBuilderAdmin.switchTab(tabName = "Apps");
+
+		AppBuilderAdmin.undeployApp(itemName = "Test App B");
+
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			panel = "Site Administration",
+			portlet = "Pages");
+
+		Navigator.gotoPage(pageName = "App Builder Page");
+
+		AppBuilderAdmin.validateUndeployedApp();
+
+		ProductMenu.gotoPortlet(
+			category = "App Builder",
+			panel = "Control Panel",
+			portlet = "Custom Objects");
+
+		AppBuilderAdmin.openItem(itemName = "my custom object");
+
+		AppBuilderAdmin.switchTab(tabName = "Apps");
+
+		AppBuilderAdmin.deployApp(itemName = "Test App B");
+
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			panel = "Site Administration",
+			portlet = "Pages");
+
+		Navigator.gotoPage(pageName = "App Builder Page");
+
+		AppBuilderAdmin.validateWidgetApp(appName = "Test App B");
+
+		ProductMenu.gotoPortlet(
+			category = "App Builder",
+			panel = "Control Panel",
+			portlet = "Custom Objects");
+
+		AppBuilderAdmin.openItem(itemName = "my custom object");
+
+		AppBuilderAdmin.switchTab(tabName = "Apps");
+
+		AppBuilderAdmin.undeployApp(itemName = "Test App C");
+
+		AppBuilderAdmin.openStandAloneApp(itemName = "Test App C");
+
+		SelectWindow.selectPopUp(locator1 = "null");
+
+		AppBuilderAdmin.validateStandAlone404();
+
+		Navigator.closeWindow();
+
+		AppBuilderAdmin.deployApp(itemName = "Test App C");
+
+		AppBuilderAdmin.openStandAloneApp(itemName = "Test App C");
+
+		SelectWindow.selectPopUp(locator1 = "null");
+
+		AppBuilderAdmin.validateStandAloneApp();
+
+		Navigator.closeWindow();
+	}
+
+	@description = "Update an existing deployment"
+	@priority = "5"
+	test UpdateDeployment {
+
+		AppBuilderAdmin.addCustomObject(
+			customObjectName = "my custom object",
+			isCreatingFormView = "true",
+			isCreatingViaPlusIcon = "true");
+
+		AppBuilderAdmin.createFormViewAndTableView(
+			fieldType = "Text",
+			formViewName = "Form View Title One",
+			tableViewName = "Table View Title One");
+
+		FormViewBuilder.switchToFormViewTab();
+
+		FormViewBuilder.addFormView(
+			fieldType = "Text",
+			formViewName = "Form View Title Two");
+
+		TableViewBuilder.addBasicTableView(
+			fieldType = "Text",
+			tableViewName = "Table View Title Two");
+
+		App.add(
+			appTitle = "Test App A",
+			deployOption = "Widget",
+			formViewName = "Form View Title One",
+			tableViewName = "Table View Title One");
+
+		App.add(
+			appTitle = "Test App B",
+			deployOption = "Standalone",
+			formViewName = "Form View Title",
+			tableViewName = "Table View Title");
+
+		App.add(
+			appTitle = "Test App C",
+			deployOption = "Product Menu",
+			formViewName = "Form View Title",
+			tableViewName = "Table View Title");
+
+		AppBuilderAdmin.gotoCustomAppCP(
+			panel = "Control Panel",
+			portlet = "Test App C");
+
+		AppBuilderAdmin.validateProductMenuApp(appName = "Test App C");
+
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			panel = "Site Administration",
+			portlet = "Pages");
+
+		SitePages.addPublicPage(pageName = "App Builder Page");
+
+		Navigator.gotoPage(pageName = "App Builder Page");
+
+		Portlet.addPG(
+			pageName = "App Builder Page",
+			portletName = "Test App A");
+
+		AppBuilderAdmin.validateWidgetApp(appName = "Test App A");
+
+		ProductMenu.gotoPortlet(
+			category = "App Builder",
+			panel = "Control Panel",
+			portlet = "Custom Objects");
+
+		AppBuilderAdmin.openItem(itemName = "my custom object");
+
+		AppBuilderAdmin.switchTab(tabName = "Apps");
+
+		AppBuilderAdmin.openStandAloneApp(itemName = "Test App B");
+
+		SelectWindow.selectPopUp(locator1 = "null");
+
+		AppBuilderAdmin.validateStandAloneApp();
+
+		Navigator.closeWindow();
+
+		AppBuilderAdmin.clickApp(appName = "Test App A");
+
+		AppBuilderAdmin.editAppName(appTitle = "Changed Name");
+
+		AppBuilderAdmin.clickApp(appName = "Changed Name");
+
+		App.toggleUndeploy(deployOption = "Widget");
+
+		App.toggleDeploy(deployOption = "Standalone");
+
+		App.saveApp();
+
+		App.validateDeployedAs(title = "Standalone");
+
+		AppBuilderAdmin.openStandAloneApp(itemName = "Changed Name");
+
+		SelectWindow.selectPopUp(locator1 = "null");
+
+		AppBuilderAdmin.validateStandAloneApp();
+
+		Navigator.closeWindow();
+
+		AppBuilderAdmin.clickApp(appName = "Changed Name");
+
+		App.toggleUndeploy(deployOption = "Standalone");
+
+		App.toggleDeploy(deployOption = "Product Menu");
+
+		App.saveApp();
+
+		App.validateDeployedAs(title = "Product Menu");
+
+		Navigator.gotoPage(pageName = "App Builder Page");
+
+		AppBuilderAdmin.gotoCustomAppCP(
+			panel = "Control Panel",
+			portlet = "Changed Name");
+
+		AppBuilderAdmin.validateProductMenuApp(appName = "Changed Name");
+
+		ProductMenu.gotoPortlet(
+			category = "App Builder",
+			panel = "Control Panel",
+			portlet = "Custom Objects");
+
+		AppBuilderAdmin.openItem(itemName = "my custom object");
+
+		AppBuilderAdmin.switchTab(tabName = "Apps");
+
+		AppBuilderAdmin.clickApp(appName = "Changed Name");
+
+		App.toggleUndeploy(deployOption = "Product Menu");
+
+		App.toggleDeploy(deployOption = "Widget");
+
+		App.toggleDeploy(deployOption = "Standalone");
+
+		App.saveApp();
+
+		App.validateDeployedAs(title = "Widget and Standalone");
+
+		Navigator.gotoPage(pageName = "App Builder Page");
+
+		AppBuilderAdmin.validateWidgetApp(appName = "Changed Name");
+
+		ProductMenu.gotoPortlet(
+			category = "App Builder",
+			panel = "Control Panel",
+			portlet = "Custom Objects");
+
+		AppBuilderAdmin.openItem(itemName = "my custom object");
+
+		AppBuilderAdmin.switchTab(tabName = "Apps");
+
+		AppBuilderAdmin.openStandAloneApp(itemName = "Changed Name");
+
+		SelectWindow.selectPopUp(locator1 = "null");
+
+		AppBuilderAdmin.validateStandAloneApp();
+
+		Navigator.closeWindow();
+
+		AppBuilderAdmin.clickApp(appName = "Test App B");
+
+		App.selectFormView(formViewName = "Form View Title Two");
+
+		App.selectTableView(tableViewName = "Table View Title");
+
+		App.saveApp();
+
+		AppBuilderAdmin.clickApp(appName = "Test App C");
+
+		App.selectFormView(formViewName = "Form View Title");
+
+		App.selectTableView(tableViewName = "Table View Title Two");
+
+		App.saveApp();
+
+		AppBuilderAdmin.clickApp(appName = "Test App C");
+
+		App.selectFormView(formViewName = "Form View Title Two");
+
+		App.selectTableView(tableViewName = "Table View Title");
+
+		App.saveApp();
+	}
+
 	@description = "Validate empty list state of Apps listing screen"
 	@priority = "5"
 	test ValidateEmptyStateOfAppsListingScreen {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "my custom object",
@@ -1597,7 +2321,6 @@ definition {
 	@description = "Validate empty list state of Custom Object listing screen"
 	@priority = "5"
 	test ValidateEmptyStateOfCustomObjectListingScreen {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.teardownAppBuilder();
 
@@ -1611,7 +2334,6 @@ definition {
 	@description = "Validate empty list state of Form View listing screen"
 	@priority = "5"
 	test ValidateEmptyStateOfFormViewListingScreen {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "my custom object",
@@ -1628,7 +2350,6 @@ definition {
 	@description = "Validate empty list state of Table View listing screen"
 	@priority = "5"
 	test ValidateEmptyStateOfTableViewListingScreen {
-		property portal.acceptance = "false";
 
 		AppBuilderAdmin.addCustomObject(
 			customObjectName = "my custom object",
@@ -1642,6 +2363,107 @@ definition {
 			title = "There are no table views yet.");
 
 		AppBuilderAdmin.assertNewButtonIsVisible(buttonValue = "New Table View");
+	}
+
+	@description = "View details of an entry in an App"
+	@priority = "5"
+	test ViewEntryDetails {
+
+		var myFormViewName = "My Registration form";
+		var myTableViewName = "My display table";
+		var myAppName = "My Registration app";
+
+		AppBuilderAdmin.addCustomObject(
+			customObjectName = "my custom object",
+			isCreatingFormView = "true",
+			isCreatingViaPlusIcon = "true");
+
+		FormViewBuilder.addFieldByDoubleClick(fieldType = "Text");
+		FormViewBuilder.setFieldLabel(fieldLabel = "Full name");
+		FormViewBuilder.setFieldRequired();
+		FormViewBuilder.closeSidebar();
+
+		FormViewBuilder.addFieldByDoubleClick(fieldType = "Text");
+		FormViewBuilder.setFieldLabel(fieldLabel = "Nickname");
+		FormViewBuilder.closeSidebar();
+
+		FormViewBuilder.setName(formViewName = "${myFormViewName}");
+
+		FormViewBuilder.save();
+
+		AppBuilderAdmin.validateItemNameOnTable(itemName = "${myFormViewName}");
+
+		AppBuilderAdmin.switchTab(tabName = "Table Views");
+
+		AppBuilderAdmin.add();
+
+		TableViewBuilder.addColumnByDoubleClick(fieldType = "Full name");
+		TableViewBuilder.addColumnByDoubleClick(fieldType = "Nickname");
+
+		TableViewBuilder.setName(tableViewName = "${myTableViewName}");
+
+		TableViewBuilder.save();
+
+		AppBuilderAdmin.validateItemNameOnTable(itemName = "${myTableViewName}");
+
+		App.add(
+			appTitle = "${myAppName}",
+			deployOption = "Product Menu",
+			formViewName = "${myFormViewName}",
+			tableViewName = "${myTableViewName}");
+
+		AppBuilderAdmin.gotoCustomAppCP(
+			panel = "Control Panel",
+			portlet = "${myAppName}");
+
+		AppBuilderAdmin.add();
+
+		FormViewBuilder.editText(
+			fieldName = "FullName",
+			fieldValue = "Test");
+
+		FormViewBuilder.editText(
+			fieldName = "Nickname",
+			fieldValue = "Tester");
+
+		AppBuilderAdmin.save();
+
+		AppBuilderAdmin.validateItemNameOnTable(itemName = "Test");
+		AppBuilderAdmin.validateItemNameOnTable(itemName = "Tester");
+
+		AppBuilderAdmin.add();
+
+		FormViewBuilder.editText(
+			fieldName = "FullName",
+			fieldValue = "Best");
+
+		FormViewBuilder.editText(
+			fieldName = "Nickname",
+			fieldValue = "Bester");
+
+		AppBuilderAdmin.save();
+
+		AppBuilderAdmin.viewItem(itemName = "Test");
+
+		DetailsView.validateEntry(entry = "Test");
+		DetailsView.validateEntry(entry = "Tester");
+
+		DetailsView.nextEntry();
+
+		DetailsView.validateEntry(entry = "Best");
+
+		DetailsView.editEntry();
+
+		FormViewBuilder.editText(
+			fieldName = "FullName",
+			fieldValue = "Changed");
+
+		AppBuilderAdmin.save();
+
+		DetailsView.validateEntry(entry = "Changed");
+		DetailsView.validateEntry(entry = "Bester");
+
+		DetailsView.deleteEntry(itemName = "Changed");
 	}
 
 }

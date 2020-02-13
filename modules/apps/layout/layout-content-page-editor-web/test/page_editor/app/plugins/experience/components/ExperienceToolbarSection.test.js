@@ -97,6 +97,9 @@ const mockState = {
 			segmentsExperimentURL: 'https//:experience-2.com'
 		}
 	},
+	permissions: {
+		UPDATE: true
+	},
 	segmentsExperienceId: '0',
 	widgets: []
 };
@@ -117,7 +120,6 @@ const mockConfig = {
 	defaultSegmentsExperienceId: '0',
 	deleteSegmentsExperienceURL: MOCK_DELETE_URL,
 	hasEditSegmentsEntryPermission: true,
-	hasUpdatePermissions: true,
 	updateSegmentsExperiencePriorityURL: MOCK_UPDATE_PRIORITY_URL,
 	updateSegmentsExperienceURL: MOCK_UPDATE_URL
 };
@@ -182,7 +184,9 @@ describe('ExperienceToolbarSection', () => {
 			}
 		};
 		const mockDispatch = jest.fn(a => {
-			if (typeof a === 'function') return a(mockDispatch);
+			if (typeof a === 'function') {
+				return a(mockDispatch);
+			}
 		});
 
 		const {
@@ -212,7 +216,7 @@ describe('ExperienceToolbarSection', () => {
 	});
 
 	it('calls the backend to increase priority', async () => {
-		serviceFetch.mockImplementation((config, url, body) =>
+		serviceFetch.mockImplementation((config, url, {body}) =>
 			Promise.resolve({
 				priority: body.newPriority,
 				segmentsExperienceId: 'test-experience-id-02'
@@ -220,7 +224,9 @@ describe('ExperienceToolbarSection', () => {
 		);
 
 		const mockDispatch = jest.fn(a => {
-			if (typeof a === 'function') return a(mockDispatch);
+			if (typeof a === 'function') {
+				return a(mockDispatch);
+			}
 		});
 
 		const {
@@ -271,9 +277,12 @@ describe('ExperienceToolbarSection', () => {
 			expect.objectContaining({}),
 			expect.stringContaining(MOCK_UPDATE_PRIORITY_URL),
 			expect.objectContaining({
-				newPriority: 3,
-				segmentsExperienceId: 'test-experience-id-02'
-			})
+				body: expect.objectContaining({
+					newPriority: 3,
+					segmentsExperienceId: 'test-experience-id-02'
+				})
+			}),
+			expect.any(Function)
 		);
 
 		expect(mockDispatch).toHaveBeenCalledWith(
@@ -284,7 +293,7 @@ describe('ExperienceToolbarSection', () => {
 	});
 
 	it('calls the backend to decrease priority', async () => {
-		serviceFetch.mockImplementation((config, url, body) =>
+		serviceFetch.mockImplementation((config, url, {body}) =>
 			Promise.resolve({
 				priority: body.newPriority,
 				segmentsExperienceId: 'test-experience-id-01'
@@ -292,7 +301,9 @@ describe('ExperienceToolbarSection', () => {
 		);
 
 		const mockDispatch = jest.fn(a => {
-			if (typeof a === 'function') return a(mockDispatch);
+			if (typeof a === 'function') {
+				return a(mockDispatch);
+			}
 		});
 
 		const {
@@ -343,9 +354,12 @@ describe('ExperienceToolbarSection', () => {
 			expect.objectContaining({}),
 			expect.stringContaining(MOCK_UPDATE_PRIORITY_URL),
 			expect.objectContaining({
-				newPriority: 1,
-				segmentsExperienceId: 'test-experience-id-01'
-			})
+				body: expect.objectContaining({
+					newPriority: 1,
+					segmentsExperienceId: 'test-experience-id-01'
+				})
+			}),
+			expect.any(Function)
 		);
 
 		expect(mockDispatch).toHaveBeenCalledWith(
@@ -357,7 +371,7 @@ describe('ExperienceToolbarSection', () => {
 
 	it('calls the backend to create a new experience', async () => {
 		serviceFetch
-			.mockImplementationOnce((config, url, body) =>
+			.mockImplementationOnce((config, url, {body}) =>
 				Promise.resolve({
 					segmentsExperience: {
 						active: true,
@@ -373,7 +387,9 @@ describe('ExperienceToolbarSection', () => {
 			});
 
 		const mockDispatch = jest.fn(a => {
-			if (typeof a === 'function') return a(mockDispatch);
+			if (typeof a === 'function') {
+				return a(mockDispatch);
+			}
 		});
 
 		const {
@@ -414,9 +430,12 @@ describe('ExperienceToolbarSection', () => {
 			expect.objectContaining({}),
 			expect.stringContaining(MOCK_CREATE_URL),
 			expect.objectContaining({
-				name: 'New Experience #1',
-				segmentsEntryId: 'test-segment-id-00'
-			})
+				body: expect.objectContaining({
+					name: 'New Experience #1',
+					segmentsEntryId: 'test-segment-id-00'
+				})
+			}),
+			expect.any(Function)
 		);
 
 		expect(mockDispatch).toHaveBeenCalledWith(
@@ -427,7 +446,7 @@ describe('ExperienceToolbarSection', () => {
 	});
 
 	it('calls the backend to update the experience', async () => {
-		serviceFetch.mockImplementation((config, url, body) =>
+		serviceFetch.mockImplementation((config, url, {body}) =>
 			Promise.resolve({
 				name: body.name,
 				segmentsEntryId: body.segmentsEntryId
@@ -435,7 +454,9 @@ describe('ExperienceToolbarSection', () => {
 		);
 
 		const mockDispatch = jest.fn(a => {
-			if (typeof a === 'function') return a(mockDispatch);
+			if (typeof a === 'function') {
+				return a(mockDispatch);
+			}
 		});
 
 		const {
@@ -489,11 +510,14 @@ describe('ExperienceToolbarSection', () => {
 			expect.objectContaining({}),
 			expect.stringContaining(MOCK_UPDATE_URL),
 			expect.objectContaining({
-				active: true,
-				name: 'New Experience #1',
-				segmentsEntryId: 'test-segment-id-00',
-				segmentsExperienceId: 'test-experience-id-01'
-			})
+				body: expect.objectContaining({
+					active: true,
+					name: 'New Experience #1',
+					segmentsEntryId: 'test-segment-id-00',
+					segmentsExperienceId: 'test-experience-id-01'
+				})
+			}),
+			expect.any(Function)
 		);
 
 		expect(mockDispatch).toHaveBeenCalledWith(
@@ -514,7 +538,9 @@ describe('ExperienceToolbarSection', () => {
 		window.confirm = jest.fn(() => true);
 
 		const mockDispatch = jest.fn(a => {
-			if (typeof a === 'function') return a(mockDispatch);
+			if (typeof a === 'function') {
+				return a(mockDispatch);
+			}
 		});
 
 		const mockStateForDelete = {
@@ -634,9 +660,12 @@ describe('ExperienceToolbarSection', () => {
 			expect.objectContaining({}),
 			expect.stringContaining(MOCK_DELETE_URL),
 			expect.objectContaining({
-				fragmentEntryLinkIds: '[2000]',
-				segmentsExperienceId: 'test-experience-id-01'
-			})
+				body: expect.objectContaining({
+					fragmentEntryLinkIds: '[2000]',
+					segmentsExperienceId: 'test-experience-id-01'
+				})
+			}),
+			expect.any(Function)
 		);
 	});
 });

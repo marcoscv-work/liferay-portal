@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Portal Vulcan Implementation
 Bundle-SymbolicName: com.liferay.portal.vulcan.impl
-Bundle-Version: 4.0.5
+Bundle-Version: 4.0.6
 Import-Package:\
 	!com.google.errorprone.annotations.*,\
 	!com.google.gson.*,\

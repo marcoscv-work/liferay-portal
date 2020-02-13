@@ -52,7 +52,7 @@ if (resizable) {
 	<table bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" height="100%" width="100%">
 		<tr>
 			<td bgcolor="#FFFFFF" height="100%">
-				<textarea class="lfr-editor-textarea" id="<%= HtmlUtil.escapeAttribute(name) %>" name="<%= HtmlUtil.escapeAttribute(name) %>" style="resize:<%= resizable ? "vertical" : "none" %>"><%= (contents != null) ? HtmlUtil.escape(contents) : StringPool.BLANK %></textarea>
+				<textarea class="lfr-editor-textarea" id="<%= HtmlUtil.escapeAttribute(name) %>" name="<%= HtmlUtil.escapeAttribute(name) %>" style="resize: <%= resizable ? "vertical;" : "none;" %>"><%= (contents != null) ? HtmlUtil.escape(contents) : StringPool.BLANK %></textarea>
 			</td>
 		</tr>
 	</table>
@@ -76,7 +76,8 @@ name = HtmlUtil.escapeJS(name);
 
 		if (window['<%= HtmlUtil.escapeJS(namespace + initMethod) %>']) {
 			data = <%= HtmlUtil.escapeJS(namespace + initMethod) %>();
-		} else {
+		}
+		else {
 			data =
 				'<%= (contents != null) ? HtmlUtil.escapeJS(contents) : StringPool.BLANK %>';
 		}
@@ -142,9 +143,11 @@ name = HtmlUtil.escapeJS(name);
 
 			if (textArea.nodeName.toLowerCase() === 'textarea' && textArea.value) {
 				value = textArea.value;
-			} else if (window['<%= name %>'].instanceReady) {
+			}
+			else if (window['<%= name %>'].instanceReady) {
 				value = document.getElementById('<%= name %>').value;
-			} else {
+			}
+			else {
 				value = getInitialContent();
 			}
 
@@ -228,7 +231,8 @@ name = HtmlUtil.escapeJS(name);
 		if (event.portletId === '<%= portletId %>') {
 			try {
 				window['<%= name %>'].destroy();
-			} catch (e) {}
+			}
+			catch (e) {}
 
 			Liferay.detach('destroyPortlet', destroyInstance);
 		}

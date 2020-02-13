@@ -153,12 +153,13 @@
 		<column name="enabled" type="boolean" />
 		<column name="forceAuthn" type="boolean" />
 		<column name="ldapImportEnabled" type="boolean" />
+		<column name="metadataUpdatedDate" type="Date" />
 		<column name="metadataUrl" type="String" />
 		<column name="metadataXml" type="String" />
-		<column name="metadataUpdatedDate" type="Date" />
 		<column name="name" type="String" />
 		<column name="nameIdFormat" type="String" />
 		<column name="signAuthnRequest" type="boolean" />
+		<column name="unknownUsersAreStrangers" type="boolean" />
 		<column name="userAttributeMappings" type="String" />
 
 		<!-- Finder methods -->

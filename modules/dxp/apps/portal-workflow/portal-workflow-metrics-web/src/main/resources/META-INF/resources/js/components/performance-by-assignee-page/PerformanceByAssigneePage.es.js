@@ -11,7 +11,7 @@
 
 import React, {useMemo} from 'react';
 
-import PromisesResolver from '../../shared/components/request/PromisesResolver.es';
+import PromisesResolver from '../../shared/components/promises-resolver/PromisesResolver.es';
 import {parse} from '../../shared/components/router/queryString.es';
 import {useFetch} from '../../shared/hooks/useFetch.es';
 import {useFilter} from '../../shared/hooks/useFilter.es';
@@ -33,11 +33,11 @@ const PerformanceByAssigneePage = ({query, routeParams}) => {
 	const filterKeys = ['processStep', 'roles'];
 
 	const {
-		dispatch,
 		filterState: {timeRange},
 		filterValues: {roleIds, taskKeys},
+		prefixedKeys,
 		selectedFilters
-	} = useFilter(filterKeys);
+	} = useFilter({filterKeys});
 
 	const {dateEnd, dateStart} =
 		timeRange && timeRange.length ? timeRange[0] : {};
@@ -74,7 +74,7 @@ const PerformanceByAssigneePage = ({query, routeParams}) => {
 	return (
 		<PromisesResolver promises={promises}>
 			<PerformanceByAssigneePage.Header
-				dispatch={dispatch}
+				filterKeys={prefixedKeys}
 				routeParams={{...routeParams, search}}
 				selectedFilters={selectedFilters}
 				totalCount={data.totalCount}

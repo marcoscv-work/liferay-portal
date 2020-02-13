@@ -218,9 +218,12 @@ public class FieldsToDDMFormValuesConverterImpl
 
 			if (number instanceof Double || number instanceof Float) {
 				numberFormat.setMinimumFractionDigits(1);
-			}
 
-			return numberFormat.format(number.doubleValue());
+				return numberFormat.format(number.doubleValue());
+			}
+			else if (fieldValue instanceof Integer) {
+				return numberFormat.format(number.intValue());
+			}
 		}
 
 		return String.valueOf(fieldValue);

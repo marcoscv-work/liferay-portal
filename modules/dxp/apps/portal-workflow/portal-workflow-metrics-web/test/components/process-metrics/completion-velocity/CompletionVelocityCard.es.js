@@ -9,7 +9,7 @@
  * distribution rights of the Software.
  */
 
-import {render, findAllByTestId, findByTestId} from '@testing-library/react';
+import {findAllByTestId, findByTestId, render} from '@testing-library/react';
 import React from 'react';
 
 import CompletionVelocityCard from '../../../../src/main/resources/META-INF/resources/js/components/process-metrics/completion-velocity/CompletionVelocityCard.es';
@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/extend-expect';
 const {processId, query} = {
 	processId: 12345,
 	query:
-		'?filters.completionvelocityUnit%5B0%5D=Days&filters.completiontimeRange%5B0%5D=7'
+		'?filters.completionVelocityUnit%5B0%5D=Days&filters.completionTimeRange%5B0%5D=7'
 };
 
 const data = {

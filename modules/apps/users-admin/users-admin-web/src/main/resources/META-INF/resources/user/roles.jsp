@@ -22,7 +22,7 @@ User selUser = userDisplayContext.getSelectedUser();
 List<Group> groups = new ArrayList<>();
 
 groups.addAll(userDisplayContext.getGroups());
-groups.addAll(userDisplayContext.getInheritedSites());
+groups.addAll(userDisplayContext.getInheritedSiteGroups());
 
 List<Organization> organizations = userDisplayContext.getOrganizations();
 
@@ -145,7 +145,8 @@ String organizationRoleSyncEntitiesEventName = liferayPortletResponse.getNamespa
 
 					if (!searchContainerData.length) {
 						searchContainerData = [];
-					} else {
+					}
+					else {
 						searchContainerData = searchContainerData.split(',');
 					}
 
@@ -864,7 +865,8 @@ String organizationRoleSyncEntitiesEventName = liferayPortletResponse.getNamespa
 						document.<portlet:namespace />fm.<portlet:namespace />deleteGroupRolesRoleIds.value = <portlet:namespace />deleteGroupRolesRoleIds.join(
 							','
 						);
-					} else {
+					}
+					else {
 						rowColumns.push(
 							'<a class="modify-link" data-rowId="' +
 								roleId +
