@@ -111,6 +111,7 @@ SearchBarPortletDisplayContext searchBarPortletDisplayContext = (SearchBarPortle
 									<div class="input-group-inset-item input-group-inset-item-after">
 										<clay:button
 											ariaLabel='<%= LanguageUtil.get(request, "submit") %>'
+											elementClasses="btn-unstyled"
 											icon="search"
 											style="unstyled"
 											type="submit"
