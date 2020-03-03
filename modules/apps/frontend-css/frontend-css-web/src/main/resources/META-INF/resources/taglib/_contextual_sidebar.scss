@@ -15,6 +15,10 @@ $transition-timing-function: ease;
 	width: $contextual-sidebar-width;
 	will-change: transform;
 
+	html.rtl &:not(.contextual-sidebar-visible) {
+		transform: translateX(-100%);
+	}
+
 	&.contextual-sidebar-visible {
 		pointer-events: auto;
 		transform: translateX(0);
@@ -46,6 +50,11 @@ $transition-timing-function: ease;
 		transition: padding-right $transition-timing-function
 			$transition-duration;
 		will-change: padding-right;
+
+		html.rtl & {
+			transition: padding-left $transition-timing-function
+			$transition-duration;
+		}
 	}
 
 	.contextual-sidebar-visible {
