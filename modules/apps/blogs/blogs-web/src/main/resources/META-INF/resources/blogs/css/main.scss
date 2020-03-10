@@ -250,6 +250,29 @@
 		}
 	}
 
+	.form-control.form-control-edit-title {
+		color: #272833;
+		font-size: 60px;
+		line-height: 80px;
+		overflow: hidden;
+		resize: none;
+
+		&::placeholder {
+			color: #b0b4bb;
+		}
+	}
+
+	.form-control.form-control-edit-subtitle {
+		color: #272833;
+		font-size: 32px;
+		font-weight: 200;
+		line-height: 45px;
+
+		&::placeholder {
+			color: #b0b4bb;
+		}
+	}
+
 	.info-bar-container {
 		min-height: 35px;
 		.info-bar-center {
@@ -308,6 +331,16 @@
 		.autofit-col + .autofit-col {
 			padding-left: 0.5rem;
 		}
+	}
+}
+
+.form-control.form-control-unstyled {
+	background: transparent;
+	border-width: 0;
+	box-shadow: none;
+
+	&:focus {
+		box-shadow: none;
 	}
 }
 

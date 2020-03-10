@@ -140,29 +140,18 @@ BlogsGroupServiceSettings blogsGroupServiceSettings = BlogsGroupServiceSettings.
 
 					<div class="col-md-8 col-md-offset-2">
 						<div class="entry-title form-group">
-							<liferay-ui:input-editor
-								contents="<%= HtmlUtil.escape(title) %>"
-								editorName="alloyeditor"
-								name="titleEditor"
-								onChangeMethod="onChangeTitle"
-								placeholder="title"
-								required="<%= true %>"
-								showSource="<%= false %>"
-							>
-								<aui:validator name="required" />
-							</liferay-ui:input-editor>
+
+							<%
+							String onChangeTitle = renderResponse.getNamespace() + "onChangeTitle(event.target.value)";
+							%>
+
+							<aui:input cssClass="form-control-edit-title form-control-unstyled" inlineLabel="left" label="" name="titleEditor" onChange="<%= onChangeTitle %>" placeholder="Title *" required="<%= true %>" showRequiredLabel="<%= true %>" type="textarea" value="<%= HtmlUtil.escape(title) %>" />
 						</div>
 
 						<aui:input name="title" type="hidden" />
 
 						<div class="entry-subtitle">
-							<liferay-ui:input-editor
-								contents="<%= HtmlUtil.escape(subtitle) %>"
-								editorName="alloyeditor"
-								name="subtitleEditor"
-								placeholder="subtitle"
-								showSource="<%= false %>"
-							/>
+							<aui:input cssClass="form-control-edit-subtitle form-control-unstyled" inlineLabel="left" label="" name="subtitleEditor" placeholder="Subtitle" type="text" />
 						</div>
 
 						<aui:input name="subtitle" type="hidden" />
