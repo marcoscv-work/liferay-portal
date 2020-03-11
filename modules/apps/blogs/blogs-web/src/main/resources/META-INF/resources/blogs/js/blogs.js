@@ -367,10 +367,8 @@ AUI.add(
 					var coverImageCaption = window[
 						instance.ns('coverImageCaptionEditor')
 					].getHTML();
-					var subtitle = window[
-						instance.ns('subtitleEditor')
-					].getHTML();
-					var title = window[instance.ns('titleEditor')].getText();
+					var subtitle = window[instance.ns('subtitleEditor')].value;
+					var title = window[instance.ns('titleEditor')].value;
 
 					var automaticURL = instance
 						.one(
