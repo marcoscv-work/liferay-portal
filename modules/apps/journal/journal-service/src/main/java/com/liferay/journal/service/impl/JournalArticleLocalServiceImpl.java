@@ -14,6 +14,7 @@
 
 package com.liferay.journal.service.impl;
 
+import com.liferay.asset.display.page.util.AssetDisplayPageUtil;
 import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetLink;
@@ -41,6 +42,9 @@ import com.liferay.exportimport.kernel.exception.ExportImportContentValidationEx
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.friendly.url.model.FriendlyURLEntry;
 import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
+import com.liferay.info.display.contributor.InfoDisplayContributor;
+import com.liferay.info.display.contributor.InfoDisplayContributorTracker;
+import com.liferay.info.display.contributor.InfoDisplayObjectProvider;
 import com.liferay.journal.configuration.JournalGroupServiceConfiguration;
 import com.liferay.journal.configuration.JournalServiceConfiguration;
 import com.liferay.journal.constants.JournalActivityKeys;
@@ -7627,9 +7631,15 @@ public class JournalArticleLocalServiceImpl
 				cacheable = _journalDefaultTemplateProvider.isCacheable();
 			}
 
+			Map<String, Object> contextObjects =
+				HashMapBuilder.<String, Object>put(
+					"friendlyURLs", _getFriendlyURLMap(article, themeDisplay)
+				).build();
+
 			content = JournalUtil.transform(
 				themeDisplay, tokens, viewMode, languageId, document,
-				portletRequestModel, script, langType, propagateException);
+				portletRequestModel, script, langType, propagateException,
+				contextObjects);
 
 			if (!pageFlow) {
 				JournalServiceConfiguration journalServiceConfiguration =
@@ -8810,6 +8820,56 @@ public class JournalArticleLocalServiceImpl
 		}
 	}
 
+	private Map<String, String> _getFriendlyURLMap(
+			JournalArticle article, ThemeDisplay themeDisplay)
+		throws PortalException {
+
+		Map<String, String> friendlyURLMap = new HashMap<>();
+
+		InfoDisplayContributor infoDisplayContributor =
+			_infoDisplayContributorTracker.getInfoDisplayContributor(
+				JournalArticle.class.getName());
+
+		if (infoDisplayContributor == null) {
+			return friendlyURLMap;
+		}
+
+		InfoDisplayObjectProvider infoDisplayObjectProvider =
+			infoDisplayContributor.getInfoDisplayObjectProvider(
+				article.getResourcePrimKey());
+
+		if ((infoDisplayObjectProvider == null) ||
+			(themeDisplay.getSiteGroup() == null) ||
+			!AssetDisplayPageUtil.hasAssetDisplayPage(
+				themeDisplay.getScopeGroupId(),
+				infoDisplayObjectProvider.getClassNameId(),
+				infoDisplayObjectProvider.getClassPK(),
+				infoDisplayObjectProvider.getClassTypeId())) {
+
+			return friendlyURLMap;
+		}
+
+		StringBundler sb = new StringBundler(2);
+
+		Group group = groupLocalService.getGroup(
+			infoDisplayObjectProvider.getGroupId());
+
+		sb.append(
+			_portal.getGroupFriendlyURL(
+				group.getPublicLayoutSet(), themeDisplay));
+
+		sb.append(infoDisplayContributor.getInfoURLSeparator());
+
+		for (String availableLanguageId : article.getAvailableLanguageIds()) {
+			String urlTitle = infoDisplayObjectProvider.getURLTitle(
+				LocaleUtil.fromLanguageId(availableLanguageId));
+
+			friendlyURLMap.put(availableLanguageId, sb.toString() + urlTitle);
+		}
+
+		return friendlyURLMap;
+	}
+
 	private JournalArticleModelValidator _getModelValidator() {
 		ModelValidator<JournalArticle> modelValidator =
 			ModelValidatorRegistryUtil.getModelValidator(JournalArticle.class);
@@ -8953,6 +9013,9 @@ public class JournalArticleLocalServiceImpl
 
 	@Reference
 	private Http _http;
+
+	@Reference
+	private InfoDisplayContributorTracker _infoDisplayContributorTracker;
 
 	@Reference
 	private JournalArticleResourceLocalService

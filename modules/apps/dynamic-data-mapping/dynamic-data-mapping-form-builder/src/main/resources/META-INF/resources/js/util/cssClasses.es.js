@@ -12,18 +12,4 @@
  * details.
  */
 
-import React from 'react';
-
-export default function CollectionItem({children}) {
-	if (React.Children.count(children) === 0) {
-		return (
-			<div className="page-editor__collection-item">
-				<p className="page-editor__collection-item__title">
-					some title
-				</p>
-			</div>
-		);
-	}
-
-	return children;
-}
+export const CSS_DDM_FIELDSET = 'ddm-fieldset';

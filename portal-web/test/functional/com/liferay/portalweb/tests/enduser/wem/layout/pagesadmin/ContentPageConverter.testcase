@@ -1,8 +1,6 @@
 @component-name = "portal-wcm"
 definition {
 
-	property osgi.module.configuration.file.names = "com.liferay.layout.admin.web.internal.configuration.LayoutConverterConfiguration.config";
-	property osgi.module.configurations = "enabled=B&quot;true&quot;";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Site Pages Administration";
@@ -30,6 +28,7 @@ definition {
 	@priority = "5"
 	test ConvertBasicWidgetPageToContentPage {
 		property portal.acceptance = "true";
+		property portal.upstream = "quarantine";
 
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
@@ -405,6 +404,11 @@ definition {
 			groupName = "Test Site Name",
 			layoutName = "Test Page Name");
 
+		JSONLayout.updateLayoutTemplateOfPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Test Page Name",
+			layoutTemplate = "1 Column");
+
 		JSONLayout.addWidgetToPublicLayout(
 			column = "1",
 			groupName = "Test Site Name",
@@ -412,7 +416,7 @@ definition {
 			widgetName = "Nested Applications");
 
 		JSONLayout.addWidgetToPublicLayout(
-			column = "2",
+			column = "1",
 			groupName = "Test Site Name",
 			layoutName = "Test Page Name",
 			widgetName = "Asset Publisher");
@@ -431,7 +435,7 @@ definition {
 
 		DragAndDrop.dragAndDropPortletToObject(
 			key_portletTitleName = "Asset Publisher",
-			locator1 = "Home#PAGE_COLUMN_PORTLET_COLUMN_2_PORTLET_HEADER",
+			locator1 = "Home#PAGE_COLUMN_PORTLET_COLUMN_1_PORTLET_HEADER",
 			locator2 = "Home#PORTLET_COLUMN_1",
 			value1 = "Asset Publisher");
 
@@ -988,6 +992,7 @@ definition {
 		PageEditor.clickBack();
 
 		AssertTextEquals(
+			key_itemName = "Test Page Name",
 			locator1 = "SitePages#LIST_GROUP_ITEM_PAGE_INFO",
 			value1 = "Conversion Draft");
 

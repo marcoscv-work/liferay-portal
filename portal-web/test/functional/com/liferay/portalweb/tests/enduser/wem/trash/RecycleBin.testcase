@@ -180,11 +180,9 @@ definition {
 			bookmarkURL = "https://www.liferay.com");
 	}
 
-	@ignore = "true"
 	@priority = "3"
 	test RecycleBinMBAttachment {
-
-		// Ignore test until LRQA-56957 is resolved
+		property portal.upstream = "quarantine";
 
 		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "site-name");
 

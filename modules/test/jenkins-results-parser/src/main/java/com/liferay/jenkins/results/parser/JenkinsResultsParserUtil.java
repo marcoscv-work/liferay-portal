@@ -1872,7 +1872,7 @@ public class JenkinsResultsParserUtil {
 				directory.getName() + " is not a directory");
 		}
 
-		String directoryCanonicalPath = getCanonicalPath(directory);
+		String directoryCanonicalPath = getCanonicalPath(directory) + "/";
 		String fileCanonicalPath = getCanonicalPath(file);
 
 		if (fileCanonicalPath.startsWith(directoryCanonicalPath)) {

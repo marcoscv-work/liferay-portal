@@ -12,23 +12,32 @@
  * details.
  */
 
-package com.liferay.redirect.web.internal.configuration;
+import {config} from '../config/index';
+import serviceFetch from './serviceFetch';
 
-import aQute.bnd.annotation.metatype.Meta;
-
-import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
-
-/**
- * @author Alejandro Tardín
- */
-@ExtendedObjectClassDefinition(generateUI = false)
-@Meta.OCD(
-	id = "com.liferay.redirect.web.internal.configuration.FFRedirectConfiguration",
-	localization = "content/Language", name = "redirect-configuration-name"
-)
-public interface FFRedirectConfiguration {
-
-	@Meta.AD(deflt = "false", name = "enabled", required = false)
-	public boolean enabled();
-
-}
+export default {
+	/**
+	 * Get an asset's value
+	 * @param {object} options
+	 * @param {string} options.layoutObjectReference
+	 * @param {function} options.onNetworkStatus
+	 */
+	getCollectionField({
+		collection,
+		onNetworkStatus,
+		segmentsExperienceId,
+		size,
+	}) {
+		return serviceFetch(
+			config.getCollectionFieldURL,
+			{
+				body: {
+					layoutObjectReference: JSON.stringify(collection),
+					segmentsExperienceId,
+					size,
+				},
+			},
+			onNetworkStatus
+		);
+	},
+};

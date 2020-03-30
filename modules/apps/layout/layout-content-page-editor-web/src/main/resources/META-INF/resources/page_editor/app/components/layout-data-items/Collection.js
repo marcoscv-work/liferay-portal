@@ -12,9 +12,12 @@
  * details.
  */
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {COLLECTION_LIST_FORMATS} from '../../config/constants/collectionListFormats';
+import CollectionService from '../../services/CollectionService';
+import InfoItemService from '../../services/InfoItemService';
+import {useDispatch, useSelector} from '../../store/index';
 import {ControlsIdConverterContextProvider} from '../ControlsIdConverterContext';
 
 const COLLECTION_ID_DIVIDER = '$';
@@ -44,7 +47,7 @@ function fromControlsId(controlsItemId) {
 
 	const [, itemId] = controlsItemId.split(COLLECTION_ID_DIVIDER);
 
-	return itemId;
+	return itemId || controlsItemId;
 }
 
 const NotMappedMessage = () => (
@@ -55,8 +58,10 @@ const NotMappedMessage = () => (
 
 const Grid = ({
 	child,
+	collection,
+	collectionFields,
 	collectionId,
-	collectionLength = 3,
+	collectionLength,
 	numberOfColumns,
 	numberOfItems,
 }) => {
@@ -79,8 +84,9 @@ const Grid = ({
 							<ControlsIdConverterContextProvider
 								key={index}
 								value={{
-									collectionFields: [],
-									collectionItem: {},
+									collectionFields,
+									collectionItem:
+										collection[i * numberOfColumns + j],
 									fromControlsId,
 									toControlsId: getToControlsId(
 										collectionId,
@@ -88,9 +94,7 @@ const Grid = ({
 									),
 								}}
 							>
-								<div className="page-editor__collection__block">
-									{React.cloneElement(child)}
-								</div>
+								{React.cloneElement(child)}
 							</ControlsIdConverterContextProvider>
 						)}
 					</div>
@@ -106,22 +110,27 @@ const Grid = ({
 	return createRows();
 };
 
-const Stack = ({child, collectionId, collectionLength = 3, numberOfItems}) => {
+const Stack = ({
+	child,
+	collection,
+	collectionFields,
+	collectionId,
+	collectionLength,
+	numberOfItems,
+}) => {
 	const maxNumberOfItems = Math.min(collectionLength, numberOfItems);
 
 	return Array.from({length: maxNumberOfItems}).map((_element, idx) => (
 		<ControlsIdConverterContextProvider
 			key={idx}
 			value={{
-				collectionFields: [],
-				collectionItem: {},
+				collectionFields,
+				collectionItem: collection[idx],
 				fromControlsId,
 				toControlsId: getToControlsId(collectionId, idx),
 			}}
 		>
-			<div className="page-editor__collection__block">
-				{React.cloneElement(child)}
-			</div>
+			{React.cloneElement(child)}
 		</ControlsIdConverterContextProvider>
 	));
 };
@@ -135,12 +144,70 @@ const Collection = React.forwardRef(({children, item}, ref) => {
 			? Grid
 			: Stack;
 
+	const dispatch = useDispatch();
+
+	const segmentsExperienceId = useSelector(
+		state => state.segmentsExperienceId
+	);
+
+	const [collection, setCollection] = useState({
+		items: [],
+		length: 0,
+	});
+
+	useEffect(() => {
+		if (collectionConfig.collection) {
+			CollectionService.getCollectionField({
+				collection: collectionConfig.collection,
+				onNetworkStatus: dispatch,
+				segmentsExperienceId,
+				size: collectionConfig.numberOfItems,
+			})
+				.then(response => {
+					setCollection(response);
+				})
+				.catch(error => {
+					if (process.env.NODE_ENV === 'development') {
+						console.error(error);
+					}
+				});
+		}
+	}, [
+		collectionConfig.collection,
+		collectionConfig.numberOfItems,
+		dispatch,
+		segmentsExperienceId,
+	]);
+
+	const [collectionFields, setCollectionFields] = useState([]);
+
+	useEffect(() => {
+		if (collectionConfig.collection) {
+			InfoItemService.getAvailableStructureMappingFields({
+				classNameId: collectionConfig.collection.itemType,
+				classTypeId: collectionConfig.collection.itemSubtype,
+				onNetworkStatus: dispatch,
+			})
+				.then(({infoDisplayFields}) => {
+					setCollectionFields(infoDisplayFields);
+				})
+				.catch(error => {
+					if (process.env.NODE_ENV === 'development') {
+						console.error(error);
+					}
+				});
+		}
+	}, [dispatch, collectionConfig.collection]);
+
 	return (
 		<div className="page-editor__collection" ref={ref}>
 			{collectionIsMapped(collectionConfig) ? (
 				<ContentComponent
 					child={child}
+					collection={collection.items}
+					collectionFields={collectionFields}
 					collectionId={item.itemId}
+					collectionLength={collection.items.length}
 					numberOfColumns={collectionConfig.numberOfColumns}
 					numberOfItems={collectionConfig.numberOfItems}
 				/>

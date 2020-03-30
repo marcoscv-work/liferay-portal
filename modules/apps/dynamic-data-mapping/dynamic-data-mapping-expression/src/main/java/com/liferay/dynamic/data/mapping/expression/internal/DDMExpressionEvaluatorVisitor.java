@@ -48,15 +48,23 @@ import com.liferay.dynamic.data.mapping.expression.internal.parser.DDMExpression
 import com.liferay.dynamic.data.mapping.expression.internal.parser.DDMExpressionParser.NumericVariableContext;
 import com.liferay.dynamic.data.mapping.expression.internal.parser.DDMExpressionParser.SubtractionExpressionContext;
 import com.liferay.dynamic.data.mapping.expression.internal.parser.DDMExpressionParser.ToFloatingPointArrayContext;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+
+import java.lang.reflect.Method;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -193,40 +201,44 @@ public class DDMExpressionEvaluatorVisitor
 				_ddmExpressionFieldAccessor);
 		}
 
-		Object[] params = getFunctionParameters(context.functionParameters());
+		Optional<Method> methodOptional = Stream.of(
+			_getHierarchicalMethods(ddmExpressionFunction.getClass())
+		).filter(
+			method -> StringUtil.equals("apply", method.getName())
+		).findFirst();
 
-		if (params.length == 0) {
-			DDMExpressionFunction.Function0 function0 =
-				(DDMExpressionFunction.Function0)ddmExpressionFunction;
-
-			return function0.apply();
-		}
-		else if (params.length == 1) {
-			DDMExpressionFunction.Function1 function1 =
-				(DDMExpressionFunction.Function1)ddmExpressionFunction;
-
-			return function1.apply(params[0]);
-		}
-		else if (params.length == 2) {
-			DDMExpressionFunction.Function2 function2 =
-				(DDMExpressionFunction.Function2)ddmExpressionFunction;
-
-			return function2.apply(params[0], params[1]);
-		}
-		else if (params.length == 3) {
-			DDMExpressionFunction.Function3 function3 =
-				(DDMExpressionFunction.Function3)ddmExpressionFunction;
-
-			return function3.apply(params[0], params[1], params[2]);
-		}
-		else if (params.length == 4) {
-			DDMExpressionFunction.Function4 function4 =
-				(DDMExpressionFunction.Function4)ddmExpressionFunction;
-
-			return function4.apply(params[0], params[1], params[2], params[3]);
+		if (!methodOptional.isPresent()) {
+			return null;
 		}
 
-		return null;
+		Method method = methodOptional.get();
+
+		method.setAccessible(true);
+
+		try {
+			Class<?>[] parameterTypes = method.getParameterTypes();
+
+			if ((parameterTypes.length == 1) &&
+				(parameterTypes[0] == new Object[0].getClass())) {
+
+				return method.invoke(
+					ddmExpressionFunction,
+					new Object[] {
+						getFunctionParameters(context.functionParameters())
+					});
+			}
+
+			return method.invoke(
+				ddmExpressionFunction,
+				getFunctionParameters(context.functionParameters()));
+		}
+		catch (Exception exception) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(exception, exception);
+			}
+
+			return null;
+		}
 	}
 
 	@Override
@@ -529,6 +541,23 @@ public class DDMExpressionEvaluatorVisitor
 
 		return (T)parseTree.accept(this);
 	}
+
+	private Method[] _getHierarchicalMethods(Class<?> clazz) {
+		Set<Method> methods = new HashSet<>();
+
+		if (clazz.getSuperclass() != null) {
+			Collections.addAll(
+				methods, _getHierarchicalMethods(clazz.getSuperclass()));
+		}
+
+		Collections.addAll(methods, clazz.getDeclaredMethods());
+		Collections.addAll(methods, clazz.getMethods());
+
+		return methods.toArray(new Method[0]);
+	}
+
+	private static Log _log = LogFactoryUtil.getLog(
+		DDMExpressionEvaluatorVisitor.class);
 
 	private final DDMExpressionActionHandler _ddmExpressionActionHandler;
 	private final DDMExpressionFieldAccessor _ddmExpressionFieldAccessor;

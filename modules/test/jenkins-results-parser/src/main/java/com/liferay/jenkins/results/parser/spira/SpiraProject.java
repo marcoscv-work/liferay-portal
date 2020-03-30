@@ -56,6 +56,10 @@ public class SpiraProject extends BaseSpiraArtifact {
 		return spiraProjects.get(0);
 	}
 
+	public Integer getProjectTemplateID() {
+		return jsonObject.getInt("ProjectTemplateId");
+	}
+
 	public SpiraRelease getSpiraReleaseByID(int releaseID) {
 		List<SpiraRelease> spiraReleases = SpiraRelease.getSpiraReleases(
 			this,
@@ -261,6 +265,11 @@ public class SpiraProject extends BaseSpiraArtifact {
 	public List<SpiraTestSet> getSpiraTestSetsByPath(String testSetPath) {
 		return SpiraTestSet.getSpiraTestSets(
 			this, new SearchQuery.SearchParameter("Path", testSetPath));
+	}
+
+	@Override
+	public String getType() {
+		return "build";
 	}
 
 	protected static final String ID_KEY = "ProjectId";

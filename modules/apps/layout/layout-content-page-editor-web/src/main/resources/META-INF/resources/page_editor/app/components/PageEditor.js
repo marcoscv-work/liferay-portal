@@ -34,6 +34,7 @@ import {PAGE_TYPES} from '../config/constants/pageTypes';
 import {config} from '../config/index';
 import {useDispatch, useSelector} from '../store/index';
 import moveItem from '../thunks/moveItem';
+import {DragAndDropContextProvider} from '../utils/useDragAndDrop';
 import {
 	useActivationOrigin,
 	useActiveItemId,
@@ -44,7 +45,7 @@ import DragPreview from './DragPreview';
 import {EditableDecorationProvider} from './fragment-content/EditableDecorationContext';
 import {EditableProcessorContextProvider} from './fragment-content/EditableProcessorContext';
 import {
-	CollectionItem,
+	CollectionItemWithControls,
 	CollectionWithControls,
 	ColumnWithControls,
 	ContainerWithControls,
@@ -53,11 +54,10 @@ import {
 	Root,
 	RowWithControls,
 } from './layout-data-items/index';
-import {DragDropManager} from './useDragAndDrop';
 
 const LAYOUT_DATA_ITEMS = {
 	[LAYOUT_DATA_ITEM_TYPES.collection]: CollectionWithControls,
-	[LAYOUT_DATA_ITEM_TYPES.collectionItem]: CollectionItem,
+	[LAYOUT_DATA_ITEM_TYPES.collectionItem]: CollectionItemWithControls,
 	[LAYOUT_DATA_ITEM_TYPES.column]: ColumnWithControls,
 	[LAYOUT_DATA_ITEM_TYPES.container]: ContainerWithControls,
 	[LAYOUT_DATA_ITEM_TYPES.dropZone]: DropZoneWithControls,
@@ -228,13 +228,13 @@ export default function PageEditor({mainItem, withinMasterPage = false}) {
 
 				<EditableProcessorContextProvider>
 					<EditableDecorationProvider>
-						<DragDropManager>
+						<DragAndDropContextProvider>
 							<LayoutDataItem
 								fragmentEntryLinks={fragmentEntryLinks}
 								item={mainItem}
 								layoutData={layoutData}
 							/>
-						</DragDropManager>
+						</DragAndDropContextProvider>
 					</EditableDecorationProvider>
 				</EditableProcessorContextProvider>
 			</div>

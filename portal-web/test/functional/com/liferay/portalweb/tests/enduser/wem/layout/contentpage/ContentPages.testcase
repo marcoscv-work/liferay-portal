@@ -197,6 +197,61 @@ definition {
 		}
 	}
 
+	@description = "This is a test for LPS-109590. Assert no Section fragment is outside when add a Row fragment to content page. Can nest a Row fragment or multiple Row inside one column of another one."
+	@priority = "5"
+	test AddRowToColumnOfAnotherRow {
+		task ("Add a content page") {
+			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+			ContentPages.addPage(pageName = "Test Content Page Name");
+		}
+
+		task ("Assert add Row without Section") {
+			PageEditor.addLayoutRow();
+
+			AssertElementNotPresent(
+				key_elementType = "Section",
+				key_position = "1",
+				locator1 = "PageEditor#LAYOUT_ELEMENTS_HEADER");
+		}
+
+		task ("Assert add the second Row in column 1 of the first Row") {
+			DragAndDrop.javaScriptDragAndDropToObject(
+				key_columnNumber = "1",
+				key_elementType = "Row",
+				key_position = "1",
+				locator1 = "PageEditor#SECTION_BUILDER_LAYOUT_ELEMENTS",
+				locator2 = "PageEditor#ROW_COLUMN",
+				value1 = "");
+
+			PageEditor.waitForAutoSave();
+
+			AssertElementPresent(
+				key_columnNumber = "1",
+				key_elementHeader = "/div[contains(@class,'page-editor__topper')][1]/div[contains(.,'Row')]//li[contains(@class,'title')]",
+				key_position = "1",
+				locator1 = "PageEditor#ROW_COLUMN_NESTED_ELEMENT");
+		}
+
+		task ("Assert add the third Row in column 1 of the first Row") {
+			DragAndDrop.javaScriptDragAndDropToObject(
+				key_columnNumber = "1",
+				key_elementType = "Row",
+				key_position = "1",
+				locator1 = "PageEditor#SECTION_BUILDER_LAYOUT_ELEMENTS",
+				locator2 = "PageEditor#ROW_COLUMN",
+				value1 = "");
+
+			PageEditor.waitForAutoSave();
+
+			AssertElementPresent(
+				key_columnNumber = "1",
+				key_elementHeader = "/div[contains(@class,'page-editor__topper')][2]/div[contains(.,'Row')]//li[contains(@class,'title')]",
+				key_position = "1",
+				locator1 = "PageEditor#ROW_COLUMN_NESTED_ELEMENT");
+		}
+	}
+
 	@description = "This is a test for LPS-102887. A user can access content in a web content display widget through content panel"
 	@priority = "5"
 	test CanAccessContentPanel {
@@ -977,6 +1032,70 @@ definition {
 			webContentTitle = "WC WebContent Title Edit");
 	}
 
+	@description = "This is a test for LPS-109169. Topper only visible when the element is selected but not hover."
+	@priority = "5"
+	test HeaderOnlyShownWhenElementSelected {
+		task ("Add a content page") {
+			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+			ContentPages.addPage(pageName = "Test Content Page Name");
+		}
+
+		task ("Add a Heading fragment and an Asset Publisher portlet to page") {
+			PageEditor.addFragment(
+				collectionName = "Basic Components",
+				fragmentName = "Heading");
+
+			PageEditor.addWidget(portletName = "Asset Publisher");
+		}
+
+		task ("Assert only header of Heading shown when Heading selected") {
+			if (IsNotVisible(key_fragmentName = "Heading", locator1 = "Fragment#FRAGMENT_HEADER")) {
+				Click.clickNoWaitForVisible(
+					key_fragmentName = "Heading",
+					locator1 = "Fragment#FRAGMENT_HEADER");
+			}
+
+			AssertVisible(
+				key_fragmentName = "Heading",
+				locator1 = "Fragment#FRAGMENT_HEADER");
+
+			AssertNotVisible(
+				key_fragmentName = "Asset Publisher",
+				locator1 = "Fragment#FRAGMENT_HEADER");
+
+			MouseOver.mouseOverInvisible(
+				key_fragmentName = "Asset Publisher",
+				locator1 = "Fragment#FRAGMENT_HEADER");
+
+			AssertNotVisible(
+				key_fragmentName = "Asset Publisher",
+				locator1 = "Fragment#FRAGMENT_HEADER");
+		}
+
+		task ("Assert only header of Asset Publisher shown when Asset Publisher selected") {
+			Click.clickNoWaitForVisible(
+				key_fragmentName = "Asset Publisher",
+				locator1 = "Fragment#FRAGMENT_HEADER");
+
+			AssertVisible(
+				key_fragmentName = "Asset Publisher",
+				locator1 = "Fragment#FRAGMENT_HEADER");
+
+			AssertNotVisible(
+				key_fragmentName = "Heading",
+				locator1 = "Fragment#FRAGMENT_HEADER");
+
+			MouseOver.mouseOverInvisible(
+				key_fragmentName = "Heading",
+				locator1 = "Fragment#FRAGMENT_HEADER");
+
+			AssertNotVisible(
+				key_fragmentName = "Heading",
+				locator1 = "Fragment#FRAGMENT_HEADER");
+		}
+	}
+
 	@description = "This is a test for LPS-107285. When the Section fragment is duplicated, the configuration of it and its components should also be duplicated."
 	@priority = "4"
 	test ViewConfigurationDuplicatedWhenDuplicateSectionWithHeading {
@@ -1175,6 +1294,92 @@ definition {
 			Click(locator1 = "PageEditor#FRAGMENT_DROP_TARGET");
 
 			AssertElementNotPresent(locator1 = "PageEditor#CONTENT_PAGE_DISABLED_POPOVER");
+		}
+	}
+
+	@description = "This is a test for LPS-104629. The header of fragment selected can reach the border of the management toolbar."
+	@priority = "5"
+	test ViewHeaderOfFragmentMoveInsideBodyWhenReachTheManagementToolbar {
+		task ("Add a content page") {
+			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+			ContentPages.addPage(pageName = "Test Content Page Name");
+		}
+
+		task ("Add Image, Card and HTML fragments to page") {
+			for (var fragmentName : list "Image,Card,HTML") {
+				PageEditor.addFragment(
+					collectionName = "Basic Components",
+					fragmentName = "${fragmentName}");
+			}
+		}
+
+		task ("Assert Header of Card is shown over body when doesn't reach the management toolbar") {
+			ScrollWebElementIntoView(
+				key_fragmentName = "Card",
+				locator1 = "Fragment#FRAGMENT_HEADER");
+
+			Click.clickNoWaitForVisible(
+				key_fragmentName = "Card",
+				locator1 = "Fragment#FRAGMENT_HEADER");
+
+			AssertElementNotPresent(
+				key_fragmentName = "Card",
+				locator1 = "Fragment#FRAGMENT_HEADER_INSET_STYLE");
+		}
+
+		task ("Assert Header of Card moves inside body when reach the management toolbar") {
+			ScrollWebElementIntoView(
+				key_fragmentName = "Image",
+				locator1 = "Fragment#FRAGMENT_HEADER");
+
+			AssertElementPresent(
+				key_fragmentName = "Card",
+				locator1 = "Fragment#FRAGMENT_HEADER_INSET_STYLE");
+		}
+	}
+
+	@description = "This is a test for LPS-104629. The header of widget selected can reach the border of the management toolbar."
+	@priority = "4"
+	test ViewHeaderOfWidgetMoveInsideBodyWhenReachTheManagementToolbar {
+		task ("Add a content page") {
+			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+			ContentPages.addPage(pageName = "Test Content Page Name");
+		}
+
+		task ("Add My Sites, Documents and Media, Blogs and Asset Publisher widgets to page") {
+			for (var portletName : list "My Sites,Documents and Media,Blogs") {
+				PageEditor.addWidget(portletName = "${portletName}");
+
+				Refresh();
+			}
+
+			PageEditor.addWidget(portletName = "Asset Publisher");
+		}
+
+		task ("Assert Header of Blogs is shown over body when doesn't reach the management toolbar") {
+			ScrollWebElementIntoView(
+				key_fragmentName = "Blogs",
+				locator1 = "Fragment#FRAGMENT_HEADER");
+
+			Click.clickNoWaitForVisible(
+				key_fragmentName = "Blogs",
+				locator1 = "Fragment#FRAGMENT_HEADER");
+
+			AssertElementNotPresent(
+				key_fragmentName = "Blogs",
+				locator1 = "Fragment#FRAGMENT_HEADER_INSET_STYLE");
+		}
+
+		task ("Assert Header of Blogs moves inside body when reach the management toolbar") {
+			ScrollWebElementIntoView(
+				key_fragmentName = "My Sites",
+				locator1 = "Fragment#FRAGMENT_HEADER");
+
+			AssertElementPresent(
+				key_fragmentName = "Blogs",
+				locator1 = "Fragment#FRAGMENT_HEADER_INSET_STYLE");
 		}
 	}
 

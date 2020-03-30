@@ -25,7 +25,7 @@ import com.liferay.portal.kernel.security.permission.UserBag;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.util.PropsValues;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -55,7 +55,7 @@ public class LiberalPermissionChecker implements PermissionChecker {
 
 	@Override
 	public Map<Object, Object> getPermissionChecksMap() {
-		return Collections.emptyMap();
+		return new HashMap<>();
 	}
 
 	@Override

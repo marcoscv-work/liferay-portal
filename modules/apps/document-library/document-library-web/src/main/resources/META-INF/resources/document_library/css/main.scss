@@ -314,19 +314,8 @@ $productMenuWidth: 320px;
 		margin: 0 0 0.5em 0.5em;
 	}
 
-	img.locked-icon,
-	img.shortcut-icon {
-		bottom: 10px;
-		position: absolute;
-		z-index: 10;
-	}
-
-	img.locked-icon {
-		right: -10px;
-	}
-
-	img.shortcut-icon {
-		left: -5px;
+	.state-icon {
+		color: $secondary;
 	}
 
 	.button-holder.toolbar {

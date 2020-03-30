@@ -75,19 +75,19 @@ public class FragmentEntryLinkRichTextEditorConfigContributor
 		sb.append(getAllowedContentTable());
 		sb.append(" span[*](*){*}; ");
 
-		jsonObject.put(
-			"allowedContent", sb.toString()
-		).put(
-			"enterMode", 2
-		).put(
-			"extraPlugins", getExtraPluginsLists()
-		);
-
 		PortletURL itemSelectorURL = _itemSelector.getItemSelectorURL(
 			requestBackedPortletURLFactory, "_EDITOR_NAME_selectItem",
 			getImageItemSelectorCriterion(), getURLItemSelectorCriterion());
 
 		jsonObject.put(
+			"allowedContent", sb.toString()
+		).put(
+			"documentBrowseLinkUrl", itemSelectorURL.toString()
+		).put(
+			"enterMode", 2
+		).put(
+			"extraPlugins", getExtraPluginsLists()
+		).put(
 			"filebrowserImageBrowseLinkUrl", itemSelectorURL.toString()
 		).put(
 			"filebrowserImageBrowseUrl", itemSelectorURL.toString()
@@ -231,8 +231,19 @@ public class FragmentEntryLinkRichTextEditorConfigContributor
 		);
 	}
 
+	protected JSONObject getToolbarsStylesSelectionsImageJSONObject() {
+		return JSONUtil.put(
+			"buttons", JSONUtil.putAll("imageLeft", "imageRight")
+		).put(
+			"name", "image"
+		).put(
+			"test", "AlloyEditor.SelectionTest.image"
+		);
+	}
+
 	protected JSONArray getToolbarsStylesSelectionsJSONArray(Locale locale) {
 		return JSONUtil.putAll(
+			getToolbarsStylesSelectionsImageJSONObject(),
 			getToolbarsStylesSelectionsLinkJSONObject(),
 			getToolbarsStylesSelectionsTextJSONObject(locale));
 	}

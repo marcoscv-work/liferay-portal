@@ -12,7 +12,8 @@
  * details.
  */
 
-export {default as CollectionItem} from './CollectionItem';
+export {default as Collection} from './Collection';
+export {default as CollectionItemWithControls} from './CollectionItemWithControls';
 export {default as CollectionWithControls} from './CollectionWithControls';
 export {default as Column} from './Column';
 export {default as ColumnWithControls} from './ColumnWithControls';

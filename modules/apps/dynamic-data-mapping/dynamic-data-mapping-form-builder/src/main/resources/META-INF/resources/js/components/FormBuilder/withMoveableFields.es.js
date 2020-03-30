@@ -12,19 +12,26 @@
  * details.
  */
 
-import {FormSupport} from 'dynamic-data-mapping-form-renderer';
+import {FormSupport, PagesVisitor} from 'dynamic-data-mapping-form-renderer';
 import dom from 'metal-dom';
 import {DragDrop} from 'metal-drag-drop';
 import Component from 'metal-jsx';
 
+import {CSS_DDM_FIELDSET} from '../../util/cssClasses.es';
+import {
+	disableFieldSetDragSources,
+	disableFieldSetDropTargets,
+} from '../../util/dragAndDrop.es';
+import {getParentFieldSet} from '../../util/fieldSupport.es';
 import formBuilderProps from './props.es';
 
 const withMoveableFields = ChildComponent => {
 	class MoveableFields extends Component {
 		createDragAndDrop() {
 			this._dragAndDrop = new DragDrop({
-				sources: '.moveable .ddm-drag',
-				targets: '.moveable .ddm-target',
+				sources: '.moveable .ddm-drag:not([data-drag-disabled="true"])',
+				targets:
+					'.moveable .ddm-target:not([data-drop-disabled="true"])',
 				useShim: false,
 			});
 
@@ -66,7 +73,33 @@ const withMoveableFields = ChildComponent => {
 		}
 
 		rendered() {
+			const {pages} = this.props;
+
+			disableFieldSetDragSources(this.element, pages);
+			disableFieldSetDropTargets(this.element, pages);
+
+			this._decorateFieldSets();
 			this._refreshDragAndDrop();
+		}
+
+		_decorateFieldSets() {
+			const {pages} = this.props;
+			const visitor = new PagesVisitor(pages);
+
+			visitor.visitFields(field => {
+				const parentFieldSet = getParentFieldSet(
+					pages,
+					field.fieldName
+				);
+
+				if (parentFieldSet) {
+					const parentFieldSetNode = this.element.querySelector(
+						`.ddm-field-container[data-field-name="${parentFieldSet.fieldName}"]`
+					);
+
+					parentFieldSetNode.classList.add(CSS_DDM_FIELDSET);
+				}
+			});
 		}
 
 		_getClosestParent(node) {
@@ -88,8 +121,6 @@ const withMoveableFields = ChildComponent => {
 			}
 
 			if (target) {
-				source.innerHTML = '';
-
 				const sourceFieldNode = dom.closest(
 					source,
 					'.ddm-field-container'
@@ -101,6 +132,12 @@ const withMoveableFields = ChildComponent => {
 					targetFieldName = target.dataset.fieldName;
 				}
 
+				const sourceFieldName = sourceFieldNode.dataset.fieldName;
+
+				if (sourceFieldName === targetFieldName) {
+					return;
+				}
+
 				let targetParentFieldName;
 				const targetParentFieldNode = this._getClosestParent(target);
 
@@ -110,7 +147,7 @@ const withMoveableFields = ChildComponent => {
 				}
 
 				this._handleFieldMoved({
-					sourceFieldName: sourceFieldNode.dataset.fieldName,
+					sourceFieldName,
 					targetFieldName,
 					targetIndexes: FormSupport.getIndexes(target.parentElement),
 					targetParentFieldName,
