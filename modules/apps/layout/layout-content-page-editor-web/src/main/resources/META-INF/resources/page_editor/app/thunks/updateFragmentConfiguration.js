@@ -12,47 +12,33 @@
  * details.
  */
 
-import updateEditableValues from '../actions/updateEditableValues';
-import updateFragmentEntryLinkContent from '../actions/updateFragmentEntryLinkContent';
+import updateFragmentEntryLinkConfiguration from '../actions/updateFragmentEntryLinkConfiguration';
 import {FREEMARKER_FRAGMENT_ENTRY_PROCESSOR} from '../config/constants/freemarkerFragmentEntryProcessor';
 import FragmentService from '../services/FragmentService';
 
 export default function updateFragmentConfiguration({
 	configurationValues,
 	fragmentEntryLink,
-	prefixedSegmentsExperienceId,
-	segmentsExperienceId,
+	isUndo = false,
 }) {
 	const {editableValues, fragmentEntryLinkId} = fragmentEntryLink;
 
 	const nextEditableValues = {
 		...editableValues,
-		[FREEMARKER_FRAGMENT_ENTRY_PROCESSOR]: prefixedSegmentsExperienceId
-			? {
-					...editableValues[FREEMARKER_FRAGMENT_ENTRY_PROCESSOR],
-					[prefixedSegmentsExperienceId]: configurationValues,
-			  }
-			: configurationValues,
+		[FREEMARKER_FRAGMENT_ENTRY_PROCESSOR]: configurationValues,
 	};
 
-	return dispatch => {
+	return (dispatch) => {
 		return FragmentService.updateConfigurationValues({
 			configurationValues: nextEditableValues,
 			fragmentEntryLinkId,
 			onNetworkStatus: dispatch,
-		}).then(({content, editableValues}) => {
+		}).then(({fragmentEntryLink, layoutData}) => {
 			dispatch(
-				updateEditableValues({
-					editableValues,
-					fragmentEntryLinkId,
-					segmentsExperienceId,
-				})
-			);
-
-			dispatch(
-				updateFragmentEntryLinkContent({
-					content,
-					fragmentEntryLinkId,
+				updateFragmentEntryLinkConfiguration({
+					fragmentEntryLink,
+					isUndo,
+					layoutData,
 				})
 			);
 		});

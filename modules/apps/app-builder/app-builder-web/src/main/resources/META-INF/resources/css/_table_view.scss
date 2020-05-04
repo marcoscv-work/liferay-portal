@@ -1,5 +1,14 @@
 .app-builder-table-view {
 	.data-layout-builder-sidebar {
+		background: white;
+		border-top-width: 0;
+		display: flex;
+		flex-flow: column;
+		height: 100%;
+		position: fixed;
+		right: 0;
+		top: 120px;
+
 		.sidebar-header {
 			padding-bottom: 1rem;
 

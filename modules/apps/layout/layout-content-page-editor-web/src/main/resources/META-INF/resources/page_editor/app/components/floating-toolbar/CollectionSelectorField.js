@@ -20,12 +20,15 @@ import CollectionSelector from '../../../common/components/CollectionSelector';
 import {ConfigurationFieldPropTypes} from '../../../prop-types/index';
 
 export const CollectionSelectorField = ({field, onValueSelect, value}) => {
+	const {typeOptions = {}} = field;
+
 	return (
 		<ClayForm.Group small>
 			<CollectionSelector
 				collectionTitle={value.title}
+				itemSelectorURL={typeOptions.infoListSelectorURL}
 				label={field.label}
-				onCollectionSelect={collection => {
+				onCollectionSelect={(collection) => {
 					onValueSelect(field.name, collection);
 				}}
 			></CollectionSelector>

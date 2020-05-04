@@ -55,4 +55,8 @@ public interface DataDefinitionContentType {
 			groupId, getPortletResourceName(), groupId, actionId);
 	}
 
+	public default boolean isDataRecordCollectionPermissionCheckingEnabled() {
+		return false;
+	}
+
 }

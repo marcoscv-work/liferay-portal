@@ -73,11 +73,23 @@ definition {
 			locator1 = "Wiki#FRONTPAGE_DEFAULT_MESSAGE",
 			value1 = "This page is empty. Edit it to add some text.");
 
-		WikiEntry.selectPageFormat(pageFormat = "HTML");
+		Panel.expandPanel(panel = "Configuration");
 
-		WikiEntry.confirmHTML();
+		SelectNoError(
+			locator1 = "Wiki#ADD_PAGE_FORMAT_DROPDOWN",
+			value1 = "HTML");
 
-		AlloyEditor.addContent(content = '''<!DOCTYPE html> <html lang="en"> <body> <h1>My First Heading</h1> <p>My first paragraph.</p> </body> </html>''');
+		AssertConfirm(value1 = "You may lose some formatting when switching from Creole to HTML. Do you want to continue?");
+
+		Click(locator1 = "CKEditor#TOOLBAR_SOURCE_BUTTON");
+
+		var wikiPageContent = '''<!DOCTYPE html> <html lang="en"> <body> <h1>My First Heading</h1> <p>My first paragraph.</p> </body> </html>''';
+
+		Type(
+			locator1 = "CKEditor#BODY_FIELD_SOURCE_ON",
+			value1 = "${wikiPageContent}");
+
+		SelectFrame(value1 = "relative=top");
 
 		PortletEntry.publish();
 
@@ -110,7 +122,15 @@ definition {
 			locator1 = "Link#EDIT",
 			value1 = "Edit");
 
-		AlloyEditor.addContent(content = '''<!DOCTYPE html> <html lang="en"> <body> <h1>Edited My First Heading</h1> <p>Edited My first paragraph.</p> </body> </html>''');
+		Click(locator1 = "CKEditor#TOOLBAR_SOURCE_BUTTON");
+
+		var wikiPageContent = '''<!DOCTYPE html> <html lang="en"> <body> <h1>Edited My First Heading</h1> <p>Edited My first paragraph.</p> </body> </html>''';
+
+		Type(
+			locator1 = "CKEditor#BODY_FIELD_SOURCE_ON",
+			value1 = "${wikiPageContent}");
+
+		SelectFrame(value1 = "relative=top");
 
 		PortletEntry.publish();
 
@@ -140,13 +160,23 @@ definition {
 			locator1 = "Link#ADD_CHILD_PAGE",
 			value1 = "Add Child Page");
 
-		WikiEntry.selectPageFormat(pageFormat = "HTML");
-
-		WikiEntry.confirmHTML();
-
 		WikiEntry.addPageTitle(wikiPageTitle = "Wiki FrontPage Child Page Title");
 
-		AlloyEditor.addSourceContent(content = "${welcomeToLiferay}");
+		Panel.expandPanel(panel = "Configuration");
+
+		SelectNoError(
+			locator1 = "Wiki#ADD_PAGE_FORMAT_DROPDOWN",
+			value1 = "HTML");
+
+		AssertConfirm(value1 = "You may lose some formatting when switching from Creole to HTML. Do you want to continue?");
+
+		Click(locator1 = "CKEditor#TOOLBAR_SOURCE_BUTTON");
+
+		Type(
+			locator1 = "CKEditor#BODY_FIELD_SOURCE_ON",
+			value1 = "${welcomeToLiferay}");
+
+		SelectFrame(value1 = "relative=top");
 
 		PortletEntry.publish();
 
@@ -269,13 +299,23 @@ definition {
 			locator1 = "Wiki#FRONTPAGE_DEFAULT_MESSAGE",
 			value1 = "This page is empty. Edit it to add some text.");
 
-		WikiEntry.selectPageFormat(pageFormat = "HTML");
+		Panel.expandPanel(panel = "Configuration");
 
-		WikiEntry.confirmHTML();
+		SelectNoError(
+			locator1 = "Wiki#ADD_PAGE_FORMAT_DROPDOWN",
+			value1 = "HTML");
 
-		AlloyEditor.addSourceContent(content = '''
-				<p id="demo">PASS</p><script type="text/javascript">document.getElementById('demo').innerHTML="this code should not be read by the client";</script>
-			''');
+		AssertConfirm(value1 = "You may lose some formatting when switching from Creole to HTML. Do you want to continue?");
+
+		Click(locator1 = "CKEditor#TOOLBAR_SOURCE_BUTTON");
+
+		var wikiPageContent = '''<p id='demo'>PASS</p> <script type='text/javascript'>document.getElementById('demo').innerHTML = 'this code should not be read by the client';</script>''';
+
+		Type(
+			locator1 = "CKEditor#BODY_FIELD_SOURCE_ON",
+			value1 = "${wikiPageContent}");
+
+		SelectFrame(value1 = "relative=top");
 
 		PortletEntry.publish();
 
@@ -290,8 +330,6 @@ definition {
 
 	@priority = "4"
 	test AddFrontPageWithAttachments {
-		property portal.upstream = "quarantine";
-
 		Navigator.gotoPage(pageName = "Wiki Test Page");
 
 		WikiPage.addFrontPagePG(wikiPageContent = "Wiki FrontPage Content");
@@ -416,6 +454,8 @@ definition {
 
 	@priority = "5"
 	test AddPageWithChildPage {
+		property portal.acceptance = "true";
+
 		Navigator.gotoPage(pageName = "Wiki Test Page");
 
 		WikiNavigator.gotoAllPagesPG();
@@ -446,6 +486,7 @@ definition {
 
 	@priority = "5"
 	test AddPageWithHTMLFormat {
+		property portal.acceptance = "true";
 
 		var welcomeToLiferay = '''
 				<p><a href="http://www.liferay.com">Welcome to LIFERAY</a></p>
@@ -457,13 +498,23 @@ definition {
 
 		WikiNavigator.gotoAddPageViaPG();
 
-		WikiEntry.selectPageFormat(pageFormat = "HTML");
-
-		WikiEntry.confirmHTML();
-
 		WikiEntry.addPageTitle(wikiPageTitle = "Wiki Page Title");
 
-		AlloyEditor.addSourceContent(content = "${welcomeToLiferay}");
+		Panel.expandPanel(panel = "Configuration");
+
+		SelectNoError(
+			locator1 = "Wiki#ADD_PAGE_FORMAT_DROPDOWN",
+			value1 = "HTML");
+
+		AssertConfirm(value1 = "You may lose some formatting when switching from Creole to HTML. Do you want to continue?");
+
+		Click(locator1 = "CKEditor#TOOLBAR_SOURCE_BUTTON");
+
+		Type(
+			locator1 = "CKEditor#BODY_FIELD_SOURCE_ON",
+			value1 = "${welcomeToLiferay}");
+
+		SelectFrame(value1 = "relative=top");
 
 		PortletEntry.publish();
 
@@ -491,15 +542,13 @@ definition {
 
 		WikiNavigator.gotoBodyLinkPG(wikiPageContent = "This page is empty. Edit it to add some text.");
 
-		ItemSelector.gotoItemSelectorViaAlloyEditor();
+		ItemSelector.gotoItemSelectorViaCKEditor();
 
 		ItemSelector.addFromURL(
 			imageSourceURL = "https://raw.githubusercontent.com/liferay/liferay-portal/master/portal-web/test/functional/com/liferay/portalweb/dependencies/Document_1.jpg",
 			navTab = "URL");
 
-		AssertElementPresent(
-			key_contentImageName = "Document_1.jpg",
-			locator1 = "Wiki#CONTENT_IMAGE_NAME");
+		CKEditor.viewEntryContentImage(contentImageName = "Document_1.jpg");
 
 		PortletEntry.publish();
 
@@ -563,6 +612,7 @@ definition {
 
 		WikiPage.viewPageWithAttachment(
 			attachmentFileName = "Document_1.jpg",
+			inlineImage = "true",
 			wikiPageContent = "Wiki Page Content",
 			wikiPageTitle = "Wiki Page Title");
 	}
@@ -608,6 +658,8 @@ definition {
 
 		WikiEntry.addPageContent(wikiPageContent = "Wiki Page Content");
 
+		SelectFrame(value1 = "relative=top");
+
 		WikiEntry.cancel();
 
 		WikiTable.viewNoEntry(wikiPageTitle = "Wiki Page Title");
@@ -625,6 +677,8 @@ definition {
 
 		WikiEntry.addPageContent(wikiPageContent = "Wiki Page Content");
 
+		SelectFrame(value1 = "relative=top");
+
 		PortletEntry.publish();
 
 		Navigator.gotoPage(pageName = "Wiki Test Page");
@@ -634,6 +688,8 @@ definition {
 		WikiNavigator.gotoEntryEditViaPGTable(wikiPageTitle = "Wiki Page Title");
 
 		WikiEntry.addPageContent(wikiPageContent = "Edited Wiki Page Content");
+
+		SelectFrame(value1 = "relative=top");
 
 		WikiEntry.cancel();
 
@@ -690,6 +746,8 @@ definition {
 
 		WikiEntry.addPageContent(wikiPageContent = "Wiki Page Content");
 
+		SelectFrame(value1 = "relative=top");
+
 		PortletEntry.publish();
 
 		Navigator.gotoPage(pageName = "Wiki Test Page");
@@ -701,6 +759,8 @@ definition {
 		WikiEntry.addPageTitle(wikiPageTitle = "Copied Wiki Page Title");
 
 		WikiEntry.addPageContent(wikiPageContent = "Copied Wiki Page Content");
+
+		SelectFrame(value1 = "relative=top");
 
 		PortletEntry.publish();
 
@@ -736,6 +796,8 @@ definition {
 
 	@priority = "5"
 	test DeletePage {
+		property portal.acceptance = "true";
+
 		Navigator.gotoPage(pageName = "Wiki Test Page");
 
 		WikiNavigator.gotoAllPagesPG();
@@ -769,6 +831,8 @@ definition {
 
 		WikiEntry.addPageContent(wikiPageContent = "Wiki Page Content");
 
+		SelectFrame(value1 = "relative=top");
+
 		WikiEntry.saveAsDraft();
 
 		Navigator.gotoPage(pageName = "Wiki Test Page");
@@ -777,17 +841,9 @@ definition {
 
 		WikiNavigator.gotoEntryEditViaPGTable(wikiPageTitle = "Wiki Page Title");
 
-		AssertElementPresent(
-			key_editor = "content",
-			locator1 = "AlloyEditor#EDITOR");
-
-		Click(
-			key_editor = "content",
-			locator1 = "AlloyEditor#EDITOR");
-
-		AssertElementPresent(locator1 = "AlloyEditor#CONTENT_ADD_BUTTON");
-
 		WikiEntry.addPageContent(wikiPageContent = "Edited Wiki Page Content");
+
+		SelectFrame(value1 = "relative=top");
 
 		PortletEntry.publish();
 
@@ -1077,6 +1133,8 @@ definition {
 
 		WikiEntry.addPageContent(wikiPageContent = "Wiki Page Content");
 
+		SelectFrame(value1 = "relative=top");
+
 		PortletEntry.publish();
 
 		Navigator.gotoPage(pageName = "Wiki Test Page");
@@ -1086,6 +1144,8 @@ definition {
 		WikiNavigator.gotoEntryEditViaPGTable(wikiPageTitle = "Wiki Page Title");
 
 		WikiEntry.addPageContent(wikiPageContent = "Edited Wiki Page Content");
+
+		SelectFrame(value1 = "relative=top");
 
 		WikiEntry.saveAsDraft();
 

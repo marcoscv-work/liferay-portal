@@ -48,7 +48,7 @@ else {
 editDDMStructureURL.setParameter("mvcPath", "/edit_ddm_structure.jsp");
 %>
 
-<aui:form action="<%= journalDisplayContext.useDataEngineEditor() ? StringPool.BLANK : editDDMStructureURL.toString() %>" cssClass="edit-article-form" enctype="multipart/form-data" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveDDMStructure();" %>'>
+<aui:form action="<%= editDDMStructureURL.toString() %>" cssClass="edit-article-form" enctype="multipart/form-data" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveDDMStructure();" %>'>
 	<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 	<aui:input name="groupId" type="hidden" value="<%= groupId %>" />
 	<aui:input name="ddmStructureId" type="hidden" value="<%= journalEditDDMStructuresDisplayContext.getDDMStructureId() %>" />
@@ -82,24 +82,22 @@ editDDMStructureURL.setParameter("mvcPath", "/edit_ddm_structure.jsp");
 		</div>
 	</nav>
 
-	<c:if test="<%= !journalDisplayContext.useDataEngineEditor() %>">
-		<div class="contextual-sidebar edit-article-sidebar sidebar-light sidebar-sm" id="<portlet:namespace />contextualSidebarContainer">
-			<div class="sidebar-header">
-				<h4 class="component-title">
-					<liferay-ui:message key="properties" />
-				</h4>
-			</div>
-
-			<div class="sidebar-body">
-				<liferay-frontend:form-navigator
-					fieldSetCssClass="panel-group-flush"
-					formModelBean="<%= ddmStructure %>"
-					id="<%= JournalWebConstants.FORM_NAVIGATOR_ID_JOURNAL_DDM_STRUCTURE %>"
-					showButtons="<%= false %>"
-				/>
-			</div>
+	<div class="contextual-sidebar edit-article-sidebar sidebar-light sidebar-sm" id="<portlet:namespace />contextualSidebarContainer">
+		<div class="sidebar-header">
+			<h4 class="component-title">
+				<liferay-ui:message key="properties" />
+			</h4>
 		</div>
-	</c:if>
+
+		<div class="sidebar-body">
+			<liferay-frontend:form-navigator
+				fieldSetCssClass="panel-group-flush"
+				formModelBean="<%= ddmStructure %>"
+				id="<%= JournalWebConstants.FORM_NAVIGATOR_ID_JOURNAL_DDM_STRUCTURE %>"
+				showButtons="<%= false %>"
+			/>
+		</div>
+	</div>
 
 	<div class="contextual-sidebar-content">
 		<div class="container-fluid container-fluid-max-xl container-view">
@@ -200,7 +198,7 @@ editDDMStructureURL.setParameter("mvcPath", "/edit_ddm_structure.jsp");
 				uri:
 					'<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="mvcPath" value="/select_ddm_structure.jsp" /><portlet:param name="classPK" value="<%= String.valueOf(journalEditDDMStructuresDisplayContext.getDDMStructureId()) %>" /></portlet:renderURL>',
 			},
-			function(event) {
+			function (event) {
 				var form = document.<portlet:namespace />fm;
 
 				Liferay.Util.setFormValues(form, {
@@ -248,7 +246,7 @@ editDDMStructureURL.setParameter("mvcPath", "/edit_ddm_structure.jsp");
 			.values();
 		var localizedValues = {};
 
-		translatedLanguages.forEach(function(languageId) {
+		translatedLanguages.forEach(function (languageId) {
 			localizedValues[languageId] = inputLocalized.getValue(languageId);
 		});
 
@@ -278,7 +276,7 @@ editDDMStructureURL.setParameter("mvcPath", "/edit_ddm_structure.jsp");
 	}
 
 	if (contextualSidebarButton) {
-		contextualSidebarButton.addEventListener('click', function(event) {
+		contextualSidebarButton.addEventListener('click', function (event) {
 			if (
 				contextualSidebarContainer.classList.contains(
 					'contextual-sidebar-visible'

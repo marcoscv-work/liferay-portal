@@ -12,22 +12,10 @@
  * details.
  */
 
+import {fireEvent} from '@testing-library/react';
+
 import Options from '../../../src/main/resources/META-INF/resources/Options/Options.es';
 import withContextMock from '../__mocks__/withContextMock.es';
-
-const fireEvent = {
-	input: (element, config) => {
-		element.value = config.target.value;
-
-		var event = new Event('input', {
-			...config,
-			bubbles: true,
-			cancelable: true,
-		});
-
-		element.dispatchEvent(event);
-	},
-};
 
 let component;
 const spritemap = 'icons.svg';
@@ -35,7 +23,7 @@ const spritemap = 'icons.svg';
 const OptionsWithContextMock = withContextMock(Options);
 
 const optionsValue = {
-	en_US: [
+	[themeDisplay.getLanguageId()]: [
 		{
 			label: 'Option 1',
 			value: 'Option1',
@@ -82,8 +70,6 @@ describe('Options', () => {
 
 		jest.runAllTimers();
 
-		expect(component.defaultOption).toEqual(true);
-
 		const {element} = component;
 		const labelInputs = element.querySelectorAll('.ddm-field-text');
 
@@ -111,12 +97,16 @@ describe('Options', () => {
 						value: 'Option',
 					},
 				],
+				pt_BR: [
+					{
+						label: 'Option',
+						value: 'Option',
+					},
+				],
 			},
 		});
 
 		jest.runAllTimers();
-
-		expect(component.defaultOption).toEqual(true);
 
 		const {element} = component;
 		const labelInputs = element.querySelectorAll('.ddm-field-text');
@@ -143,7 +133,11 @@ describe('Options', () => {
 		const {element} = component;
 		const labelInputs = element.querySelectorAll('.ddm-field-text');
 
-		fireEvent.input(labelInputs[0], {target: {value: 'Hello'}});
+		fireEvent.change(labelInputs[0], {
+			target: {
+				value: 'Hello',
+			},
+		});
 
 		jest.runAllTimers();
 
@@ -171,7 +165,11 @@ describe('Options', () => {
 		const {element} = component;
 		const labelInputs = element.querySelectorAll('.ddm-field-text');
 
-		fireEvent.input(labelInputs[1], {target: {value: 'Hello'}});
+		fireEvent.change(labelInputs[1], {
+			target: {
+				value: 'Hello',
+			},
+		});
 
 		jest.runAllTimers();
 
@@ -193,6 +191,12 @@ describe('Options', () => {
 						value: 'Option',
 					},
 				],
+				pt_BR: [
+					{
+						label: 'Option',
+						value: 'Option',
+					},
+				],
 			},
 		});
 
@@ -208,5 +212,87 @@ describe('Options', () => {
 		const valueInputs = element.querySelectorAll('.key-value-input');
 
 		expect(valueInputs.length).toEqual(labelInputs.length);
+	});
+
+	it('deduplication of value when adding a new option', () => {
+		component = new OptionsWithContextMock({
+			name: 'options',
+			spritemap,
+			value: {
+				[themeDisplay.getLanguageId()]: [
+					{
+						label: 'Foo',
+						value: 'Foo',
+					},
+				],
+			},
+		});
+
+		jest.runAllTimers();
+
+		const {element} = component;
+		const labelInputs = element.querySelectorAll('.ddm-field-text');
+
+		fireEvent.input(labelInputs[1], {target: {value: 'Foo'}});
+
+		const valueInputs = element.querySelectorAll('.key-value-input');
+
+		expect(valueInputs[1].value).toEqual('Foo1');
+	});
+
+	it('deduplication of the value when editing the value', () => {
+		component = new OptionsWithContextMock({
+			name: 'options',
+			spritemap,
+			value: {
+				[themeDisplay.getLanguageId()]: [
+					{
+						label: 'Bar',
+						value: 'Bar',
+					},
+					{
+						label: 'Foo',
+						value: 'Foo',
+					},
+				],
+			},
+		});
+
+		jest.runAllTimers();
+
+		const {element} = component;
+		const labelInputs = element.querySelectorAll('.ddm-field-text');
+
+		fireEvent.input(labelInputs[1], {target: {value: 'Bar'}});
+
+		const valueInputs = element.querySelectorAll('.key-value-input');
+
+		expect(valueInputs[1].value).toEqual('Bar1');
+	});
+
+	it('adds a value to the value property when the label is empty', () => {
+		component = new OptionsWithContextMock({
+			name: 'options',
+			spritemap,
+			value: {
+				[themeDisplay.getLanguageId()]: [
+					{
+						label: 'Bar',
+						value: 'Bar',
+					},
+				],
+			},
+		});
+
+		jest.runAllTimers();
+
+		const {element} = component;
+		const labelInput = element.querySelector('.ddm-field-text');
+
+		fireEvent.input(labelInput, {target: {value: ''}});
+
+		const valueInput = element.querySelector('.key-value-input');
+
+		expect(valueInput.value).toBe('option');
 	});
 });

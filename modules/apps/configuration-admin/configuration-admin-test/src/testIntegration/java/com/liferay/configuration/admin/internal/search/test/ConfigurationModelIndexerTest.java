@@ -31,6 +31,7 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
@@ -83,8 +84,8 @@ public class ConfigurationModelIndexerTest {
 				"ConfigurationModel");
 
 		_configurationModelConstructor = configurationModelClass.getConstructor(
-			ExtendedObjectClassDefinition.class, Configuration.class,
-			String.class, String.class, boolean.class);
+			String.class, String.class, Configuration.class,
+			ExtendedObjectClassDefinition.class, boolean.class);
 	}
 
 	@After
@@ -118,8 +119,8 @@ public class ConfigurationModelIndexerTest {
 				extendedAttributeDefinitions, extensionAttributes);
 
 		Object configurationModel = _configurationModelConstructor.newInstance(
-			extendedObjectClassDefinition, null,
-			"com.liferay.configuration.admin.web", StringPool.QUESTION, true);
+			StringPool.QUESTION, "com.liferay.configuration.admin.web", null,
+			extendedObjectClassDefinition, true);
 
 		Document document = _indexer.getDocument(configurationModel);
 
@@ -146,6 +147,9 @@ public class ConfigurationModelIndexerTest {
 		_assertSearchResults();
 	}
 
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
+
 	private Configuration _addCompanyFactoryConfiguration() throws Exception {
 		Configuration configuration = OSGiServiceUtil.callService(
 			_bundleContext, ConfigurationAdmin.class,
@@ -163,8 +167,8 @@ public class ConfigurationModelIndexerTest {
 				configuration, extensionAttributes);
 
 		Object configurationModel = _configurationModelConstructor.newInstance(
-			extendedObjectClassDefinition, configuration,
-			_bundle.getSymbolicName(), StringPool.QUESTION, true);
+			StringPool.QUESTION, _bundle.getSymbolicName(), configuration,
+			extendedObjectClassDefinition, true);
 
 		Document document = _indexer.getDocument(configurationModel);
 

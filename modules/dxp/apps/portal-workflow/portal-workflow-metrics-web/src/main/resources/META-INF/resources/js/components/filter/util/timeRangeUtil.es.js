@@ -21,15 +21,15 @@ const convertQueryDate = (date = '', format = 'L') => {
 	return moment.utc(decodeURIComponent(date), null, 'en').format(format);
 };
 
-const formatDateTime = (date, format = 'L', isEndDate) => {
-	let dateTime = parseDateMoment(date, format);
+const formatDateTime = (date, format, isEndDate) => {
+	let dateTime = parseDateMoment(date, format || 'L');
 
 	dateTime = isEndDate ? dateTime.endOf('day') : dateTime.startOf('day');
 
 	return dateTime.format(defaultDateFormat);
 };
 
-const formatDescriptionDate = date => {
+const formatDescriptionDate = (date) => {
 	return formatDate(
 		decodeURIComponent(date),
 		getLocaleDateFormat('ll'),
@@ -64,7 +64,7 @@ const getCustomTimeRange = (dateEnd, dateStart) => {
 		dateEnd: decodeURIComponent(dateEnd),
 		dateStart: decodeURIComponent(dateStart),
 		dividerAfter: true,
-		key: 'custom',
+		id: 'custom',
 		name: Liferay.Language.get('custom-range'),
 	};
 
@@ -125,8 +125,8 @@ const parseDateMoment = (date, format = 'L') => {
 	return moment.utc(date, format, 'en');
 };
 
-const parseDateItems = isAmPm => items => {
-	return items.map(item => {
+const parseDateItems = (isAmPm) => (items) => {
+	return items.map((item) => {
 		const parsedItem = {
 			...item,
 			dateEnd: item.dateEnd,

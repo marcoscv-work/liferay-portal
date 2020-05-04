@@ -18,6 +18,8 @@ import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTaskAssignableUsers;
 import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTaskIds;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 
+import java.util.Locale;
+
 import javax.annotation.Generated;
 
 import javax.servlet.http.HttpServletRequest;
@@ -83,6 +85,8 @@ public interface WorkflowTaskAssignableUsersResource {
 
 		public Builder httpServletRequest(
 			HttpServletRequest httpServletRequest);
+
+		public Builder preferredLocale(Locale preferredLocale);
 
 		public Builder user(com.liferay.portal.kernel.model.User user);
 

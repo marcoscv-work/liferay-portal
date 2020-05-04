@@ -253,7 +253,7 @@ definition {
 
 		Pagination.changePagination(itemsPerPage = "8");
 
-		//Workaround LPS-98391
+		// Workaround LPS-98391
 
 		/*var currentURL = selenium.getCurrentUrl();
 
@@ -329,7 +329,11 @@ definition {
 
 		Navigator.openURL();
 
-		Portlet.addPG(portletName = "Language Selector");
+		ContentPages.clickPencil();
+
+		PageEditor.addWidget(portletName = "Language Selector");
+
+		PageEditor.clickPublish();
 
 		LanguagePortlet.selectLanguagePG(
 			locale = "de-DE",
@@ -352,7 +356,9 @@ definition {
 	test ModifyPaginationPortalProperties {
 		property custom.properties = "search.container.page.default.delta=2";
 
-		Portlet.addPG(portletName = "Search Results");
+		ContentPages.clickPencil();
+
+		PageEditor.addWidget(portletName = "Search Results");
 
 		Portlet.gotoPortletOptions(
 			portletName = "Search Results",
@@ -365,6 +371,8 @@ definition {
 			value1 = "2");
 
 		IFrame.closeFrame();
+
+		PageEditor.clickPublish();
 
 		for (var count : list "1,2,3") {
 			JSONWebcontent.addWebContent(
@@ -885,11 +893,9 @@ definition {
 
 		Navigator.gotoPage(pageName = "Blogs Page");
 
-		BlogsConfiguration.configureScopePG(
+		Portlet.selectScopePG(
 			portletName = "Blogs",
-			scopeSelection = "Blogs Page (Create New)");
-
-		IFrame.closeFrame();
+			scope = "Blogs Page");
 
 		Blogs.addEntry(
 			entryContent = "Entry Content",
@@ -905,9 +911,6 @@ definition {
 
 	@priority = "4"
 	test SearchContentPagesSmoke {
-		property portal.suite.search.engine = "disabled";
-		property portal.upstream = "quarantine";
-
 		JSONGroup.addGroup(groupName = "Site Name");
 
 		SitePages.openPagesAdmin(siteURLKey = "site-name");
@@ -916,6 +919,8 @@ definition {
 
 		for (var portletName : list "Search Bar,Search Results") {
 			PageEditor.addWidget(portletName = "${portletName}");
+
+			Refresh();
 		}
 
 		PageEditor.clickPublish();

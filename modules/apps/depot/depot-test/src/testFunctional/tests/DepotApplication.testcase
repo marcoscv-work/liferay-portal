@@ -26,54 +26,36 @@ definition {
 		}
 	}
 
-	@description = "This ensures that previous asset selections persist in content sets after DM and WC applications are disabled."
+	@description = "This ensures that previous asset selections persist in collections after DM and WC applications are disabled."
 	@priority = "5"
-	test SelectDisabledAssetsFromContentSets {
-		property portal.upstream = "quarantine";
-
+	test SelectDisabledAssetsFromCollections {
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
 			groupName = "Test Depot Name",
 			site = "false",
 			title = "WC WebContent Title");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
-
-		DMDocument.addCP(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_2.jpeg",
-			dmDocumentTitle = "Document_2.jpeg");
+			dmDocumentTitle = "Document_2.jpeg",
+			groupName = "Test Depot Name",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_2.jpeg");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Content Sets");
+		AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-depot-name");
 
 		AssetListsAdmin.addManualSelection(
 			assetListTitle = "Depot Manual Asset List",
 			depotName = "Test Depot Name");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Content Sets");
+		AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-depot-name");
 
 		AssetListsAdmin.selectAsset(
 			assetListName = "Depot Manual Asset List",
 			assetName = "Document_2.jpeg",
 			assetType = "Basic Document");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Content Sets");
+		AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-depot-name");
 
 		AssetListsAdmin.selectAsset(
 			assetListName = "Depot Manual Asset List",
@@ -91,22 +73,14 @@ definition {
 			applicationList = "Web Content,Documents and Media",
 			status = "Disabled");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Content Sets");
+		AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-depot-name");
 
 		AssetListsAdmin.viewContent(
 			assetListTitle = "Depot Manual Asset List",
 			assetTitle = "WC WebContent Title",
 			assetType = "Web Content Article");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Content Sets");
+		AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-depot-name");
 
 		AssetListsAdmin.viewContent(
 			assetListTitle = "Depot Manual Asset List",
@@ -118,6 +92,7 @@ definition {
 	@priority = "5"
 	test Smoke {
 		property portal.acceptance = "true";
+		property testray.component.names = "Asset Lists";
 
 		DepotNavigator.openDepotAdmin();
 
@@ -126,20 +101,20 @@ definition {
 			depotName = "Test Depot Name",
 			portlet = "Settings");
 
-		for (var application : list "Content Sets,Documents and Media,Web Content") {
+		for (var application : list "Collections,Documents and Media,Web Content") {
 			AssertChecked(
 				checkboxName = "${application}",
 				locator1 = "Checkbox#ANY_CHECKBOX");
 		}
 
 		Depot.configureApplication(
-			applicationList = "Content Sets,Documents and Media,Web Content",
+			applicationList = "Collections,Documents and Media,Web Content",
 			status = "Disabled");
 
 		DepotNavigator.openDepotAdmin();
 
 		Depot.viewApplication(
-			applicationList = "Content Sets,Documents and Media,Web Content",
+			applicationList = "Collections,Documents and Media,Web Content",
 			depotName = "Test Depot Name",
 			noApplication = "true");
 
@@ -151,32 +126,24 @@ definition {
 			portlet = "Settings");
 
 		Depot.configureApplication(
-			applicationList = "Content Sets,Documents and Media,Web Content",
+			applicationList = "Collections,Documents and Media,Web Content",
 			status = "Enabled");
 
 		DepotNavigator.openDepotAdmin();
 
 		Depot.viewApplication(
-			applicationList = "Content Sets,Documents and Media,Web Content",
+			applicationList = "Collections,Documents and Media,Web Content",
 			depotName = "Test Depot Name");
 	}
 
-	@description = "This ensures that the Content Sets application can be viewed after reactivating in a depot."
+	@description = "This ensures that the Collections application can be viewed after reactivating in a depot."
 	@priority = "5"
-	test ViewContentSetsAfterReactivating {
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Content Sets");
+	test ViewCollectionsAfterReactivating {
+		AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-depot-name");
 
 		AssetListsAdmin.addManualSelection(assetListTitle = "Depot Manual Asset List");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Content Sets");
+		AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-depot-name");
 
 		AssetListsAdmin.addDynamicSelection(assetListTitle = "Depot Dynamic Asset List");
 
@@ -188,13 +155,13 @@ definition {
 			portlet = "Settings");
 
 		Depot.configureApplication(
-			applicationList = "Content Sets",
+			applicationList = "Collections",
 			status = "Disabled");
 
 		DepotNavigator.openDepotAdmin();
 
 		Depot.viewApplication(
-			applicationList = "Content Sets",
+			applicationList = "Collections",
 			depotName = "Test Depot Name",
 			noApplication = "true");
 
@@ -212,20 +179,16 @@ definition {
 			portlet = "Settings");
 
 		Depot.configureApplication(
-			applicationList = "Content Sets",
+			applicationList = "Collections",
 			status = "Enabled");
 
 		DepotNavigator.openDepotAdmin();
 
 		Depot.viewApplication(
-			applicationList = "Content Sets",
+			applicationList = "Collections",
 			depotName = "Test Depot Name");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Content Sets");
+		AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-depot-name");
 
 		AssetListsAdmin.viewAssetList(
 			assetListTitle = "Depot Manual Asset List",
@@ -247,7 +210,7 @@ definition {
 			portlet = "Settings");
 
 		Depot.configureApplication(
-			applicationList = "Content Sets,Documents and Media,Web Content",
+			applicationList = "Collections,Documents and Media,Web Content",
 			status = "Disabled");
 
 		DepotNavigator.openDepotAdmin();
@@ -356,26 +319,20 @@ definition {
 
 		AssertTextEquals.assertPartialText(
 			locator1 = "Message#INFO",
-			value1 = "This application is not supported for Asset Libraries.");
+			value1 = "Info:Web Content is disabled for this scope.");
 	}
 
 	@description = "This ensures that a depot image persists in blog entry as previously and it's not appeared in the item selector on a connected site when DM application is disabled."
 	@priority = "5"
 	test ViewDisabledImageViaBlogs {
-		property portal.upstream = "quarantine";
-
 		JSONGroup.addGroup(groupName = "Test Site Name");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
-
-		DMDocument.addCP(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.jpg",
-			dmDocumentTitle = "Document_1.jpg");
+			dmDocumentTitle = "Document_1.jpg",
+			groupName = "Test Depot Name",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_1.jpg");
 
 		DepotNavigator.openDepotAdmin();
 
@@ -422,7 +379,7 @@ definition {
 
 		BlogsNavigator.gotoEntryCP(entryTitle = "Blogs Entry Title");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryCP(
 			entryContent = "Blogs Entry Content",
 			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title",
@@ -472,7 +429,7 @@ definition {
 		DepotNavigator.openDepotAdmin();
 
 		Depot.viewApplication(
-			applicationList = "Content Sets,Web Content",
+			applicationList = "Collections,Web Content",
 			depotName = "Test Depot Name");
 
 		DepotNavigator.openDepotAdmin();
@@ -492,11 +449,7 @@ definition {
 			applicationList = "Documents and Media",
 			depotName = "Test Depot Name");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-depot-name");
 
 		DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM Document Title");
 
@@ -533,7 +486,7 @@ definition {
 		DepotNavigator.openDepotAdmin();
 
 		Depot.viewApplication(
-			applicationList = "Content Sets,Documents and Media",
+			applicationList = "Collections,Documents and Media",
 			depotName = "Test Depot Name");
 
 		DepotNavigator.openDepotAdmin();
@@ -553,11 +506,7 @@ definition {
 			applicationList = "Web Content",
 			depotName = "Test Depot Name");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Web Content");
+		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-depot-name");
 
 		WebContent.viewTitle(webContentTitle = "WC WebContent Title");
 	}

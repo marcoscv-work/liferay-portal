@@ -693,8 +693,44 @@ public abstract class BaseBuild implements Build {
 	}
 
 	@Override
+	public Job getJob() {
+		if (_job != null) {
+			return _job;
+		}
+
+		TopLevelBuild topLevelBuild = getTopLevelBuild();
+
+		String topLevelJobName = topLevelBuild.getJobName();
+
+		String repositoryName = null;
+
+		if (topLevelJobName.contains("subrepository")) {
+			repositoryName = topLevelBuild.getBaseGitRepositoryName();
+		}
+
+		_job = JobFactory.newJob(
+			topLevelJobName, topLevelBuild.getTestSuiteName(),
+			topLevelBuild.getBranchName(), repositoryName);
+
+		return _job;
+	}
+
+	@Override
 	public String getJobName() {
 		return jobName;
+	}
+
+	@Override
+	public Properties getJobProperties() {
+		if (_jobProperties != null) {
+			return _jobProperties;
+		}
+
+		Job job = getJob();
+
+		_jobProperties = job.getJobProperties();
+
+		return _jobProperties;
 	}
 
 	@Override
@@ -1121,6 +1157,17 @@ public abstract class BaseBuild implements Build {
 		}
 
 		return testResults;
+	}
+
+	@Override
+	public String getTestSuiteName() {
+		Build parentBuild = getParentBuild();
+
+		if (parentBuild == null) {
+			return "default";
+		}
+
+		return parentBuild.getTestSuiteName();
 	}
 
 	@Override
@@ -2055,9 +2102,7 @@ public abstract class BaseBuild implements Build {
 		List<String> foundDownstreamBuildURLs = new ArrayList<>(
 			findDownstreamBuildsInConsoleText());
 
-		JSONObject buildJSONObject;
-
-		buildJSONObject = getBuildJSONObject("runs[number,url]");
+		JSONObject buildJSONObject = getBuildJSONObject("runs[number,url]");
 
 		if ((buildJSONObject != null) && buildJSONObject.has("runs")) {
 			JSONArray runsJSONArray = buildJSONObject.getJSONArray("runs");
@@ -2179,7 +2224,7 @@ public abstract class BaseBuild implements Build {
 				}
 
 				sb.append(getBuildURL());
-				sb.append(".\n");
+				sb.append(".");
 
 				return sb.toString();
 			}
@@ -2322,8 +2367,6 @@ public abstract class BaseBuild implements Build {
 	protected Map<String, String> getInjectedEnvironmentVariablesMap()
 		throws IOException {
 
-		Map<String, String> injectedEnvironmentVariablesMap;
-
 		String localBuildURL = JenkinsResultsParserUtil.getLocalURL(
 			getBuildURL());
 
@@ -2334,7 +2377,7 @@ public abstract class BaseBuild implements Build {
 
 		Set<String> envMapJSONObjectKeySet = envMapJSONObject.keySet();
 
-		injectedEnvironmentVariablesMap = new HashMap<>();
+		Map<String, String> injectedEnvironmentVariablesMap = new HashMap<>();
 
 		for (String key : envMapJSONObjectKeySet) {
 			injectedEnvironmentVariablesMap.put(
@@ -3451,6 +3494,8 @@ public abstract class BaseBuild implements Build {
 	private JenkinsConsoleTextLoader _jenkinsConsoleTextLoader;
 	private JenkinsMaster _jenkinsMaster;
 	private JenkinsSlave _jenkinsSlave;
+	private Job _job;
+	private Properties _jobProperties;
 	private Map<String, String> _parameters = new HashMap<>();
 	private final Build _parentBuild;
 	private String _previousStatus;

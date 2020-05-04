@@ -18,6 +18,7 @@ import ClayIcon from '@clayui/icon';
 import ClayLabel from '@clayui/label';
 import ClayTable from '@clayui/table';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 import React, {useEffect, useRef, useState} from 'react';
 import {useDrag, useDrop} from 'react-dnd';
 
@@ -69,15 +70,19 @@ const LanguageListItem = ({
 	isDefault,
 	localeId,
 	onMakeDefault,
+	isFirst = false,
+	isLast = false,
 	index,
 	onItemDrop = noop,
+	onMoveUp = noop,
+	onMoveDown = noop,
 }) => {
 	const [active, setActive] = useState(false);
 	const [dropZone, setDropZone] = useState();
 	const itemRef = useRef();
 
 	const [{isDragging}, drag] = useDrag({
-		collect: monitor => ({
+		collect: (monitor) => ({
 			isDragging: !!monitor.isDragging(),
 		}),
 		item: {
@@ -94,7 +99,7 @@ const LanguageListItem = ({
 
 			return isValidTarget(source, {id: localeId, index}, dropZone);
 		},
-		collect: monitor => ({
+		collect: (monitor) => ({
 			isOver: !!monitor.isOver(),
 		}),
 		drop(source, monitor) {
@@ -127,12 +132,22 @@ const LanguageListItem = ({
 		drag(drop(itemRef));
 	}, [drag, drop]);
 
-	const makeDefault = event => {
+	const makeDefault = (event) => {
 		setActive(false);
 		onMakeDefault({localeId});
 		Liferay.fire('inputLocalized:defaultLocaleChanged', {
 			item: event.currentTarget,
 		});
+	};
+
+	const moveUp = () => {
+		setActive(false);
+		onMoveUp();
+	};
+
+	const moveDown = () => {
+		setActive(false);
+		onMoveDown();
 	};
 
 	return (
@@ -184,11 +199,32 @@ const LanguageListItem = ({
 						>
 							{Liferay.Language.get('make-default')}
 						</ClayDropDown.Item>
+						{!isFirst && (
+							<ClayDropDown.Item onClick={moveUp}>
+								{Liferay.Language.get('move-up')}
+							</ClayDropDown.Item>
+						)}
+						{!isLast && (
+							<ClayDropDown.Item onClick={moveDown}>
+								{Liferay.Language.get('move-down')}
+							</ClayDropDown.Item>
+						)}
 					</ClayDropDown.ItemList>
 				</ClayDropDown>
 			</ClayTable.Cell>
 		</ClayTable.Row>
 	);
+};
+
+LanguageListItem.propTypes = {
+	index: PropTypes.number.isRequired,
+	isDefault: PropTypes.bool.isRequired,
+	isFirst: PropTypes.bool,
+	isLast: PropTypes.bool,
+	onItemDrop: PropTypes.func,
+	onMakeDefault: PropTypes.func,
+	onMoveDown: PropTypes.func,
+	onMoveUp: PropTypes.func,
 };
 
 export default LanguageListItem;

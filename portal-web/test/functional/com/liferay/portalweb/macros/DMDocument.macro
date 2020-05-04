@@ -464,7 +464,7 @@ definition {
 
 		if ("${dmRepositoryName}" == "true") {
 			AssertTextEquals.assertPartialText(
-				locator1 = "Message#CHECKOUT_SUCCESS",
+				locator1 = "Message#INFO",
 				value1 = "You now have an indefinite lock on this document. No one else can edit this document until you unlock it. This lock will never expire.");
 
 			LexiconEntry.gotoHeaderMenuItem(menuItem = "Cancel Checkout");
@@ -1120,6 +1120,24 @@ definition {
 		AssertElementPresent(locator1 = "CKEditor#CONTENT_IMAGE_LINK_IMAGE");
 	}
 
+	macro moveAllToRecycleBinCP {
+		var browserType = PropsUtil.get("browser.type");
+
+		if ("${browserType}" == "chrome") {
+			MetalComponent.waitForManagementBar();
+		}
+
+		PortletEntry.selectAll();
+
+		Click(locator1 = "Icon#MOVE_TO_RECYCLE_BIN");
+
+		Alert.viewSuccessMessage();
+
+		AssertTextEquals(
+			locator1 = "Message#EMPTY_INFO",
+			value1 = "There are no documents or media files in this folder.");
+	}
+
 	macro moveToFolderCP {
 		if (isSet(selectAll)) {
 			PortletEntry.selectAll();
@@ -1526,7 +1544,7 @@ definition {
 			locator1 = "DocumentsAndMediaDocument#DOCUMENT_INFO_VERSION",
 			value1 = "VERSION ${dmDocumentVersionNumber}");
 
-		AssertElementNotPresent(locator1 = "Message#CHECKOUT_SUCCESS");
+		AssertElementNotPresent(locator1 = "Message#INFO");
 
 		if ("${dmRepositoryName}" == "true") {
 			AssertTextNotPresent(value1 = "You now have an indefinite lock on this document. No one else can edit this document until you unlock it. This lock will never expire.");
@@ -1539,7 +1557,7 @@ definition {
 	macro viewCheckedoutCP {
 		if ("${dmRepositoryName}" == "true") {
 			AssertTextEquals.assertPartialText(
-				locator1 = "Message#CHECKOUT_SUCCESS",
+				locator1 = "Message#INFO",
 				value1 = "You now have an indefinite lock on this document. No one else can edit this document until you unlock it. This lock will never expire.");
 		}
 		else {
@@ -1562,7 +1580,7 @@ definition {
 			locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_TITLE",
 			value1 = "${dmDocumentTitle}");
 
-		AssertElementPresent(locator1 = "Message#SUCCESS");
+		AssertElementPresent(locator1 = "Message#CHECKOUT_SUCCESS");
 
 		AssertClick(
 			locator1 = "Button#EDIT",
@@ -1703,6 +1721,12 @@ definition {
 	macro viewDocumentMetadataCP {
 		var key_metadataData = "${metadataData}";
 		var key_metadataLabel = "${metadataLabel}";
+
+		if (IsElementNotPresent(locator1 = "//a[normalize-space(text())='Automatically Extracted Metadata']")) {
+			Refresh();
+
+			DMDocument.expandInfo();
+		}
 
 		AssertTextEquals.assertPartialText(
 			locator1 = "DocumentsAndMediaDocument#DOCUMENT_EXTRACTED_METADATA_FIELD",
@@ -2071,7 +2095,7 @@ definition {
 
 		// LRCI-276
 
-		// AssertElementPresent(locator1 = "DocumentsAndMediaDocument#DOCUMENT_INFO_THUMBNAIL");
+		//AssertElementPresent(locator1 = "DocumentsAndMediaDocument#DOCUMENT_INFO_THUMBNAIL");
 
 		AssertTextEquals(
 			locator1 = "DocumentsAndMediaDocument#DOCUMENT_INFO_UPLOADED_BY",

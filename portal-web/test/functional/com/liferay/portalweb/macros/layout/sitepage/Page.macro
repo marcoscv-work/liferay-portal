@@ -262,6 +262,14 @@ definition {
 		Uncheck.uncheckHiddenToggleSwitch(locator1 = "ToggleSwitch#INHERIT_MOBILE_DEVICE_RULES_FROM_PAGE");
 	}
 
+	macro editFriendlyURL {
+		Type(
+			locator1 = "TextInput#FRIENDLY_URL",
+			value1 = "${friendlyURLEdit}");
+
+		Button.clickSave();
+	}
+
 	macro editName {
 		Alert.closeMessage(messageType = "SUCCESS");
 
@@ -329,15 +337,11 @@ definition {
 	}
 
 	macro gotoChildPagePG {
-		MouseOver(
-			key_pageName = "${pageName}",
-			locator1 = "Home#PAGE");
+		var key_pageName = "${pageName}";
 
-		MouseOver(locator1 = "Home#SITE_NAME");
+		ClickNoError(locator1 = "Home#PAGE");
 
-		MouseOver(
-			key_pageName = "${pageName}",
-			locator1 = "Home#PAGE");
+		MouseOver(locator1 = "Home#PAGE");
 
 		AssertVisible(
 			key_childPageName = "${childPageName}",
@@ -434,9 +438,11 @@ definition {
 			panel = "Site Administration",
 			portlet = "Pages");
 
-		while (IsElementPresent(locator1 = "SitePages#LIST_GROUP_ITEM_ROW_ELLIPSIS", key_index = "3")) {
+		Pause(locator1 = "5000");
+
+		while (IsElementPresent(locator1 = "SitePages#LIST_GROUP_ITEM_ROW_ELLIPSIS", key_index = "4")) {
 			Click.waitForMenuToggleJSClick(
-				key_index = "3",
+				key_index = "4",
 				locator1 = "SitePages#LIST_GROUP_ITEM_ROW_ELLIPSIS");
 
 			MenuItem.clickNoError(menuItem = "Delete");
@@ -445,8 +451,24 @@ definition {
 		}
 
 		AssertElementNotPresent(
-			key_index = "3",
+			key_index = "4",
 			locator1 = "SitePages#LIST_GROUP_ITEM_ROW_ELLIPSIS");
+
+		while (IsElementPresent(locator1 = "SitePages#LIST_GROUP_ITEM_CHILD_INDICATOR", key_pageName = "Home")) {
+			SitePages.expandPageTree(depth = "2");
+
+			Click.waitForMenuToggleJSClick(
+				key_index = "4",
+				locator1 = "SitePages#LIST_GROUP_ITEM_ROW_ELLIPSIS");
+
+			MenuItem.clickNoError(menuItem = "Delete");
+
+			AssertConfirm(value1 = "Are you sure you want to delete this? It will be deleted immediately.");
+
+			AssertElementNotPresent(
+				key_index = "4",
+				locator1 = "SitePages#LIST_GROUP_ITEM_ROW_ELLIPSIS");
+		}
 	}
 
 	macro tearDownPG {
@@ -495,7 +517,7 @@ definition {
 			locator1 = "TextInput#FILE",
 			value1 = "${logoFile}");
 
-		Pause(locator1 = "5000");
+		Pause(locator1 = "10000");
 
 		Button.clickDone();
 
@@ -530,7 +552,9 @@ definition {
 			AssertConfirm.waitForConfirmation(value1 = "${javaScriptPage}");
 		}
 
-		MouseOver.mouseOverClickNavigation(locator1 = "Home#PAGE_2");
+		WaitForElementPresent(locator1 = "//script[contains(@src,'/o/frontend-js-aui-web/liferay/menu_toggle.js')]");
+
+		MouseOver(locator1 = "Home#PAGE_2");
 
 		var key_childPageName = "${childPageName}";
 
@@ -556,6 +580,35 @@ definition {
 		AssertTextPresent(
 			locator1 = "SitePagesEditPage#VIEW_THEME",
 			value1 = "${themeName}");
+	}
+
+	macro viewCurrentThemeSettings {
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			panel = "Site Administration",
+			portlet = "Pages");
+
+		SitePages.gotoPageMenuItem(
+			menuItem = "Configure",
+			pageName = "${pageName}");
+
+		Navigator.gotoNavTab(navTab = "Look and Feel");
+
+		if (isSet(checkThemeSettingList)) {
+			for (var themeSetting : list "${checkThemeSettingList}") {
+				AssertChecked.assertCheckedNotVisible(
+					key_toggleSwitchLabel = "${themeSetting}",
+					locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
+			}
+		}
+
+		if (isSet(uncheckThemeSettingList)) {
+			for (var themeSetting : list "${uncheckThemeSettingList}") {
+				AssertNotChecked.assertNotCheckedNotVisible(
+					key_toggleSwitchLabel = "${themeSetting}",
+					locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
+			}
+		}
 	}
 
 	macro viewCustomLogoPG {

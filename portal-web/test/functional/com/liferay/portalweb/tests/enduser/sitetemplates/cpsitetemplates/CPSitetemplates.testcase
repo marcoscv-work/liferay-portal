@@ -27,10 +27,7 @@ definition {
 
 	@priority = "4"
 	test AddSiteTemplate {
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
+		property portal.acceptance = "true";
 
 		SiteTemplates.addCP(
 			siteTemplateActive = "Yes",
@@ -50,12 +47,8 @@ definition {
 
 	@priority = "4"
 	test AddSiteTemplateApplySiteTemplateChangesToSite {
+		property portal.acceptance = "true";
 		property portal.release = "false";
-
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
 
 		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
 
@@ -84,7 +77,11 @@ definition {
 
 		ProductMenu.gotoSiteViaLink(site = "Site Template Name");
 
-		Portlet.addPG(portletName = "Hello World");
+		ContentPages.clickPencil();
+
+		PageEditor.addWidget(portletName = "Hello World");
+
+		PageEditor.clickPublish();
 
 		Navigator.openSiteURL(siteName = "Site Template Site Name");
 
@@ -95,16 +92,14 @@ definition {
 		Portlet.viewPG(portletName = "Hello World");
 	}
 
+	// Ignored because of the ticket LRQA-57518
+
 	@description = "This is a use case for LPS-74307."
+	@ignore = "true"
 	@priority = "5"
 	test AddSiteTemplateChangeCurrentTheme {
 		property osgi.app.includes = "frontend-theme-fjord";
 		property portal.upstream = "quarantine";
-
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
 
 		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
 
@@ -136,12 +131,7 @@ definition {
 
 	@priority = "4"
 	test AddSiteTemplateDisablePageModification {
-		property portal.upstream = "quarantine";
-
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
+		property portal.acceptance = "true";
 
 		SiteTemplates.addCP(
 			disableChanges = "true",
@@ -167,11 +157,6 @@ definition {
 	@description = "This is a use case for LPS-84497."
 	@priority = "3"
 	test DeactivateActivateSiteTemplate {
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
-
 		SiteTemplates.addCP(
 			siteTemplateActive = "Yes",
 			siteTemplateName = "Site Template Name");
@@ -203,6 +188,8 @@ definition {
 
 	@priority = "4"
 	test DeactivateDefaultSiteTemplate {
+		property portal.acceptance = "true";
+
 		ProductMenu.gotoPortlet(
 			category = "Sites",
 			panel = "Control Panel",
@@ -241,11 +228,6 @@ definition {
 	test DeleteSiteTemplate {
 		property portal.acceptance = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
-
 		SiteTemplates.addCP(
 			siteTemplateActive = "Yes",
 			siteTemplateName = "Site Template Name");
@@ -276,11 +258,6 @@ definition {
 	@priority = "4"
 	test DeleteSiteTemplateAssociatedWithASite {
 		property portal.acceptance = "true";
-
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
 
 		SiteTemplates.addCP(
 			siteTemplateActive = "Yes",
@@ -316,8 +293,6 @@ definition {
 	@priority = "4"
 	test DeleteSiteTemplateImportedToVirtualInstance {
 		property test.name.skip.portal.instance = "CPSitetemplates#DeleteSiteTemplateImportedToVirtualInstance";
-
-		SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
 		SiteTemplates.addCP(
 			siteTemplateActive = "Yes",
@@ -362,10 +337,7 @@ definition {
 
 	@priority = "4"
 	test EditSiteTemplate {
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
+		property portal.acceptance = "true";
 
 		SiteTemplates.addCP(
 			siteTemplateActive = "Yes",
@@ -397,11 +369,6 @@ definition {
 	@priority = "5"
 	test EditSiteTemplateStatus {
 		property portal.acceptance = "true";
-
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
 
 		SiteTemplates.addCP(
 			siteTemplateActive = "Yes",
@@ -485,10 +452,7 @@ definition {
 
 	@priority = "4"
 	test OnlySiteAdminCanModifyPageAssociatedWithSiteTemplate {
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
+		property portal.acceptance = "true";
 
 		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
 
@@ -504,7 +468,7 @@ definition {
 
 		Navigator.openSiteURL(siteName = "Site Template Site Name");
 
-		AssertElementPresent(locator1 = "ControlMenu#ADD");
+		AssertElementPresent(locator1 = "Icon#EDIT_PENCIL");
 
 		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
@@ -541,7 +505,7 @@ definition {
 			pageName = "Home",
 			siteName = "Site Template Site Name");
 
-		AssertElementNotPresent(locator1 = "ControlMenu#ADD");
+		AssertElementNotPresent(locator1 = "Icon#EDIT_PENCIL");
 
 		User.logoutUserPG();
 
@@ -550,14 +514,10 @@ definition {
 
 	@priority = "5"
 	test ResetPageChanges {
+		property portal.acceptance = "true";
 		property testray.component.names = "Training";
 
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
-
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
 
 		SiteTemplatesNavigator.gotoSiteTemplatesPage(
 			pageName = "Home",
@@ -635,11 +595,6 @@ definition {
 	@description = "This is a use case for LPS-44550"
 	@priority = "4"
 	test SiteTemplateXSS {
-		ProductMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
-
 		SiteTemplates.addCP(
 			siteTemplateActive = "Yes",
 			siteTemplateName = '''<script>alert(123);</script>''');

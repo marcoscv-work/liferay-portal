@@ -280,7 +280,7 @@ if (portletTitleBasedNavigation) {
 		String taglibReplyToMessageURL = "javascript:" + liferayPortletResponse.getNamespace() + "addReplyToMessage('" + rootMessage.getMessageId() + "', '');";
 		%>
 
-		<aui:button onclick="<%= taglibReplyToMessageURL %>" primary="<%= true %>" value="reply" />
+		<aui:button name='<%= "replyMessageButton" + rootMessage.getMessageId() %>' onclick="<%= taglibReplyToMessageURL %>" primary="<%= true %>" value="reply" />
 	</c:if>
 
 	<c:if test="<%= !thread.isInTrash() && moreMessagesPagination %>">
@@ -301,7 +301,7 @@ if (portletTitleBasedNavigation) {
 	);
 
 	if (moreMessagesButton) {
-		moreMessagesButton.addEventListener('click', function(event) {
+		moreMessagesButton.addEventListener('click', function (event) {
 			var form = document.<portlet:namespace />fm;
 
 			var index = Liferay.Util.getFormElement(form, 'index');
@@ -325,10 +325,10 @@ if (portletTitleBasedNavigation) {
 				body: formData,
 				method: 'POST',
 			})
-				.then(function(response) {
+				.then(function (response) {
 					return response.text();
 				})
-				.then(function(response) {
+				.then(function (response) {
 					var messageContainer = document.getElementById(
 						'<portlet:namespace />messageContainer'
 					);

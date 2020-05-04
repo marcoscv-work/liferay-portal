@@ -15,7 +15,7 @@ import React from 'react';
 import AssigneeFilter from '../../../src/main/resources/META-INF/resources/js/components/filter/AssigneeFilter.es';
 import {MockRouter} from '../../mock/MockRouter.es';
 
-const query = '?filters.assigneeUserIds%5B0%5D=1';
+const query = '?filters.assigneeIds%5B0%5D=1';
 
 const items = [
 	{id: 1, name: 'User 1'},
@@ -58,11 +58,11 @@ describe('The assignee filter component should', () => {
 	test('Be rendered with active option "User 1"', () => {
 		const filterItems = getAllByTestId('filterItem');
 
-		const activeItem = filterItems.find(item =>
+		const activeItem = filterItems.find((item) =>
 			item.className.includes('active')
 		);
 
-		findByTestId(activeItem, 'filterItemName').then(activeItemName => {
+		findByTestId(activeItem, 'filterItemName').then((activeItemName) => {
 			expect(activeItemName.innerHTML).toBe('User 1');
 		});
 	});

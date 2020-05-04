@@ -21,7 +21,7 @@ import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemListBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItem;
-import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItemList;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItemListBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.ViewTypeItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.ViewTypeItemList;
 import com.liferay.petra.string.StringBundler;
@@ -79,56 +79,48 @@ public class ViewUsersManagementToolbarDisplayContext {
 	}
 
 	public List<DropdownItem> getActionDropdownItems() {
-		return new DropdownItemList() {
-			{
-				if (isShowRestoreButton()) {
-					add(
-						dropdownItem -> {
-							dropdownItem.setHref(
-								StringBundler.concat(
-									"javascript:",
-									_renderResponse.getNamespace(),
-									"deleteUsers('", Constants.RESTORE, "');"));
-							dropdownItem.setIcon("undo");
-							dropdownItem.setLabel(
-								LanguageUtil.get(
-									_httpServletRequest, "activate"));
-							dropdownItem.setQuickAction(true);
-						});
-				}
-
-				if (isShowDeleteButton()) {
-					add(
-						dropdownItem -> {
-							UserSearchTerms userSearchTerms =
-								(UserSearchTerms)_userSearch.getSearchTerms();
-
-							String action = Constants.DELETE;
-							String icon = "times-circle";
-
-							if (userSearchTerms.isActive()) {
-								action = Constants.DEACTIVATE;
-								icon = "hidden";
-							}
-
-							dropdownItem.setHref(
-								StringBundler.concat(
-									"javascript:",
-									_renderResponse.getNamespace(),
-									"deleteUsers('", action, "');"));
-							dropdownItem.setIcon(icon);
-							dropdownItem.setLabel(
-								LanguageUtil.get(_httpServletRequest, action));
-							dropdownItem.setQuickAction(true);
-						});
-				}
+		return DropdownItemListBuilder.add(
+			() -> isShowRestoreButton(),
+			dropdownItem -> {
+				dropdownItem.setHref(
+					StringBundler.concat(
+						"javascript:", _renderResponse.getNamespace(),
+						"deleteUsers('", Constants.RESTORE, "');"));
+				dropdownItem.setIcon("undo");
+				dropdownItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, "activate"));
+				dropdownItem.setQuickAction(true);
 			}
-		};
+		).add(
+			() -> isShowDeleteButton(),
+			dropdownItem -> {
+				UserSearchTerms userSearchTerms =
+					(UserSearchTerms)_userSearch.getSearchTerms();
+
+				String action = Constants.DELETE;
+				String icon = "times-circle";
+
+				if (userSearchTerms.isActive()) {
+					action = Constants.DEACTIVATE;
+					icon = "hidden";
+				}
+
+				dropdownItem.setHref(
+					StringBundler.concat(
+						"javascript:", _renderResponse.getNamespace(),
+						"deleteUsers('", action, "');"));
+				dropdownItem.setIcon(icon);
+				dropdownItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, action));
+				dropdownItem.setQuickAction(true);
+			}
+		).build();
 	}
 
 	public String getClearResultsURL() {
 		PortletURL clearResultsURL = getPortletURL();
 
+		clearResultsURL.setParameter("domain", (String)null);
 		clearResultsURL.setParameter("keywords", StringPool.BLANK);
 		clearResultsURL.setParameter("navigation", (String)null);
 
@@ -173,32 +165,58 @@ public class ViewUsersManagementToolbarDisplayContext {
 	}
 
 	public List<LabelItem> getFilterLabelItems() {
-		return new LabelItemList() {
-			{
-				if (!_navigation.equals("active")) {
-					add(
-						labelItem -> {
-							PortletURL removeLabelURL = getPortletURL();
+		return LabelItemListBuilder.add(
+			() -> _domain.equals("account-users"),
+			labelItem -> {
+				PortletURL removeLabelURL = getPortletURL();
 
-							removeLabelURL.setParameter(
-								"navigation", (String)null);
+				removeLabelURL.setParameter("domain", (String)null);
 
-							labelItem.putData(
-								"removeLabelURL", removeLabelURL.toString());
+				labelItem.putData("removeLabelURL", removeLabelURL.toString());
 
-							labelItem.setCloseable(true);
+				labelItem.setCloseable(true);
 
-							String label = String.format(
-								"%s: %s",
-								LanguageUtil.get(_httpServletRequest, "status"),
-								LanguageUtil.get(
-									_httpServletRequest, _navigation));
+				String label = String.format(
+					"%s: %s", LanguageUtil.get(_httpServletRequest, "domain"),
+					LanguageUtil.get(_httpServletRequest, _domain));
 
-							labelItem.setLabel(label);
-						});
-				}
+				labelItem.setLabel(label);
 			}
-		};
+		).add(
+			() -> _domain.equals("all"),
+			labelItem -> {
+				PortletURL removeLabelURL = getPortletURL();
+
+				removeLabelURL.setParameter("domain", (String)null);
+
+				labelItem.putData("removeLabelURL", removeLabelURL.toString());
+
+				labelItem.setCloseable(true);
+
+				String label = String.format(
+					"%s: %s", LanguageUtil.get(_httpServletRequest, "domain"),
+					LanguageUtil.get(_httpServletRequest, _domain));
+
+				labelItem.setLabel(label);
+			}
+		).add(
+			() -> !_navigation.equals("active"),
+			labelItem -> {
+				PortletURL removeLabelURL = getPortletURL();
+
+				removeLabelURL.setParameter("navigation", (String)null);
+
+				labelItem.putData("removeLabelURL", removeLabelURL.toString());
+
+				labelItem.setCloseable(true);
+
+				String label = String.format(
+					"%s: %s", LanguageUtil.get(_httpServletRequest, "status"),
+					LanguageUtil.get(_httpServletRequest, _navigation));
+
+				labelItem.setLabel(label);
+			}
+		).build();
 	}
 
 	public String getOrderByCol() {

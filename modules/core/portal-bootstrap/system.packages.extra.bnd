@@ -33,7 +33,6 @@ Export-Package:\
 	!com.liferay.portal.microsofttranslator,\
 	!com.liferay.portal.monitoring.statistics.service,\
 	!com.liferay.portal.nio.intraband.proxy,\
-	!com.liferay.portal.resiliency.service,\
 	!com.liferay.portal.scripting.beanshell,\
 	!com.liferay.portal.scripting.groovy,\
 	!com.liferay.portal.scripting.javascript,\
@@ -262,7 +261,7 @@ Export-Package:\
 	\
 	org.aspectj.*,\
 	\
-	org.dom4j.*;version='1.6.1',\
+	org.dom4j.*;version='2.1.1',\
 	\
 	org.hibernate.*;version='3.6.10',\
 	\

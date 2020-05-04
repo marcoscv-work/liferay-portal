@@ -20,8 +20,9 @@
 EditFragmentEntryDisplayContext editFragmentEntryDisplayContext = new EditFragmentEntryDisplayContext(request, renderResponse);
 %>
 
-<soy:component-renderer
-	context="<%= editFragmentEntryDisplayContext.getFragmentEditorDisplayContext() %>"
-	module="js/FragmentEditor.es"
-	templateNamespace="com.liferay.fragment.web.FragmentEditor.render"
-/>
+<div>
+	<react:component
+		data="<%= editFragmentEntryDisplayContext.getFragmentEditorData() %>"
+		module="js/fragment-editor/FragmentEditor"
+	/>
+</div>

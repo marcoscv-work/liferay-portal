@@ -25,6 +25,7 @@ import React from 'react';
 
 import LinkPanel from '../../../../src/main/resources/META-INF/resources/page_editor/app/components/floating-toolbar/LinkPanel';
 import {EDITABLE_FRAGMENT_ENTRY_PROCESSOR} from '../../../../src/main/resources/META-INF/resources/page_editor/app/config/constants/editableFragmentEntryProcessor';
+import {EDITABLE_TYPES} from '../../../../src/main/resources/META-INF/resources/page_editor/app/config/constants/editableTypes';
 import serviceFetch from '../../../../src/main/resources/META-INF/resources/page_editor/app/services/serviceFetch';
 import {StoreAPIContextProvider} from '../../../../src/main/resources/META-INF/resources/page_editor/app/store/index';
 import updateEditableValues from '../../../../src/main/resources/META-INF/resources/page_editor/app/thunks/updateEditableValues';
@@ -46,7 +47,7 @@ jest.mock(
 	() => jest.fn()
 );
 
-const getEditableConfig = editableValues => {
+const getEditableConfig = (editableValues) => {
 	return editableValues[EDITABLE_FRAGMENT_ENTRY_PROCESSOR]['editable-id-0']
 		.config;
 };
@@ -70,7 +71,7 @@ function getStateWithConfig(config = {}) {
 }
 
 function renderLinkPanel(
-	{state = getStateWithConfig()} = {},
+	{state = getStateWithConfig(), editableType = EDITABLE_TYPES.text} = {},
 	dispatch = () => {}
 ) {
 	return render(
@@ -78,6 +79,7 @@ function renderLinkPanel(
 			<LinkPanel
 				item={{
 					editableId: 'editable-id-0',
+					editableType,
 					fragmentEntryLinkId: '0',
 					itemId: '',
 				}}
@@ -236,6 +238,33 @@ describe('LinkPanel', () => {
 
 		expect(updateEditableValues).toHaveBeenCalled();
 
-		expect(editableConfig).toEqual({href: 'http://google.com'});
+		expect(editableConfig).toEqual({
+			href: 'http://google.com',
+			mapperType: 'link',
+		});
+	});
+
+	it('calls dispatch withouth mapperType when editable type is link', async () => {
+		let editableConfig;
+		updateEditableValues.mockImplementation(({editableValues}) => {
+			editableConfig = getEditableConfig(editableValues);
+		});
+
+		const {getByLabelText} = renderLinkPanel({
+			editableType: EDITABLE_TYPES.link,
+			state: getStateWithConfig({}),
+		});
+
+		const hrefInput = getByLabelText('url');
+
+		userEvent.type(hrefInput, 'http://google.com');
+
+		jest.runAllTimers();
+
+		expect(updateEditableValues).toHaveBeenCalled();
+
+		expect(editableConfig).toEqual({
+			href: 'http://google.com',
+		});
 	});
 });

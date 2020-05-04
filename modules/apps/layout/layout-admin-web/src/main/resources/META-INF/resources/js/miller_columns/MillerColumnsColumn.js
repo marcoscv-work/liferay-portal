@@ -48,7 +48,7 @@ const MillerColumnsColumn = ({
 				monitor.isOver({shallow: true}) && isValidTarget(source, parent)
 			);
 		},
-		collect: monitor => ({
+		collect: (monitor) => ({
 			canDrop: !!monitor.canDrop(),
 		}),
 		drop(source) {
@@ -76,7 +76,7 @@ const MillerColumnsColumn = ({
 				<MillerColumnsItem
 					actionHandlers={actionHandlers}
 					item={{...item, itemIndex: index}}
-					key={item.url}
+					key={item.key}
 					namespace={namespace}
 					onItemDrop={onItemDrop}
 					onItemStayHover={onItemStayHover}

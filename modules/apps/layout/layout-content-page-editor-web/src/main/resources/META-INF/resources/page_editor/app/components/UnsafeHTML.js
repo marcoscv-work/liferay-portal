@@ -12,77 +12,189 @@
  * details.
  */
 
-import {globalEval} from 'metal-dom';
 import PropTypes from 'prop-types';
 import React from 'react';
+import ReactDOM from 'react-dom';
 
-export default class UnsafeHTML extends React.Component {
+/**
+ * DOM node which will be manually updated and injects
+ * React.portals into it.
+ */
+export default class UnsafeHTML extends React.PureComponent {
 	constructor(props) {
 		super(props);
-
-		this.state = {
-			contentRef: null,
-		};
+		this.state = {portals: [], ref: null};
 	}
 
-	componentDidUpdate() {
-		if (this.state.contentRef) {
-			globalEval.runScriptsInElement(this.state.contentRef);
+	componentDidUpdate(prevProps) {
+		if (this.state.ref) {
+			this._syncRefProps();
 
-			if (this.props.onRender) {
-				this.props.onRender(this.state.contentRef);
+			if (
+				!this.state.ref.innerHTML ||
+				prevProps.markup !== this.props.markup
+			) {
+				this._syncRefContent();
 			}
 		}
 	}
 
-	shouldComponentUpdate(nextProps, nextState) {
-		return (
-			this.props.TagName !== nextProps.TagName ||
-			this.props.markup !== nextProps.markup ||
-			this.state.contentRef !== nextState.contentRef
+	/**
+	 * Looks for script tags inside ref and executes
+	 * them inside this.props.globalContext.
+	 */
+	_runRefScripts() {
+		const doc = this.props.globalContext.document;
+
+		const scriptElements = Array.from(
+			this.state.ref.querySelectorAll('script')
 		);
+
+		const runNextScript = () => {
+			if (scriptElements.length) {
+				const nextScriptElement = doc.createElement('script');
+				const prevScriptElement = scriptElements.shift();
+
+				nextScriptElement.appendChild(
+					doc.createTextNode(prevScriptElement.innerHTML)
+				);
+
+				prevScriptElement.parentNode.replaceChild(
+					nextScriptElement,
+					prevScriptElement
+				);
+
+				requestAnimationFrame(runNextScript);
+			}
+		};
+
+		runNextScript();
 	}
 
-	_handleRef = element => {
-		this.setState({contentRef: element});
+	/**
+	 * Syncs ref innerHTML and recreates portals.
+	 *
+	 * Everytime that markup property is updated ref innerHTML
+	 * needs to be updated and portals need to be recreated because
+	 * DOM nodes references will change.
+	 */
+	_syncRefContent() {
+		const ref = this.state.ref;
 
-		if (typeof this.props.contentRef === 'function') {
-			this.props.contentRef(element);
+		ref.innerHTML = this.props.markup;
+
+		const portals = this.props.getPortals(ref);
+
+		if (portals.length || portals.length !== this.state.portals.length) {
+			this.setState({portals}, () => {
+				this._runRefScripts();
+				this.props.onRender(ref);
+			});
 		}
-		else if (this.props.contentRef) {
-			this.props.contentRef.current = element;
+		else {
+			this._runRefScripts();
+			this.props.onRender(ref);
 		}
+	}
+
+	/**
+	 * Syncs non-critical properties to ref.
+	 *
+	 * If there is some property change we can safely update
+	 * ref DOM properties without making more changes.
+	 */
+	_syncRefProps() {
+		const ref = this.state.ref;
+		ref.className = this.props.className;
+	}
+
+	/**
+	 * Updates internal state.ref and reset state.portals.
+	 *
+	 * If the ref changes for any reason we need to remove all our
+	 * portals to prevent them from failing because their DOM nodes
+	 * are not linked to the document anymore.
+	 */
+	_updateRef = (nextRef) => {
+		this.setState(({ref: prevRef}) => {
+			if (prevRef !== nextRef) {
+				if (typeof this.props.contentRef === 'function') {
+					this.props.contentRef(nextRef);
+				}
+				else if (this.props.contentRef) {
+					this.props.contentRef.current = nextRef;
+				}
+
+				return {
+					portals: [],
+					ref: nextRef,
+				};
+			}
+
+			return null;
+		});
 	};
 
 	render() {
-		const {
-			TagName = 'div',
-			// We just want to remove this item from the
-			// otherProps object.
-			// eslint-disable-next-line no-unused-vars
-			contentRef,
-			markup,
-			// eslint-disable-next-line no-unused-vars
-			onRender,
-			...otherProps
-		} = this.props;
-
 		return (
-			<TagName
-				{...otherProps}
-				dangerouslySetInnerHTML={{__html: markup}}
-				ref={this._handleRef}
-			/>
+			<>
+				<RawDOM
+					elementRef={this._updateRef}
+					TagName={this.props.TagName}
+				/>
+
+				{this.state.portals.map(({Component, element}) =>
+					ReactDOM.createPortal(<Component />, element)
+				)}
+			</>
 		);
 	}
 }
 
+UnsafeHTML.defaultProps = {
+	TagName: 'div',
+	className: '',
+	contentRef: null,
+	getPortals: () => [],
+	globalContext: window,
+	markup: '',
+	onRender: () => {},
+};
+
 UnsafeHTML.propTypes = {
 	TagName: PropTypes.string,
+	className: PropTypes.string,
 	contentRef: PropTypes.oneOfType([
 		PropTypes.func,
-		PropTypes.shape({current: PropTypes.instanceOf(Element)}),
+		PropTypes.shape({current: PropTypes.object}),
 	]),
+	getPortals: PropTypes.func,
+	globalContext: PropTypes.object,
 	markup: PropTypes.string,
 	onRender: PropTypes.func,
+};
+
+/**
+ * Creates a DOM node that will be kept forever
+ * to allow manipulating the DOM manually.
+ */
+class RawDOM extends React.Component {
+	shouldComponentUpdate() {
+		return false;
+	}
+
+	render() {
+		const TagName = this.props.TagName;
+
+		return <TagName ref={this.props.elementRef} />;
+	}
+}
+
+RawDOM.defaultProps = {
+	TagName: 'div',
+};
+
+RawDOM.propTypes = {
+	TagName: PropTypes.string,
+	elementRef: PropTypes.func.isRequired,
 };

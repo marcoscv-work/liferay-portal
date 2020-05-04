@@ -278,12 +278,12 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 	private long _getSegmentsExperienceId(
 		HttpServletRequest httpServletRequest) {
 
-		LongStream stream = Arrays.stream(
+		LongStream longStream = Arrays.stream(
 			GetterUtil.getLongValues(
 				httpServletRequest.getAttribute(
 					SegmentsWebKeys.SEGMENTS_EXPERIENCE_IDS)));
 
-		return stream.findFirst(
+		return longStream.findFirst(
 		).orElse(
 			SegmentsExperienceConstants.ID_DEFAULT
 		);
@@ -310,7 +310,7 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 
 			jspWriter.write(
 				StringBundler.concat(
-					"hidden-print lfr-admin-panel lfr-product-menu-panel ",
+					"d-print-none lfr-admin-panel lfr-product-menu-panel ",
 					"lfr-segments-experiment-panel sidenav-fixed ",
 					"sidenav-menu-slider sidenav-right\" id=\""));
 

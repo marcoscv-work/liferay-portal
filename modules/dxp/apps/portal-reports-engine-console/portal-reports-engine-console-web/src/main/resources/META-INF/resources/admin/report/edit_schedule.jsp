@@ -19,8 +19,6 @@
 <%
 Definition definition = (Definition)request.getAttribute(ReportsEngineWebKeys.DEFINITION);
 
-long definitionId = BeanParamUtil.getLong(definition, request, "definitionId");
-
 String reportName = BeanParamUtil.getString(definition, request, "reportName");
 
 portletDisplay.setShowBackIcon(true);
@@ -103,7 +101,7 @@ renderResponse.setTitle(LanguageUtil.get(request, "new-report-entry"));
 					String keyJSId = StringUtil.randomId();
 				%>
 
-					<aui:row>
+					<clay:row>
 						<c:choose>
 							<c:when test='<%= type.equals("date") %>'>
 								<aui:col width="<%= 20 %>">
@@ -188,7 +186,7 @@ renderResponse.setTitle(LanguageUtil.get(request, "new-report-entry"));
 								</aui:col>
 							</c:otherwise>
 						</c:choose>
-					</aui:row>
+					</clay:row>
 
 				<%
 				}

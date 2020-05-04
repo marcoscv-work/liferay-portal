@@ -34,7 +34,7 @@ import org.json.JSONObject;
 /**
  * @author Michael Hashimoto
  */
-public class SpiraRelease extends PathSpiraArtifact {
+public class SpiraRelease extends IndentLevelSpiraArtifact {
 
 	public static SpiraRelease createSpiraRelease(
 		SpiraProject spiraProject, String releaseName) {
@@ -137,7 +137,7 @@ public class SpiraRelease extends PathSpiraArtifact {
 			throw new RuntimeException(ioException);
 		}
 
-		removeCachedSpiraArtifacts(spiraReleases);
+		removeCachedSpiraArtifacts(SpiraRelease.class, spiraReleases);
 	}
 
 	public static void deleteSpiraReleasesByPath(
@@ -156,7 +156,7 @@ public class SpiraRelease extends PathSpiraArtifact {
 			return _parentSpiraRelease;
 		}
 
-		String indentLevel = jsonObject.getString("IndentLevel");
+		String indentLevel = getIndentLevel();
 
 		if (indentLevel.length() <= 3) {
 			return null;
@@ -253,6 +253,10 @@ public class SpiraRelease extends PathSpiraArtifact {
 		return getParentSpiraRelease();
 	}
 
+	protected static final Integer ARTIFACT_TYPE_ID = 2;
+
+	protected static final String ARTIFACT_TYPE_NAME = "release";
+
 	protected static final String ID_KEY = "ReleaseId";
 
 	private static List<JSONObject> _requestSpiraReleases(
@@ -294,6 +298,8 @@ public class SpiraRelease extends PathSpiraArtifact {
 
 	private SpiraRelease(JSONObject jsonObject) {
 		super(jsonObject);
+
+		cacheSpiraArtifact(SpiraRelease.class, this);
 	}
 
 	private SpiraRelease _getSpiraReleaseByIndentLevel(String indentLevel) {

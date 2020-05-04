@@ -74,6 +74,10 @@ public class DDLRecordLocalServiceWrapper
 			serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
 	@Override
 	public com.liferay.dynamic.data.lists.model.DDLRecord addRecord(
 			long userId, long groupId, long ddmStorageId, long ddlRecordSetId,
@@ -82,6 +86,18 @@ public class DDLRecordLocalServiceWrapper
 
 		return _ddlRecordLocalService.addRecord(
 			userId, groupId, ddmStorageId, ddlRecordSetId, serviceContext);
+	}
+
+	@Override
+	public com.liferay.dynamic.data.lists.model.DDLRecord addRecord(
+			long userId, long groupId, long ddmStorageId, long ddlRecordSetId,
+			String className, long classPK,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _ddlRecordLocalService.addRecord(
+			userId, groupId, ddmStorageId, ddlRecordSetId, className, classPK,
+			serviceContext);
 	}
 
 	/**
@@ -299,6 +315,13 @@ public class DDLRecordLocalServiceWrapper
 
 		return _ddlRecordLocalService.fetchDDLRecordByUuidAndGroupId(
 			uuid, groupId);
+	}
+
+	@Override
+	public com.liferay.dynamic.data.lists.model.DDLRecord fetchFirstRecord(
+		String className, long classPK) {
+
+		return _ddlRecordLocalService.fetchFirstRecord(className, classPK);
 	}
 
 	/**

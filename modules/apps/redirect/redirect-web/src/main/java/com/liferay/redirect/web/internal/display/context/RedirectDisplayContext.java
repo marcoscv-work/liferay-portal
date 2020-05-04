@@ -41,10 +41,11 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.redirect.model.RedirectEntry;
 import com.liferay.redirect.model.RedirectEntryModel;
-import com.liferay.redirect.service.RedirectEntryLocalServiceUtil;
-import com.liferay.redirect.service.RedirectEntryServiceUtil;
+import com.liferay.redirect.service.RedirectEntryLocalService;
+import com.liferay.redirect.service.RedirectEntryService;
 import com.liferay.redirect.web.internal.search.RedirectEntrySearch;
 import com.liferay.redirect.web.internal.security.permission.resource.RedirectEntryPermission;
+import com.liferay.redirect.web.internal.util.RedirectUtil;
 import com.liferay.redirect.web.internal.util.comparator.RedirectComparator;
 import com.liferay.redirect.web.internal.util.comparator.RedirectDateComparator;
 
@@ -83,6 +84,13 @@ public class RedirectDisplayContext {
 
 		_expirationDateFormat = DateFormat.getDateInstance(
 			SimpleDateFormat.SHORT, _themeDisplay.getLocale());
+
+		_redirectEntryLocalService =
+			(RedirectEntryLocalService)_httpServletRequest.getAttribute(
+				RedirectEntryLocalService.class.getName());
+		_redirectEntryService =
+			(RedirectEntryService)_httpServletRequest.getAttribute(
+				RedirectEntryService.class.getName());
 	}
 
 	public String formatExpirationDate(Date expirationDate) {
@@ -204,6 +212,14 @@ public class RedirectDisplayContext {
 		}
 
 		if (Objects.equals(
+				_redirectEntrySearch.getOrderByCol(), "latest-occurrence")) {
+
+			return new RedirectDateComparator<>(
+				"RedirectEntry", "lastOccurrenceDate",
+				RedirectEntryModel::getModifiedDate, !orderByAsc);
+		}
+
+		if (Objects.equals(
 				_redirectEntrySearch.getOrderByCol(), "modified-date")) {
 
 			return new RedirectDateComparator<>(
@@ -241,6 +257,14 @@ public class RedirectDisplayContext {
 		}
 
 		if (Objects.equals(
+				_redirectEntrySearch.getOrderByCol(), "latest-occurrence")) {
+
+			return new Sort(
+				Field.getSortableFieldName("lastOccurrenceDate"),
+				Sort.LONG_TYPE, !orderByAsc);
+		}
+
+		if (Objects.equals(
 				_redirectEntrySearch.getOrderByCol(), "modified-date")) {
 
 			return new Sort(
@@ -259,11 +283,11 @@ public class RedirectDisplayContext {
 				WebKeys.THEME_DISPLAY);
 
 		redirectEntrySearch.setTotal(
-			RedirectEntryServiceUtil.getRedirectEntriesCount(
+			_redirectEntryService.getRedirectEntriesCount(
 				themeDisplay.getScopeGroupId()));
 
 		redirectEntrySearch.setResults(
-			RedirectEntryServiceUtil.getRedirectEntries(
+			_redirectEntryService.getRedirectEntries(
 				themeDisplay.getScopeGroupId(), _redirectEntrySearch.getStart(),
 				_redirectEntrySearch.getEnd(), _getOrderByComparator()));
 	}
@@ -278,6 +302,8 @@ public class RedirectDisplayContext {
 			PortalUtil.getHttpServletRequest(_liferayPortletRequest));
 
 		searchContext.setAttribute(Field.STATUS, WorkflowConstants.STATUS_ANY);
+		searchContext.setAttribute(
+			"groupBaseURL", RedirectUtil.getGroupBaseURL(_themeDisplay));
 		searchContext.setEnd(redirectEntrySearch.getEnd());
 		searchContext.setSorts(_getSorts());
 		searchContext.setStart(redirectEntrySearch.getStart());
@@ -293,7 +319,7 @@ public class RedirectDisplayContext {
 			stream.map(
 				SearchResult::getClassPK
 			).map(
-				RedirectEntryLocalServiceUtil::fetchRedirectEntry
+				_redirectEntryLocalService::fetchRedirectEntry
 			).collect(
 				Collectors.toList()
 			));
@@ -305,7 +331,9 @@ public class RedirectDisplayContext {
 	private final HttpServletRequest _httpServletRequest;
 	private final LiferayPortletRequest _liferayPortletRequest;
 	private final LiferayPortletResponse _liferayPortletResponse;
+	private final RedirectEntryLocalService _redirectEntryLocalService;
 	private RedirectEntrySearch _redirectEntrySearch;
+	private final RedirectEntryService _redirectEntryService;
 	private final ThemeDisplay _themeDisplay;
 
 }

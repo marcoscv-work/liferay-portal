@@ -142,19 +142,21 @@ public class SecurityTest extends BaseClientTestCase {
 	 */
 	@Test
 	public void testPreventOpenRedirect() {
+		Response response = getCodeResponse(
+			"test@liferay.com", "test", null,
+			getCodeFunction(
+				webTarget -> webTarget.queryParam(
+					"client_id", "oauthTestApplicationCode"
+				).queryParam(
+					"redirect_uri", "http://invalid:8080"
+				).queryParam(
+					"response_type", "code"
+				)));
+
+		Assert.assertEquals(400, getStatus(response));
 		Assert.assertEquals(
-			400,
-			getStatus(
-				getCodeResponse(
-					"test@liferay.com", "test", null,
-					getCodeFunction(
-						webTarget -> webTarget.queryParam(
-							"client_id", "oauthTestApplicationCode"
-						).queryParam(
-							"redirect_uri", "http://invalid:8080"
-						).queryParam(
-							"response_type", "code"
-						)))));
+			"<html><body>HTTP 400 Bad Request</body></html>",
+			getBodyAsString(response));
 	}
 
 	@Test
@@ -203,6 +205,10 @@ public class SecurityTest extends BaseClientTestCase {
 				Collections.singletonList("http://redirecturi:8080"));
 		}
 
+	}
+
+	protected String getBodyAsString(Response response) {
+		return response.readEntity(String.class);
 	}
 
 	@Override

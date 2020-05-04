@@ -17,6 +17,8 @@ package com.liferay.bulk.rest.resource.v1_0;
 import com.liferay.bulk.rest.dto.v1_0.Status;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 
+import java.util.Locale;
+
 import javax.annotation.Generated;
 
 import javax.servlet.http.HttpServletRequest;
@@ -80,6 +82,8 @@ public interface StatusResource {
 
 		public Builder httpServletRequest(
 			HttpServletRequest httpServletRequest);
+
+		public Builder preferredLocale(Locale preferredLocale);
 
 		public Builder user(com.liferay.portal.kernel.model.User user);
 

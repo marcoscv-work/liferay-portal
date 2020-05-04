@@ -37,17 +37,23 @@ definition {
 				collectionName = "Collection Name",
 				fragmentName = "Title");
 
+			AssertVisible(
+				key_text = "Discard Draft",
+				locator1 = "Button#ANY_ENABLED");
+
 			PageEditor.addFragment(
 				collectionName = "Collection Name",
 				fragmentName = "Rich Text");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Title",
 				fragmentName = "Title",
 				id = "title",
 				source = "Basic Web Content (Default)");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Content",
 				fragmentName = "Rich Text",
 				id = "rich-text",
@@ -192,7 +198,6 @@ definition {
 	@priority = "5"
 	test PublishDisplayPageMarkedAsDefault {
 		property portal.acceptance = "true";
-		property portal.upstream = "quarantine";
 
 		task ("Mark the display page as default") {
 			DisplayPageTemplatesAdmin.markDisplayPageAsDefault(displayPageName = "Display Page Name");
@@ -311,6 +316,7 @@ definition {
 				fragmentName = "Content");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Title",
 				fragmentName = "Content",
 				id = "content",

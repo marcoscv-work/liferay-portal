@@ -234,9 +234,39 @@ module.framework.properties.osgi.console=11312</echo>
 		</sequential>
 	</macrodef>
 
-	<macrodef name="delete-default-elasticsearch-connection-config">
+	<macrodef name="docker-copy">
+		<attribute name="dest.path" />
+		<attribute name="src.path" />
+
 		<sequential>
-			<delete file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConnectionConfiguration-default.config" />
+			<execute>
+				<![CDATA[
+					docker cp @{src.path} @{dest.path}
+				]]>
+			</execute>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="docker-execute">
+		<attribute name="container" />
+		<text name="script" />
+
+		<sequential>
+			<property location="${project.dir}/script.sh" name="script.sh.file" />
+
+			<echo file="${script.sh.file}"><![CDATA[@{script}]]></echo>
+
+			<execute>
+				<![CDATA[
+					docker exec @{container} mkdir -p /tmp
+
+					docker cp ${script.sh.file} @{container}:/tmp/script.sh
+
+					docker exec @{container} /bin/bash /tmp/script.sh
+
+					docker exec @{container} rm -f /tmp/script.sh
+				]]>
+			</execute>
 		</sequential>
 	</macrodef>
 
@@ -691,7 +721,7 @@ jdbc.counter.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 					<if>
 						<resourcecontains
 							resource="@{gitrepo.file}"
-							substring="git@github.com:liferay/@{subrepository.name}.git"
+							substring="/@{subrepository.name}.git"
 						/>
 						<then>
 							<antelope:stringutil property="module.base.dir" string="@{gitrepo.file}">
@@ -707,6 +737,36 @@ jdbc.counter.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 			</for>
 
 			<fail message="No module base directory found for '@{subrepository.name}'." unless="module.base.dir" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="get-operating-system-property">
+		<attribute name="property.name" />
+
+		<sequential>
+			<check-config />
+
+			<var name="property.name" unset="true" />
+			<var name="@{property.name}" unset="true" />
+
+			<property name="property.name" value="@{property.name}" />
+
+			<beanshell>
+				<![CDATA[
+					String propertyName = project.getProperty("property.name");
+
+					StringBuilder sb = new StringBuilder();
+
+					sb.append("operating.system.");
+					sb.append(project.getProperty("operating.system.type"));
+					sb.append(".");
+					sb.append(propertyName.substring(17));
+
+					propertyValue = project.getProperty(sb.toString());
+
+					project.setProperty(propertyName, propertyValue);
+				]]>
+			</beanshell>
 		</sequential>
 	</macrodef>
 
@@ -1039,13 +1099,6 @@ jdbc.counter.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 
 	<macrodef name="get-test-url">
 		<sequential>
-			<if>
-				<matches pattern="[0-9]+_[0-9]+" string="${test.class}" />
-				<then>
-					<get-test-class />
-				</then>
-			</if>
-
 			<get-testcase-property property.name="analytics.cloud.enabled" />
 			<get-testcase-property property.name="testcase.url" />
 
@@ -1066,6 +1119,18 @@ jdbc.counter.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 						/>
 
 						<var name="test.url" value="http://${short.hostname}:8080" />
+					</then>
+				</elseif>
+				<elseif>
+					<and>
+						<equals arg1="${operating.system.type}" arg2="centos" />
+						<equals arg1="${operating.system.centos.version}" arg2="8" />
+						<equals arg1="${env.DOCKER_ENABLED}" arg2="true" />
+					</and>
+					<then>
+						<get-operating-system-property property.name="operating.system.host" />
+
+						<var name="test.url" value="http://${operating.system.host}:8080" />
 					</then>
 				</elseif>
 				<elseif>
@@ -1140,13 +1205,6 @@ jdbc.counter.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 					<property file="${project.dir}/test.generated.properties" />
 
 					<var name="property.name" value="@{property.name}" />
-
-					<if>
-						<matches pattern="[0-9]+_[0-9]+" string="${test.class}" />
-						<then>
-							<get-test-class />
-						</then>
-					</if>
 
 					<get-test-method-name />
 					<get-test-namespace />
@@ -1387,7 +1445,14 @@ war.path=${app.server.portal.dir}/</echo>
 
 	<macrodef name="prepare-additional-bundles">
 		<sequential>
-			<get-testcase-property property.name="app.server.bundles.size" />
+			<if>
+				<not>
+					<isset property="app.server.bundles.size" />
+				</not>
+				<then>
+					<get-testcase-property property.name="app.server.bundles.size" />
+				</then>
+			</if>
 
 			<if>
 				<isset property="app.server.bundles.size" />
@@ -1476,6 +1541,12 @@ war.path=${app.server.portal.dir}/</echo>
 								</then>
 							</elseif>
 						</if>
+
+						<replace
+							file="${test.app.server.classes.portal.dir}/portal-ext.properties"
+							token="channel-logic-name"
+							value="channel-logic-name-${app.server.bundle.index}"
+						/>
 
 						<replace
 							file="${test.app.server.classes.portal.dir}/portal-ext.properties"
@@ -2074,8 +2145,14 @@ jdbc.default.password=${database.password}</echo>
 
 	<macrodef name="prepare-portal-elasticsearch-osgi-configuration">
 		<sequential>
-			<echo file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch6.configuration.ElasticsearchConfiguration.config">logExceptionsOnly="false"</echo>
-			<echo file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config">logExceptionsOnly="false"</echo>
+			<echo file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch6.configuration.ElasticsearchConfiguration.config">logExceptionsOnly=B"false"</echo>
+			<echo file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config">logExceptionsOnly=B"false"${line.separator}sidecarShutdownTimeout=L"20000"</echo>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="prepare-portal-search-osgi-configuration">
+		<sequential>
+			<echo file="${liferay.home}/osgi/configs/com.liferay.portal.search.internal.index.IndexStatusManagerInternalConfiguration.config">suppressIndexReadOnly=B"true"</echo>
 		</sequential>
 	</macrodef>
 
@@ -3486,7 +3563,12 @@ go</echo>
 					</then>
 				</elseif>
 				<elseif>
-					<equals arg1="@{liferay.portal.bundle}" arg2="7.1.10.3" />
+					<or>
+						<equals arg1="@{liferay.portal.bundle}" arg2="7.1.10.3" />
+						<equals arg1="@{liferay.portal.bundle}" arg2="7.2.1" />
+						<equals arg1="@{liferay.portal.bundle}" arg2="7.2.10" />
+						<equals arg1="@{liferay.portal.bundle}" arg2="7.2.10.1" />
+					</or>
 					<then>
 						<var name="app.server.tomcat.version" value="9.0.17" />
 					</then>
@@ -3508,7 +3590,16 @@ go</echo>
 			<var name="app.server.tomcat.lib.global.dir" value="${app.server.parent.dir}/tomcat-${app.server.tomcat.version}/lib/ext" />
 			<var name="app.server.tomcat.lib.portal.dir" value="${app.server.parent.dir}/tomcat-${app.server.tomcat.version}/webapps/ROOT/WEB-INF/lib" />
 			<var name="app.server.tomcat.zip.name" value="apache-tomcat-${app.server.tomcat.version}.zip" />
-			<var name="app.server.tomcat.zip.url" value="http://archive.apache.org/dist/tomcat/tomcat-9/v${app.server.tomcat.version}/bin/${app.server.tomcat.zip.name}" />
+
+			<propertyregex
+				input="${app.server.tomcat.version}"
+				override="true"
+				property="app.server.tomcat.major.version"
+				regexp="(\d+)\..*"
+				replace="\1"
+			/>
+
+			<var name="app.server.tomcat.zip.url" value="http://archive.apache.org/dist/tomcat/tomcat-${app.server.tomcat.major.version}/v${app.server.tomcat.version}/bin/${app.server.tomcat.zip.name}" />
 
 			<echo append="true" file="app.server.${user.name}.properties">
 				app.server.tomcat.dir=${app.server.tomcat.dir}
@@ -3855,81 +3946,70 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 					<if>
 						<equals arg1="${test.ant.launched.by.selenium}" arg2="true" />
 						<then>
-							<parallel>
-								<if>
-									<istrue value="${test.docker.environment}" />
-									<then>
-										<echo>docker run -d -p ${test.app.server.leading.port.number}080:${test.app.server.leading.port.number}080 -v ${app.server.parent.dir}:${app.server.parent.dir} --cidfile=docker.process.pid --network=@{docker.network.name} openjdk:8-alpine ${app.server.bin.dir}/${app.server.start.executable} ${app.server.start.executable.arg.line}</echo>
-
-										<parallel>
-											<exec executable="docker">
-												<arg line="run -d" />
-												<arg line="-p ${test.app.server.leading.port.number}080:${test.app.server.leading.port.number}080" />
-												<arg value="-v" />
-												<arg value="${app.server.parent.dir}:${app.server.parent.dir}" />
-												<arg value="--cidfile=docker.process.pid" />
-												<arg value="--network=@{docker.network.name}" />
-												<arg value="openjdk:8u191-jdk-alpine3.8" />
-												<arg value="${app.server.bin.dir}/${app.server.start.executable}" />
-												<arg value="${app.server.start.executable.arg.line}" />
-											</exec>
-										</parallel>
-									</then>
-									<else>
-										<exec dir="${test.app.server.bin.dir}" executable="${app.server.start.executable}" outputproperty="app.server.log" resolveexecutable="true">
-											<arg line="${app.server.start.executable.arg.line}" />
-											<env key="JAVA_HOME" path="${java.jdk.home}" />
-										</exec>
-									</else>
-								</if>
-
-								<wait-for-app-server app.server.bin.dir="@{app.server.bin.dir}" app.server.bundle.index="@{app.server.bundle.index}" />
-							</parallel>
+							<property name="app.server.fail.on.error" value="false" />
 						</then>
 						<else>
-							<get-testcase-property property.name="ext.plugins.includes" />
-
-							<parallel>
-								<if>
-									<not>
-										<isset property="ext.plugins.includes" />
-									</not>
-									<then>
-										<sequential>
-											<wait-for-app-server app.server.bin.dir="@{app.server.bin.dir}" app.server.bundle.index="@{app.server.bundle.index}" />
-										</sequential>
-									</then>
-								</if>
-
-								<daemons>
-									<if>
-										<istrue value="${test.docker.environment}" />
-										<then>
-											<echo>docker run -d -p ${test.app.server.leading.port.number}080:${test.app.server.leading.port.number}080 -v ${app.server.parent.dir}:${app.server.parent.dir} --cidfile=docker.process.pid --network=@{docker.network.name} openjdk:8-alpine ${app.server.bin.dir}/${app.server.start.executable} ${app.server.start.executable.arg.line}</echo>
-
-											<exec executable="docker">
-												<arg line="run -d" />
-												<arg line="-p ${test.app.server.leading.port.number}080:${test.app.server.leading.port.number}080" />
-												<arg value="-v" />
-												<arg value="${app.server.parent.dir}:${app.server.parent.dir}" />
-												<arg value="--cidfile=docker.process.pid" />
-												<arg value="--network=@{docker.network.name}" />
-												<arg value="openjdk:8u191-jdk-alpine3.8" />
-												<arg value="${app.server.bin.dir}/${app.server.start.executable}" />
-												<arg value="${app.server.start.executable.arg.line}" />
-											</exec>
-										</then>
-										<else>
-											<exec dir="${test.app.server.bin.dir}" executable="${app.server.start.executable}" failonerror="true" output="app.server.log" resolveexecutable="true">
-												<arg line="${app.server.start.executable.arg.line}" />
-												<env key="JAVA_HOME" path="${java.jdk.home}" />
-											</exec>
-										</else>
-									</if>
-								</daemons>
-							</parallel>
+							<property name="app.server.fail.on.error" value="true" />
 						</else>
 					</if>
+
+					<get-testcase-property property.name="ext.plugins.includes" />
+
+					<parallel>
+						<if>
+							<not>
+								<isset property="ext.plugins.includes" />
+							</not>
+							<then>
+								<wait-for-app-server app.server.bin.dir="@{app.server.bin.dir}" app.server.bundle.index="@{app.server.bundle.index}" />
+							</then>
+						</if>
+
+						<daemons>
+							<if>
+								<istrue value="${test.docker.environment}" />
+								<then>
+									<echo>docker run -d -p ${test.app.server.leading.port.number}080:${test.app.server.leading.port.number}080 -v ${app.server.parent.dir}:${app.server.parent.dir} --cidfile=docker.process.pid --network=@{docker.network.name} openjdk:8-alpine ${app.server.bin.dir}/${app.server.start.executable} ${app.server.start.executable.arg.line}</echo>
+
+									<exec executable="docker">
+										<arg line="run -d" />
+										<arg line="-p ${test.app.server.leading.port.number}080:${test.app.server.leading.port.number}080" />
+										<arg value="-v" />
+										<arg value="${app.server.parent.dir}:${app.server.parent.dir}" />
+										<arg value="--cidfile=docker.process.pid" />
+										<arg value="--network=@{docker.network.name}" />
+										<arg value="openjdk:8u191-jdk-alpine3.8" />
+										<arg value="${app.server.bin.dir}/${app.server.start.executable}" />
+										<arg value="${app.server.start.executable.arg.line}" />
+									</exec>
+								</then>
+								<elseif>
+									<and>
+										<equals arg1="${operating.system.type}" arg2="centos" />
+										<equals arg1="${operating.system.centos.version}" arg2="8" />
+										<equals arg1="${env.DOCKER_ENABLED}" arg2="true" />
+									</and>
+									<then>
+										<sequential>
+											<get-operating-system-property property.name="operating.system.host" />
+
+											<docker-execute container="${operating.system.host}">
+												chmod +x ${test.app.server.bin.dir}/${app.server.start.executable}
+
+												${test.app.server.bin.dir}/${app.server.start.executable} ${app.server.start.executable.arg.line}
+											</docker-execute>
+										</sequential>
+									</then>
+								</elseif>
+								<else>
+									<exec dir="${test.app.server.bin.dir}" executable="${app.server.start.executable}" failonerror="${app.server.fail.on.error}" output="app.server.log" resolveexecutable="true">
+										<arg line="${app.server.start.executable.arg.line}" />
+										<env key="JAVA_HOME" path="${java.jdk.home}" />
+									</exec>
+								</else>
+							</if>
+						</daemons>
+					</parallel>
 				</then>
 			</if>
 		</sequential>
@@ -4159,6 +4239,43 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 					</then>
 				</elseif>
 				<elseif>
+					<equals arg1="${database.type}" arg2="sqlserver" />
+					<then>
+						<property location="setup.sh" name="setup.sh.file" />
+
+						<get-database-property property.name="database.password" />
+						<get-database-property property.name="database.username" />
+						<get-database-property property.name="database.version" />
+
+						<local name="test.query" />
+
+						<property name="test.query" value="select name from sys.databases" />
+
+						<echo file="${setup.sh.file}">
+							<![CDATA[
+								#!/bin/bash
+
+								until /opt/mssql-tools/bin/sqlcmd -P ${database.password} -U ${database.username} -Q "${test.query}";
+								do
+									echo "Waiting for SQL Server ${database.version} to be ready"
+
+									sleep 10
+								done
+							]]>
+						</echo>
+
+						<get-database-property property.name="database.host" />
+
+						<execute>
+							<![CDATA[
+								docker cp ${setup.sh.file} ${database.host}:/tmp/setup.sh
+
+								docker exec ${database.host} /bin/bash /tmp/setup.sh
+							]]>
+						</execute>
+					</then>
+				</elseif>
+				<elseif>
 					<equals arg1="${database.type}" arg2="sybase" />
 					<then>
 						<property location="setup.sh" name="setup.sh.file" />
@@ -4190,6 +4307,71 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 					</then>
 				</elseif>
 			</if>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="start-docker-os">
+		<sequential>
+			<get-operating-system-property property.name="operating.system.docker.os.options" />
+			<get-operating-system-property property.name="operating.system.docker.image" />
+			<get-operating-system-property property.name="operating.system.docker.run.options" />
+			<get-operating-system-property property.name="operating.system.host" />
+			<get-operating-system-property property.name="operating.system.host.alias" />
+
+			<local name="operating.system.docker.network.run.option" />
+
+			<condition else="" property="operating.system.docker.network.run.option" value="--network=${env.DOCKER_NETWORK_NAME} --network-alias=${operating.system.host.alias}">
+				<isset property="env.DOCKER_NETWORK_NAME" />
+			</condition>
+
+			<local name="docker.os.start.script" />
+
+			<property name="docker.os.start.script" value="docker_os_start.sh" />
+
+			<propertyregex
+				input="${portal.dir}"
+				property="portal.dir.name"
+				regexp=".*\/(.*)"
+				select="\1"
+			/>
+
+			<echo file="${docker.os.start.script}">
+				<![CDATA[
+					docker run \
+						--detach \
+						--hostname=${operating.system.host} \
+						--interactive \
+						--mount type=bind,source=/data/slaves/${env.NODE_NAME}/git/liferay/${portal.dir.name},target=${portal.dir} \
+						--name=${operating.system.host} \
+						--tty \
+						\
+						${operating.system.docker.network.run.option} \
+						${operating.system.docker.run.options} \
+						\
+						${operating.system.docker.image} \
+						\
+						${operating.system.docker.os.options}
+				]]>
+			</echo>
+
+			<chmod
+				perm="a+x"
+			>
+				<fileset
+					dir="."
+					includes="${docker.os.start.script}"
+				/>
+			</chmod>
+
+			<exec executable="/bin/bash" os="${os.apple},${os.unix}">
+				<arg value="${docker.os.start.script}" />
+			</exec>
+
+			<exec executable="cmd.exe" os="${os.windows}">
+				<arg value="${docker.os.start.script}" />
+			</exec>
+
+			<delete file="${docker.os.start.script}" />
 		</sequential>
 	</macrodef>
 
@@ -4516,6 +4698,45 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 		</sequential>
 	</macrodef>
 
+	<macrodef name="stop-docker-os">
+		<sequential>
+			<get-operating-system-property property.name="operating.system.host" />
+
+			<local name="docker.stop.script" />
+
+			<property name="docker.stop.script" value="docker_stop.sh" />
+
+			<echo file="${docker.stop.script}">
+				<![CDATA[
+					docker kill ${operating.system.host}
+
+					docker rm -f ${operating.system.host}
+
+					docker network disconnect -f ${env.DOCKER_NETWORK_NAME} ${operating.system.host}
+				]]>
+			</echo>
+
+			<chmod
+				perm="a+x"
+			>
+				<fileset
+					dir="."
+					includes="${docker.stop.script}"
+				/>
+			</chmod>
+
+			<exec executable="/bin/bash" failonerror="false" os="${os.apple},${os.unix}">
+				<arg value="${docker.stop.script}" />
+			</exec>
+
+			<exec executable="cmd.exe" failonerror="false" os="${os.windows}">
+				<arg value="${docker.stop.script}" />
+			</exec>
+
+			<delete file="${docker.stop.script}" />
+		</sequential>
+	</macrodef>
+
 	<macrodef name="stop-edge-driver">
 		<sequential>
 			<exec executable="taskkill.exe">
@@ -4635,7 +4856,9 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 	<macrodef name="stop-remote-search-engine">
 		<sequential>
 			<get-testcase-property property.name="osgi.app.includes" />
+			<get-testcase-property property.name="remote.elasticsearch.clusters.enabled" />
 			<get-testcase-property property.name="remote.elasticsearch.enabled" />
+			<get-testcase-property property.name="test.name.skip.portal.instance" />
 
 			<if>
 				<equals arg1="${remote.elasticsearch.enabled}" arg2="true" />
@@ -4644,6 +4867,18 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 						<contains string="${osgi.app.includes}" substring="portal-search-elasticsearch7" />
 						<then>
 							<ant antfile="build-test-elasticsearch7.xml" target="stop-elasticsearch" />
+
+							<if>
+								<and>
+									<equals arg1="${remote.elasticsearch.clusters.enabled}" arg2="true" />
+									<not>
+										<contains string="${test.name.skip.portal.instance}" substring="CrossCluster" />
+									</not>
+								</and>
+								<then>
+									<ant antfile="build-test-elasticsearch7.xml" target="stop-elasticsearch-local-cluster" />
+								</then>
+							</if>
 						</then>
 						<else>
 							<ant antfile="build-test-elasticsearch6.xml" target="stop-elasticsearch" />
@@ -4829,6 +5064,18 @@ war.path=${app.server.portal.dir}/</echo>
 				<then>
 					<property name="app.server.waiting.url" value="http://localhost:${test.app.server.leading.port.number}080/${portal.context}/web/guest" />
 				</then>
+				<elseif>
+					<and>
+						<equals arg1="${operating.system.type}" arg2="centos" />
+						<equals arg1="${operating.system.centos.version}" arg2="8" />
+						<equals arg1="${env.DOCKER_ENABLED}" arg2="true" />
+					</and>
+					<then>
+						<get-operating-system-property property.name="operating.system.host" />
+
+						<property name="app.server.waiting.url" value="http://${operating.system.host}:${test.app.server.leading.port.number}080/web/guest" />
+					</then>
+				</elseif>
 				<else>
 					<property name="app.server.waiting.url" value="http://localhost:${test.app.server.leading.port.number}080/web/guest" />
 				</else>
@@ -4878,7 +5125,9 @@ war.path=${app.server.portal.dir}/</echo>
 
 								DirectoryScanner directoryScanner = new DirectoryScanner();
 
-								directoryScanner.setIncludes(new String[] {project.getProperty("test.app.server.dir") + "/logs/catalina.*.log"});
+								File appServerDir = new File(project.getProperty("test.app.server.dir"));
+
+								directoryScanner.setIncludes(new String[] {appServerDir.getCanonicalPath() + "/logs/catalina.*.log"});
 
 								directoryScanner.scan();
 
@@ -6109,7 +6358,10 @@ go</echo>
 		<if>
 			<and>
 				<isset property="portal.lcs.license.url" />
-				<matches pattern="https?://" string="${portal.lcs.license.url}" />
+				<or>
+					<matches pattern="file://" string="${portal.lcs.license.url}" />
+					<matches pattern="https?://" string="${portal.lcs.license.url}" />
+				</or>
 			</and>
 			<then>
 				<mirrors-get
@@ -6476,81 +6728,6 @@ go</echo>
 					</sequential>
 				</for>
 			</then>
-		</if>
-	</target>
-
-	<target name="deploy-project-templates">
-		<if>
-			<equals arg1="${project.templates}" arg2="mvc-portlet" />
-			<then>
-				<gradle-execute dir="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}" task="generateSampleProject" />
-
-				<gradle-execute dir="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}/build/samplemvc" task="assemble" />
-
-				<copy
-					file="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}/build/samplemvc/build/libs/samplemvc-1.0.0.jar"
-					todir="${liferay.home}/deploy"
-				/>
-			</then>
-			<elseif>
-				<equals arg1="${project.templates}" arg2="rest" />
-				<then>
-					<gradle-execute dir="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}" task="generateSampleProject" />
-
-					<gradle-execute dir="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}/build/samplerest" task="assemble" />
-
-					<copy
-						file="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}/build/samplerest/build/libs/samplerest-1.0.0.jar"
-						todir="${liferay.home}/deploy"
-					/>
-				</then>
-			</elseif>
-			<elseif>
-				<equals arg1="${project.templates}" arg2="service-builder" />
-				<then>
-					<gradle-execute dir="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}" task="generateSampleProject" />
-
-					<gradle-execute dir="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}/build/foo" task="buildService" />
-
-					<gradle-execute dir="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}/build/foo" task="assemble" />
-
-					<copy
-						file="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}/build/foo/foo-api/build/libs/foo.api-1.0.0.jar"
-						todir="${liferay.home}/deploy"
-					/>
-
-					<copy
-						file="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}/build/foo/foo-service/build/libs/foo.service-1.0.0.jar"
-						todir="${liferay.home}/deploy"
-					/>
-				</then>
-			</elseif>
-			<elseif>
-				<equals arg1="${project.templates}" arg2="theme" />
-				<then>
-					<gradle-execute dir="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}" task="generateSampleProject" />
-
-					<gradle-execute dir="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}/build/sampletheme" task="assemble" />
-
-					<copy
-						file="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}/build/sampletheme/build/libs/sampletheme.war"
-						todir="${liferay.home}/deploy"
-					/>
-				</then>
-			</elseif>
-			<elseif>
-				<equals arg1="${project.templates}" arg2="war-mvc-portlet" />
-				<then>
-					<gradle-execute dir="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}" task="generateSampleProject" />
-
-					<gradle-execute dir="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}/build/samplewarmvcportlet" task="assemble" />
-
-					<copy
-						file="${project.dir}/modules/sdk/project-templates/project-templates-${project.templates}/build/samplewarmvcportlet/build/libs/samplewarmvcportlet.war"
-						todir="${liferay.home}/deploy"
-					/>
-				</then>
-			</elseif>
 		</if>
 	</target>
 
@@ -7685,6 +7862,8 @@ osb.lcs.portlet.oauth.consumer.secret=${osb.lcs.portlet.oauth.consumer.secret}</
 		</if>
 
 		<prepare-portal-elasticsearch-osgi-configuration />
+
+		<prepare-portal-search-osgi-configuration/>
 	</target>
 
 	<target name="prepare-patching-tool">
@@ -7753,6 +7932,8 @@ browser.launcher.url=
 
 setup.wizard.enabled=false
 
+buffered.increment.enabled=false
+
 mail.send.blacklist=
 
 mail.session.jndi.name=
@@ -7784,13 +7965,23 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 			</then>
 		</if>
 
-		<get-testcase-property property.name="cluster.enabled" />
+		<if>
+			<not>
+				<isset property="cluster.enabled" />
+			</not>
+			<then>
+				<get-testcase-property property.name="cluster.enabled" />
+			</then>
+		</if>
 
 		<if>
 			<equals arg1="${cluster.enabled}" arg2="true" />
 			<then>
 				<echo append="true" file="portal-impl/src/portal-ext.properties">
 cluster.link.autodetect.address=
+
+cluster.link.channel.logic.name.control=control-channel-logic-name
+cluster.link.channel.logic.name.transport.0=transport-channel-logic-name
 
 cluster.link.enabled=true
 
@@ -8387,30 +8578,8 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 		<if>
 			<contains string="${test.class}" substring="," />
 			<then>
-				<propertyregex
-					input="${test.class}"
-					override="false"
-					property="test.name.skip.portal.instance"
-					regexp="(.*?),.*"
-					replace="\1"
-				/>
-
-				<if>
-					<contains string="${test.name.skip.portal.instance}" substring="." />
-					<then>
-						<propertyregex
-							input="${test.name.skip.portal.instance}"
-							override="true"
-							property="test.name.skip.portal.instance"
-							regexp=".*\.(.*)"
-							replace="\1"
-						/>
-					</then>
-				</if>
-
 				<echo append="true" file="${test.ext.properties.file}">
 					test.portal.instance=true
-					test.name.skip.portal.instance=${test.name.skip.portal.instance}
 				</echo>
 			</then>
 			<else>
@@ -8422,13 +8591,6 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 	</target>
 
 	<target name="prepare-selenium">
-		<if>
-			<matches pattern="[0-9]+_[0-9]+" string="${test.class}" />
-			<then>
-				<get-test-class />
-			</then>
-		</if>
-
 		<delete file="${test.ext.properties.file}" />
 
 		<antcall target="prepare-poshi-runner-properties">
@@ -8448,6 +8610,26 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 		<antcall target="prepare-selenium-required-properties" />
 		<antcall target="prepare-selenium-sharepoint-properties" />
 		<antcall target="prepare-selenium-testcase-properties" />
+
+		<if>
+			<and>
+				<equals arg1="${operating.system.type}" arg2="centos" />
+				<equals arg1="${operating.system.centos.version}" arg2="8" />
+				<equals arg1="${env.DOCKER_ENABLED}" arg2="true" />
+			</and>
+			<then>
+				<get-operating-system-property property.name="operating.system.host.alias" />
+
+				<echo append="true" file="${test.ext.properties.file}">
+					default.portal.url=${operating.system.host.alias}:8080
+				</echo>
+			</then>
+			<else>
+				<echo append="true" file="${test.ext.properties.file}">
+					default.portal.url=http://localhost:8080
+				</echo>
+			</else>
+		</if>
 
 		<if>
 			<isset property="legacy.theme.ids" />
@@ -8577,6 +8759,15 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 		</if>
 
 		<if>
+			<isset property="test.jvm.max.retries" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					test.jvm.max.retries=${test.jvm.max.retries}
+				</echo>
+			</then>
+		</if>
+
+		<if>
 			<equals arg1="${test.save.screenshot}" arg2="true" />
 			<then>
 				<echo append="true" file="${test.ext.properties.file}">
@@ -8595,10 +8786,10 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 		</if>
 
 		<if>
-			<equals arg1="${test.selenium.implementation}" arg2="selenium" />
+			<isset property="test.testcase.max.retries" />
 			<then>
 				<echo append="true" file="${test.ext.properties.file}">
-					selenium.implementation=com.thoughtworks.selenium.Selenium
+					test.testcase.max.retries=${test.testcase.max.retries}
 				</echo>
 			</then>
 		</if>
@@ -9301,7 +9492,6 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 		<echo append="true" file="${test.ext.properties.file}">
 			portal.url=${test.url}
 			selenium.executable.dir=${basedir.unix}/tools/selenium/
-			selenium.logger.enabled=${test.selenium.logger.enabled}
 			test.class.command.name=${test.class}
 		</echo>
 	</target>
@@ -11332,74 +11522,21 @@ if (ppstate.equals("normal")) {
 		<echo>Writing ${project.dir}/${report.csv.file.name}</echo>
 	</target>
 
-	<target name="redeploy-osgi-modules">
-		<get-testcase-property property.name="osgi.modules.includes" />
-
+	<target name="redeploy-osgi-module">
 		<if>
 			<isset property="update.properties" />
 			<then>
 				<replace
-					file="${project.dir}/${module.base.dir}/${osgi.modules.includes}/bnd.bnd"
+					file="${project.dir}/${module.base.dir}/bnd.bnd"
 					token="${update.properties.original}"
 					value="${update.properties}"
 				/>
 			</then>
 		</if>
 
-		<echo file="tools/sdk/build.${user.name}.properties">auto.deploy.dir=${liferay.home}/deploy</echo>
-
-		<local name="osgi.module.pattern" />
-
-		<if>
-			<equals arg1="${osgi.modules.includes}" arg2="revert-schema-version" />
-			<then>
-				<property name="osgi.module.pattern" value="**/test/**" />
-			</then>
-			<else>
-				<property name="osgi.module.pattern" value="**/apps/**" />
-			</else>
-		</if>
-
-		<antelope:stringutil property="osgi.modules.includes.pattern" string="${osgi.module.pattern}/${osgi.modules.includes}">
-			<antelope:replace regex="," replacement=",${osgi.module.pattern}/" />
-		</antelope:stringutil>
-
-		<pathconvert pathsep="," property="osgi.modules.paths">
-			<dirset
-				dir="modules"
-				includes="${osgi.modules.includes.pattern}"
-			>
-				<or>
-					<present targetdir="modules">
-						<mapper
-							from="*"
-							to="*/build.gradle"
-							type="glob"
-						/>
-					</present>
-					<present targetdir="modules">
-						<mapper
-							from="*"
-							to="*/build.xml"
-							type="glob"
-						/>
-					</present>
-				</or>
-			</dirset>
-		</pathconvert>
-
-		<for list="${osgi.modules.paths}" parallel="true" param="osgi.module.path">
-			<sequential>
-				<local name="module.base.dir" />
-				<local name="osgi.module.command.prefix" />
-
-				<dirname file="@{osgi.module.path}" property="module.base.dir" />
-
-				<gradle-execute dir="@{osgi.module.path}" forcedcacheenabled="false" task="deploy">
-					<arg value="clean" />
-				</gradle-execute>
-			</sequential>
-		</for>
+		<gradle-execute dir="${project.dir}/${module.base.dir}" forcedcacheenabled="false" task="deploy">
+			<arg value="clean" />
+		</gradle-execute>
 	</target>
 
 	<target name="remove-plugin">
@@ -11591,13 +11728,6 @@ jdbc.default.password=${database.mysql.password}</echo>
 				<antcall inheritAll="false" target="setup-sdk" />
 
 				<antcall inheritAll="false" target="setup-yarn" />
-			</then>
-		</if>
-
-		<if>
-			<matches pattern="[0-9]+_[0-9]+" string="${test.class}" />
-			<then>
-				<get-test-class />
 			</then>
 		</if>
 
@@ -11838,15 +11968,6 @@ module.framework.properties.blacklist.portal.profile.names=${blacklist.portal.pr
 		Deploy project samples to the deploy directory.
 		-->
 
-		<get-testcase-property property.name="project.templates" />
-
-		<if>
-			<isset property="project.templates" />
-			<then>
-				<antcall target="deploy-project-templates" />
-			</then>
-		</if>
-
 		<get-testcase-property property.name="cas.enabled" />
 
 		<if>
@@ -12049,19 +12170,6 @@ module.framework.properties.blacklist.portal.profile.names=${blacklist.portal.pr
 			<equals arg1="${blacklist.saml.algorithms}" arg2="true" />
 			<then>
 				<prepare-saml-algorithm-blacklists />
-			</then>
-		</if>
-
-		<get-testcase-property property.name="elastic.xpack.enabled" />
-		<get-testcase-property property.name="remote.elasticsearch.enabled" />
-
-		<if>
-			<and>
-				<equals arg1="${elastic.xpack.enabled}" arg2="true" />
-				<equals arg1="${remote.elasticsearch.enabled}" arg2="true" />
-			</and>
-			<then>
-				<delete-default-elasticsearch-connection-config />
 			</then>
 		</if>
 
@@ -12408,6 +12516,49 @@ url=${short.hostname}:8080</echo>
 
 	<target name="set-tomcat-version-number">
 		<set-tomcat-version-number liferay.portal.bundle="${liferay.portal.bundle}" />
+	</target>
+
+	<target name="setup-portal-cluster">
+		<if>
+			<isset property="node.count" />
+			<then>
+				<condition property="non.numeric">
+					<matches pattern="[^0-9]" string="${node.count}" />
+				</condition>
+
+				<fail if="non.numeric" message="node.count property must be a number" />
+
+				<math
+					datatype="int"
+					operand1="${node.count}"
+					operand2="1"
+					operation="-"
+					result="app.server.bundles.size"
+				/>
+
+				<property name="app.server.bundles.size" value="${app.server.bundles.size}" />
+			</then>
+			<else>
+				<property name="app.server.bundles.size" value="1" />
+			</else>
+		</if>
+
+		<property name="cluster.enabled" value="true" />
+
+		<antcall target="prepare-portal-ext-properties" />
+
+		<if>
+			<not>
+				<equals arg1="${app.server.bundles.size}" arg2="0" />
+			</not>
+			<then>
+				<ant antfile="build-test-elasticsearch6.xml" target="start-elasticsearch" />
+
+				<prepare-additional-bundles />
+			</then>
+		</if>
+
+		<prepare-test-cluster-properties />
 	</target>
 
 	<target name="setup-testable-tomcat">

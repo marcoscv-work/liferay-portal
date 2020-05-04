@@ -113,10 +113,14 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(resourceBundle, "
 					value="<%= HtmlUtil.escape(groupDisplayContext.getChannelName(group.getGroupId())) %>"
 				/>
 
+				<%
+				List<Group> childrenGroups = group.getChildren(true);
+				%>
+
 				<liferay-ui:search-container-column-text
 					cssClass="table-cell-expand-smaller table-cell-ws-nowrap"
 					name="child-sites"
-					value="<%= String.valueOf(group.getChildrenWithLayoutsCount(true)) %>"
+					value="<%= String.valueOf(childrenGroups.size()) %>"
 				/>
 			</liferay-ui:search-container-row>
 
@@ -156,13 +160,13 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(resourceBundle, "
 		}
 	}
 
-	searchContainer.on('rowToggled', function(event) {
+	searchContainer.on('rowToggled', function (event) {
 		return <portlet:namespace />handleSubmitButton(
 			event.elements.allSelectedElements
 		);
 	});
 
-	Liferay.componentReady('<portlet:namespace />selectGroups').then(function(
+	Liferay.componentReady('<portlet:namespace />selectGroups').then(function (
 		searchContainer
 	) {
 		return <portlet:namespace />handleSubmitButton(

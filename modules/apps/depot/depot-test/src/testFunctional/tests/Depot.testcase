@@ -107,13 +107,29 @@ definition {
 
 		DepotNavigator.openDepotAdmin();
 
-		DepotNavigator.gotoEdit(depotName = "Test Depot Name");
+		DepotNavigator.gotoDefineCustomLanguages(depotName = "Test Depot Name");
 
-		DepotNavigator.gotoLanguages(depotName = "Test Depot Name");
+		Depot.viewLanguageItems(depotLanguage = "Spanish (Spain)");
 
-		Click.clickNoMouseOverNoWaitForVisible(
-			key_languagesOption = "Define a custom default language and additional active languages for this asset library.",
-			locator1 = "Radio#DEPOT_LANGUAGES_OPTION");
+		DepotNavigator.openDepotAdmin();
+
+		DepotNavigator.gotoDefineCustomLanguages(depotName = "Test Depot Name");
+
+		Depot.moveLanguage(
+			depotLanguage = "Spanish (Spain)",
+			moveDown = "true");
+
+		DepotNavigator.openDepotAdmin();
+
+		DepotNavigator.gotoDefineCustomLanguages(depotName = "Test Depot Name");
+
+		Depot.viewLanguageItems(
+			depotLanguage = "Spanish (Spain)",
+			lastLanguageItem = "true");
+
+		DepotNavigator.openDepotAdmin();
+
+		DepotNavigator.gotoDefineCustomLanguages(depotName = "Test Depot Name");
 
 		Depot.configureDefaultLanguage(
 			defaultDepotLanguage = "Spanish (Spain)",
@@ -179,11 +195,7 @@ definition {
 			depotDescription = "This is the description of a depot",
 			depotName = "Test Depot Name");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-depot-name");
 
 		DMFolder.addCP(dmFolderName = "DM Folder Name");
 
@@ -197,17 +209,11 @@ definition {
 	@description = "This ensures that a depot with multiple files can be deleted."
 	@priority = "4"
 	test DeleteDepotWithMultipleFiles {
-		property portal.upstream = "quarantine";
-
 		JSONDepot.addDepot(
 			depotDescription = "This is the description of a depot",
 			depotName = "Test Depot Name");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-depot-name");
 
 		DMDocument.addMultipleCP(dmDocumentFileList = "Document_1.doc,Document_2.jpg,Document_3.xls");
 

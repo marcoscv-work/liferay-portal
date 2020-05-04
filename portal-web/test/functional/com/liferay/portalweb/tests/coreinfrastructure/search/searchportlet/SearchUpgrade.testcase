@@ -90,7 +90,6 @@ definition {
 	@priority = "5"
 	test ViewClassicSearchPortletConfigurationArchive7210 {
 		property data.archive.type = "data-archive-classic-search-portlet";
-		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "7.2.10";
 		property test.run.environment = "EE";
 
@@ -152,7 +151,6 @@ definition {
 		Upgrade.viewClassicSearchPortletConfiguration();
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test ViewClassicSearchPortletConfigurationArchiveAutoUpgrade7110 {
 		property custom.properties = "upgrade.database.auto.run=true";
@@ -164,12 +162,10 @@ definition {
 		Upgrade.viewClassicSearchPortletConfiguration();
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test ViewClassicSearchPortletConfigurationArchiveAutoUpgrade7210 {
 		property custom.properties = "upgrade.database.auto.run=true";
 		property data.archive.type = "data-archive-classic-search-portlet";
-		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "7.2.10";
 		property skip.upgrade-legacy-database = "true";
 		property test.assert.warning.exceptions = "true";
@@ -178,7 +174,6 @@ definition {
 		Upgrade.viewClassicSearchPortletConfiguration();
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test ViewClassicSearchPortletConfigurationArchiveAutoUpgrade70106 {
 		property custom.properties = "upgrade.database.auto.run=true";
@@ -264,7 +259,6 @@ definition {
 	@priority = "5"
 	test ViewSearchPortletsConfigurationArchive7210 {
 		property data.archive.type = "data-archive-search-portlets";
-		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "7.2.10";
 		property test.assert.warning.exceptions = "true";
 		property test.run.environment = "EE";
@@ -306,7 +300,6 @@ definition {
 		Upgrade.viewSearchPortletsConfiguration();
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test ViewSearchPortletsConfigurationArchiveAutoUpgrade7110 {
 		property custom.properties = "upgrade.database.auto.run=true";
@@ -318,12 +311,10 @@ definition {
 		Upgrade.viewSearchPortletsConfiguration();
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test ViewSearchPortletsConfigurationArchiveAutoUpgrade7210 {
 		property custom.properties = "upgrade.database.auto.run=true";
 		property data.archive.type = "data-archive-search-portlets";
-		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "7.2.10";
 		property skip.upgrade-legacy-database = "true";
 		property test.assert.warning.exceptions = "true";

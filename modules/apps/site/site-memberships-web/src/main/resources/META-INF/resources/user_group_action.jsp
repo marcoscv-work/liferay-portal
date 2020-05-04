@@ -37,10 +37,11 @@ UserGroup userGroup = (UserGroup)row.getObject();
 		</portlet:renderURL>
 
 		<%
-		Map<String, Object> assignData = new HashMap<>();
-
-		assignData.put("href", assignURL.toString());
-		assignData.put("usergroupid", userGroup.getUserGroupId());
+		Map<String, Object> assignData = HashMapBuilder.<String, Object>put(
+			"href", assignURL.toString()
+		).put(
+			"usergroupid", userGroup.getUserGroupId()
+		).build();
 		%>
 
 		<liferay-ui:icon
@@ -59,10 +60,11 @@ UserGroup userGroup = (UserGroup)row.getObject();
 		</portlet:renderURL>
 
 		<%
-		Map<String, Object> unassignData = new HashMap<>();
-
-		unassignData.put("href", unassignURL.toString());
-		unassignData.put("usergroupid", userGroup.getUserGroupId());
+		Map<String, Object> unassignData = HashMapBuilder.<String, Object>put(
+			"href", unassignURL.toString()
+		).put(
+			"usergroupid", userGroup.getUserGroupId()
+		).build();
 		%>
 
 		<liferay-ui:icon
@@ -94,7 +96,7 @@ UserGroup userGroup = (UserGroup)row.getObject();
 	);
 
 	if (assignRolesLink) {
-		assignRolesLink.addEventListener('click', function(event) {
+		assignRolesLink.addEventListener('click', function (event) {
 			event.preventDefault();
 
 			var target = event.target;
@@ -117,11 +119,11 @@ UserGroup userGroup = (UserGroup)row.getObject();
 				url: target.dataset.href,
 			});
 
-			itemSelectorDialog.on('selectedItemChange', function(event) {
+			itemSelectorDialog.on('selectedItemChange', function (event) {
 				var selectedItems = event.selectedItem;
 
 				if (selectedItems) {
-					Array.prototype.forEach.call(selectedItems, function(
+					Array.prototype.forEach.call(selectedItems, function (
 						selectedItem,
 						index
 					) {
@@ -141,7 +143,7 @@ UserGroup userGroup = (UserGroup)row.getObject();
 	);
 
 	if (unassignRolesLink) {
-		unassignRolesLink.addEventListener('click', function(event) {
+		unassignRolesLink.addEventListener('click', function (event) {
 			event.preventDefault();
 
 			var target = event.target;
@@ -164,11 +166,11 @@ UserGroup userGroup = (UserGroup)row.getObject();
 				url: target.dataset.href,
 			});
 
-			itemSelectorDialog.on('selectedItemChange', function(event) {
+			itemSelectorDialog.on('selectedItemChange', function (event) {
 				var selectedItems = event.selectedItem;
 
 				if (selectedItems) {
-					Array.prototype.forEach.call(selectedItems, function(
+					Array.prototype.forEach.call(selectedItems, function (
 						selectedItem,
 						index
 					) {

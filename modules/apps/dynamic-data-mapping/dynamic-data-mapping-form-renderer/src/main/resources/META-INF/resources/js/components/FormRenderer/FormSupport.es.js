@@ -184,7 +184,7 @@ export const isEmptyPage = (pages, pageIndex) => {
 	);
 };
 
-export const isEmpty = pages => {
+export const isEmpty = (pages) => {
 	return pages.every((page, pageIndex) => isEmptyPage(pages, pageIndex));
 };
 
@@ -273,7 +273,7 @@ export const removeRow = (pages, pageIndex, rowIndex) => {
 
 export const visitNestedFields = ({nestedFields}, fn) => {
 	if (Array.isArray(nestedFields)) {
-		nestedFields.forEach(nestedField => {
+		nestedFields.forEach((nestedField) => {
 			fn(nestedField);
 
 			visitNestedFields(nestedField, fn);
@@ -281,24 +281,18 @@ export const visitNestedFields = ({nestedFields}, fn) => {
 	}
 };
 
-export const findFieldByName = (pages, name) => {
-	let field = null;
+export const findField = (pages, predicate) => {
 	const visitor = new PagesVisitor(pages);
 
-	visitor.mapFields(currentField => {
-		if (currentField.fieldName === name) {
-			field = currentField;
-		}
-		else if (currentField.nestedFields) {
-			visitNestedFields(currentField, nestedField => {
-				if (nestedField.fieldName === name) {
-					field = nestedField;
-				}
-			});
-		}
-	});
+	return visitor.findField(predicate);
+};
 
-	return field;
+export const findFieldByFieldName = (pages, fieldName) => {
+	return findField(pages, (field) => field.fieldName === fieldName);
+};
+
+export const findFieldByName = (pages, name) => {
+	return findField(pages, (field) => field.name === name);
 };
 
 export const getColumn = (pages, pageIndex, rowIndex, columnIndex) => {
@@ -308,24 +302,30 @@ export const getColumn = (pages, pageIndex, rowIndex, columnIndex) => {
 };
 
 export const getColumnPosition = (pages, pageIndex, rowIndex, columnIndex) => {
-	return columnIndex != -1
-		? pages[pageIndex].rows[rowIndex].columns.reduce(
-				(result, next, index) => {
-					if (index <= columnIndex) {
-						const column = getColumn(
-							pages,
-							pageIndex,
-							rowIndex,
-							index
-						);
+	const currentPage = pages[pageIndex];
 
-						result += column.size;
-					}
+	let currentRow = null;
 
-					return result;
-				},
-				0
-		  )
+	currentRow = currentPage.rows[rowIndex];
+
+	if (!currentPage) {
+		console.error(
+			`Row Index ${rowIndex} cannot be retrieved from ${currentPage}`
+		);
+
+		return;
+	}
+
+	return columnIndex != -1 && currentRow.columns
+		? currentRow.columns.reduce((result, _, index) => {
+				if (index <= columnIndex) {
+					const column = getColumn(pages, pageIndex, rowIndex, index);
+
+					result += column.size;
+				}
+
+				return result;
+		  }, 0)
 		: 0;
 };
 
@@ -334,7 +334,7 @@ export const getField = (context, pageIndex, rowIndex, columnIndex) => {
 
 	if (context[pageIndex].nestedFields) {
 		field = context[pageIndex].nestedFields.find(
-			nestedField => nestedField.fieldName === field
+			(nestedField) => nestedField.fieldName === field
 		);
 	}
 
@@ -342,7 +342,9 @@ export const getField = (context, pageIndex, rowIndex, columnIndex) => {
 };
 
 export const getRow = (pages, pageIndex, rowIndex) => {
-	return pages[Number(pageIndex)].rows[Number(rowIndex)];
+	const currentPage = pages[Number(pageIndex)];
+
+	return currentPage.rows[Number(rowIndex)];
 };
 
 export const rowHasFields = (pages, pageIndex, rowIndex) => {
@@ -353,14 +355,14 @@ export const rowHasFields = (pages, pageIndex, rowIndex) => {
 		const row = page.rows[Number(rowIndex)];
 
 		if (row) {
-			hasFields = row.columns.some(column => column.fields.length);
+			hasFields = row.columns.some((column) => column.fields.length);
 		}
 	}
 
 	return hasFields;
 };
 
-export const getIndexes = node => {
+export const getIndexes = (node) => {
 	const {ddmFieldColumn, ddmFieldPage, ddmFieldRow} = node.dataset;
 
 	return {
@@ -370,7 +372,7 @@ export const getIndexes = node => {
 	};
 };
 
-export const getNestedIndexes = node => {
+export const getNestedIndexes = (node) => {
 	let indexes = [];
 
 	if (node.dataset.ddmFieldRow) {
@@ -388,7 +390,7 @@ export const updateField = (pages, fieldName, properties) => {
 	const visitor = new PagesVisitor(pages);
 
 	return visitor.mapFields(
-		field => {
+		(field) => {
 			if (fieldName === field.fieldName) {
 				return {
 					...field,

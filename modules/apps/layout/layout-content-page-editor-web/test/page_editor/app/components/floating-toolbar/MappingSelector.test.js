@@ -24,6 +24,7 @@ import {
 } from '@testing-library/react';
 import React from 'react';
 
+import {useCollectionFields} from '../../../../../src/main/resources/META-INF/resources/page_editor/app/components/CollectionItemContext';
 import MappingSelector from '../../../../../src/main/resources/META-INF/resources/page_editor/app/components/floating-toolbar/MappingSelector';
 import {config} from '../../../../../src/main/resources/META-INF/resources/page_editor/app/config';
 import {EDITABLE_FRAGMENT_ENTRY_PROCESSOR} from '../../../../../src/main/resources/META-INF/resources/page_editor/app/config/constants/editableFragmentEntryProcessor';
@@ -82,6 +83,13 @@ jest.mock(
 	})
 );
 
+jest.mock(
+	'../../../../../src/main/resources/META-INF/resources/page_editor/app/components/CollectionItemContext',
+	() => ({
+		useCollectionFields: jest.fn(),
+	})
+);
+
 function renderMappingSelector({mappedItem = {}, onMappingSelect = () => {}}) {
 	const state = {
 		fragmentEntryLinks: {
@@ -136,7 +144,6 @@ describe('MappingSelector', () => {
 			renderMappingSelector({});
 		});
 
-		expect(getByText(document.body, 'content')).toBeInTheDocument();
 		expect(getByText(document.body, 'field')).toBeInTheDocument();
 		expect(getByText(document.body, 'source')).toBeInTheDocument();
 	});
@@ -148,10 +155,10 @@ describe('MappingSelector', () => {
 			{}
 		);
 
-		const sourceTypeInput = getByLabelText('source');
+		const sourceTypeSelect = getByLabelText('source');
 
 		await act(async () => {
-			fireEvent.change(sourceTypeInput, {
+			fireEvent.change(sourceTypeSelect, {
 				target: {value: 'structure'},
 			});
 		});
@@ -163,6 +170,8 @@ describe('MappingSelector', () => {
 	});
 
 	it('calls onMappingSelect with correct params when mapping to content', async () => {
+		config.pageType = PAGE_TYPES.content;
+
 		const onMappingSelect = jest.fn();
 
 		await act(async () => {
@@ -198,10 +207,10 @@ describe('MappingSelector', () => {
 			});
 		});
 
-		const sourceTypeInput = getByLabelText(document.body, 'source');
+		const sourceTypeSelect = getByLabelText(document.body, 'source');
 
 		await act(async () => {
-			fireEvent.change(sourceTypeInput, {
+			fireEvent.change(sourceTypeSelect, {
 				target: {value: 'structure'},
 			});
 		});
@@ -243,5 +252,27 @@ describe('MappingSelector', () => {
 			fieldId: '',
 			mappedField: '',
 		});
+	});
+
+	it('renders correct selects when using Collection context', async () => {
+		const collectionFields = [
+			{key: 'field-1', label: 'Field 1', type: 'text'},
+			{key: 'field-2', label: 'Field 2', type: 'text'},
+		];
+
+		useCollectionFields.mockImplementation(() => collectionFields);
+
+		await act(async () => {
+			renderMappingSelector({});
+		});
+
+		expect(queryByText(document.body, 'source')).not.toBeInTheDocument();
+		expect(queryByText(document.body, 'content')).not.toBeInTheDocument();
+
+		expect(getByText(document.body, 'field')).toBeInTheDocument();
+
+		collectionFields.forEach((field) =>
+			expect(getByText(document.body, field.label)).toBeInTheDocument()
+		);
 	});
 });

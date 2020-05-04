@@ -16,13 +16,19 @@ import {
 	FormSupport,
 	PagesVisitor,
 	RulesVisitor,
+	generateName,
+	getRepeatedIndex,
 } from 'dynamic-data-mapping-form-renderer';
 import handlePaginationItemClicked from 'dynamic-data-mapping-form-renderer/js/store/actions/handlePaginationItemClicked.es';
 import Component from 'metal-jsx';
 import {Config} from 'metal-state';
 
 import {pageStructure, ruleStructure} from '../../util/config.es';
-import {getFieldProperties, localizeField} from '../../util/fieldSupport.es';
+import {
+	generateInstanceId,
+	getFieldProperties,
+	localizeField,
+} from '../../util/fieldSupport.es';
 import {setLocalizedValue} from '../../util/i18n.es';
 import handleColumnResized from './handlers/columnResizedHandler.es';
 import handleElementSetAdded from './handlers/elementSetAddedHandler.es';
@@ -141,7 +147,7 @@ class LayoutProvider extends Component {
 		const {defaultLanguageId, editingLanguageId} = this.props;
 		const settingsVisitor = new PagesVisitor(pages);
 
-		return settingsVisitor.mapFields(field =>
+		return settingsVisitor.mapFields((field) =>
 			localizeField(field, defaultLanguageId, editingLanguageId)
 		);
 	}
@@ -155,7 +161,7 @@ class LayoutProvider extends Component {
 		const visitor = new PagesVisitor(pages);
 
 		pages = visitor.mapFields(
-			field => {
+			(field) => {
 				const {options, settingsContext} = field;
 
 				return {
@@ -164,6 +170,10 @@ class LayoutProvider extends Component {
 						defaultLanguageId,
 						editingLanguageId
 					),
+					name: generateName(field.name, {
+						instanceId: field.instanceId || generateInstanceId(),
+						repeatedIndex: getRepeatedIndex(field.name),
+					}),
 					options,
 					selected: focusedField.fieldName === field.fieldName,
 					settingsContext: {
@@ -180,7 +190,7 @@ class LayoutProvider extends Component {
 
 		visitor.setPages(pages);
 
-		return visitor.mapPages(page => {
+		return visitor.mapPages((page) => {
 			let {description, title} = page;
 
 			if (page.localizedDescription[editingLanguageId]) {
@@ -205,13 +215,24 @@ class LayoutProvider extends Component {
 		});
 	}
 
+	getPaginationMode() {
+		const {allowMultiplePages} = this.props;
+		const {paginationMode} = this.state;
+
+		if (allowMultiplePages) {
+			return paginationMode;
+		}
+
+		return 'single-page';
+	}
+
 	getRules() {
 		let {rules} = this.state;
 
 		if (rules) {
 			const visitor = new RulesVisitor(rules);
 
-			rules = visitor.mapConditions(condition => {
+			rules = visitor.mapConditions((condition) => {
 				if (condition.operands[0].type == 'list') {
 					condition = {
 						...condition,
@@ -239,51 +260,49 @@ class LayoutProvider extends Component {
 
 	render() {
 		const {
+			allowSuccessPage,
 			children,
 			defaultLanguageId,
 			editingLanguageId,
 			fieldActions,
 			spritemap,
 		} = this.props;
-		const {
-			activePage,
-			paginationMode,
-			rules,
-			successPageSettings,
-		} = this.state;
+		const {activePage, rules, successPageSettings} = this.state;
 
-		if (children.length) {
-			for (let index = 0; index < children.length; index++) {
-				const child = children[index];
-
-				Object.assign(child.props, {
-					...this.otherProps(),
-					activePage,
-					defaultLanguageId,
-					editingLanguageId,
-					fieldActions,
-					focusedField: this.getFocusedField(),
-					pages: this.getPages(),
-					paginationMode,
-					rules,
-					spritemap,
-					successPageSettings,
-				});
-			}
-		}
-
-		return <span>{children}</span>;
+		return (
+			<span>
+				{(children || []).map((child) => ({
+					...child,
+					props: {
+						...child.props,
+						...this.otherProps(),
+						activePage,
+						allowSuccessPage,
+						defaultLanguageId,
+						editingLanguageId,
+						fieldActions,
+						focusedField: this.getFocusedField(),
+						pages: this.getPages(),
+						paginationMode: this.getPaginationMode(),
+						rules,
+						spritemap,
+						successPageSettings,
+					},
+				}))}
+			</span>
+		);
 	}
 
 	_fieldActionsValueFn() {
 		return [
 			{
-				action: fieldName =>
+				action: (fieldName) =>
 					this.dispatch('fieldDuplicated', {fieldName}),
 				label: Liferay.Language.get('duplicate'),
 			},
 			{
-				action: fieldName => this.dispatch('fieldDeleted', {fieldName}),
+				action: (fieldName) =>
+					this.dispatch('fieldDeleted', {fieldName}),
 				label: Liferay.Language.get('delete'),
 			},
 		];
@@ -347,7 +366,7 @@ class LayoutProvider extends Component {
 
 		this.setState({
 			focusedField: previousFocusedField,
-			pages: visitor.mapFields(field => {
+			pages: visitor.mapFields((field) => {
 				if (field.fieldName === focusedField.fieldName) {
 					return {
 						...field,
@@ -361,12 +380,6 @@ class LayoutProvider extends Component {
 	}
 
 	_handleFieldClicked(event) {
-		const {originalEvent} = event;
-
-		if (originalEvent) {
-			originalEvent.stopPropagation();
-		}
-
 		this.setState(handleFieldClicked(this.props, this.state, event));
 	}
 
@@ -390,11 +403,12 @@ class LayoutProvider extends Component {
 		this.setState(handleFieldSetAdded(this.props, this.state, event));
 	}
 
-	_handleFocusedFieldEvaluationEnded({settingsContext}) {
+	_handleFocusedFieldEvaluationEnded({instanceId, settingsContext}) {
 		this.setState(
 			handleFocusedFieldEvaluationEnded(
 				this.props,
 				this.state,
+				instanceId,
 				settingsContext
 			)
 		);
@@ -545,7 +559,7 @@ class LayoutProvider extends Component {
 	_setInitialPages(initialPages) {
 		const visitor = new PagesVisitor(initialPages);
 
-		return visitor.mapFields(field => {
+		return visitor.mapFields((field) => {
 			const {settingsContext} = field;
 
 			return {
@@ -566,10 +580,10 @@ class LayoutProvider extends Component {
 
 		return {
 			...settingsContext,
-			pages: visitor.mapFields(field => {
+			pages: visitor.mapFields((field) => {
 				if (field.type === 'options') {
 					const getOptions = (languageId, field) => {
-						return field.value[languageId].map(option => {
+						return field.value[languageId].map((option) => {
 							return {
 								...option,
 								edited: true,
@@ -577,7 +591,7 @@ class LayoutProvider extends Component {
 						});
 					};
 
-					Object.keys(field.value).forEach(languageId => {
+					Object.keys(field.value).forEach((languageId) => {
 						field = {
 							...field,
 							value: {
@@ -609,6 +623,23 @@ class LayoutProvider extends Component {
 }
 
 LayoutProvider.PROPS = {
+
+	/**
+	 * @instance
+	 * @memberof LayoutProvider
+	 * @type {boolean}
+	 */
+
+	allowMultiplePages: Config.bool().value(true),
+
+	/**
+	 * @instance
+	 * @memberof LayoutProvider
+	 * @type {boolean}
+	 */
+
+	allowSuccessPage: Config.bool().value(true),
+
 	/**
 	 * @default undefined
 	 * @instance
@@ -744,6 +775,7 @@ LayoutProvider.PROPS = {
 };
 
 LayoutProvider.STATE = {
+
 	/**
 	 * @instance
 	 * @memberof FormPage

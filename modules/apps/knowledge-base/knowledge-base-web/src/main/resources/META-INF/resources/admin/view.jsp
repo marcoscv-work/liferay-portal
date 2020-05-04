@@ -142,11 +142,11 @@ if (parentResourcePrimKey != KBFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 						<c:when test="<%= kbObject instanceof KBFolder %>">
 
 							<%
-							Map<String, Object> rowData = new HashMap<String, Object>();
-
 							KBFolder kbFolder = (KBFolder)kbObject;
 
-							rowData.put("actions", StringUtil.merge(kbAdminManagementToolbarDisplayContext.getAvailableActions(kbFolder)));
+							Map<String, Object> rowData = HashMapBuilder.<String, Object>put(
+								"actions", StringUtil.merge(kbAdminManagementToolbarDisplayContext.getAvailableActions(kbFolder))
+							).build();
 
 							row.setData(rowData);
 
@@ -226,11 +226,11 @@ if (parentResourcePrimKey != KBFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 						<c:otherwise>
 
 							<%
-							Map<String, Object> rowData = new HashMap<String, Object>();
-
 							KBArticle kbArticle = (KBArticle)kbObject;
 
-							rowData.put("actions", StringUtil.merge(kbAdminManagementToolbarDisplayContext.getAvailableActions(kbArticle)));
+							Map<String, Object> rowData = HashMapBuilder.<String, Object>put(
+								"actions", StringUtil.merge(kbAdminManagementToolbarDisplayContext.getAvailableActions(kbArticle))
+							).build();
 
 							row.setData(rowData);
 
@@ -318,7 +318,7 @@ if (parentResourcePrimKey != KBFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 </div>
 
 <aui:script>
-	var deleteEntries = function() {
+	var deleteEntries = function () {
 		if (
 			confirm(
 				'<liferay-ui:message key="are-you-sure-you-want-to-delete-the-selected-entries" />'
@@ -336,10 +336,10 @@ if (parentResourcePrimKey != KBFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 		deleteEntries: deleteEntries,
 	};
 
-	Liferay.componentReady('kbAdminManagementToolbar').then(function(
+	Liferay.componentReady('kbAdminManagementToolbar').then(function (
 		managementToolbar
 	) {
-		managementToolbar.on('actionItemClicked', function(event) {
+		managementToolbar.on('actionItemClicked', function (event) {
 			var itemData = event.data.item.data;
 
 			if (itemData && itemData.action && ACTIONS[itemData.action]) {

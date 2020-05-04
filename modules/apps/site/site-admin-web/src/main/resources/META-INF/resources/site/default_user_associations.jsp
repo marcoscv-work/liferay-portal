@@ -32,7 +32,7 @@ else {
 	groupTypeSettings = new UnicodeProperties();
 }
 
-List<Role> defaultSiteRoles = new ArrayList();
+List<Role> defaultSiteRoles = new ArrayList<>();
 
 long[] defaultSiteRoleIds = StringUtil.split(groupTypeSettings.getProperty("defaultSiteRoleIds"), 0L);
 
@@ -42,7 +42,7 @@ for (long defaultSiteRoleId : defaultSiteRoleIds) {
 	defaultSiteRoles.add(role);
 }
 
-List<Team> defaultTeams = new ArrayList();
+List<Team> defaultTeams = new ArrayList<>();
 
 long[] defaultTeamIds = StringUtil.split(groupTypeSettings.getProperty("defaultTeamIds"), 0L);
 
@@ -146,12 +146,12 @@ for (long defaultTeamId : defaultTeamIds) {
 </div>
 
 <aui:script use="escape,liferay-search-container">
-	var bindModifyLink = function(config) {
+	var bindModifyLink = function (config) {
 		var searchContainer = config.searchContainer;
 
 		searchContainer.get('contentBox').delegate(
 			'click',
-			function(event) {
+			function (event) {
 				var link = event.currentTarget;
 
 				searchContainer.deleteRow(
@@ -163,10 +163,10 @@ for (long defaultTeamId : defaultTeamIds) {
 		);
 	};
 
-	var bindSelectLink = function(config) {
+	var bindSelectLink = function (config) {
 		var searchContainer = config.searchContainer;
 
-		A.one(config.linkId).on('click', function(event) {
+		A.one(config.linkId).on('click', function (event) {
 			var searchContainerData = searchContainer.getData();
 
 			if (!searchContainerData.length) {
@@ -195,7 +195,7 @@ for (long defaultTeamId : defaultTeamIds) {
 					title: config.title,
 					uri: uri,
 				},
-				function(event) {
+				function (event) {
 					var entityId = event.entityid;
 
 					var rowColumns = [

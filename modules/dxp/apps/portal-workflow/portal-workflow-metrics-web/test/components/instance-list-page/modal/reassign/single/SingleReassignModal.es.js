@@ -24,7 +24,7 @@ const ContainerMock = ({children}) => {
 	const selectedInstance = {
 		assetTitle: 'Blog1',
 		assetType: 'Blogs Entry',
-		assigneeUsers: [{id: 2, name: 'Test Test'}],
+		assignees: [{id: 2, name: 'Test Test'}],
 		id: 1,
 		status: 'In Progress',
 		taskNames: ['Review'],
@@ -104,9 +104,7 @@ describe('The SingleReassignModal component should', () => {
 
 		expect(alertError).toHaveTextContent('your-request-has-failed');
 		expect(retryBtn).toHaveTextContent('retry');
-		expect(emptyState.children[0]).toHaveTextContent(
-			'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
-		);
+		expect(emptyState).toHaveTextContent('unable-to-retrieve-data');
 
 		fireEvent.click(retryBtn);
 	});

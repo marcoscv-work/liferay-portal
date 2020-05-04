@@ -23,7 +23,7 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
  */
 @ExtendedObjectClassDefinition(
 	category = "segments", factoryInstanceLabelAttribute = "entityField",
-	scope = ExtendedObjectClassDefinition.Scope.COMPANY
+	generateUI = false
 )
 @Meta.OCD(
 	description = "segments-context-vocabulary-configuration-description",

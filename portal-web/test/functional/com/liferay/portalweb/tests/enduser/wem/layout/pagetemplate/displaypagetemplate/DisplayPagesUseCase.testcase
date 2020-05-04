@@ -65,12 +65,14 @@ definition {
 				fragmentName = "Rich Text");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Title",
 				fragmentName = "Title",
 				id = "title",
 				source = "Basic Web Content (Default)");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Content",
 				fragmentName = "Rich Text",
 				id = "rich-text",
@@ -245,12 +247,14 @@ definition {
 				fragmentName = "Image");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Author Name",
 				fragmentName = "Rich Text",
 				id = "rich-text",
 				source = "Basic Web Content (Default)");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Author Profile Image",
 				fragmentName = "Image",
 				id = "image",
@@ -383,7 +387,6 @@ definition {
 	}
 
 	@description = "This case ensures a user can map the layout of a fragment to an existing image content."
-	@ignore = "true"
 	@priority = "5"
 	test MapWebContentImageToLayoutSection {
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
@@ -460,12 +463,14 @@ definition {
 				fragmentName = "Image");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Last Editor Name",
 				fragmentName = "Rich Text",
 				id = "rich-text",
 				source = "Basic Web Content (Default)");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Last Editor Profile Image",
 				fragmentName = "Image",
 				id = "image",
@@ -594,24 +599,28 @@ definition {
 				fragmentName = "Multiple Editables");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Title",
 				fragmentName = "Multiple Editables",
 				id = "test1",
 				source = "Basic Web Content (Default)");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Content",
 				fragmentName = "Multiple Editables",
 				id = "test2",
 				source = "Basic Web Content (Default)");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Tags",
 				fragmentName = "Multiple Editables",
 				id = "test3",
 				source = "Basic Web Content (Default)");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Publish Date",
 				fragmentName = "Multiple Editables",
 				id = "test4",
@@ -724,24 +733,28 @@ definition {
 			fragmentName = "Multiple Editables");
 
 		PageEditorMapping.mapEditableTextToField(
+			contributed = "false",
 			field = "Title",
 			fragmentName = "Multiple Editables",
 			id = "test1",
 			source = "WC Structure Name (Default)");
 
 		PageEditorMapping.mapEditableTextToField(
+			contributed = "false",
 			field = "Content",
 			fragmentName = "Multiple Editables",
 			id = "test2",
 			source = "WC Structure Name (Default)");
 
 		PageEditorMapping.mapEditableTextToField(
+			contributed = "false",
 			field = "Tags",
 			fragmentName = "Multiple Editables",
 			id = "test3",
 			source = "WC Structure Name (Default)");
 
 		PageEditorMapping.mapEditableTextToField(
+			contributed = "false",
 			field = "Publish Date",
 			fragmentName = "Multiple Editables",
 			id = "test4",
@@ -807,12 +820,14 @@ definition {
 				fragmentName = "Rich Text");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Title",
 				fragmentName = "Title",
 				id = "title",
 				source = "Basic Web Content (Default)");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Content",
 				fragmentName = "Rich Text",
 				id = "rich-text",

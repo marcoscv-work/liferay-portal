@@ -49,6 +49,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>CONTRIBUTED_FRAGMENT_EDITABLE_FIELD</td>
+	<td>//div[contains(@class,'page-editor__topper') and contains(.,'${key_fragmentName}')]//*[contains(@data-lfr-editable-id,'${id}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>EDITABLE_FIELD</td>
 	<td>//div[contains(@class,'page-editor')]//div[contains(.,'${key_fragmentName}')]//lfr-editable[contains(@id,'${id}')]</td>
 	<td></td>
@@ -56,6 +61,11 @@
 <tr>
 	<td>EDITABLE_FIELD_CK_EDITOR</td>
 	<td>//div[contains(@class,'page-editor__topper')]//div[contains(.,'${key_fragmentName}')]//lfr-editable[contains(@id,'${id}')]//div[contains(@class,'cke_editable_inline')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CONTRIBUTED_FRAGMENT_EDITABLE_FIELD_CK_EDITOR</td>
+	<td>//div[contains(@class,'page-editor__topper') and contains(.,'${key_fragmentName}')]//*[contains(@data-lfr-editable-id,'${id}')]//div[contains(@class,'cke_editable_inline')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -81,6 +91,11 @@
 <tr>
 	<td>MESSAGE_INFO</td>
 	<td>//div[contains(@class,'page-editor__topper') and contains(.,'${key_fragmentName}')]//div[@class='portlet-msg-info' and contains(.,'${key_messageIfo}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>NOT_COLLECTION_SELECTED_MESSAGE</td>
+	<td>//div[contains(@class,'page-editor__topper') and contains(.,'${key_fragmentName}')]//div[@class='page-editor__collection' and contains(.,'${key_message}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -127,7 +142,12 @@
 </tr>
 <tr>
 	<td>FRAGMENT_CONFIGURATION_BOTTOM_SPACING</td>
-	<td>//*[contains(@class,'component-${key_fragmentName}')][contains(@class,'pb-${key_bottomSpacing}')]</td>
+	<td>//div[contains(@class,'component-${key_fragmentName}')]//hr[contains(@class,'pb-${key_bottomSpacing}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRAGMENT_CONFIGURATION_MARGIN_BOTTOM</td>
+	<td>//*[contains(@class,'component-${key_fragmentName}')][contains(@class,'mb-${key_marginBottom}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -165,11 +185,6 @@
 	<td>//div[contains(@class,'component-${key_fragmentName}')]//a[contains(@class,'-${key_type}')]</td>
 	<td></td>
 </tr>
-<tr>
-	<td>FRAGMENT_CONFIGURATION_VERTICAL_SPACE</td>
-	<td>//div[contains(@class,'component-${key_fragmentName}')]//hr[contains(@class,'pb-${key_verticalSpace}')]</td>
-	<td></td>
-</tr>
 <!--FRAGMENT_HEADER-->
 <tr>
 	<td>FRAGMENT_HEADER</td>
@@ -182,8 +197,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>FRAGMENT_HEADER_DRAG_HANDLER</td>
+	<td>//div[contains(@class,'page-editor')]//li[contains(.,'${key_dragFragmentName}')]/preceding-sibling::li[contains(@class,'drag-handler')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRAGMENT_HEADER_INSET_STYLE</td>
+	<td>//div[contains(@class,'page-editor')]//div[contains(@class,'topper__bar--inset') and contains(.,'${key_fragmentName}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>FRAGMENT_HEADER_POSITION</td>
-	<td>//div[contains(@class,'fragment-entry-link')]/section[${key_position}]//li[contains(.,'${key_fragmentName}')]</td>
+	<td>xpath=(//div[contains(@class,'page-editor__topper__bar tbar')])[${key_position}]//li[contains(.,'${key_fragmentName}')]</td>
 	<td></td>
 </tr>
 <tr>

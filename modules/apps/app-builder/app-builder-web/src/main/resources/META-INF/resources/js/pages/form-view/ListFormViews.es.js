@@ -12,13 +12,13 @@
  * details.
  */
 
-import moment from 'moment';
 import React, {useContext} from 'react';
 
 import {AppContext} from '../../AppContext.es';
 import Button from '../../components/button/Button.es';
 import ListView from '../../components/list-view/ListView.es';
 import {confirmDelete} from '../../utils/client.es';
+import {fromNow} from '../../utils/time.es';
 
 export default ({
 	match: {
@@ -27,14 +27,14 @@ export default ({
 }) => {
 	const {basePortletURL} = useContext(AppContext);
 
-	const getItemURL = item =>
+	const getItemURL = (item) =>
 		Liferay.Util.PortletURL.createRenderURL(basePortletURL, {
 			dataDefinitionId,
 			dataLayoutId: item.id,
 			mvcRenderCommandName: '/edit_form_view',
 		});
 
-	const handleEditItem = item => {
+	const handleEditItem = (item) => {
 		const itemURL = getItemURL(item);
 
 		Liferay.Util.navigate(itemURL);
@@ -68,7 +68,7 @@ export default ({
 		<ListView
 			actions={[
 				{
-					action: item => Promise.resolve(handleEditItem(item)),
+					action: (item) => Promise.resolve(handleEditItem(item)),
 					name: Liferay.Language.get('edit'),
 				},
 				{
@@ -101,10 +101,10 @@ export default ({
 			}}
 			endpoint={`/o/data-engine/v2.0/data-definitions/${dataDefinitionId}/data-layouts`}
 		>
-			{item => ({
+			{(item) => ({
 				dataDefinitionId,
-				dateCreated: moment(item.dateCreated).fromNow(),
-				dateModified: moment(item.dateModified).fromNow(),
+				dateCreated: fromNow(item.dateCreated),
+				dateModified: fromNow(item.dateModified),
 				id: item.id,
 				name: <a href={getItemURL(item)}>{item.name.en_US}</a>,
 			})}

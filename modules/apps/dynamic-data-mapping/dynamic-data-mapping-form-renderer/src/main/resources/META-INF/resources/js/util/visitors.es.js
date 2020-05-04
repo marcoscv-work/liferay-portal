@@ -12,9 +12,7 @@
  * details.
  */
 
-import * as FormSupport from '../components/FormRenderer/FormSupport.es';
-
-const identity = value => value;
+const identity = (value) => value;
 
 class PagesVisitor {
 	constructor(pages) {
@@ -25,27 +23,22 @@ class PagesVisitor {
 		this._pages = null;
 	}
 
-	containsField(fieldName, includeNestedFields = false) {
-		return !!this.findField(
-			field => field.fieldName === fieldName,
-			includeNestedFields
-		);
+	containsField(fieldName) {
+		return !!this.findField((field) => field.fieldName === fieldName);
 	}
 
-	findField(condition, includeNestedFields = false) {
+	findField(condition) {
 		let conditionField;
 
-		this.mapFields(
-			(field, ...args) => {
-				if (condition(field, ...args)) {
-					conditionField = field;
-				}
+		this.visitFields((field) => {
+			if (condition(field)) {
+				conditionField = field;
 
-				return field;
-			},
-			false,
-			includeNestedFields
-		);
+				return true;
+			}
+
+			return false;
+		});
 
 		return conditionField;
 	}
@@ -70,31 +63,32 @@ class PagesVisitor {
 				}
 
 				if (includeNestedFields && mappedField.nestedFields) {
-					const nestedFields = [];
+					const mapNestedFields = (field) => {
+						return {
+							...field,
+							nestedFields: (field.nestedFields || []).map(
+								(nestedField) => {
+									let mappedNestedField = mapper(
+										nestedField,
+										fieldIndex,
+										...args,
+										field
+									);
 
-					FormSupport.visitNestedFields(mappedField, nestedField => {
-						if (merge) {
-							nestedFields.push({
-								...nestedField,
-								...mapper(
-									nestedField,
-									fieldIndex,
-									...args,
-									mappedField
-								),
-							});
-						}
-						else {
-							nestedFields.push(
-								mapper(nestedField, fieldIndex, ...args)
-							);
-						}
-					});
+									if (merge) {
+										mappedNestedField = {
+											...nestedField,
+											...mappedNestedField,
+										};
+									}
 
-					mappedField = {
-						...mappedField,
-						nestedFields,
+									return mapNestedFields(mappedNestedField);
+								}
+							),
+						};
 					};
+
+					return mapNestedFields(mappedField);
 				}
 
 				return mappedField;
@@ -112,6 +106,33 @@ class PagesVisitor {
 
 	setPages(pages) {
 		this._pages = [...pages];
+	}
+
+	visitFields(fn) {
+		const isFieldNode = (node) =>
+			Object.prototype.hasOwnProperty.call(node, 'fieldName');
+
+		const getChildren = (node) => {
+			if (isFieldNode(node)) {
+				return node.nestedFields || [];
+			}
+
+			return node.fields || node.rows || node.columns || [];
+		};
+
+		const collection = [...this._pages];
+
+		while (collection.length) {
+			const node = collection.shift();
+
+			if (isFieldNode(node) && fn(node)) {
+				return true;
+			}
+
+			collection.unshift(...getChildren(node));
+		}
+
+		return false;
 	}
 
 	_map(pageMapper, rowMapper, columnMapper, fieldFn) {
@@ -165,12 +186,12 @@ class RulesVisitor {
 	}
 
 	containsField(fieldName) {
-		return this._rules.some(rule => {
+		return this._rules.some((rule) => {
 			const actionsResult = rule.actions.some(({target}) => {
 				return target === fieldName;
 			});
 
-			const conditionsResult = rule.conditions.some(condition => {
+			const conditionsResult = rule.conditions.some((condition) => {
 				return condition.operands.some(({type, value}) => {
 					return type === 'field' && value === fieldName;
 				});
@@ -181,7 +202,7 @@ class RulesVisitor {
 	}
 
 	containsFieldExpression(fieldName) {
-		return this._rules.some(rule => {
+		return this._rules.some((rule) => {
 			return rule.actions.some(({action, expression}) => {
 				return action === 'calculate' && expression.includes(fieldName);
 			});
@@ -193,7 +214,7 @@ class RulesVisitor {
 	}
 
 	mapActions(actionMapper) {
-		return this._rules.map(rule => {
+		return this._rules.map((rule) => {
 			return {
 				...rule,
 				actions: rule.actions.map(actionMapper),
@@ -202,7 +223,7 @@ class RulesVisitor {
 	}
 
 	mapConditions(conditionMapper) {
-		return this._rules.map(rule => {
+		return this._rules.map((rule) => {
 			return {
 				...rule,
 				conditions: rule.conditions.map(conditionMapper),

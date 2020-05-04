@@ -110,6 +110,7 @@ definition {
 			permissionNavigationValue = "${permissionNavigationValue}",
 			remove = "${remove}",
 			roleTitle = "${roleTitle}",
+			roleTitleEdit = "${roleTitleEdit}",
 			roleType = "${roleType}",
 			roleUser = "${roleUser}",
 			siteNameScope = "${siteNameScope}");
@@ -120,6 +121,7 @@ definition {
 			assetLibrariesScope = "${assetLibrariesScope}",
 			permissionDefinitionKey = "${permissionDefinitionKey}",
 			roleTitle = "${roleTitle}",
+			roleTitleEdit = "${roleTitleEdit}",
 			roleType = "${roleType}",
 			roleUser = "${roleUser}",
 			siteNameScope = "${siteNameScope}");
@@ -175,7 +177,7 @@ definition {
 	macro editPermissionCmdCP {
 		var key_roleTitle = "${roleTitle}";
 
-		if (contains("Organization,Site", "${roleType}")) {
+		if (contains("Asset Library,Organization,Site", "${roleType}")) {
 			Navigator.gotoNavItem(navItem = "${roleType} Roles");
 		}
 		else {
@@ -197,6 +199,14 @@ definition {
 			AssertClick(
 				locator1 = "ListGroupItem#ITEM_NAME_LINK",
 				value1 = "${roleTitle}");
+		}
+
+		if (isSet(roleTitleEdit)) {
+			PortletEntry.inputTitle(title = "${roleTitleEdit}");
+
+			AssertClick(
+				locator1 = "Button#SUBMIT",
+				value1 = "Save");
 		}
 
 		Navigator.gotoNavItem(navItem = "Define Permissions");
@@ -268,6 +278,10 @@ definition {
 				var permissionNavigationKey = "SITE_ADMIN_APPLICATIONS_WEB_CONTENT_DISPLAY";
 				var permissionNavigationValue = "Web Content Display";
 			}
+			else if (contains("${permissionDefinitionKey}", "SITE_ADMIN_CONFIGURATION_REDIRECTION")) {
+				var permissionNavigationKey = "SITE_ADMIN_CONFIGURATION_REDIRECTION";
+				var permissionNavigationValue = "Redirection";
+			}
 			else if (contains("${permissionDefinitionKey}", "SITE_ADMIN_CONFIGURATION_SITE_SETTINGS")) {
 				var permissionNavigationKey = "SITE_ADMIN_CONFIGURATION_SITE_SETTINGS";
 				var permissionNavigationValue = "Settings";
@@ -284,9 +298,9 @@ definition {
 				var permissionNavigationKey = "SITE_ADMIN_CATEGORIES";
 				var permissionNavigationValue = "Categories";
 			}
-			else if (contains("${permissionDefinitionKey}", "SITE_ADMIN_CONTENT_CONTENT_SETS")) {
-				var permissionNavigationKey = "SITE_ADMIN_CONTENT_CONTENT_SETS";
-				var permissionNavigationValue = "Content Sets";
+			else if (contains("${permissionDefinitionKey}", "SITE_ADMIN_CONTENT_COLLECTIONS")) {
+				var permissionNavigationKey = "SITE_ADMIN_CONTENT_COLLECTIONS";
+				var permissionNavigationValue = "Collections";
 			}
 			else if (contains("${permissionDefinitionKey}", "SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA")) {
 				var permissionNavigationKey = "SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA";
@@ -507,7 +521,7 @@ definition {
 	}
 
 	macro viewCP {
-		if (contains("Organization,Site", "${roleType}")) {
+		if (contains("Asset Library,Organization,Site", "${roleType}")) {
 			Navigator.gotoNavItem(navItem = "${roleType} Roles");
 		}
 		else {
@@ -615,13 +629,17 @@ definition {
 			var permissionNavigationKey = "SITE_ADMIN_APPLICATIONS_WEB_CONTENT_DISPLAY";
 			var permissionNavigationValue = "Web Content Display";
 		}
+		else if (contains("${permissionDefinitionKey}", "SITE_ADMIN_CONFIGURATION_REDIRECTION")) {
+			var permissionNavigationKey = "SITE_ADMIN_CONFIGURATION_REDIRECTION";
+			var permissionNavigationValue = "Redirection";
+		}
 		else if (contains("${permissionDefinitionKey}", "SITE_ADMIN_CONTENT_BLOGS")) {
 			var permissionNavigationKey = "SITE_ADMIN_CONTENT_BLOGS";
 			var permissionNavigationValue = "Blogs";
 		}
-		else if (contains("${permissionDefinitionKey}", "SITE_ADMIN_CONTENT_CONTENT_SETS")) {
-			var permissionNavigationKey = "SITE_ADMIN_CONTENT_CONTENT_SETS";
-			var permissionNavigationValue = "Content Sets";
+		else if (contains("${permissionDefinitionKey}", "SITE_ADMIN_CONTENT_COLLECTIONS")) {
+			var permissionNavigationKey = "SITE_ADMIN_CONTENT_COLLECTIONS";
+			var permissionNavigationValue = "Collections";
 		}
 		else if (contains("${permissionDefinitionKey}", "SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA")) {
 			var permissionNavigationKey = "SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA";

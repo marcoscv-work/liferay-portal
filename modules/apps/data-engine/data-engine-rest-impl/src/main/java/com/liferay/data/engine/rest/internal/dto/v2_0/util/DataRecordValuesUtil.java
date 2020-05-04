@@ -112,7 +112,7 @@ public class DataRecordValuesUtil {
 				jsonObject.put(
 					entry.getKey(),
 					JSONFactoryUtil.createJSONArray(
-						(Object[])dataRecordValues.get(entry.getKey())));
+						(List<Object>)dataRecordValues.get(entry.getKey())));
 			}
 			else {
 				jsonObject.put(
@@ -135,58 +135,6 @@ public class DataRecordValuesUtil {
 
 		ddmFormFieldValue.setValue(ddmFormField.getPredefinedValue());
 
-		if ((dataRecordValues == null) || !dataRecordValues.containsKey(name)) {
-			return ListUtil.fromArray(ddmFormFieldValue);
-		}
-
-		if (ddmFormField.isRepeatable()) {
-			Object[] instancesValue = null;
-
-			if (ddmFormField.isLocalizable()) {
-				Object value = dataRecordValues.get(name);
-
-				if (!(value instanceof Map)) {
-					throw new IllegalArgumentException(
-						"Field value is not a map");
-				}
-
-				Map<String, Object> localizedValues =
-					(Map<String, Object>)value;
-
-				instancesValue = (Object[])localizedValues.get(
-					LanguageUtil.getLanguageId(locale));
-			}
-			else {
-				instancesValue = (Object[])dataRecordValues.get(name);
-			}
-
-			if (instancesValue == null) {
-				return ListUtil.fromArray(ddmFormFieldValue);
-			}
-
-			List<DDMFormFieldValue> ddmFormFieldValues = new ArrayList<>(
-				instancesValue.length);
-
-			for (Object instanceValue : instancesValue) {
-				ddmFormFieldValue = new DDMFormFieldValue();
-
-				ddmFormFieldValue.setName(ddmFormField.getName());
-
-				LocalizedValue localizedValue = new LocalizedValue();
-
-				localizedValue.addString(locale, String.valueOf(instanceValue));
-
-				ddmFormFieldValue.setValue(localizedValue);
-
-				ddmFormFieldValues.add(ddmFormFieldValue);
-			}
-
-			return ddmFormFieldValues;
-		}
-
-		ddmFormFieldValue.setValue(
-			createValue(ddmFormField, locale, dataRecordValues.get(name)));
-
 		if (ListUtil.isNotEmpty(ddmFormField.getNestedDDMFormFields())) {
 			for (DDMFormField nestedDDMFormField :
 					ddmFormField.getNestedDDMFormFields()) {
@@ -199,6 +147,60 @@ public class DataRecordValuesUtil {
 
 				stream.forEach(ddmFormFieldValue::addNestedDDMFormFieldValue);
 			}
+		}
+
+		if ((dataRecordValues == null) || !dataRecordValues.containsKey(name)) {
+			return ListUtil.fromArray(ddmFormFieldValue);
+		}
+
+		if (ddmFormField.isRepeatable()) {
+			List<Object> list = null;
+
+			if (ddmFormField.isLocalizable()) {
+				Object value = dataRecordValues.get(name);
+
+				if (!(value instanceof Map)) {
+					throw new IllegalArgumentException(
+						"Field value is not a map");
+				}
+
+				Map<String, Object> localizedValues =
+					(Map<String, Object>)value;
+
+				list = (List<Object>)localizedValues.get(
+					LanguageUtil.getLanguageId(locale));
+			}
+			else {
+				list = (List<Object>)dataRecordValues.get(name);
+			}
+
+			if (list == null) {
+				return ListUtil.fromArray(ddmFormFieldValue);
+			}
+
+			List<DDMFormFieldValue> ddmFormFieldValues = new ArrayList<>(
+				list.size());
+
+			for (Object object : list) {
+				ddmFormFieldValue = new DDMFormFieldValue();
+
+				ddmFormFieldValue.setName(ddmFormField.getName());
+
+				LocalizedValue localizedValue = new LocalizedValue();
+
+				localizedValue.addString(locale, String.valueOf(object));
+
+				ddmFormFieldValue.setValue(localizedValue);
+
+				ddmFormFieldValues.add(ddmFormFieldValue);
+			}
+
+			return ddmFormFieldValues;
+		}
+
+		if (dataRecordValues.get(name) != null) {
+			ddmFormFieldValue.setValue(
+				createValue(ddmFormField, locale, dataRecordValues.get(name)));
 		}
 
 		return ListUtil.fromArray(ddmFormFieldValue);

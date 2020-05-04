@@ -68,10 +68,11 @@ PortletURL portletURL = organizationItemSelectorViewDisplayContext.getPortletURL
 		>
 
 			<%
-			Map<String, Object> data = new HashMap<>();
-
-			data.put("id", organization.getOrganizationId());
-			data.put("name", organization.getName());
+			Map<String, Object> data = HashMapBuilder.<String, Object>put(
+				"id", organization.getOrganizationId()
+			).put(
+				"name", organization.getName()
+			).build();
 
 			row.setData(data);
 			%>
@@ -106,12 +107,12 @@ PortletURL portletURL = organizationItemSelectorViewDisplayContext.getPortletURL
 		'<portlet:namespace />organizations'
 	);
 
-	searchContainer.on('rowToggled', function(event) {
+	searchContainer.on('rowToggled', function (event) {
 		var allSelectedElements = event.elements.allSelectedElements;
 
 		var arr = [];
 
-		allSelectedElements.each(function() {
+		allSelectedElements.each(function () {
 			var row = this.ancestor('tr');
 
 			var data = row.getDOM().dataset;

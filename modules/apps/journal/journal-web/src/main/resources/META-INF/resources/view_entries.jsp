@@ -49,18 +49,19 @@ String referringPortletResource = ParamUtil.getString(request, "referringPortlet
 			<c:when test="<%= curArticle != null %>">
 
 				<%
-				Map<String, Object> rowData = new HashMap<String, Object>();
-
-				rowData.put("actions", journalDisplayContext.getAvailableActions(curArticle));
-				rowData.put("draggable", !BrowserSnifferUtil.isMobile(request) && (JournalArticlePermission.contains(permissionChecker, curArticle, ActionKeys.DELETE) || JournalArticlePermission.contains(permissionChecker, curArticle, ActionKeys.UPDATE)));
-
 				String title = curArticle.getTitle(locale);
 
 				if (Validator.isNull(title)) {
 					title = curArticle.getTitle(LocaleUtil.fromLanguageId(curArticle.getDefaultLanguageId()));
 				}
 
-				rowData.put("title", HtmlUtil.escape(title));
+				Map<String, Object> rowData = HashMapBuilder.<String, Object>put(
+					"actions", journalDisplayContext.getAvailableActions(curArticle)
+				).put(
+					"draggable", !BrowserSnifferUtil.isMobile(request) && (JournalArticlePermission.contains(permissionChecker, curArticle, ActionKeys.DELETE) || JournalArticlePermission.contains(permissionChecker, curArticle, ActionKeys.UPDATE))
+				).put(
+					"title", HtmlUtil.escape(title)
+				).build();
 
 				row.setData(rowData);
 
@@ -233,13 +234,17 @@ String referringPortletResource = ParamUtil.getString(request, "referringPortlet
 			<c:when test="<%= curFolder != null %>">
 
 				<%
-				Map<String, Object> rowData = new HashMap<String, Object>();
-
-				rowData.put("actions", journalDisplayContext.getAvailableActions(curFolder));
-				rowData.put("draggable", !BrowserSnifferUtil.isMobile(request) && (JournalFolderPermission.contains(permissionChecker, curFolder, ActionKeys.DELETE) || JournalFolderPermission.contains(permissionChecker, curFolder, ActionKeys.UPDATE)));
-				rowData.put("folder", true);
-				rowData.put("folder-id", curFolder.getFolderId());
-				rowData.put("title", HtmlUtil.escape(curFolder.getName()));
+				Map<String, Object> rowData = HashMapBuilder.<String, Object>put(
+					"actions", journalDisplayContext.getAvailableActions(curFolder)
+				).put(
+					"draggable", !BrowserSnifferUtil.isMobile(request) && (JournalFolderPermission.contains(permissionChecker, curFolder, ActionKeys.DELETE) || JournalFolderPermission.contains(permissionChecker, curFolder, ActionKeys.UPDATE))
+				).put(
+					"folder", true
+				).put(
+					"folder-id", curFolder.getFolderId()
+				).put(
+					"title", HtmlUtil.escape(curFolder.getName())
+				).build();
 
 				row.setData(rowData);
 				row.setPrimaryKey(String.valueOf(curFolder.getPrimaryKey()));
@@ -407,7 +412,7 @@ String referringPortletResource = ParamUtil.getString(request, "referringPortlet
 		searchContainerId: 'articles',
 	});
 
-	var clearJournalNavigationHandles = function(event) {
+	var clearJournalNavigationHandles = function (event) {
 		if (event.portletId === '<%= portletDisplay.getRootPortletId() %>') {
 			journalNavigation.destroy();
 

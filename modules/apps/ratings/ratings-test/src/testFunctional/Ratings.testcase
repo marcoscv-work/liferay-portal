@@ -24,8 +24,6 @@ definition {
 
 	@priority = "4"
 	test ChangeBlogsRatingType {
-		User.firstLoginPG();
-
 		JSONLayout.addPublicLayout(
 			groupName = "Guest",
 			layoutName = "Blogs Page");
@@ -52,10 +50,10 @@ definition {
 		Navigator.gotoPage(pageName = "Blogs Page");
 
 		AssertTextEquals(
-			locator1 = "Ratings#AVERAGE_LABEL",
-			value1 = "Average (0 Votes)");
+			locator1 = "Ratings#AVERAGE_STAR_RESULT",
+			value1 = "0.0");
 
-		AssertElementPresent(locator1 = "Ratings#YOUR_RATING_STAR_EMPTY_1");
+		AssertElementPresent(locator1 = "Ratings#YOUR_RATING_STAR_EMPTY");
 	}
 
 	@description = "This is a use case for LPS-74621."
@@ -98,7 +96,7 @@ definition {
 			pageName = "Staging Blogs Page",
 			siteName = "Site Name");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryPG(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 
@@ -108,7 +106,7 @@ definition {
 
 		Pause(locator1 = "3000");
 
-		Ratings.rate(ratingResult = "Thumb Up");
+		Ratings.rateThumb(ratingResult = "Rate this as good");
 
 		Comments.addPG(entryComment = "Blogs Entry Comment");
 
@@ -120,8 +118,8 @@ definition {
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 
-		Ratings.viewRating(
-			ratingResult = "Thumb Up",
+		Ratings.viewRateThumb(
+			ratingResult = "You have rated this as good",
 			voteCount = "1");
 
 		Comments.viewPG(
@@ -139,7 +137,7 @@ definition {
 
 		Comments.viewCommentReadOnly();
 
-		Ratings.viewRatingReadOnly();
+		Ratings.viewRateThumbReadOnly();
 
 		Navigator.gotoStagedSitePage(
 			pageName = "Staging Blogs Page",
@@ -174,7 +172,7 @@ definition {
 
 		Navigator.openSiteURL(siteName = "Second Site");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryPG(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 
@@ -182,8 +180,8 @@ definition {
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 
-		Ratings.viewRating(
-			ratingResult = "Thumb Up",
+		Ratings.viewRateThumb(
+			ratingResult = "You have rated this as good",
 			voteCount = "1");
 
 		Comments.viewPG(
@@ -231,7 +229,7 @@ definition {
 			wikiPageContent = "Wiki FrontPage Content",
 			wikiPageTitle = "FrontPage");
 
-		WikiPage.rate4StarsPG(wikiPageTitle = "FrontPage");
+		Ratings.rateStar(ratingStarCount = "2");
 
 		Comments.addPG(entryComment = "Wiki FrontPage Comment");
 
@@ -239,9 +237,9 @@ definition {
 			pageName = "Staging Test Page",
 			siteName = "Site Name");
 
-		AssetPublisherPortlet.viewAssetRatingPG(rating = "4");
-
-		AssetPublisherPortlet.viewAverageRatingPG(averageRating = "4");
+		Ratings.viewRateStar(
+			averageRatingStarCount = "2.0",
+			ratingStarCount = "2");
 
 		Comments.viewPG(
 			commentCount = "1",
@@ -258,7 +256,7 @@ definition {
 
 		Comments.viewCommentReadOnly();
 
-		Ratings.viewRatingWithStarsReadOnly();
+		Ratings.viewRateStarReadOnly();
 
 		Staging.openStagingAdmin(siteURLKey = "site-name-staging");
 
@@ -294,9 +292,9 @@ definition {
 			wikiPageContent = "Wiki FrontPage Content",
 			wikiPageTitle = "FrontPage");
 
-		AssetPublisherPortlet.viewAssetRatingPG(rating = "4");
-
-		AssetPublisherPortlet.viewAverageRatingPG(averageRating = "4");
+		Ratings.viewRateStar(
+			averageRatingStarCount = "2.0",
+			ratingStarCount = "2");
 
 		Comments.viewPG(
 			commentCount = "1",
@@ -327,13 +325,13 @@ definition {
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 
-		Ratings.rate(ratingResult = "Thumb Up");
+		Ratings.rateThumb(ratingResult = "Rate this as good");
 
 		Comments.addPG(entryComment = "Blogs Entry Comment");
 
-		Ratings.rate(
-			commentRating = "true",
-			ratingResult = "Thumb Up");
+		Ratings.rateThumb(
+			blogCommentRating = "true",
+			ratingResult = "Rate this as good");
 
 		Navigator.gotoPage(pageName = "Blogs Page");
 
@@ -341,8 +339,8 @@ definition {
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 
-		Ratings.viewRating(
-			ratingResult = "Thumb Up",
+		Ratings.viewRateThumb(
+			ratingResult = "You have rated this as good",
 			voteCount = "1");
 
 		Comments.viewPG(
@@ -350,9 +348,9 @@ definition {
 			entryComment = "Blogs Entry Comment",
 			userFullName = "Test Test (You)");
 
-		Ratings.viewRating(
+		Ratings.viewRateThumb(
 			commentRating = "true",
-			ratingResult = "Thumb Up",
+			ratingResult = "You have rated this as good",
 			voteCount = "1");
 
 		LAR.openExportAdmin(siteScopeName = "Guest");
@@ -385,7 +383,7 @@ definition {
 			pageName = "Blogs Page",
 			siteName = "Second Site");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryPG(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 
@@ -393,8 +391,8 @@ definition {
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 
-		Ratings.viewRating(
-			ratingResult = "Thumb Up",
+		Ratings.viewRateThumb(
+			ratingResult = "You have rated this as good",
 			voteCount = "1");
 
 		Comments.viewPG(
@@ -402,9 +400,9 @@ definition {
 			entryComment = "Blogs Entry Comment",
 			userFullName = "Test Test (You)");
 
-		Ratings.viewRating(
+		Ratings.viewRateThumb(
 			commentRating = "true",
-			ratingResult = "Thumb Up",
+			ratingResult = "You have rated this as good",
 			voteCount = "1");
 	}
 
@@ -442,9 +440,9 @@ definition {
 
 		WikiPage.addComment(entryComment = "Wiki Page Comment");
 
-		Ratings.rate(
+		Ratings.rateThumb(
 			commentRating = "true",
-			ratingResult = "Thumb Up");
+			ratingResult = "Rate this as good");
 
 		WikiPage.editComment(
 			entryComment = "Wiki Page Comment",
@@ -460,19 +458,20 @@ definition {
 			entryComment = "Wiki Page Comment Edited",
 			wikiPageTitle = "Wiki Page 1");
 
-		Ratings.viewRating(
-			ratingResult = "Thumb Up",
+		Ratings.viewRateThumb(
+			commentRating = "true",
+			ratingResult = "You have rated this as good",
 			voteCount = "1");
 
-		Ratings.viewRating(
-			ratingResult = "Thumb Down",
+		Ratings.viewRateThumb(
+			commentRating = "true",
+			ratingResult = "Rate this as bad",
 			voteCount = "0");
 	}
 
 	@priority = "4"
 	test RateBlogsEntry {
-		property portal.acceptance = "quarantine";
-		property portal.upstream = "quarantine";
+		property portal.acceptance = "true";
 
 		JSONLayout.addPublicLayout(
 			groupName = "Guest",
@@ -494,28 +493,90 @@ definition {
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 
-		Ratings.rate(ratingResult = "Thumb Up");
+		Ratings.rateThumb(ratingResult = "Rate this as good");
 
-		Ratings.viewRating(
-			ratingResult = "Thumb Up",
+		Ratings.viewRateThumb(
+			ratingResult = "You have rated this as good",
 			voteCount = "1");
 
-		Ratings.viewRating(
-			ratingResult = "Thumb Down",
+		Ratings.viewRateThumb(
+			ratingResult = "Rate this as bad",
 			voteCount = "0");
 
-		Ratings.rate(ratingResult = "Thumb Down");
+		Ratings.rateThumb(ratingResult = "Rate this as bad");
 
-		Ratings.viewRating(
-			ratingResult = "Thumb Up",
+		Ratings.viewRateThumb(
+			ratingResult = "Rate this as good",
 			voteCount = "0");
 
-		Ratings.viewRating(
-			ratingResult = "Thumb Down",
+		Ratings.viewRateThumb(
+			ratingResult = "You have rated this as bad",
 			voteCount = "1");
 	}
 
-	@ignore = "true"
+	@priority = "4"
+	test RateBlogsEntryWithStackedStarsRatings {
+		Ratings.configureRatingType(
+			applications = "Blogs",
+			ratingType = "Stacked Stars");
+
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Blogs Page");
+
+		JSONLayout.addWidgetToPublicLayout(
+			column = "1",
+			groupName = "Guest",
+			layoutName = "Blogs Page",
+			widgetName = "Blogs");
+
+		JSONBlog.addEntry(
+			entryContent = "Blogs Entry Content",
+			entryTitle = "Blogs Entry Title");
+
+		Navigator.gotoPage(pageName = "Blogs Page");
+
+		Ratings.rateStackedStars(ratingStarCount = "3");
+
+		Navigator.gotoPage(pageName = "Blogs Page");
+
+		Ratings.viewRateStackedStar(ratingStarCount = "3");
+	}
+
+	@priority = "4"
+	test RateBookmarksWithLikeStyle {
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Bookmarks Page");
+
+		JSONLayout.addWidgetToPublicLayout(
+			column = "1",
+			groupName = "Guest",
+			layoutName = "Bookmarks Page",
+			widgetName = "Asset Publisher");
+
+		Ratings.configureRatingType(
+			applications = "Bookmarks",
+			ratingType = "Like");
+
+		Navigator.gotoPage(pageName = "Bookmarks Page");
+
+		AssetPublisherPortlet.configureDisplaySettings(displaySettings = "Ratings");
+
+		Navigator.gotoPage(pageName = "Bookmarks Page");
+
+		Bookmark.addBookmarkViaAP(
+			bookmarkDescription = "Test Bookmark Description",
+			bookmarkName = "Test Bookmark Name",
+			bookmarkURL = "https://www.liferay.com");
+
+		Navigator.gotoPage(pageName = "Bookmarks Page");
+
+		Ratings.rateLike();
+
+		Ratings.viewRateLike(ratingLikeCount = "1");
+	}
+
 	@priority = "4"
 	test RateKBArticleWithoutSuggestions {
 		JSONLayout.addPublicLayout(
@@ -536,10 +597,69 @@ definition {
 
 		Navigator.gotoPage(pageName = "Knowledge Base Display Page");
 
-		Ratings.rate(ratingResult = "Thumb Up");
+		Ratings.rateThumb(ratingResult = "Rate this as good");
 
-		Ratings.viewRating(
-			ratingResult = "Thumb Up",
+		Ratings.viewRateThumb(
+			ratingResult = "You have rated this as good",
+			voteCount = "1");
+	}
+
+	@priority = "4"
+	test RateMBThreadAndReply {
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Message Boards Page");
+
+		JSONLayout.addWidgetToPublicLayout(
+			column = "1",
+			groupName = "Guest",
+			layoutName = "Message Boards Page",
+			widgetName = "Message Boards");
+
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			panel = "Site Administration",
+			portlet = "Pages");
+
+		SitePages.configurePage(
+			columnName = "1 Column",
+			pageName = "Message Boards Page",
+			privacy = "Public Pages",
+			sitePageType = "Widget Page");
+
+		JSONMBMessage.addMessage(
+			groupName = "Guest",
+			threadBody = "MB Thread Message Body",
+			threadSubject = "MB Thread Message Subject");
+
+		Navigator.gotoPage(pageName = "Message Boards Page");
+
+		MessageboardsThread.gotoPG(
+			lastPostUserName = "Test Test",
+			replyCount = "0",
+			threadBody = "",
+			threadSubject = "MB Thread Message Subject");
+
+		Ratings.rateThumb(ratingResult = "Rate this as good");
+
+		Ratings.viewRateThumb(
+			ratingResult = "You have rated this as good",
+			voteCount = "1");
+
+		Navigator.gotoPage(pageName = "Message Boards Page");
+
+		MessageboardsThread.replyPG(
+			threadBody = "MB Thread Message Body",
+			threadReplyBody = "MB Thread Message Reply Body",
+			threadSubject = "MB Thread Message Subject");
+
+		Ratings.rateThumb(
+			ratingResult = "Rate this as bad",
+			replyRating = "true",
+			threadSubject = "MB Thread Message Subject");
+
+		Ratings.viewRateThumb(
+			ratingResult = "You have rated this as bad",
 			voteCount = "1");
 	}
 
@@ -575,7 +695,7 @@ definition {
 
 		WikiEntry.viewPageContentBody(wikiPageContent = "Wiki Page Content 1");
 
-		WikiPage.rate4StarsPG(wikiPageTitle = "Wiki Page 1");
+		Ratings.rateStar(ratingStarCount = "4");
 
 		Navigator.gotoPage(pageName = "Wiki Test Page");
 
@@ -585,7 +705,9 @@ definition {
 
 		WikiEntry.viewPageContentBody(wikiPageContent = "Wiki Page Content 1");
 
-		WikiPage.viewRate4StarsPG(wikiPageTitle = "Wiki Page 1");
+		Ratings.viewRateStar(
+			averageRatingStarCount = "4.0",
+			ratingStarCount = "4");
 	}
 
 	@priority = "3"
@@ -631,16 +753,19 @@ definition {
 
 		Navigator.gotoPage(pageName = "Knowledge Base Display Page");
 
-		KBArticle.rateArticle1Star(kbArticleTitle = "Knowledge Base Article Title");
+		Ratings.rateStar(ratingStarCount = "2");
 
-		KBArticle.viewArticle1StarRatingPG();
+		Ratings.viewRateStar(
+			averageRatingStarCount = "2.0",
+			ratingStarCount = "2");
 
-		KBArticle.rateArticleFrom1StarTo5Star(kbArticleTitle = "Knowledge Base Article Title");
+		Ratings.rateStar(ratingStarCount = "5");
 
-		KBArticle.viewArticle5StarRatingPG();
+		Ratings.viewRateStar(
+			averageRatingStarCount = "5.0",
+			ratingStarCount = "5");
 	}
 
-	@ignore = "true"
 	@priority = "4"
 	test ViewKBArticleWithStarRatings {
 		property test.name.skip.portal.instance = "Ratings#ViewKBArticleWithStarRatings";
@@ -667,10 +792,10 @@ definition {
 			kbArticleContent = "Knowledge Base Article Content",
 			kbArticleTitle = "Knowledge Base Article Title");
 
-		Ratings.rate(ratingResult = "Thumb Up");
+		Ratings.rateThumb(ratingResult = "Rate this as good");
 
-		Ratings.viewRating(
-			ratingResult = "Thumb Up",
+		Ratings.viewRateThumb(
+			ratingResult = "You have rated this as good",
 			voteCount = "1");
 
 		PortalSettings.gotoConfiguration(
@@ -690,7 +815,9 @@ definition {
 
 		Navigator.gotoPage(pageName = "Knowledge Base Display Page");
 
-		KBArticle.viewArticle5StarRatingPG();
+		Ratings.viewRateStar(
+			averageRatingStarCount = "5.0",
+			ratingStarCount = "5");
 
 		PortalSettings.gotoConfiguration(
 			configurationCategory = "Community Tools",
@@ -709,7 +836,80 @@ definition {
 
 		Navigator.gotoPage(pageName = "Knowledge Base Display Page");
 
-		Ratings.viewRating(voteCount = "1");
+		Ratings.viewRateThumb(
+			ratingResult = "You have rated this as good",
+			voteCount = "1");
+	}
+
+	@priority = "4"
+	test ViewLikeCountForDocument {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+
+		Ratings.configureRatingType(
+			applications = "document",
+			ratingType = "Like");
+
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Documents and Media Page");
+
+		JSONLayout.addWidgetToPublicLayout(
+			column = "1",
+			groupName = "Guest",
+			layoutName = "Documents and Media Page",
+			widgetName = "Documents and Media");
+
+		Navigator.gotoPage(pageName = "Documents and Media Page");
+
+		DMDocument.enableActionsMenuOnPortlet();
+
+		LexiconEntry.changeDisplayStyle(displayStyle = "list");
+
+		JSONDocument.addFile(
+			dmDocumentDescription = "DM Description",
+			dmDocumentTitle = "DM Title",
+			groupName = "Guest");
+
+		Navigator.gotoPage(pageName = "Documents and Media Page");
+
+		DMNavigator.gotoDocumentPG(dmDocumentTitle = "DM Title");
+
+		DMDocument.expandInfo();
+
+		Ratings.rateLike();
+
+		Ratings.viewRateLike(ratingLikeCount = "1");
+
+		JSONUser.addUser(
+			userEmailAddress = "userea@liferay.com",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
+
+		JSONRole.assignRoleToUser(
+			roleTitle = "Administrator",
+			userEmailAddress = "userea@liferay.com");
+
+		User.logoutPG();
+
+		User.loginUserPG(
+			password = "test",
+			userEmailAddress = "userea@liferay.com");
+
+		Navigator.gotoPage(pageName = "Documents and Media Page");
+
+		DMNavigator.gotoDocumentPG(dmDocumentTitle = "DM Title");
+
+		DMDocument.expandInfo();
+
+		Ratings.rateLike();
+
+		Ratings.viewRateLike(ratingLikeCount = "2");
 	}
 
 }

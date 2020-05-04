@@ -34,6 +34,10 @@
 		<finder name="GroupId" return-type="Collection">
 			<finder-column name="groupId" />
 		</finder>
+		<finder name="G_D" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column name="destinationURL" />
+		</finder>
 		<finder name="G_S" return-type="RedirectEntry" unique="true">
 			<finder-column name="groupId" />
 			<finder-column name="sourceURL" />
@@ -64,12 +68,14 @@
 		<!-- Other fields -->
 
 		<column name="hits" type="long" />
+		<column name="ignored" type="boolean" />
 		<column name="url" type="String" />
 
 		<!-- Order -->
 
 		<order by="desc">
 			<order-column name="hits" />
+			<order-column name="redirectNotFoundEntryId" />
 		</order>
 
 		<!-- Finder methods -->

@@ -33,7 +33,7 @@ renderResponse.setTitle((accountEntryDisplay == null) ? "" : accountEntryDisplay
 	displayContext="<%= viewAccountRolesManagementToolbarDisplayContext %>"
 />
 
-<aui:container cssClass="container-fluid container-fluid-max-xl">
+<clay:container>
 	<aui:form method="post" name="fm">
 		<aui:input name="accountRoleIds" type="hidden" />
 
@@ -51,12 +51,6 @@ renderResponse.setTitle((accountEntryDisplay == null) ? "" : accountEntryDisplay
 					<portlet:param name="accountEntryId" value="<%= String.valueOf(accountEntryDisplay.getAccountEntryId()) %>" />
 					<portlet:param name="accountRoleId" value="<%= String.valueOf(accountRole.getAccountRoleId()) %>" />
 				</portlet:renderURL>
-
-				<%
-				if (AccountRoleConstants.isSharedRole(accountRole.getRole())) {
-					rowURL = StringPool.BLANK;
-				}
-				%>
 
 				<liferay-ui:search-container-column-text
 					cssClass="table-cell-expand-small table-cell-minw-150"
@@ -82,7 +76,7 @@ renderResponse.setTitle((accountEntryDisplay == null) ? "" : accountEntryDisplay
 			/>
 		</liferay-ui:search-container>
 	</aui:form>
-</aui:container>
+</clay:container>
 
 <liferay-frontend:component
 	componentId="<%= viewAccountRolesManagementToolbarDisplayContext.getDefaultEventHandler() %>"

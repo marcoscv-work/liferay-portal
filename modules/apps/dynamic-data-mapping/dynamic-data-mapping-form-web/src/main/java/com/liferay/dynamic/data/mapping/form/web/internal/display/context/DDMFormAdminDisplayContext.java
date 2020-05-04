@@ -28,6 +28,7 @@ import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormTemplateContextFactory;
 import com.liferay.dynamic.data.mapping.form.values.factory.DDMFormValuesFactory;
 import com.liferay.dynamic.data.mapping.form.web.internal.configuration.DDMFormWebConfiguration;
+import com.liferay.dynamic.data.mapping.form.web.internal.configuration.FFDDMFormWebConfigurationUtil;
 import com.liferay.dynamic.data.mapping.form.web.internal.constants.DDMFormWebKeys;
 import com.liferay.dynamic.data.mapping.form.web.internal.display.context.util.DDMFormAdminRequestHelper;
 import com.liferay.dynamic.data.mapping.form.web.internal.display.context.util.FormInstancePermissionCheckerHelper;
@@ -102,6 +103,7 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.taglib.servlet.PipingServletResponse;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -120,6 +122,7 @@ import javax.portlet.RenderResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.jsp.PageContext;
 
 /**
  * @author Bruno Basto
@@ -502,6 +505,22 @@ public class DDMFormAdminDisplayContext {
 				navigationItem.setLabel(
 					LanguageUtil.get(httpServletRequest, "rules"));
 			}
+		).add(
+			this::isShowReport,
+			navigationItem -> {
+				navigationItem.putData("action", "showReport");
+				navigationItem.setHref(StringPool.BLANK);
+
+				StringBundler sb = new StringBundler(5);
+
+				sb.append(LanguageUtil.get(httpServletRequest, "entries"));
+				sb.append(StringPool.SPACE);
+				sb.append(StringPool.OPEN_PARENTHESIS);
+				sb.append(getFormViewRecordsDisplayContext().getTotalItems());
+				sb.append(StringPool.CLOSE_PARENTHESIS);
+
+				navigationItem.setLabel(sb.toString());
+			}
 		).build();
 	}
 
@@ -759,7 +778,7 @@ public class DDMFormAdminDisplayContext {
 	public String getPublishedFormURL(DDMFormInstance formInstance)
 		throws PortalException {
 
-		if (formInstance == null) {
+		if (!isFormPublished(formInstance)) {
 			return StringPool.BLANK;
 		}
 
@@ -867,6 +886,8 @@ public class DDMFormAdminDisplayContext {
 
 		ddmFormBuilderContextRequest.addProperty(
 			"ddmStructureVersion", getLatestDDMStructureVersion());
+		ddmFormBuilderContextRequest.addProperty(
+			"portletNamespace", renderResponse.getNamespace());
 
 		DDMFormBuilderContextResponse ddmFormBuilderContextResponse =
 			_ddmFormBuilderContextFactory.create(ddmFormBuilderContextRequest);
@@ -955,7 +976,13 @@ public class DDMFormAdminDisplayContext {
 		return ParamUtil.getBoolean(renderRequest, "showPublishAlert");
 	}
 
-	public String serializeSettingsForm() throws PortalException {
+	public boolean isShowReport() {
+		return FFDDMFormWebConfigurationUtil.reportEnabled();
+	}
+
+	public String serializeSettingsForm(PageContext pageContext)
+		throws PortalException {
+
 		long formInstanceId = ParamUtil.getLong(
 			renderRequest, "formInstanceId");
 
@@ -963,7 +990,7 @@ public class DDMFormAdminDisplayContext {
 			WebKeys.THEME_DISPLAY);
 
 		DDMFormRenderingContext ddmFormRenderingContext =
-			createDDMFormRenderingContext(renderRequest, renderResponse);
+			createDDMFormRenderingContext(pageContext, renderRequest);
 
 		setDDMFormRenderingContextDDMFormValues(
 			ddmFormRenderingContext, formInstanceId);
@@ -980,7 +1007,7 @@ public class DDMFormAdminDisplayContext {
 	}
 
 	protected DDMFormRenderingContext createDDMFormRenderingContext(
-		RenderRequest renderRequest, RenderResponse renderResponse) {
+		PageContext pageContext, RenderRequest renderRequest) {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
@@ -991,7 +1018,7 @@ public class DDMFormAdminDisplayContext {
 		ddmFormRenderingContext.setHttpServletRequest(
 			_portal.getHttpServletRequest(renderRequest));
 		ddmFormRenderingContext.setHttpServletResponse(
-			_portal.getHttpServletResponse(renderResponse));
+			PipingServletResponse.createPipingServletResponse(pageContext));
 		ddmFormRenderingContext.setContainerId("settingsDDMForm");
 		ddmFormRenderingContext.setLocale(themeDisplay.getLocale());
 		ddmFormRenderingContext.setPortletNamespace(
@@ -1423,10 +1450,19 @@ public class DDMFormAdminDisplayContext {
 
 		ListUtil.filter(
 			ddmFormFieldTypes, availableDDMFormFieldTypes,
-			formFieldType -> !formFieldType.getName(
-			).equals(
-				"geolocation"
-			));
+			ddmFormFieldType ->
+				!ddmFormFieldType.getName(
+				).equals(
+					"geolocation"
+				) &&
+				!ddmFormFieldType.getName(
+				).equals(
+					"journal_article"
+				) &&
+				!ddmFormFieldType.getName(
+				).equals(
+					"link_to_layout"
+				));
 
 		return Collections.unmodifiableList(availableDDMFormFieldTypes);
 	}

@@ -262,9 +262,13 @@ definition {
 
 		Navigator.gotoPage(pageName = "Form Page");
 
+		Pause(locator1 = "1500");
+
 		FormFields.viewSelectLabel(
 			fieldLabel = "Data Provider Select Field",
 			fieldName = "DataProviderSelectField");
+
+		Pause(locator1 = "1000");
 
 		FormFields.selectSelectOption(
 			fieldName = "Select Field",

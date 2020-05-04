@@ -313,8 +313,6 @@ definition {
 
 	@priority = "4"
 	test AddFolderImage {
-		property portal.upstream = "quarantine";
-
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
 		DMFolder.addPG(
@@ -335,8 +333,6 @@ definition {
 
 	@priority = "4"
 	test AddFolderImageDuplicate {
-		property portal.upstream = "quarantine";
-
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
 		DMFolder.addPG(
@@ -359,15 +355,11 @@ definition {
 
 	@priority = "4"
 	test AddFolderImages {
-		property portal.upstream = "quarantine";
-
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
 		DMFolder.addPG(
 			dmFolderDescription = "DM Folder Description",
 			dmFolderName = "DM Folder Name");
-
-		Navigator.gotoPage(pageName = "Documents and Media Page");
 
 		DMNavigator.gotoFolder(dmFolderName = "DM Folder Name");
 
@@ -409,8 +401,6 @@ definition {
 
 	@priority = "4"
 	test AddFolderNameSymbol {
-		property portal.upstream = "quarantine";
-
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
 		DMFolder.addPG(
@@ -543,12 +533,12 @@ definition {
 
 	@priority = "4"
 	test CancelCheckout {
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
-		DMDocument.addPG(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "DM Document Title");
+			dmDocumentTitle = "DM Document Title",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
@@ -562,8 +552,6 @@ definition {
 	@description = "This test covers LPS-94508. It ensures that a tag can be created when selecting an item from autocomplete."
 	@priority = "5"
 	test CreateTagUsingAutocomplete {
-		property portal.upstream = "quarantine";
-
 		DMDocument.addMultiplePG(dmDocumentFileList = "Document_1.doc,Document_2.docx");
 
 		for (var tagName : list "tagone,tagtwo,tagthree") {
@@ -633,12 +621,15 @@ definition {
 			dmFolderDescription = "DM Folder Description",
 			dmFolderName = "DM Folder Name");
 
-		DMNavigator.gotoFolder(dmFolderName = "DM Folder Name");
-
-		DMDocument.addPG(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "DM Document Title");
+			dmDocumentTitle = "DM Document Title",
+			folderName = "DM Folder Name",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
+
+		DMNavigator.gotoFolder(dmFolderName = "DM Folder Name");
 
 		DMDocument.deletePG(dmDocumentTitle = "DM Document Title");
 	}
@@ -715,14 +706,13 @@ definition {
 			dmFolderDescription = "DM Folder Description",
 			dmFolderName = "DM Folder Name");
 
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
-		DMNavigator.gotoFolder(dmFolderName = "DM Folder Name");
-
-		DMDocument.addPG(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description 1",
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "DM Document Title 1");
+			dmDocumentTitle = "DM Document Title 1",
+			folderName = "DM Folder Name",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
 
 		Navigator.openURL();
 
@@ -851,7 +841,6 @@ definition {
 
 	@priority = "5"
 	test EditDocumentType {
-		property portal.acceptance = "true";
 		property testray.component.names = "Training";
 
 		ProductMenu.gotoPortlet(
@@ -895,20 +884,21 @@ definition {
 
 	@priority = "5"
 	test EditFolderDocument {
-		property portal.upstream = "quarantine";
-
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
 		DMFolder.addPG(
 			dmFolderDescription = "DM Folder Description",
 			dmFolderName = "DM Folder Name");
 
-		DMNavigator.gotoFolder(dmFolderName = "DM Folder Name");
-
-		DMDocument.addPG(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "DM Document Title");
+			dmDocumentTitle = "DM Document Title",
+			folderName = "DM Folder Name",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
+
+		DMNavigator.gotoFolder(dmFolderName = "DM Folder Name");
 
 		DMDocument.editPG(
 			dmDocumentTitle = "DM Document Title",
@@ -933,12 +923,15 @@ definition {
 			dmFolderDescription = "DM Folder Description",
 			dmFolderName = "DM Folder Name");
 
-		DMNavigator.gotoFolder(dmFolderName = "DM Folder Name");
-
-		DMDocument.addPG(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "DM Document Title");
+			dmDocumentTitle = "DM Document Title",
+			folderName = "DM Folder Name",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
+
+		DMNavigator.gotoFolder(dmFolderName = "DM Folder Name");
 
 		DMDocument.editPG(
 			dmDocumentFileEdit = "Document_2.doc",
@@ -956,8 +949,6 @@ definition {
 
 	@priority = "5"
 	test EditSubFolder {
-		property portal.upstream = "quarantine";
-
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
 		DMFolder.addPG(
@@ -1049,23 +1040,23 @@ definition {
 			dmFolderDescription = "DM Folder2 Description",
 			dmFolderName = "DM Folder2 Name");
 
-		DMNavigator.gotoFolder(dmFolderName = "DM Folder1 Name");
-
-		DMDocument.addPG(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "DM Document Title");
+			dmDocumentTitle = "DM Document Title",
+			folderName = "DM Folder1 Name",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
+
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Document Description",
+			dmDocumentTitle = "DM Document Title",
+			folderName = "DM Folder2 Name",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
-
-		DMNavigator.gotoFolder(dmFolderName = "DM Folder2 Name");
-
-		DMDocument.addPG(
-			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "DM Document Title");
-
-		DMDocument.navigateHomeViaDocumentViewPG();
 
 		DMNavigator.gotoFolder(dmFolderName = "DM Folder1 Name");
 
@@ -1088,14 +1079,17 @@ definition {
 			dmFolderName = "DM Folder2 Name",
 			groupName = "Guest");
 
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Document Description",
+			dmDocumentTitle = "DM Document Title",
+			folderName = "DM Folder1 Name",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
+
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
 		DMNavigator.gotoFolder(dmFolderName = "DM Folder1 Name");
-
-		DMDocument.addPG(
-			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "DM Document Title");
 
 		DMDocument.viewPG(
 			dmDocumentDescription = "DM Document Description",
@@ -1188,14 +1182,15 @@ definition {
 			dmFolderDescription = "DM Folder Description",
 			dmFolderName = "DM Folder Name");
 
-		Navigator.gotoPage(pageName = "Documents and Media Page");
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Document Description",
+			dmDocumentTitle = "DM Document Title",
+			folderName = "DM Folder Name",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
 
 		DMNavigator.gotoFolder(dmFolderName = "DM Folder Name");
-
-		DMDocument.addPG(
-			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "DM Document Title");
 
 		DMDocument.editPG(
 			dmDocumentFileEdit = "Document_2.doc",
@@ -1234,12 +1229,14 @@ definition {
 
 	@priority = "4"
 	test SearchContentDocument {
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
-		DMDocument.addPG(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "DM Document Title");
+			dmDocumentTitle = "DM Document Title",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
+
+		Navigator.gotoPage(pageName = "Documents and Media Page");
 
 		SearchPortlets.searchEmbedded(searchTerm = "This is a *.doc file.");
 
@@ -1251,12 +1248,12 @@ definition {
 
 	@priority = "4"
 	test SearchDocument {
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
-		DMDocument.addPG(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "DM Document Title");
+			dmDocumentTitle = "DM Document Title",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
@@ -1275,12 +1272,15 @@ definition {
 			dmFolderDescription = "DM Folder Description",
 			dmFolderName = "DM Folder Name");
 
-		DMNavigator.gotoFolder(dmFolderName = "DM Folder Name");
-
-		DMDocument.addPG(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "DM Document Title");
+			dmDocumentTitle = "DM Document Title",
+			folderName = "DM Folder Name",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
+
+		DMNavigator.gotoFolder(dmFolderName = "DM Folder Name");
 
 		SearchPortlets.searchEmbedded(searchTerm = "DM Document Title");
 
@@ -1297,12 +1297,15 @@ definition {
 			dmFolderDescription = "DM Folder Description",
 			dmFolderName = "DM Folder Name");
 
-		DMNavigator.gotoFolder(dmFolderName = "DM Folder Name");
-
-		DMDocument.addPG(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Image Description",
-			dmDocumentFile = "Document_1.jpg",
-			dmDocumentTitle = "DM Image Title");
+			dmDocumentTitle = "DM Image Title",
+			folderName = "DM Folder Name",
+			groupName = "Guest",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_1.jpg");
+
+		DMNavigator.gotoFolder(dmFolderName = "DM Folder Name");
 
 		SearchPortlets.searchEmbedded(searchTerm = "DM Image Title");
 
@@ -1509,14 +1512,17 @@ definition {
 			dmFolderName = "DM Folder Name",
 			groupName = "Guest");
 
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Document Description",
+			dmDocumentTitle = "DM Document Title",
+			folderName = "DM Folder Name",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
+
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
 		DMNavigator.gotoFolder(dmFolderName = "DM Folder Name");
-
-		DMDocument.addPG(
-			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "DM Document Title");
 
 		DMDocument.checkoutPG(dmDocumentTitle = "DM Document Title");
 
@@ -1547,8 +1553,6 @@ definition {
 	@description = "This test covers LPS-91595. It ensures that the document selection persists when navigating through the pagination in the DM widget."
 	@priority = "4"
 	test ViewDocumentPagination {
-		property portal.upstream = "quarantine";
-
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
 		DMDocument.addMultiplePG(dmDocumentFileList = "Document_1.doc,Document_2.jpg,Document_3.xls,Document_4.txt,Document_1.txt,Document_2.xls,Document_3.jpg,Document_4.jpg,Document_1.xls,Document_2.doc");
@@ -1574,12 +1578,12 @@ definition {
 
 	@priority = "4"
 	test ViewOlderVersion {
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
-		DMDocument.addPG(
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.doc",
-			dmDocumentTitle = "DM Document Title");
+			dmDocumentTitle = "DM Document Title",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 

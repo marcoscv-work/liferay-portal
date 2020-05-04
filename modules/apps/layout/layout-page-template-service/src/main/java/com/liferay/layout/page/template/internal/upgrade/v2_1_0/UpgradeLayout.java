@@ -121,7 +121,7 @@ public class UpgradeLayout extends UpgradeProcess {
 
 					_fragmentEntryLinkLocalService.addFragmentEntryLink(
 						draftLayout.getUserId(), draftLayout.getGroupId(), 0,
-						fragmentEntryLink.getFragmentEntryId(),
+						fragmentEntryLink.getFragmentEntryId(), 0,
 						PortalUtil.getClassNameId(Layout.class),
 						draftLayout.getPlid(), fragmentEntryLink.getCss(),
 						fragmentEntryLink.getHtml(), fragmentEntryLink.getJs(),
@@ -138,7 +138,7 @@ public class UpgradeLayout extends UpgradeProcess {
 	protected void upgradeSchema() throws Exception {
 		alter(
 			LayoutPageTemplateEntryTable.class,
-			new AlterTableAddColumn("plid LONG"));
+			new AlterTableAddColumn("plid", "LONG"));
 	}
 
 	private long _getPlid(

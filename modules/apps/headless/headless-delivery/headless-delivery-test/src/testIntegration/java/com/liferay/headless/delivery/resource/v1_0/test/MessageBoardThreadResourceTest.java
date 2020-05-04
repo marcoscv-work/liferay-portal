@@ -16,12 +16,24 @@ package com.liferay.headless.delivery.resource.v1_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.headless.delivery.client.dto.v1_0.MessageBoardThread;
+import com.liferay.headless.delivery.client.serdes.v1_0.MessageBoardThreadSerDes;
 import com.liferay.message.boards.model.MBCategory;
+import com.liferay.message.boards.model.MBMessage;
+import com.liferay.message.boards.model.MBThread;
 import com.liferay.message.boards.service.MBCategoryLocalServiceUtil;
+import com.liferay.message.boards.service.MBThreadLocalServiceUtil;
+import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.ratings.kernel.service.RatingsEntryLocalServiceUtil;
 
+import java.util.Arrays;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -52,31 +64,7 @@ public class MessageBoardThreadResourceTest
 	@Ignore
 	@Override
 	@Test
-	public void testGetMessageBoardSectionMessageBoardThreadsPageWithSortInteger() {
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGetMessageBoardThreadsRankedPage() {
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGetMessageBoardThreadsRankedPageWithPagination() {
-	}
-
-	@Ignore
-	@Override
-	@Test
 	public void testGetMessageBoardThreadsRankedPageWithSortDateTime() {
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGetMessageBoardThreadsRankedPageWithSortInteger() {
 	}
 
 	@Ignore
@@ -85,22 +73,41 @@ public class MessageBoardThreadResourceTest
 	public void testGetMessageBoardThreadsRankedPageWithSortString() {
 	}
 
-	@Ignore
-	@Override
 	@Test
-	public void testGetSiteMessageBoardThreadByFriendlyUrlPath() {
-	}
+	public void testGraphQLGetSiteMessageBoardThreadsPage() throws Exception {
+		Long siteId = testGetSiteMessageBoardThreadsPage_getSiteId();
 
-	@Ignore
-	@Override
-	@Test
-	public void testGetSiteMessageBoardThreadsPageWithSortInteger() {
-	}
+		MessageBoardThread messageBoardThread1 =
+			testGraphQLMessageBoardThread_addMessageBoardThread();
+		MessageBoardThread messageBoardThread2 =
+			testGraphQLMessageBoardThread_addMessageBoardThread();
 
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLGetSiteMessageBoardThreadByFriendlyUrlPath() {
+		JSONObject messageBoardThreadsJSONObject =
+			JSONUtil.getValueAsJSONObject(
+				invokeGraphQLQuery(
+					new GraphQLField(
+						"messageBoardThreads",
+						HashMapBuilder.<String, Object>put(
+							"flatten", true
+						).put(
+							"page", 1
+						).put(
+							"pageSize", 2
+						).put(
+							"siteKey", "\"" + siteId + "\""
+						).build(),
+						new GraphQLField("items", getGraphQLFields()),
+						new GraphQLField("page"),
+						new GraphQLField("totalCount"))),
+				"JSONObject/data", "JSONObject/messageBoardThreads");
+
+		Assert.assertEquals(2, messageBoardThreadsJSONObject.get("totalCount"));
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(messageBoardThread1, messageBoardThread2),
+			Arrays.asList(
+				MessageBoardThreadSerDes.toDTOs(
+					messageBoardThreadsJSONObject.getString("items"))));
 	}
 
 	@Override
@@ -110,7 +117,10 @@ public class MessageBoardThreadResourceTest
 
 	@Override
 	protected String[] getIgnoredEntityFieldNames() {
-		return new String[] {"creatorId", "messageBoardSectionId"};
+		return new String[] {
+			"creatorId", "messageBoardSectionId", "messageBoardThreadId",
+			"parentMessageBoardMessageId", "ratingValue"
+		};
 	}
 
 	@Override
@@ -129,6 +139,35 @@ public class MessageBoardThreadResourceTest
 		testGetMessageBoardSectionMessageBoardThreadsPage_getMessageBoardSectionId() {
 
 		return _mbCategory.getCategoryId();
+	}
+
+	@Override
+	protected MessageBoardThread
+			testGetMessageBoardThreadsRankedPage_addMessageBoardThread(
+				MessageBoardThread messageBoardThread)
+		throws Exception {
+
+		messageBoardThread =
+			testPostMessageBoardSectionMessageBoardThread_addMessageBoardThread(
+				messageBoardThread);
+
+		MBThread mbThread = MBThreadLocalServiceUtil.getThread(
+			messageBoardThread.getId());
+
+		RatingsEntryLocalServiceUtil.updateEntry(
+			TestPropsValues.getUserId(), MBMessage.class.getName(),
+			mbThread.getRootMessageId(), 1.0, new ServiceContext());
+
+		return messageBoardThread;
+	}
+
+	@Override
+	protected MessageBoardThread
+			testGraphQLMessageBoardThread_addMessageBoardThread()
+		throws Exception {
+
+		return testPostMessageBoardSectionMessageBoardThread_addMessageBoardThread(
+			randomMessageBoardThread());
 	}
 
 	private MBCategory _mbCategory;

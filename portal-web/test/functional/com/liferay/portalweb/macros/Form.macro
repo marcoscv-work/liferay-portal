@@ -179,7 +179,8 @@ definition {
 			var fieldName = StringUtil.replace("${fieldValue}", " ", "");
 		}
 
-		//TODO: adding it to test, remove this line after this bug (LPS-87612) is fixed
+		// TODO: adding it to test, remove this line after this bug (LPS-87612) is fixed
+
 		//Type(locator1 = "FormFields#FIELD_NAME_EDIT", value1 = "${fieldName}");
 
 		if ((isSet(localeAdvanced)) && (isSet(localeBasic))) {
@@ -201,6 +202,8 @@ definition {
 	}
 
 	macro editName {
+		Pause(locator1 = "2000");
+
 		AssertVisible(locator1 = "Form#ADD_FIELD");
 
 		AssertVisible(locator1 = "Form#NAME_FIELD");
@@ -422,6 +425,8 @@ definition {
 		}
 
 		Alert.viewSuccessMessage();
+
+		Pause(locator1 = "2000");
 	}
 
 	macro saveElementSet {

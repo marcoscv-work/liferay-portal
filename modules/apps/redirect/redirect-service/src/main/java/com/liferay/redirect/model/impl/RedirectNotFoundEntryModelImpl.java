@@ -73,7 +73,7 @@ public class RedirectNotFoundEntryModelImpl
 		{"companyId", Types.BIGINT}, {"userId", Types.BIGINT},
 		{"userName", Types.VARCHAR}, {"createDate", Types.TIMESTAMP},
 		{"modifiedDate", Types.TIMESTAMP}, {"hits", Types.BIGINT},
-		{"url", Types.VARCHAR}
+		{"ignored", Types.BOOLEAN}, {"url", Types.VARCHAR}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -89,20 +89,21 @@ public class RedirectNotFoundEntryModelImpl
 		TABLE_COLUMNS_MAP.put("createDate", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("modifiedDate", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("hits", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("ignored", Types.BOOLEAN);
 		TABLE_COLUMNS_MAP.put("url", Types.VARCHAR);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table RedirectNotFoundEntry (mvccVersion LONG default 0 not null,redirectNotFoundEntryId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,hits LONG,url STRING null)";
+		"create table RedirectNotFoundEntry (mvccVersion LONG default 0 not null,redirectNotFoundEntryId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,hits LONG,ignored BOOLEAN,url STRING null)";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table RedirectNotFoundEntry";
 
 	public static final String ORDER_BY_JPQL =
-		" ORDER BY redirectNotFoundEntry.hits DESC";
+		" ORDER BY redirectNotFoundEntry.hits DESC, redirectNotFoundEntry.redirectNotFoundEntryId DESC";
 
 	public static final String ORDER_BY_SQL =
-		" ORDER BY RedirectNotFoundEntry.hits DESC";
+		" ORDER BY RedirectNotFoundEntry.hits DESC, RedirectNotFoundEntry.redirectNotFoundEntryId DESC";
 
 	public static final String DATA_SOURCE = "liferayDataSource";
 
@@ -115,6 +116,8 @@ public class RedirectNotFoundEntryModelImpl
 	public static final long URL_COLUMN_BITMASK = 2L;
 
 	public static final long HITS_COLUMN_BITMASK = 4L;
+
+	public static final long REDIRECTNOTFOUNDENTRYID_COLUMN_BITMASK = 8L;
 
 	public static void setEntityCacheEnabled(boolean entityCacheEnabled) {
 		_entityCacheEnabled = entityCacheEnabled;
@@ -310,6 +313,12 @@ public class RedirectNotFoundEntryModelImpl
 			"hits",
 			(BiConsumer<RedirectNotFoundEntry, Long>)
 				RedirectNotFoundEntry::setHits);
+		attributeGetterFunctions.put(
+			"ignored", RedirectNotFoundEntry::getIgnored);
+		attributeSetterBiConsumers.put(
+			"ignored",
+			(BiConsumer<RedirectNotFoundEntry, Boolean>)
+				RedirectNotFoundEntry::setIgnored);
 		attributeGetterFunctions.put("url", RedirectNotFoundEntry::getUrl);
 		attributeSetterBiConsumers.put(
 			"url",
@@ -339,6 +348,8 @@ public class RedirectNotFoundEntryModelImpl
 
 	@Override
 	public void setRedirectNotFoundEntryId(long redirectNotFoundEntryId) {
+		_columnBitmask = -1L;
+
 		_redirectNotFoundEntryId = redirectNotFoundEntryId;
 	}
 
@@ -454,6 +465,21 @@ public class RedirectNotFoundEntryModelImpl
 	}
 
 	@Override
+	public boolean getIgnored() {
+		return _ignored;
+	}
+
+	@Override
+	public boolean isIgnored() {
+		return _ignored;
+	}
+
+	@Override
+	public void setIgnored(boolean ignored) {
+		_ignored = ignored;
+	}
+
+	@Override
 	public String getUrl() {
 		if (_url == null) {
 			return "";
@@ -526,6 +552,7 @@ public class RedirectNotFoundEntryModelImpl
 		redirectNotFoundEntryImpl.setCreateDate(getCreateDate());
 		redirectNotFoundEntryImpl.setModifiedDate(getModifiedDate());
 		redirectNotFoundEntryImpl.setHits(getHits());
+		redirectNotFoundEntryImpl.setIgnored(isIgnored());
 		redirectNotFoundEntryImpl.setUrl(getUrl());
 
 		redirectNotFoundEntryImpl.resetOriginalValues();
@@ -541,6 +568,26 @@ public class RedirectNotFoundEntryModelImpl
 			value = -1;
 		}
 		else if (getHits() > redirectNotFoundEntry.getHits()) {
+			value = 1;
+		}
+		else {
+			value = 0;
+		}
+
+		value = value * -1;
+
+		if (value != 0) {
+			return value;
+		}
+
+		if (getRedirectNotFoundEntryId() <
+				redirectNotFoundEntry.getRedirectNotFoundEntryId()) {
+
+			value = -1;
+		}
+		else if (getRedirectNotFoundEntryId() >
+					redirectNotFoundEntry.getRedirectNotFoundEntryId()) {
+
 			value = 1;
 		}
 		else {
@@ -656,6 +703,8 @@ public class RedirectNotFoundEntryModelImpl
 
 		redirectNotFoundEntryCacheModel.hits = getHits();
 
+		redirectNotFoundEntryCacheModel.ignored = isIgnored();
+
 		redirectNotFoundEntryCacheModel.url = getUrl();
 
 		String url = redirectNotFoundEntryCacheModel.url;
@@ -754,6 +803,7 @@ public class RedirectNotFoundEntryModelImpl
 	private Date _modifiedDate;
 	private boolean _setModifiedDate;
 	private long _hits;
+	private boolean _ignored;
 	private String _url;
 	private String _originalUrl;
 	private long _columnBitmask;

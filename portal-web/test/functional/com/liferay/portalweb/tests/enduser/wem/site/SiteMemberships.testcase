@@ -374,12 +374,8 @@ definition {
 			userScreenName = "usersn");
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test OrganizationsView {
-
-		// Ignore test until LRQA-56204 is resolved
-
 		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "SiteMemberships#OrganizationsView";
 		property testray.component.names = "Site Administration,Users and Organizations";
@@ -458,16 +454,9 @@ definition {
 			userName = "Test Test",
 			userScreenName = "test");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		Site.openSiteSettingsAdmin(siteURLKey = "organization-name-1");
 
-		UsersAndOrganizationsNavigator.gotoOrganizations();
-
-		Organization.manageMembershipOptionsInSites(
-			allowManualMembershipManagement = "true",
-			orgName = "Organization Name 1");
+		Site.manageMembershipOptions(allowManualMembershipManagement = "true");
 
 		SitePages.openPagesAdmin(siteURLKey = "Organization Name 1");
 
@@ -662,7 +651,6 @@ definition {
 		Site.searchMembershipCP(searchValue = "&quot;User Group Name 1&quot;");
 	}
 
-	@ignore = "true"
 	@priority = "3"
 	test SiteMembershipsPagination {
 		property testray.component.names = "Site Administration,Users and Organizations";
@@ -1026,26 +1014,29 @@ definition {
 	test ViewNoManualMembershipManagement {
 		property testray.component.names = "Site Administration";
 
-		var siteName = TestCase.getSiteName(siteName = "${siteName}");
-
 		Site.manageMembershipOptions(allowManualMembershipManagement = "true");
 
 		Navigator.openURL();
 
-		ProductMenu.gotoPortlet(
-			category = "People",
-			panel = "Site Administration",
-			portlet = "Memberships");
+		ProductMenuHelper.expandPanel(panel = "Site Administration");
+
+		ProductMenuHelper.expandCategory(category = "People");
+
+		AssertVisible(
+			key_portlet = "Memberships",
+			locator1 = "ProductMenu#PORTLET");
 
 		Site.manageMembershipOptions(allowManualMembershipManagement = "false");
 
 		Navigator.openURL();
 
-		SitePages.openPagesAdmin(siteURLKey = "${siteName}");
+		ProductMenuHelper.expandPanel(panel = "Site Administration");
 
-		AssertNotVisible(
-			locator1 = "ControlMenu#ADMIN_SITE_ADMINISTRATION_USERS",
-			value1 = "Users");
+		ProductMenuHelper.expandCategory(category = "People");
+
+		AssertElementNotPresent(
+			key_portlet = "Memberships",
+			locator1 = "ProductMenu#PORTLET");
 	}
 
 }

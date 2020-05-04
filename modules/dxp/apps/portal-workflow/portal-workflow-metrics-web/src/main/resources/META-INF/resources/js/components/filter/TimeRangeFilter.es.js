@@ -78,15 +78,16 @@ const TimeRangeFilter = ({
 		[customRange, timeRanges, isAmPm]
 	);
 
-	const {items, selectedItems} = useFilterStatic(
+	const {items, selectedItems} = useFilterStatic({
 		filterKey,
 		prefixKey,
-		options.withoutRouteParams,
-		staticItems
-	);
+		propertyKey: 'id',
+		staticItems,
+		withoutRouteParams: options.withoutRouteParams,
+	});
 
 	const defaultItem = useMemo(
-		() => items.find(timeRange => timeRange.defaultTimeRange),
+		() => items.find((timeRange) => timeRange.defaultTimeRange),
 		[items]
 	);
 
@@ -102,7 +103,7 @@ const TimeRangeFilter = ({
 	);
 
 	const handleSelectFilter = useCallback(
-		filter => {
+		(filter) => {
 			const filterValue = {[prefixedFilterKey]: [filter.key]};
 			const query = parse(routerProps.location.search);
 
@@ -127,7 +128,7 @@ const TimeRangeFilter = ({
 	return (
 		<Filter
 			buttonClassName={buttonClassName}
-			dataTestId="timeRangeFilter"
+			data-testid="timeRangeFilter"
 			defaultItem={defaultItem}
 			disabled={disabled}
 			elementClasses={className}

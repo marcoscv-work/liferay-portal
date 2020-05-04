@@ -21,6 +21,7 @@ import {Config} from 'metal-state';
 
 import {pageStructure} from '../../util/config.es';
 import withActionableFields from './withActionableFields.es';
+import withClickableFields from './withClickableFields.es';
 import withEditablePageHeader from './withEditablePageHeader.es';
 import withMoveableFields from './withMoveableFields.es';
 import withMultiplePages from './withMultiplePages.es';
@@ -44,16 +45,10 @@ class FormBuilderBase extends Component {
 		}
 	}
 
-	getFormRendererEvents() {
-		return {
-			fieldClicked: this._handleFieldClicked.bind(this),
-		};
-	}
-
 	preparePagesForRender(pages) {
 		const visitor = new PagesVisitor(pages);
 
-		return visitor.mapFields(field => {
+		return visitor.mapFields((field) => {
 			if (
 				field.type === 'select' &&
 				!field.dataSourceType.includes('manual')
@@ -98,7 +93,6 @@ class FormBuilderBase extends Component {
 							activePage={activePage}
 							editable={true}
 							editingLanguageId={editingLanguageId}
-							events={this.getFormRendererEvents()}
 							pages={this.preparePagesForRender(pages)}
 							paginationMode={paginationMode}
 							portletNamespace={portletNamespace}
@@ -110,15 +104,10 @@ class FormBuilderBase extends Component {
 			</div>
 		);
 	}
-
-	_handleFieldClicked(event) {
-		const {dispatch} = this.context;
-
-		dispatch('fieldClicked', event);
-	}
 }
 
 FormBuilderBase.PROPS = {
+
 	/**
 	 * @default
 	 * @instance
@@ -204,6 +193,7 @@ FormBuilderBase.PROPS = {
 
 export default compose(
 	withActionableFields,
+	withClickableFields,
 	withEditablePageHeader,
 	withMoveableFields,
 	withMultiplePages,

@@ -217,7 +217,7 @@
 </tr>
 <tr>
 	<td>FRAGMENT_SIDEBAR_TITLE</td>
-	<td>//h1[contains(@class,'page-editor__sidebar-panel-header') and contains(.,'${key_sidebarButton}')]</td>
+	<td>//div[contains(@class,'content--open')]//h1[contains(@class,'page-editor__sidebar__panel-header') and contains(.,'${key_sidebarButton}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -313,12 +313,12 @@
 <!--LAYOUT ELEMENTS-->
 <tr>
 	<td>LAYOUT_ELEMENTS_HEADER</td>
-	<td>//div[contains(@class,'page-editor__topper')]/div[contains(.,'${key_elementType}')][${key_position}]//li[contains(@class,'title')]</td>
+	<td>//div[contains(@class,'page-editor__root page-editor__topper')]/div[contains(.,'${key_elementType}')][${key_position}]//li[contains(@class,'title')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>LAYOUT_ELEMENTS_HEADER_DELETE_BUTTON</td>
-	<td>//div[contains(@class,'page-editor__topper')]/div[contains(.,'${key_elementType}')][${key_position}]//button[*[name()='svg'][*[contains(@class,'times-circle')]]]</td>
+	<td>//div[contains(@class,'page-editor__root page-editor__topper')]/div[contains(.,'${key_elementType}')][${key_position}]//button[*[name()='svg'][*[contains(@class,'times-circle')]]]</td>
 	<td></td>
 </tr>
 <tr>
@@ -485,6 +485,22 @@
 <tr>
 	<td>PORTLET_INHERITED_FROM_CUSTOM_MASTERS</td>
 	<td>//div[contains(@class,'fragment-content--master')]//section[contains(.,'${key_portletName}')]</td>
+	<td></td>
+</tr>
+<!--COLLECTION_DISPLAY-->
+<tr>
+	<td>COLLECTION_CELL</td>
+	<td>//div[contains(@class,'collection-item') and contains(.,'${key_entryTitle}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>COLLECTION_CELL_NESTED_ELEMENT</td>
+	<td>//div[contains(@class,'page-editor__topper') and contains(.,'${key_fragmentName}')]//div[contains(@class,'page-editor__collection')]/div[@class='row'][${key_rowPosition}]/div[contains(@class,'col')][${key_colPosition}]${key_element}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>COLLECTION_ITEM_TITLE</td>
+	<td>//div[contains(@class,'page-editor__topper') and contains(.,'${key_fragmentName}')]//div[contains(@class,'page-editor__collection')]/div[@class='row'][${key_rowPosition}]/div[contains(@class,'col')][${key_colPosition}]//*[contains(@class,'item__title') and contains(.,'${key_entryTitle}')]</td>
 	<td></td>
 </tr>
 </tbody>

@@ -78,6 +78,12 @@ public class RedirectEntryLocalServiceUtil {
 		return getService().addRedirectEntry(redirectEntry);
 	}
 
+	public static boolean checkRedirectionChain(
+		long groupId, String destinationURL) {
+
+		return getService().checkRedirectionChain(groupId, destinationURL);
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -234,6 +240,13 @@ public class RedirectEntryLocalServiceUtil {
 		return getService().fetchRedirectEntry(groupId, sourceURL);
 	}
 
+	public static com.liferay.redirect.model.RedirectEntry fetchRedirectEntry(
+		long groupId, String sourceURL, boolean updateLastOccurrenceDate) {
+
+		return getService().fetchRedirectEntry(
+			groupId, sourceURL, updateLastOccurrenceDate);
+	}
+
 	/**
 	 * Returns the redirect entry matching the UUID and group.
 	 *
@@ -311,6 +324,14 @@ public class RedirectEntryLocalServiceUtil {
 				<com.liferay.redirect.model.RedirectEntry> obc) {
 
 		return getService().getRedirectEntries(groupId, start, end, obc);
+	}
+
+	public static java.util.List<com.liferay.redirect.model.RedirectEntry>
+		getRedirectEntriesByGroupIdAndDestinationURL(
+			long groupId, String destinationURL) {
+
+		return getService().getRedirectEntriesByGroupIdAndDestinationURL(
+			groupId, destinationURL);
 	}
 
 	/**

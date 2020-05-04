@@ -25,8 +25,13 @@ import com.liferay.fragment.service.FragmentEntryLinkService;
 import com.liferay.fragment.util.configuration.FragmentEntryConfigurationParser;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
+import com.liferay.layout.content.page.editor.listener.ContentPageEditorListener;
+import com.liferay.layout.content.page.editor.listener.ContentPageEditorListenerTracker;
 import com.liferay.layout.content.page.editor.web.internal.util.FragmentEntryLinkUtil;
 import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureUtil;
+import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
+import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
+import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -44,6 +49,8 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.segments.constants.SegmentsExperienceConstants;
+
+import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -69,9 +76,6 @@ public class AddFragmentEntryLinkMVCActionCommand
 			ActionRequest actionRequest)
 		throws PortalException {
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
 		long groupId = ParamUtil.getLong(actionRequest, "groupId");
 		String fragmentEntryKey = ParamUtil.getString(
 			actionRequest, "fragmentEntryKey");
@@ -90,6 +94,10 @@ public class AddFragmentEntryLinkMVCActionCommand
 			throw new NoSuchEntryException();
 		}
 
+		long segmentsExperienceId = ParamUtil.getLong(
+			actionRequest, "segmentsExperienceId",
+			SegmentsExperienceConstants.ID_DEFAULT);
+
 		if (fragmentEntry != null) {
 			String contributedRendererKey = null;
 
@@ -99,16 +107,16 @@ public class AddFragmentEntryLinkMVCActionCommand
 
 			return _fragmentEntryLinkService.addFragmentEntryLink(
 				serviceContext.getScopeGroupId(), 0,
-				fragmentEntry.getFragmentEntryId(),
-				_portal.getClassNameId(Layout.class), themeDisplay.getPlid(),
+				fragmentEntry.getFragmentEntryId(), segmentsExperienceId,
+				_portal.getClassNameId(Layout.class), serviceContext.getPlid(),
 				fragmentEntry.getCss(), fragmentEntry.getHtml(),
 				fragmentEntry.getJs(), fragmentEntry.getConfiguration(), null,
 				StringPool.BLANK, 0, contributedRendererKey, serviceContext);
 		}
 
 		return _fragmentEntryLinkService.addFragmentEntryLink(
-			serviceContext.getScopeGroupId(), 0, 0,
-			_portal.getClassNameId(Layout.class), themeDisplay.getPlid(),
+			serviceContext.getScopeGroupId(), 0, 0, segmentsExperienceId,
+			_portal.getClassNameId(Layout.class), serviceContext.getPlid(),
 			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
 			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK, 0,
 			fragmentEntryKey, serviceContext);
@@ -146,7 +154,7 @@ public class AddFragmentEntryLinkMVCActionCommand
 	}
 
 	private JSONObject _addFragmentEntryLinkToLayoutDataJSONObject(
-			ActionRequest actionRequest, long fragmentEntryLinkId)
+			ActionRequest actionRequest, FragmentEntryLink fragmentEntryLink)
 		throws PortalException {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
@@ -161,20 +169,39 @@ public class AddFragmentEntryLinkMVCActionCommand
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
-		JSONObject layoutDataJSONObject =
-			LayoutStructureUtil.updateLayoutPageTemplateData(
-				themeDisplay.getScopeGroupId(), segmentsExperienceId,
-				themeDisplay.getPlid(),
-				layoutStructure -> {
-					LayoutStructureItem layoutStructureItem =
-						layoutStructure.addFragmentLayoutStructureItem(
-							fragmentEntryLinkId, parentItemId, position);
+		LayoutStructureUtil.updateLayoutPageTemplateData(
+			themeDisplay.getScopeGroupId(), segmentsExperienceId,
+			themeDisplay.getPlid(),
+			layoutStructure -> {
+				LayoutStructureItem layoutStructureItem =
+					layoutStructure.addFragmentLayoutStructureItem(
+						fragmentEntryLink.getFragmentEntryLinkId(),
+						parentItemId, position);
 
-					jsonObject.put(
-						"addedItemId", layoutStructureItem.getItemId());
-				});
+				jsonObject.put("addedItemId", layoutStructureItem.getItemId());
+			});
 
-		return jsonObject.put("layoutData", layoutDataJSONObject);
+		List<ContentPageEditorListener> contentPageEditorListeners =
+			_contentPageEditorListenerTracker.getContentPageEditorListeners();
+
+		for (ContentPageEditorListener contentPageEditorListener :
+				contentPageEditorListeners) {
+
+			contentPageEditorListener.onAddFragmentEntryLink(fragmentEntryLink);
+		}
+
+		LayoutPageTemplateStructure layoutPageTemplateStructure =
+			_layoutPageTemplateStructureLocalService.
+				fetchLayoutPageTemplateStructure(
+					themeDisplay.getScopeGroupId(),
+					_portal.getClassNameId(Layout.class.getName()),
+					themeDisplay.getPlid(), true);
+
+		LayoutStructure layoutStructure = LayoutStructure.of(
+			layoutPageTemplateStructure.getData(
+				fragmentEntryLink.getSegmentsExperienceId()));
+
+		return jsonObject.put("layoutData", layoutStructure.toJSONObject());
 	}
 
 	private JSONObject _processAddFragmentEntryLink(
@@ -185,7 +212,7 @@ public class AddFragmentEntryLinkMVCActionCommand
 			actionRequest);
 
 		JSONObject jsonObject = _addFragmentEntryLinkToLayoutDataJSONObject(
-			actionRequest, fragmentEntryLink.getFragmentEntryLinkId());
+			actionRequest, fragmentEntryLink);
 
 		return jsonObject.put(
 			"fragmentEntryLink",
@@ -196,6 +223,9 @@ public class AddFragmentEntryLinkMVCActionCommand
 				_fragmentRendererController, _fragmentRendererTracker,
 				_itemSelector, StringPool.BLANK));
 	}
+
+	@Reference
+	private ContentPageEditorListenerTracker _contentPageEditorListenerTracker;
 
 	@Reference
 	private FragmentCollectionContributorTracker
@@ -215,6 +245,10 @@ public class AddFragmentEntryLinkMVCActionCommand
 
 	@Reference
 	private ItemSelector _itemSelector;
+
+	@Reference
+	private LayoutPageTemplateStructureLocalService
+		_layoutPageTemplateStructureLocalService;
 
 	@Reference
 	private Portal _portal;

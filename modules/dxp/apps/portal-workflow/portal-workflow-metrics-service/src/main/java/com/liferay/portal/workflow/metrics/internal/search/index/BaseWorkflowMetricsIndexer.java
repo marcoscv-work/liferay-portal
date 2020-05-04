@@ -14,62 +14,44 @@
 
 package com.liferay.portal.workflow.metrics.internal.search.index;
 
-import com.liferay.asset.kernel.service.AssetEntryLocalService;
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
-import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.json.JSONUtil;
-import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
-import com.liferay.portal.kernel.search.BooleanClauseOccur;
-import com.liferay.portal.kernel.search.BooleanQuery;
-import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
-import com.liferay.portal.kernel.search.filter.BooleanFilter;
-import com.liferay.portal.kernel.search.filter.TermFilter;
-import com.liferay.portal.kernel.search.generic.BooleanQueryImpl;
-import com.liferay.portal.kernel.search.generic.MatchAllQuery;
-import com.liferay.portal.kernel.service.CompanyLocalService;
-import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalRunMode;
-import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.search.document.Document;
+import com.liferay.portal.search.document.DocumentBuilder;
+import com.liferay.portal.search.document.DocumentBuilderFactory;
 import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
 import com.liferay.portal.search.engine.adapter.document.BulkDocumentRequest;
-import com.liferay.portal.search.engine.adapter.document.DeleteByQueryDocumentRequest;
 import com.liferay.portal.search.engine.adapter.document.IndexDocumentRequest;
 import com.liferay.portal.search.engine.adapter.document.UpdateDocumentRequest;
-import com.liferay.portal.search.engine.adapter.index.CreateIndexRequest;
-import com.liferay.portal.search.engine.adapter.index.IndicesExistsIndexRequest;
-import com.liferay.portal.search.engine.adapter.index.IndicesExistsIndexResponse;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchRequest;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchResponse;
 import com.liferay.portal.search.hits.SearchHit;
 import com.liferay.portal.search.hits.SearchHits;
 import com.liferay.portal.search.query.Queries;
 import com.liferay.portal.search.query.Query;
-import com.liferay.portal.workflow.kaleo.model.KaleoDefinitionVersion;
-import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionLocalService;
-import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionVersionLocalService;
-import com.liferay.portal.workflow.kaleo.service.KaleoInstanceLocalService;
-import com.liferay.portal.workflow.kaleo.service.KaleoNodeLocalService;
-import com.liferay.portal.workflow.kaleo.service.KaleoTaskAssignmentInstanceLocalService;
-import com.liferay.portal.workflow.kaleo.service.KaleoTaskInstanceTokenLocalService;
-import com.liferay.portal.workflow.kaleo.service.KaleoTaskLocalService;
-import com.liferay.portal.workflow.kaleo.service.KaleoTransitionLocalService;
 import com.liferay.portal.workflow.metrics.internal.petra.executor.WorkflowMetricsPortalExecutor;
 
 import java.io.Serializable;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -79,23 +61,6 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
  * @author Inácio Nery
  */
 public abstract class BaseWorkflowMetricsIndexer {
-
-	public void addDocument(Document document) {
-		if (searchEngineAdapter == null) {
-			return;
-		}
-
-		IndexDocumentRequest indexDocumentRequest = new IndexDocumentRequest(
-			getIndexName(), document);
-
-		if (PortalRunMode.isTestMode()) {
-			indexDocumentRequest.setRefresh(true);
-		}
-
-		indexDocumentRequest.setType(getIndexType());
-
-		searchEngineAdapter.execute(indexDocumentRequest);
-	}
 
 	public void addDocuments(List<Document> documents) {
 		if (searchEngineAdapter == null) {
@@ -107,7 +72,8 @@ public abstract class BaseWorkflowMetricsIndexer {
 		documents.forEach(
 			document -> bulkDocumentRequest.addBulkableDocumentRequest(
 				new IndexDocumentRequest(
-					getIndexName(), document.getUID(), document) {
+					getIndexName(document.getLong("companyId")),
+					document.getString("uid"), document) {
 
 					{
 						setType(getIndexType());
@@ -125,91 +91,35 @@ public abstract class BaseWorkflowMetricsIndexer {
 		}
 	}
 
-	public void createIndex() throws PortalException {
-		if (searchEngineAdapter == null) {
-			return;
-		}
+	public void deleteDocument(DocumentBuilder documentBuilder) {
+		documentBuilder.setValue("deleted", true);
 
-		if (hasIndex(getIndexName())) {
-			return;
-		}
-
-		CreateIndexRequest createIndexRequest = new CreateIndexRequest(
-			getIndexName());
-
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
-			StringUtil.read(getClass(), "/META-INF/search/mappings.json"));
-
-		createIndexRequest.setSource(
-			JSONUtil.put(
-				"mappings",
-				JSONUtil.put(getIndexType(), jsonObject.get(getIndexType()))
-			).put(
-				"settings",
-				JSONFactoryUtil.createJSONObject(
-					StringUtil.read(
-						getClass(), "/META-INF/search/settings.json"))
-			).toString());
-
-		searchEngineAdapter.execute(createIndexRequest);
+		_updateDocument(documentBuilder.build());
 	}
 
-	public void deleteDocument(Document document) {
-		document.addKeyword("deleted", true);
-
-		_updateDocument(document);
-	}
-
-	public void deleteIndex(long companyId) throws PortalException {
-		if (searchEngineAdapter == null) {
-			return;
-		}
-
-		if (!hasIndex(getIndexName())) {
-			return;
-		}
-
-		BooleanQuery booleanQuery = new BooleanQueryImpl();
-
-		booleanQuery.add(new MatchAllQuery(), BooleanClauseOccur.MUST);
-
-		BooleanFilter booleanFilter = new BooleanFilter();
-
-		booleanFilter.add(
-			new TermFilter("companyId", String.valueOf(companyId)),
-			BooleanClauseOccur.MUST);
-
-		booleanQuery.setPreBooleanFilter(booleanFilter);
-
-		DeleteByQueryDocumentRequest deleteByQueryDocumentRequest =
-			new DeleteByQueryDocumentRequest(booleanQuery, getIndexName());
-
-		if (PortalRunMode.isTestMode()) {
-			deleteByQueryDocumentRequest.setRefresh(true);
-		}
-
-		searchEngineAdapter.execute(deleteByQueryDocumentRequest);
-	}
-
-	public abstract String getIndexName();
+	public abstract String getIndexName(long companyId);
 
 	public abstract String getIndexType();
-
-	public abstract void reindex(long companyId) throws PortalException;
 
 	public void updateDocument(Document document) {
 		_updateDocument(document);
 	}
 
-	@Activate
-	protected void activate() throws Exception {
-		createIndex();
-
-		if (!_INDEX_ON_STARTUP) {
-			for (Company company : companyLocalService.getCompanies()) {
-				reindex(company.getCompanyId());
-			}
+	protected void addDocument(Document document) {
+		if (searchEngineAdapter == null) {
+			return;
 		}
+
+		IndexDocumentRequest indexDocumentRequest = new IndexDocumentRequest(
+			getIndexName(document.getLong("companyId")), document);
+
+		if (PortalRunMode.isTestMode()) {
+			indexDocumentRequest.setRefresh(true);
+		}
+
+		indexDocumentRequest.setType(getIndexType());
+
+		searchEngineAdapter.execute(indexDocumentRequest);
 	}
 
 	protected String digest(Serializable... parts) {
@@ -219,28 +129,48 @@ public abstract class BaseWorkflowMetricsIndexer {
 			sb.append(part);
 		}
 
-		return DigestUtils.sha256Hex(sb.toString());
+		return StringUtil.removeSubstring(getIndexType(), "Type") +
+			DigestUtils.sha256Hex(sb.toString());
 	}
 
-	protected KaleoDefinitionVersion getKaleoDefinitionVersion(
-		long kaleoDefinitionVersionId) {
-
-		return kaleoDefinitionVersionLocalService.fetchKaleoDefinitionVersion(
-			kaleoDefinitionVersionId);
+	protected String formatLocalDateTime(LocalDateTime localDateTime) {
+		return _dateTimeFormatter.format(localDateTime);
 	}
 
-	protected boolean hasIndex(String indexName) {
-		if (searchEngineAdapter == null) {
-			return false;
+	protected String getDate(Date date) {
+		try {
+			return DateUtil.getDate(
+				date, "yyyyMMddHHmmss", LocaleUtil.getDefault());
 		}
+		catch (Exception exception) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(exception, exception);
+			}
 
-		IndicesExistsIndexRequest indicesExistsIndexRequest =
-			new IndicesExistsIndexRequest(indexName);
+			return null;
+		}
+	}
 
-		IndicesExistsIndexResponse indicesExistsIndexResponse =
-			searchEngineAdapter.execute(indicesExistsIndexRequest);
+	protected void setLocalizedField(
+		DocumentBuilder documentBuilder, String fieldName,
+		Map<Locale, String> localizedMap) {
 
-		return indicesExistsIndexResponse.isExists();
+		Stream.of(
+			localizedMap.entrySet()
+		).flatMap(
+			Set::stream
+		).forEach(
+			entry -> {
+				String localizedName = Field.getLocalizedName(
+					entry.getKey(), fieldName);
+
+				documentBuilder.setValue(
+					localizedName, entry.getValue()
+				).setValue(
+					Field.getSortableFieldName(localizedName), entry.getValue()
+				);
+			}
+		);
 	}
 
 	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")
@@ -249,9 +179,7 @@ public abstract class BaseWorkflowMetricsIndexer {
 	}
 
 	protected void updateDocuments(
-		Function<com.liferay.portal.search.document.Document, Document>
-			transformDocumentFunction,
-		Query query) {
+		long companyId, Map<String, Object> fieldsMap, Query query) {
 
 		if (searchEngineAdapter == null) {
 			return;
@@ -259,9 +187,10 @@ public abstract class BaseWorkflowMetricsIndexer {
 
 		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
 
-		searchSearchRequest.setIndexNames(getIndexName());
+		searchSearchRequest.setIndexNames(getIndexName(companyId));
 		searchSearchRequest.setQuery(query);
-		searchSearchRequest.setSelectedFieldNames(Field.UID);
+		searchSearchRequest.setTypes(getIndexType());
+		searchSearchRequest.setSelectedFieldNames("uid");
 		searchSearchRequest.setSize(10000);
 
 		SearchSearchResponse searchSearchResponse = searchEngineAdapter.execute(
@@ -282,14 +211,24 @@ public abstract class BaseWorkflowMetricsIndexer {
 		).map(
 			SearchHit::getDocument
 		).map(
-			document -> new UpdateDocumentRequest(
-				getIndexName(), document.getString(Field.UID),
-				transformDocumentFunction.apply(document)) {
+			document -> {
+				DocumentBuilder documentBuilder =
+					documentBuilderFactory.builder();
 
-				{
-					setType(getIndexType());
-					setUpsert(true);
-				}
+				documentBuilder.setString("uid", document.getString("uid"));
+
+				fieldsMap.forEach(
+					(name, value) -> documentBuilder.setValue(name, value));
+
+				return new UpdateDocumentRequest(
+					getIndexName(companyId), document.getString("uid"),
+					documentBuilder.build()) {
+
+					{
+						setType(getIndexType());
+						setUpsert(true);
+					}
+				};
 			}
 		).forEach(
 			bulkDocumentRequest::addBulkableDocumentRequest
@@ -307,37 +246,7 @@ public abstract class BaseWorkflowMetricsIndexer {
 	}
 
 	@Reference
-	protected AssetEntryLocalService assetEntryLocalService;
-
-	@Reference
-	protected CompanyLocalService companyLocalService;
-
-	@Reference
-	protected KaleoDefinitionLocalService kaleoDefinitionLocalService;
-
-	@Reference
-	protected KaleoDefinitionVersionLocalService
-		kaleoDefinitionVersionLocalService;
-
-	@Reference
-	protected KaleoInstanceLocalService kaleoInstanceLocalService;
-
-	@Reference
-	protected KaleoNodeLocalService kaleoNodeLocalService;
-
-	@Reference
-	protected KaleoTaskAssignmentInstanceLocalService
-		kaleoTaskAssignmentInstanceLocalService;
-
-	@Reference
-	protected KaleoTaskInstanceTokenLocalService
-		kaleoTaskInstanceTokenLocalService;
-
-	@Reference
-	protected KaleoTaskLocalService kaleoTaskLocalService;
-
-	@Reference
-	protected KaleoTransitionLocalService kaleoTransitionLocalService;
+	protected DocumentBuilderFactory documentBuilderFactory;
 
 	@Reference
 	protected Queries queries;
@@ -359,7 +268,8 @@ public abstract class BaseWorkflowMetricsIndexer {
 		}
 
 		UpdateDocumentRequest updateDocumentRequest = new UpdateDocumentRequest(
-			getIndexName(), document.getUID(), document);
+			getIndexName(document.getLong("companyId")),
+			document.getString("uid"), document);
 
 		if (PortalRunMode.isTestMode()) {
 			updateDocumentRequest.setRefresh(true);
@@ -371,7 +281,10 @@ public abstract class BaseWorkflowMetricsIndexer {
 		searchEngineAdapter.execute(updateDocumentRequest);
 	}
 
-	private static final boolean _INDEX_ON_STARTUP = GetterUtil.getBoolean(
-		PropsUtil.get(PropsKeys.INDEX_ON_STARTUP));
+	private static final Log _log = LogFactoryUtil.getLog(
+		BaseWorkflowMetricsIndexer.class);
+
+	private final DateTimeFormatter _dateTimeFormatter =
+		DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
 }

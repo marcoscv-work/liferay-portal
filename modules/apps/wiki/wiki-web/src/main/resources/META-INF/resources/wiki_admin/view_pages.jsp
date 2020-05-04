@@ -172,9 +172,9 @@ WikiPagesManagementToolbarDisplayContext wikiPagesManagementToolbarDisplayContex
 				>
 
 					<%
-					Map<String, Object> rowData = new HashMap<>();
-
-					rowData.put("actions", StringUtil.merge(wikiPagesManagementToolbarDisplayContext.getAvailableActions(curPage)));
+					Map<String, Object> rowData = HashMapBuilder.<String, Object>put(
+						"actions", StringUtil.merge(wikiPagesManagementToolbarDisplayContext.getAvailableActions(curPage))
+					).build();
 
 					row.setData(rowData);
 
@@ -292,7 +292,7 @@ WikiPagesManagementToolbarDisplayContext wikiPagesManagementToolbarDisplayContex
 </div>
 
 <script>
-	var deletePages = function() {
+	var deletePages = function () {
 		if (
 			<%= trashHelper.isTrashEnabled(scopeGroupId) %> ||
 			confirm(
@@ -315,10 +315,10 @@ WikiPagesManagementToolbarDisplayContext wikiPagesManagementToolbarDisplayContex
 		deletePages: deletePages,
 	};
 
-	Liferay.componentReady('wikiPagesManagementToolbar').then(function(
+	Liferay.componentReady('wikiPagesManagementToolbar').then(function (
 		managementToolbar
 	) {
-		managementToolbar.on('actionItemClicked', function(event) {
+		managementToolbar.on('actionItemClicked', function (event) {
 			var itemData = event.data.item.data;
 
 			if (itemData && itemData.action && ACTIONS[itemData.action]) {

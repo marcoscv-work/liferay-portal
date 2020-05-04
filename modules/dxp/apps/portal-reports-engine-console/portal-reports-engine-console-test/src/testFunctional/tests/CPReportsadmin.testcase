@@ -144,6 +144,8 @@ definition {
 
 	@priority = "4"
 	test ChangeReportName {
+		property portal.acceptance = "true";
+
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
@@ -180,7 +182,7 @@ definition {
 
 	@priority = "4"
 	test DeleteReportFile {
-		property portal.upstream = "quarantine";
+		property portal.acceptance = "true";
 
 		Navigator.openURL();
 
@@ -228,6 +230,9 @@ definition {
 
 	@priority = "4"
 	test DeliverReportToEmail {
+		property portal.acceptance = "true";
+		property portal.upstream = "quarantine";
+
 		property test.assert.javascript.errors = "false";
 		property test.smtp.server.enabled = "true";
 		var portalURL = PropsUtil.get("portal.url");
@@ -348,6 +353,8 @@ definition {
 
 	@priority = "4"
 	test DownloadReportPDF {
+		property portal.acceptance = "true";
+
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
@@ -526,6 +533,8 @@ definition {
 	@description = "This is a use case for LPS-43525."
 	@priority = "3"
 	test TestDatabaseConnection {
+		property portal.acceptance = "true";
+
 		var databasePassword = PropsUtil.get("database.mysql.password");
 		var databaseURL = PropsUtil.get("database.mysql.url");
 		var databaseUsername = PropsUtil.get("database.mysql.username");
@@ -551,9 +560,10 @@ definition {
 		PortletEntry.save();
 	}
 
-	@ignore = "true"
 	@priority = "4"
 	test ViewEmailNotificationDelivery {
+		property portal.upstream = "quarantine";
+
 		property test.assert.javascript.errors = "false";
 		property test.name.skip.portal.instance = "CPReportsadmin#ViewEmailNotificationDelivery";
 		var portalURL = PropsUtil.get("portal.url");
@@ -630,9 +640,10 @@ definition {
 		Navigator.openSpecificURL(url = "${portalURL}");
 	}
 
-	@ignore = "true"
 	@priority = "4"
 	test ViewEmailRecipientDelivery {
+		property portal.upstream = "quarantine";
+
 		property test.name.skip.portal.instance = "CPReportsadmin#ViewEmailRecipientDelivery";
 		var portalURL = PropsUtil.get("portal.url");
 		property test.assert.javascript.errors = "false";
@@ -696,6 +707,8 @@ definition {
 
 	@priority = "3"
 	test ViewReportDefinitionParametersFields {
+		property portal.acceptance = "true";
+
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(

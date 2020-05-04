@@ -25,13 +25,13 @@ import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.fragment.renderer.FragmentRendererContext;
 import com.liferay.fragment.renderer.constants.FragmentRendererConstants;
 import com.liferay.fragment.util.configuration.FragmentEntryConfigurationParser;
+import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.kernel.cache.MultiVMPool;
 import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.servlet.taglib.util.OutputData;
 import com.liferay.portal.kernel.util.Validator;
@@ -255,6 +255,12 @@ public class FragmentEntryFragmentRenderer implements FragmentRenderer {
 					fragmentRendererContext.getMode(),
 					fragmentRendererContext.getLocale());
 
+		Optional<Object> displayObjectOptional =
+			fragmentRendererContext.getDisplayObjectOptional();
+
+		defaultFragmentEntryProcessorContext.setDisplayObject(
+			displayObjectOptional.orElse(null));
+
 		Optional<Map<String, Object>> fieldValuesOptional =
 			fragmentRendererContext.getFieldValuesOptional();
 
@@ -302,8 +308,7 @@ public class FragmentEntryFragmentRenderer implements FragmentRenderer {
 			JSONObject configurationJSONObject =
 				_fragmentEntryConfigurationParser.getConfigurationJSONObject(
 					fragmentEntryLink.getConfiguration(),
-					fragmentEntryLink.getEditableValues(),
-					fragmentRendererContext.getSegmentsExperienceIds());
+					fragmentEntryLink.getEditableValues());
 
 			configuration = configurationJSONObject.toString();
 		}

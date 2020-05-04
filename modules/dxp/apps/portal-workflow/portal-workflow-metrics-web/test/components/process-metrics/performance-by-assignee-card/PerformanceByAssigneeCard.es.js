@@ -28,27 +28,33 @@ const {filters, processId} = {
 	filters: {
 		assigneeDateEnd: '2019-12-09T00:00:00Z',
 		assigneeDateStart: '2019-12-03T00:00:00Z',
-		assigneeTaskKeys: ['update'],
+		assigneeTaskNames: ['update'],
 		assigneeTimeRange: ['7'],
 	},
 	processId: 12345,
 };
 const items = [
 	{
+		assignee: {
+			image: 'path/to/image',
+			name: 'User Test First',
+		},
 		durationTaskAvg: 10800000,
-		image: 'path/to/image',
-		name: 'User Test First',
 		taskCount: 10,
 	},
 	{
+		assignee: {
+			image: 'path/to/image',
+			name: 'User Test Second',
+		},
 		durationTaskAvg: 475200000,
-		image: 'path/to/image',
-		name: 'User Test Second',
 		taskCount: 31,
 	},
 	{
+		assignee: {
+			name: 'User Test Third',
+		},
 		durationTaskAvg: 0,
-		name: 'User Test Third',
 		taskCount: 1,
 	},
 ];
@@ -56,12 +62,12 @@ const data = {items, totalCount: items.length};
 const processStepsData = {
 	items: [
 		{
-			key: 'review',
-			name: 'Review',
+			label: 'Review',
+			name: 'review',
 		},
 		{
-			key: 'update',
-			name: 'Update',
+			label: 'Update',
+			name: 'update',
 		},
 	],
 	totalCount: 2,
@@ -124,7 +130,7 @@ describe('The performance by assignee card component should', () => {
 				'view-all-assignees (3)'
 			);
 			expect(viewAllAssignees.parentNode.getAttribute('href')).toContain(
-				'filters.dateEnd=2019-12-09T00%3A00%3A00Z&filters.dateStart=2019-12-03T00%3A00%3A00Z&filters.timeRange%5B0%5D=7&filters.taskKeys%5B0%5D=update'
+				'filters.dateEnd=2019-12-09T00%3A00%3A00Z&filters.dateStart=2019-12-03T00%3A00%3A00Z&filters.timeRange%5B0%5D=7&filters.taskNames%5B0%5D=update'
 			);
 		});
 
@@ -135,7 +141,7 @@ describe('The performance by assignee card component should', () => {
 				processStepFilter,
 				'filterItem'
 			);
-			const activeItem = filterItems.find(item =>
+			const activeItem = filterItems.find((item) =>
 				item.className.includes('active')
 			);
 			const activeItemName = await findByTestId(
@@ -153,7 +159,7 @@ describe('The performance by assignee card component should', () => {
 				timeRangeFilter,
 				'filterItem'
 			);
-			const activeItem = filterItems.find(item =>
+			const activeItem = filterItems.find((item) =>
 				item.className.includes('active')
 			);
 			const activeItemName = await findByTestId(

@@ -14,15 +14,19 @@
 
 package com.liferay.jenkins.results.parser.spira;
 
+import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
 import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil.HttpRequestMethod;
+import com.liferay.jenkins.results.parser.ParallelExecutor;
 
 import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -34,9 +38,10 @@ import org.json.JSONObject;
  */
 public class SpiraTestCaseRun extends BaseSpiraArtifact {
 
-	public static List<SpiraTestCaseRun> recordTestSpiraTestCaseRuns(
+	public static List<SpiraTestCaseRun> recordSpiraTestCaseRuns(
 		SpiraProject spiraProject, SpiraRelease spiraRelease,
-		SpiraReleaseBuild spiraReleaseBuild, List<Result> results) {
+		SpiraReleaseBuild spiraReleaseBuild, SpiraTestSet spiraTestSet,
+		List<Result> results) {
 
 		Integer releaseID = null;
 
@@ -50,6 +55,12 @@ public class SpiraTestCaseRun extends BaseSpiraArtifact {
 			releaseBuildID = spiraReleaseBuild.getID();
 		}
 
+		Integer testSetID = null;
+
+		if (spiraTestSet != null) {
+			testSetID = spiraTestSet.getID();
+		}
+
 		Calendar calendar = Calendar.getInstance();
 
 		JSONArray requestJSONArray = new JSONArray();
@@ -61,8 +72,11 @@ public class SpiraTestCaseRun extends BaseSpiraArtifact {
 
 			requestJSONObject.put(
 				SpiraTestCaseObject.ID_KEY, spiraTestCase.getID());
+
+			requestJSONObject.put(
+				"CustomProperties", result.getCustomPropertyValuesJSONArray());
 			requestJSONObject.put("ExecutionStatusId", result.getStatusID());
-			requestJSONObject.put("RunnerMessage", spiraTestCase.getPath());
+			requestJSONObject.put("RunnerMessage", spiraTestCase.getName());
 			requestJSONObject.put("RunnerName", "Liferay CI");
 			requestJSONObject.put("RunnerStackTrace", result.getDescription());
 			requestJSONObject.put("RunnerTestName", spiraTestCase.getName());
@@ -72,11 +86,22 @@ public class SpiraTestCaseRun extends BaseSpiraArtifact {
 				"TestRunFormatId", result.getRunnerFormatID());
 
 			if (releaseID != null) {
-				requestJSONObject.put("ReleaseId", releaseID);
+				requestJSONObject.put(SpiraRelease.ID_KEY, releaseID);
 			}
 
 			if (releaseBuildID != null) {
-				requestJSONObject.put("BuildId", releaseBuildID);
+				requestJSONObject.put(SpiraReleaseBuild.ID_KEY, releaseBuildID);
+			}
+
+			if (testSetID != null) {
+				requestJSONObject.put(SpiraTestSet.ID_KEY, testSetID);
+
+				SpiraTestSet.SpiraTestSetTestCase spiraTestSetTestCase =
+					spiraTestSet.assignSpiraTestCase(spiraTestCase);
+
+				requestJSONObject.put(
+					SpiraTestSet.SpiraTestSetTestCase.ID_KEY,
+					spiraTestSetTestCase.getID());
 			}
 
 			requestJSONArray.put(requestJSONObject);
@@ -113,16 +138,227 @@ public class SpiraTestCaseRun extends BaseSpiraArtifact {
 		}
 	}
 
+	public static List<SpiraTestCaseRun> recordSpiraTestCaseRuns(
+		final SpiraProject spiraProject, final SpiraRelease spiraRelease,
+		final SpiraReleaseBuild spiraReleaseBuild,
+		final SpiraTestSet spiraTestSet, List<Result> results,
+		Integer resultGroupSize, Integer threadCount) {
+
+		if (results.size() < resultGroupSize) {
+			return recordSpiraTestCaseRuns(
+				spiraProject, spiraRelease, spiraReleaseBuild, spiraTestSet,
+				results);
+		}
+
+		List<Callable<List<SpiraTestCaseRun>>> callables = new ArrayList<>();
+
+		int resultCount = results.size();
+
+		int resultGroupCount = resultCount / resultGroupSize;
+
+		if ((resultCount % resultGroupSize) > 0) {
+			resultGroupCount++;
+		}
+
+		for (int i = 0; i < resultGroupCount; i++) {
+			int resultGroupStart = i * resultGroupSize;
+
+			int resultGroupEnd = ((i + 1) * resultGroupSize) - 1;
+
+			if (resultGroupEnd > resultCount) {
+				resultGroupEnd = resultCount;
+			}
+
+			final List<Result> resultGroup = results.subList(
+				resultGroupStart, resultGroupEnd);
+
+			Callable<List<SpiraTestCaseRun>> callable =
+				new IndexedCallable<List<SpiraTestCaseRun>>(i) {
+
+					@Override
+					public List<SpiraTestCaseRun> safeCall() {
+						long start = System.currentTimeMillis();
+
+						String startString =
+							JenkinsResultsParserUtil.toDateString(
+								new Date(start), "America/Los_Angeles");
+
+						print("Starting at " + startString);
+
+						for (Result result : resultGroup) {
+							result.initSpiraTestCase();
+						}
+
+						List<SpiraTestCaseRun> spiraTestCaseRuns =
+							recordSpiraTestCaseRuns(
+								spiraProject, spiraRelease, spiraReleaseBuild,
+								spiraTestSet, resultGroup);
+
+						String durationString =
+							JenkinsResultsParserUtil.toDurationString(
+								System.currentTimeMillis() - start);
+
+						print("Completed in " + durationString);
+
+						return spiraTestCaseRuns;
+					}
+
+				};
+
+			callables.add(callable);
+		}
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("Recording results for ");
+		sb.append(resultGroupCount);
+		sb.append(" groups of ");
+		sb.append(resultGroupSize);
+		sb.append(" in ");
+		sb.append(threadCount);
+		sb.append(" threads.");
+
+		System.out.println(sb.toString());
+
+		ParallelExecutor<List<SpiraTestCaseRun>> parallelExecutor =
+			new ParallelExecutor<>(
+				callables,
+				JenkinsResultsParserUtil.getNewThreadPoolExecutor(
+					threadCount, true));
+
+		List<SpiraTestCaseRun> spiraTestCaseRuns = new ArrayList<>();
+
+		for (List<SpiraTestCaseRun> spiraTestCaseRunList :
+				parallelExecutor.execute()) {
+
+			spiraTestCaseRuns.addAll(spiraTestCaseRunList);
+		}
+
+		return spiraTestCaseRuns;
+	}
+
 	public static class Result {
 
 		public Result(
 			SpiraTestCaseObject spiraTestCase, RunnerFormat runnerFormat,
-			String runnerStackTrace, Status status) {
+			String runnerStackTrace, Status status,
+			List<SpiraCustomProperty.Value> spiraCustomPropertyValues) {
 
 			_spiraTestCase = spiraTestCase;
 			_runnerFormat = runnerFormat;
 			_description = runnerStackTrace;
 			_status = status;
+			_spiraCustomPropertyValues = spiraCustomPropertyValues;
+		}
+
+		public Result(
+			Supplier<SpiraTestCaseObject> testCaseSupplier,
+			RunnerFormat runnerFormat, String runnerStackTrace, Status status,
+			List<SpiraCustomProperty.Value> spiraCustomPropertyValues) {
+
+			_spiraTestCaseSupplier = testCaseSupplier;
+			_runnerFormat = runnerFormat;
+			_description = runnerStackTrace;
+			_status = status;
+			_spiraCustomPropertyValues = spiraCustomPropertyValues;
+		}
+
+		public JSONArray getCustomPropertyValuesJSONArray() {
+			JSONArray customPropertyValuesJSONArray = new JSONArray();
+
+			if (_spiraCustomPropertyValues == null) {
+				return customPropertyValuesJSONArray;
+			}
+
+			for (SpiraCustomProperty.Value spiraCustomPropertyValue :
+					_spiraCustomPropertyValues) {
+
+				SpiraCustomProperty spiraCustomProperty =
+					spiraCustomPropertyValue.getSpiraCustomProperty();
+
+				JSONObject customListValueJSONObject = null;
+
+				int spiraCustomPropertyNumber =
+					spiraCustomProperty.getPropertyNumber();
+
+				for (int i = 0; i < customPropertyValuesJSONArray.length();
+					 i++) {
+
+					JSONObject jsonObject =
+						customPropertyValuesJSONArray.getJSONObject(i);
+
+					int propertyNumber = jsonObject.optInt(
+						"PropertyNumber", -1);
+
+					if (propertyNumber == -1) {
+						continue;
+					}
+
+					if (propertyNumber != spiraCustomPropertyNumber) {
+						continue;
+					}
+
+					customListValueJSONObject = jsonObject;
+
+					break;
+				}
+
+				if (customListValueJSONObject == null) {
+					customListValueJSONObject = new JSONObject();
+
+					customListValueJSONObject.put(
+						"PropertyNumber", spiraCustomPropertyNumber);
+
+					customPropertyValuesJSONArray.put(
+						customListValueJSONObject);
+				}
+
+				SpiraCustomProperty.Type type = spiraCustomProperty.getType();
+
+				if ((type == SpiraCustomProperty.Type.LIST) ||
+					(type == SpiraCustomProperty.Type.MULTILIST)) {
+
+					SpiraCustomList spiraCustomList =
+						SpiraCustomList.createSpiraCustomListByName(
+							getSpiraProject(), SpiraTestCaseRun.class,
+							spiraCustomProperty.getName());
+
+					SpiraCustomList.Value spiraCustomListValue =
+						SpiraCustomList.createSpiraCustomListValue(
+							getSpiraProject(), spiraCustomList,
+							spiraCustomPropertyValue.getName());
+
+					if (type == SpiraCustomProperty.Type.LIST) {
+						customListValueJSONObject.put(
+							"IntegerValue", spiraCustomListValue.getID());
+					}
+					else {
+						JSONArray integerListValueJSONArray =
+							customListValueJSONObject.optJSONArray(
+								"IntegerListValue");
+
+						if (integerListValueJSONArray == null) {
+							integerListValueJSONArray = new JSONArray();
+
+							customListValueJSONObject.put(
+								"IntegerListValue", integerListValueJSONArray);
+						}
+
+						integerListValueJSONArray.put(
+							spiraCustomListValue.getID());
+					}
+				}
+				else if (type == SpiraCustomProperty.Type.TEXT) {
+					customListValueJSONObject.put(
+						"StringValue", spiraCustomPropertyValue.getName());
+				}
+				else {
+					throw new RuntimeException(
+						"Unsupported custom property " + type);
+				}
+			}
+
+			return customPropertyValuesJSONArray;
 		}
 
 		public String getDescription() {
@@ -133,7 +369,15 @@ public class SpiraTestCaseRun extends BaseSpiraArtifact {
 			return _runnerFormat.getID();
 		}
 
+		public SpiraProject getSpiraProject() {
+			SpiraTestCaseObject spiraTestCase = getSpiraTestCase();
+
+			return spiraTestCase.getSpiraProject();
+		}
+
 		public SpiraTestCaseObject getSpiraTestCase() {
+			initSpiraTestCase();
+
 			return _spiraTestCase;
 		}
 
@@ -141,9 +385,24 @@ public class SpiraTestCaseRun extends BaseSpiraArtifact {
 			return _status.getID();
 		}
 
+		public void initSpiraTestCase() {
+			if (_spiraTestCase != null) {
+				return;
+			}
+
+			if (_spiraTestCaseSupplier == null) {
+				return;
+			}
+
+			_spiraTestCase = _spiraTestCaseSupplier.get();
+		}
+
 		private final String _description;
 		private final RunnerFormat _runnerFormat;
-		private final SpiraTestCaseObject _spiraTestCase;
+		private final List<SpiraCustomProperty.Value>
+			_spiraCustomPropertyValues;
+		private SpiraTestCaseObject _spiraTestCase;
+		private Supplier<SpiraTestCaseObject> _spiraTestCaseSupplier;
 		private final Status _status;
 
 	}
@@ -208,45 +467,9 @@ public class SpiraTestCaseRun extends BaseSpiraArtifact {
 			searchParameters);
 	}
 
-	protected static List<SpiraTestCaseRun> recordSpiraTestCaseRuns(
-		SpiraProject spiraProject, JSONObject... requestJSONObjects) {
+	protected static final Integer ARTIFACT_TYPE_ID = 5;
 
-		String urlPath = "projects/{project_id}/test-runs/record-multiple";
-
-		Map<String, String> urlPathReplacements = new HashMap<>();
-
-		urlPathReplacements.put(
-			"project_id", String.valueOf(spiraProject.getID()));
-
-		JSONArray requestJSONArray = new JSONArray();
-
-		for (JSONObject requestJSONObject : requestJSONObjects) {
-			requestJSONArray.put(requestJSONObject);
-		}
-
-		try {
-			JSONArray responseJSONArray = SpiraRestAPIUtil.requestJSONArray(
-				urlPath, null, urlPathReplacements, HttpRequestMethod.POST,
-				requestJSONArray.toString());
-
-			List<SpiraTestCaseRun> spiraTestCaseRuns = new ArrayList<>();
-
-			for (int i = 0; i < responseJSONArray.length(); i++) {
-				JSONObject responseJSONObject = responseJSONArray.getJSONObject(
-					i);
-
-				responseJSONObject.put(
-					SpiraProject.ID_KEY, spiraProject.getID());
-
-				spiraTestCaseRuns.add(new SpiraTestCaseRun(responseJSONObject));
-			}
-
-			return spiraTestCaseRuns;
-		}
-		catch (IOException ioException) {
-			throw new RuntimeException(ioException);
-		}
-	}
+	protected static final String ARTIFACT_TYPE_NAME = "testrun";
 
 	protected static final String ID_KEY = "TestRunId";
 
@@ -302,6 +525,42 @@ public class SpiraTestCaseRun extends BaseSpiraArtifact {
 
 	private SpiraTestCaseRun(JSONObject jsonObject) {
 		super(jsonObject);
+
+		cacheSpiraArtifact(SpiraTestCaseRun.class, this);
+	}
+
+	private abstract static class IndexedCallable<T> implements Callable<T> {
+
+		@Override
+		public final T call() {
+			try {
+				return safeCall();
+			}
+			catch (Exception exception) {
+				exception.printStackTrace();
+			}
+
+			return null;
+		}
+
+		public abstract T safeCall();
+
+		protected IndexedCallable(Integer index) {
+			_index = index;
+		}
+
+		protected Integer getIndex() {
+			return _index;
+		}
+
+		protected void print(String s) {
+			System.out.println(
+				JenkinsResultsParserUtil.combine(
+					"[thread_" + getIndex(), "] ", s));
+		}
+
+		private final Integer _index;
+
 	}
 
 }

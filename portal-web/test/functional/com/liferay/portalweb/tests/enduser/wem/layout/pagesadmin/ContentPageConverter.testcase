@@ -1,8 +1,6 @@
 @component-name = "portal-wcm"
 definition {
 
-	property osgi.module.configuration.file.names = "com.liferay.layout.admin.web.internal.configuration.LayoutConverterConfiguration.config";
-	property osgi.module.configurations = "enabled=B&quot;true&quot;";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Site Pages Administration";
@@ -47,6 +45,8 @@ definition {
 			pageName = "Test Page Name");
 
 		Pause(locator1 = "3000");
+
+		PageEditor.assertFragmentSidebarLoaded();
 
 		Button.clickPublish();
 
@@ -399,11 +399,14 @@ definition {
 	@description = "This is a test for LPS-105943. When convert a widget page with one Nested Applications widget containing widgets, there will be a warning message shown in conversion preview"
 	@priority = "5"
 	test ConvertWidgetPageWithNestedApplicationsContainingWidgets {
-		property portal.upstream = "quarantine";
-
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Test Page Name");
+
+		JSONLayout.updateLayoutTemplateOfPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Test Page Name",
+			layoutTemplate = "1 Column");
 
 		JSONLayout.addWidgetToPublicLayout(
 			column = "1",
@@ -412,7 +415,7 @@ definition {
 			widgetName = "Nested Applications");
 
 		JSONLayout.addWidgetToPublicLayout(
-			column = "2",
+			column = "1",
 			groupName = "Test Site Name",
 			layoutName = "Test Page Name",
 			widgetName = "Asset Publisher");
@@ -431,7 +434,7 @@ definition {
 
 		DragAndDrop.dragAndDropPortletToObject(
 			key_portletTitleName = "Asset Publisher",
-			locator1 = "Home#PAGE_COLUMN_PORTLET_COLUMN_2_PORTLET_HEADER",
+			locator1 = "Home#PAGE_COLUMN_PORTLET_COLUMN_1_PORTLET_HEADER",
 			locator2 = "Home#PORTLET_COLUMN_1",
 			value1 = "Asset Publisher");
 
@@ -475,6 +478,7 @@ definition {
 	}
 
 	@description = "This is a test for LPS-105943. When convert a widget page with a non-standard layout, there will be a warning message shown in conversion preview"
+	@ignore = "true"
 	@priority = "5"
 	test ConvertWidgetPageWithNonStandardLayout {
 		property portal.acceptance = "true";
@@ -566,10 +570,9 @@ definition {
 	}
 
 	@description = "This is a test for LPS-105943. When convert a widget page with one Customizable column and a non-standard layout, there will be two warning messages shown in conversion preview"
+	@ignore = "true"
 	@priority = "3"
 	test ConvertWidgetPageWithNonStandardLayoutAndCustomizableColumns {
-		property portal.upstream = "quarantine";
-
 		ProductMenu.gotoPortlet(
 			category = "Sites",
 			panel = "Control Panel",
@@ -664,10 +667,10 @@ definition {
 	}
 
 	@description = "This is a test for LPS-105943. When convert a widget page with one Nested Applications widget containing widgets and a non-standard layout, there will be two warning messages shown in conversion preview"
+	@ignore = "true"
 	@priority = "3"
 	test ConvertWidgetPageWithNonStandardLayoutAndNestedApplicationsContainingWidgets {
 		property portal.upstream = "quarantine";
-
 		JSONGroup.deleteGroupByName(groupName = "Test Site Name");
 
 		ProductMenu.gotoPortlet(
@@ -792,12 +795,8 @@ definition {
 	}
 
 	@description = "This is a test for LPS-98589. Can edit the title of the widgets with "borderless" and "decorate" decorators in content page with correct permissions."
-	@ignore = "true"
 	@priority = "5"
 	test EditConvertedContentPageWithDecorator {
-
-		// Ignore test until LRQA-56526 is resolved
-
 		property portal.acceptance = "true";
 
 		JSONLayout.addPublicLayout(
@@ -987,7 +986,8 @@ definition {
 
 		PageEditor.clickBack();
 
-		AssertTextEquals(
+		AssertTextEquals.assertPartialText(
+			key_itemName = "Test Page Name",
 			locator1 = "SitePages#LIST_GROUP_ITEM_PAGE_INFO",
 			value1 = "Conversion Draft");
 

@@ -18,6 +18,7 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.headless.admin.user.client.dto.v1_0.Role;
 import com.liferay.headless.admin.user.client.pagination.Page;
 import com.liferay.headless.admin.user.client.pagination.Pagination;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
@@ -30,12 +31,12 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -86,10 +87,29 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 		assertValid(page);
 	}
 
-	@Ignore
-	@Override
 	@Test
-	public void testGraphQLGetRolesPage() {
+	public void testGraphQLGetRolesPage() throws Exception {
+		GraphQLField graphQLField = new GraphQLField(
+			"roles",
+			(HashMap)HashMapBuilder.put(
+				"page", 1
+			).put(
+				"pageSize", 2
+			).build(),
+			new GraphQLField("page"), new GraphQLField("totalCount"));
+
+		int totalCount = JSONUtil.getValueAsInt(
+			invokeGraphQLQuery(graphQLField), "JSONObject/data",
+			"JSONObject/roles", "Object/totalCount");
+
+		testGraphQLRole_addRole();
+		testGraphQLRole_addRole();
+
+		Assert.assertEquals(
+			totalCount + 2,
+			JSONUtil.getValueAsInt(
+				invokeGraphQLQuery(graphQLField), "JSONObject/data",
+				"JSONObject/roles", "Object/totalCount"));
 	}
 
 	@Override

@@ -26,7 +26,7 @@ definition {
 
 	@priority = "5"
 	test AddOrganizationRole {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 		property testray.component.names = "Training";
 
 		ProductMenu.gotoPortlet(
@@ -119,7 +119,7 @@ definition {
 
 	@priority = "4"
 	test AssignExistingSegmentToRegularRole {
-		Navigator.openURL();
+		ProductMenu.gotoSite(site = "Global");
 
 		ProductMenu.gotoPortlet(
 			category = "People",
@@ -227,8 +227,10 @@ definition {
 	}
 
 	@description = "This is a use case for LPS-109572."
-	@priority = "4"
+	@priority = "5"
 	test AssignNewUserToRegularRole {
+		property portal.acceptance = "true";
+
 		JSONRole.addRegularRole(
 			roleKey = "Regular Role",
 			roleTitle = "Regular Role");
@@ -244,11 +246,9 @@ definition {
 			panel = "Control Panel",
 			portlet = "Roles");
 
-		RoleNavigator.gotoAssignees(roleTitle = "Regular Role");
-
-		RoleNavigator.gotoAssigneeType(assigneeType = "Users");
-
-		Role.addAssignees(assigneeName = "userfn userln");
+		JSONRole.assignRoleToUser(
+			roleTitle = "Regular Role",
+			userEmailAddress = "userea@liferay.com");
 
 		ProductMenu.gotoPortlet(
 			category = "Users",
@@ -292,7 +292,7 @@ definition {
 
 	@priority = "4"
 	test RemoveSegmentFromRegularRole {
-		Navigator.openURL();
+		ProductMenu.gotoSite(site = "Global");
 
 		ProductMenu.gotoPortlet(
 			category = "People",

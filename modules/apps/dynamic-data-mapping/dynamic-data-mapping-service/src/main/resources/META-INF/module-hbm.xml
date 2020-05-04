@@ -8,6 +8,7 @@
 	<import class="com.liferay.dynamic.data.mapping.model.DDMFormInstance" />
 	<import class="com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord" />
 	<import class="com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecordVersion" />
+	<import class="com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport" />
 	<import class="com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion" />
 	<import class="com.liferay.dynamic.data.mapping.model.DDMStorageLink" />
 	<import class="com.liferay.dynamic.data.mapping.model.DDMStructure" />
@@ -49,6 +50,7 @@
 		<property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="description" type="com.liferay.portal.dao.orm.hibernate.StringClobType" />
 		<property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="definition" type="com.liferay.portal.dao.orm.hibernate.StringClobType" />
 		<property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" column="type_" name="type" type="com.liferay.portal.dao.orm.hibernate.StringType" />
+		<property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="lastPublishDate" type="org.hibernate.type.TimestampType" />
 	</class>
 	<class dynamic-update="true" name="com.liferay.dynamic.data.mapping.model.impl.DDMDataProviderInstanceLinkImpl" table="DDMDataProviderInstanceLink">
 		<id access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="dataProviderInstanceLinkId" type="long">
@@ -119,6 +121,18 @@
 		<property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="statusByUserId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
 		<property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="statusByUserName" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 		<property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="statusDate" type="org.hibernate.type.TimestampType" />
+	</class>
+	<class dynamic-update="true" name="com.liferay.dynamic.data.mapping.model.impl.DDMFormInstanceReportImpl" table="DDMFormInstanceReport">
+		<id access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="formInstanceReportId" type="long">
+			<generator class="assigned" />
+		</id>
+		<version access="com.liferay.portal.dao.orm.hibernate.PrivatePropertyAccessor" name="mvccVersion" type="long" />
+		<property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="groupId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
+		<property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="companyId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
+		<property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="createDate" type="org.hibernate.type.TimestampType" />
+		<property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="modifiedDate" type="org.hibernate.type.TimestampType" />
+		<property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="formInstanceId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
+		<property access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" column="data_" name="data" type="com.liferay.portal.dao.orm.hibernate.StringClobType" />
 	</class>
 	<class dynamic-update="true" name="com.liferay.dynamic.data.mapping.model.impl.DDMFormInstanceVersionImpl" table="DDMFormInstanceVersion">
 		<id access="com.liferay.portal.dao.orm.hibernate.LiferayPropertyAccessor" name="formInstanceVersionId" type="long">

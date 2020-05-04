@@ -58,8 +58,6 @@ KBSuggestionListManagementToolbarDisplayContext kbSuggestionListManagementToolba
 request.setAttribute("view_suggestions.jsp-kbSuggestionListManagementToolbarDisplayContext", kbSuggestionListManagementToolbarDisplayContext);
 request.setAttribute("view_suggestions.jsp-resultRowSplitter", kbCommentResultRowSplitter);
 request.setAttribute("view_suggestions.jsp-searchContainer", kbCommentsSearchContainer);
-
-List<KBComment> kbComments = kbCommentsSearchContainer.getResults();
 %>
 
 <liferay-util:include page="/admin/common/top_tabs.jsp" servletContext="<%= application %>" />
@@ -92,7 +90,7 @@ List<KBComment> kbComments = kbCommentsSearchContainer.getResults();
 </div>
 
 <aui:script>
-	var deleteKBComments = function() {
+	var deleteKBComments = function () {
 		if (
 			confirm(
 				'<liferay-ui:message key="are-you-sure-you-want-to-delete-this" />'
@@ -110,10 +108,10 @@ List<KBComment> kbComments = kbCommentsSearchContainer.getResults();
 		deleteKBComments: deleteKBComments,
 	};
 
-	Liferay.componentReady('kbSuggestionListManagementToolbar').then(function(
+	Liferay.componentReady('kbSuggestionListManagementToolbar').then(function (
 		managementToolbar
 	) {
-		managementToolbar.on('actionItemClicked', function(event) {
+		managementToolbar.on('actionItemClicked', function (event) {
 			var itemData = event.data.item.data;
 
 			if (itemData && itemData.action && ACTIONS[itemData.action]) {

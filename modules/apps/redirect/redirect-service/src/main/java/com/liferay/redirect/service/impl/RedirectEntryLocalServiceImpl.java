@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.util.DateUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.redirect.configuration.RedirectConfiguration;
@@ -28,7 +29,12 @@ import com.liferay.redirect.exception.DuplicateRedirectEntrySourceURLException;
 import com.liferay.redirect.exception.RequiredRedirectEntryDestinationURLException;
 import com.liferay.redirect.exception.RequiredRedirectEntrySourceURLException;
 import com.liferay.redirect.model.RedirectEntry;
+import com.liferay.redirect.model.RedirectNotFoundEntry;
+import com.liferay.redirect.service.RedirectNotFoundEntryLocalService;
 import com.liferay.redirect.service.base.RedirectEntryLocalServiceBaseImpl;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import java.util.Date;
 import java.util.List;
@@ -110,11 +116,35 @@ public class RedirectEntryLocalServiceImpl
 				redirectEntry, serviceContext.getModelPermissions());
 		}
 
+		RedirectNotFoundEntry redirectNotFoundEntry =
+			_redirectNotFoundEntryLocalService.fetchRedirectNotFoundEntry(
+				groupId, sourceURL);
+
+		if (redirectNotFoundEntry != null) {
+			_redirectNotFoundEntryLocalService.deleteRedirectNotFoundEntry(
+				redirectNotFoundEntry);
+		}
+
 		return redirectEntry;
 	}
 
 	@Override
+	public boolean checkRedirectionChain(long groupId, String destinationURL) {
+		return ListUtil.isNotEmpty(
+			getRedirectEntriesByGroupIdAndDestinationURL(
+				groupId, destinationURL));
+	}
+
+	@Override
 	public RedirectEntry fetchRedirectEntry(long groupId, String sourceURL) {
+		return redirectEntryLocalService.fetchRedirectEntry(
+			groupId, sourceURL, false);
+	}
+
+	@Override
+	public RedirectEntry fetchRedirectEntry(
+		long groupId, String sourceURL, boolean updateLastOccurrenceDate) {
+
 		if (!_redirectConfiguration.isEnabled()) {
 			return null;
 		}
@@ -123,12 +153,20 @@ public class RedirectEntryLocalServiceImpl
 			groupId, sourceURL);
 
 		if (redirectEntry != null) {
-			Date expirationDate = redirectEntry.getExpirationDate();
-
-			if ((expirationDate != null) &&
-				(DateUtil.compareTo(expirationDate, DateUtil.newDate()) <= 0)) {
-
+			if (_isExpired(redirectEntry)) {
 				return null;
+			}
+
+			if (updateLastOccurrenceDate &&
+				((redirectEntry.getLastOccurrenceDate() == null) ||
+				 !_isInTheSameDay(
+					 redirectEntry.getLastOccurrenceDate(),
+					 DateUtil.newDate()))) {
+
+				redirectEntry.setLastOccurrenceDate(new Date());
+
+				redirectEntry = redirectEntryLocalService.updateRedirectEntry(
+					redirectEntry);
 			}
 		}
 
@@ -141,6 +179,15 @@ public class RedirectEntryLocalServiceImpl
 		OrderByComparator<RedirectEntry> obc) {
 
 		return redirectEntryPersistence.findByGroupId(groupId, start, end, obc);
+	}
+
+	@Override
+	public List<RedirectEntry> getRedirectEntriesByGroupIdAndDestinationURL(
+		long groupId, String destinationURL) {
+
+		return ListUtil.filter(
+			redirectEntryPersistence.findByG_D(groupId, destinationURL),
+			redirectEntry -> !_isExpired(redirectEntry));
 	}
 
 	@Override
@@ -177,6 +224,31 @@ public class RedirectEntryLocalServiceImpl
 		return redirectEntryPersistence.update(redirectEntry);
 	}
 
+	private static Instant _getDayInstant(Date date) {
+		Instant instant = date.toInstant();
+
+		return instant.truncatedTo(ChronoUnit.DAYS);
+	}
+
+	private boolean _isExpired(RedirectEntry redirectEntry) {
+		Date expirationDate = redirectEntry.getExpirationDate();
+
+		if ((expirationDate != null) &&
+			(DateUtil.compareTo(expirationDate, DateUtil.newDate()) <= 0)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean _isInTheSameDay(Date date1, Date date2) {
+		Instant instant1 = _getDayInstant(date1);
+		Instant instant2 = _getDayInstant(date2);
+
+		return instant1.equals(instant2);
+	}
+
 	private void _validate(String destinationURL, String sourceURL)
 		throws PortalException {
 
@@ -191,5 +263,9 @@ public class RedirectEntryLocalServiceImpl
 
 	@Reference
 	private RedirectConfiguration _redirectConfiguration;
+
+	@Reference
+	private RedirectNotFoundEntryLocalService
+		_redirectNotFoundEntryLocalService;
 
 }

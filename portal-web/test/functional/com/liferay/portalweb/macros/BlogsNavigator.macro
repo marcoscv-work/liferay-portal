@@ -71,8 +71,8 @@ definition {
 		AssertElementPresent(locator1 = "Icon#BACK");
 
 		AssertVisible(
-			key_editor = "title",
-			locator1 = "AlloyEditor#EDITOR");
+			key_text = "Title",
+			locator1 = "TextArea#ANY");
 	}
 
 	macro gotoEditPG {
@@ -163,17 +163,17 @@ definition {
 	}
 
 	macro gotoSelectFile {
+		Pause(locator1 = "5000");
+
 		AssertClick(
 			locator1 = "BlogsEntry#ENTRY_COVER_IMAGE_SELECT_FILE",
 			value1 = "Select File");
 	}
 
 	macro gotoShare {
-		Click(
-			key_listEntry = "${entryTitle}",
-			locator1 = "LexiconList#LIST_ENTRY_ELLIPSIS");
-
-		MenuItem.click(menuItem = "Share");
+		LexiconEntry.gotoEntryMenuItem(
+			menuItem = "Share",
+			rowEntry = "${entryTitle}");
 	}
 
 	macro moveToRecycleBinCP {

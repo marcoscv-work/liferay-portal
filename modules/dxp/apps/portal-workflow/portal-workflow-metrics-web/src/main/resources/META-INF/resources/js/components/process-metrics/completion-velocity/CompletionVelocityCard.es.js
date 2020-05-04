@@ -46,12 +46,12 @@ const CompletionVelocityCard = ({routeParams}) => {
 	]);
 
 	const defaultUnit = useMemo(
-		() => velocityUnits.find(unit => unit.defaultVelocityUnit) || {},
+		() => velocityUnits.find((unit) => unit.defaultVelocityUnit) || {},
 		[velocityUnits]
 	);
 
 	const velocityUnit = useMemo(
-		() => velocityUnits.find(unit => unit.key === velocity),
+		() => velocityUnits.find((unit) => unit.key === velocity),
 		[velocity, velocityUnits]
 	);
 
@@ -64,7 +64,7 @@ const CompletionVelocityCard = ({routeParams}) => {
 			...timeRange,
 			unit,
 		},
-		url: `processes/${processId}/metric`,
+		url: `processes/${processId}/histograms/metrics`,
 	});
 
 	const promises = useMemo(() => {

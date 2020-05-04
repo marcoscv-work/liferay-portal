@@ -38,7 +38,7 @@
 			<liferay-ui:icon-menu
 				direction="left-side"
 				icon="<%= StringUtil.toLowerCase(normalizedDefaultLanguageId) %>"
-				id="<%= fieldsNamespace + \"Menu\" %>"
+				id='<%= fieldsNamespace + "Menu" %>'
 				markupView="lexicon"
 				message="<%= StringPool.BLANK %>"
 				showWhenSingleIcon="<%= true %>"
@@ -78,15 +78,17 @@
 
 							String title = HtmlUtil.escapeAttribute(curLocale.getDisplayName(LocaleUtil.fromLanguageId(LanguageUtil.getLanguageId(request)))) + " " + LanguageUtil.get(LocaleUtil.getDefault(), "translation");
 
-							Map<String, Object> data = new HashMap<String, Object>();
+							Map<String, Object> data = HashMapBuilder.<String, Object>put(
+								"languageid", curLanguageId
+							).build();
 
-							data.put("languageid", curLanguageId);
-
-							Map<String, Object> iconData = new HashMap<>();
-
-							iconData.put("index", index++);
-							iconData.put("languageid", curLanguageId);
-							iconData.put("value", curLanguageId);
+							Map<String, Object> iconData = HashMapBuilder.<String, Object>put(
+								"index", index++
+							).put(
+								"languageid", curLanguageId
+							).put(
+								"value", curLanguageId
+							).build();
 							%>
 
 							<liferay-ui:icon
@@ -166,7 +168,7 @@
 				})
 			);
 
-			var onLocaleChange = function(event) {
+			var onLocaleChange = function (event) {
 				var languageId = event.item.getAttribute('data-value');
 
 				languageId = languageId.replace('_', '-');
@@ -186,13 +188,13 @@
 
 			Liferay.on('inputLocalized:localeChanged', onLocaleChange);
 
-			window.fireLocaleChanged = function(event) {
+			window.fireLocaleChanged = function (event) {
 				Liferay.fire('inputLocalized:localeChanged', {
 					item: event.currentTarget,
 				});
 			};
 
-			var onDestroyPortlet = function(event) {
+			var onDestroyPortlet = function (event) {
 				if (event.portletId === '<%= portletDisplay.getId() %>') {
 					liferayDDMForm.destroy();
 

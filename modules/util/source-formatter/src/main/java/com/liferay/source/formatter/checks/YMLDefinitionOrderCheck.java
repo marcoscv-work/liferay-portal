@@ -57,9 +57,7 @@ public class YMLDefinitionOrderCheck extends BaseFileCheck {
 
 		sb.setIndex(sb.index() - 1);
 
-		content = _sortPathParameters(sb.toString());
-
-		return content;
+		return _sortPathParameters(sb.toString());
 	}
 
 	private List<String> _combineComments(
@@ -290,9 +288,7 @@ public class YMLDefinitionOrderCheck extends BaseFileCheck {
 			matcher2 = pattern.matcher(path);
 
 			while (matcher2.find()) {
-				String inPaths = null;
-
-				inPaths = matcher2.group();
+				String inPaths = matcher2.group();
 
 				pattern = Pattern.compile(" *-\n( +)in: path(\n\\1.+)*\n");
 

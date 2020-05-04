@@ -143,7 +143,8 @@ public class SpiraTestSetFolder extends PathSpiraArtifact {
 			throw new RuntimeException(ioException);
 		}
 
-		removeCachedSpiraArtifacts(spiraTestSetFolders);
+		removeCachedSpiraArtifacts(
+			SpiraTestSetFolder.class, spiraTestSetFolders);
 	}
 
 	public static void deleteSpiraTestSetFoldersByPath(
@@ -211,6 +212,8 @@ public class SpiraTestSetFolder extends PathSpiraArtifact {
 		return getParentSpiraTestSetFolder();
 	}
 
+	protected static final String ARTIFACT_TYPE_NAME = "testsetfolder";
+
 	protected static final String ID_KEY = "TestSetFolderId";
 
 	private static List<JSONObject> _requestSpiraTestSetFolders(
@@ -247,6 +250,8 @@ public class SpiraTestSetFolder extends PathSpiraArtifact {
 
 	private SpiraTestSetFolder(JSONObject jsonObject) {
 		super(jsonObject);
+
+		cacheSpiraArtifact(SpiraTestSetFolder.class, this);
 	}
 
 	private SpiraTestSetFolder _parentSpiraTestSetFolder;

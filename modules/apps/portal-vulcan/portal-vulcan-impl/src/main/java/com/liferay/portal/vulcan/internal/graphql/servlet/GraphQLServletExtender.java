@@ -56,6 +56,7 @@ import com.liferay.portal.vulcan.multipart.BinaryFile;
 import com.liferay.portal.vulcan.multipart.MultipartBody;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
 
+import graphql.ExceptionWhileDataFetching;
 import graphql.GraphQLError;
 import graphql.GraphqlErrorBuilder;
 import graphql.Scalars;
@@ -84,6 +85,12 @@ import graphql.annotations.processor.typeFunctions.DefaultTypeFunction;
 import graphql.annotations.processor.typeFunctions.TypeFunction;
 import graphql.annotations.processor.util.NamingKit;
 import graphql.annotations.processor.util.ReflectionKit;
+
+import graphql.execution.AsyncExecutionStrategy;
+import graphql.execution.DataFetcherExceptionHandler;
+import graphql.execution.DataFetcherExceptionHandlerParameters;
+import graphql.execution.DataFetcherExceptionHandlerResult;
+import graphql.execution.ExecutionStrategy;
 
 import graphql.language.ArrayValue;
 import graphql.language.BooleanValue;
@@ -121,11 +128,14 @@ import graphql.schema.PropertyDataFetcher;
 import graphql.schema.TypeResolver;
 
 import graphql.servlet.ApolloScalars;
-import graphql.servlet.DefaultGraphQLErrorHandler;
+import graphql.servlet.DefaultExecutionStrategyProvider;
+import graphql.servlet.ExecutionStrategyProvider;
 import graphql.servlet.GraphQLConfiguration;
 import graphql.servlet.GraphQLContext;
+import graphql.servlet.GraphQLErrorHandler;
 import graphql.servlet.GraphQLHttpServlet;
 import graphql.servlet.GraphQLObjectMapper;
+import graphql.servlet.GraphQLQueryInvoker;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
@@ -955,6 +965,20 @@ public class GraphQLServletExtender {
 			GraphQLConfiguration.Builder graphQLConfigurationBuilder =
 				GraphQLConfiguration.with(graphQLSchemaBuilder.build());
 
+			ExecutionStrategy executionStrategy = new AsyncExecutionStrategy(
+				new SanitizedDataFetcherExceptionHandler());
+
+			ExecutionStrategyProvider executionStrategyProvider =
+				new DefaultExecutionStrategyProvider(executionStrategy);
+
+			GraphQLQueryInvoker graphQLQueryInvoker =
+				GraphQLQueryInvoker.newBuilder(
+				).withExecutionStrategyProvider(
+					executionStrategyProvider
+				).build();
+
+			graphQLConfigurationBuilder.with(graphQLQueryInvoker);
+
 			GraphQLObjectMapper.Builder objectMapperBuilder =
 				GraphQLObjectMapper.newBuilder();
 
@@ -1692,15 +1716,22 @@ public class GraphQLServletExtender {
 	}
 
 	private static class LiferayGraphQLErrorHandler
-		extends DefaultGraphQLErrorHandler {
+		implements GraphQLErrorHandler {
 
 		@Override
-		protected List<GraphQLError> filterGraphQLErrors(
+		public List<GraphQLError> processErrors(
 			List<GraphQLError> graphQLErrors) {
 
 			Stream<GraphQLError> stream = graphQLErrors.stream();
 
-			return stream.map(
+			return stream.filter(
+				graphQLError -> {
+					String message = graphQLError.getMessage();
+
+					return !message.contains("NoSuchEntryException") ||
+						   _isRequiredFieldError(graphQLError);
+				}
+			).map(
 				graphQLError -> {
 					String message = graphQLError.getMessage();
 
@@ -1708,9 +1739,11 @@ public class GraphQLServletExtender {
 						return _getExtendedGraphQLError(
 							graphQLError, Response.Status.UNAUTHORIZED);
 					}
-					else if (!isClientError(graphQLError) &&
-							 !message.contains("ClientErrorException")) {
-
+					else if (message.contains("NoSuchEntryException")) {
+						return _getExtendedGraphQLError(
+							graphQLError, Response.Status.NOT_FOUND);
+					}
+					else if (!_isClientError(graphQLError)) {
 						return _getExtendedGraphQLError(
 							graphQLError,
 							Response.Status.INTERNAL_SERVER_ERROR);
@@ -1742,6 +1775,42 @@ public class GraphQLServletExtender {
 					).build()
 				).build()
 			).build();
+		}
+
+		private boolean _isClientError(GraphQLError graphQLError) {
+			if (graphQLError instanceof ExceptionWhileDataFetching) {
+				ExceptionWhileDataFetching exceptionWhileDataFetching =
+					(ExceptionWhileDataFetching)graphQLError;
+
+				return exceptionWhileDataFetching.getException() instanceof
+					GraphQLError;
+			}
+
+			String message = graphQLError.getMessage();
+
+			if (!(graphQLError instanceof Throwable) ||
+				message.contains("ClientErrorException")) {
+
+				return true;
+			}
+
+			return false;
+		}
+
+		private boolean _isRequiredFieldError(GraphQLError graphQLError) {
+			List<Object> path = Optional.ofNullable(
+				graphQLError.getPath()
+			).orElse(
+				Collections.emptyList()
+			);
+
+			if (path.size() <= 1) {
+				return true;
+			}
+
+			String missingField = (String)path.get(path.size() - 1);
+
+			return StringUtil.containsIgnoreCase(missingField, "parent");
 		}
 
 	}
@@ -1847,6 +1916,27 @@ public class GraphQLServletExtender {
 			}
 
 			return false;
+		}
+
+	}
+
+	private static class SanitizedDataFetcherExceptionHandler
+		implements DataFetcherExceptionHandler {
+
+		@Override
+		public DataFetcherExceptionHandlerResult onException(
+			DataFetcherExceptionHandlerParameters
+				dataFetcherExceptionHandlerParameters) {
+
+			DataFetcherExceptionHandlerResult.Builder builder =
+				DataFetcherExceptionHandlerResult.newResult();
+
+			return builder.error(
+				new ExceptionWhileDataFetching(
+					dataFetcherExceptionHandlerParameters.getPath(),
+					dataFetcherExceptionHandlerParameters.getException(),
+					dataFetcherExceptionHandlerParameters.getSourceLocation())
+			).build();
 		}
 
 	}

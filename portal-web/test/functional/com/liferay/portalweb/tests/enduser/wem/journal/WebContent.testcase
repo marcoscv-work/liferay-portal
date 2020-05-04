@@ -228,7 +228,7 @@ definition {
 
 		NavItem.gotoTemplates();
 
-		Click(locator1 = "Icon#VERTICAL_ELLIPSIS_BUTTON");
+		Click.waitForMenuToggleJSClick(locator1 = "Icon#VERTICAL_ELLIPSIS_BUTTON");
 
 		MenuItem.click(menuItem = "Edit");
 
@@ -294,7 +294,7 @@ definition {
 
 	@priority = "5"
 	test EditWebContentViaArticleTitle {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 		property testray.component.names = "Web Content Administration";
 
 		JSONWebcontent.addWebContent(
@@ -460,12 +460,8 @@ definition {
 			webContentTitle = "WC WebContent Title");
 	}
 
-	@ignore = "true"
 	@priority = "4"
 	test MoveMultipleWebContentToFolder {
-
-		// Ignore test until LRQA-56714 is resolved
-
 		property testray.component.names = "Web Content Administration";
 
 		JSONWebcontent.addFolder(
@@ -680,7 +676,6 @@ definition {
 	}
 
 	@description = "This is a test for LPS-90066. A user can preview a scheduled Web Content article through the 'View Usages' screen."
-	@ignore = "true"
 	@priority = "5"
 	test PreviewScheduledWebContentInWCD {
 		task ("Add a web content article with a future display date") {
@@ -857,9 +852,9 @@ definition {
 
 		Role.openRolesAdmin();
 
-		Role.assignRegRoleCP(
+		JSONRole.assignRoleToUser(
 			roleTitle = "Web Content Administrator Role",
-			userScreenName = "usersn");
+			userEmailAddress = "userea@liferay.com");
 
 		Site.openSiteMembershipsAdmin(siteURLKey = "test-site-name");
 

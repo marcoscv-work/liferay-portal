@@ -65,14 +65,9 @@ public class AppBuilderDataDefinitionContentType
 			return true;
 		}
 
-		if (permissionChecker.hasOwnerPermission(
-				companyId, resourceName, primKey, userId, actionId)) {
-
-			return true;
-		}
-
-		return permissionChecker.hasPermission(
-			groupId, resourceName, primKey, actionId);
+		return DataDefinitionContentType.super.hasPermission(
+			permissionChecker, companyId, groupId, resourceName, primKey,
+			userId, actionId);
 	}
 
 	@Override
@@ -89,6 +84,11 @@ public class AppBuilderDataDefinitionContentType
 
 		return _portletResourcePermission.contains(
 			permissionChecker, groupId, actionId);
+	}
+
+	@Override
+	public boolean isDataRecordCollectionPermissionCheckingEnabled() {
+		return true;
 	}
 
 	@Reference

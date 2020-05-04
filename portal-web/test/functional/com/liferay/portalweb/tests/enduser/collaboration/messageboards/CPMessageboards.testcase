@@ -28,6 +28,8 @@ definition {
 
 	@priority = "5"
 	test AddMBCategory {
+		property portal.acceptance = "true";
+
 		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
 
 		MessageboardsCategory.addCP(categoryName = "MB Category Name");
@@ -60,6 +62,7 @@ definition {
 		property app.server.types = "jboss,tcserver,tomcat,weblogic,websphere,wildfly";
 		property database.types = "db2,hypersonic,mariadb,mysql,oracle,postgresql,sqlserver,sybase";
 		property environment.acceptance = "true";
+		property portal.acceptance = "true";
 
 		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
 
@@ -113,9 +116,9 @@ definition {
 			MessageboardsCategory.addCP(categoryName = "${categoryName}");
 		}
 
-		Navigator.openURL();
+		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
 
-		MessageboardsCategory.tearDownCP(assetType = "3 items");
+		MessageboardsCategory.deleteCP();
 
 		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
 
@@ -127,6 +130,7 @@ definition {
 	@priority = "3"
 	test DeleteMBThreadWithAttachment {
 		property custom.properties = "trash.entry.check.interval=1${line.separator}trash.entries.max.age=1";
+		property portal.upstream = "quarantine";
 
 		JSONGroup.addGroup(groupName = "Site Name");
 
@@ -156,6 +160,8 @@ definition {
 
 	@priority = "5"
 	test EditMBThreadSubjectAndBody {
+		property portal.acceptance = "quarantine";
+
 		JSONMBMessage.addMessage(
 			groupName = "Guest",
 			threadBody = "MB Thread Message Body",

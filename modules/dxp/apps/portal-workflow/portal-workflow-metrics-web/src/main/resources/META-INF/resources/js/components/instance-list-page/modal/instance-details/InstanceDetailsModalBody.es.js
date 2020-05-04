@@ -12,42 +12,53 @@
 
 import ClayIcon from '@clayui/icon';
 import ClayModal from '@clayui/modal';
-import React from 'react';
+import React, {useMemo} from 'react';
 
-import EmptyState from '../../../../shared/components/empty-state/EmptyState.es';
+import ContentView from '../../../../shared/components/content-view/ContentView.es';
 import RetryButton from '../../../../shared/components/list/RetryButton.es';
-import LoadingState from '../../../../shared/components/loading/LoadingState.es';
-import PromisesResolver from '../../../../shared/components/promises-resolver/PromisesResolver.es';
 import moment from '../../../../shared/util/moment.es';
 import {Item} from './InstanceDetailsModalItem.es';
 
 const Body = ({
 	assetTitle,
 	assetType,
-	assigneeUsers = [{name: Liferay.Language.get('unassigned')}],
-	creatorUser,
+	assignees = [{name: Liferay.Language.get('unassigned')}],
+	completed,
+	creator,
 	dateCompletion,
 	dateCreated,
 	setRetry,
 	id,
 	slaResults = [],
-	status,
 	taskNames = [],
 }) => {
-	const completed = status === 'Completed';
 	const SLAs = {open: [], resolved: []};
 
-	slaResults.forEach(result => {
+	slaResults.forEach((result) => {
 		SLAs[result.status === 'Stopped' ? 'resolved' : 'open'].push(result);
 	});
 
+	const statesProps = useMemo(
+		() => ({
+			errorProps: {
+				actionButton: (
+					<RetryButton
+						onClick={() => setRetry((retry) => retry + 1)}
+					/>
+				),
+				className: 'py-8',
+				hideAnimation: true,
+				message: Liferay.Language.get('unable-to-retrieve-data'),
+				messageClassName: 'small',
+			},
+			loadingProps: {className: 'py-8'},
+		}),
+		[setRetry]
+	);
+
 	return (
 		<ClayModal.Body>
-			<PromisesResolver.Pending>
-				<Body.Loading />
-			</PromisesResolver.Pending>
-
-			<PromisesResolver.Resolved>
+			<ContentView {...statesProps}>
 				<Body.SectionTitle>
 					{Liferay.Language.get('due-date-by-sla')}
 				</Body.SectionTitle>
@@ -70,7 +81,7 @@ const Body = ({
 					</Body.SectionSubTitle>
 				)}
 
-				{SLAs.open.map(item => (
+				{SLAs.open.map((item) => (
 					<Body.Item key={item.id} {...item} />
 				))}
 
@@ -82,7 +93,7 @@ const Body = ({
 					</Body.SectionSubTitle>
 				)}
 
-				{SLAs.resolved.map(item => (
+				{SLAs.resolved.map((item) => (
 					<Body.Item key={item.id} {...item} />
 				))}
 
@@ -92,12 +103,16 @@ const Body = ({
 
 				<Body.SectionAttribute
 					description={Liferay.Language.get('process-status')}
-					detail={status}
+					detail={
+						completed
+							? Liferay.Language.get('completed')
+							: Liferay.Language.get('pending')
+					}
 				/>
 
 				<Body.SectionAttribute
 					description={Liferay.Language.get('created-by')}
-					detail={creatorUser ? creatorUser.name : ''}
+					detail={creator ? creator.name : ''}
 				/>
 
 				{dateCreated && (
@@ -138,7 +153,7 @@ const Body = ({
 				{!completed && (
 					<Body.SectionAttribute
 						description={Liferay.Language.get('current-assignee')}
-						detail={assigneeUsers.map(user => user.name).join(', ')}
+						detail={assignees.map((user) => user.name).join(', ')}
 					/>
 				)}
 
@@ -154,31 +169,9 @@ const Body = ({
 						<ClayIcon symbol="shortcut" />
 					</span>
 				</a>
-			</PromisesResolver.Resolved>
-
-			<PromisesResolver.Rejected>
-				<Body.Error onClick={() => setRetry(retry => retry + 1)} />
-			</PromisesResolver.Rejected>
+			</ContentView>
 		</ClayModal.Body>
 	);
-};
-
-const ErrorView = ({onClick}) => {
-	return (
-		<EmptyState
-			actionButton={<RetryButton onClick={onClick} />}
-			className="border-0 mb-5"
-			hideAnimation={true}
-			message={Liferay.Language.get(
-				'there-was-a-problem-retrieving-data-please-try-reloading-the-page'
-			)}
-			messageClassName="small"
-		/>
-	);
-};
-
-const LoadingView = () => {
-	return <LoadingState className="border-0 mt-8 pb-5 pt-5 sheet" />;
 };
 
 const SectionTitle = ({children, className = ''}) => {
@@ -202,7 +195,7 @@ const SectionAttribute = ({description, detail}) => {
 	return (
 		<p className="row">
 			<span className="col-2 font-weight-medium small text-secondary">
-				{`${description} `}
+				{`${description}`}
 			</span>
 
 			<span className="col small" data-testid="instanceDetailSpan">
@@ -212,9 +205,7 @@ const SectionAttribute = ({description, detail}) => {
 	);
 };
 
-Body.Error = ErrorView;
 Body.Item = Item;
-Body.Loading = LoadingView;
 Body.SectionTitle = SectionTitle;
 Body.SectionSubTitle = SectionSubTitle;
 Body.SectionAttribute = SectionAttribute;

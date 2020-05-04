@@ -15,7 +15,7 @@
 import ClayForm, {ClayInput} from '@clayui/form';
 import {useIsMounted} from 'frontend-js-react-web';
 import PropTypes from 'prop-types';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {useDebounceCallback} from '../../../core/hooks/useDebounceCallback';
 import {ConfigurationFieldPropTypes} from '../../../prop-types/index';
@@ -29,21 +29,24 @@ export const TextField = ({field, onValueSelect, value}) => {
 	const isMounted = useIsMounted();
 
 	useEffect(() => {
-		setCurrentValue(value || field.defaultValue || '');
+		setCurrentValue((currentValue) => {
+			if (!currentValue || !value) {
+				return value || field.defaultValue || '';
+			}
+
+			return currentValue;
+		});
 	}, [field.defaultValue, value]);
 
 	const {additionalProps = {}, type = 'text'} = parseTypeOptions(
 		field.typeOptions
 	);
 
-	const selectValue = useCallback(
-		target => {
-			if (isMounted() && target.validity.valid) {
-				onValueSelect(field.name, target.value);
-			}
-		},
-		[field.name, isMounted, onValueSelect]
-	);
+	const selectValue = (target, name, isMounted, onValueSelect) => {
+		if (isMounted() && target.validity.valid) {
+			onValueSelect(name, target.value);
+		}
+	};
 
 	const [debouncedOnValueSelect] = useDebounceCallback(selectValue, 500);
 
@@ -53,12 +56,12 @@ export const TextField = ({field, onValueSelect, value}) => {
 
 			<ClayInput
 				id={field.name}
-				onBlur={event => {
+				onBlur={(event) => {
 					if (event.target.checkValidity()) {
 						setErrorMessage('');
 					}
 				}}
-				onChange={event => {
+				onChange={(event) => {
 					if (event.target.validity.valid) {
 						setErrorMessage('');
 					}
@@ -74,7 +77,12 @@ export const TextField = ({field, onValueSelect, value}) => {
 						setErrorMessage(validationErrorMessage);
 					}
 
-					debouncedOnValueSelect(event.target);
+					debouncedOnValueSelect(
+						event.target,
+						field.name,
+						isMounted,
+						onValueSelect
+					);
 
 					setCurrentValue(event.target.value);
 				}}

@@ -16,25 +16,25 @@ import {
 	PagesVisitor,
 	normalizeFieldName,
 } from 'dynamic-data-mapping-form-renderer';
-import {findFieldByName} from 'dynamic-data-mapping-form-renderer/js/components/FormRenderer/FormSupport.es';
+import {findFieldByFieldName} from 'dynamic-data-mapping-form-renderer/js/components/FormRenderer/FormSupport.es';
 
 export const generateFieldName = (pages, desiredName, currentName = null) => {
 	let counter = 0;
-	let name = normalizeFieldName(desiredName);
+	let fieldName = normalizeFieldName(desiredName);
 
-	let existingField = findFieldByName(pages, name);
+	let existingField = findFieldByFieldName(pages, fieldName);
 
 	while (existingField && existingField.fieldName !== currentName) {
 		if (counter > 0) {
-			name = normalizeFieldName(desiredName) + counter;
+			fieldName = normalizeFieldName(desiredName) + counter;
 		}
 
-		existingField = findFieldByName(pages, name);
+		existingField = findFieldByFieldName(pages, fieldName);
 
 		counter++;
 	}
 
-	return normalizeFieldName(name);
+	return normalizeFieldName(fieldName);
 };
 
 export const getFieldValue = (pages, fieldName) => {
@@ -45,7 +45,7 @@ export const getFieldProperty = (pages, fieldName, propertyName) => {
 	const visitor = new PagesVisitor(pages);
 	let propertyValue;
 
-	visitor.mapFields(field => {
+	visitor.mapFields((field) => {
 		if (field.fieldName === fieldName) {
 			propertyValue = field[propertyName];
 		}
@@ -58,7 +58,7 @@ export const getField = (pages, fieldName) => {
 	const visitor = new PagesVisitor(pages);
 	let field;
 
-	visitor.mapFields(currentField => {
+	visitor.mapFields((currentField) => {
 		if (currentField.fieldName === fieldName) {
 			field = currentField;
 		}
@@ -85,7 +85,7 @@ export const updateFieldValidationProperty = (
 ) => {
 	const visitor = new PagesVisitor(pages);
 
-	return visitor.mapFields(field => {
+	return visitor.mapFields((field) => {
 		if (field.fieldName === 'validation' && field.value) {
 			const expression = field.value.expression;
 

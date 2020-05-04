@@ -25,7 +25,7 @@ const AssigneeInput = ({setAssigneeId, taskId}) => {
 	});
 
 	const handleSelect = useCallback(
-		newAssignee => {
+		(newAssignee) => {
 			const assigneeId = newAssignee ? newAssignee.id : undefined;
 
 			setAssigneeId(assigneeId);
@@ -129,8 +129,7 @@ const Table = ({items, setAssigneeId}) => {
 							width: '25%',
 						}}
 					>
-						{`${Liferay.Language.get('new-assignee')} `}
-
+						{`${Liferay.Language.get('new-assignee')}`}{' '}
 						<ClayTooltipProvider>
 							<ClayIcon
 								data-tooltip-align="top"

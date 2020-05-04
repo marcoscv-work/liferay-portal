@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.GroupLocalServiceWrapper;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.ProxyFactory;
@@ -36,6 +37,9 @@ import com.liferay.portal.kernel.workflow.WorkflowTaskAssignee;
 import com.liferay.portal.security.permission.SimplePermissionChecker;
 import com.liferay.registry.BasicRegistryImpl;
 import com.liferay.registry.RegistryUtil;
+import com.liferay.registry.collections.ServiceReferenceMapper;
+import com.liferay.registry.collections.ServiceTrackerCollections;
+import com.liferay.registry.collections.ServiceTrackerMap;
 
 import java.io.Serializable;
 
@@ -45,21 +49,32 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import org.mockito.Mockito;
+
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * @author Adam Brandizzi
  */
-public class WorkflowTaskPermissionCheckerTest {
+@PrepareForTest(ServiceTrackerCollections.class)
+@RunWith(PowerMockRunner.class)
+public class WorkflowTaskPermissionCheckerTest extends PowerMockito {
 
 	@BeforeClass
 	public static void setUpClass() throws PortalException {
 		RegistryUtil.setRegistry(new BasicRegistryImpl());
 
 		_setUpGroupLocalServiceUtil();
+		_setUpServiceTrackerCollections();
 	}
 
 	@Test
@@ -223,48 +238,53 @@ public class WorkflowTaskPermissionCheckerTest {
 	protected void mockAssetRendererHasViewPermission(
 		boolean hasAssetViewPermission) {
 
-		Map<String, WorkflowHandler<?>> workflowHandlerMap =
-			ReflectionTestUtil.getFieldValue(
-				WorkflowHandlerRegistryUtil.class, "_workflowHandlerMap");
+		ReflectionTestUtil.setFieldValue(
+			WorkflowHandlerRegistryUtil.class,
+			"_workflowHandlerServiceTrackerMap",
+			new MockServiceTrackerMap(
+				Collections.singletonMap(
+					_TEST_CONTEXT_ENTRY_CLASS_NAME,
+					new BaseWorkflowHandler<Object>() {
 
-		workflowHandlerMap.put(
-			_TEST_CONTEXT_ENTRY_CLASS_NAME,
-			new BaseWorkflowHandler<Object>() {
+						@Override
+						public AssetRenderer<Object> getAssetRenderer(
+							long classPK) {
 
-				@Override
-				public AssetRenderer<Object> getAssetRenderer(long classPK) {
-					return (AssetRenderer<Object>)ProxyUtil.newProxyInstance(
-						AssetRenderer.class.getClassLoader(),
-						new Class<?>[] {AssetRenderer.class},
-						(proxy, method, args) -> {
-							if (Objects.equals(
-									method.getName(), "hasViewPermission")) {
+							return (AssetRenderer<Object>)
+								ProxyUtil.newProxyInstance(
+									AssetRenderer.class.getClassLoader(),
+									new Class<?>[] {AssetRenderer.class},
+									(proxy, method, args) -> {
+										if (Objects.equals(
+												method.getName(),
+												"hasViewPermission")) {
 
-								return hasAssetViewPermission;
-							}
+											return hasAssetViewPermission;
+										}
 
-							return method.getDefaultValue();
-						});
-				}
+										return method.getDefaultValue();
+									});
+						}
 
-				@Override
-				public String getClassName() {
-					return _TEST_CONTEXT_ENTRY_CLASS_NAME;
-				}
+						@Override
+						public String getClassName() {
+							return _TEST_CONTEXT_ENTRY_CLASS_NAME;
+						}
 
-				@Override
-				public String getType(Locale locale) {
-					return null;
-				}
+						@Override
+						public String getType(Locale locale) {
+							return null;
+						}
 
-				@Override
-				public Object updateStatus(
-					int status, Map<String, Serializable> workflowContext) {
+						@Override
+						public Object updateStatus(
+							int status,
+							Map<String, Serializable> workflowContext) {
 
-					return null;
-				}
+							return null;
+						}
 
-			});
+					})));
 	}
 
 	protected PermissionChecker mockCompanyAdminPermissionChecker() {
@@ -393,10 +413,85 @@ public class WorkflowTaskPermissionCheckerTest {
 			});
 	}
 
+	private static void _setUpServiceTrackerCollections() {
+		mockStatic(ServiceTrackerCollections.class, Mockito.CALLS_REAL_METHODS);
+
+		stub(
+			method(
+				ServiceTrackerCollections.class, "openSingleValueMap",
+				Class.class, String.class, ServiceReferenceMapper.class)
+		).toReturn(
+			new MockServiceTrackerMap(
+				Collections.singletonMap(
+					_TEST_CONTEXT_ENTRY_CLASS_NAME,
+					new BaseWorkflowHandler<Object>() {
+
+						@Override
+						public String getClassName() {
+							return _TEST_CONTEXT_ENTRY_CLASS_NAME;
+						}
+
+						@Override
+						public String getType(Locale locale) {
+							return null;
+						}
+
+						@Override
+						public String getURLEditWorkflowTask(
+							long workflowTaskId,
+							ServiceContext serviceContext) {
+
+							return null;
+						}
+
+						@Override
+						public Object updateStatus(
+							int status,
+							Map<String, Serializable> workflowContext) {
+
+							return null;
+						}
+
+					}))
+		);
+	}
+
 	private static final String _TEST_CONTEXT_ENTRY_CLASS_NAME =
 		"TEST_CONTEXT_ENTRY_CLASS_NAME";
 
 	private final WorkflowTaskPermissionChecker _workflowTaskPermissionChecker =
 		new WorkflowTaskPermissionChecker();
+
+	private static class MockServiceTrackerMap
+		implements ServiceTrackerMap<String, WorkflowHandler<?>> {
+
+		public MockServiceTrackerMap(
+			Map<String, WorkflowHandler<?>> workflowHandlerMap) {
+
+			_workflowHandlerMap = workflowHandlerMap;
+		}
+
+		@Override
+		public void close() {
+		}
+
+		@Override
+		public boolean containsKey(String key) {
+			return _workflowHandlerMap.containsKey(key);
+		}
+
+		@Override
+		public WorkflowHandler<?> getService(String key) {
+			return _workflowHandlerMap.get(key);
+		}
+
+		@Override
+		public Set<String> keySet() {
+			return _workflowHandlerMap.keySet();
+		}
+
+		private final Map<String, WorkflowHandler<?>> _workflowHandlerMap;
+
+	}
 
 }

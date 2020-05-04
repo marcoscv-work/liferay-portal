@@ -14,6 +14,7 @@
 
 import ClayButton from '@clayui/button';
 import ClayTable from '@clayui/table';
+import PropTypes from 'prop-types';
 import React, {useRef} from 'react';
 import {DndProvider, createDndContext} from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
@@ -30,6 +31,7 @@ const LanguagesList = ({
 	onMakeDefault = noop,
 	onEditBtnClick = noop,
 	onItemDrop = noop,
+	moveItem = noop,
 }) => {
 	const manager = useRef(createDndContext(HTML5Backend));
 
@@ -68,8 +70,12 @@ const LanguagesList = ({
 						return isEditable ? (
 							<LanguageListItemEditable
 								{...baseProps}
+								isFirst={index === 0}
+								isLast={index === locales.length - 1}
 								onItemDrop={onItemDrop}
 								onMakeDefault={onMakeDefault}
+								onMoveDown={() => moveItem(index, index + 1)}
+								onMoveUp={() => moveItem(index, index - 1)}
 							/>
 						) : (
 							<LanguageListItem {...baseProps} />
@@ -79,6 +85,14 @@ const LanguagesList = ({
 			</ClayTable.Body>
 		</ClayTable>
 	);
+};
+
+LanguagesList.prototypes = {
+	isEditable: PropTypes.bool,
+	moveItem: PropTypes.func,
+	onEditBtnClick: PropTypes.func,
+	onItemDrop: PropTypes.func,
+	onMakeDefault: PropTypes.func,
 };
 
 export default LanguagesList;

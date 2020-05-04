@@ -1,8 +1,8 @@
-def assigneeUserIdInstanceIds = new HashSet();
-def assigneeUserIds;
+def assigneeIdInstanceIds = new HashSet();
+def assigneeIds;
+def completedInstanceIds = new HashSet();
 def slaStatuses;
 def slaStatusMap = new HashMap();
-def statusInstanceIds = new HashSet();
 def taskNameInstanceIds = new HashSet();
 def taskNames;
 
@@ -11,9 +11,11 @@ for (state in states) {
 		continue;
 	}
 
-	assigneeUserIdInstanceIds.addAll(state.assigneeUserIdInstanceIds);
+	assigneeIdInstanceIds.addAll(state.assigneeIdInstanceIds);
 
-	assigneeUserIds = state.assigneeUserIds;
+	assigneeIds = state.assigneeIds;
+
+	completedInstanceIds.addAll(state.completedInstanceIds);
 
 	slaStatuses = state.slaStatuses;
 
@@ -34,8 +36,6 @@ for (state in states) {
 			});
 	}
 
-	statusInstanceIds.addAll(state.statusInstanceIds);
-
 	taskNameInstanceIds.addAll(state.taskNameInstanceIds);
 
 	taskNames = state.taskNames;
@@ -43,9 +43,9 @@ for (state in states) {
 
 def instanceCount = 0;
 
-for (instanceId in statusInstanceIds) {
-	if (((assigneeUserIds == null) ||
-		 assigneeUserIdInstanceIds.contains(instanceId)) && 
+for (instanceId in completedInstanceIds) {
+	if (((assigneeIds == null) ||
+		 assigneeIdInstanceIds.contains(instanceId)) && 
 		((taskNames == null) || taskNameInstanceIds.contains(instanceId))) {
 
 		if (slaStatuses == null) {

@@ -38,24 +38,20 @@ export default withRouter(
 		const [headline, setHeadline] = useState('');
 		const [id, setId] = useState('');
 		const [tags, setTags] = useState([]);
+		const [tagsLoaded, setTagsLoaded] = useState(true);
 
 		const loadThread = () =>
 			getThreadContent(questionId, context.siteKey).then(
-				({articleBody, headline, id, taxonomyCategoryBriefs}) => {
+				({articleBody, headline, id, keywords}) => {
 					setArticleBody(articleBody);
 					setHeadline(headline);
 					setId(id);
-					if (taxonomyCategoryBriefs) {
+					if (keywords) {
 						setTags(
-							taxonomyCategoryBriefs.map(
-								({
-									taxonomyCategoryId,
-									taxonomyCategoryName,
-								}) => ({
-									label: taxonomyCategoryName,
-									value: taxonomyCategoryId,
-								})
-							)
+							keywords.map((keyword) => ({
+								label: keyword,
+								value: keyword,
+							}))
 						);
 					}
 				}
@@ -66,7 +62,7 @@ export default withRouter(
 				articleBody,
 				headline,
 				id,
-				tags.map(tag => tag.value)
+				tags.map((tag) => tag.value)
 			).then(() => history.goBack());
 
 		return (
@@ -87,7 +83,7 @@ export default withRouter(
 									</label>
 
 									<ClayInput
-										onChange={event =>
+										onChange={(event) =>
 											setHeadline(event.target.value)
 										}
 										placeholder={Liferay.Language.get(
@@ -122,7 +118,7 @@ export default withRouter(
 										config={getCKEditorConfig()}
 										data={articleBody}
 										onBeforeLoad={onBeforeLoadCKEditor}
-										onChange={event =>
+										onChange={(event) =>
 											setArticleBody(
 												event.editor.getData()
 											)
@@ -145,31 +141,20 @@ export default withRouter(
 								</ClayForm.Group>
 
 								<ClayForm.Group className="c-mt-4">
-									<label htmlFor="basicInput">
-										{Liferay.Language.get('tags')}
-									</label>
-
 									<TagSelector
 										tags={tags}
-										tagsChange={tags => setTags(tags)}
+										tagsChange={(tags) => setTags(tags)}
+										tagsLoaded={setTagsLoaded}
 									/>
-
-									<ClayForm.FeedbackGroup>
-										<ClayForm.FeedbackItem>
-											<span className="small text-secondary">
-												{Liferay.Language.get(
-													'add-up-to-5-tags-to-describe-what-your-question-is-about'
-												)}
-											</span>
-										</ClayForm.FeedbackItem>
-									</ClayForm.FeedbackGroup>
 								</ClayForm.Group>
 							</ClayForm>
 
 							<div className="c-mt-4 d-flex flex-column-reverse flex-sm-row">
 								<ClayButton
 									className="c-mt-4 c-mt-sm-0"
-									disabled={!articleBody || !headline}
+									disabled={
+										!articleBody || !headline || !tagsLoaded
+									}
 									displayType="primary"
 									onClick={submit}
 								>

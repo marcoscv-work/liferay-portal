@@ -12,13 +12,14 @@
  * details.
  */
 
-import {ItemSelectorDialog, PortletBase} from 'frontend-js-web';
+import {ItemSelectorDialog, PortletBase, openModal} from 'frontend-js-web';
 import {Config} from 'metal-state';
 
 /**
  * @class FragmentCollectionsView
  */
 class FragmentCollectionsView extends PortletBase {
+
 	/**
 	 * @inheritdoc
 	 * @review
@@ -77,7 +78,7 @@ class FragmentCollectionsView extends PortletBase {
 			Liferay.Language.get('delete'),
 			Liferay.Language.get('delete-collection'),
 			this.viewDeleteFragmentCollectionsURL,
-			selectedItems => {
+			(selectedItems) => {
 				if (
 					confirm(
 						Liferay.Language.get(
@@ -85,7 +86,7 @@ class FragmentCollectionsView extends PortletBase {
 						)
 					)
 				) {
-					selectedItems.forEach(item => {
+					selectedItems.forEach((item) => {
 						this._fragmentCollectionsFm.appendChild(item);
 					});
 				}
@@ -108,8 +109,8 @@ class FragmentCollectionsView extends PortletBase {
 			Liferay.Language.get('export'),
 			Liferay.Language.get('export-collection'),
 			this.viewExportFragmentCollectionsURL,
-			selectedItems => {
-				selectedItems.forEach(item => {
+			(selectedItems) => {
+				selectedItems.forEach((item) => {
 					this._fragmentCollectionsFm.append(item);
 				});
 
@@ -144,7 +145,7 @@ class FragmentCollectionsView extends PortletBase {
 			url: dialogURL,
 		});
 
-		itemSelectorDialog.on('selectedItemChange', event => {
+		itemSelectorDialog.on('selectedItemChange', (event) => {
 			if (event.selectedItem) {
 				callback(event.selectedItem);
 			}
@@ -159,26 +160,30 @@ class FragmentCollectionsView extends PortletBase {
 	 * @review
 	 */
 	_openImportView() {
-		Liferay.Util.openWindow({
-			dialog: {
-				after: {
-					destroy: () => {
-						window.location.reload();
-					},
+		openModal({
+			buttons: [
+				{
+					displayType: 'secondary',
+					label: Liferay.Language.get('cancel'),
+					type: 'cancel',
 				},
-				destroyOnHide: true,
-			},
-			dialogIframe: {
-				bodyCssClass: 'dialog-with-footer',
-			},
+				{
+					label: Liferay.Language.get('import'),
+					type: 'submit',
+				},
+			],
 			id: this.ns('openImportView'),
+			onClose: () => {
+				window.location.reload();
+			},
 			title: Liferay.Language.get('import'),
-			uri: this.viewImportURL,
+			url: this.viewImportURL,
 		});
 	}
 }
 
 FragmentCollectionsView.STATE = {
+
 	/**
 	 * Collections form used for updating backend
 	 * @default undefined

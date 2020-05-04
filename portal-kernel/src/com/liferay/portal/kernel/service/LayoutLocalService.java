@@ -1026,8 +1026,33 @@ public interface LayoutLocalService
 	public List<Layout> getLayouts(
 		long groupId, int start, int end, OrderByComparator<Layout> obc);
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #getMasterLayouts(long, long)}
+	 */
+	@Deprecated
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<Layout> getLayouts(long groupId, long masterLayoutPlid);
+
+	/**
+	 * Returns a range of all the layouts belonging to the group.
+	 *
+	 * @param groupId the primary key of the group
+	 * @param userId the primary key of the user
+	 * @param privateLayout whether the layout is private to the group
+	 * @param keywords keywords
+	 * @param types layout types
+	 * @param start the lower bound of the range of layouts
+	 * @param end the upper bound of the range of layouts (not inclusive)
+	 * @param obc the comparator to order the layouts
+	 * @return the matching layouts, or <code>null</code> if no matches were
+	 found
+	 */
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Layout> getLayouts(
+			long groupId, long userId, boolean privateLayout, String keywords,
+			String[] types, int start, int end, OrderByComparator<Layout> obc)
+		throws PortalException;
 
 	/**
 	 * Returns the layout references for all the layouts that belong to the
@@ -1129,7 +1154,21 @@ public interface LayoutLocalService
 	public int getLayoutsCount(long groupId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getLayoutsCount(long groupId, boolean privateLayout);
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #getMasterLayoutsCount(long, long)}
+	 */
+	@Deprecated
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getLayoutsCount(long groupId, long masterLayoutPlid);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getLayoutsCount(
+			long groupId, long userId, boolean privateLayout, String keywords,
+			String[] types)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getLayoutsCount(long groupId, String keywords, String[] types)
@@ -1143,6 +1182,12 @@ public interface LayoutLocalService
 	public int getLayoutsCount(
 			User user, boolean privateLayout, boolean includeUserGroups)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Layout> getMasterLayouts(long groupId, long masterLayoutPlid);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getMasterLayoutsCount(long groupId, long masterLayoutPlid);
 
 	/**
 	 * Returns the layout ID to use for the next layout.

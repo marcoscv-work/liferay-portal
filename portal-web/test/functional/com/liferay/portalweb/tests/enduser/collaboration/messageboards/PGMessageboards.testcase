@@ -349,8 +349,6 @@ definition {
 
 	@priority = "4"
 	test AddMBThreadWithMultipleAttachments {
-		property portal.upstream = "quarantine";
-
 		Navigator.gotoPage(pageName = "Message Boards Page");
 
 		AssertClick(
@@ -361,9 +359,13 @@ definition {
 			locator1 = "TextInput#SUBJECT",
 			value1 = "MB Thread Message Subject");
 
-		AlloyEditor.typeEditor(
-			content = "MB Thread Message Body",
-			editor = "body");
+		SelectFrame.selectFrameNoLoading(locator1 = "CKEditor#BODY_FIELD_IFRAME");
+
+		Type(
+			locator1 = "CKEditor#BODY",
+			value1 = "MB Thread Message Body");
+
+		SelectFrame(value1 = "relative=top");
 
 		Panel.expandPanel(panel = "Attachments");
 
@@ -374,12 +376,18 @@ definition {
 				locator1 = "TextInput#FILE",
 				value1 = "${mbThreadAttachment}");
 
-			Pause(locator1 = "3000");
+			Pause(locator1 = "5000");
 
 			AssertTextEquals(
 				key_attachmentName = "${mbThreadAttachment}",
 				locator1 = "MessageBoardsEditMessage#ATTACHMENTS_SELECTED_FILE",
 				value1 = "${mbThreadAttachment}");
+
+			if (IsElementPresent(locator1 = "Header#H4_TITLE", key_title = "Uploading")) {
+				Refresh();
+
+				Click(locator1 = "Checkbox#SELECT_ALL");
+			}
 
 			AssertChecked.assertCheckedNotVisible(
 				checkboxName = "${mbThreadAttachment}",

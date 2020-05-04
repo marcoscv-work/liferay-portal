@@ -30,6 +30,7 @@ const FragmentEditor = ({
 		},
 		autocompleteTags,
 		cacheable,
+		dataAttributes,
 		fragmentCollectionId,
 		fragmentEntryId,
 		htmlEditorCustomEntities,
@@ -54,7 +55,7 @@ const FragmentEditor = ({
 
 	const isMounted = useIsMounted();
 
-	const handleSaveButtonClick = event => {
+	const handleSaveButtonClick = (event) => {
 		const status = event.currentTarget.value;
 
 		setIsSaving(true);
@@ -78,20 +79,20 @@ const FragmentEditor = ({
 			body: formData,
 			method: 'POST',
 		})
-			.then(response => response.json())
-			.then(response => {
+			.then((response) => response.json())
+			.then((response) => {
 				if (response.error) {
 					throw response.error;
 				}
 
 				return response;
 			})
-			.then(response => {
-				const redirectURL = response.redirect || this.urls.redirect;
+			.then((response) => {
+				const redirectURL = response.redirect || urls.redirect;
 
 				Liferay.Util.navigate(redirectURL);
 			})
-			.catch(error => {
+			.catch((error) => {
 				if (isMounted()) {
 					setIsSaving(false);
 				}
@@ -179,7 +180,7 @@ const FragmentEditor = ({
 												checked={isCacheable}
 												className="custom-control-input toggle-switch-check"
 												name="cacheable"
-												onChange={event =>
+												onChange={(event) =>
 													setIsCacheable(
 														event.currentTarget
 															.checked
@@ -242,9 +243,10 @@ const FragmentEditor = ({
 			<ClayTabs.Content activeIndex={activeTabKeyValue} fade>
 				<ClayTabs.TabPane aria-labelledby="code">
 					<div className="fragment-editor">
-						<div class="source-editor html">
+						<div className="html source-editor">
 							<CodeMirrorEditor
 								content={initialHTML}
+								customDataAttributes={dataAttributes}
 								customEntities={htmlEditorCustomEntities}
 								customTags={autocompleteTags}
 								mode="html"
@@ -253,7 +255,7 @@ const FragmentEditor = ({
 							/>
 						</div>
 
-						<div class="source-editor css">
+						<div className="css source-editor">
 							<CodeMirrorEditor
 								content={initialCSS}
 								mode="css"
@@ -262,7 +264,7 @@ const FragmentEditor = ({
 							/>
 						</div>
 
-						<div class="source-editor javascript">
+						<div className="javascript source-editor">
 							<CodeMirrorEditor
 								codeFooterText="}"
 								codeHeaderHelpText={Liferay.Util.sub(
@@ -291,7 +293,7 @@ const FragmentEditor = ({
 				</ClayTabs.TabPane>
 
 				<ClayTabs.TabPane aria-labelledby="configuration">
-					<div class="fragment-editor">
+					<div className="fragment-editor">
 						<CodeMirrorEditor
 							content={initialConfiguration}
 							mode="json"

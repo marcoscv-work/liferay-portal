@@ -15,6 +15,7 @@
 package com.liferay.dynamic.data.mapping.upgrade.v1_0_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.counter.kernel.service.CounterLocalService;
 import com.liferay.dynamic.data.mapping.model.DDMContent;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.model.DDMStorageLink;
@@ -60,6 +61,7 @@ import com.liferay.portal.kernel.upgrade.UpgradeStep;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
+import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.registry.Registry;
@@ -114,15 +116,15 @@ public class UpgradeDynamicDataMappingTest {
 
 	@After
 	public void tearDown() throws Exception {
-		deleteStructure(_structureId);
-
-		deleteStructure(_parentStructureId);
-
 		deleteTemplate(_templateId);
 
 		deleteContent(_contentId);
 
 		deleteStorageLink(_storageLinkId);
+
+		deleteStructure(_structureId);
+
+		deleteStructure(_parentStructureId);
 	}
 
 	@Test
@@ -1722,11 +1724,11 @@ public class UpgradeDynamicDataMappingTest {
 	}
 
 	protected void setUpPrimaryKeys() {
-		_structureId = RandomTestUtil.randomLong();
-		_parentStructureId = RandomTestUtil.randomLong();
-		_templateId = RandomTestUtil.randomLong();
-		_storageLinkId = RandomTestUtil.randomLong();
-		_contentId = RandomTestUtil.randomLong();
+		_structureId = _counterLocalService.increment();
+		_parentStructureId = _counterLocalService.increment();
+		_templateId = _counterLocalService.increment();
+		_storageLinkId = _counterLocalService.increment();
+		_contentId = _counterLocalService.increment();
 	}
 
 	protected void setUpUpgradeDynamicDataMapping() {
@@ -1767,6 +1769,9 @@ public class UpgradeDynamicDataMappingTest {
 	private long _classNameIdDDMStructure;
 	private long _classNameIdExpandoStorageAdapter;
 	private long _contentId;
+
+	@Inject
+	private CounterLocalService _counterLocalService;
 
 	@DeleteAfterTestRun
 	private Group _group;

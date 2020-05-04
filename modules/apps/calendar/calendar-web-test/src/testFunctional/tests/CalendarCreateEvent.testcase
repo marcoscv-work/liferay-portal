@@ -526,7 +526,6 @@ definition {
 
 	@priority = "3"
 	test AddRepeatingRSVPYes {
-		property portal.upstream = "quarantine";
 
 		CalendarNavigator.gotoAddEvent();
 
@@ -553,6 +552,8 @@ definition {
 
 	@priority = "4"
 	test AddRepeatingWeekly2Times {
+		property portal.upstream = "quarantine";
+
 		CalendarNavigator.gotoConfiguration();
 
 		CalendarConfiguration.editTimeZonePacific();

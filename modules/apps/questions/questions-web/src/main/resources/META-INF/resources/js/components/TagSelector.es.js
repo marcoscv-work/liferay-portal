@@ -19,7 +19,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import {AppContext} from '../AppContext.es';
 import {getAllTags} from '../utils/client.es';
 
-export default ({tagsChange, tags = [], ...props}) => {
+export default ({tagsChange, tagsLoaded, tags = [], ...props}) => {
 	const context = useContext(AppContext);
 
 	const [error, setError] = useState(false);
@@ -28,14 +28,12 @@ export default ({tagsChange, tags = [], ...props}) => {
 	const [sourceItems, setSourceItems] = useState([]);
 
 	useEffect(() => {
-		getAllTags(context.siteKey).then(data => {
+		getAllTags(context.siteKey).then((data) => {
 			setSourceItems(
-				data.items
-					.flatMap(vocabulary => vocabulary.taxonomyCategories.items)
-					.map(({id, name}) => ({
-						label: name,
-						value: +id,
-					}))
+				data.items.map(({name}) => ({
+					label: name,
+					value: name,
+				}))
 			);
 		});
 	}, [context.siteKey]);
@@ -46,20 +44,21 @@ export default ({tagsChange, tags = [], ...props}) => {
 		}
 	}, [tags]);
 
-	const maxTags = tags => tags.length > 5;
-	const duplicatedTags = tags =>
-		new Set(tags.map(tag => tag.value)).size !== tags.length;
-	const tagsAlreadyCreated = tags =>
-		tags
-			.map(tags => tags.value)
-			.every(tag => sourceItems.map(tag => tag.value).includes(tag));
+	useEffect(() => {
+		if (inputValue) {
+			tagsLoaded(false);
+		}
+		else {
+			tagsLoaded(true);
+		}
+	}, [inputValue, tagsLoaded]);
 
-	const filterItems = tags => {
-		if (
-			tagsAlreadyCreated(tags) &&
-			!maxTags(tags) &&
-			!duplicatedTags(tags)
-		) {
+	const maxTags = (tags) => tags.length > 5;
+	const duplicatedTags = (tags) =>
+		new Set(tags.map((tag) => tag.value)).size !== tags.length;
+
+	const filterItems = (tags) => {
+		if (!maxTags(tags) && !duplicatedTags(tags)) {
 			setError(false);
 			setItems(tags);
 			tagsChange(tags);

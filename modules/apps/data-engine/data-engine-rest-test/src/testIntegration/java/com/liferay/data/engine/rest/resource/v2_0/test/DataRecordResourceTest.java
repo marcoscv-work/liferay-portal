@@ -16,6 +16,7 @@ package com.liferay.data.engine.rest.resource.v2_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.data.engine.rest.client.dto.v2_0.DataRecord;
+import com.liferay.data.engine.rest.client.pagination.Pagination;
 import com.liferay.data.engine.rest.resource.v2_0.test.util.DataDefinitionTestUtil;
 import com.liferay.data.engine.rest.resource.v2_0.test.util.DataRecordCollectionTestUtil;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
@@ -26,7 +27,6 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.test.rule.Inject;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -38,6 +38,7 @@ import org.junit.runner.RunWith;
 public class DataRecordResourceTest extends BaseDataRecordResourceTestCase {
 
 	@Before
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 
@@ -49,23 +50,17 @@ public class DataRecordResourceTest extends BaseDataRecordResourceTestCase {
 			_ddmStructure, irrelevantGroup, _resourceLocalService);
 	}
 
-	@Ignore
 	@Override
 	@Test
 	public void testGetDataRecordCollectionDataRecordExport() throws Exception {
-		super.testGetDataRecordCollectionDataRecordExport();
-	}
+		DataRecord dataRecord = testGetDataRecord_addDataRecord();
 
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLDeleteDataRecord() {
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLGetDataRecord() {
+		assertHttpResponseStatusCode(
+			200,
+			dataRecordResource.
+				getDataRecordCollectionDataRecordExportHttpResponse(
+					dataRecord.getDataRecordCollectionId(),
+					Pagination.of(1, 2)));
 	}
 
 	@Override
@@ -146,6 +141,14 @@ public class DataRecordResourceTest extends BaseDataRecordResourceTestCase {
 	}
 
 	@Override
+	protected DataRecord testGraphQLDataRecord_addDataRecord()
+		throws Exception {
+
+		return dataRecordResource.postDataRecordCollectionDataRecord(
+			_ddlRecordSet.getRecordSetId(), randomDataRecord());
+	}
+
+	@Override
 	protected DataRecord testPostDataRecordCollectionDataRecord_addDataRecord(
 			DataRecord dataRecord)
 		throws Exception {
@@ -167,7 +170,11 @@ public class DataRecordResourceTest extends BaseDataRecordResourceTestCase {
 				dataRecordValues = HashMapBuilder.<String, Object>put(
 					fieldName,
 					HashMapBuilder.put(
-						"en_US", RandomTestUtil.randomString()
+						"en_US",
+						new String[] {
+							RandomTestUtil.randomString(),
+							RandomTestUtil.randomString()
+						}
 					).build()
 				).build();
 			}

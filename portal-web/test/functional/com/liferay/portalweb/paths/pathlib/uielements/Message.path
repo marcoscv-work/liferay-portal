@@ -20,7 +20,7 @@
 </tr>
 <tr>
 	<td>CHECKOUT_SUCCESS</td>
-	<td>//div[contains(@class,'content')]/div[contains(@class,'alert-success')]</td>
+	<td>//div[contains(@class,'content')]/div[contains(@class,'alert-info')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -256,6 +256,11 @@
 <tr>
 	<td>INFO_EXPLANATION_POST</td>
 	<td>//div[contains(@id,'explanationPost')]/div[@class='alert alert-info']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>INFO_MAIN_CONTENT</td>
+	<td>//*[@id="main-content"]//div[contains(@class,'alert alert-info') and not(contains(@class,'hide'))]</td>
 	<td></td>
 </tr>
 <tr>

@@ -36,26 +36,32 @@ public class UpgradeLayout extends UpgradeProcess {
 		if (!hasColumn("Layout", "masterLayoutPlid")) {
 			alter(
 				LayoutTable.class,
-				new AlterTableDropColumn("masterLayoutPlid"));
+				new AlterTableAddColumn("masterLayoutPlid", "LONG"));
 		}
 
 		if (!hasColumn("Layout", "status")) {
-			alter(LayoutTable.class, new AlterTableDropColumn("status"));
+			alter(
+				LayoutTable.class,
+				new AlterTableAddColumn("status", "INTEGER"));
 		}
 
 		if (!hasColumn("Layout", "statusByUserId")) {
 			alter(
-				LayoutTable.class, new AlterTableDropColumn("statusByUserId"));
+				LayoutTable.class,
+				new AlterTableAddColumn("statusByUserId", "LONG"));
 		}
 
 		if (!hasColumn("Layout", "statusByUserName")) {
 			alter(
 				LayoutTable.class,
-				new AlterTableDropColumn("statusByUserName"));
+				new AlterTableAddColumn(
+					"statusByUserName", "VARCHAR(75) null"));
 		}
 
 		if (!hasColumn("Layout", "statusDate")) {
-			alter(LayoutTable.class, new AlterTableDropColumn("statusDate"));
+			alter(
+				LayoutTable.class,
+				new AlterTableAddColumn("statusDate", "DATE null"));
 		}
 
 		try (PreparedStatement ps = connection.prepareStatement(

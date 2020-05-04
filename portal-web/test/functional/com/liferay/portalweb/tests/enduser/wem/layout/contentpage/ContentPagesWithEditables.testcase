@@ -47,6 +47,7 @@ definition {
 			fragmentName = "Content");
 
 		PageEditor.editFragmentText(
+			contributed = "false",
 			fragmentName = "Content",
 			id = "content",
 			text = "New editable fragment text");
@@ -67,12 +68,8 @@ definition {
 	}
 
 	@description = "This is a test for LPS-101333. Freemarker code should not be executed in an html fragment."
-	@ignore = "true"
 	@priority = "5"
 	test AddContentPageWithHTMLFragment {
-
-		// Ignore test until LRQA-56915 is resolved
-
 		property portal.acceptance = "true";
 
 		JSONLayout.addPublicLayout(
@@ -109,10 +106,7 @@ definition {
 	@description = "This is a test for LPS-95045. A user should be able to add an image fragment and change the image in the fragment."
 	@priority = "5"
 	test AddContentPageWithImageFragment {
-
-		// Ignore test from acceptance until LRQA-52823 resolved
-
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
 
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
@@ -128,6 +122,7 @@ definition {
 			fragmentName = "Image");
 
 		PageEditor.editFragmentImage(
+			contributed = "false",
 			fileName = "Document_1.png",
 			fragmentName = "Image",
 			id = "image");
@@ -182,6 +177,7 @@ definition {
 
 		task ("Edit Rich Text text") {
 			PageEditor.editFragmentText(
+				contributed = "false",
 				fragmentName = "Rich Text",
 				id = "rich-text",
 				text = "New editable fragment en-US text");
@@ -191,6 +187,7 @@ definition {
 			MenuItem.click(menuItem = "ca-ES");
 
 			PageEditor.editFragmentText(
+				contributed = "false",
 				fragmentName = "Rich Text",
 				id = "rich-text",
 				text = "New editable fragment ca-ES text");

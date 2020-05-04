@@ -142,7 +142,8 @@ public class SpiraTestCaseFolder extends PathSpiraArtifact {
 				"projects/{project_id}/test-folders/{test_case_folder_id}",
 				null, urlPathReplacements, HttpRequestMethod.DELETE, null);
 
-			removeCachedSpiraArtifacts(spiraTestCaseFolders);
+			removeCachedSpiraArtifacts(
+				SpiraTestCaseFolder.class, spiraTestCaseFolders);
 		}
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);
@@ -159,6 +160,30 @@ public class SpiraTestCaseFolder extends PathSpiraArtifact {
 			deleteSpiraTestCaseFolderByID(
 				spiraProject, spiraTestCaseFolder.getID());
 		}
+	}
+
+	public List<SpiraTestCaseObject> getChildSpiraTestCases() {
+		if (_childSpiraTestCases != null) {
+			return _childSpiraTestCases;
+		}
+
+		_childSpiraTestCases = new ArrayList<>(
+			SpiraTestCaseObject.getSpiraTestCases(
+				getSpiraProject(),
+				new SearchQuery.SearchParameter("TestCaseFolderId", getID())));
+
+		final List<SpiraTestCaseFolder> spiraTestCaseFolders =
+			getSpiraTestCaseFolders(
+				getSpiraProject(),
+				new SearchQuery.SearchParameter(
+					"ParentTestCaseFolderId", getID()));
+
+		for (SpiraTestCaseFolder spiraTestCaseFolder : spiraTestCaseFolders) {
+			_childSpiraTestCases.addAll(
+				spiraTestCaseFolder.getChildSpiraTestCases());
+		}
+
+		return _childSpiraTestCases;
 	}
 
 	public SpiraTestCaseFolder getParentSpiraTestCaseFolder() {
@@ -214,6 +239,8 @@ public class SpiraTestCaseFolder extends PathSpiraArtifact {
 		return getParentSpiraTestCaseFolder();
 	}
 
+	protected static final String ARTIFACT_TYPE_NAME = "testcasefolder";
+
 	protected static final String ID_KEY = "TestCaseFolderId";
 
 	private static List<JSONObject> _requestSpiraTestCaseFolders(
@@ -250,8 +277,11 @@ public class SpiraTestCaseFolder extends PathSpiraArtifact {
 
 	private SpiraTestCaseFolder(JSONObject jsonObject) {
 		super(jsonObject);
+
+		cacheSpiraArtifact(SpiraTestCaseFolder.class, this);
 	}
 
+	private List<SpiraTestCaseObject> _childSpiraTestCases;
 	private SpiraTestCaseFolder _parentSpiraTestCaseFolder;
 
 }

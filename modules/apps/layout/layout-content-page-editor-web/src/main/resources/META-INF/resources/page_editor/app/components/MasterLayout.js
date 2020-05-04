@@ -12,52 +12,47 @@
  * details.
  */
 
-import classNames from 'classnames';
 import {useIsMounted} from 'frontend-js-react-web';
 import {debounce} from 'frontend-js-web';
 import {closest} from 'metal-dom';
 import PropTypes from 'prop-types';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 
 import {
 	LayoutDataPropTypes,
 	getLayoutDataItemPropTypes,
 } from '../../prop-types/index';
-import {BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR} from '../config/constants/backgroundImageFragmentEntryProcessor';
-import {EDITABLE_FRAGMENT_ENTRY_PROCESSOR} from '../config/constants/editableFragmentEntryProcessor';
 import {LAYOUT_DATA_ITEM_TYPES} from '../config/constants/layoutDataItemTypes';
 import {config} from '../config/index';
-import Processors from '../processors/index';
 import {useSelector} from '../store/index';
-import PageEditor from './PageEditor';
+import {useGetFieldValue} from './CollectionItemContext';
+import {useSelectItem} from './Controls';
+import Layout from './Layout';
 import UnsafeHTML from './UnsafeHTML';
-import {Column, Container, Row} from './layout-data-items/index';
+import getAllEditables from './fragment-content/getAllEditables';
+import resolveEditableValue from './fragment-content/resolveEditableValue';
+import {Collection, Column, Container, Row} from './layout-data-items/index';
 
 const LAYOUT_DATA_ITEMS = {
+	[LAYOUT_DATA_ITEM_TYPES.collection]: Collection,
+	[LAYOUT_DATA_ITEM_TYPES.collectionItem]: CollectionItem,
 	[LAYOUT_DATA_ITEM_TYPES.column]: Column,
 	[LAYOUT_DATA_ITEM_TYPES.container]: Container,
 	[LAYOUT_DATA_ITEM_TYPES.dropZone]: DropZoneContainer,
 	[LAYOUT_DATA_ITEM_TYPES.fragment]: Fragment,
+	[LAYOUT_DATA_ITEM_TYPES.fragmentDropZone]: Root,
 	[LAYOUT_DATA_ITEM_TYPES.root]: Root,
 	[LAYOUT_DATA_ITEM_TYPES.row]: Row,
 };
 
 export default function MasterPage() {
-	const fragmentEntryLinks = useSelector(state => state.fragmentEntryLinks);
-	const masterLayoutData = useSelector(state => state.masterLayoutData);
-	const sidebarOpen = useSelector(
-		state => state.sidebar.panelId && state.sidebar.open
-	);
+	const fragmentEntryLinks = useSelector((state) => state.fragmentEntryLinks);
+	const masterLayoutData = useSelector((state) => state.masterLayoutData);
 
 	const mainItem = masterLayoutData.items[masterLayoutData.rootItems.main];
 
 	return (
-		<div
-			className={classNames('master-page', 'master-page--with-sidebar', {
-				'master-page--with-sidebar-open': sidebarOpen,
-			})}
-			id="master-layout"
-		>
+		<div className="master-page" id="master-layout">
 			<MasterLayoutDataItem
 				fragmentEntryLinks={fragmentEntryLinks}
 				item={mainItem}
@@ -80,7 +75,7 @@ function MasterLayoutDataItem({fragmentEntryLinks, item, layoutData}) {
 			item={item}
 			layoutData={layoutData}
 		>
-			{item.children.map(childId => {
+			{item.children.map((childId) => {
 				return (
 					<MasterLayoutDataItem
 						fragmentEntryLinks={fragmentEntryLinks}
@@ -101,14 +96,16 @@ MasterLayoutDataItem.propTypes = {
 };
 
 function DropZoneContainer() {
-	const mainItem = useSelector(
-		state => state.layoutData.items[state.layoutData.rootItems.main]
-	);
+	const mainItemId = useSelector((state) => state.layoutData.rootItems.main);
 
-	return <PageEditor mainItem={mainItem} withinMasterPage />;
+	return <Layout mainItemId={mainItemId} withinMasterPage />;
 }
 
 function Root({children}) {
+	return <div>{children}</div>;
+}
+
+function CollectionItem({children}) {
 	return <div>{children}</div>;
 }
 
@@ -120,6 +117,8 @@ const FragmentContent = React.memo(function FragmentContent({
 	const ref = useRef(null);
 	const isMounted = useIsMounted();
 	const [content, setContent] = useState(defaultContent);
+	const selectItem = useSelectItem();
+	const getFieldValue = useGetFieldValue();
 
 	useEffect(() => {
 		const element = ref.current;
@@ -128,11 +127,15 @@ const FragmentContent = React.memo(function FragmentContent({
 			return;
 		}
 
-		const handler = event => {
+		const handler = (event) => {
 			const element = event.target;
 
 			if (closest(element, '[href]')) {
 				event.preventDefault();
+			}
+
+			if (!closest(event.target, '.page-editor')) {
+				selectItem(null);
 			}
 		};
 
@@ -153,67 +156,72 @@ const FragmentContent = React.memo(function FragmentContent({
 			}
 		}, 50);
 
-		Array.from(
-			element.querySelectorAll('[data-lfr-background-image-id]')
-		).map(editable => {
-			const editableId = editable.dataset.lfrBackgroundImageId;
-
-			const editableValue =
-				editableValues[BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR][
-					editableId
-				];
-
-			if (editableIsMapped(editableValue)) {
-				return;
-			}
-
-			const value = editableValue[languageId];
-
-			if (value) {
-				const processor = Processors['background-image'];
-
-				processor.render(editable, value);
-			}
+		getAllEditables(element).forEach((editable) => {
+			resolveEditableValue(
+				editableValues,
+				editable.editableId,
+				editable.editableValueNamespace,
+				languageId,
+				null,
+				getFieldValue
+			).then(([value, editableConfig]) => {
+				editable.processor.render(
+					editable.element,
+					value,
+					editableConfig
+				);
+			});
 		});
-
-		Array.from(element.querySelectorAll('lfr-editable')).forEach(
-			editable => {
-				const editableId = editable.getAttribute('id');
-
-				const editableValue =
-					editableValues[EDITABLE_FRAGMENT_ENTRY_PROCESSOR][
-						editableId
-					];
-
-				if (editableIsMapped(editableValue)) {
-					return;
-				}
-
-				const value = editableValue[languageId];
-
-				const editableConfig = editableValue.config || {};
-
-				if (value && editableConfig) {
-					const processor =
-						Processors[editable.getAttribute('type')] ||
-						Processors.fallback;
-
-					processor.render(editable, value, editableConfig);
-				}
-			}
-		);
 
 		updateContent();
 
 		return () => {
 			element = null;
 		};
-	}, [defaultContent, content, isMounted, editableValues, languageId]);
+	}, [
+		defaultContent,
+		content,
+		isMounted,
+		editableValues,
+		languageId,
+		getFieldValue,
+	]);
+
+	const fragmentEntryLinks = useSelector((state) => state.fragmentEntryLinks);
+	const masterLayoutData = useSelector((state) => state.masterLayoutData);
+
+	const getPortals = useCallback(
+		(element) =>
+			Array.from(element.querySelectorAll('lfr-drop-zone')).map(
+				(dropZoneElement) => {
+					const mainItemId =
+						dropZoneElement.getAttribute('uuid') || '';
+
+					const Component = () =>
+						mainItemId ? (
+							<MasterLayoutDataItem
+								fragmentEntryLinks={fragmentEntryLinks}
+								item={masterLayoutData.items[mainItemId]}
+								layoutData={masterLayoutData}
+							/>
+						) : null;
+
+					Component.displayName = `DropZone(${mainItemId})`;
+
+					return {
+						Component,
+						element: dropZoneElement,
+					};
+				}
+			),
+		[fragmentEntryLinks, masterLayoutData]
+	);
 
 	return (
 		<UnsafeHTML
 			className="page-editor__fragment-content page-editor__fragment-content--master"
 			contentRef={ref}
+			getPortals={getPortals}
 			markup={content}
 		/>
 	);
@@ -229,7 +237,7 @@ function Fragment({fragmentEntryLinks, item}) {
 	const fragmentEntryLink =
 		fragmentEntryLinks[item.config.fragmentEntryLinkId];
 
-	const languageId = useSelector(state => state.languageId);
+	const languageId = useSelector((state) => state.languageId);
 
 	return (
 		<FragmentContent
@@ -248,13 +256,3 @@ Fragment.propTypes = {
 		}),
 	}).isRequired,
 };
-
-function editableIsMapped(editableValue) {
-	return (
-		editableValue &&
-		((editableValue.classNameId &&
-			editableValue.classPK &&
-			editableValue.fieldId) ||
-			editableValue.mappedField)
-	);
-}

@@ -26,19 +26,19 @@ import handlePaginationItemClicked from './actions/handlePaginationItemClicked.e
 import handlePaginationNextClicked from './actions/handlePaginationNextClicked.es';
 import handlePaginationPreviousClicked from './actions/handlePaginationPreviousClicked.es';
 
-const _handleFieldEdited = function(properties) {
+const _handleFieldEdited = function (properties) {
 	const {fieldInstance} = properties;
 	const {evaluable} = fieldInstance;
 	const evaluatorContext = this.getEvaluatorContext();
 
-	const updateState = editedPages => {
+	const updateState = (editedPages) => {
 		this.setState({
 			pages: editedPages,
 		});
 	};
 
 	handleFieldEdited(evaluatorContext, properties, updateState)
-		.then(evaluatedPages => {
+		.then((evaluatedPages) => {
 			if (fieldInstance.isDisposed()) {
 				return;
 			}
@@ -54,15 +54,15 @@ const _handleFieldEdited = function(properties) {
 				}
 			);
 		})
-		.catch(error => this.emit('evaluationError', error));
+		.catch((error) => this.emit('evaluationError', error));
 };
 
-const _handleFieldBlurred = function(properties) {
+const _handleFieldBlurred = function (properties) {
 	const {fieldInstance} = properties;
 	const {pages} = this;
 	const dateNow = new Date();
 
-	handleFieldBlurred(pages, properties).then(blurredFieldPages => {
+	handleFieldBlurred(pages, properties).then((blurredFieldPages) => {
 		if (fieldInstance.isDisposed()) {
 			return;
 		}
@@ -80,13 +80,13 @@ const _handleFieldBlurred = function(properties) {
 	});
 };
 
-const _handleFieldFocused = function(properties) {
+const _handleFieldFocused = function (properties) {
 	const {fieldInstance} = properties;
 	const {pages} = this;
 
 	this.fieldFocusDate = new Date();
 
-	handleFieldFocused(pages, properties).then(focusedFieldPages => {
+	handleFieldFocused(pages, properties).then((focusedFieldPages) => {
 		this.setState({
 			pages: focusedFieldPages,
 		});
@@ -99,7 +99,7 @@ const _handleFieldFocused = function(properties) {
 	});
 };
 
-export default Component => {
+export default (Component) => {
 	return class withStore extends Component {
 		attached() {
 			super.attached();
@@ -154,32 +154,29 @@ export default Component => {
 		}
 
 		willReceiveState(changes) {
+			const {defaultLanguageId} = this;
 			const {editingLanguageId} = changes;
 
 			if (editingLanguageId) {
 				const visitor = new PagesVisitor(this.pages);
 
-				const newPages = visitor.mapFields(
-					({localizedValue, name}) => ({
-						name: name.replace(
-							editingLanguageId.prevVal,
-							editingLanguageId.newVal
-						),
+				this.pages = visitor.mapFields(
+					({localizedValue}) => ({
 						value:
 							localizedValue &&
 							localizedValue[editingLanguageId.newVal]
 								? localizedValue[editingLanguageId.newVal]
+								: localizedValue[defaultLanguageId]
+								? localizedValue[defaultLanguageId]
 								: null,
 					}),
 					true
 				);
-
-				this.pages = newPages;
 			}
 		}
 
 		validate() {
-			return this.evaluate().then(evaluatedPages => {
+			return this.evaluate().then((evaluatedPages) => {
 				let validForm = true;
 				const visitor = new PagesVisitor(evaluatedPages);
 
@@ -268,7 +265,7 @@ export default Component => {
 		_handleFormSubmitted(event) {
 			event.preventDefault();
 
-			this.validate().then(validForm => {
+			this.validate().then((validForm) => {
 				if (validForm) {
 					Liferay.Util.submitForm(event.target);
 

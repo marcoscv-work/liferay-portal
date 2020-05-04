@@ -25,11 +25,15 @@ String questionsRootElementId = renderResponse.getNamespace() + "-questions-root
 <div id="<%= questionsRootElementId %>">
 
 	<%
-	Map<String, Object> data = new HashMap<>();
-
-	data.put("isOmniAdmin", permissionChecker.isOmniadmin());
-	data.put("siteKey", String.valueOf(themeDisplay.getScopeGroupId()));
-	data.put("userId", String.valueOf(themeDisplay.getUserId()));
+	Map<String, Object> data = HashMapBuilder.<String, Object>put(
+		"defaultRank", renderRequest.getAttribute(QuestionsPortletKeys.DEFAULT_RANK)
+	).put(
+		"isOmniAdmin", permissionChecker.isOmniadmin()
+	).put(
+		"siteKey", String.valueOf(themeDisplay.getScopeGroupId())
+	).put(
+		"userId", String.valueOf(themeDisplay.getUserId())
+	).build();
 	%>
 
 	<react:component

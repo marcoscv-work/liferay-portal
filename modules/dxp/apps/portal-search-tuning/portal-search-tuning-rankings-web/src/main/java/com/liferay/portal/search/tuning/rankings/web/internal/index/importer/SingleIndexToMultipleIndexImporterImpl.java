@@ -14,6 +14,8 @@
 
 package com.liferay.portal.search.tuning.rankings.web.internal.index.importer;
 
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.service.CompanyService;
 import com.liferay.portal.search.document.Document;
@@ -51,9 +53,19 @@ public class SingleIndexToMultipleIndexImporterImpl
 
 	@Override
 	public void importRankings() {
-		createRankingIndices();
+		try {
+			createRankingIndices();
 
-		importDocuments();
+			importDocuments();
+		}
+		catch (Exception exception) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to create result ranking indices for existing " +
+						"companies",
+					exception);
+			}
+		}
 	}
 
 	protected static Map<String, List<Document>> groupDocumentByIndex(
@@ -173,6 +185,9 @@ public class SingleIndexToMultipleIndexImporterImpl
 			}
 
 		};
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		SingleIndexToMultipleIndexImporterImpl.class);
 
 	@Reference
 	private CompanyService _companyService;

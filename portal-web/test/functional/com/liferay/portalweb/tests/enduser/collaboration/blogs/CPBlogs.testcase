@@ -57,7 +57,7 @@ definition {
 
 			BlogsNavigator.gotoEntryCP(entryTitle = "Blogs Entry1 Title");
 
-			BlogsEntry.viewEntry(
+			BlogsEntry.viewEntryCP(
 				entryContent = "Blogs Entry1 Content",
 				entryTitle = "Blogs Entry1 Title");
 		}
@@ -67,7 +67,7 @@ definition {
 
 			BlogsNavigator.gotoEntryCP(entryTitle = "Blogs Entry2 Title");
 
-			BlogsEntry.viewEntry(
+			BlogsEntry.viewEntryCP(
 				entryContent = "Blogs Entry2 Content",
 				entryTitle = "Blogs Entry2 Title");
 		}
@@ -77,7 +77,7 @@ definition {
 
 			BlogsNavigator.gotoEntryCP(entryTitle = "Blogs Entry3 Title");
 
-			BlogsEntry.viewEntry(
+			BlogsEntry.viewEntryCP(
 				entryContent = "Blogs Entry3 Content",
 				entryTitle = "Blogs Entry3 Title");
 		}
@@ -100,7 +100,7 @@ definition {
 
 		BlogsNavigator.gotoEntryCP(entryTitle = "Blogs Entry Title");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryCP(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 	}
@@ -130,7 +130,7 @@ definition {
 
 		BlogsNavigator.gotoEntryCP(entryTitle = '''& < > " Escape Characters Entry''');
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryCP(
 			entryContent = "Blogs Entry Content",
 			entryTitle = '''& < > " Escape Characters Entry''');
 	}
@@ -151,19 +151,21 @@ definition {
 	@description = "This is a use case for LPS-70143."
 	@priority = "4"
 	test AddBlogsEntryWithDMLink {
-		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentTitle = "Document_1.jpg",
+			groupName = "Guest",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_1.jpg");
 
-		DMDocument.addCP(
-			dmDocumentFile = "Document_1.jpg",
-			dmDocumentTitle = "Document_1.jpg");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		var dmDocument1URL = DMDocument.getDMLatestVersionURL(dmDocumentTitle = "Document_1.jpg");
 
-		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
-
-		DMDocument.addCP(
-			dmDocumentFile = "Document_2.jpg",
-			dmDocumentTitle = "Document_2.jpg");
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentTitle = "Document_2.jpg",
+			groupName = "Guest",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_2.jpg");
 
 		var dmDocument2URL = DMDocument.getDMLatestVersionURL(dmDocumentTitle = "Document_2.jpg");
 
@@ -208,7 +210,7 @@ definition {
 
 		BlogsNavigator.gotoEntryCP(entryTitle = "Blogs Entry Title");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryCP(
 			entryContent = "Blogs Entry Content",
 			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title");
@@ -221,8 +223,6 @@ definition {
 		BlogsNavigator.openBlogsAdmin(siteURLKey = "guest");
 
 		LexiconEntry.gotoAdd();
-
-		Pause(locator1 = "5000");
 
 		BlogsNavigator.gotoSelectFile();
 
@@ -241,35 +241,9 @@ definition {
 	}
 
 	@priority = "5"
-	test CKEditorSmoke {
-		property custom.properties = "editor.wysiwyg.portal-web.docroot.html.portlet.blogs.edit_entry.jsp=ckeditor";
-		property testray.component.names = "WYSIWYG";
-
-		BlogsNavigator.openBlogsAdmin(siteURLKey = "guest");
-
-		BlogsNavigator.gotoAddEntry();
-
-		AlloyEditor.addTitle(title = "CKEditor Entry Title");
-
-		CKEditor.assertEditorPresent();
-
-		CKEditor.addContent(content = "CKEditor Entry Content");
-
-		PortletEntry.publish();
-
-		BlogsNavigator.openBlogsAdmin(siteURLKey = "guest");
-
-		BlogsNavigator.gotoEntryCP(entryTitle = "CKEditor Entry Title");
-
-		BlogsEntry.viewTitle(entryTitle = "CKEditor Entry Title");
-
-		SelectFrame.selectFrameNoLoading(locator1 = "CKEditor#BODY_FIELD_IFRAME");
-
-		CKEditor.viewEntryContent(content = "CKEditor Entry Content");
-	}
-
-	@priority = "5"
 	test DeleteBlogsEntries {
+		property portal.acceptance = "true";
+
 		JSONBlog.addEntry(
 			entryContent = "Blogs Entry1 Content",
 			entryTitle = "Blogs Entry1 Title");
@@ -289,7 +263,7 @@ definition {
 				entryContent = "Blogs Entry${entryCount} Content",
 				entryTitle = "Blogs Entry${entryCount} Title");
 
-			BlogsEntry.viewEntry(
+			BlogsEntry.viewEntryCP(
 				entryContent = "Blogs Entry${entryCount} Content",
 				entryTitle = "Blogs Entry${entryCount} Title");
 		}
@@ -329,7 +303,7 @@ definition {
 
 		BlogsNavigator.gotoEntryCP(entryTitle = "Blogs Entry Title");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryCP(
 			entryContent = "Blogs Entry Content",
 			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title");
@@ -350,7 +324,7 @@ definition {
 			entryStatus = "Draft",
 			entryTitle = "Blogs Entry Title");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryCP(
 			entryContent = "Blogs Entry Content",
 			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title");
@@ -371,7 +345,7 @@ definition {
 			entryStatus = "Draft",
 			entryTitle = "Blogs Entry Title");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryCP(
 			entryContent = "Blogs Entry Content",
 			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title");
@@ -469,7 +443,7 @@ definition {
 
 		BlogsNavigator.gotoEntryCP(entryTitle = "Blogs Entry Title");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryCP(
 			entryContent = "Blogs Entry Content",
 			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title",
@@ -482,8 +456,6 @@ definition {
 
 	@priority = "3"
 	test SearchDMImagesViaItemSelector {
-		property portal.upstream = "quarantine";
-
 		BlogsNavigator.openBlogsAdmin(siteURLKey = "guest");
 
 		Blogs.addEntryWithUploadedCoverImage(
@@ -500,7 +472,7 @@ definition {
 
 		BlogsNavigator.gotoEntryCP(entryTitle = "Blogs Entry Title");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryCP(
 			entryContent = "Blogs Entry Content",
 			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title",
@@ -541,7 +513,7 @@ definition {
 
 		BlogsNavigator.gotoEntryCP(entryTitle = "Blogs Entry Title");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryCP(
 			entryContent = "Blogs Entry Content",
 			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title",
@@ -566,7 +538,7 @@ definition {
 
 		BlogsNavigator.gotoEntryCP(entryTitle = "Blogs Entry Title");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryCP(
 			entryContent = "Blogs Entry Content",
 			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title",

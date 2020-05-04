@@ -15,6 +15,7 @@
 import ClayModal from 'clay-modal';
 import {FormBuilderBase} from 'dynamic-data-mapping-form-builder/js/components/FormBuilder/FormBuilder.es';
 import withActionableFields from 'dynamic-data-mapping-form-builder/js/components/FormBuilder/withActionableFields.es';
+import withClickableFields from 'dynamic-data-mapping-form-builder/js/components/FormBuilder/withClickableFields.es';
 import withEditablePageHeader from 'dynamic-data-mapping-form-builder/js/components/FormBuilder/withEditablePageHeader.es';
 import withMoveableFields from 'dynamic-data-mapping-form-builder/js/components/FormBuilder/withMoveableFields.es';
 import withMultiplePages from 'dynamic-data-mapping-form-builder/js/components/FormBuilder/withMultiplePages.es';
@@ -39,8 +40,15 @@ import PreviewButton from './components/PreviewButton/PreviewButton.es';
 import PublishButton from './components/PublishButton/PublishButton.es';
 import ShareFormPopover from './components/ShareFormPopover/ShareFormPopover.es';
 import AutoSave from './util/AutoSave.es';
+import FormURL from './util/FormURL.es';
 import Notifications from './util/Notifications.es';
 import StateSyncronizer from './util/StateSyncronizer.es';
+
+const NAV_ITEMS = {
+	FORM: 0,
+	REPORT: 2,
+	RULES: 1,
+};
 
 /**
  * Form.
@@ -62,7 +70,7 @@ class Form extends Component {
 		this._eventHandler = new EventHandler();
 
 		const dependencies = [
-			this._createEditor('nameEditor').then(editor => {
+			this._createEditor('nameEditor').then((editor) => {
 				this._eventHandler.add(
 					dom.on(
 						editor.element.$,
@@ -289,7 +297,9 @@ class Form extends Component {
 		this._eventHandler.removeAllListeners();
 
 		if (this._translationManagerHandles) {
-			this._translationManagerHandles.forEach(handle => handle.detach());
+			this._translationManagerHandles.forEach((handle) =>
+				handle.detach()
+			);
 		}
 	}
 
@@ -327,9 +337,15 @@ class Form extends Component {
 	}
 
 	isShowRuleBuilder() {
-		const {ruleBuilderVisible} = this.state;
+		const {activeNavItem} = this.state;
 
-		return ruleBuilderVisible && this.isFormBuilderView();
+		return activeNavItem === NAV_ITEMS.RULES && this.isFormBuilderView();
+	}
+
+	isShowReport() {
+		const {activeNavItem} = this.state;
+
+		return activeNavItem === NAV_ITEMS.REPORT && this.isFormBuilderView();
 	}
 
 	onAvailableLocalesRemoved({newValue, previousValue}) {
@@ -438,7 +454,9 @@ class Form extends Component {
 						rules={rules}
 						spritemap={spritemap}
 						view={view}
-						visible={!this.isShowRuleBuilder()}
+						visible={
+							!this.isShowRuleBuilder() && !this.isShowReport()
+						}
 					/>
 
 					<Sidebar
@@ -450,7 +468,9 @@ class Form extends Component {
 						portletNamespace={namespace}
 						ref="sidebar"
 						spritemap={spritemap}
-						visible={!this.isShowRuleBuilder()}
+						visible={
+							!this.isShowRuleBuilder() && !this.isShowReport()
+						}
 					/>
 				</LayoutProviderTag>
 
@@ -554,67 +574,28 @@ class Form extends Component {
 		submitForm(document.querySelector(`#${namespace}editForm`));
 	}
 
-	syncRuleBuilderVisible(visible) {
-		const {
-			defaultLanguageId,
-			editingLanguageId,
-			published,
-			saved,
-		} = this.props;
-		const formBasicInfo = document.querySelector('.ddm-form-basic-info');
-		const formBuilderButtons = document.querySelector(
-			'.ddm-form-builder-buttons'
-		);
-		const publishIcon = document.querySelector('.publish-icon');
-		const shareURLButton = document.querySelector(
-			'.lfr-ddm-share-url-button'
-		);
-		const translationManager = document.querySelector(
-			'.ddm-translation-manager'
-		);
+	syncActiveNavItem(activeNavItem) {
+		switch (activeNavItem) {
+			case NAV_ITEMS.FORM:
+				this._toggleRulesBuilder(false);
+				this._toggleReport(false);
+				this._toggleFormBuilder(true);
+				break;
 
-		if (visible) {
-			formBasicInfo.classList.add('hide');
-			formBuilderButtons.classList.add('hide');
-			shareURLButton.classList.add('hide');
+			case NAV_ITEMS.RULES:
+				this._toggleFormBuilder(false);
+				this._toggleReport(false);
+				this._toggleRulesBuilder(true);
+				break;
 
-			if (publishIcon) {
-				publishIcon.classList.add('hide');
-			}
+			case NAV_ITEMS.REPORT:
+				this._toggleFormBuilder(false);
+				this._toggleRulesBuilder(false);
+				this._toggleReport(true);
+				break;
 
-			if (translationManager) {
-				translationManager.classList.add('hide');
-			}
-
-			if (this.refs.ruleBuilder.isViewMode()) {
-				this.showAddButton();
-			}
-			else {
-				this.hideAddButton();
-			}
-		}
-		else {
-			formBasicInfo.classList.remove('hide');
-			formBuilderButtons.classList.remove('hide');
-
-			if (publishIcon) {
-				publishIcon.classList.remove('hide');
-			}
-
-			if (translationManager) {
-				translationManager.classList.remove('hide');
-			}
-
-			if (saved || published) {
-				shareURLButton.classList.remove('hide');
-			}
-
-			if (defaultLanguageId === editingLanguageId) {
-				this.showAddButton();
-			}
-			else {
-				this.hideAddButton();
-			}
+			default:
+				break;
 		}
 	}
 
@@ -650,8 +631,8 @@ class Form extends Component {
 			promise = Promise.resolve(CKEDITOR.instances[editorName]);
 		}
 		else {
-			promise = new Promise(resolve => {
-				Liferay.on('editorAPIReady', event => {
+			promise = new Promise((resolve) => {
+				Liferay.on('editorAPIReady', (event) => {
 					if (event.editorName === editorName) {
 						event.editor.create();
 
@@ -667,6 +648,7 @@ class Form extends Component {
 	_createFormBuilder() {
 		const composeList = [
 			withActionableFields,
+			withClickableFields,
 			withMoveableFields,
 			withMultiplePages,
 			withResizeableColumns,
@@ -680,8 +662,6 @@ class Form extends Component {
 	}
 
 	_createFormURL() {
-		let formURL;
-
 		const settingsDDMForm = Liferay.component('settingsDDMForm');
 
 		let requireAuthentication = false;
@@ -689,21 +669,20 @@ class Form extends Component {
 		if (settingsDDMForm) {
 			const settingsPageVisitor = new PagesVisitor(settingsDDMForm.pages);
 
-			settingsPageVisitor.mapFields(field => {
+			settingsPageVisitor.mapFields((field) => {
 				if (field.fieldName === 'requireAuthentication') {
 					requireAuthentication = field.value;
 				}
 			});
 		}
 
-		if (requireAuthentication) {
-			formURL = Liferay.DDM.FormSettings.restrictedFormURL;
-		}
-		else {
-			formURL = Liferay.DDM.FormSettings.sharedFormURL;
-		}
+		const formURL = new FormURL(
+			this._getFormInstanceId(),
+			this.props.published,
+			requireAuthentication
+		);
 
-		return formURL + this._getFormInstanceId();
+		return formURL.create();
 	}
 
 	_getFormInstanceId() {
@@ -766,16 +745,16 @@ class Form extends Component {
 		const navItemIndex = Number(navItem.dataset.navItemIndex);
 		const navLink = navItem.querySelector('.nav-link');
 
-		this.setState({
-			ruleBuilderVisible: navItemIndex === 1,
-		});
-
 		document
 			.querySelector('.forms-management-bar li > a.active')
 			.classList.remove('active');
 		navLink.classList.add('active');
 
-		this.syncRuleBuilderVisible(this.state.ruleBuilderVisible);
+		this.setState({
+			activeNavItem: navItemIndex,
+		});
+
+		this.syncActiveNavItem(this.state.activeNavItem);
 	}
 
 	_handleNameEditorCopyAndPaste(event) {
@@ -898,7 +877,7 @@ class Form extends Component {
 
 		return {
 			...context,
-			pages: context.pages.map(page => {
+			pages: context.pages.map((page) => {
 				let {
 					description,
 					localizedDescription,
@@ -950,6 +929,110 @@ class Form extends Component {
 		);
 	}
 
+	_toggleFormBuilder(show) {
+		const {
+			defaultLanguageId,
+			editingLanguageId,
+			namespace,
+			published,
+			saved,
+		} = this.props;
+
+		const managementToolbar = document.querySelector(
+			`#${namespace}managementToolbar`
+		);
+		const formBasicInfo = document.querySelector('.ddm-form-basic-info');
+		const formBuilderButtons = document.querySelector(
+			'.ddm-form-builder-buttons'
+		);
+		const publishIcon = document.querySelector('.publish-icon');
+		const shareURLButton = document.querySelector(
+			'.lfr-ddm-share-url-button'
+		);
+		const translationManager = document.querySelector(
+			'.ddm-translation-manager'
+		);
+
+		if (show) {
+			managementToolbar.classList.remove('hide');
+			formBasicInfo.classList.remove('hide');
+			formBuilderButtons.classList.remove('hide');
+
+			if (publishIcon) {
+				publishIcon.classList.remove('hide');
+			}
+
+			if (translationManager) {
+				translationManager.classList.remove('hide');
+			}
+
+			if (saved || published) {
+				shareURLButton.classList.remove('hide');
+			}
+
+			if (defaultLanguageId === editingLanguageId) {
+				this.showAddButton();
+			}
+			else {
+				this.hideAddButton();
+			}
+		}
+		else {
+			managementToolbar.classList.add('hide');
+			formBasicInfo.classList.add('hide');
+			formBuilderButtons.classList.add('hide');
+
+			if (publishIcon) {
+				publishIcon.classList.add('hide');
+			}
+
+			if (translationManager) {
+				translationManager.classList.add('hide');
+			}
+
+			shareURLButton.classList.add('hide');
+
+			this.hideAddButton();
+		}
+	}
+
+	_toggleReport(show) {
+		const formReport = document.querySelector('.ddm-form-report');
+
+		if (!formReport) {
+			return;
+		}
+
+		if (show) {
+			formReport.classList.remove('hide');
+		}
+		else {
+			formReport.classList.add('hide');
+		}
+	}
+
+	_toggleRulesBuilder(show) {
+		const {namespace} = this.props;
+
+		const managementToolbar = document.querySelector(
+			`#${namespace}managementToolbar`
+		);
+
+		if (show) {
+			managementToolbar.classList.remove('hide');
+		}
+		else {
+			managementToolbar.classList.add('hide');
+		}
+
+		if (this.refs.ruleBuilder.isViewMode()) {
+			this.showAddButton();
+		}
+		else {
+			this.hideAddButton();
+		}
+	}
+
 	_updateAutoSaveMessage({modifiedDate, savedAsDraft}) {
 		const {namespace} = this.props;
 
@@ -993,6 +1076,7 @@ class Form extends Component {
 }
 
 Form.PROPS = {
+
 	/**
 	 * The context for rendering a layout that represents a form.
 	 * @default undefined
@@ -1142,7 +1226,7 @@ Form.PROPS = {
 	namespace: Config.string().required(),
 
 	/**
-	 * Wether the form is published or not
+	 * Whether the form is published or not
 	 * @default false
 	 * @instance
 	 * @memberof Form
@@ -1192,7 +1276,7 @@ Form.PROPS = {
 	saved: Config.bool(),
 
 	/**
-	 * Wether to show an alert telling the user about the result of the
+	 * Whether to show an alert telling the user about the result of the
 	 * "Publish" operation.
 	 * @default false
 	 * @instance
@@ -1216,6 +1300,17 @@ Form.PROPS = {
 };
 
 Form.STATE = {
+
+	/**
+	 * Current active tab index.
+	 * @default
+	 * @instance
+	 * @memberof Form
+	 * @type {!number}
+	 */
+
+	activeNavItem: Config.number().value(NAV_ITEMS.FORM),
+
 	/**
 	 * Internal mirror of the pages state
 	 * @default _pagesValueFn
@@ -1234,16 +1329,6 @@ Form.STATE = {
 	 */
 
 	paginationMode: Config.string().valueFn('_paginationModeValueFn'),
-
-	/**
-	 * Wether the RuleBuilder should be visible or not.
-	 * @default false
-	 * @instance
-	 * @memberof Form
-	 * @type {!boolean}
-	 */
-
-	ruleBuilderVisible: Config.bool().value(false),
 
 	/**
 	 * The label of the save button

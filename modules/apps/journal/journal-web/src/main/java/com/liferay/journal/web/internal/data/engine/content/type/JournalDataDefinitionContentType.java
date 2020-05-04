@@ -15,13 +15,17 @@
 package com.liferay.journal.web.internal.data.engine.content.type;
 
 import com.liferay.data.engine.content.type.DataDefinitionContentType;
+import com.liferay.dynamic.data.lists.model.DDLRecordSet;
+import com.liferay.dynamic.data.lists.service.DDLRecordSetLocalService;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.journal.constants.JournalConstants;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -57,29 +61,23 @@ public class JournalDataDefinitionContentType
 			String resourceName, long primKey, long userId, String actionId)
 		throws PortalException {
 
+		if (StringUtil.contains(DDLRecordSet.class.getName(), resourceName)) {
+			DDLRecordSet ddlRecordSet = _ddlRecordSetLocalService.getRecordSet(
+				primKey);
+
+			DDMStructure ddmStructure = ddlRecordSet.getDDMStructure();
+
+			resourceName = ResourceActionsUtil.getCompositeModelName(
+				_portal.getClassName(ddmStructure.getClassNameId()),
+				DDMStructure.class.getName());
+
+			primKey = ddlRecordSet.getDDMStructureId();
+		}
+
 		if (permissionChecker.hasOwnerPermission(
 				companyId, resourceName, primKey, userId, actionId)) {
 
 			return true;
-		}
-
-		if (actionId.equals("ADD_DATA_RECORD") ||
-			actionId.equals("UPDATE_DATA_RECORD")) {
-
-			return permissionChecker.hasPermission(
-				groupId, resourceName, primKey, ActionKeys.UPDATE);
-		}
-
-		if (actionId.equals("DELETE_DATA_RECORD")) {
-			return permissionChecker.hasPermission(
-				groupId, resourceName, primKey, ActionKeys.DELETE);
-		}
-
-		if (actionId.equals("EXPORT_DATA_RECORDS") ||
-			actionId.equals("VIEW_DATA_RECORD")) {
-
-			return permissionChecker.hasPermission(
-				groupId, resourceName, primKey, ActionKeys.VIEW);
 		}
 
 		return permissionChecker.hasPermission(
@@ -101,6 +99,9 @@ public class JournalDataDefinitionContentType
 		return _portletResourcePermission.contains(
 			permissionChecker, groupId, actionId);
 	}
+
+	@Reference
+	private DDLRecordSetLocalService _ddlRecordSetLocalService;
 
 	@Reference
 	private Portal _portal;

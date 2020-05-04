@@ -223,6 +223,8 @@
 			<message key="attribute.incorrect.order" value="Attribute ''{0}'' should come after attribute ''{1}''" />
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.CamelCaseNameCheck">
+			<property name="enabled" value="false" />
+			<message key="constant.invalidName" value="''{0}'' should not be followe by ''_'' for variable ''{1}''" />
 			<message key="method.invalidName" value="''{0}'' should be followed by a lowercase character for method ''{1}''" />
 			<message key="parameter.invalidName" value="''{0}'' should be followed by a lowercase character for parameter ''{1}''" />
 			<message key="variable.invalidName" value="''{0}'' should be followed by a lowercase character for variable ''{1}''" />
@@ -447,9 +449,6 @@
 		<module name="com.liferay.source.formatter.checkstyle.checks.RedundantBranchingStatementCheck">
 			<message key="branching.statement.redundant" value="Redundant ''{0}'' statement" />
 		</module>
-		<module name="com.liferay.source.formatter.checkstyle.checks.RedundantVariableDeclarationCheck">
-			<message key="variable.declaration.redundant" value="No need to declare variable ''{0}'' because it is returned right after" />
-		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.ReferenceAnnotationCheck">
 			<message key="default.unbind.redundant" value="No need to specify default ''unbind'' method. See https://osgi.org/javadoc/r4v43/cmpn/org/osgi/service/component/annotations/Reference.html#unbind()" />
 			<message key="reference.move" value="Move @Reference from method ''{0}'' to field ''{1}''" />
@@ -498,8 +497,18 @@
 		<module name="com.liferay.source.formatter.checkstyle.checks.TransactionalTestRuleCheck">
 			<message key="import.invalid" value="Avoid using import TransactionalTestRule in *StagedModelDataHandlerTest, see LPS-68908" />
 		</module>
+		<module name="com.liferay.source.formatter.checkstyle.checks.TryWithResourcesCheck">
+			<property name="enabled" value="false" />
+			<message key="try.with.resources.use" value="Use Try-With-Resources statement to declare ''{0}'' instead of closing the resource in the ''finally'' statement using ''{1}''" />
+		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.UnnecessaryAssignCheck">
-			<message key="assign.unnecessary" value="No need to assign call to variable ''{0}'', because ''{0}'' is not used after the call" />
+			<message key="assign.unnecessary.before.reassign" value="No need to assign call to variable ''{0}'', because ''{0}'' is reassigned another value without being used" />
+			<message key="assign.unnecessary.before.return" value="No need to assign call to variable ''{0}'', because ''{0}'' is returned right after" />
+			<message key="assign.unnecessary.unused" value="No need to assign call to variable ''{0}'', because ''{0}'' is not used after the call" />
+		</module>
+		<module name="com.liferay.source.formatter.checkstyle.checks.UnnecessaryVariableDeclarationCheck">
+			<message key="variable.declaration.unnecessary.before.reassign" value="No need to declare variable ''{0}'' because ''{0}'' is reassigned another value without being used" />
+			<message key="variable.declaration.unnecessary.before.return" value="No need to declare variable ''{0}'' because it is returned right after" />
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.UnprocessedExceptionCheck">
 			<message key="exception.unprocessed" value="Unprocessed exception ''{0}'', see LPS-36174" />
@@ -528,7 +537,7 @@
 		<module name="com.liferay.source.formatter.checkstyle.checks.VariableNameCheck">
 			<property name="allowedVariableNames" value="bitMode,metadata,superClass,userName" />
 			<property name="enabled" value="false" />
-			<property name="enforceTypeNames" value="DetailAST,HttpServlet(Request|Response),LiferayPortlet(Request|Response),NamedList,Query,QueryPos,RenderRequest,RenderResponse,ServletRequest,ServletResponse,SQLQuery,UnicodeProperties,Unsync.*" />
+			<property name="enforceTypeNames" value="DetailAST,(Double|Int|Long)Stream,HttpServlet(Request|Response),LiferayPortlet(Request|Response),NamedList,Query,QueryPos,RenderRequest,RenderResponse,ServletRequest,ServletResponse,SQLQuery,UnicodeProperties,Unsync.*" />
 			<message key="variable.incorrect.ending" value="Name of variable with type ''{0}'' should end with ''{1}''" />
 			<message key="variable.rename" value="Rename variable ''{0}'' to ''{1}''" />
 			<message key="variable.typo" value="Typo in variable ''{0}'', expected variable name ''{1}''" />

@@ -13,10 +13,8 @@ import ClayModal from '@clayui/modal';
 import ClayPanel from '@clayui/panel';
 import React, {useMemo} from 'react';
 
-import EmptyState from '../../../../../../shared/components/empty-state/EmptyState.es';
+import ContentView from '../../../../../../shared/components/content-view/ContentView.es';
 import RetryButton from '../../../../../../shared/components/list/RetryButton.es';
-import LoadingState from '../../../../../../shared/components/loading/LoadingState.es';
-import PromisesResolver from '../../../../../../shared/components/promises-resolver/PromisesResolver.es';
 import {capitalize} from '../../../../../../shared/util/util.es';
 import {Card} from './SelectTransitionStepCard.es';
 
@@ -26,7 +24,7 @@ const Body = ({data, setRetry, tasks}) => {
 	const taskSteps = useMemo(() => {
 		const versions = {};
 
-		tasks.forEach(task => {
+		tasks.forEach((task) => {
 			if (
 				versions[task.workflowDefinitionVersion] &&
 				versions[task.workflowDefinitionVersion][task.name]
@@ -49,7 +47,8 @@ const Body = ({data, setRetry, tasks}) => {
 	}, [tasks]);
 
 	const versionedCards = useMemo(
-		() => Object.entries(taskSteps).map(array => Object.entries(array[1])),
+		() =>
+			Object.entries(taskSteps).map((array) => Object.entries(array[1])),
 		[taskSteps]
 	);
 
@@ -71,16 +70,34 @@ const Body = ({data, setRetry, tasks}) => {
 			}
 		);
 
-		return Object.entries(taskTransitions).map(array => array[1]);
+		return Object.entries(taskTransitions).map((array) => array[1]);
 	}, [workflowTaskTransitions]);
+
+	const statesProps = useMemo(
+		() => ({
+			errorProps: {
+				actionButton: (
+					<RetryButton
+						onClick={() => setRetry((retry) => retry + 1)}
+					/>
+				),
+				className: 'pb-7 pt-8',
+				hideAnimation: true,
+				message: Liferay.Language.get('failed-to-retrieve-tasks'),
+				messageClassName: 'small',
+			},
+			loadingProps: {
+				className: 'mb-4 mt-6 py-8',
+				message: Liferay.Language.get('retrieving-all-transitions'),
+				messageClassName: 'small',
+			},
+		}),
+		[setRetry]
+	);
 
 	return (
 		<ClayModal.Body data-testid="selectTransitionStep">
-			<PromisesResolver.Pending>
-				<Body.Loading />
-			</PromisesResolver.Pending>
-
-			<PromisesResolver.Resolved>
+			<ContentView {...statesProps}>
 				{versionedCards.map((versionedCard, versionIndex) =>
 					versionedCard.map(([taskLabel, tasks], cardIndex) => (
 						<ClayPanel key={`${versionIndex}_${cardIndex}`}>
@@ -104,41 +121,11 @@ const Body = ({data, setRetry, tasks}) => {
 						</ClayPanel>
 					))
 				)}
-			</PromisesResolver.Resolved>
-
-			<PromisesResolver.Rejected>
-				<Body.Error onClick={() => setRetry(retry => retry + 1)} />
-			</PromisesResolver.Rejected>
+			</ContentView>
 		</ClayModal.Body>
 	);
 };
 
-const ErrorView = ({onClick}) => {
-	return (
-		<EmptyState
-			actionButton={
-				<RetryButton data-testid="retryBtn" onClick={onClick} />
-			}
-			className="border-0 pb-7 pt-8"
-			hideAnimation={true}
-			message={Liferay.Language.get('failed-to-retrieve-assignees')}
-			messageClassName="small"
-		/>
-	);
-};
-
-const LoadingView = () => {
-	return (
-		<LoadingState
-			className="border-0 mb-4 mt-6 pb-8 pt-8"
-			message={Liferay.Language.get('retrieving-all-transitions')}
-			messageClassName="small"
-		/>
-	);
-};
-
 Body.Card = Card;
-Body.Error = ErrorView;
-Body.Loading = LoadingView;
 
 export {Body};

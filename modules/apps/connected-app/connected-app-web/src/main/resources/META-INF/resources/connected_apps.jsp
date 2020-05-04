@@ -58,9 +58,9 @@
 					<div class="autofit-col">
 
 						<%
-						Map<String, String> data = new HashMap<>();
-
-						data.put("key", connectedApp.getKey());
+						Map<String, String> data = HashMapBuilder.put(
+							"key", connectedApp.getKey()
+						).build();
 						%>
 
 						<clay:button
@@ -95,7 +95,7 @@
 		document.getElementById('<portlet:namespace/>connectedApp'),
 		'click',
 		'[data-key]',
-		function(event) {
+		function (event) {
 			connectedAppKeyInput.setAttribute('value', event.target.dataset.key);
 		}
 	);

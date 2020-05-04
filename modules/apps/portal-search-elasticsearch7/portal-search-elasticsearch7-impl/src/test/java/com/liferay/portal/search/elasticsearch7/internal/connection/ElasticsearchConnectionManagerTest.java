@@ -22,6 +22,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.mockito.Mock;
@@ -31,6 +32,7 @@ import org.mockito.MockitoAnnotations;
 /**
  * @author André de Oliveira
  */
+@Ignore
 public class ElasticsearchConnectionManagerTest {
 
 	@Before
@@ -300,7 +302,7 @@ public class ElasticsearchConnectionManagerTest {
 		Mockito.when(
 			_embeddedElasticsearchConnection.getConnectionId()
 		).thenReturn(
-			EmbeddedElasticsearchConnection.CONNECTION_ID
+			String.valueOf(OperationMode.EMBEDDED)
 		);
 		Mockito.when(
 			_embeddedElasticsearchConnection.getOperationMode()

@@ -1,0 +1,1012 @@
+@component-name = "portal-collaboration"
+definition {
+
+	property osgi.module.configuration.file.names = "com.liferay.redirect.internal.configuration.FFRedirectConfiguration.config";
+	property osgi.module.configurations = "enabled=B&quot;true&quot;";
+	property portal.release = "true";
+	property portal.upstream = "true";
+	property testray.main.component.name = "Redirect";
+
+	setUp {
+		TestCase.setUpPortalInstance();
+
+		User.firstLoginPG();
+
+		JSONGroup.addGroup(groupName = "Test Site Name");
+
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Test Source Page");
+
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Test Destination Page");
+	}
+
+	tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+		else {
+			User.logoutPG();
+		}
+	}
+
+	@description = "This ensures that a user will be redirected to the target URL of a permanent redirection."
+	@priority = "5"
+	test AccessPermanentEntry {
+		var portalURL = PropsUtil.get("portal.url");
+		var siteName = TestCase.getSiteName(siteName = "${siteName}");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			redirectType = "Permanent (301)",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		SelectWindow(locator1 = "title=Test Destination Page - Test Site Name - ${siteName}");
+
+		AssertLocation(value1 = "${portalURL}/web/test-site-name/test-destination-page");
+
+		var curl = '''
+			${portalURL}/web/test-site-name/test-source-page \
+				-w %{http_code}
+		''';
+
+		var output = JSONCurlUtil.post("${curl}");
+
+		if (contains("${output}", "301")) {
+			echo("This is a permanent redirect.");
+		}
+		else {
+			fail("FAIL! This redirect should be permanent.");
+		}
+	}
+
+	@description = "This ensures that the user will be redirected to the cached target URL of a permanent redirection after it is updated."
+	@priority = "5"
+	test AccessPermanentEntryAfterEdit {
+		var portalURL = PropsUtil.get("portal.url");
+		var siteName = TestCase.getSiteName(siteName = "${siteName}");
+
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "New Test Destination Page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			redirectType = "Permanent (301)",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.editEntry(
+			destinationURLEdit = "${portalURL}/web/test-site-name/new-test-destination-page",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		AssertLocation(value1 = "${portalURL}/web/test-site-name/test-destination-page");
+	}
+
+	@description = "This ensures that a user will be redirected to the target URL of a temporary redirection."
+	@priority = "5"
+	test AccessTemporaryEntry {
+		var portalURL = PropsUtil.get("portal.url");
+		var siteName = TestCase.getSiteName(siteName = "${siteName}");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			redirectType = "Temporary (302)",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		AssertLocation(value1 = "${portalURL}/web/test-site-name/test-destination-page");
+
+		var curl = '''
+			${portalURL}/web/test-site-name/test-source-page \
+				-w %{http_code}
+		''';
+
+		var output = JSONCurlUtil.post("${curl}");
+
+		if (contains("${output}", "302")) {
+			echo("This is a temporary redirect.");
+		}
+		else {
+			fail("FAIL! This redirect should be temporary.");
+		}
+	}
+
+	@description = "This ensures that the user will be redirected to the latest target URL of a temporary redirection after it is updated."
+	@priority = "5"
+	test AccessTemporaryEntryAfterEdit {
+		var portalURL = PropsUtil.get("portal.url");
+		var siteName = TestCase.getSiteName(siteName = "${siteName}");
+
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "New Test Destination Page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.editEntry(
+			destinationURLEdit = "${portalURL}/web/test-site-name/new-test-destination-page",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		AssertLocation(value1 = "${portalURL}/web/test-site-name/new-test-destination-page");
+	}
+
+	@description = "This ensures that a user cannot create more than one redirection with the same sourceURL."
+	@priority = "5"
+	test AddDuplicateSourceURL {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			redirectType = "Temporary (302)",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			redirectType = "Temporary (302)",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page",
+			sourceURLVariation = "Duplicate");
+	}
+
+	@description = "This ensures that an expired permanent redirect can be added from an active 404 URL."
+	@priority = "4"
+	test AddExpiredEntryFromActive404 {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntryVia404URLs(
+			activeIgnoreURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			expirationDate = "12/31/2013",
+			redirectType = "Permanent (301)",
+			siteName = "test-site-name",
+			sourceURL = "test-destination-page1");
+
+		Redirect.view404URLsDefault();
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.viewEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			expirationDate = "Expired",
+			redirectType = "Permanent",
+			sourceURL = "${portalURL}/web/test-site-name/test-destination-page1");
+	}
+
+	@description = "This ensures that an expired temporary redirect can be added from an ignored 404 URL."
+	@priority = "4"
+	test AddExpiredEntryFromIgnored404 {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			redirectType = "Permanent (301)",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.ignoreEntry(ignoreURL = "${portalURL}/web/test-site-name/test-destination-page1");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntryVia404URLs(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			expirationDate = "12/31/2013",
+			ignoredURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			siteName = "test-site-name",
+			sourceURL = "test-destination-page1");
+
+		Redirect.view404URLsDefault();
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.viewEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			expirationDate = "Expired",
+			redirectType = "Temporary",
+			sourceURL = "${portalURL}/web/test-site-name/test-destination-page1");
+	}
+
+	@description = "This ensures that a permanent redirect can be added."
+	@priority = "5"
+	test AddPermanentEntry {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			redirectType = "Permanent (301)",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.viewEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			redirectType = "Permanent",
+			sourceURL = "${portalURL}/web/test-site-name/test-source-page");
+	}
+
+	@description = "This ensures that a permanent redirect can be added from an active 404 URL."
+	@priority = "5"
+	test AddPermanentEntryFromActive404 {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntryVia404URLs(
+			activeIgnoreURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			redirectType = "Permanent (301)",
+			siteName = "test-site-name",
+			sourceURL = "test-destination-page1");
+
+		Redirect.view404URLsDefault();
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.viewEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			redirectType = "Permanent",
+			sourceURL = "${portalURL}/web/test-site-name/test-destination-page1");
+	}
+
+	@description = "This ensures that a permanent redirect can be added from an ignored 404 URL."
+	@priority = "5"
+	test AddPermanentEntryFromIgnored404 {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.ignoreEntry(ignoreURL = "${portalURL}/web/test-site-name/test-destination-page1");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntryVia404URLs(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			ignoredURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			redirectType = "Permanent (301)",
+			siteName = "test-site-name",
+			sourceURL = "test-destination-page1");
+
+		Redirect.view404URLsDefault();
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.viewEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			redirectType = "Permanent",
+			sourceURL = "${portalURL}/web/test-site-name/test-destination-page1");
+	}
+
+	@description = "This ensures that a temporary redirect can be added from an active 404 URL."
+	@priority = "5"
+	test AddTempEntryFromActive404 {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			redirectType = "Permanent (301)",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntryVia404URLs(
+			activeIgnoreURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			siteName = "test-site-name",
+			sourceURL = "test-destination-page1");
+
+		Redirect.view404URLsDefault();
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.viewEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			redirectType = "Temporary",
+			sourceURL = "${portalURL}/web/test-site-name/test-destination-page1");
+	}
+
+	@description = "This ensures that a temporary redirect can be added from an ignored 404 URL."
+	@priority = "5"
+	test AddTempEntryFromIgnored404 {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			redirectType = "Permanent (301)",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.ignoreEntry(ignoreURL = "${portalURL}/web/test-site-name/test-destination-page1");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntryVia404URLs(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			ignoredURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			siteName = "test-site-name",
+			sourceURL = "test-destination-page1");
+
+		Redirect.view404URLsDefault();
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.viewEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			redirectType = "Temporary",
+			sourceURL = "${portalURL}/web/test-site-name/test-destination-page1");
+	}
+
+	@description = "This ensures that the destination URL passes validation before it can be used."
+	@priority = "5"
+	test CheckDestinationURL {
+		var portalURL = PropsUtil.get("portal.url");
+		var siteName = TestCase.getSiteName(siteName = "${siteName}");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = " ",
+			destinationURLVariation = "Space",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			checkDestinationURL = "true",
+			destinationPageName = "Test Destination Page",
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			groupName = "Test Site Name",
+			portalName = "${siteName}",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+	}
+
+	@description = "This ensures that all redirect entries can be deleted simultaneously."
+	@priority = "5"
+	test DeleteEntries {
+		var portalURL = PropsUtil.get("portal.url");
+
+		for (var pageCount : list "1,2,3") {
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Source Page ${pageCount}");
+		}
+
+		for (var pageCount : list "1,2,3") {
+			Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+			Redirect.addEntry(
+				destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+				redirectType = "Permanent (301)",
+				siteName = "test-site-name",
+				sourceURL = "test-source-page-${pageCount}");
+		}
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		for (var pageCount : list "1,2,3") {
+			Redirect.viewEntry(
+				destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+				redirectType = "Permanent",
+				sourceURL = "${portalURL}/web/test-site-name/test-source-page-${pageCount}");
+		}
+
+		PortletEntry.selectAll();
+
+		Redirect.deleteEntry(
+			deletions = "true",
+			sourceURL = "${portalURL}/web/test-site-name/test-source-page");
+
+		Redirect.viewDefault();
+	}
+
+	@description = "This ensures that a redirect entry can be deleted."
+	@priority = "5"
+	test DeleteEntry {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			redirectType = "Permanent (301)",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.viewEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			redirectType = "Permanent",
+			sourceURL = "${portalURL}/web/test-site-name/test-source-page");
+
+		Redirect.deleteEntry(sourceURL = "${portalURL}/web/test-site-name/test-source-page");
+
+		Redirect.viewDefault();
+	}
+
+	@description = "This ensures that an unexpired redirect can be edited."
+	@priority = "5"
+	test EditEntry {
+		var portalURL = PropsUtil.get("portal.url");
+		var siteName = TestCase.getSiteName(siteName = "${siteName}");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			expirationDate = "12/31/2024",
+			redirectType = "Permanent (301)",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.viewEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			expirationDate = "12/31/24",
+			redirectType = "Permanent",
+			sourceURL = "${portalURL}/web/test-site-name/test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.editEntry(
+			destinationURLEdit = "${portalURL}/web/test-site-name/new-destination-page",
+			expirationDate = "12/31/2013",
+			redirectTypeEdit = "Temporary (302)",
+			sourceURL = "test-source-page",
+			sourceURLEdit = "new-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.viewEntry(
+			destinationURL = "${portalURL}/web/test-site-name/new-destination-page",
+			expirationDate = "Expired",
+			redirectType = "Temporary",
+			sourceURL = "${portalURL}/web/test-site-name/new-source-page");
+	}
+
+	@description = "This ensures that a URL can be ignored after reactivation."
+	@priority = "5"
+	test IgnoreURLAfterReactivation {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.view404URLs(
+			activeIgnoreURL = "true",
+			ignoreURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			requestNumber = "1");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.ignoreEntry(ignoreURL = "${portalURL}/web/test-site-name/test-destination-page1");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.ignoreEntry(
+			ignoreURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			unignore = "true");
+
+		Redirect.view404URLsDefault();
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.ignoreEntry(ignoreURL = "${portalURL}/web/test-site-name/test-destination-page1");
+
+		Click(locator1 = "Dropdown#FILTER_AND_ORDER");
+
+		MenuItem.click(menuItem = "Ignored URLs");
+
+		Redirect.view404URLs(
+			ignoreURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			requestNumber = "1");
+	}
+
+	@description = "This ensures that the 404 URLs can be ordered by requests."
+	@priority = "5"
+	test Order404URLsByRequests {
+		var portalURL = PropsUtil.get("portal.url");
+
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Test Source Page2");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page2",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page2");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page2");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page2");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.view404URLs(
+			activeIgnoreURL = "true",
+			ignoreURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			requestNumber = "1");
+
+		Redirect.view404URLs(
+			ignoreURL = "${portalURL}/web/test-site-name/test-destination-page2",
+			requestNumber = "2");
+
+		Redirect.viewOrderedURLs(
+			entry1 = "2",
+			entry2 = "1");
+
+		Click(locator1 = "ManagementBar#ORDER_ICON_GENERIC");
+
+		Redirect.viewOrderedURLs(
+			entry1 = "1",
+			entry2 = "2");
+	}
+
+	@description = "This ensures that accessing a nonexistent URL redirects the user to the home of the current site."
+	@priority = "4"
+	test Redirect404sToSiteHomePage {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/fakepage");
+
+		AssertLocation(value1 = "${portalURL}/web/test-site-name/fakepage");
+
+		AssertVisible(
+			key_pageName = "Test Source Page",
+			locator1 = "Home#PAGE_ACTIVE");
+
+		AssertTextEquals(
+			locator1 = "Home#ERROR_MESSAGE_ALERT_ERROR",
+			value1 = "Not Found");
+	}
+
+	@description = "This ensures that a user is redirected to the updated friendlyURL when he accesses the former friendlyURL."
+	@priority = "5"
+	test RedirectToUpdatedFriendlyURL {
+		var portalURL = PropsUtil.get("portal.url");
+
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+		SitePages.gotoPageMenuItem(
+			menuItem = "Configure",
+			pageName = "Test Source Page");
+
+		Page.editFriendlyURL(friendlyURLEdit = "/new-test-page");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		AssertLocation(value1 = "${portalURL}/web/test-site-name/new-test-page");
+
+		AssertVisible(
+			key_pageName = "Test Source Page",
+			locator1 = "Home#PAGE_ACTIVE");
+	}
+
+	@description = "This ensures that a user is redirected to the updated localized friendlyURL when he accesses the former localized friendlyURL."
+	@priority = "5"
+	test RedirectToUpdatedLocalizedFriendlyURL {
+		var portalURL = PropsUtil.get("portal.url");
+
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+		SitePages.gotoPageMenuItem(
+			menuItem = "Configure",
+			pageName = "Test Source Page");
+
+		Page.addFriendlyURLLocalizedPG(
+			friendlyUrlLocalized = "es_ES",
+			localizedFriendlyURL = "/pagina-de-prueba");
+
+		PortletEntry.inputName(name = "Pagina de prueba");
+
+		Button.clickSave();
+
+		Page.addFriendlyURLLocalizedPG(
+			friendlyUrlLocalized = "es_ES",
+			localizedFriendlyURL = "/nueva-pagina-de-prueba");
+
+		Button.clickSave();
+
+		Navigator.openSpecificURL(url = "${portalURL}/es/web/test-site-name/pagina-de-prueba");
+
+		AssertLocation(value1 = "${portalURL}/es/web/test-site-name/nueva-pagina-de-prueba");
+
+		AssertVisible(
+			key_pageName = "Pagina de prueba",
+			locator1 = "Home#PAGE_ACTIVE");
+	}
+
+	@description = "This ensures that an expired permanent redirect can be reset."
+	@priority = "5"
+	test ResetExpiredEntry {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			expirationDate = "12/31/2013",
+			redirectType = "Permanent (301)",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.editEntry(
+			expirationDate = "12/31/2024",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.viewEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			expirationDate = "12/31/24",
+			redirectType = "Permanent",
+			sourceURL = "${portalURL}/web/test-site-name/test-source-page");
+	}
+
+	@description = "This test covers LPS-110773. It ensures that a redirect entry can be found by search."
+	@priority = "3"
+	test SearchEntry {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		for (var searchTerm : list "source,destination") {
+			Redirect.viewResultEntryTitle(
+				searchEntryTitle = "${portalURL}/web/test-site-name/test-source-page",
+				searchTerm = "${searchTerm}");
+		}
+	}
+
+	@description = "This ensures that the redirect can be set."
+	@priority = "5"
+	test Smoke {
+		ProductMenu.gotoPortlet(
+			category = "Configuration",
+			panel = "Site Administration",
+			portlet = "Redirection");
+
+		Redirect.viewDefault();
+
+		Redirect.addEntry(
+			destinationURL = "",
+			redirectURLVariation = "Null",
+			siteName = "guest",
+			sourceURL = "sourceURL");
+
+		ProductMenu.gotoPortlet(
+			category = "Configuration",
+			panel = "Site Administration",
+			portlet = "Redirection");
+
+		Redirect.addEntry(
+			destinationURL = "http://localhost:8080",
+			redirectURLVariation = "Null",
+			siteName = "guest",
+			sourceURL = "");
+
+		AssertSelectedLabel(
+			locator1 = "Select#REDIRECT_TYPE",
+			value1 = "Temporary (302)");
+	}
+
+	@description = "This ensures that the 404 URLs can be viewed after reactivating."
+	@priority = "5"
+	test View404URLsAfterReactivating {
+		var portalURL = PropsUtil.get("portal.url");
+
+		for (var i : list "1,2,3") {
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Source Page${i}");
+		}
+
+		for (var i : list "1,2,3") {
+			Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+			Redirect.addEntry(
+				destinationURL = "${portalURL}/web/test-site-name/test-destination-page${i}",
+				redirectType = "Permanent (301)",
+				siteName = "test-site-name",
+				sourceURL = "test-source-page${i}");
+		}
+
+		for (var i : list "1,2,3") {
+			Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+			Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page${i}");
+		}
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.ignoreEntry(ignoreAllEntries = "true");
+
+		Redirect.view404URLsDefault();
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.ignoreEntry(
+			unignore = "true",
+			unignoreAllEntries = "true");
+
+		Redirect.view404URLsDefault();
+
+		for (var i : list "1,2,3") {
+			Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+			Redirect.view404URLs(
+				activeIgnoreURL = "true",
+				ignoreURL = "${portalURL}/web/test-site-name/test-destination-page${i}",
+				multipleURLs = "true");
+		}
+	}
+
+	@description = "This ensures that an expired temporary redirect can be reactivated."
+	@priority = "5"
+	test ViewExpiredAndActiveEntries {
+		var portalURL = PropsUtil.get("portal.url");
+		var siteName = TestCase.getSiteName(siteName = "${siteName}");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			expirationDate = "12/31/2013",
+			redirectType = "Temporary (302)",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		SelectWindow(locator1 = "title=Test Source Page - Test Site Name - ${siteName}");
+
+		AssertLocation(value1 = "${portalURL}/web/test-site-name/test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.editEntry(
+			expirationDate = "12/31/2024",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		SelectWindow(locator1 = "title=Test Destination Page - Test Site Name - ${siteName}");
+
+		AssertLocation(value1 = "${portalURL}/web/test-site-name/test-destination-page");
+	}
+
+	@description = "This ensures that an expired permanent redirect can be viewed."
+	@priority = "5"
+	test ViewExpiredPermanentEntry {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			expirationDate = "12/31/2013",
+			redirectType = "Permanent (301)",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.viewEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			expirationDate = "Expired",
+			redirectType = "Permanent",
+			sourceURL = "${portalURL}/web/test-site-name/test-source-page");
+	}
+
+	@description = "This ensures that an expired temporary redirect can be viewed."
+	@priority = "5"
+	test ViewExpiredTempEntry {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			expirationDate = "12/31/2013",
+			redirectType = "Temporary (302)",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.viewEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page",
+			expirationDate = "Expired",
+			redirectType = "Temporary",
+			sourceURL = "${portalURL}/web/test-site-name/test-source-page");
+	}
+
+	@description = "This ensures that an ignored URL can be viewed."
+	@priority = "5"
+	test ViewIgnoredURL {
+		var portalURL = PropsUtil.get("portal.url");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.addEntry(
+			destinationURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			redirectType = "Permanent (301)",
+			siteName = "test-site-name",
+			sourceURL = "test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/test-site-name/test-source-page");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.view404URLs(
+			activeIgnoreURL = "true",
+			ignoreURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			requestNumber = "1");
+
+		Redirect.openRedirectAdmin(siteURLKey = "test-site-name");
+
+		Redirect.ignoreEntry(ignoreURL = "${portalURL}/web/test-site-name/test-destination-page1");
+
+		Redirect.view404URLsDefault();
+
+		Click(locator1 = "Dropdown#FILTER_AND_ORDER");
+
+		MenuItem.click(menuItem = "Ignored URLs");
+
+		Redirect.view404URLs(
+			ignoreURL = "${portalURL}/web/test-site-name/test-destination-page1",
+			requestNumber = "1");
+	}
+
+}

@@ -15,14 +15,13 @@
 import ClayIcon from '@clayui/icon';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, {useEffect} from 'react';
-import {useDrag} from 'react-dnd';
-import {getEmptyImage} from 'react-dnd-html5-backend';
+import React from 'react';
 
 import {useSelectItem} from '../../../app/components/Controls';
 import {LAYOUT_DATA_ITEM_TYPES} from '../../../app/config/constants/layoutDataItemTypes';
 import {useDispatch, useSelector} from '../../../app/store/index';
 import addFragment from '../../../app/thunks/addFragment';
+import {useItemDrag} from '../../../app/utils/useItemDrag';
 
 const ImagePreview = ({imagePreviewURL}) => {
 	if (imagePreviewURL) {
@@ -48,42 +47,26 @@ export default function FragmentCard({
 	type,
 }) {
 	const dispatch = useDispatch();
-	const store = useSelector(state => state);
+	const store = useSelector((state) => state);
 	const selectItem = useSelectItem();
 
-	const [, drag, preview] = useDrag({
-		end(_item, monitor) {
-			const result = monitor.getDropResult();
-
-			if (!result) {
-				return;
-			}
-
-			const {parentId, position} = result;
-
-			if (parentId) {
-				dispatch(
-					addFragment({
-						fragmentEntryKey,
-						groupId,
-						parentItemId: parentId,
-						position,
-						selectItem,
-						store,
-						type,
-					})
-				);
-			}
+	const dragRef = useItemDrag({
+		name,
+		onDragEnd: (parentId, position) => {
+			dispatch(
+				addFragment({
+					fragmentEntryKey,
+					groupId,
+					parentItemId: parentId,
+					position,
+					selectItem,
+					store,
+					type,
+				})
+			);
 		},
-		item: {
-			name,
-			type: LAYOUT_DATA_ITEM_TYPES.fragment,
-		},
+		type: LAYOUT_DATA_ITEM_TYPES.fragment,
 	});
-
-	useEffect(() => {
-		preview(getEmptyImage(), {captureDraggingState: true});
-	}, [preview]);
 
 	return (
 		<div
@@ -95,7 +78,7 @@ export default function FragmentCard({
 				'selector-button',
 				'overflow-hidden'
 			)}
-			ref={drag}
+			ref={dragRef}
 		>
 			<ImagePreview imagePreviewURL={imagePreviewURL} />
 

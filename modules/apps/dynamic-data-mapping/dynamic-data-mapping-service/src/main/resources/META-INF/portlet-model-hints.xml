@@ -41,6 +41,7 @@
 			<hint-collection name="CLOB" />
 		</field>
 		<field name="type" type="String" />
+		<field name="lastPublishDate" type="Date" />
 	</model>
 	<model name="com.liferay.dynamic.data.mapping.model.DDMDataProviderInstanceLink">
 		<field name="mvccVersion" type="long" />
@@ -109,6 +110,18 @@
 		<field name="statusByUserId" type="long" />
 		<field name="statusByUserName" type="String" />
 		<field name="statusDate" type="Date" />
+	</model>
+	<model name="com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport">
+		<field name="mvccVersion" type="long" />
+		<field name="formInstanceReportId" type="long" />
+		<field name="groupId" type="long" />
+		<field name="companyId" type="long" />
+		<field name="createDate" type="Date" />
+		<field name="modifiedDate" type="Date" />
+		<field name="formInstanceId" type="long" />
+		<field name="data" type="String">
+			<hint-collection name="CLOB" />
+		</field>
 	</model>
 	<model name="com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion">
 		<field name="mvccVersion" type="long" />

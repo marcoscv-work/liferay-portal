@@ -55,7 +55,7 @@ if (portletTitleBasedNavigation) {
 		<div class="card-body">
 			<c:choose>
 				<c:when test="<%= DLFolderPermission.contains(permissionChecker, scopeGroupId, folderId, ActionKeys.ADD_DOCUMENT) %>">
-					<aui:row>
+					<clay:row>
 						<aui:col width="<%= 50 %>">
 							<aui:form name="fm1">
 								<div class="lfr-dynamic-uploader">
@@ -109,7 +109,7 @@ if (portletTitleBasedNavigation) {
 							%>
 
 							<aui:script use="aui-base,aui-loading-mask-deprecated,node-load">
-								Liferay.on('tempFileRemoved', function() {
+								Liferay.on('tempFileRemoved', function () {
 									Liferay.Util.openToast({
 										message:
 											'<%= LanguageUtil.get(request, "your-request-completed-successfully") %>',
@@ -120,7 +120,7 @@ if (portletTitleBasedNavigation) {
 								Liferay.provide(
 									window,
 									'<portlet:namespace />updateMultipleFiles',
-									function() {
+									function () {
 										var Lang = A.Lang;
 
 										var commonFileMetadataContainer = A.one(
@@ -171,10 +171,10 @@ if (portletTitleBasedNavigation) {
 											body: new FormData(document.<portlet:namespace />fm2),
 											method: 'POST',
 										})
-											.then(function(response) {
+											.then(function (response) {
 												return response.json();
 											})
-											.then(function(response) {
+											.then(function (response) {
 												var itemFailed = false;
 
 												for (var i = 0; i < response.length; i++) {
@@ -254,7 +254,7 @@ if (portletTitleBasedNavigation) {
 													location.href = '<%= HtmlUtil.escapeJS(redirect) %>';
 												}
 											})
-											.catch(function(error) {
+											.catch(function (error) {
 												var selectedItems = A.all(
 													'#<portlet:namespace />fileUpload li.selected'
 												);
@@ -277,7 +277,7 @@ if (portletTitleBasedNavigation) {
 								);
 							</aui:script>
 						</aui:col>
-					</aui:row>
+					</clay:row>
 				</c:when>
 				<c:otherwise>
 					<div class="alert alert-danger">

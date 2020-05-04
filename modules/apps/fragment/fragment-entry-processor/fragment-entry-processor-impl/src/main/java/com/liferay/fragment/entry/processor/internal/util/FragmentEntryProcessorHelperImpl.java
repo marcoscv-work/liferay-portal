@@ -31,21 +31,19 @@ import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.model.ClassedModel;
+import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.template.StringTemplateResource;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
-import com.liferay.portal.kernel.template.TemplateManager;
 import com.liferay.portal.kernel.template.TemplateManagerUtil;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
-import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.segments.constants.SegmentsExperienceConstants;
 
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -62,15 +60,78 @@ public class FragmentEntryProcessorHelperImpl
 	implements FragmentEntryProcessorHelper {
 
 	@Override
+	public String getEditableValue(JSONObject jsonObject, Locale locale) {
+		return _getEditableValueByLocale(jsonObject, locale);
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getEditableValue(JSONObject, Locale)}
+	 */
+	@Deprecated
+	@Override
 	public String getEditableValue(
 		JSONObject jsonObject, Locale locale, long[] segmentsExperienceIds) {
 
-		if (_isPersonalizationSupported(jsonObject)) {
-			return _getEditableValueBySegmentsExperienceAndLocale(
-				jsonObject, locale, segmentsExperienceIds);
+		return _getEditableValueByLocale(jsonObject, locale);
+	}
+
+	@Override
+	public Object getMappedCollectionValue(
+			JSONObject jsonObject,
+			FragmentEntryProcessorContext fragmentEntryProcessorContext)
+		throws PortalException {
+
+		if (!isMappedCollection(jsonObject)) {
+			return JSONFactoryUtil.createJSONObject();
 		}
 
-		return _getEditableValueByLocale(jsonObject, locale);
+		Optional<Object> displayObjectOptional =
+			fragmentEntryProcessorContext.getDisplayObjectOptional();
+
+		if (!displayObjectOptional.isPresent()) {
+			return null;
+		}
+
+		Object displayObject = displayObjectOptional.get();
+
+		if (!(displayObject instanceof ClassedModel)) {
+			return null;
+		}
+
+		ClassedModel classedModel = (ClassedModel)displayObject;
+
+		// LPS-111037
+
+		String className = classedModel.getModelClassName();
+
+		if (classedModel instanceof FileEntry) {
+			className = FileEntry.class.getName();
+		}
+
+		InfoDisplayContributor infoDisplayContributor =
+			_infoDisplayContributorTracker.getInfoDisplayContributor(className);
+
+		if (infoDisplayContributor == null) {
+			return null;
+		}
+
+		Object fieldValue = infoDisplayContributor.getInfoDisplayFieldValue(
+			displayObjectOptional.get(),
+			jsonObject.getString("collectionFieldId"),
+			fragmentEntryProcessorContext.getLocale());
+
+		if (fieldValue == null) {
+			return null;
+		}
+
+		if (fieldValue instanceof ContentAccessor) {
+			ContentAccessor contentAccessor = (ContentAccessor)fieldValue;
+
+			fieldValue = contentAccessor.getContent();
+		}
+
+		return fieldValue;
 	}
 
 	@Override
@@ -205,6 +266,15 @@ public class FragmentEntryProcessorHelperImpl
 	}
 
 	@Override
+	public boolean isMappedCollection(JSONObject jsonObject) {
+		if (jsonObject.has("collectionFieldId")) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
 	public String processTemplate(
 			String html,
 			FragmentEntryProcessorContext fragmentEntryProcessorContext)
@@ -216,15 +286,7 @@ public class FragmentEntryProcessorHelperImpl
 			TemplateConstants.LANG_TYPE_FTL,
 			new StringTemplateResource("template_id", "[#ftl] " + html), true);
 
-		TemplateManager templateManager =
-			TemplateManagerUtil.getTemplateManager(
-				TemplateConstants.LANG_TYPE_FTL);
-
-		templateManager.addTaglibSupport(
-			template, fragmentEntryProcessorContext.getHttpServletRequest(),
-			fragmentEntryProcessorContext.getHttpServletResponse());
-		templateManager.addTaglibTheme(
-			template, "taglibLiferay",
+		template.prepareTaglib(
 			fragmentEntryProcessorContext.getHttpServletRequest(),
 			fragmentEntryProcessorContext.getHttpServletResponse());
 
@@ -250,9 +312,10 @@ public class FragmentEntryProcessorHelperImpl
 	private String _getEditableValueByLocale(
 		JSONObject jsonObject, Locale locale) {
 
-		String value = jsonObject.getString(LanguageUtil.getLanguageId(locale));
+		String value = jsonObject.getString(
+			LanguageUtil.getLanguageId(locale), null);
 
-		if (Validator.isNotNull(value)) {
+		if (value != null) {
 			return value;
 		}
 
@@ -264,62 +327,6 @@ public class FragmentEntryProcessorHelperImpl
 		}
 
 		return value;
-	}
-
-	private String _getEditableValueBySegmentsExperienceAndLocale(
-		JSONObject jsonObject, Locale locale, long[] segmentsExperienceIds) {
-
-		if (ArrayUtil.isNotEmpty(segmentsExperienceIds)) {
-			String value = _getSegmentsExperienceValue(
-				jsonObject, locale, segmentsExperienceIds[0]);
-
-			if (value != null) {
-				return value;
-			}
-		}
-
-		return jsonObject.getString("defaultValue");
-	}
-
-	private String _getSegmentsExperienceValue(
-		JSONObject jsonObject, Locale locale, Long segmentsExperienceId) {
-
-		JSONObject segmentsExperienceJSONObject = jsonObject.getJSONObject(
-			SegmentsExperienceConstants.ID_PREFIX + segmentsExperienceId);
-
-		if (segmentsExperienceJSONObject == null) {
-			return null;
-		}
-
-		String value = segmentsExperienceJSONObject.getString(
-			LanguageUtil.getLanguageId(locale), null);
-
-		if (value != null) {
-			return value;
-		}
-
-		value = segmentsExperienceJSONObject.getString(
-			LanguageUtil.getLanguageId(LocaleUtil.getSiteDefault()));
-
-		if (Validator.isNotNull(value)) {
-			return value;
-		}
-
-		return null;
-	}
-
-	private boolean _isPersonalizationSupported(JSONObject jsonObject) {
-		Iterator<String> keys = jsonObject.keys();
-
-		while (keys.hasNext()) {
-			String key = keys.next();
-
-			if (key.startsWith(SegmentsExperienceConstants.ID_PREFIX)) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	private boolean _isSameClassedModel(long classPK, long previewClassPK) {

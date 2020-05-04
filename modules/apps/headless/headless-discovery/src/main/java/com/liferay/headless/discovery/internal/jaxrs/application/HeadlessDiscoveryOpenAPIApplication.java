@@ -26,9 +26,11 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.osgi.service.component.annotations.Component;
@@ -47,7 +49,8 @@ import org.osgi.service.jaxrs.whiteboard.JaxrsWhiteboardConstants;
 	property = {
 		JaxrsWhiteboardConstants.JAX_RS_APPLICATION_BASE + "=/openapi",
 		JaxrsWhiteboardConstants.JAX_RS_EXTENSION_SELECT + "=(osgi.jaxrs.name=Liferay.Vulcan)",
-		JaxrsWhiteboardConstants.JAX_RS_NAME + "=Liferay.Headless.Discovery.OpenAPI"
+		JaxrsWhiteboardConstants.JAX_RS_NAME + "=Liferay.Headless.Discovery.OpenAPI",
+		"auth.verifier.auth.verifier.PortalSessionAuthVerifier.check.csrf.token=false"
 	},
 	service = Application.class
 )
@@ -59,7 +62,9 @@ public class HeadlessDiscoveryOpenAPIApplication extends Application {
 
 	@GET
 	@Produces({"application/json", "application/xml"})
-	public Map<String, List<String>> openAPI() {
+	public Map<String, List<String>> openAPI(
+		@HeaderParam("Accept") String accept) {
+
 		Map<String, List<String>> pathsMap = new TreeMap<>();
 
 		URI uri = _uriInfo.getAbsolutePath();
@@ -92,7 +97,15 @@ public class HeadlessDiscoveryOpenAPIApplication extends Application {
 			}
 
 			if (!paths.isEmpty()) {
-				pathsMap.put(applicationDTO.base, paths);
+				String baseURL = applicationDTO.base;
+
+				if ((accept != null) &&
+					accept.contains(MediaType.APPLICATION_XML)) {
+
+					baseURL = baseURL.substring(1);
+				}
+
+				pathsMap.put(baseURL, paths);
 			}
 		}
 

@@ -23,8 +23,6 @@ String redirect = ParamUtil.getString(request, "redirect");
 
 FileEntry fileEntry = (FileEntry)request.getAttribute(WebKeys.DOCUMENT_LIBRARY_FILE_ENTRY);
 
-long fileEntryId = fileEntry.getFileEntryId();
-
 long folderId = fileEntry.getFolderId();
 
 if (Validator.isNull(redirect)) {
@@ -184,18 +182,13 @@ if (portletTitleBasedNavigation) {
 		<c:if test="<%= (lock != null) && DLFileEntryPermission.contains(permissionChecker, fileEntry, ActionKeys.UPDATE) %>">
 			<c:choose>
 				<c:when test="<%= fileEntry.hasLock() %>">
-					<div class="alert alert-success">
+					<div class="alert alert-info">
 						<c:choose>
 							<c:when test="<%= lock.isNeverExpires() %>">
 								<liferay-ui:message key="you-now-have-an-indefinite-lock-on-this-document" />
 							</c:when>
 							<c:otherwise>
-
-								<%
-								String lockExpirationTime = StringUtil.toLowerCase(LanguageUtil.getTimeDescription(request, DLFileEntryConstants.LOCK_EXPIRATION_TIME));
-								%>
-
-								<liferay-ui:message arguments="<%= lockExpirationTime %>" key="you-now-have-a-lock-on-this-document" translateArguments="<%= false %>" />
+								<liferay-ui:message arguments="<%= StringUtil.toLowerCase(LanguageUtil.getTimeDescription(request, DLFileEntryConstants.LOCK_EXPIRATION_TIME)) %>" key="you-now-have-a-lock-on-this-document" translateArguments="<%= false %>" />
 							</c:otherwise>
 						</c:choose>
 					</div>
@@ -274,7 +267,7 @@ if (portletTitleBasedNavigation) {
 					'<liferay-ui:message arguments="<%= 1 %>" key="select-destination-folder-for-x-items" translateArguments="<%= false %>" />',
 				uri: '<%= selectFolderURL.toString() %>',
 			},
-			function(event) {
+			function (event) {
 				var form = document.getElementById(namespace + 'fm');
 
 				if (parameterName && parameterValue) {
@@ -310,7 +303,7 @@ if (addPortletBreadcrumbEntries) {
 		);
 
 		if (openContextualSidebarButton) {
-			openContextualSidebarButton.addEventListener('click', function(event) {
+			openContextualSidebarButton.addEventListener('click', function (event) {
 				event.currentTarget.classList.toggle('active');
 
 				document

@@ -108,10 +108,15 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 
 	@Override
 	public boolean isContentReviewer(long companyId, long groupId) {
-		if (super.isContentReviewer(companyId, groupId) ||
-			isGroupAdmin(groupId)) {
+		try {
+			if (super.isContentReviewer(companyId, groupId) ||
+				_isContentReviewer(companyId, groupId)) {
 
-			return true;
+				return true;
+			}
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
 		}
 
 		return false;
@@ -270,6 +275,70 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 
 			return false;
 		}
+	}
+
+	private boolean _isContentReviewer(long groupId) throws PortalException {
+		Group group = _groupLocalService.getGroup(groupId);
+
+		if (group.getType() != GroupConstants.TYPE_DEPOT) {
+			return false;
+		}
+
+		if (_userGroupRoleLocalService.hasUserGroupRole(
+				getUserId(), groupId,
+				DepotRolesConstants.ASSET_LIBRARY_CONTENT_REVIEWER, true)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean _isContentReviewer(long companyId, long groupId)
+		throws Exception {
+
+		if (!isSignedIn()) {
+			return false;
+		}
+
+		if (isOmniadmin()) {
+			return true;
+		}
+
+		if (isCompanyAdmin(companyId)) {
+			return true;
+		}
+
+		if (groupId <= 0) {
+			return false;
+		}
+
+		if (isGroupAdmin(groupId)) {
+			return true;
+		}
+
+		Boolean value = PermissionCacheUtil.getUserPrimaryKeyRole(
+			getUserId(), groupId,
+			DepotRolesConstants.ASSET_LIBRARY_CONTENT_REVIEWER);
+
+		try {
+			if (value == null) {
+				value = _isContentReviewer(groupId);
+
+				PermissionCacheUtil.putUserPrimaryKeyRole(
+					getUserId(), groupId,
+					DepotRolesConstants.ASSET_LIBRARY_CONTENT_REVIEWER, value);
+			}
+		}
+		catch (Exception exception) {
+			PermissionCacheUtil.removeUserPrimaryKeyRole(
+				getUserId(), groupId,
+				DepotRolesConstants.ASSET_LIBRARY_CONTENT_REVIEWER);
+
+			throw exception;
+		}
+
+		return value;
 	}
 
 	private boolean _isDepotGroupOwner(Group group) {

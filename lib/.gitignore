@@ -173,6 +173,7 @@
 /portal/jcl-over-slf4j.jar
 /portal/jcommon.jar
 /portal/jdom.jar
+/portal/jdom2.jar
 /portal/jempbox.jar
 /portal/jena.jar
 /portal/jericho-html.jar
@@ -225,6 +226,7 @@
 /portal/rhino.jar
 /portal/rmi-api.jar
 /portal/rome.jar
+/portal/rometools-utils.jar
 /portal/rometools.jar
 /portal/saaj-api.jar
 /portal/saaj-impl.jar
@@ -234,6 +236,7 @@
 /portal/slf4j-api.jar
 /portal/soap.jar
 /portal/soap-api.jar
+/portal/sparse-bit-set.jar
 /portal/spring-aop.jar
 /portal/spring-aspects.jar
 /portal/spring-beans.jar

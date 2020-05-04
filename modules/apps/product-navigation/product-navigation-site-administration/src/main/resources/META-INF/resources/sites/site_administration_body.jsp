@@ -23,14 +23,14 @@ SiteAdministrationPanelCategoryDisplayContext siteAdministrationPanelCategoryDis
 %>
 
 <c:if test="<%= siteAdministrationPanelCategoryDisplayContext.getGroup() != null %>">
-	<div class="row">
+	<clay:row>
 		<div class="col-md-12">
 			<c:if test="<%= siteAdministrationPanelCategoryDisplayContext.isShowStagingInfo() %>">
 
 				<%
-				Map<String, Object> data = new HashMap<String, Object>();
-
-				data.put("qa-id", "staging");
+				Map<String, Object> data = HashMapBuilder.<String, Object>put(
+					"qa-id", "staging"
+				).build();
 				%>
 
 				<div class="float-right staging-links">
@@ -68,7 +68,7 @@ SiteAdministrationPanelCategoryDisplayContext siteAdministrationPanelCategoryDis
 								position: 'right',
 								trigger: A.one('#<portlet:namespace />remoteLiveLink'),
 								visible: false,
-								zIndex: Liferay.zIndex.TOOLTIP
+								zIndex: Liferay.zIndex.TOOLTIP,
 							}).render();
 						</aui:script>
 
@@ -83,7 +83,7 @@ SiteAdministrationPanelCategoryDisplayContext siteAdministrationPanelCategoryDis
 				<aui:a cssClass="goto-link list-group-heading panel-header-link" href="<%= siteAdministrationPanelCategoryDisplayContext.getGroupURL() %>" label="go-to-site" />
 			</c:if>
 		</div>
-	</div>
+	</clay:row>
 
 	<c:if test="<%= siteAdministrationPanelCategoryDisplayContext.isShowSiteAdministration() %>">
 		<liferay-application-list:panel-category-body

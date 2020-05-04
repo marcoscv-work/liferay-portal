@@ -44,6 +44,7 @@ export default withRouter(
 		const [sectionId, setSectionId] = useState();
 		const [sections, setSections] = useState([]);
 		const [tags, setTags] = useState([]);
+		const [tagsLoaded, setTagsLoaded] = useState(true);
 
 		const context = useContext(AppContext);
 		const historyPushParser = historyPushWithSlug(history.push);
@@ -60,7 +61,7 @@ export default withRouter(
 				articleBody,
 				headline,
 				sectionId || section.id,
-				tags.map(tag => tag.value)
+				tags.map((tag) => tag.label)
 			).then(() => debounceCallback());
 
 		useEffect(() => {
@@ -94,7 +95,7 @@ export default withRouter(
 
 									<ClayInput
 										maxLength={75}
-										onChange={event =>
+										onChange={(event) =>
 											setHeadline(event.target.value)
 										}
 										placeholder={Liferay.Language.get(
@@ -128,7 +129,7 @@ export default withRouter(
 									<Editor
 										config={getCKEditorConfig()}
 										onBeforeLoad={onBeforeLoadCKEditor}
-										onChange={event =>
+										onChange={(event) =>
 											setArticleBody(
 												event.editor.getData()
 											)
@@ -154,7 +155,7 @@ export default withRouter(
 										{Liferay.Language.get('topic')}
 									</label>
 									<ClaySelect
-										onChange={event =>
+										onChange={(event) =>
 											setSectionId(event.target.value)
 										}
 									>
@@ -173,14 +174,17 @@ export default withRouter(
 
 								<TagSelector
 									className="c-mt-3"
-									tagsChange={tags => setTags(tags)}
+									tagsChange={(tags) => setTags(tags)}
+									tagsLoaded={setTagsLoaded}
 								/>
 							</ClayForm>
 
 							<div className="c-mt-4 d-flex flex-column-reverse flex-sm-row">
 								<ClayButton
 									className="c-mt-4 c-mt-sm-0"
-									disabled={!articleBody || !headline}
+									disabled={
+										!articleBody || !headline || !tagsLoaded
+									}
 									displayType="primary"
 									onClick={submit}
 								>

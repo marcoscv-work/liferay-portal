@@ -140,7 +140,7 @@ if (liveLayout != null) {
 		<c:if test="<%= !layout.isSystem() || layout.isTypeControlPanel() || !Objects.equals(layout.getFriendlyURL(), PropsValues.CONTROL_PANEL_LAYOUT_FRIENDLY_URL) %>">
 			<div class="staging-bar">
 				<div class="container-fluid container-fluid-max-xl">
-					<div class="row">
+					<clay:row>
 						<c:choose>
 							<c:when test="<%= group.isStagingGroup() || group.isStagedRemotely() %>">
 								<c:if test="<%= stagingGroup != null %>">
@@ -208,7 +208,7 @@ if (liveLayout != null) {
 								</div>
 							</c:otherwise>
 						</c:choose>
-					</div>
+					</clay:row>
 				</div>
 			</div>
 		</c:if>
@@ -230,7 +230,7 @@ if (liveLayout != null) {
 			var stagingToggle = document.querySelector('.staging-toggle');
 
 			if (stagingToggle) {
-				stagingToggle.addEventListener('click', function(event) {
+				stagingToggle.addEventListener('click', function (event) {
 					event.preventDefault();
 
 					staging.classList.toggle('staging-show');
@@ -243,7 +243,7 @@ if (liveLayout != null) {
 			'<portlet:namespace />warningMessage'
 		);
 
-		var checkBackgroundTasks = function() {
+		var checkBackgroundTasks = function () {
 			Liferay.Service(
 				'/backgroundtask.backgroundtask/get-background-tasks-count',
 				{
@@ -252,7 +252,7 @@ if (liveLayout != null) {
 					taskExecutorClassName:
 						'<%= BackgroundTaskExecutorNames.LAYOUT_STAGING_BACKGROUND_TASK_EXECUTOR %>',
 				},
-				function(obj) {
+				function (obj) {
 					var incomplete = obj > 0;
 
 					if (incomplete) {

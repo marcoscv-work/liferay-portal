@@ -21,7 +21,7 @@
 	}
 
 	@include media-breakpoint-up(md) {
-		height: calc(100vh - 384px);
+		height: calc(100vh - 284px);
 		min-height: 10rem;
 		overflow-y: scroll;
 	}
@@ -36,6 +36,10 @@
 
 	&.active {
 		background-color: $light-l1;
+
+		&.autofit-row {
+			margin-top: 1px;
+		}
 	}
 
 	&.dragging {
@@ -55,7 +59,7 @@
 	}
 
 	&.drop-element {
-		box-shadow: inset 0 0 0 0.125rem $white, inset 0 0 0 0.25rem $primary;
+		box-shadow: inset 0 0 0 0.125rem $primary;
 	}
 
 	.custom-checkbox .custom-control-label {
@@ -93,8 +97,7 @@
 		z-index: 1;
 
 		&:focus {
-			box-shadow: inset 0 0 0 0.125rem $white,
-				inset 0 0 0 0.25rem $primary-l1;
+			box-shadow: inset 0 0 0 0.125rem $primary-l1;
 			outline: 0;
 		}
 	}

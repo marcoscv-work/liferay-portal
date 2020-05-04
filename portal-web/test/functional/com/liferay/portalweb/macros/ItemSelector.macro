@@ -80,6 +80,12 @@ definition {
 		Click.clickNoMouseOver(locator1 = "AlloyEditor#CONTENT_ADD_MENUBAR_IMAGE");
 	}
 
+	macro gotoItemSelectorViaCKEditor {
+		Click(locator1 = "CKEditor#TOOLBAR_IMAGE_BUTTON");
+
+		SelectFrame(value1 = "relative=top");
+	}
+
 	macro gotoItemSelectorViaSelectButton {
 		Click(locator1 = "FormFields#SELECT_UPLOAD_FIELD");
 	}
@@ -255,9 +261,9 @@ definition {
 			locator1 = "TextInput#FILE",
 			value1 = "${uploadFileName}");
 
-		Pause(locator1 = "3000");
+		Pause(locator1 = "5000");
 
-		AssertElementPresent.assertVisible(
+		AssertElementPresent.pauseAssertVisible(
 			locator1 = "ItemSelector#ADD_BUTTON",
 			value1 = "Add");
 
@@ -275,6 +281,8 @@ definition {
 		AssertElementPresent(locator1 = "ItemSelector#SELECT_FILE_IMAGE_CARD");
 
 		Click(locator1 = "Icon#EYE_PREVIEW");
+
+		AssertElementPresent.assertVisible(locator1 = "ItemSelector#VIEWER_INFO");
 
 		Click(locator1 = "ItemSelector#VIEWER_INFO");
 
@@ -332,11 +340,7 @@ definition {
 	macro viewWikiAttachment {
 		var key_imageFileName = "${imageFileName}";
 
-		AlloyEditor.clickContentField();
-
-		Click(locator1 = "AlloyEditor#CONTENT_ADD_BUTTON");
-
-		Click.clickNoMouseOver(locator1 = "AlloyEditor#CONTENT_ADD_MENUBAR_IMAGE");
+		ItemSelector.gotoItemSelectorViaCKEditor();
 
 		SelectFrame(locator1 = "ItemSelector#ITEM_SELECTOR_IFRAME");
 

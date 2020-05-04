@@ -12,13 +12,13 @@
  * details.
  */
 
-import moment from 'moment';
 import React from 'react';
 import {Link} from 'react-router-dom';
 
 import Button from '../../components/button/Button.es';
 import ListView from '../../components/list-view/ListView.es';
 import {confirmDelete} from '../../utils/client.es';
+import {fromNow} from '../../utils/time.es';
 
 const COLUMNS = [
 	{
@@ -50,7 +50,7 @@ export default ({
 		<ListView
 			actions={[
 				{
-					action: item =>
+					action: (item) =>
 						Promise.resolve(history.push(`${url}/${item.id}`)),
 					name: Liferay.Language.get('edit'),
 				},
@@ -83,10 +83,10 @@ export default ({
 			}}
 			endpoint={`/o/data-engine/v2.0/data-definitions/${dataDefinitionId}/data-list-views`}
 		>
-			{item => ({
+			{(item) => ({
 				...item,
-				dateCreated: moment(item.dateCreated).fromNow(),
-				dateModified: moment(item.dateModified).fromNow(),
+				dateCreated: fromNow(item.dateCreated),
+				dateModified: fromNow(item.dateModified),
 				name: <Link to={`${url}/${item.id}`}>{item.name.en_US}</Link>,
 			})}
 		</ListView>

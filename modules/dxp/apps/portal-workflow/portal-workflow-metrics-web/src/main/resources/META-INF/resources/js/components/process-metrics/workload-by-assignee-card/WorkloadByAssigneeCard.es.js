@@ -52,7 +52,7 @@ const WorkloadByAssigneeCard = ({routeParams}) => {
 	const filterKeys = ['processStep'];
 
 	const {
-		filterValues: {taskKeys: [taskKey] = ['allSteps']},
+		filterValues: {taskNames: [taskName] = ['allSteps']},
 	} = useFilter({filterKeys});
 
 	const sort = useMemo(() => {
@@ -65,16 +65,16 @@ const WorkloadByAssigneeCard = ({routeParams}) => {
 		return items[currentTab];
 	}, [currentTab]);
 
-	const taskKeys = taskKey !== 'allSteps' ? [taskKey] : undefined;
+	const taskNames = taskName !== 'allSteps' ? [taskName] : undefined;
 
 	const {data, postData} = usePost({
-		body: {taskKeys},
+		body: {taskNames},
 		params: {
 			page: 1,
 			pageSize: 10,
 			sort,
 		},
-		url: `/processes/${processId}/assignee-users`,
+		url: `/processes/${processId}/assignees/metrics`,
 	});
 
 	const promises = useMemo(() => [postData()], [postData]);
@@ -100,8 +100,8 @@ const WorkloadByAssigneeCard = ({routeParams}) => {
 
 				<WorkloadByAssigneeCard.Body
 					currentTab={currentTab}
-					data={data}
-					processStepKey={taskKey}
+					{...data}
+					processStepKey={taskNames && taskName}
 					{...routeParams}
 				/>
 			</Panel>

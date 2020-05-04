@@ -28,7 +28,7 @@ SelectAccountOrganizationsManagementToolbarDisplayContext selectAccountOrganizat
 	displayContext="<%= selectAccountOrganizationsManagementToolbarDisplayContext %>"
 />
 
-<aui:container cssClass="container-fluid container-fluid-max-xl">
+<clay:container>
 	<liferay-ui:search-container
 		searchContainer="<%= organizationSearchContainer %>"
 	>
@@ -54,14 +54,14 @@ SelectAccountOrganizationsManagementToolbarDisplayContext selectAccountOrganizat
 			markupView="lexicon"
 		/>
 	</liferay-ui:search-container>
-</aui:container>
+</clay:container>
 
 <aui:script use="liferay-search-container">
 	var searchContainer = Liferay.SearchContainer.get(
 		'<portlet:namespace />organizations'
 	);
 
-	searchContainer.on('rowToggled', function(event) {
+	searchContainer.on('rowToggled', function (event) {
 		var selectedItems = event.elements.allSelectedElements;
 
 		var result = {};

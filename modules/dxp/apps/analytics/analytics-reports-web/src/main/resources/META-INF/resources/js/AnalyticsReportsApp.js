@@ -9,18 +9,21 @@
  * distribution rights of the Software.
  */
 
-import {ClayButtonWithIcon} from '@clayui/button';
-import React, {useState} from 'react';
+import React from 'react';
 
-import Detail from './components/Detail';
-import Main from './components/Main';
+import Navigation from './components/Navigation';
+import ConnectionContext from './context/ConnectionContext';
+import {StoreContextProvider} from './context/store';
 import APIService from './utils/APIService';
-import {numberFormat} from './utils/numberFormat';
 
-export default function({context, props}) {
+export default function ({context, props}) {
 	const {languageTag, namespace, page} = context;
-	const {defaultTimeSpanKey, timeSpans} = context;
+	const {defaultTimeRange, defaultTimeSpanKey, timeSpans} = context;
+	const {validAnalyticsConnection} = context;
+	const {readsEnabled} = context;
+
 	const {authorName, publishDate, title} = props;
+	const {trafficSources} = props;
 
 	const {
 		getAnalyticsReportsHistoricalReadsURL,
@@ -41,131 +44,24 @@ export default function({context, props}) {
 	});
 
 	return (
-		<Navigation
-			api={api}
-			authorName={authorName}
-			defaultTimeSpanKey={defaultTimeSpanKey}
-			languageTag={languageTag}
-			pagePublishDate={publishDate}
-			pageTitle={title}
-			timeSpanOptions={timeSpans}
-		/>
-	);
-}
-
-function Navigation({
-	api,
-	authorName,
-	defaultTimeSpanKey,
-	languageTag,
-	pagePublishDate,
-	pageTitle,
-	timeSpanOptions,
-}) {
-	const [currentPage, setCurrentPage] = useState({view: 'main'});
-
-	const [trafficSourceName, setTrafficSourceName] = useState('');
-
-	const {getHistoricalReads, getHistoricalViews, getTrafficSources} = api;
-
-	function handleTrafficSourceClick(trafficSourceName) {
-		setTrafficSourceName(trafficSourceName);
-
-		api.getTrafficSourceDetails(trafficSourceName).then(
-			trafficSourceData => {
-				setCurrentPage({
-					data: trafficSourceData,
-					view: 'traffic-source-detail',
-				});
-			}
-		);
-	}
-
-	function handleTotalReads() {
-		return api.getTotalReads().then(response => {
-			return numberFormat(
-				languageTag,
-				response.analyticsReportsTotalReads
-			);
-		});
-	}
-
-	function handleTotalViews() {
-		return api.getTotalViews().then(response => {
-			return numberFormat(
-				languageTag,
-				response.analyticsReportsTotalViews
-			);
-		});
-	}
-
-	function handleTrafficShare() {
-		return api
-			.getTrafficSourcesDetails(trafficSourceName)
-			.then(response => {
-				return numberFormat(languageTag, response.share);
-			});
-	}
-
-	function handleTrafficVolume() {
-		return api
-			.getTrafficSourcesDetails(trafficSourceName)
-			.then(response => {
-				return numberFormat(languageTag, response.value);
-			});
-	}
-
-	return (
-		<>
-			{currentPage.view === 'main' && (
-				<div className="p-3">
-					<Main
-						authorName={authorName}
-						chartDataProviders={[
-							getHistoricalViews,
-							getHistoricalReads,
-						]}
-						defaultTimeSpanOption={defaultTimeSpanKey}
-						languageTag={languageTag}
-						onTrafficSourceClick={handleTrafficSourceClick}
-						pagePublishDate={pagePublishDate}
-						pageTitle={pageTitle}
-						timeSpanOptions={timeSpanOptions}
-						totalReadsDataProvider={handleTotalReads}
-						totalViewsDataProvider={handleTotalViews}
-						trafficSourcesDataProvider={getTrafficSources}
-					/>
-				</div>
-			)}
-
-			{currentPage.view === 'traffic-source-detail' && (
-				<>
-					<div className="d-flex p-2">
-						<ClayButtonWithIcon
-							className="text-secondary"
-							displayType="unstyled"
-							onClick={() => {
-								setCurrentPage({view: 'main'});
-								setTrafficSourceName('');
-							}}
-							small="true"
-							symbol="angle-left"
-						/>
-						<div className="align-self-center flex-grow-1 mx-2">
-							{currentPage.data.title}
-						</div>
-					</div>
-
-					<hr className="my-0" />
-
-					<Detail
-						currentPage={currentPage}
-						languageTag={languageTag}
-						trafficShareDataProvider={handleTrafficShare}
-						trafficVolumeDataProvider={handleTrafficVolume}
-					/>
-				</>
-			)}
-		</>
+		<ConnectionContext.Provider
+			value={{
+				validAnalyticsConnection,
+			}}
+		>
+			<StoreContextProvider value={{readsEnabled}}>
+				<Navigation
+					api={api}
+					authorName={authorName}
+					defaultTimeRange={defaultTimeRange}
+					defaultTimeSpanKey={defaultTimeSpanKey}
+					languageTag={languageTag}
+					pagePublishDate={publishDate}
+					pageTitle={title}
+					timeSpanOptions={timeSpans}
+					trafficSources={trafficSources}
+				/>
+			</StoreContextProvider>
+		</ConnectionContext.Provider>
 	);
 }

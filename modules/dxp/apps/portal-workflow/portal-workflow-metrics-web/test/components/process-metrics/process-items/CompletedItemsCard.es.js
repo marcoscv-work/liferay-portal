@@ -33,11 +33,13 @@ const {filters, processId} = {
 	processId: 12345,
 };
 const data = {
-	id: 38803,
 	instanceCount: 6,
 	onTimeInstanceCount: 2,
 	overdueInstanceCount: 1,
-	title: 'Single Approver',
+	process: {
+		id: 38803,
+		title: 'Single Approver',
+	},
 	untrackedInstanceCount: 3,
 };
 const query = stringify({filters});
@@ -95,7 +97,7 @@ describe('The completed items card component should', () => {
 			timeRangeFilter,
 			'filterItem'
 		);
-		const activeItem = filterItems.find(item =>
+		const activeItem = filterItems.find((item) =>
 			item.className.includes('active')
 		);
 		const activeItemName = await findByTestId(activeItem, 'filterItemName');

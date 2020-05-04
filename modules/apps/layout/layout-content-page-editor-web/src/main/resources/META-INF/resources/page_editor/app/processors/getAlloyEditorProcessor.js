@@ -12,13 +12,13 @@
  * details.
  */
 
-import {debounce} from 'frontend-js-web';
+import {ItemSelectorDialog, debounce} from 'frontend-js-web';
 
 import {config} from '../config/index';
 
 const KEY_ENTER = 13;
 
-const defaultGetEditorWrapper = element => {
+const defaultGetEditorWrapper = (element) => {
 	const wrapper = document.createElement('div');
 
 	wrapper.innerHTML = element.innerHTML;
@@ -46,6 +46,7 @@ export default function getAlloyEditorProcessor(
 	let _editor;
 	let _eventHandlers;
 	let _element;
+	let _callbacks = {};
 
 	return {
 		createEditor: (
@@ -54,6 +55,9 @@ export default function getAlloyEditorProcessor(
 			destroyCallback,
 			clickPosition
 		) => {
+			_callbacks.changeCallback = changeCallback;
+			_callbacks.destroyCallback = destroyCallback;
+
 			if (_editor) {
 				return;
 			}
@@ -74,6 +78,34 @@ export default function getAlloyEditorProcessor(
 			_editor = AlloyEditor.editable(editorWrapper, {
 				...editorConfig,
 
+				documentBrowseLinkCallback: (
+					editor,
+					url,
+					changeLinkCallback
+				) => {
+					const itemSelectorDialog = new ItemSelectorDialog({
+						eventName: editor.title + 'selectItem',
+						singleSelect: true,
+						title: Liferay.Language.get('select-item'),
+						url,
+					});
+
+					itemSelectorDialog.open();
+
+					itemSelectorDialog.on('selectedItemChange', (event) => {
+						const selectedItem = event.selectedItem;
+
+						if (selectedItem) {
+							changeLinkCallback(selectedItem);
+						}
+					});
+				},
+
+				documentBrowseLinkUrl: editorConfig.documentBrowseLinkUrl.replace(
+					'_EDITOR_NAME_',
+					editorName
+				),
+
 				filebrowserImageBrowseLinkUrl: editorConfig.filebrowserImageBrowseLinkUrl.replace(
 					'_EDITOR_NAME_',
 					editorName
@@ -83,12 +115,14 @@ export default function getAlloyEditorProcessor(
 					'_EDITOR_NAME_',
 					editorName
 				),
+
+				title: editorName,
 			});
 
 			const nativeEditor = _editor.get('nativeEditor');
 
 			_eventHandlers = [
-				nativeEditor.on('key', event => {
+				nativeEditor.on('key', (event) => {
 					if (
 						event.data.keyCode === KEY_ENTER &&
 						_element &&
@@ -101,16 +135,22 @@ export default function getAlloyEditorProcessor(
 				nativeEditor.on(
 					'change',
 					debounce(() => {
-						changeCallback(nativeEditor.getData());
+						if (_callbacks.changeCallback) {
+							_callbacks.changeCallback(nativeEditor.getData());
+						}
 					}, 500)
 				),
 
 				nativeEditor.on('blur', () => {
 					if (_editor._mainUI.state.hidden) {
-						changeCallback(nativeEditor.getData());
+						if (_callbacks.changeCallback) {
+							_callbacks.changeCallback(nativeEditor.getData());
+						}
 
 						requestAnimationFrame(() => {
-							destroyCallback();
+							if (_callbacks.destroyCallback) {
+								_callbacks.destroyCallback();
+							}
 						});
 					}
 				}),
@@ -140,7 +180,7 @@ export default function getAlloyEditorProcessor(
 
 				_editor.destroy();
 
-				_eventHandlers.forEach(handler => {
+				_eventHandlers.forEach((handler) => {
 					handler.removeListener();
 				});
 
@@ -149,6 +189,7 @@ export default function getAlloyEditorProcessor(
 				_editor = null;
 				_eventHandlers = null;
 				_element = null;
+				_callbacks = {};
 			}
 		},
 
@@ -172,7 +213,7 @@ export default function getAlloyEditorProcessor(
  * @param {string} eventName
  */
 function _stopEventPropagation(element, eventName) {
-	const handler = event => event.stopPropagation();
+	const handler = (event) => event.stopPropagation();
 
 	element.addEventListener(eventName, handler);
 

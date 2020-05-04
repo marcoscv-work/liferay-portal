@@ -18,9 +18,6 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Adolfo Pérez
  * @author David Arques
@@ -36,17 +33,8 @@ public class TimeRange {
 			throw new IllegalArgumentException("Time span offset is negative");
 		}
 
-		if (timeSpan.equals(TimeSpan.LAST_24_HOURS)) {
-			return new TimeRange(true, timeSpan, timeSpanOffset) {
-
-				@Override
-				public LocalDateTime getStartLocalDateTime() {
-					LocalDateTime localDateTime = getEndLocalDateTime();
-
-					return localDateTime.minusHours(23);
-				}
-
-			};
+		if (timeSpan == TimeSpan.TODAY) {
+			return new TimeRange(true, timeSpan, timeSpanOffset);
 		}
 
 		return new TimeRange(false, timeSpan, timeSpanOffset);
@@ -64,57 +52,10 @@ public class TimeRange {
 		return localDateTime.toLocalDate();
 	}
 
-	public LocalDateTime getEndLocalDateTime() {
-		LocalDateTime localDateTime = LocalDateTime.now(_clock);
+	public LocalDate getStartLocalDate() {
+		LocalDate localDate = getEndLocalDate();
 
-		if (_includeToday) {
-			localDateTime = localDateTime.withMinute(0);
-			localDateTime = localDateTime.withSecond(0);
-			localDateTime = localDateTime.withNano(0);
-		}
-		else {
-			localDateTime = localDateTime.minusDays(1);
-			localDateTime = localDateTime.withHour(23);
-			localDateTime = localDateTime.withMinute(59);
-			localDateTime = localDateTime.withNano(999999999);
-			localDateTime = localDateTime.withSecond(59);
-		}
-
-		return localDateTime.minusDays(_getOffsetDays());
-	}
-
-	public List<LocalDateTime> getIntervalLocalDateTimes() {
-		List<LocalDateTime> intervals = new ArrayList<>();
-
-		LocalDateTime intervalLocalDateTime = getStartLocalDateTime();
-
-		if (_timeSpan.equals(TimeSpan.LAST_24_HOURS)) {
-			for (int i = 0; i < 24; i++) {
-				intervals.add(intervalLocalDateTime);
-
-				intervalLocalDateTime = intervalLocalDateTime.plusHours(1);
-			}
-		}
-		else {
-			for (int i = 0; i < _timeSpan.getDays(); i++) {
-				intervals.add(intervalLocalDateTime);
-
-				intervalLocalDateTime = intervalLocalDateTime.plusDays(1);
-			}
-		}
-
-		return intervals;
-	}
-
-	public LocalDateTime getStartLocalDateTime() {
-		LocalDateTime localDateTime = getEndLocalDateTime();
-
-		localDateTime = localDateTime.withHour(0);
-		localDateTime = localDateTime.withMinute(0);
-		localDateTime = localDateTime.withNano(0);
-		localDateTime = localDateTime.withSecond(0);
-
-		return localDateTime.minusDays(_timeSpan.getDays() - 1);
+		return localDate.minusDays(_timeSpan.getDays() - 1);
 	}
 
 	public TimeSpan getTimeSpan() {

@@ -34,13 +34,13 @@ FileVersion fileVersion = (FileVersion)request.getAttribute("file_entry_upper_tb
 						</h2>
 
 						<c:if test="<%= fileEntry.hasLock() || fileEntry.isCheckedOut() %>">
-							<span class="file-icon-color-0 inline-item inline-item-after">
+							<span class="inline-item inline-item-after state-icon">
 								<aui:icon image="lock" markupView="lexicon" message="locked" />
 							</span>
 						</c:if>
 
 						<c:if test="<%= dlViewFileVersionDisplayContext.isShared() %>">
-							<span class="file-icon-color-0 inline-item inline-item-after lfr-portal-tooltip" title="<%= LanguageUtil.get(request, "shared") %>">
+							<span class="inline-item inline-item-after lfr-portal-tooltip state-icon" title="<%= LanguageUtil.get(request, "shared") %>">
 								<aui:icon image="users" markupView="lexicon" message="shared" />
 							</span>
 						</c:if>
@@ -71,9 +71,9 @@ FileVersion fileVersion = (FileVersion)request.getAttribute("file_entry_upper_tb
 					<li class="d-none d-sm-flex tbar-item">
 
 						<%
-						Map<String, String> data = new HashMap<>();
-
-						data.put("analytics-file-entry-id", String.valueOf(fileEntry.getFileEntryId()));
+						Map<String, String> data = HashMapBuilder.put(
+							"analytics-file-entry-id", String.valueOf(fileEntry.getFileEntryId())
+						).build();
 						%>
 
 						<clay:link

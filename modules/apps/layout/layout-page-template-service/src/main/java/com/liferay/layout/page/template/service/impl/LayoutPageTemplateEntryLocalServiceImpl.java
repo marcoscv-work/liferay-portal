@@ -215,7 +215,8 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 
 		if (plid == 0) {
 			Layout layout = _addLayout(
-				userId, groupId, name, type, masterLayoutPlid, serviceContext);
+				userId, groupId, name, type, masterLayoutPlid, status,
+				serviceContext);
 
 			if (layout != null) {
 				plid = layout.getPlid();
@@ -868,7 +869,7 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 
 	private Layout _addLayout(
 			long userId, long groupId, String name, int type,
-			long masterLayoutPlid, ServiceContext serviceContext)
+			long masterLayoutPlid, int status, ServiceContext serviceContext)
 		throws PortalException {
 
 		boolean privateLayout = false;
@@ -884,12 +885,12 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 		Map<Locale, String> titleMap = Collections.singletonMap(
 			LocaleUtil.getSiteDefault(), name);
 
-		String typeSettings = StringPool.BLANK;
-
 		UnicodeProperties typeSettingsUnicodeProperties =
 			new UnicodeProperties();
 
-		typeSettingsUnicodeProperties.put("published", "true");
+		if (status == WorkflowConstants.STATUS_APPROVED) {
+			typeSettingsUnicodeProperties.put("published", "true");
+		}
 
 		if ((type == LayoutPageTemplateEntryTypeConstants.TYPE_MASTER_LAYOUT) ||
 			(masterLayoutPlid > 0)) {
@@ -906,7 +907,7 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 				Boolean.FALSE.toString());
 		}
 
-		typeSettings = typeSettingsUnicodeProperties.toString();
+		String typeSettings = typeSettingsUnicodeProperties.toString();
 
 		serviceContext.setAttribute(
 			"layout.instanceable.allowed", Boolean.TRUE);
@@ -918,13 +919,21 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 
 		serviceContext.setModifiedDate(layout.getModifiedDate());
 
-		layoutLocalService.addLayout(
+		Layout draftLayout = layoutLocalService.addLayout(
 			userId, groupId, privateLayout, layout.getParentLayoutId(),
 			classNameLocalService.getClassNameId(Layout.class),
 			layout.getPlid(), layout.getNameMap(), titleMap,
 			layout.getDescriptionMap(), layout.getKeywordsMap(),
 			layout.getRobotsMap(), layoutType, layout.getTypeSettings(), true,
 			true, masterLayoutPlid, Collections.emptyMap(), serviceContext);
+
+		if (status == WorkflowConstants.STATUS_DRAFT) {
+			layoutLocalService.updateStatus(
+				userId, draftLayout.getPlid(), status, serviceContext);
+
+			layout = layoutLocalService.updateStatus(
+				userId, layout.getPlid(), status, serviceContext);
+		}
 
 		return layout;
 	}

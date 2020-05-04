@@ -31,8 +31,6 @@ definition {
 	@description = "This ensures that the OG preview is updated when the image is changed."
 	@priority = "5"
 	test PreviewAfterReplacingImage {
-		property portal.upstream = "quarantine";
-
 		var portalURL = PropsUtil.get("portal.url");
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
@@ -164,6 +162,8 @@ definition {
 	@description = "This ensures that the user can customize OG tags."
 	@priority = "5"
 	test Smoke {
+		property portal.acceptance = "true";
+
 		var portalURL = PropsUtil.get("portal.url");
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
@@ -178,6 +178,8 @@ definition {
 			pageName = "Test Page Name");
 
 		Navigator.gotoNavTab(navTab = "Open Graph");
+
+		Pause(locator1 = "3000");
 
 		OpenGraph.configureOpenGraph(
 			customDescription = "Custom Description",

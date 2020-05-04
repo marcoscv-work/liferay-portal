@@ -30,7 +30,7 @@ List<LayoutPageTemplateCollection> layoutPageTemplateCollections = layoutPageTem
 <liferay-ui:success key="layoutPageTemplatePublished" message="the-page-template-was-published-succesfully" />
 
 <div class="container-fluid container-fluid-max-xl container-view">
-	<div class="row">
+	<clay:row>
 		<div class="col-lg-3">
 			<nav class="menubar menubar-transparent menubar-vertical-expand-lg">
 				<ul class="nav nav-nested">
@@ -144,14 +144,14 @@ List<LayoutPageTemplateCollection> layoutPageTemplateCollections = layoutPageTem
 				</div>
 			</c:if>
 		</div>
-	</div>
+	</clay:row>
 </div>
 
 <aui:form cssClass="hide" name="layoutPageTemplateCollectionsFm">
 </aui:form>
 
 <aui:script require="metal-dom/src/dom as dom, frontend-js-web/liferay/ItemSelectorDialog.es as ItemSelectorDialog">
-	var deleteCollections = function() {
+	var deleteCollections = function () {
 		var layoutPageTemplateCollectionsFm =
 			document.<portlet:namespace />layoutPageTemplateCollectionsFm;
 
@@ -164,7 +164,7 @@ List<LayoutPageTemplateCollection> layoutPageTemplateCollections = layoutPageTem
 					'<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="mvcRenderCommandName" value="/layout_page_template/select_layout_page_template_collections" /></portlet:renderURL>',
 			});
 
-			itemSelectorDialog.on('selectedItemChange', function(event) {
+			itemSelectorDialog.on('selectedItemChange', function (event) {
 				var selectedItems = event.selectedItem;
 
 				if (selectedItems) {
@@ -173,7 +173,7 @@ List<LayoutPageTemplateCollection> layoutPageTemplateCollections = layoutPageTem
 							'<liferay-ui:message key="are-you-sure-you-want-to-delete-the-selected-entries" />'
 						)
 					) {
-						Array.prototype.forEach.call(selectedItems, function(
+						Array.prototype.forEach.call(selectedItems, function (
 							item,
 							index
 						) {
@@ -200,33 +200,12 @@ List<LayoutPageTemplateCollection> layoutPageTemplateCollections = layoutPageTem
 		}
 	};
 
-	var importEntries = function() {
-		Liferay.Util.openWindow({
-			dialog: {
-				after: {
-					destroy: function(event) {
-						window.location.reload();
-					},
-				},
-				destroyOnHide: true,
-			},
-			dialogIframe: {
-				bodyCssClass: 'dialog-with-footer',
-			},
-			id: '<portlet:namespace />importEntries',
-			title: '<liferay-ui:message key="import" />',
-			uri:
-				'<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="mvcRenderCommandName" value="/layout_page_template/view_import_layout_page_template_entry" /></portlet:renderURL>',
-		});
-	};
-
 	var ACTIONS = {
 		deleteCollections: deleteCollections,
-		importEntries: importEntries,
 	};
 
-	Liferay.componentReady('actionsComponent').then(function(actionsComponent) {
-		actionsComponent.on(['click', 'itemClicked'], function(event, facade) {
+	Liferay.componentReady('actionsComponent').then(function (actionsComponent) {
+		actionsComponent.on(['click', 'itemClicked'], function (event, facade) {
 			var itemData;
 
 			if (event.data && event.data.item) {

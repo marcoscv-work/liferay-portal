@@ -16,6 +16,7 @@ package com.liferay.analytics.web.internal.servlet.taglib;
 
 import com.liferay.analytics.web.internal.constants.AnalyticsWebKeys;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
@@ -23,10 +24,12 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.servlet.taglib.BaseJSPDynamicInclude;
 import com.liferay.portal.kernel.servlet.taglib.DynamicInclude;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -64,9 +67,11 @@ public class AnalyticsTopHeadJSPDynamicInclude extends BaseJSPDynamicInclude {
 			return;
 		}
 
+		httpServletRequest.setAttribute(
+			AnalyticsWebKeys.ANALYTICS_CLIENT_CHANNEL_ID,
+			_getLiferayAnalyticsChannelId(httpServletRequest, themeDisplay));
+
 		Map<String, String> analyticsClientConfig = HashMapBuilder.put(
-			"channelId", _getLiferayAnalyticsChannelId(themeDisplay)
-		).put(
 			"dataSourceId",
 			_getLiferayAnalyticsDataSourceId(themeDisplay.getCompany())
 		).put(
@@ -77,6 +82,13 @@ public class AnalyticsTopHeadJSPDynamicInclude extends BaseJSPDynamicInclude {
 		httpServletRequest.setAttribute(
 			AnalyticsWebKeys.ANALYTICS_CLIENT_CONFIG,
 			_serialize(analyticsClientConfig));
+
+		httpServletRequest.setAttribute(
+			AnalyticsWebKeys.ANALYTICS_CLIENT_GROUP_IDS,
+			_serialize(
+				PrefsPropsUtil.getStringArray(
+					themeDisplay.getCompanyId(), "liferayAnalyticsGroupIds",
+					StringPool.COMMA)));
 
 		super.include(httpServletRequest, httpServletResponse, key);
 	}
@@ -108,10 +120,18 @@ public class AnalyticsTopHeadJSPDynamicInclude extends BaseJSPDynamicInclude {
 		super.setServletContext(servletContext);
 	}
 
-	private String _getLiferayAnalyticsChannelId(ThemeDisplay themeDisplay) {
+	private String _getLiferayAnalyticsChannelId(
+		HttpServletRequest httpServletRequest, ThemeDisplay themeDisplay) {
+
 		Layout layout = themeDisplay.getLayout();
 
 		Group group = layout.getGroup();
+
+		if (Objects.equals(group.getGroupKey(), "Forms")) {
+			group = _groupLocalService.fetchGroup(
+				GetterUtil.getLong(
+					httpServletRequest.getAttribute("refererGroupId")));
+		}
 
 		return group.getTypeSettingsProperty("analyticsChannelId");
 	}
@@ -203,8 +223,17 @@ public class AnalyticsTopHeadJSPDynamicInclude extends BaseJSPDynamicInclude {
 		return jsonObject.toString();
 	}
 
+	private String _serialize(Object[] array) {
+		JSONArray jsonArray = _jsonFactory.createJSONArray(array);
+
+		return jsonArray.toString();
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		AnalyticsTopHeadJSPDynamicInclude.class);
+
+	@Reference
+	private GroupLocalService _groupLocalService;
 
 	@Reference
 	private JSONFactory _jsonFactory;

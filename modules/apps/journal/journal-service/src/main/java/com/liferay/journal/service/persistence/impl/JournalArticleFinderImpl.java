@@ -1305,8 +1305,10 @@ public class JournalArticleFinderImpl
 
 			sql = replaceStatusJoin(sql, queryDefinition);
 
-			sql = _customSQL.replaceOrderBy(
-				sql, queryDefinition.getOrderByComparator());
+			OrderByComparator<JournalArticle> orderByComparator =
+				queryDefinition.getOrderByComparator();
+
+			sql = _customSQL.replaceOrderBy(sql, orderByComparator);
 
 			if (inlineSQLHelper) {
 				sql = InlineSQLHelperUtil.replacePermissionCheck(
@@ -1324,6 +1326,13 @@ public class JournalArticleFinderImpl
 				JournalArticleImpl.TABLE_NAME, JournalArticleImpl.class);
 
 			QueryPos queryPos = QueryPos.getInstance(sqlQuery);
+
+			if (_isOrderByTitle(orderByComparator)) {
+				queryPos.add(1);
+			}
+			else {
+				queryPos.add(0);
+			}
 
 			queryPos.add(groupId);
 			queryPos.add(queryDefinition.getStatus());
@@ -1401,8 +1410,10 @@ public class JournalArticleFinderImpl
 			String sql = _customSQL.get(
 				getClass(), FIND_BY_G_ST_L, queryDefinition, "JournalArticle");
 
-			sql = _customSQL.replaceOrderBy(
-				sql, queryDefinition.getOrderByComparator());
+			OrderByComparator<JournalArticle> orderByComparator =
+				queryDefinition.getOrderByComparator();
+
+			sql = _customSQL.replaceOrderBy(sql, orderByComparator);
 
 			if (inlineSQLHelper) {
 				sql = InlineSQLHelperUtil.replacePermissionCheck(
@@ -1416,6 +1427,13 @@ public class JournalArticleFinderImpl
 				JournalArticleImpl.TABLE_NAME, JournalArticleImpl.class);
 
 			QueryPos queryPos = QueryPos.getInstance(sqlQuery);
+
+			if (_isOrderByTitle(orderByComparator)) {
+				queryPos.add(1);
+			}
+			else {
+				queryPos.add(0);
+			}
 
 			queryPos.add(LocaleUtil.toLanguageId(locale));
 			queryPos.add(groupId);
@@ -1448,8 +1466,10 @@ public class JournalArticleFinderImpl
 
 			sql = replaceStatusJoin(sql, queryDefinition);
 
-			sql = _customSQL.replaceOrderBy(
-				sql, queryDefinition.getOrderByComparator());
+			OrderByComparator<JournalArticle> orderByComparator =
+				queryDefinition.getOrderByComparator();
+
+			sql = _customSQL.replaceOrderBy(sql, orderByComparator);
 
 			if (inlineSQLHelper) {
 				sql = InlineSQLHelperUtil.replacePermissionCheck(
@@ -1467,6 +1487,13 @@ public class JournalArticleFinderImpl
 				JournalArticleImpl.TABLE_NAME, JournalArticleImpl.class);
 
 			QueryPos queryPos = QueryPos.getInstance(sqlQuery);
+
+			if (_isOrderByTitle(orderByComparator)) {
+				queryPos.add(1);
+			}
+			else {
+				queryPos.add(0);
+			}
 
 			queryPos.add(LocaleUtil.toLanguageId(locale));
 
@@ -1504,8 +1531,10 @@ public class JournalArticleFinderImpl
 
 			sql = replaceStatusJoin(sql, queryDefinition);
 
-			sql = _customSQL.replaceOrderBy(
-				sql, queryDefinition.getOrderByComparator());
+			OrderByComparator<JournalArticle> orderByComparator =
+				queryDefinition.getOrderByComparator();
+
+			sql = _customSQL.replaceOrderBy(sql, orderByComparator);
 
 			if (groupId <= 0) {
 				sql = StringUtil.removeSubstring(
@@ -1529,6 +1558,13 @@ public class JournalArticleFinderImpl
 				JournalArticleImpl.TABLE_NAME, JournalArticleImpl.class);
 
 			QueryPos queryPos = QueryPos.getInstance(sqlQuery);
+
+			if (_isOrderByTitle(orderByComparator)) {
+				queryPos.add(1);
+			}
+			else {
+				queryPos.add(0);
+			}
 
 			if (groupId > 0) {
 				queryPos.add(groupId);
@@ -1565,8 +1601,10 @@ public class JournalArticleFinderImpl
 
 			sql = replaceStatusJoin(sql, queryDefinition);
 
-			sql = _customSQL.replaceOrderBy(
-				sql, queryDefinition.getOrderByComparator());
+			OrderByComparator<JournalArticle> orderByComparator =
+				queryDefinition.getOrderByComparator();
+
+			sql = _customSQL.replaceOrderBy(sql, orderByComparator);
 
 			if (folderIds.isEmpty()) {
 				sql = StringUtil.removeSubstring(sql, "([$FOLDER_ID$]) AND");
@@ -1589,6 +1627,13 @@ public class JournalArticleFinderImpl
 				JournalArticleImpl.TABLE_NAME, JournalArticleImpl.class);
 
 			QueryPos queryPos = QueryPos.getInstance(sqlQuery);
+
+			if (_isOrderByTitle(orderByComparator)) {
+				queryPos.add(1);
+			}
+			else {
+				queryPos.add(0);
+			}
 
 			queryPos.add(groupId);
 			queryPos.add(classNameId);
@@ -1634,8 +1679,10 @@ public class JournalArticleFinderImpl
 
 			sql = replaceStatusJoin(sql, queryDefinition);
 
-			sql = _customSQL.replaceOrderBy(
-				sql, queryDefinition.getOrderByComparator());
+			OrderByComparator<JournalArticle> orderByComparator =
+				queryDefinition.getOrderByComparator();
+
+			sql = _customSQL.replaceOrderBy(sql, orderByComparator);
 
 			if (groupId <= 0) {
 				sql = StringUtil.removeSubstring(
@@ -1659,6 +1706,13 @@ public class JournalArticleFinderImpl
 				JournalArticleImpl.TABLE_NAME, JournalArticleImpl.class);
 
 			QueryPos queryPos = QueryPos.getInstance(sqlQuery);
+
+			if (_isOrderByTitle(orderByComparator)) {
+				queryPos.add(1);
+			}
+			else {
+				queryPos.add(0);
+			}
 
 			queryPos.add(LocaleUtil.toLanguageId(locale));
 
@@ -1698,8 +1752,10 @@ public class JournalArticleFinderImpl
 
 			sql = replaceStatusJoin(sql, queryDefinition);
 
-			sql = _customSQL.replaceOrderBy(
-				sql, queryDefinition.getOrderByComparator());
+			OrderByComparator<JournalArticle> orderByComparator =
+				queryDefinition.getOrderByComparator();
+
+			sql = _customSQL.replaceOrderBy(sql, orderByComparator);
 
 			if (folderIds.isEmpty()) {
 				sql = StringUtil.removeSubstring(sql, "([$FOLDER_ID$]) AND");
@@ -1722,6 +1778,13 @@ public class JournalArticleFinderImpl
 				JournalArticleImpl.TABLE_NAME, JournalArticleImpl.class);
 
 			QueryPos queryPos = QueryPos.getInstance(sqlQuery);
+
+			if (_isOrderByTitle(orderByComparator)) {
+				queryPos.add(1);
+			}
+			else {
+				queryPos.add(0);
+			}
 
 			queryPos.add(LocaleUtil.toLanguageId(locale));
 			queryPos.add(groupId);
@@ -2090,6 +2153,24 @@ public class JournalArticleFinderImpl
 		return StringUtil.replace(sql, "[$STRUCTURE_TEMPLATE$]", sb.toString());
 	}
 
+	private static boolean _isOrderByTitle(
+		OrderByComparator orderByComparator) {
+
+		if ((orderByComparator != null) &&
+			(StringUtil.containsIgnoreCase(
+				orderByComparator.getOrderBy(), _TITLE_FIELD,
+				StringPool.COMMA) ||
+			 StringUtil.containsIgnoreCase(
+				 orderByComparator.getOrderBy(), _TITLE_FIELD + " ASC",
+				 StringPool.COMMA) ||
+			 StringUtil.containsIgnoreCase(
+				 orderByComparator.getOrderBy(), _TITLE_FIELD + " DESC",
+				 StringPool.COMMA))) {
+		}
+
+		return false;
+	}
+
 	private static final String _AND_OR_CONNECTOR = "[$AND_OR_CONNECTOR$] ";
 
 	private static final String _DDM_STRUCTURE_KEY_SQL =
@@ -2097,6 +2178,9 @@ public class JournalArticleFinderImpl
 
 	private static final String _DDM_TEMPLATE_KEY_SQL =
 		"(JournalArticle.DDMTemplateKey LIKE ? [$AND_OR_NULL_CHECK$]) ";
+
+	private static final String _TITLE_FIELD =
+		"JournalArticleLocalization.title";
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		JournalArticleFinderImpl.class);

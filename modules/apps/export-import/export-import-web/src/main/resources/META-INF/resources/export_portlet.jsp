@@ -141,9 +141,9 @@ portletURL.setParameter("portletResource", portletResource);
 														<span class="selected-labels" id="<portlet:namespace />selectedConfiguration_<%= selPortlet.getRootPortletId() %>"></span>
 
 														<%
-														Map<String, Object> data = new HashMap<String, Object>();
-
-														data.put("portletid", selPortlet.getRootPortletId());
+														Map<String, Object> data = HashMapBuilder.<String, Object>put(
+															"portletid", selPortlet.getRootPortletId()
+														).build();
 														%>
 
 														<aui:a cssClass="configuration-link modify-link" data="<%= data %>" href="javascript:;" label="change" method="get" />
@@ -390,9 +390,9 @@ portletURL.setParameter("portletResource", portletResource);
 																	<span class="selected-labels" id="<portlet:namespace />selectedContent_<%= selPortlet.getRootPortletId() %>"></span>
 
 																	<%
-																	Map<String, Object> data = new HashMap<String, Object>();
-
-																	data.put("portletid", selPortlet.getRootPortletId());
+																	Map<String, Object> data = HashMapBuilder.<String, Object>put(
+																		"portletid", selPortlet.getRootPortletId()
+																	).build();
 																	%>
 
 																	<aui:a cssClass="content-link modify-link" data="<%= data %>" href="javascript:;" id='<%= "contentLink_" + selPortlet.getRootPortletId() %>' label="change" method="get" />
@@ -467,7 +467,7 @@ portletURL.setParameter("portletResource", portletResource);
 
 		var form = liferayForm.formNode;
 
-		form.on('submit', function(event) {
+		form.on('submit', function (event) {
 			event.halt();
 
 			var exportImport = Liferay.component(
@@ -488,7 +488,7 @@ portletURL.setParameter("portletResource", portletResource);
 
 		var fieldRules = [
 			{
-				body: function(val, fieldNode, ruleValue) {
+				body: function (val, fieldNode, ruleValue) {
 
 					<%
 					JSONArray blacklistCharJSONArray = JSONFactoryUtil.createJSONArray();
@@ -560,7 +560,7 @@ portletURL.setParameter("portletResource", portletResource);
 
 	Liferay.component('<portlet:namespace />ExportImportComponent', exportImport);
 
-	Liferay.once('destroyPortlet', function() {
+	Liferay.once('destroyPortlet', function () {
 		exportImport.destroy();
 	});
 </aui:script>

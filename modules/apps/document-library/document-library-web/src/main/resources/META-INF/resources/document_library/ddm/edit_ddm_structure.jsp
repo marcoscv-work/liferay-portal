@@ -54,6 +54,8 @@ renderResponse.setTitle(title);
 		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 		<aui:input name="ddmStructureId" type="hidden" value="<%= ddmStructureId %>" />
 		<aui:input name="groupId" type="hidden" value="<%= groupId %>" />
+		<aui:input name="dataDefinition" type="hidden" />
+		<aui:input name="dataLayout" type="hidden" />
 		<aui:input name="definition" type="hidden" />
 		<aui:input name="status" type="hidden" />
 
@@ -149,9 +151,11 @@ renderResponse.setTitle(title);
 						persistState="<%= true %>"
 						title='<%= LanguageUtil.get(request, "details") %>'
 					>
-						<aui:row cssClass="lfr-ddm-types-form-column">
+						<clay:row
+							className="lfr-ddm-types-form-column"
+						>
 							<aui:input name="storageType" type="hidden" value="<%= StorageType.JSON.getValue() %>" />
-						</aui:row>
+						</clay:row>
 
 						<aui:input name="description" />
 
@@ -221,7 +225,7 @@ renderResponse.setTitle(title);
 				uri:
 					'<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="mvcPath" value="/document_library/ddm/select_ddm_structure.jsp" /><portlet:param name="ddmStructureId" value="<%= String.valueOf(dlEditDDMStructureDisplayContext.getDDMStructureId()) %>" /></portlet:renderURL>',
 			},
-			function(event) {
+			function (event) {
 				var form = document.<portlet:namespace />fm;
 
 				Liferay.Util.setFormValues(form, {
@@ -265,43 +269,26 @@ renderResponse.setTitle(title);
 	function <portlet:namespace />saveDDMStructure() {
 		<c:choose>
 			<c:when test="<%= FFDocumentLibraryDDMEditorConfigurationUtil.useDataEngineEditor() %>">
-				Liferay.componentReady(
-					'<%= renderResponse.getNamespace() + "dataLayoutBuilder" %>'
-				).then(function(dataLayoutBuilder) {
-					var name =
-						document.<portlet:namespace />fm[
-							'<portlet:namespace />name_' + themeDisplay.getLanguageId()
-						].value;
-					var description =
-						document.<portlet:namespace />fm['<portlet:namespace />description']
-							.value;
+				Liferay.componentReady('<portlet:namespace />dataLayoutBuilder').then(
+					function (dataLayoutBuilder) {
+						var formData = dataLayoutBuilder.getFormData();
 
-					dataLayoutBuilder
-						.save({
-							dataDefinition: {
-								description: {
-									value: description,
-								},
-								name: {
-									value: name,
-								},
+						var dataDefinition = formData.definition;
+
+						dataDefinition.name = name;
+
+						var dataLayout = formData.layout;
+
+						dataLayout.name = name;
+
+						Liferay.Util.postForm(document.<portlet:namespace />fm, {
+							data: {
+								dataDefinition: JSON.stringify(dataDefinition),
+								dataLayout: JSON.stringify(dataLayout),
 							},
-							dataLayout: {
-								description: {
-									value: description,
-								},
-								name: {
-									value: name,
-								},
-							},
-						})
-						.then(function(dataLayout) {
-							document.<portlet:namespace />fm[
-								'<portlet:namespace />ddmStructureId'
-							].value = dataLayout.id;
-							submitForm(document.<portlet:namespace />fm);
 						});
-				});
+					}
+				);
 			</c:when>
 			<c:otherwise>
 				Liferay.Util.postForm(document.<portlet:namespace />fm, {

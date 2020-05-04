@@ -83,10 +83,11 @@ int index = 0;
 					<li class="default facet-value">
 
 						<%
-						Map<String, Object> data = new HashMap<>();
-
-						data.put("selection", 0);
-						data.put("value", StringPool.BLANK);
+						Map<String, Object> data = HashMapBuilder.<String, Object>put(
+							"selection", 0
+						).put(
+							"value", StringPool.BLANK
+						).build();
 						%>
 
 						<aui:a cssClass='<%= (Validator.isNull(fieldParamSelection) || fieldParamSelection.equals("0")) ? "facet-term-selected" : "facet-term-unselected" %>' href="javascript:;">
@@ -113,10 +114,11 @@ int index = 0;
 								rangeCssClass = "facet-term-selected";
 							}
 
-							data = new HashMap<>();
-
-							data.put("selection", index);
-							data.put("value", HtmlUtil.escape(range));
+							data = HashMapBuilder.<String, Object>put(
+								"selection", index
+							).put(
+								"value", HtmlUtil.escape(range)
+							).build();
 							%>
 
 							<aui:a cssClass="<%= rangeCssClass %>" data="<%= data %>" href="javascript:;">
@@ -320,7 +322,7 @@ int index = 0;
 	);
 	var searchButton = A.one('#<portlet:namespace />searchCustomRangeButton');
 
-	var preventKeyboardDateChange = function(event) {
+	var preventKeyboardDateChange = function (event) {
 		if (!event.isKey('TAB')) {
 			event.preventDefault();
 		}
@@ -347,7 +349,7 @@ int index = 0;
 	A.mix(
 		DEFAULTS_FORM_VALIDATOR.RULES,
 		{
-			<portlet:namespace />dateRange: function(val, fieldNode, ruleValue) {
+			<portlet:namespace />dateRange: function (val, fieldNode, ruleValue) {
 				return A.Date.isGreaterOrEqual(
 					customRangeTo.getDate(),
 					customRangeFrom.getDate()
@@ -361,10 +363,10 @@ int index = 0;
 		boundingBox: document.<portlet:namespace />fm,
 		fieldContainer: 'div',
 		on: {
-			errorField: function(event) {
+			errorField: function (event) {
 				Util.toggleDisabled(searchButton, true);
 			},
-			validField: function(event) {
+			validField: function (event) {
 				Util.toggleDisabled(searchButton, false);
 			},
 		},
@@ -378,14 +380,14 @@ int index = 0;
 		},
 	});
 
-	var onRangeSelectionChange = function(event) {
+	var onRangeSelectionChange = function (event) {
 		customRangeValidator.validate();
 	};
 
 	customRangeFrom.on('selectionChange', onRangeSelectionChange);
 	customRangeTo.on('selectionChange', onRangeSelectionChange);
 
-	A.one('.<%= randomNamespace %>custom-range-toggle').on('click', function(
+	A.one('.<%= randomNamespace %>custom-range-toggle').on('click', function (
 		event
 	) {
 		event.halt();

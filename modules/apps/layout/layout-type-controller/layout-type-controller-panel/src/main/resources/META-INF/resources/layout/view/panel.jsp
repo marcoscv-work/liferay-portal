@@ -18,8 +18,11 @@
 
 <c:choose>
 	<c:when test="<%= !themeDisplay.isStatePopUp() %>">
-		<aui:container class="lfr-panel-page" id="main-content">
-			<aui:row>
+		<clay:container
+			className="lfr-panel-page"
+			id='<%= renderResponse.getNamespace() + "main-content" %>'
+		>
+			<clay:row>
 
 				<%
 				String panelBodyCssClass = "panel-page-body";
@@ -64,8 +67,8 @@
 				<aui:col cssClass="<%= panelBodyCssClass %>" width="<%= 80 %>">
 					<%@ include file="/layout/view/panel_description.jspf" %>
 				</aui:col>
-			</aui:row>
-		</aui:container>
+			</clay:row>
+		</clay:container>
 	</c:when>
 	<c:otherwise>
 		<%@ include file="/layout/view/panel_description.jspf" %>

@@ -45,6 +45,7 @@ import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -58,11 +59,16 @@ import com.liferay.portlet.configuration.web.internal.configuration.RoleVisibili
 import com.liferay.portlet.configuration.web.internal.constants.PortletConfigurationPortletKeys;
 import com.liferay.portlet.rolesadmin.search.RoleSearch;
 import com.liferay.portlet.rolesadmin.search.RoleSearchTerms;
+import com.liferay.roles.admin.role.type.contributor.RoleTypeContributor;
+import com.liferay.roles.admin.role.type.contributor.provider.RoleTypeContributorProvider;
 import com.liferay.sites.kernel.util.SitesUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.PortletMode;
@@ -80,11 +86,13 @@ import javax.servlet.http.HttpSession;
 public class PortletConfigurationPermissionsDisplayContext {
 
 	public PortletConfigurationPermissionsDisplayContext(
-			HttpServletRequest httpServletRequest, RenderRequest renderRequest)
+			HttpServletRequest httpServletRequest, RenderRequest renderRequest,
+			RoleTypeContributorProvider roleTypeContributorProvider)
 		throws PortalException {
 
 		_httpServletRequest = httpServletRequest;
 		_renderRequest = renderRequest;
+		_roleTypeContributorProvider = roleTypeContributorProvider;
 
 		long groupId = _getResourceGroupId();
 
@@ -345,9 +353,12 @@ public class PortletConfigurationPermissionsDisplayContext {
 			Role modelResourceRole = RoleLocalServiceUtil.getRole(
 				modelResourceRoleId);
 
-			if ((modelResourceRole.getType() ==
-					RoleConstants.TYPE_ORGANIZATION) ||
-				(modelResourceRole.getType() == RoleConstants.TYPE_SITE)) {
+			RoleTypeContributor roleTypeContributor =
+				_roleTypeContributorProvider.getRoleTypeContributor(
+					modelResourceRole.getType());
+
+			if (ArrayUtil.isNotEmpty(
+					roleTypeContributor.getExcludedRoleNames())) {
 
 				filterGroupRoles = true;
 			}
@@ -403,20 +414,26 @@ public class PortletConfigurationPermissionsDisplayContext {
 			}
 		}
 
-		List<String> excludedRoleNames = new ArrayList<>();
+		Set<String> excludedRoleNamesSet = new HashSet<>();
 
-		excludedRoleNames.add(RoleConstants.ADMINISTRATOR);
+		excludedRoleNamesSet.add(RoleConstants.ADMINISTRATOR);
 
 		if (filterGroupRoles) {
-			excludedRoleNames.add(RoleConstants.ORGANIZATION_ADMINISTRATOR);
-			excludedRoleNames.add(RoleConstants.ORGANIZATION_OWNER);
-			excludedRoleNames.add(RoleConstants.SITE_ADMINISTRATOR);
-			excludedRoleNames.add(RoleConstants.SITE_OWNER);
+			for (RoleTypeContributor roleTypeContributor :
+					_roleTypeContributorProvider.getRoleTypeContributors()) {
+
+				Collections.addAll(
+					excludedRoleNamesSet,
+					roleTypeContributor.getExcludedRoleNames());
+			}
 		}
 
 		if (filterGuestRole) {
-			excludedRoleNames.add(RoleConstants.GUEST);
+			excludedRoleNamesSet.add(RoleConstants.GUEST);
 		}
+
+		List<String> excludedRoleNames = ListUtil.fromCollection(
+			excludedRoleNamesSet);
 
 		long teamGroupId = _group.getGroupId();
 
@@ -723,6 +740,7 @@ public class PortletConfigurationPermissionsDisplayContext {
 	private String _resourcePrimKey;
 	private String _returnToFullPageURL;
 	private SearchContainer _roleSearchContainer;
+	private final RoleTypeContributorProvider _roleTypeContributorProvider;
 	private int[] _roleTypes;
 	private String _roleTypesParam;
 	private final Layout _selLayout;

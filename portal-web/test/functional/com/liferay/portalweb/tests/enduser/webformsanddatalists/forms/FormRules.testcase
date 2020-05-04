@@ -150,6 +150,8 @@ definition {
 			fieldName = "Countries",
 			selectOption = "Option");
 
+		Refresh();
+
 		FormFields.editText(
 			fieldName = "TextField",
 			fieldValue = "country");
@@ -162,7 +164,7 @@ definition {
 	@description = "This is a use case for LPS-71592."
 	@priority = "5"
 	test ConfigureCalculateRule {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 		property test.name.skip.portal.instance = "FormRules#ConfigureCalculateRule";
 		var portalURL = PropsUtil.get("portal.url");
 
@@ -265,6 +267,7 @@ definition {
 	test ConfigureRequireRule {
 		property test.name.skip.portal.instance = "FormRules#ConfigureRequireRule";
 		property portal.acceptance = "true";
+		property portal.upstream = "quarantine";
 		var portalURL = PropsUtil.get("portal.url");
 
 		Navigator.openURL();
@@ -346,6 +349,9 @@ definition {
 		FormPortlet.submitWithValidationError();
 	}
 
+	// Ignored because of the ticket LRQA-57207
+
+	@ignore = "true"
 	@priority = "5"
 	test ConfigureShowRuleUsingAndCondition {
 		property portal.acceptance = "true";

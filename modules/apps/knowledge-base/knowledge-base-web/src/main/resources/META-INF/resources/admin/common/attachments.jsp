@@ -51,18 +51,13 @@ if (kbArticle != null) {
 			%>
 
 				<div id="<portlet:namespace />fileEntryIdWrapper<%= fileEntry.getFileEntryId() %>">
-
-					<%
-					String rowURL = PortletFileRepositoryUtil.getDownloadPortletFileEntryURL(themeDisplay, fileEntry, "status=" + WorkflowConstants.STATUS_APPROVED);
-					%>
-
 					<liferay-ui:icon
 						icon="paperclip"
 						label="<%= true %>"
 						markupView="lexicon"
 						message='<%= HtmlUtil.escape(fileEntry.getTitle()) + " (" + LanguageUtil.formatStorageSize(fileEntry.getSize(), locale) + ")" %>'
 						method="get"
-						url="<%= rowURL %>"
+						url='<%= PortletFileRepositoryUtil.getDownloadPortletFileEntryURL(themeDisplay, fileEntry, "status=" + WorkflowConstants.STATUS_APPROVED) %>'
 					/>
 
 					<%
@@ -114,7 +109,7 @@ if (kbArticle != null) {
 </aui:script>
 
 <aui:script>
-	Liferay.provide(window, '<portlet:namespace />deleteFileEntry', function(
+	Liferay.provide(window, '<portlet:namespace />deleteFileEntry', function (
 		fileEntryId
 	) {
 		var removeFileEntryIdsInput = document.getElementById(

@@ -26,7 +26,6 @@ import com.liferay.portal.configuration.metatype.definitions.ExtendedMetaTypeInf
 import com.liferay.portal.configuration.metatype.definitions.ExtendedMetaTypeService;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.GroupLocalService;
-import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.IOException;
@@ -45,6 +44,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Activate;
@@ -199,7 +199,8 @@ public class ConfigurationModelRetrieverImpl
 		throws IOException {
 
 		Configuration[] configurations = getFactoryConfigurations(
-			factoryConfigurationModel.getFactoryPid());
+			factoryConfigurationModel.getFactoryPid(), scope.getPropertyKey(),
+			String.valueOf(scopePK));
 
 		if (configurations == null) {
 			return Collections.emptyList();
@@ -209,9 +210,10 @@ public class ConfigurationModelRetrieverImpl
 
 		for (Configuration configuration : configurations) {
 			ConfigurationModel curConfigurationModel = new ConfigurationModel(
-				factoryConfigurationModel, configuration,
+				configuration.getBundleLocation(),
 				factoryConfigurationModel.getBundleSymbolicName(),
-				configuration.getBundleLocation(), false);
+				factoryConfigurationModel.getClassLoader(), configuration,
+				factoryConfigurationModel, false);
 
 			factoryInstances.add(curConfigurationModel);
 		}
@@ -290,34 +292,19 @@ public class ConfigurationModelRetrieverImpl
 		return sb.toString();
 	}
 
-	protected Configuration getCompanyDefaultConfiguration(String factoryPid) {
-		Configuration configuration = null;
-
-		try {
-			Configuration[] factoryConfigurations = getFactoryConfigurations(
-				factoryPid, ConfigurationModel.PROPERTY_KEY_COMPANY_ID,
-				ConfigurationModel.PROPERTY_VALUE_COMPANY_ID_DEFAULT);
-
-			if (ArrayUtil.isNotEmpty(factoryConfigurations)) {
-				configuration = factoryConfigurations[0];
-			}
-		}
-		catch (IOException ioException) {
-			ReflectionUtil.throwException(ioException);
-		}
-
-		return configuration;
-	}
-
 	protected ConfigurationModel getConfigurationModel(
 		Bundle bundle, ExtendedMetaTypeInformation extendedMetaTypeInformation,
 		String pid, boolean factory, String locale,
 		ExtendedObjectClassDefinition.Scope scope, Serializable scopePK) {
 
+		BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
+
 		ConfigurationModel configurationModel = new ConfigurationModel(
+			StringPool.QUESTION, bundle.getSymbolicName(),
+			bundleWiring.getClassLoader(),
+			getConfiguration(pid, scope, scopePK),
 			extendedMetaTypeInformation.getObjectClassDefinition(pid, locale),
-			getConfiguration(pid, scope, scopePK), bundle.getSymbolicName(),
-			StringPool.QUESTION, factory);
+			factory);
 
 		ConfigurationVisibilityController configurationVisibilityController =
 			_configurationVisibilityControllerServiceTrackerMap.getService(pid);
@@ -325,10 +312,6 @@ public class ConfigurationModelRetrieverImpl
 		if ((configurationVisibilityController != null) &&
 			!configurationVisibilityController.isVisible(scope, scopePK)) {
 
-			return null;
-		}
-
-		if (!scope.equals(scope.SYSTEM) && configurationModel.isFactory()) {
 			return null;
 		}
 
@@ -340,20 +323,16 @@ public class ConfigurationModelRetrieverImpl
 			return null;
 		}
 
-		if (configurationModel.isCompanyFactory()) {
-			Configuration configuration = getCompanyDefaultConfiguration(pid);
-
-			configurationModel = new ConfigurationModel(
-				configurationModel.getExtendedObjectClassDefinition(),
-				configuration, bundle.getSymbolicName(), StringPool.QUESTION,
-				configurationModel.isFactory());
-		}
-
 		return configurationModel;
 	}
 
 	protected Comparator<ConfigurationModel> getConfigurationModelComparator() {
 		return new ConfigurationModelComparator();
+	}
+
+	protected String getExcludedPropertyFilterString(String propertyName) {
+		return StringBundler.concat(
+			"(!", getPropertyFilterString(propertyName, "*"), ")");
 	}
 
 	protected Configuration[] getFactoryConfigurations(String factoryPid)
@@ -376,6 +355,18 @@ public class ConfigurationModelRetrieverImpl
 		if (Validator.isNotNull(propertyFilterString)) {
 			filterString = getAndFilterString(
 				filterString, propertyFilterString);
+		}
+		else {
+			filterString = getAndFilterString(
+				filterString,
+				getExcludedPropertyFilterString(
+					ExtendedObjectClassDefinition.Scope.COMPANY.
+						getPropertyKey()),
+				getExcludedPropertyFilterString(
+					ExtendedObjectClassDefinition.Scope.GROUP.getPropertyKey()),
+				getExcludedPropertyFilterString(
+					ExtendedObjectClassDefinition.Scope.PORTLET_INSTANCE.
+						getPropertyKey()));
 		}
 
 		try {

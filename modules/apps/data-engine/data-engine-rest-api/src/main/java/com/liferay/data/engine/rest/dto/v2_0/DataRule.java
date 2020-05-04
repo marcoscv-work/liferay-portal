@@ -48,17 +48,17 @@ public class DataRule {
 
 	@Schema
 	@Valid
-	public Object[] getActions() {
+	public Map[] getActions() {
 		return actions;
 	}
 
-	public void setActions(Object[] actions) {
+	public void setActions(Map[] actions) {
 		this.actions = actions;
 	}
 
 	@JsonIgnore
 	public void setActions(
-		UnsafeSupplier<Object[], Exception> actionsUnsafeSupplier) {
+		UnsafeSupplier<Map[], Exception> actionsUnsafeSupplier) {
 
 		try {
 			actions = actionsUnsafeSupplier.get();
@@ -73,21 +73,21 @@ public class DataRule {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Object[] actions;
+	protected Map[] actions;
 
 	@Schema
 	@Valid
-	public Object[] getConditions() {
+	public Map[] getConditions() {
 		return conditions;
 	}
 
-	public void setConditions(Object[] conditions) {
+	public void setConditions(Map[] conditions) {
 		this.conditions = conditions;
 	}
 
 	@JsonIgnore
 	public void setConditions(
-		UnsafeSupplier<Object[], Exception> conditionsUnsafeSupplier) {
+		UnsafeSupplier<Map[], Exception> conditionsUnsafeSupplier) {
 
 		try {
 			conditions = conditionsUnsafeSupplier.get();
@@ -102,7 +102,7 @@ public class DataRule {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Object[] conditions;
+	protected Map[] conditions;
 
 	@Schema
 	public String getLogicalOperator() {
@@ -131,6 +131,35 @@ public class DataRule {
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String logicalOperator;
+
+	@Schema
+	@Valid
+	public Map<String, Object> getName() {
+		return name;
+	}
+
+	public void setName(Map<String, Object> name) {
+		this.name = name;
+	}
+
+	@JsonIgnore
+	public void setName(
+		UnsafeSupplier<Map<String, Object>, Exception> nameUnsafeSupplier) {
+
+		try {
+			name = nameUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Map<String, Object> name;
 
 	@Override
 	public boolean equals(Object object) {
@@ -169,11 +198,7 @@ public class DataRule {
 			sb.append("[");
 
 			for (int i = 0; i < actions.length; i++) {
-				sb.append("\"");
-
-				sb.append(_escape(actions[i]));
-
-				sb.append("\"");
+				sb.append(actions[i]);
 
 				if ((i + 1) < actions.length) {
 					sb.append(", ");
@@ -193,11 +218,7 @@ public class DataRule {
 			sb.append("[");
 
 			for (int i = 0; i < conditions.length; i++) {
-				sb.append("\"");
-
-				sb.append(_escape(conditions[i]));
-
-				sb.append("\"");
+				sb.append(conditions[i]);
 
 				if ((i + 1) < conditions.length) {
 					sb.append(", ");
@@ -219,6 +240,16 @@ public class DataRule {
 			sb.append(_escape(logicalOperator));
 
 			sb.append("\"");
+		}
+
+		if (name != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"name\": ");
+
+			sb.append(_toJSON(name));
 		}
 
 		sb.append("}");

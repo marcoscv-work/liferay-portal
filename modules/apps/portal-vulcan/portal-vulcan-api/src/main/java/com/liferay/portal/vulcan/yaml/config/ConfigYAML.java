@@ -39,6 +39,10 @@ public class ConfigYAML {
 		return _clientDir;
 	}
 
+	public String getClientMavenGroupId() {
+		return _clientMavenGroupId;
+	}
+
 	public String getImplDir() {
 		return _implDir;
 	}
@@ -103,6 +107,10 @@ public class ConfigYAML {
 		_clientDir = clientDir;
 	}
 
+	public void setClientMavenGroupId(String clientMavenGroupId) {
+		_clientMavenGroupId = clientMavenGroupId;
+	}
+
 	public void setForcePredictableContentApplicationXML(
 		boolean forcePredictableContentApplicationXML) {
 
@@ -160,6 +168,7 @@ public class ConfigYAML {
 	private Application _application;
 	private String _author;
 	private String _clientDir;
+	private String _clientMavenGroupId;
 	private boolean _forcePredictableContentApplicationXML = true;
 	private boolean _forcePredictableOperationId = true;
 	private boolean _forcePredictableSchemaPropertyName = true;

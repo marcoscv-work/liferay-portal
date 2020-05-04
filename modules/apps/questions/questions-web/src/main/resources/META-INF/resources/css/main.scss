@@ -6,6 +6,17 @@
 	z-index: 2;
 }
 
+.navigation-bar {
+	width: inherit;
+	.navbar-nav {
+		width: inherit;
+	}
+}
+
+.question-row-article-body {
+	max-height: 8vh;
+}
+
 .questions-title {
 	&:after {
 		background-color: $light-l1;
@@ -118,6 +129,17 @@
 	&:focus {
 		.card {
 			box-shadow: 0 1.25rem 2.5rem rgba($dark, 0.16);
+		}
+	}
+}
+
+.questions-navigation-dropdown {
+	@include media-breakpoint-up(xl) {
+		max-width: 400px;
+	}
+	.questions-navigation-section-title {
+		@include media-breakpoint-up(xl) {
+			max-width: 200px;
 		}
 	}
 }

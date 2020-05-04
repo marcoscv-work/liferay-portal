@@ -71,6 +71,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -1256,6 +1257,7 @@ public class CalendarBookingLocalServiceTest {
 			calendarBooking.getTitle(), childCalendarBooking.getTitle());
 	}
 
+	@Ignore
 	@Test
 	public void testInviteUserCalendarWithWorkflowShouldInviteCalendarBookingOnlyAfterApprovedAndPublished()
 		throws Exception {
@@ -1360,6 +1362,7 @@ public class CalendarBookingLocalServiceTest {
 			CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING);
 	}
 
+	@Ignore
 	@Test
 	public void testInviteUserCalendarWithWorkflowShouldNotifieInviteCalendarBookingOnlyAfterApprovedAndPublished()
 		throws Exception {
@@ -2487,17 +2490,16 @@ public class CalendarBookingLocalServiceTest {
 
 		int secondReminder = RandomTestUtil.randomInt(1, firstReminder);
 
-		childCalendarBooking =
-			CalendarBookingLocalServiceUtil.updateCalendarBooking(
-				_user.getUserId(), childCalendarBooking.getCalendarBookingId(),
-				childCalendarBooking.getCalendarId(), new long[0],
-				childCalendarBooking.getTitleMap(),
-				childCalendarBooking.getDescriptionMap(),
-				childCalendarBooking.getLocation(), startTime,
-				startTime + (Time.HOUR * 10), childCalendarBooking.isAllDay(),
-				childCalendarBooking.getRecurrence(), firstReminder,
-				NotificationType.EMAIL.getValue(), secondReminder,
-				NotificationType.EMAIL.getValue(), serviceContext);
+		CalendarBookingLocalServiceUtil.updateCalendarBooking(
+			_user.getUserId(), childCalendarBooking.getCalendarBookingId(),
+			childCalendarBooking.getCalendarId(), new long[0],
+			childCalendarBooking.getTitleMap(),
+			childCalendarBooking.getDescriptionMap(),
+			childCalendarBooking.getLocation(), startTime,
+			startTime + (Time.HOUR * 10), childCalendarBooking.isAllDay(),
+			childCalendarBooking.getRecurrence(), firstReminder,
+			NotificationType.EMAIL.getValue(), secondReminder,
+			NotificationType.EMAIL.getValue(), serviceContext);
 
 		calendarBooking = CalendarBookingLocalServiceUtil.updateCalendarBooking(
 			_user.getUserId(), calendarBooking.getCalendarBookingId(),

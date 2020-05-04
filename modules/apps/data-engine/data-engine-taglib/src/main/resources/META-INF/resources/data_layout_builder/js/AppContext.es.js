@@ -17,13 +17,17 @@ import {createContext} from 'react';
 
 import {
 	ADD_CUSTOM_OBJECT_FIELD,
+	ADD_DATA_LAYOUT_RULE,
 	DELETE_DATA_DEFINITION_FIELD,
 	DELETE_DATA_LAYOUT_FIELD,
+	DELETE_DATA_LAYOUT_RULE,
 	EDIT_CUSTOM_OBJECT_FIELD,
+	SWITCH_SIDEBAR_PANEL,
 	UPDATE_CONFIG,
 	UPDATE_DATA_DEFINITION,
 	UPDATE_DATA_LAYOUT,
 	UPDATE_DATA_LAYOUT_NAME,
+	UPDATE_DATA_LAYOUT_RULE,
 	UPDATE_EDITING_LANGUAGE_ID,
 	UPDATE_FIELDSETS,
 	UPDATE_FIELD_TYPES,
@@ -54,6 +58,7 @@ const initialState = {
 	dataDefinitionId: 0,
 	dataLayout: {
 		dataLayoutPages: [],
+		dataRules: [],
 		name: {},
 		paginationMode: 'wizard',
 	},
@@ -63,6 +68,9 @@ const initialState = {
 	fieldTypes: [],
 	focusedCustomObjectField: {},
 	focusedField: {},
+	sidebarOpen: true,
+	sidebarPanelId: 'fields',
+	spritemap: `${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`,
 };
 
 const addCustomObjectField = ({
@@ -89,7 +97,7 @@ const deleteDataDefinitionField = (dataDefinition, fieldName) => {
 	return {
 		...dataDefinition,
 		dataDefinitionFields: dataDefinition.dataDefinitionFields.filter(
-			field => field.name !== fieldName
+			(field) => field.name !== fieldName
 		),
 	};
 };
@@ -114,7 +122,7 @@ const editFocusedCustomObjectField = ({
 	const visitor = new PagesVisitor(settingsContext.pages);
 	const newSettingsContext = {
 		...settingsContext,
-		pages: visitor.mapFields(field => {
+		pages: visitor.mapFields((field) => {
 			const {fieldName, localizable} = field;
 
 			if (fieldName === propertyName) {
@@ -160,7 +168,7 @@ const setDataDefinitionFields = (
 
 	const newFields = [];
 
-	visitor.mapFields(field => {
+	visitor.mapFields((field) => {
 		const definitionField = dataLayoutBuilder.getDataDefinitionField(field);
 
 		newFields.push(definitionField);
@@ -168,21 +176,21 @@ const setDataDefinitionFields = (
 
 	return newFields.concat(
 		dataDefinitionFields.filter(
-			field =>
+			(field) =>
 				!DataLayoutVisitor.containsField(dataLayoutPages, field.name) &&
 				!newFields.some(({name}) => name === field.name)
 		)
 	);
 };
 
-const setDataLayout = dataLayoutBuilder => {
+const setDataLayout = (dataLayoutBuilder) => {
 	const {pages} = dataLayoutBuilder.getStore();
 	const {layout} = dataLayoutBuilder.getDataDefinitionAndDataLayout(pages);
 
 	return layout;
 };
 
-const createReducer = dataLayoutBuilder => {
+const createReducer = (dataLayoutBuilder) => {
 	return (state = initialState, action) => {
 		switch (action.type) {
 			case ADD_CUSTOM_OBJECT_FIELD: {
@@ -212,6 +220,22 @@ const createReducer = dataLayoutBuilder => {
 					},
 				};
 			}
+			case ADD_DATA_LAYOUT_RULE: {
+				let {dataRule} = action.payload;
+				const {
+					dataLayout: {dataRules},
+				} = state;
+
+				dataRule = DataLayoutVisitor.normalizeRule(dataRule);
+
+				return {
+					...state,
+					dataLayout: {
+						...state.dataLayout,
+						dataRules: dataRules.concat(dataRule),
+					},
+				};
+			}
 			case DELETE_DATA_DEFINITION_FIELD: {
 				const {fieldName} = action.payload;
 				const {dataDefinition} = state;
@@ -233,6 +257,23 @@ const createReducer = dataLayoutBuilder => {
 					dataLayout: deleteDataLayoutField(dataLayout, fieldName),
 				};
 			}
+			case DELETE_DATA_LAYOUT_RULE: {
+				const {ruleEditedIndex} = action.payload;
+
+				const {
+					dataLayout: {dataRules},
+				} = state;
+
+				return {
+					...state,
+					dataLayout: {
+						...state.dataLayout,
+						dataRules: dataRules.filter(
+							(_rule, index) => index !== ruleEditedIndex
+						),
+					},
+				};
+			}
 			case EDIT_CUSTOM_OBJECT_FIELD: {
 				const {dataDefinition, focusedCustomObjectField} = state;
 				const editedFocusedCustomObjectField = editFocusedCustomObjectField(
@@ -248,7 +289,7 @@ const createReducer = dataLayoutBuilder => {
 					dataDefinition: {
 						...dataDefinition,
 						dataDefinitionFields: dataDefinition.dataDefinitionFields.map(
-							dataDefinitionField => {
+							(dataDefinitionField) => {
 								if (
 									dataDefinitionField.name ===
 									focusedCustomObjectField.name
@@ -266,6 +307,15 @@ const createReducer = dataLayoutBuilder => {
 						...editedFocusedCustomObjectField,
 						settingsContext,
 					},
+				};
+			}
+			case SWITCH_SIDEBAR_PANEL: {
+				const {sidebarOpen, sidebarPanelId} = action.payload;
+
+				return {
+					...state,
+					sidebarOpen,
+					sidebarPanelId,
 				};
 			}
 			case UPDATE_DATA_DEFINITION: {
@@ -298,6 +348,28 @@ const createReducer = dataLayoutBuilder => {
 					dataLayout: {
 						...state.dataLayout,
 						name,
+					},
+				};
+			}
+			case UPDATE_DATA_LAYOUT_RULE: {
+				let {dataRule} = action.payload;
+				const {
+					dataLayout: {dataRules},
+				} = state;
+
+				dataRule = DataLayoutVisitor.normalizeRule(dataRule);
+
+				return {
+					...state,
+					dataLayout: {
+						...state.dataLayout,
+						dataRules: dataRules.map((rule, index) => {
+							if (index === dataRule.ruleEditedIndex) {
+								return dataRule;
+							}
+
+							return rule;
+						}),
 					},
 				};
 			}

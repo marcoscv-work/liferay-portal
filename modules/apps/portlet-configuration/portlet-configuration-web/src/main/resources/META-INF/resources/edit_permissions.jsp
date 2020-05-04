@@ -17,7 +17,9 @@
 <%@ include file="/init.jsp" %>
 
 <%
-PortletConfigurationPermissionsDisplayContext portletConfigurationPermissionsDisplayContext = new PortletConfigurationPermissionsDisplayContext(request, renderRequest);
+RoleTypeContributorProvider roleTypeContributorProvider = (RoleTypeContributorProvider)request.getAttribute(RolesAdminWebKeys.ROLE_TYPE_CONTRIBUTOR_PROVIDER);
+
+PortletConfigurationPermissionsDisplayContext portletConfigurationPermissionsDisplayContext = new PortletConfigurationPermissionsDisplayContext(request, renderRequest, roleTypeContributorProvider);
 
 Resource resource = portletConfigurationPermissionsDisplayContext.getResource();
 SearchContainer roleSearchContainer = portletConfigurationPermissionsDisplayContext.getRoleSearchContainer();
@@ -61,26 +63,14 @@ if (Validator.isNotNull(portletConfigurationPermissionsDisplayContext.getModelRe
 					>
 
 						<%
-						String icon = "user";
-						String message = "regular-role";
-
-						int roleType = role.getType();
-
-						if (roleType == RoleConstants.TYPE_SITE) {
-							icon = "sites";
-							message = "site-role";
-						}
-						else if (roleType == RoleConstants.TYPE_ORGANIZATION) {
-							icon = "organizations";
-							message = "organization-role";
-						}
+						RoleTypeContributor roleTypeContributor = roleTypeContributorProvider.getRoleTypeContributor(role.getType());
 						%>
 
 						<liferay-ui:icon
-							icon="<%= icon %>"
+							icon='<%= (roleTypeContributor != null) ? roleTypeContributor.getIcon() : "users" %>'
 							label="<%= false %>"
 							markupView="lexicon"
-							message="<%= LanguageUtil.get(request, message) %>"
+							message='<%= LanguageUtil.get(request, (roleTypeContributor != null) ? roleTypeContributor.getTitle(locale) : "team") %>'
 						/>
 
 						<%= role.getTitle(locale) %>
@@ -182,7 +172,7 @@ if (Validator.isNotNull(portletConfigurationPermissionsDisplayContext.getModelRe
 	);
 
 	if (<portlet:namespace />saveButton) {
-		<portlet:namespace />saveButton.addEventListener('click', function(event) {
+		<portlet:namespace />saveButton.addEventListener('click', function (event) {
 			event.preventDefault();
 
 			if (

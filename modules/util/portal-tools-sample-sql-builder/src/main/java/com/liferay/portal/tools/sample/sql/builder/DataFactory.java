@@ -187,6 +187,7 @@ import com.liferay.portal.kernel.model.LayoutTypePortletConstants;
 import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.model.PortletPreferencesModel;
+import com.liferay.portal.kernel.model.ReleaseConstants;
 import com.liferay.portal.kernel.model.ReleaseModel;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
@@ -214,11 +215,13 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.PortletKeys;
+import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.version.Version;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.impl.AccountModelImpl;
 import com.liferay.portal.model.impl.ClassNameModelImpl;
@@ -235,6 +238,7 @@ import com.liferay.portal.model.impl.RoleModelImpl;
 import com.liferay.portal.model.impl.UserModelImpl;
 import com.liferay.portal.model.impl.UserNotificationDeliveryModelImpl;
 import com.liferay.portal.model.impl.VirtualHostModelImpl;
+import com.liferay.portal.upgrade.PortalUpgradeProcess;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.PortletPreferencesFactoryImpl;
 import com.liferay.portlet.PortletPreferencesImpl;
@@ -2899,6 +2903,16 @@ public class DataFactory {
 	public List<ReleaseModel> newReleaseModels() throws IOException {
 		List<ReleaseModel> releases = new ArrayList<>();
 
+		Version latestSchemaVersion =
+			PortalUpgradeProcess.getLatestSchemaVersion();
+
+		releases.add(
+			newReleaseModel(
+				ReleaseConstants.DEFAULT_ID,
+				ReleaseConstants.DEFAULT_SERVLET_CONTEXT_NAME,
+				latestSchemaVersion.toString(), ReleaseInfo.getBuildNumber(),
+				false, ReleaseConstants.TEST_STRING));
+
 		try (InputStream is = DataFactory.class.getResourceAsStream(
 				"dependencies/releases.txt");
 			Reader reader = new InputStreamReader(is);
@@ -2915,7 +2929,9 @@ public class DataFactory {
 					String schemaVersion = parts[1];
 
 					releases.add(
-						newReleaseModel(servletContextName, schemaVersion));
+						newReleaseModel(
+							_counter.get(), servletContextName, schemaVersion,
+							0, true, null));
 				}
 			}
 		}
@@ -4113,18 +4129,21 @@ public class DataFactory {
 	}
 
 	protected ReleaseModelImpl newReleaseModel(
-			String servletContextName, String schemaVersion)
+			long releaseId, String servletContextName, String schemaVersion,
+			int buildNumber, boolean verified, String testString)
 		throws IOException {
 
 		ReleaseModelImpl releaseModelImpl = new ReleaseModelImpl();
 
-		releaseModelImpl.setReleaseId(_counter.get());
+		releaseModelImpl.setReleaseId(releaseId);
 		releaseModelImpl.setCreateDate(new Date());
 		releaseModelImpl.setModifiedDate(new Date());
 		releaseModelImpl.setServletContextName(servletContextName);
 		releaseModelImpl.setSchemaVersion(schemaVersion);
+		releaseModelImpl.setBuildNumber(buildNumber);
 		releaseModelImpl.setBuildDate(new Date());
-		releaseModelImpl.setVerified(true);
+		releaseModelImpl.setVerified(verified);
+		releaseModelImpl.setTestString(testString);
 
 		return releaseModelImpl;
 	}

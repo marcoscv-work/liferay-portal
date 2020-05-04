@@ -9,14 +9,11 @@
  * distribution rights of the Software.
  */
 
-import {ClayButtonWithIcon} from '@clayui/button';
-import {ClaySelect} from '@clayui/form';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
-import {ClayTooltipProvider} from '@clayui/tooltip';
 import className from 'classnames';
 import {useIsMounted} from 'frontend-js-react-web';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, {useContext, useEffect, useMemo} from 'react';
 import {
 	CartesianGrid,
 	Legend,
@@ -28,12 +25,14 @@ import {
 	YAxis,
 } from 'recharts';
 
-import {useChartState} from '../utils/chartState';
+import ConnectionContext from '../context/ConnectionContext';
+import {StoreContext, useWarning} from '../context/store';
+import {useChartState} from '../state/chartState';
+import {generateDateFormatters as dateFormat} from '../utils/dateFormat';
 import {numberFormat} from '../utils/numberFormat';
 import {ActiveDot as CustomActiveDot, Dot as CustomDot} from './CustomDots';
 import CustomTooltip from './CustomTooltip';
-
-const {useEffect, useMemo} = React;
+import TimeSpanSelector from './TimeSpanSelector';
 
 const CHART_COLORS = {
 	analyticsReportsHistoricalReads: '#50D2A0',
@@ -52,11 +51,9 @@ const CHART_SIZES = {
 };
 
 const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
-
 const HOUR_IN_MILLISECONDS = 60 * 60 * 1000;
 
 const LAST_24_HOURS = 'last-24-hours';
-const LAST_7_DAYS = 'last-7-days';
 
 const METRICS_STATIC_VALUES = {
 	analyticsReportsHistoricalReads: {
@@ -104,93 +101,12 @@ function thousandsToKilosFormater(value) {
 	return value;
 }
 
-/*
- * It generates a set of functions used to produce
- * internationalized date related content.
- */
-const generateDateFormatters = key => {
-	/*
-	 * Given 2 date objects it produces a user friendly date interval
-	 *
-	 * For 'en-US'
-	 * [Date, Date] => '16 - Jun 21, 2020'
-	 */
-	function formatChartTitle([initialDate, finalDate]) {
-		const singleDayDateRange =
-			finalDate - initialDate <= 1000 * 60 * 60 * 24;
-
-		const dateFormatter = (
-			date,
-			options = {
-				day: 'numeric',
-				month: 'short',
-				year: 'numeric',
-			}
-		) => Intl.DateTimeFormat([key], options).format(date);
-
-		const equalMonth = initialDate.getMonth() === finalDate.getMonth();
-		const equalYear = initialDate.getYear() === finalDate.getYear();
-
-		const initialDateOptions = {
-			day: 'numeric',
-			month: equalMonth && equalYear ? undefined : 'short',
-			year: equalYear ? undefined : 'numeric',
-		};
-
-		if (singleDayDateRange) {
-			return dateFormatter(finalDate);
-		}
-
-		return `${dateFormatter(
-			initialDate,
-			initialDateOptions
-		)} - ${dateFormatter(finalDate)}`;
-	}
-
-	/*
-	 * Given a date like string it produces a internationalized long date
-	 *
-	 * For 'en-US'
-	 * String => '06/17/2020'
-	 */
-	function formatLongDate(value) {
-		return Intl.DateTimeFormat([key]).format(new Date(value));
-	}
-
-	/*
-	 * Given a date like string produces the day of the month
-	 *
-	 * For 'en-US'
-	 * String => '16'
-	 */
-	function formatNumericDay(value) {
-		return Intl.DateTimeFormat([key], {
-			day: 'numeric',
-		}).format(new Date(value));
-	}
-
-	/*
-	 * Given a date like string produces the hour of the day
-	 *
-	 * For 'en-US'
-	 * String => '04 AM'
-	 */
-	function formatNumericHour(value) {
-		return Intl.DateTimeFormat([key], {
-			hour: 'numeric',
-		}).format(new Date(value));
-	}
-
-	return {
-		formatChartTitle,
-		formatLongDate,
-		formatNumericDay,
-		formatNumericHour,
-	};
-};
-
-function legendFormatterGenerator(totals, languageTag) {
-	return value => {
+function legendFormatterGenerator(
+	totals,
+	languageTag,
+	validAnalyticsConnection
+) {
+	return (value) => {
 		const preformattedNumber = totals[value];
 
 		return (
@@ -204,9 +120,11 @@ function legendFormatterGenerator(totals, languageTag) {
 				<span className="mr-2 text-secondary">
 					{keyToTranslatedLabelValue(value)}
 				</span>
-				{preformattedNumber !== null && (
-					<b>{numberFormat(languageTag, preformattedNumber)}</b>
-				)}
+				<span className="font-weight-bold">
+					{validAnalyticsConnection && preformattedNumber !== null
+						? numberFormat(languageTag, preformattedNumber)
+						: '-'}
+				</span>
 			</span>
 		);
 	};
@@ -214,45 +132,94 @@ function legendFormatterGenerator(totals, languageTag) {
 
 export default function Chart({
 	dataProviders = [],
+	defaultTimeRange,
 	defaultTimeSpanOption,
 	languageTag,
 	publishDate,
 	timeSpanOptions,
 }) {
+	const {validAnalyticsConnection} = useContext(ConnectionContext);
+
+	const [hasWarning, addWarning] = useWarning();
+
+	const [{readsEnabled}] = useContext(StoreContext);
+
 	const {actions, state: chartState} = useChartState({
 		defaultTimeSpanOption,
 		publishDate,
 	});
+
 	const isMounted = useIsMounted();
+
+	const publishedToday =
+		new Date().toDateString() === new Date(publishDate).toDateString();
 
 	useEffect(() => {
 		let gone = false;
 
 		actions.setLoading();
 
-		dataProviders.map(getter => {
-			getter({
-				timeSpanKey: chartState.timeSpanOption,
-				timeSpanOffset: chartState.timeSpanOffset,
-			}).then(data => {
-				if (!gone) {
-					if (isMounted()) {
-						const timeSpanComparator =
-							chartState.timeSpanOption === LAST_24_HOURS
-								? HOUR_IN_MILLISECONDS
-								: DAY_IN_MILLISECONDS;
+		const timeSpanComparator =
+			chartState.timeSpanOption === LAST_24_HOURS
+				? HOUR_IN_MILLISECONDS
+				: DAY_IN_MILLISECONDS;
 
-						Object.keys(data).map(key => {
-							actions.addDataSetItem({
-								dataSetItem: data[key],
-								key,
-								timeSpanComparator,
-							});
+		if (validAnalyticsConnection) {
+			dataProviders.map((getter) => {
+				getter({
+					timeSpanKey: chartState.timeSpanOption,
+					timeSpanOffset: chartState.timeSpanOffset,
+				})
+					.then((data) => {
+						if (!gone) {
+							if (isMounted()) {
+								Object.keys(data).map((key) => {
+									actions.addDataSetItem({
+										dataSetItem: data[key],
+										key,
+										timeSpanComparator,
+									});
+								});
+							}
+						}
+					})
+					.catch((_error) => {
+						let key = '';
+
+						if (getter.name === 'getHistoricalReads') {
+							key = 'analyticsReportsHistoricalReads';
+						}
+						else if (getter.name === 'getHistoricalViews') {
+							key = 'analyticsReportsHistoricalViews';
+						}
+
+						if (!hasWarning) {
+							addWarning();
+						}
+
+						actions.addDataSetItem({
+							dataSetItem: {histogram: [], value: null},
+							key,
+							timeSpanComparator,
 						});
-					}
-				}
+					});
 			});
-		});
+		}
+		else {
+			actions.addDataSetItem({
+				dataSetItem: {histogram: [], value: null},
+				key: 'analyticsReportsHistoricalViews',
+				timeSpanComparator,
+			});
+
+			if (readsEnabled) {
+				actions.addDataSetItem({
+					dataSetItem: {histogram: [], value: null},
+					key: 'analyticsReportsHistoricalReads',
+					timeSpanComparator,
+				});
+			}
+		}
 
 		return () => {
 			gone = true;
@@ -260,7 +227,7 @@ export default function Chart({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [chartState.timeSpanOption, chartState.timeSpanOffset]);
 
-	const dateFormatters = useMemo(() => generateDateFormatters(languageTag), [
+	const dateFormatters = useMemo(() => dateFormat(languageTag), [
 		languageTag,
 	]);
 
@@ -298,9 +265,15 @@ export default function Chart({
 				new Date(lastDateLabel),
 			]);
 		}
-	}, [histogram, dateFormatters]);
+		else {
+			return dateFormatters.formatChartTitle([
+				new Date(defaultTimeRange.startDate),
+				new Date(defaultTimeRange.endDate),
+			]);
+		}
+	}, [dateFormatters, defaultTimeRange, histogram]);
 
-	const handleTimeSpanChange = event => {
+	const handleTimeSpanChange = (event) => {
 		const {value} = event.target;
 
 		actions.changeTimeSpanOption({key: value});
@@ -313,7 +286,12 @@ export default function Chart({
 	};
 
 	const legendFormatter =
-		dataSet && legendFormatterGenerator(dataSet.totals, languageTag);
+		dataSet &&
+		legendFormatterGenerator(
+			dataSet.totals,
+			languageTag,
+			validAnalyticsConnection
+		);
 
 	const disabledNextTimeSpan = chartState.timeSpanOffset === 0;
 
@@ -326,58 +304,22 @@ export default function Chart({
 		'line-chart-wrapper--loading': chartState.loading,
 	});
 
+	const publishedTodayClasses = className({
+		'line-chart-wrapper--published-today text-center text-secondary': publishedToday,
+	});
+
 	return (
 		<>
 			{timeSpanOptions.length && (
-				<div className="d-flex mb-3 mt-3">
-					<ClaySelect
-						aria-label={Liferay.Language.get('select-date-range')}
-						onChange={handleTimeSpanChange}
-						value={chartState.timeSpanOption}
-					>
-						{timeSpanOptions.map(option => {
-							return (
-								<ClaySelect.Option
-									key={option.key}
-									label={option.label}
-									value={option.key}
-								/>
-							);
-						})}
-					</ClaySelect>
-
-					<div className="d-flex ml-2">
-						<ClayTooltipProvider>
-							<ClayButtonWithIcon
-								aria-label={Liferay.Language.get(
-									'previous-period'
-								)}
-								className="mr-1"
-								data-tooltip-align="top-right"
-								disabled={disabledPreviousPeriodButton}
-								displayType="secondary"
-								onClick={handlePreviousTimeSpanClick}
-								small
-								symbol="angle-left"
-								title={
-									disabledPreviousPeriodButton
-										? Liferay.Language.get(
-												'you-cannot-choose-a-date-prior-to-the-publication-date'
-										  )
-										: undefined
-								}
-							/>
-						</ClayTooltipProvider>
-						<ClayButtonWithIcon
-							aria-label={Liferay.Language.get('next-period')}
-							disabled={disabledNextTimeSpan}
-							displayType="secondary"
-							onClick={handleNextTimeSpanClick}
-							small
-							symbol="angle-right"
-						/>
-					</div>
-				</div>
+				<TimeSpanSelector
+					disabledNextTimeSpan={disabledNextTimeSpan}
+					disabledPreviousPeriodButton={disabledPreviousPeriodButton}
+					onNextTimeSpanClick={handleNextTimeSpanClick}
+					onPreviousTimeSpanClick={handlePreviousTimeSpanClick}
+					onTimeSpanChange={handleTimeSpanChange}
+					timeSpanOption={chartState.timeSpanOption}
+					timeSpanOptions={timeSpanOptions}
+				/>
 			)}
 
 			{dataSet ? (
@@ -390,6 +332,12 @@ export default function Chart({
 						/>
 					)}
 
+					{validAnalyticsConnection && publishedToday && (
+						<div className={publishedTodayClasses}>
+							{Liferay.Language.get('no-data-is-available-yet')}
+						</div>
+					)}
+
 					{title && <h5>{title}</h5>}
 
 					<div className="line-chart mt-3">
@@ -398,15 +346,12 @@ export default function Chart({
 							height={CHART_SIZES.height}
 							width={CHART_SIZES.width}
 						>
-							<Legend
-								formatter={legendFormatter}
-								iconSize={0}
-								layout="vertical"
-								verticalAlign="top"
-								wrapperStyle={{left: 0, paddingBottom: '1rem'}}
-							/>
-
 							<CartesianGrid
+								horizontalPoints={
+									validAnalyticsConnection && publishedToday
+										? [CHART_SIZES.dotRadius]
+										: []
+								}
 								stroke={CHART_COLORS.cartesianGrid}
 								strokeDasharray="0 0"
 								vertical={true}
@@ -420,25 +365,59 @@ export default function Chart({
 									stroke: CHART_COLORS.cartesianGrid,
 								}}
 								dataKey="label"
-								interval={
-									chartState.timeSpanOption === LAST_7_DAYS
-										? 'preserveStartEnd'
-										: 4
+								domain={
+									!validAnalyticsConnection ||
+									histogram.length === 0
+										? [
+												new Date(
+													defaultTimeRange.startDate
+												).getDate(),
+												new Date(
+													defaultTimeRange.endDate
+												).getDate(),
+										  ]
+										: []
 								}
-								tickFormatter={xAxisFormatter}
+								interval="preserveStartEnd"
+								tickCount={7}
+								tickFormatter={(value) => {
+									return validAnalyticsConnection &&
+										histogram.length !== 0
+										? xAxisFormatter(value)
+										: value;
+								}}
 								tickLine={false}
+								type={
+									validAnalyticsConnection &&
+									histogram.length !== 0
+										? 'category'
+										: 'number'
+								}
 							/>
 
-							<YAxis
-								allowDecimals={false}
-								axisLine={{
-									stroke: CHART_COLORS.cartesianGrid,
-								}}
-								minTickGap={3}
-								tickFormatter={thousandsToKilosFormater}
-								tickLine={false}
-								width={CHART_SIZES.yAxisWidth}
-							/>
+							{!validAnalyticsConnection ||
+							publishedToday ||
+							histogram.length === 0 ? (
+								<YAxis
+									axisLine={{
+										stroke: CHART_COLORS.cartesianGrid,
+									}}
+									tickLine={false}
+									ticks={[0, 50, 100]}
+									width={CHART_SIZES.yAxisWidth}
+								/>
+							) : (
+								<YAxis
+									allowDecimals={false}
+									axisLine={{
+										stroke: CHART_COLORS.cartesianGrid,
+									}}
+									minTickGap={3}
+									tickFormatter={thousandsToKilosFormater}
+									tickLine={false}
+									width={CHART_SIZES.yAxisWidth}
+								/>
+							)}
 
 							<Tooltip
 								content={
@@ -451,6 +430,11 @@ export default function Chart({
 										}
 									/>
 								}
+								cursor={
+									validAnalyticsConnection &&
+									histogram.length !== 0 &&
+									!publishedToday
+								}
 								formatter={(value, name) => {
 									return [
 										numberFormat(languageTag, value),
@@ -462,16 +446,18 @@ export default function Chart({
 								separator={': '}
 							/>
 
-							<ReferenceDot
-								fill={CHART_SIZES.referenceDotFill}
-								r={3}
-								stroke={CHART_COLORS.publishDate}
-								strokeWidth={CHART_SIZES.lineWidth}
-								x={referenceDotPosition}
-								y={0}
+							<Legend
+								formatter={legendFormatter}
+								iconSize={0}
+								layout="vertical"
+								wrapperStyle={{
+									left: 0,
+									paddingBottom: 0,
+									paddingTop: '8px',
+								}}
 							/>
 
-							{keyList.map(keyName => {
+							{keyList.map((keyName) => {
 								const color = keyToHexColor(keyName);
 								const shape = keyToIconType(keyName);
 
@@ -490,6 +476,17 @@ export default function Chart({
 									/>
 								);
 							})}
+
+							{validAnalyticsConnection && !publishedToday && (
+								<ReferenceDot
+									isFront={true}
+									r={4}
+									stroke={CHART_COLORS.publishDate}
+									strokeWidth={CHART_SIZES.lineWidth}
+									x={referenceDotPosition}
+									y={0}
+								/>
+							)}
 						</LineChart>
 					</div>
 				</div>
@@ -500,6 +497,7 @@ export default function Chart({
 
 Chart.propTypes = {
 	dataProviders: PropTypes.arrayOf(PropTypes.func).isRequired,
+	defaultTimeRange: PropTypes.object.isRequired,
 	defaultTimeSpanOption: PropTypes.string.isRequired,
 	languageTag: PropTypes.string.isRequired,
 	publishDate: PropTypes.number.isRequired,

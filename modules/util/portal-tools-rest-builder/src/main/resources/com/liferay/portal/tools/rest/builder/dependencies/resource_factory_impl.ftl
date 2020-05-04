@@ -13,12 +13,13 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -51,7 +52,7 @@ public class ${schemaName}ResourceFactoryImpl implements ${schemaName}Resource.F
 					throw new IllegalArgumentException("User is not set");
 				}
 
-				return (${schemaName}Resource)ProxyUtil.newProxyInstance(${schemaName}Resource.class.getClassLoader(), new Class<?>[] {${schemaName}Resource.class}, (proxy, method, arguments) -> _invoke(method, arguments, _checkPermissions, _httpServletRequest, _user));
+				return (${schemaName}Resource)ProxyUtil.newProxyInstance(${schemaName}Resource.class.getClassLoader(), new Class<?>[] {${schemaName}Resource.class}, (proxy, method, arguments) -> _invoke(method, arguments, _checkPermissions, _httpServletRequest, _preferredLocale, _user));
 			}
 
 			@Override
@@ -69,6 +70,13 @@ public class ${schemaName}ResourceFactoryImpl implements ${schemaName}Resource.F
 			}
 
 			@Override
+			public ${schemaName}Resource.Builder preferredLocale(Locale preferredLocale) {
+				_preferredLocale = preferredLocale;
+
+				return this;
+			}
+
+			@Override
 			public ${schemaName}Resource.Builder user(User user) {
 				_user = user;
 
@@ -77,6 +85,7 @@ public class ${schemaName}ResourceFactoryImpl implements ${schemaName}Resource.F
 
 			private boolean _checkPermissions = true;
 			private HttpServletRequest _httpServletRequest;
+			private Locale _preferredLocale;
 			private User _user;
 
 		};
@@ -92,7 +101,7 @@ public class ${schemaName}ResourceFactoryImpl implements ${schemaName}Resource.F
 		${schemaName}Resource.FactoryHolder.factory = null;
 	}
 
-	private Object _invoke(Method method, Object[] arguments, boolean checkPermissions, HttpServletRequest httpServletRequest, User user) throws Throwable {
+	private Object _invoke(Method method, Object[] arguments, boolean checkPermissions, HttpServletRequest httpServletRequest, Locale preferredLocale, User user) throws Throwable {
 		String name = PrincipalThreadLocal.getName();
 
 		PrincipalThreadLocal.setName(user.getUserId());
@@ -108,7 +117,7 @@ public class ${schemaName}ResourceFactoryImpl implements ${schemaName}Resource.F
 
 		${schemaName}Resource ${schemaVarName}Resource = _componentServiceObjects.getService();
 
-		${schemaVarName}Resource.setContextAcceptLanguage(new AcceptLanguageImpl(user));
+		${schemaVarName}Resource.setContextAcceptLanguage(new AcceptLanguageImpl(httpServletRequest, preferredLocale, user));
 
 		Company company = _companyLocalService.getCompany(user.getCompanyId());
 
@@ -149,13 +158,15 @@ public class ${schemaName}ResourceFactoryImpl implements ${schemaName}Resource.F
 
 	private class AcceptLanguageImpl implements AcceptLanguage {
 
-		public AcceptLanguageImpl(User user) {
+		public AcceptLanguageImpl(HttpServletRequest httpServletRequest, Locale preferredLocale, User user) {
+			_httpServletRequest = httpServletRequest;
+			_preferredLocale = preferredLocale;
 			_user = user;
 		}
 
 		@Override
 		public List<Locale> getLocales() {
-			return Collections.emptyList();
+			return Arrays.asList(getPreferredLocale());
 		}
 
 		@Override
@@ -165,10 +176,16 @@ public class ${schemaName}ResourceFactoryImpl implements ${schemaName}Resource.F
 
 		@Override
 		public Locale getPreferredLocale() {
-			List<Locale> locales = getLocales();
+			if (_preferredLocale != null) {
+				return _preferredLocale;
+			}
 
-			if (ListUtil.isNotEmpty(locales)) {
-				return locales.get(0);
+			if (_httpServletRequest != null) {
+				Locale locale = (Locale)_httpServletRequest.getAttribute(WebKeys.LOCALE);
+
+				if (locale != null) {
+					return locale;
+				}
 			}
 
 			return _user.getLocale();
@@ -179,6 +196,8 @@ public class ${schemaName}ResourceFactoryImpl implements ${schemaName}Resource.F
 			return false;
 		}
 
+		private final HttpServletRequest _httpServletRequest;
+		private final Locale _preferredLocale;
 		private final User _user;
 
 	}

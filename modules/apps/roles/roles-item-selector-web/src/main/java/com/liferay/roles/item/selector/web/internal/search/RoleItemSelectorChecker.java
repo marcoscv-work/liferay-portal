@@ -26,11 +26,13 @@ import javax.portlet.RenderResponse;
 public class RoleItemSelectorChecker extends EmptyOnClickRowChecker {
 
 	public RoleItemSelectorChecker(
-		RenderResponse renderResponse, long[] checkedRoleIds) {
+		RenderResponse renderResponse, long[] checkedRoleIds,
+		String[] excludedRoleNames) {
 
 		super(renderResponse);
 
 		_checkedRoleIds = checkedRoleIds;
+		_excludedRoleNames = excludedRoleNames;
 	}
 
 	@Override
@@ -42,9 +44,12 @@ public class RoleItemSelectorChecker extends EmptyOnClickRowChecker {
 
 	@Override
 	public boolean isDisabled(Object obj) {
-		return isChecked(obj);
+		Role role = (Role)obj;
+
+		return ArrayUtil.contains(_excludedRoleNames, role.getName());
 	}
 
 	private final long[] _checkedRoleIds;
+	private final String[] _excludedRoleNames;
 
 }

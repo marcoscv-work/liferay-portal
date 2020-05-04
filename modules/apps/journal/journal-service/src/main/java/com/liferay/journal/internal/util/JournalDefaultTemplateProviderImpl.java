@@ -71,6 +71,13 @@ public class JournalDefaultTemplateProviderImpl
 		for (TemplateVariableDefinition templateVariableDefinition :
 				templateVariableDefinitions) {
 
+			if ((templateVariableDefinition == null) ||
+				(templateVariableDefinition.getTemplateVariableCodeHandler() ==
+					null)) {
+
+				continue;
+			}
+
 			String code =
 				templateVariableDefinition.generateCode(getLanguage())[0];
 

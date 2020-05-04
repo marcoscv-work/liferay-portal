@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.segments.constants.SegmentsEntryConstants;
 import com.liferay.segments.model.SegmentsEntry;
 import com.liferay.segments.test.util.SegmentsTestUtil;
@@ -41,7 +42,7 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -60,7 +61,6 @@ public class SegmentResourceTest extends BaseSegmentResourceTestCase {
 		_user = UserTestUtil.addGroupUser(testGroup, RoleConstants.POWER_USER);
 	}
 
-	@Ignore
 	@Test
 	public void testGetSiteSegmentsPageWithDefaultPermissions()
 		throws Exception {
@@ -89,7 +89,6 @@ public class SegmentResourceTest extends BaseSegmentResourceTestCase {
 		assertValid(page);
 	}
 
-	@Ignore
 	@Test
 	public void testGetSiteSegmentsPageWithoutViewPermissions()
 		throws Exception {
@@ -128,6 +127,9 @@ public class SegmentResourceTest extends BaseSegmentResourceTestCase {
 
 		Assert.assertEquals(1, page.getTotalCount());
 	}
+
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
 
 	@Override
 	protected String[] getAdditionalAssertFieldNames() {

@@ -14,6 +14,7 @@
 
 package com.liferay.layout.content.page.editor.web.internal.display.context;
 
+import com.liferay.document.library.kernel.model.DLFileEntryConstants;
 import com.liferay.fragment.constants.FragmentEntryLinkConstants;
 import com.liferay.fragment.contributor.FragmentCollectionContributor;
 import com.liferay.fragment.contributor.FragmentCollectionContributorTracker;
@@ -31,6 +32,7 @@ import com.liferay.fragment.service.FragmentEntryLinkLocalServiceUtil;
 import com.liferay.fragment.service.FragmentEntryServiceUtil;
 import com.liferay.fragment.util.comparator.FragmentCollectionContributorNameComparator;
 import com.liferay.fragment.util.configuration.FragmentEntryConfigurationParser;
+import com.liferay.info.display.contributor.InfoDisplayContributor;
 import com.liferay.info.display.contributor.InfoDisplayContributorTracker;
 import com.liferay.info.display.contributor.InfoDisplayObjectProvider;
 import com.liferay.info.list.provider.item.selector.criterion.InfoListProviderItemSelectorCriterion;
@@ -49,9 +51,10 @@ import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.content.page.editor.sidebar.panel.ContentPageEditorSidebarPanel;
 import com.liferay.layout.content.page.editor.web.internal.comment.CommentUtil;
-import com.liferay.layout.content.page.editor.web.internal.configuration.LayoutContentPageEditorConfiguration;
+import com.liferay.layout.content.page.editor.web.internal.configuration.FFLayoutContentPageEditorConfiguration;
 import com.liferay.layout.content.page.editor.web.internal.constants.ContentPageEditorActionKeys;
 import com.liferay.layout.content.page.editor.web.internal.constants.ContentPageEditorConstants;
+import com.liferay.layout.content.page.editor.web.internal.constants.ViewportSize;
 import com.liferay.layout.content.page.editor.web.internal.util.ContentUtil;
 import com.liferay.layout.content.page.editor.web.internal.util.FragmentEntryLinkItemSelectorUtil;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
@@ -89,6 +92,7 @@ import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.PortletConfigFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
+import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
@@ -122,8 +126,11 @@ import com.liferay.segments.constants.SegmentsExperienceConstants;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -157,6 +164,8 @@ public class ContentPageEditorDisplayContext {
 	public ContentPageEditorDisplayContext(
 		CommentManager commentManager,
 		List<ContentPageEditorSidebarPanel> contentPageEditorSidebarPanels,
+		FFLayoutContentPageEditorConfiguration
+			ffLayoutContentPageEditorConfiguration,
 		FragmentCollectionContributorTracker
 			fragmentCollectionContributorTracker,
 		FragmentEntryConfigurationParser fragmentEntryConfigurationParser,
@@ -164,21 +173,19 @@ public class ContentPageEditorDisplayContext {
 		FragmentRendererTracker fragmentRendererTracker,
 		HttpServletRequest httpServletRequest,
 		InfoDisplayContributorTracker infoDisplayContributorTracker,
-		ItemSelector itemSelector,
-		LayoutContentPageEditorConfiguration
-			layoutContentPageEditorConfiguration,
-		PortletRequest portletRequest, RenderResponse renderResponse) {
+		ItemSelector itemSelector, PortletRequest portletRequest,
+		RenderResponse renderResponse) {
 
 		_commentManager = commentManager;
 		_contentPageEditorSidebarPanels = contentPageEditorSidebarPanels;
+		_ffLayoutContentPageEditorConfiguration =
+			ffLayoutContentPageEditorConfiguration;
 		_fragmentCollectionContributorTracker =
 			fragmentCollectionContributorTracker;
 		_fragmentEntryConfigurationParser = fragmentEntryConfigurationParser;
 		_fragmentRendererController = fragmentRendererController;
 		_fragmentRendererTracker = fragmentRendererTracker;
 		_itemSelector = itemSelector;
-		_layoutContentPageEditorConfiguration =
-			layoutContentPageEditorConfiguration;
 		_portletRequest = portletRequest;
 		_renderResponse = renderResponse;
 
@@ -219,6 +226,10 @@ public class ContentPageEditorDisplayContext {
 			).put(
 				"availableLanguages", _getAvailableLanguages()
 			).put(
+				"availableViewportSizes", _getAvailableViewportSizes()
+			).put(
+				"collectionSelectorURL", _getCollectionSelectorURL()
+			).put(
 				"defaultEditorConfigurations", _getDefaultConfigurations()
 			).put(
 				"defaultLanguageId",
@@ -254,10 +265,6 @@ public class ContentPageEditorDisplayContext {
 				getFragmentEntryActionURL(
 					"/content_layout/edit_fragment_entry_link")
 			).put(
-				"fragmentCompositionsEnabled",
-				_layoutContentPageEditorConfiguration.
-					fragmentCompositionsEnabled()
-			).put(
 				"getAssetFieldValueURL",
 				getResourceURL("/content_layout/get_asset_field_value")
 			).put(
@@ -266,6 +273,12 @@ public class ContentPageEditorDisplayContext {
 			).put(
 				"getAvailableTemplatesURL",
 				getResourceURL("/content_layout/get_available_templates")
+			).put(
+				"getCollectionFieldURL",
+				getResourceURL("/content_layout/get_collection_field")
+			).put(
+				"getCollectionMappingFieldsURL",
+				getResourceURL("/content_layout/get_collection_mapping_fields")
 			).put(
 				"getExperienceUsedPortletsURL",
 				getResourceURL("/content_layout/get_experience_used_portlets")
@@ -340,9 +353,15 @@ public class ContentPageEditorDisplayContext {
 				"renderFragmentEntryURL",
 				getResourceURL("/content_layout/get_fragment_entry_link")
 			).put(
+				"responsiveEnabled",
+				_ffLayoutContentPageEditorConfiguration.responsiveEnabled()
+			).put(
 				"sidebarPanels", getSidebarPanels()
 			).put(
 				"themeColorsCssClasses", _getThemeColorsCssClasses()
+			).put(
+				"undoEnabled",
+				_ffLayoutContentPageEditorConfiguration.undoEnabled()
 			).put(
 				"updateConfigurationValuesURL",
 				getFragmentEntryActionURL(
@@ -572,6 +591,74 @@ public class ContentPageEditorDisplayContext {
 		}
 
 		return availableLanguages;
+	}
+
+	private Map<String, Map<String, Object>> _getAvailableViewportSizes() {
+		Map<String, Map<String, Object>> availableViewportSizesMap =
+			new LinkedHashMap<>();
+
+		EnumSet<ViewportSize> viewportSizes = EnumSet.allOf(ViewportSize.class);
+
+		Stream<ViewportSize> stream = viewportSizes.stream();
+
+		List<ViewportSize> viewportSizesList = stream.sorted(
+			Comparator.comparingInt(ViewportSize::getOrder)
+		).collect(
+			Collectors.toList()
+		);
+
+		for (ViewportSize viewportSize : viewportSizesList) {
+			availableViewportSizesMap.put(
+				viewportSize.getViewportSizeId(),
+				HashMapBuilder.<String, Object>put(
+					"icon", viewportSize.getIcon()
+				).put(
+					"label",
+					LanguageUtil.get(
+						httpServletRequest, viewportSize.getLabel())
+				).put(
+					"maxWidth", viewportSize.getMaxWidth()
+				).put(
+					"minWidth", viewportSize.getMinWidth()
+				).put(
+					"sizeId", viewportSize.getViewportSizeId()
+				).build());
+		}
+
+		return availableViewportSizesMap;
+	}
+
+	private String _getCollectionSelectorURL() {
+		InfoListItemSelectorCriterion infoListItemSelectorCriterion =
+			new InfoListItemSelectorCriterion();
+
+		infoListItemSelectorCriterion.setItemTypes(
+			_getInfoDisplayContributorsClassNames());
+
+		infoListItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
+			new InfoListItemSelectorReturnType());
+
+		InfoListProviderItemSelectorCriterion
+			infoListProviderItemSelectorCriterion =
+				new InfoListProviderItemSelectorCriterion();
+
+		infoListProviderItemSelectorCriterion.setItemTypes(
+			_getInfoDisplayContributorsClassNames());
+
+		infoListProviderItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
+			new InfoListProviderItemSelectorReturnType());
+
+		PortletURL infoListSelectorURL = _itemSelector.getItemSelectorURL(
+			RequestBackedPortletURLFactoryUtil.create(httpServletRequest),
+			_renderResponse.getNamespace() + "selectInfoList",
+			infoListItemSelectorCriterion,
+			infoListProviderItemSelectorCriterion);
+
+		if (infoListSelectorURL == null) {
+			return StringPool.BLANK;
+		}
+
+		return infoListSelectorURL.toString();
 	}
 
 	private Map<String, Object> _getContributedFragmentEntry(
@@ -832,18 +919,14 @@ public class ContentPageEditorDisplayContext {
 			List<Map<String, Object>> filteredFragmentEntries =
 				_getFragmentEntries(fragmentEntries);
 
-			if (_layoutContentPageEditorConfiguration.
-					fragmentCompositionsEnabled()) {
+			List<FragmentComposition> fragmentCompositions =
+				FragmentCompositionServiceUtil.getFragmentCompositions(
+					fragmentCollection.getGroupId(),
+					fragmentCollection.getFragmentCollectionId(),
+					WorkflowConstants.STATUS_APPROVED);
 
-				List<FragmentComposition> fragmentCompositions =
-					FragmentCompositionServiceUtil.getFragmentCompositions(
-						fragmentCollection.getGroupId(),
-						fragmentCollection.getFragmentCollectionId(),
-						WorkflowConstants.STATUS_APPROVED);
-
-				filteredFragmentEntries.addAll(
-					_getFragmentCompositions(fragmentCompositions));
-			}
+			filteredFragmentEntries.addAll(
+				_getFragmentCompositions(fragmentCompositions));
 
 			if (!includeEmpty && ListUtil.isEmpty(filteredFragmentEntries)) {
 				continue;
@@ -1208,6 +1291,26 @@ public class ContentPageEditorDisplayContext {
 		_imageItemSelectorCriterion = itemSelectorCriterion;
 
 		return _imageItemSelectorCriterion;
+	}
+
+	private List<String> _getInfoDisplayContributorsClassNames() {
+		List<String> infoDisplayContributorsClassNames = new ArrayList<>();
+
+		for (InfoDisplayContributor infoDisplayContributor :
+				infoDisplayContributorTracker.getInfoDisplayContributors()) {
+
+			// LPS-111037
+
+			String className = infoDisplayContributor.getClassName();
+
+			if (Objects.equals(FileEntry.class.getName(), className)) {
+				className = DLFileEntryConstants.getClassName();
+			}
+
+			infoDisplayContributorsClassNames.add(className);
+		}
+
+		return infoDisplayContributorsClassNames;
 	}
 
 	private String _getInfoItemSelectorURL() {
@@ -1717,7 +1820,7 @@ public class ContentPageEditorDisplayContext {
 
 		Layout publishedLayout = _getPublishedLayout();
 
-		int masterUsagesCount = LayoutLocalServiceUtil.getLayoutsCount(
+		int masterUsagesCount = LayoutLocalServiceUtil.getMasterLayoutsCount(
 			themeDisplay.getScopeGroupId(), publishedLayout.getPlid());
 
 		if (masterUsagesCount > 0) {
@@ -1757,6 +1860,8 @@ public class ContentPageEditorDisplayContext {
 	private final List<ContentPageEditorSidebarPanel>
 		_contentPageEditorSidebarPanels;
 	private Map<String, Object> _defaultConfigurations;
+	private final FFLayoutContentPageEditorConfiguration
+		_ffLayoutContentPageEditorConfiguration;
 	private final FragmentCollectionContributorTracker
 		_fragmentCollectionContributorTracker;
 	private final FragmentEntryConfigurationParser
@@ -1768,8 +1873,6 @@ public class ContentPageEditorDisplayContext {
 	private Long _groupId;
 	private ItemSelectorCriterion _imageItemSelectorCriterion;
 	private final ItemSelector _itemSelector;
-	private final LayoutContentPageEditorConfiguration
-		_layoutContentPageEditorConfiguration;
 	private String _layoutData;
 	private LayoutStructure _masterLayoutStructure;
 	private Integer _pageType;

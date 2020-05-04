@@ -184,6 +184,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ENABLE_EXPIRATION</td>
+	<td>//label[contains(.,'Enable Expiration')]/input[@type='checkbox']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ENABLE_LOCKOUT</td>
 	<td>//label[contains(.,'Enable Lockout')]/input[@type='checkbox']</td>
 	<td></td>
@@ -483,7 +488,11 @@
 	<td>//label[contains(.,'${key_checkboxOption}')]/input[@type='checkbox']/../span</td>
 	<td></td>
 </tr>
-
+<tr>
+	<td>UPLOAD_FILE_ENTRY</td>
+	<td>//li[contains(@class,'upload-file')]//input[@type='checkbox' and contains(@data-title,'${key_fileName}')]</td>
+	<td></td>
+</tr>
 </tbody>
 </table>
 </body>

@@ -17,6 +17,9 @@ package com.liferay.portal.tools.rest.builder;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 
+import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.CamelCaseUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -52,6 +55,10 @@ import java.io.InputStream;
 
 import java.net.URL;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 
@@ -60,8 +67,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
 /**
  * @author Peter Shin
@@ -287,6 +296,61 @@ public class RESTBuilder {
 		jCommander.usage();
 	}
 
+	private String _addClientVersionDescription(String yamlString) {
+		String clientMavenGroupId = _getClientMavenGroupId(
+			_configYAML.getApiPackagePath());
+		Optional<String> clientVersionOptional = _getClientVersionOptional();
+
+		if ((clientMavenGroupId == null) ||
+			!clientVersionOptional.isPresent()) {
+
+			return yamlString;
+		}
+
+		String clientVersion = clientVersionOptional.get();
+
+		String clientMessage = StringBundler.concat(
+			"A Java client JAR is available for use with the group ID '",
+			clientMavenGroupId, "', artifact ID '",
+			_configYAML.getApiPackagePath(), ".client', and version '");
+
+		OpenAPIYAML openAPIYAML = _loadOpenAPIYAML(yamlString);
+
+		Info info = openAPIYAML.getInfo();
+
+		String description = info.getDescription();
+
+		if (description.contains(clientMessage)) {
+			description = StringUtil.removeSubstring(
+				description,
+				description.substring(description.indexOf(clientMessage)));
+		}
+
+		if (!description.isEmpty() && !description.endsWith(". ")) {
+			description = StringBundler.concat(
+				description, ". ", clientMessage, clientVersion, "'.");
+		}
+		else {
+			description = StringBundler.concat(
+				description, clientMessage, clientVersion, "'.");
+		}
+
+		String formattedDescription = _formatDescrition(
+			StringPool.FOUR_SPACES + StringPool.FOUR_SPACES,
+			"\"" + description + "\"");
+
+		String descriptionBlock =
+			"    description:\n" + formattedDescription + "\n";
+
+		return StringUtil.replace(
+			yamlString,
+			yamlString.substring(
+				yamlString.indexOf(
+					"    description:", yamlString.indexOf("info:")),
+				yamlString.indexOf("    license:")),
+			descriptionBlock);
+	}
+
 	private void _checkOpenAPIYAMLFile(FreeMarkerTool freeMarkerTool, File file)
 		throws Exception {
 
@@ -308,6 +372,8 @@ public class RESTBuilder {
 		if (_configYAML.isForcePredictableContentApplicationXML()) {
 			yamlString = _fixOpenAPIContentApplicationXML(yamlString);
 		}
+
+		yamlString = _addClientVersionDescription(yamlString);
 
 		if (_configYAML.isWarningsEnabled()) {
 			_validate(yamlString);
@@ -1521,6 +1587,69 @@ public class RESTBuilder {
 		return yamlString;
 	}
 
+	private String _formatDescrition(String indent, String descriton) {
+		if (Validator.isNull(descriton)) {
+			return StringPool.BLANK;
+		}
+
+		if ((indent.length() + descriton.length()) <=
+				_DESCRIPTION_MAX_LINE_LENGTH) {
+
+			return indent + descriton;
+		}
+
+		descriton = indent + descriton;
+
+		int x = descriton.indexOf(CharPool.SPACE, indent.length());
+
+		if (x == -1) {
+			return descriton;
+		}
+
+		if (x > _DESCRIPTION_MAX_LINE_LENGTH) {
+			String s = descriton.substring(x + 1);
+
+			return descriton.substring(0, x) + "\n" +
+				_formatDescrition(indent, s);
+		}
+
+		x = descriton.lastIndexOf(CharPool.SPACE, _DESCRIPTION_MAX_LINE_LENGTH);
+
+		String s = descriton.substring(x + 1);
+
+		return descriton.substring(0, x) + "\n" + _formatDescrition(indent, s);
+	}
+
+	private String _getClientMavenGroupId(String apiPackagePath) {
+		if (apiPackagePath.startsWith("com.liferay.commerce")) {
+			return "com.liferay.commerce";
+		}
+		else if (apiPackagePath.startsWith("com.liferay")) {
+			return "com.liferay";
+		}
+
+		return _configYAML.getClientMavenGroupId();
+	}
+
+	private Optional<String> _getClientVersionOptional() {
+		try {
+			String directory = StringUtil.removeSubstring(
+				_configYAML.getClientDir(), "src/main/java");
+
+			Stream<String> stream = Files.lines(
+				Paths.get(directory + "/bnd.bnd"), StandardCharsets.UTF_8);
+
+			return stream.filter(
+				line -> line.startsWith("Bundle-Version: ")
+			).map(
+				line -> StringUtil.removeSubstring(line, "Bundle-Version: ")
+			).findFirst();
+		}
+		catch (Exception exception) {
+			return Optional.empty();
+		}
+	}
+
 	private List<Operation> _getOperations(PathItem pathItem) {
 		List<Operation> operations = new ArrayList<>();
 
@@ -1731,6 +1860,8 @@ public class RESTBuilder {
 			}
 		}
 	}
+
+	private static final int _DESCRIPTION_MAX_LINE_LENGTH = 120;
 
 	private final File _configDir;
 	private final ConfigYAML _configYAML;

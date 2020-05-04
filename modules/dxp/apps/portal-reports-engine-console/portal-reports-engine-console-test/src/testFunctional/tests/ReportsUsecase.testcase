@@ -52,6 +52,8 @@ definition {
 
 	@priority = "4"
 	test DownloadReportPG {
+		property portal.acceptance = "true";
+
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
@@ -131,9 +133,10 @@ definition {
 	}
 
 	@description = "This is a use case for LPS-51009."
-	@ignore = "true"
 	@priority = "4"
 	test ViewReportEmailNewConfiguration {
+		property portal.upstream = "quarantine";
+
 		property test.name.skip.portal.instance = "ReportsUsecase#ViewReportEmailNewConfiguration";
 		var portalURL = PropsUtil.get("portal.url");
 		property test.smtp.server.enabled = "true";
@@ -230,6 +233,8 @@ Thanks,<br/>
 
 	@priority = "4"
 	test ViewReportPG {
+		property portal.acceptance = "true";
+
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(

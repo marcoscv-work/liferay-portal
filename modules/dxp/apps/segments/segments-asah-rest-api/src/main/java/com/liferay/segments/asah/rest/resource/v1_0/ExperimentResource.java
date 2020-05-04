@@ -17,6 +17,8 @@ package com.liferay.segments.asah.rest.resource.v1_0;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.segments.asah.rest.dto.v1_0.Experiment;
 
+import java.util.Locale;
+
 import javax.annotation.Generated;
 
 import javax.servlet.http.HttpServletRequest;
@@ -86,6 +88,8 @@ public interface ExperimentResource {
 
 		public Builder httpServletRequest(
 			HttpServletRequest httpServletRequest);
+
+		public Builder preferredLocale(Locale preferredLocale);
 
 		public Builder user(com.liferay.portal.kernel.model.User user);
 

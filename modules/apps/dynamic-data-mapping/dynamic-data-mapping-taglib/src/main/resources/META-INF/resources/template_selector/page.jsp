@@ -56,9 +56,9 @@ Group ddmTemplateGroup = GroupLocalServiceUtil.getGroup(ddmTemplateGroupId);
 					continue;
 				}
 
-						Map<String, Object> data = new HashMap<String, Object>();
-
-						data.put("displaystylegroupid", curDDMTemplate.getGroupId());
+						Map<String, Object> data = HashMapBuilder.<String, Object>put(
+							"displaystylegroupid", curDDMTemplate.getGroupId()
+						).build();
 			%>
 
 				<aui:option data="<%= data %>" label="<%= HtmlUtil.escape(curDDMTemplate.getName(locale)) %>" selected="<%= (portletDisplayDDMTemplate != null) && (curDDMTemplate.getTemplateId() == portletDisplayDDMTemplate.getTemplateId()) %>" value="<%= PortletDisplayTemplate.DISPLAY_STYLE_PREFIX + HtmlUtil.escape(curDDMTemplate.getTemplateKey()) %>" />
@@ -94,7 +94,7 @@ Group ddmTemplateGroup = GroupLocalServiceUtil.getGroup(ddmTemplateGroupId);
 	);
 
 	if (selectDDMTemplateLink) {
-		selectDDMTemplateLink.addEventListener('click', function(event) {
+		selectDDMTemplateLink.addEventListener('click', function (event) {
 			Liferay.Util.openDDMPortlet(
 				{
 					basePortletURL: '<%= basePortletURL %>',
@@ -111,7 +111,7 @@ Group ddmTemplateGroup = GroupLocalServiceUtil.getGroup(ddmTemplateGroupId);
 					title:
 						'<%= UnicodeLanguageUtil.get(request, "widget-templates") %>',
 				},
-				function(event) {
+				function (event) {
 					if (!event.newVal) {
 						submitForm(
 							document.<portlet:namespace />fm,
@@ -129,7 +129,7 @@ Group ddmTemplateGroup = GroupLocalServiceUtil.getGroup(ddmTemplateGroupId);
 	);
 
 	if (displayStyle && displayStyleGroupIdInput) {
-		displayStyle.addEventListener('change', function(event) {
+		displayStyle.addEventListener('change', function (event) {
 			var selectedDisplayStyle = displayStyle.querySelector('option:checked');
 
 			if (selectedDisplayStyle) {

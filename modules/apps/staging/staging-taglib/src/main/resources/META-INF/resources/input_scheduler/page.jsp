@@ -39,8 +39,6 @@
 		int startMonth = ParamUtil.get(request, "schedulerStartDateMonth", cal.get(Calendar.MONTH));
 		int startYear = ParamUtil.get(request, "schedulerStartDateYear", cal.get(Calendar.YEAR));
 
-		String cssClass = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-repeat:cssClass"));
-
 		Recurrence recurrence = null;
 
 		int recurrenceType = ParamUtil.getInteger(request, "recurrenceType", Recurrence.NO_RECURRENCE);
@@ -229,7 +227,9 @@
 						String[] days = CalendarUtil.getDays(locale);
 						%>
 
-						<div class="row weekdays">
+						<clay:row
+							className="weekdays"
+						>
 
 							<%
 							int firstDayOfWeek = cal.getFirstDayOfWeek();
@@ -249,7 +249,7 @@
 							}
 							%>
 
-						</div>
+						</clay:row>
 					</td>
 				</tr>
 			</tbody>
@@ -438,7 +438,7 @@
 		</table>
 
 		<script>
-			(function() {
+			(function () {
 				var tables = document.querySelectorAll(
 					'#<portlet:namespace />recurrenceTypeDailyTable, #<portlet:namespace />recurrenceTypeMonthlyTable, #<portlet:namespace />recurrenceTypeNeverTable, #<portlet:namespace />recurrenceTypeWeeklyTable, #<portlet:namespace />recurrenceTypeYearlyTable'
 				);
@@ -447,13 +447,13 @@
 				);
 
 				if (recurrenceTypeSelect) {
-					recurrenceTypeSelect.addEventListener('change', function(event) {
+					recurrenceTypeSelect.addEventListener('change', function (event) {
 						var selectedTableId =
 							'<portlet:namespace />' +
 							recurrenceTypeSelect[recurrenceTypeSelect.selectedIndex].id +
 							'Table';
 
-						Array.prototype.forEach.call(tables, function(table) {
+						Array.prototype.forEach.call(tables, function (table) {
 							if (table.id !== selectedTableId) {
 								table.classList.add('hide');
 							}

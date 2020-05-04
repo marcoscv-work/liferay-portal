@@ -27,6 +27,8 @@ create index IX_B5A3FAC6 on DDMFormInstanceRecordVersion (formInstanceRecordId, 
 create unique index IX_26623628 on DDMFormInstanceRecordVersion (formInstanceRecordId, version[$COLUMN_LENGTH:75$]);
 create index IX_57CA016C on DDMFormInstanceRecordVersion (userId, formInstanceId, formInstanceVersion[$COLUMN_LENGTH:75$], status);
 
+create index IX_953190E8 on DDMFormInstanceReport (formInstanceId);
+
 create index IX_EB92EF26 on DDMFormInstanceVersion (formInstanceId, status);
 create unique index IX_AE51CDC8 on DDMFormInstanceVersion (formInstanceId, version[$COLUMN_LENGTH:75$]);
 

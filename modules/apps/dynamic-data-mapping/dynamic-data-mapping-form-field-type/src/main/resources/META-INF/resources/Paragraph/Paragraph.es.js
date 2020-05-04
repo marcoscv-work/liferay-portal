@@ -12,146 +12,36 @@
  * details.
  */
 
-import '../FieldBase/FieldBase.es';
+import React from 'react';
 
-import './ParagraphRegister.soy';
+import {FieldBaseProxy} from '../FieldBase/ReactFieldBase.es';
+import getConnectedReactComponentAdapter from '../util/ReactComponentAdapter.es';
+import {connectStore} from '../util/connectStore.es';
 
-import Component from 'metal-component';
-import Soy from 'metal-soy';
-import {Config} from 'metal-state';
+const Paragraph = ({name, text}) => (
+	<div
+		className="form-group liferay-ddm-form-field-paragraph"
+		data-field-name={name}
+	>
+		<div
+			className="liferay-ddm-form-field-paragraph-text"
+			dangerouslySetInnerHTML={{
+				__html: typeof text === 'object' ? text.content : text,
+			}}
+		/>
+	</div>
+);
 
-import templates from './Paragraph.soy';
+const ParagraphProxy = connectStore(({name, text, ...otherProps}) => (
+	<FieldBaseProxy {...otherProps} name={name}>
+		<Paragraph name={name} text={text} />
+	</FieldBaseProxy>
+));
 
-class Paragraph extends Component {}
+const ReactParagraphAdapter = getConnectedReactComponentAdapter(
+	ParagraphProxy,
+	'paragraph'
+);
 
-Paragraph.STATE = {
-	/**
-	 * @default 'string'
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	dataType: Config.string().value('string'),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Paragraph
-	 * @type {?(string|undefined)}
-	 */
-
-	fieldName: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Paragraph
-	 * @type {?(string|undefined)}
-	 */
-
-	id: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Paragraph
-	 * @type {?(string|undefined)}
-	 */
-
-	label: Config.string().value(''),
-
-	/**
-	 * @default {}
-	 * @instance
-	 * @memberof Paragraph
-	 * @type {?(object|undefined)}
-	 */
-
-	localizedValue: Config.object().value({}),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Paragraph
-	 * @type {?(string|undefined)}
-	 */
-
-	name: Config.string().required(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Paragraph
-	 * @type {?(string|undefined)}
-	 */
-
-	placeholder: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof FieldBase
-	 * @type {?(bool|undefined)}
-	 */
-
-	repeatable: Config.bool(),
-
-	/**
-	 * @default false
-	 * @instance
-	 * @memberof Paragraph
-	 * @type {?(bool|undefined)}
-	 */
-
-	required: Config.bool().value(false),
-
-	/**
-	 * @default true
-	 * @instance
-	 * @memberof Paragraph
-	 * @type {?(bool|undefined)}
-	 */
-
-	showLabel: Config.bool().value(true),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Paragraph
-	 * @type {?(string|undefined)}
-	 */
-
-	spritemap: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Paragraph
-	 * @type {?(object|undefined)}
-	 */
-
-	text: Config.object(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof FieldBase
-	 * @type {?(string|undefined)}
-	 */
-
-	tooltip: Config.string(),
-
-	/**
-	 * @default undefined
-	 * @instance
-	 * @memberof Text
-	 * @type {?(string|undefined)}
-	 */
-
-	type: Config.string().value('paragraph'),
-};
-
-Soy.register(Paragraph, templates);
-
-export default Paragraph;
+export {ReactParagraphAdapter};
+export default ReactParagraphAdapter;

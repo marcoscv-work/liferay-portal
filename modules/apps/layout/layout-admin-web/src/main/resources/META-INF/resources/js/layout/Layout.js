@@ -41,7 +41,7 @@ const Layout = ({
 		A.use(
 			'liferay-search-container',
 			'liferay-search-container-select',
-			A => {
+			(A) => {
 				const plugins = [
 					{
 						cfg: {
@@ -64,7 +64,7 @@ const Layout = ({
 		);
 	}, [namespace, searchContainerId]);
 
-	const getItemChildren = parentId => {
+	const getItemChildren = (parentId) => {
 		const formData = new FormData();
 
 		formData.append(`${namespace}plid`, parentId);
@@ -73,7 +73,7 @@ const Layout = ({
 			body: formData,
 			method: 'POST',
 		})
-			.then(response => response.json())
+			.then((response) => response.json())
 			.then(({children}) => {
 				const newLayoutColumns = [];
 
@@ -96,8 +96,12 @@ const Layout = ({
 					newLayoutColumns.push(newColumn);
 
 					if (parent) {
-						const oldParent = newColumn.find(item => item.active);
-						oldParent.active = false;
+						const oldParent = newColumn.find((item) => item.active);
+
+						if (oldParent) {
+							oldParent.active = false;
+						}
+
 						parent.active = true;
 						newLayoutColumns.push(children);
 						break;
@@ -115,7 +119,7 @@ const Layout = ({
 		formData.append(`${namespace}plid`, sourceItemId);
 		formData.append(`${namespace}parentPlid`, parentItemId);
 
-		if (position) {
+		if (Number.isInteger(position)) {
 			formData.append(`${namespace}priority`, position);
 		}
 
@@ -125,11 +129,11 @@ const Layout = ({
 		});
 	};
 
-	const updateBreadcrumbs = columns => {
+	const updateBreadcrumbs = (columns) => {
 		const newBreadcrumbEntries = [breadcrumbEntries[0]];
 
 		for (let i = 0; i < columns.length; i++) {
-			const item = columns[i].items.find(item => item.active);
+			const item = columns[i].items.find((item) => item.active);
 
 			if (item) {
 				newBreadcrumbEntries.push({
@@ -157,7 +161,7 @@ const Layout = ({
 	);
 };
 
-export default function({
+export default function ({
 	context: {namespace},
 	props: {
 		breadcrumbEntries,

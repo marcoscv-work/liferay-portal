@@ -13,13 +13,19 @@ import {cleanup, findByTestId, fireEvent, render} from '@testing-library/react';
 import React from 'react';
 
 import TimeRangeFilter from '../../../src/main/resources/META-INF/resources/js/components/filter/TimeRangeFilter.es';
+import {stringify} from '../../../src/main/resources/META-INF/resources/js/shared/components/router/queryString.es';
 import {jsonSessionStorage} from '../../../src/main/resources/META-INF/resources/js/shared/util/storage.es';
 import {MockRouter} from '../../mock/MockRouter.es';
 
 import '@testing-library/jest-dom/extend-expect';
 
-const query =
-	'?filters.testTimeRange%5B0%5D=7&filters.testDateEnd=2019-12-09&filters.testDateStart=2019-12-03';
+const filters = {
+	testDateEnd: '2019-12-09T00:00:00Z',
+	testDateStart: '2019-12-03T00:00:00Z',
+	testTimeRange: ['7'],
+};
+
+const query = stringify({filters});
 
 const data = {
 	items: [
@@ -72,7 +78,7 @@ describe('The time range filter component should', () => {
 		test('Be rendered with active option "Last 7 Days"', async () => {
 			const filterItems = getAllByTestId('filterItem');
 
-			const activeItem = filterItems.find(item =>
+			const activeItem = filterItems.find((item) =>
 				item.className.includes('active')
 			);
 			const activeItemName = await findByTestId(

@@ -23,7 +23,8 @@ import {EDITABLE_TYPES} from '../../config/constants/editableTypes';
 import selectSegmentsExperienceId from '../../selectors/selectSegmentsExperienceId';
 import {useDispatch, useSelector} from '../../store/index';
 import updateEditableValues from '../../thunks/updateEditableValues';
-import {useGetFieldValue} from '../ControlsIdConverterContext';
+import {useGetFieldValue} from '../CollectionItemContext';
+import isMapped from '../fragment-content/isMapped';
 import MappingSelector from './MappingSelector';
 
 const SOURCE_TYPES = {
@@ -62,11 +63,11 @@ const TARGET_OPTIONS = [
 ];
 
 export default function LinkPanel({item}) {
-	const {editableId, fragmentEntryLinkId} = item;
+	const {editableId, editableType, fragmentEntryLinkId} = item;
 
 	const dispatch = useDispatch();
-	const fragmentEntryLinks = useSelector(state => state.fragmentEntryLinks);
-	const languageId = useSelector(state => state.languageId);
+	const fragmentEntryLinks = useSelector((state) => state.fragmentEntryLinks);
+	const languageId = useSelector((state) => state.languageId);
 	const segmentsExperienceId = useSelector(selectSegmentsExperienceId);
 
 	const editableValue =
@@ -74,15 +75,12 @@ export default function LinkPanel({item}) {
 			EDITABLE_FRAGMENT_ENTRY_PROCESSOR
 		][editableId];
 
-	const editableConfig = editableValue.config || {};
-
-	const isMapped =
-		editableConfig.mappedField ||
-		editableConfig.fieldId ||
-		editableConfig.collectionFieldId;
+	const editableConfig = editableValue ? editableValue.config : {};
 
 	const [sourceType, setSourceType] = useState(
-		isMapped ? SOURCE_TYPES.fromContentField : SOURCE_TYPES.manual
+		isMapped(editableConfig)
+			? SOURCE_TYPES.fromContentField
+			: SOURCE_TYPES.manual
 	);
 
 	const [href, setHref] = useState(editableConfig.href);
@@ -105,17 +103,20 @@ export default function LinkPanel({item}) {
 	]);
 
 	const updateRowConfig = useCallback(
-		newConfig => {
+		(newConfig) => {
 			const editableValues =
 				fragmentEntryLinks[fragmentEntryLinkId].editableValues;
 			const editableProcessorValues =
 				editableValues[EDITABLE_FRAGMENT_ENTRY_PROCESSOR];
 
-			const config = Object.keys(newConfig).length
-				? {
-						...newConfig,
-				  }
-				: {};
+			const config = {...newConfig};
+
+			if (
+				Object.keys(config).length > 0 &&
+				editableType !== EDITABLE_TYPES.link
+			) {
+				config.mapperType = 'link';
+			}
 
 			const nextEditableValues = {
 				...editableValues,
@@ -140,6 +141,7 @@ export default function LinkPanel({item}) {
 		[
 			dispatch,
 			editableId,
+			editableType,
 			fragmentEntryLinkId,
 			fragmentEntryLinks,
 			segmentsExperienceId,
@@ -160,7 +162,7 @@ export default function LinkPanel({item}) {
 				fieldId,
 				languageId,
 				onNetworkStatus: () => {},
-			}).then(fieldValue => {
+			}).then((fieldValue) => {
 				setHref(fieldValue);
 			});
 		},
@@ -175,7 +177,7 @@ export default function LinkPanel({item}) {
 				</label>
 				<ClaySelectWithOption
 					id="floatingToolbarLinkSourceOption"
-					onChange={event => {
+					onChange={(event) => {
 						updateRowConfig({});
 						setHref('');
 						setSourceType(event.target.value);
@@ -190,7 +192,7 @@ export default function LinkPanel({item}) {
 				<MappingSelector
 					fieldType={EDITABLE_TYPES.text}
 					mappedItem={editableConfig}
-					onMappingSelect={mappedItem => {
+					onMappingSelect={(mappedItem) => {
 						updateRowConfig({
 							...mappedItem,
 							target: editableConfig.target,
@@ -212,7 +214,7 @@ export default function LinkPanel({item}) {
 					</label>
 					<ClayInput
 						id="floatingToolbarLinkHrefOption"
-						onChange={event => {
+						onChange={(event) => {
 							setHref(event.target.value);
 
 							debounceUpdateRowConfig({href: event.target.value});
@@ -231,7 +233,7 @@ export default function LinkPanel({item}) {
 				</label>
 				<ClaySelectWithOption
 					id="floatingToolbarLinkTargetOption"
-					onChange={event => {
+					onChange={(event) => {
 						updateRowConfig({
 							...editableConfig,
 							target: event.target.value,

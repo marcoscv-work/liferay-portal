@@ -48,9 +48,9 @@ DLViewMoreMenuItemsDisplayContext dlViewMoreMenuItemsDisplayContext = new DLView
 		>
 
 			<%
-			Map<String, Object> data = new HashMap<>();
-
-			data.put("fileEntryTypeId", String.valueOf(fileEntryType.getFileEntryTypeId()));
+			Map<String, Object> data = HashMapBuilder.<String, Object>put(
+				"fileEntryTypeId", String.valueOf(fileEntryType.getFileEntryTypeId())
+			).build();
 			%>
 
 			<liferay-ui:search-container-column-text
@@ -83,7 +83,7 @@ DLViewMoreMenuItemsDisplayContext dlViewMoreMenuItemsDisplayContext = new DLView
 
 	A.one('#<portlet:namespace />addMenuItemFm').delegate(
 		'click',
-		function(event) {
+		function (event) {
 			Util.getOpener().Liferay.fire(
 				'<%= HtmlUtil.escapeJS(dlViewMoreMenuItemsDisplayContext.getEventName()) %>',
 				{

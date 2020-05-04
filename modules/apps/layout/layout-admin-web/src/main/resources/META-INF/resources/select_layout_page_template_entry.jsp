@@ -34,7 +34,7 @@ renderResponse.setTitle(LanguageUtil.get(request, "select-template"));
 %>
 
 <div class="container-fluid container-fluid-max-xl container-view" id="<portlet:namespace />layoutPageTemplateEntries">
-	<div class="row">
+	<clay:row>
 		<div class="col-lg-3">
 			<nav class="menubar menubar-transparent menubar-vertical-expand-lg">
 				<ul class="nav nav-nested">
@@ -65,22 +65,12 @@ renderResponse.setTitle(LanguageUtil.get(request, "select-template"));
 							%>
 
 							<li class="nav-item">
-
-								<%
-								String basicTemplatesURL = layoutsAdminDisplayContext.getSelectLayoutPageTemplateEntryURL(0, layoutsAdminDisplayContext.getSelPlid(), "basic-templates", layoutsAdminDisplayContext.isPrivateLayout());
-								%>
-
-								<a class="nav-link text-truncate <%= selectLayoutPageTemplateEntryDisplayContext.isBasicTemplates() ? "active" : StringPool.BLANK %>" href="<%= basicTemplatesURL %>">
+								<a class="nav-link text-truncate <%= selectLayoutPageTemplateEntryDisplayContext.isBasicTemplates() ? "active" : StringPool.BLANK %>" href="<%= layoutsAdminDisplayContext.getSelectLayoutPageTemplateEntryURL(0, layoutsAdminDisplayContext.getSelPlid(), "basic-templates", layoutsAdminDisplayContext.isPrivateLayout()) %>">
 									<liferay-ui:message key="basic-templates" />
 								</a>
 							</li>
 							<li class="nav-item">
-
-								<%
-								String globalTemplatesURL = layoutsAdminDisplayContext.getSelectLayoutPageTemplateEntryURL(0, layoutsAdminDisplayContext.getSelPlid(), "global-templates", layoutsAdminDisplayContext.isPrivateLayout());
-								%>
-
-								<a class="nav-link text-truncate <%= selectLayoutPageTemplateEntryDisplayContext.isGlobalTemplates() ? "active" : StringPool.BLANK %>" href="<%= globalTemplatesURL %>">
+								<a class="nav-link text-truncate <%= selectLayoutPageTemplateEntryDisplayContext.isGlobalTemplates() ? "active" : StringPool.BLANK %>" href="<%= layoutsAdminDisplayContext.getSelectLayoutPageTemplateEntryURL(0, layoutsAdminDisplayContext.getSelPlid(), "global-templates", layoutsAdminDisplayContext.isPrivateLayout()) %>">
 									<liferay-ui:message key="global-templates" />
 								</a>
 							</li>
@@ -161,7 +151,7 @@ renderResponse.setTitle(LanguageUtil.get(request, "select-template"));
 				</c:choose>
 			</div>
 		</div>
-	</div>
+	</clay:row>
 </div>
 
 <aui:script require="metal-dom/src/all/dom as dom">
@@ -173,7 +163,7 @@ renderResponse.setTitle(LanguageUtil.get(request, "select-template"));
 		layoutPageTemplateEntries,
 		'click',
 		'.add-layout-action-option',
-		function(event) {
+		function (event) {
 			var actionElement = event.delegateTarget;
 
 			Liferay.Util.openWindow({

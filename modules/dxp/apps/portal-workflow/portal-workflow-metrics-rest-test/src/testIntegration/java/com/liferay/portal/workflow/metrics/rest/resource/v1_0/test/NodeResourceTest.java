@@ -15,9 +15,6 @@
 package com.liferay.portal.workflow.metrics.rest.resource.v1_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.portal.search.document.DocumentBuilderFactory;
-import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
-import com.liferay.portal.search.query.Queries;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Node;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Process;
@@ -30,7 +27,6 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -39,14 +35,6 @@ import org.junit.runner.RunWith;
  */
 @RunWith(Arquillian.class)
 public class NodeResourceTest extends BaseNodeResourceTestCase {
-
-	@BeforeClass
-	public static void setUpClass() throws Exception {
-		BaseNodeResourceTestCase.setUpClass();
-
-		_workflowMetricsRESTTestHelper = new WorkflowMetricsRESTTestHelper(
-			_documentBuilderFactory, _queries, _searchEngineAdapter);
-	}
 
 	@Before
 	@Override
@@ -110,7 +98,12 @@ public class NodeResourceTest extends BaseNodeResourceTestCase {
 
 	@Override
 	protected String[] getAdditionalAssertFieldNames() {
-		return new String[] {"id", "name"};
+		return new String[] {"name"};
+	}
+
+	@Override
+	protected Node testDeleteProcessNode_addNode() throws Exception {
+		return testGetProcessNodesPage_addNode(_process.getId(), randomNode());
 	}
 
 	@Override
@@ -143,18 +136,10 @@ public class NodeResourceTest extends BaseNodeResourceTestCase {
 		}
 	}
 
-	@Inject
-	private static DocumentBuilderFactory _documentBuilderFactory;
-
-	@Inject
-	private static Queries _queries;
-
-	@Inject(blocking = false, filter = "search.engine.impl=Elasticsearch")
-	private static SearchEngineAdapter _searchEngineAdapter;
-
-	private static WorkflowMetricsRESTTestHelper _workflowMetricsRESTTestHelper;
-
 	private final List<Node> _nodes = new ArrayList<>();
 	private Process _process;
+
+	@Inject
+	private WorkflowMetricsRESTTestHelper _workflowMetricsRESTTestHelper;
 
 }

@@ -37,6 +37,7 @@ dependencies {
 	compileOnly project(":apps:xstream:xstream-configurator-api")
 	compileOnly project(":core:osgi-service-tracker-collections")
 	compileOnly project(":core:petra:petra-function")
+	compileOnly project(":core:petra:petra-io")
 	compileOnly project(":core:petra:petra-lang")
 	compileOnly project(":core:petra:petra-reflect")
 	compileOnly project(":core:petra:petra-sql-dsl-api")
@@ -44,7 +45,7 @@ dependencies {
 	compileOnly project(":core:registry-api")
 
 	testCompile group: "commons-configuration", name: "commons-configuration", version: "1.10"
-	testCompile group: "org.dom4j", name: "dom4j", version: "2.0.0"
+	testCompile group: "org.dom4j", name: "dom4j", version: "2.1.1"
 	testCompile group: "org.jodd", name: "jodd-bean", version: "3.6.4"
 	testCompile group: "org.jodd", name: "jodd-json", version: "3.6.4"
 	testCompile group: "org.json", name: "json", version: "20180813"

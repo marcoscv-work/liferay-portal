@@ -53,7 +53,7 @@ OAuth2Application oAuth2Application = oAuth2AdminPortletDisplayContext.getOAuth2
 
 	</aui:select>
 
-	<div class="row">
+	<clay:row>
 		<div class="col-lg-7" id="<portlet:namespace />allowedGrantTypesSection">
 			<h3 class="sheet-subtitle"><liferay-ui:message key="allowed-grant-types" /></h3>
 
@@ -98,11 +98,13 @@ OAuth2Application oAuth2Application = oAuth2AdminPortletDisplayContext.getOAuth2
 
 						checked = ParamUtil.getBoolean(request, name, checked);
 
-						Map<String, Object> data = new HashMap<>();
-
-						data.put("isredirect", grantType.isRequiresRedirectURI());
-						data.put("issupportsconfidentialclients", grantType.isSupportsConfidentialClients());
-						data.put("issupportspublicclients", grantType.isSupportsPublicClients());
+						Map<String, Object> data = HashMapBuilder.<String, Object>put(
+							"isredirect", grantType.isRequiresRedirectURI()
+						).put(
+							"issupportsconfidentialclients", grantType.isSupportsConfidentialClients()
+						).put(
+							"issupportspublicclients", grantType.isSupportsPublicClients()
+						).build();
 					%>
 
 						<div class="allowedGrantType <%= cssClassesStr %>">
@@ -126,7 +128,9 @@ OAuth2Application oAuth2Application = oAuth2AdminPortletDisplayContext.getOAuth2
 								);
 
 								if (allowedAuthorizationTypeCheckbox) {
-									allowedAuthorizationTypeCheckbox.addEventListener('click', function(event) {
+									allowedAuthorizationTypeCheckbox.addEventListener('click', function (
+										event
+									) {
 										<portlet:namespace />requiredRedirectURIs();
 									});
 								}
@@ -172,7 +176,7 @@ OAuth2Application oAuth2Application = oAuth2AdminPortletDisplayContext.getOAuth2
 					);
 
 					if (useSignedInUserButton) {
-						useSignedInUserButton.addEventListener('click', function(event) {
+						useSignedInUserButton.addEventListener('click', function (event) {
 							A.one('#<portlet:namespace />clientCredentialUserId').val(
 								'<%= user.getUserId() %>'
 							);
@@ -187,7 +191,7 @@ OAuth2Application oAuth2Application = oAuth2AdminPortletDisplayContext.getOAuth2
 					);
 
 					if (selectUserButton) {
-						selectUserButton.addEventListener('click', function(event) {
+						selectUserButton.addEventListener('click', function (event) {
 							Liferay.Util.selectEntity(
 								{
 									dialog: {
@@ -208,7 +212,7 @@ OAuth2Application oAuth2Application = oAuth2AdminPortletDisplayContext.getOAuth2
 									uri:
 										'<%= HtmlUtil.escapeJS(String.valueOf(selectUsersDisplayContext.getPortletURL())) %>',
 								},
-								function(event) {
+								function (event) {
 									A.one('#<portlet:namespace />clientCredentialUserId').val(
 										event.userid
 									);
@@ -222,7 +226,7 @@ OAuth2Application oAuth2Application = oAuth2AdminPortletDisplayContext.getOAuth2
 				</aui:script>
 			</div>
 		</c:if>
-	</div>
+	</clay:row>
 
 	<c:if test="<%= oAuth2Application != null %>">
 		<h3 class="sheet-subtitle"><liferay-ui:message key="supported-features" /></h3>

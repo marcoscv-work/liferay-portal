@@ -56,7 +56,7 @@ const AdaptiveMediaProgress = ({
 	};
 
 	const startProgress = useCallback(
-		backgroundTaskUrl => {
+		(backgroundTaskUrl) => {
 			fetch(backgroundTaskUrl);
 
 			if (isMounted()) {
@@ -80,7 +80,7 @@ const AdaptiveMediaProgress = ({
 
 	const updateProgress = useCallback(() => {
 		fetch(percentageUrl)
-			.then(res => res.json())
+			.then((res) => res.json())
 			.then(({adaptedImages, errors, totalImages}) => {
 				if (isMounted()) {
 					setImagesFailed(errors);
@@ -143,10 +143,12 @@ const AdaptiveMediaProgress = ({
 				<ClayIcon symbol="exclamation-full" />
 				<span>
 					<strong>{Liferay.Language.get('error')}: </strong>
-					{Liferay.Util.sub(
-						Liferay.Language.get('x-images-failed-process'),
-						imagesFailed
-					)}
+					{imagesFailed === 1
+						? Liferay.Language.get('1-image-failed-process')
+						: Liferay.Util.sub(
+								Liferay.Language.get('x-images-failed-process'),
+								imagesFailed
+						  )}
 				</span>
 			</span>
 

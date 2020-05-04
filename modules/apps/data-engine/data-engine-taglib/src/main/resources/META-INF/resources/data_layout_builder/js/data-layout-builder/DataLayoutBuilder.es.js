@@ -12,6 +12,7 @@
  * details.
  */
 
+import classNames from 'classnames';
 import FormBuilderWithLayoutProvider from 'dynamic-data-mapping-form-builder';
 import {PagesVisitor} from 'dynamic-data-mapping-form-renderer';
 import core from 'metal';
@@ -45,9 +46,6 @@ class DataLayoutBuilder extends React.Component {
 
 		const context = this._setContext(this.props.context);
 
-		const paginationMode =
-			context.paginationMode || config.paginationMode || 'wizard';
-
 		this.formBuilderWithLayoutProvider = new FormBuilderWithLayoutProvider(
 			{
 				events: {
@@ -59,19 +57,19 @@ class DataLayoutBuilder extends React.Component {
 				},
 				formBuilderProps: {
 					fieldTypes,
-					paginationMode,
 					portletNamespace,
 					ref: 'builder',
 				},
 				layoutProviderProps: {
 					...this.props,
+					allowMultiplePages: config.allowMultiplePages,
+					allowSuccessPage: config.allowSuccessPage,
 					context,
 					defaultLanguageId: themeDisplay.getDefaultLanguageId(),
 					editingLanguageId: themeDisplay.getDefaultLanguageId(),
 					initialPages: context.pages,
-					initialPaginationMode: paginationMode,
-					initialSuccessPageSettings: config.successPageSettings,
 					ref: 'layoutProvider',
+					rules: context.rules,
 				},
 			},
 			this.containerRef.current
@@ -132,7 +130,7 @@ class DataLayoutBuilder extends React.Component {
 		const fieldDefinitions = [];
 		const pagesVisitor = new PagesVisitor(pages);
 
-		const newPages = pagesVisitor.mapFields(field => {
+		const newPages = pagesVisitor.mapFields((field) => {
 			fieldDefinitions.push(this.getDataDefinitionField(field));
 
 			return field.fieldName;
@@ -145,9 +143,9 @@ class DataLayoutBuilder extends React.Component {
 				defaultLanguageId,
 			},
 			layout: {
-				dataLayoutPages: newPages.map(page => {
-					const rows = page.rows.map(row => {
-						const columns = row.columns.map(column => {
+				dataLayoutPages: newPages.map((page) => {
+					const rows = page.rows.map((row) => {
+						const columns = row.columns.map((column) => {
 							return {
 								columnSize: column.size,
 								fieldNames: column.fields,
@@ -173,7 +171,7 @@ class DataLayoutBuilder extends React.Component {
 	getDataDefinitionField({nestedFields = [], settingsContext}) {
 		const fieldConfig = {
 			customProperties: {},
-			nestedDataDefinitionFields: nestedFields.map(nestedField =>
+			nestedDataDefinitionFields: nestedFields.map((nestedField) =>
 				this.getDataDefinitionField(nestedField)
 			),
 		};
@@ -242,11 +240,11 @@ class DataLayoutBuilder extends React.Component {
 			id: dataDefinition.id,
 			localizedDescription: dataDefinition.description,
 			localizedTitle: dataDefinition.name,
-			pages: dataLayout.dataLayoutPages.map(dataLayoutPage => ({
-				rows: dataLayoutPage.dataLayoutRows.map(dataLayoutRow => ({
+			pages: dataLayout.dataLayoutPages.map((dataLayoutPage) => ({
+				rows: dataLayoutPage.dataLayoutRows.map((dataLayoutRow) => ({
 					columns: dataLayoutRow.dataLayoutColumns.map(
 						({columnSize, fieldNames}) => ({
-							fields: fieldNames.map(fieldName =>
+							fields: fieldNames.map((fieldName) =>
 								this.getDDMFormField(dataDefinition, fieldName)
 							),
 							size: columnSize,
@@ -276,7 +274,7 @@ class DataLayoutBuilder extends React.Component {
 		const ddmFormField = {settingsContext};
 		const visitor = new PagesVisitor(settingsContext.pages);
 
-		visitor.mapFields(field => {
+		visitor.mapFields((field) => {
 			const {fieldName} = field;
 			let {value} = field;
 
@@ -303,7 +301,7 @@ class DataLayoutBuilder extends React.Component {
 
 		return {
 			...settingsContext,
-			pages: visitor.mapFields(field => {
+			pages: visitor.mapFields((field) => {
 				const {fieldName, localizable} = field;
 				const propertyValue = this._getDataDefinitionfieldPropertyValue(
 					dataDefinitionField,
@@ -363,6 +361,12 @@ class DataLayoutBuilder extends React.Component {
 		return fieldTypes;
 	}
 
+	getFormData() {
+		const {pages} = this.getStore();
+
+		return this.getDataDefinitionAndDataLayout(pages);
+	}
+
 	getLayoutProvider() {
 		const {layoutProvider} = this.formBuilderWithLayoutProvider.refs;
 
@@ -393,8 +397,15 @@ class DataLayoutBuilder extends React.Component {
 	}
 
 	render() {
+		const {sidebarOpen = false} = this.getState();
+
 		return (
-			<div className={'ddm-form-builder'} ref={this.containerRef}></div>
+			<div
+				className={classNames('ddm-form-builder', {
+					'ddm-form-builder--sidebar-open': sidebarOpen,
+				})}
+				ref={this.containerRef}
+			></div>
 		);
 	}
 
@@ -405,11 +416,10 @@ class DataLayoutBuilder extends React.Component {
 			dataLayoutId,
 			groupId,
 		} = this.props;
-		const {pages} = this.getStore();
 		const {
 			definition: dataDefinition,
 			layout: dataLayout,
-		} = this.getDataDefinitionAndDataLayout(pages);
+		} = this.getFormData();
 
 		return saveDefinitionAndLayout({
 			contentType,
@@ -538,7 +548,7 @@ class DataLayoutBuilder extends React.Component {
 
 		return {
 			...context,
-			pages: context.pages.map(page => {
+			pages: context.pages.map((page) => {
 				let {
 					description,
 					localizedDescription,

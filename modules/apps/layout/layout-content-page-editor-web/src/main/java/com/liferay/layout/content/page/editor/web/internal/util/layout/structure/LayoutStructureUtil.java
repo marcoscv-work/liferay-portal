@@ -14,19 +14,9 @@
 
 package com.liferay.layout.content.page.editor.web.internal.util.layout.structure;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-
-import com.liferay.fragment.contributor.FragmentCollectionContributorTracker;
-import com.liferay.fragment.renderer.FragmentRendererTracker;
-import com.liferay.fragment.util.configuration.FragmentEntryConfigurationParser;
-import com.liferay.headless.delivery.dto.v1_0.PageElement;
-import com.liferay.layout.page.template.headless.delivery.dto.v1_0.PageDefinitionConverterUtil;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalServiceUtil;
+import com.liferay.layout.page.template.service.LayoutPageTemplateStructureServiceUtil;
 import com.liferay.layout.util.structure.FragmentLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
@@ -83,46 +73,6 @@ public class LayoutStructureUtil {
 			layoutPageTemplateStructure.getData(segmentsExperienceId));
 	}
 
-	public static String getLayoutStructureItemJSON(
-			FragmentCollectionContributorTracker
-				fragmentCollectionContributorTracker,
-			FragmentEntryConfigurationParser fragmentEntryConfigurationParser,
-			FragmentRendererTracker fragmentRendererTracker, long groupId,
-			String itemId, long plid, boolean saveInlineContent,
-			boolean saveMappingConfiguration, long segmentsExperienceId)
-		throws PortalException {
-
-		LayoutPageTemplateStructure layoutPageTemplateStructure =
-			LayoutPageTemplateStructureLocalServiceUtil.
-				fetchLayoutPageTemplateStructure(
-					groupId, PortalUtil.getClassNameId(Layout.class.getName()),
-					plid, true);
-
-		LayoutStructure layoutStructure = LayoutStructure.of(
-			layoutPageTemplateStructure.getData(segmentsExperienceId));
-
-		PageElement pageElement = PageDefinitionConverterUtil.toPageElement(
-			fragmentCollectionContributorTracker,
-			fragmentEntryConfigurationParser, fragmentRendererTracker, groupId,
-			layoutStructure, layoutStructure.getLayoutStructureItem(itemId),
-			saveInlineContent, saveMappingConfiguration, segmentsExperienceId);
-
-		try {
-			SimpleFilterProvider simpleFilterProvider =
-				new SimpleFilterProvider();
-
-			FilterProvider filterProvider = simpleFilterProvider.addFilter(
-				"Liferay.Vulcan", SimpleBeanPropertyFilter.serializeAll());
-
-			ObjectWriter objectWriter = _objectMapper.writer(filterProvider);
-
-			return objectWriter.writeValueAsString(pageElement);
-		}
-		catch (Exception exception) {
-			throw new PortalException(exception);
-		}
-	}
-
 	public static JSONObject updateLayoutPageTemplateData(
 			long groupId, long segmentsExperienceId, long plid,
 			UnsafeConsumer<LayoutStructure, PortalException> unsafeConsumer)
@@ -141,14 +91,12 @@ public class LayoutStructureUtil {
 
 		JSONObject dataJSONObject = layoutStructure.toJSONObject();
 
-		LayoutPageTemplateStructureLocalServiceUtil.
+		LayoutPageTemplateStructureServiceUtil.
 			updateLayoutPageTemplateStructure(
 				groupId, PortalUtil.getClassNameId(Layout.class.getName()),
 				plid, segmentsExperienceId, dataJSONObject.toString());
 
 		return dataJSONObject;
 	}
-
-	private static final ObjectMapper _objectMapper = new ObjectMapper();
 
 }

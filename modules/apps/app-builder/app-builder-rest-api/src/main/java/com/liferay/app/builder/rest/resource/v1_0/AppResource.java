@@ -21,6 +21,8 @@ import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 
+import java.util.Locale;
+
 import javax.annotation.Generated;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +48,10 @@ public interface AppResource {
 	public static Builder builder() {
 		return FactoryHolder.factory.create();
 	}
+
+	public Page<App> getAppsPage(
+			String keywords, Pagination pagination, Sort[] sorts)
+		throws Exception;
 
 	public void deleteApp(Long appId) throws Exception;
 
@@ -111,6 +117,8 @@ public interface AppResource {
 
 		public Builder httpServletRequest(
 			HttpServletRequest httpServletRequest);
+
+		public Builder preferredLocale(Locale preferredLocale);
 
 		public Builder user(com.liferay.portal.kernel.model.User user);
 

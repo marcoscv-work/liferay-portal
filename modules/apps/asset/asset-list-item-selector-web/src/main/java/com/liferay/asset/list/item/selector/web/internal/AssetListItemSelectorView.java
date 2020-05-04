@@ -14,11 +14,11 @@
 
 package com.liferay.asset.list.item.selector.web.internal;
 
-import com.liferay.asset.kernel.model.AssetEntry;
-import com.liferay.asset.list.constants.AssetListEntryTypeConstants;
+import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
+import com.liferay.asset.kernel.model.AssetRendererFactory;
+import com.liferay.asset.kernel.model.ClassType;
+import com.liferay.asset.kernel.model.ClassTypeReader;
 import com.liferay.asset.list.model.AssetListEntry;
-import com.liferay.asset.list.model.AssetListEntrySegmentsEntryRel;
-import com.liferay.asset.list.service.AssetListEntrySegmentsEntryRelLocalService;
 import com.liferay.asset.list.service.AssetListEntryService;
 import com.liferay.asset.list.util.AssetListPortletUtil;
 import com.liferay.item.selector.ItemSelectorReturnType;
@@ -29,13 +29,13 @@ import com.liferay.item.selector.criteria.InfoListItemSelectorReturnType;
 import com.liferay.item.selector.criteria.info.item.criterion.InfoListItemSelectorCriterion;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
@@ -45,7 +45,6 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
-import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
@@ -55,10 +54,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
@@ -96,7 +92,7 @@ public class AssetListItemSelectorView
 		ResourceBundle resourceBundle =
 			_resourceBundleLoader.loadResourceBundle(locale);
 
-		return _language.get(resourceBundle, "content-sets");
+		return _language.get(resourceBundle, "collections");
 	}
 
 	@Override
@@ -114,70 +110,12 @@ public class AssetListItemSelectorView
 				infoListItemSelectorCriterion, portletURL));
 	}
 
-	private String _getClassName(AssetListEntry assetListEntry) {
-		if (assetListEntry.getType() ==
-				AssetListEntryTypeConstants.TYPE_MANUAL) {
-
-			return AssetEntry.class.getName();
-		}
-
-		try {
-			String className = StringPool.BLANK;
-
-			List<AssetListEntrySegmentsEntryRel>
-				assetListEntrySegmentsEntryRels =
-					_assetListEntrySegmentsEntryRelLocalService.
-						getAssetListEntrySegmentsEntryRels(
-							assetListEntry.getAssetListEntryId(),
-							QueryUtil.ALL_POS, QueryUtil.ALL_POS);
-
-			for (AssetListEntrySegmentsEntryRel assetListEntrySegmentsEntryRel :
-					assetListEntrySegmentsEntryRels) {
-
-				UnicodeProperties unicodeProperties = new UnicodeProperties();
-
-				unicodeProperties.load(
-					assetListEntrySegmentsEntryRel.getTypeSettings());
-
-				long defaultClassNameId = GetterUtil.getLong(
-					unicodeProperties.getProperty("anyAssetType", null));
-
-				if (defaultClassNameId <= 0) {
-					return AssetEntry.class.getName();
-				}
-
-				if (Validator.isNull(className)) {
-					className = _portal.getClassName(defaultClassNameId);
-				}
-				else if (!Objects.equals(
-							className,
-							_portal.getClassName(defaultClassNameId))) {
-
-					return AssetEntry.class.getName();
-				}
-			}
-
-			return className;
-		}
-		catch (IOException ioException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(ioException, ioException);
-			}
-		}
-
-		return AssetEntry.class.getName();
-	}
-
 	private static final Log _log = LogFactoryUtil.getLog(
 		AssetListItemSelectorView.class);
 
 	private static final List<ItemSelectorReturnType>
 		_supportedItemSelectorReturnTypes = Collections.singletonList(
 			new InfoListItemSelectorReturnType());
-
-	@Reference
-	private AssetListEntrySegmentsEntryRelLocalService
-		_assetListEntrySegmentsEntryRelLocalService;
 
 	@Reference
 	private AssetListEntryService _assetListEntryService;
@@ -240,8 +178,9 @@ public class AssetListItemSelectorView
 					).put(
 						"classPK", assetListEntry.getAssetListEntryId()
 					).put(
-						"itemType",
-						_portal.getClassNameId(_getClassName(assetListEntry))
+						"itemSubtype", assetListEntry.getAssetEntrySubtype()
+					).put(
+						"itemType", assetListEntry.getAssetEntryType()
 					).put(
 						"title", assetListEntry.getTitle()
 					).toString();
@@ -249,11 +188,22 @@ public class AssetListItemSelectorView
 
 				@Override
 				public String getSubtitle(Locale locale) {
-					ResourceBundle resourceBundle =
-						_resourceBundleLoader.loadResourceBundle(locale);
+					String subtitle = ResourceActionsUtil.getModelResource(
+						locale, assetListEntry.getAssetEntryType());
 
-					return _language.get(
-						resourceBundle, assetListEntry.getTypeLabel());
+					if (Validator.isNull(
+							assetListEntry.getAssetEntrySubtype())) {
+
+						return subtitle;
+					}
+
+					String subtypeLabel = _getAssetEntrySubtypeSubtypeLabel();
+
+					if (Validator.isNull(subtypeLabel)) {
+						return subtitle;
+					}
+
+					return subtitle + " - " + subtypeLabel;
 				}
 
 				@Override
@@ -274,6 +224,47 @@ public class AssetListItemSelectorView
 				@Override
 				public String getUserName() {
 					return assetListEntry.getUserName();
+				}
+
+				private String _getAssetEntrySubtypeSubtypeLabel() {
+					long classTypeId = GetterUtil.getLong(
+						assetListEntry.getAssetEntrySubtype());
+
+					if (classTypeId <= 0) {
+						return StringPool.BLANK;
+					}
+
+					AssetRendererFactory assetRendererFactory =
+						AssetRendererFactoryRegistryUtil.
+							getAssetRendererFactoryByClassName(
+								assetListEntry.getAssetEntryType());
+
+					if ((assetRendererFactory == null) ||
+						!assetRendererFactory.isSupportsClassTypes()) {
+
+						return StringPool.BLANK;
+					}
+
+					ClassTypeReader classTypeReader =
+						assetRendererFactory.getClassTypeReader();
+
+					ThemeDisplay themeDisplay =
+						(ThemeDisplay)_httpServletRequest.getAttribute(
+							WebKeys.THEME_DISPLAY);
+
+					try {
+						ClassType classType = classTypeReader.getClassType(
+							classTypeId, themeDisplay.getLocale());
+
+						return classType.getName();
+					}
+					catch (PortalException portalException) {
+						if (_log.isDebugEnabled()) {
+							_log.debug(portalException, portalException);
+						}
+					}
+
+					return StringPool.BLANK;
 				}
 
 			};
@@ -306,7 +297,7 @@ public class AssetListItemSelectorView
 			SearchContainer<AssetListEntry> searchContainer =
 				new SearchContainer<>(
 					portletRequest, _portletURL, null,
-					_language.get(resourceBundle, "there-are-no-content-sets"));
+					_language.get(resourceBundle, "there-are-no-collections"));
 
 			String orderByCol = ParamUtil.getString(
 				_httpServletRequest, "orderByCol", "create-date");
@@ -325,15 +316,124 @@ public class AssetListItemSelectorView
 			String keywords = ParamUtil.getString(
 				_httpServletRequest, "keywords");
 
-			if (Validator.isNotNull(
-					_infoListItemSelectorCriterion.getItemType())) {
+			List<AssetListEntry> assetListEntries = null;
+			int assetListEntriesCount = 0;
 
-				return _getFilteredSearchContainer(
-					keywords, themeDisplay.getScopeGroupId(), searchContainer);
+			List<String> itemTypes =
+				_infoListItemSelectorCriterion.getItemTypes();
+
+			if (ListUtil.isEmpty(itemTypes)) {
+				if (Validator.isNotNull(keywords)) {
+					assetListEntries =
+						_assetListEntryService.getAssetListEntries(
+							PortalUtil.getCurrentAndAncestorSiteGroupIds(
+								themeDisplay.getScopeGroupId()),
+							keywords, searchContainer.getStart(),
+							searchContainer.getEnd(),
+							searchContainer.getOrderByComparator());
+
+					assetListEntriesCount =
+						_assetListEntryService.getAssetListEntriesCount(
+							PortalUtil.getCurrentAndAncestorSiteGroupIds(
+								themeDisplay.getScopeGroupId()),
+							keywords);
+				}
+				else {
+					assetListEntries =
+						_assetListEntryService.getAssetListEntries(
+							PortalUtil.getCurrentAndAncestorSiteGroupIds(
+								themeDisplay.getScopeGroupId()),
+							searchContainer.getStart(),
+							searchContainer.getEnd(),
+							searchContainer.getOrderByComparator());
+
+					assetListEntriesCount =
+						_assetListEntryService.getAssetListEntriesCount(
+							PortalUtil.getCurrentAndAncestorSiteGroupIds(
+								themeDisplay.getScopeGroupId()));
+				}
+			}
+			else if (Validator.isNull(
+						_infoListItemSelectorCriterion.getItemSubtype())) {
+
+				if (Validator.isNotNull(keywords)) {
+					assetListEntries =
+						_assetListEntryService.getAssetListEntries(
+							PortalUtil.getCurrentAndAncestorSiteGroupIds(
+								themeDisplay.getScopeGroupId()),
+							keywords, itemTypes.toArray(new String[0]),
+							searchContainer.getStart(),
+							searchContainer.getEnd(),
+							searchContainer.getOrderByComparator());
+
+					assetListEntriesCount =
+						_assetListEntryService.getAssetListEntriesCount(
+							PortalUtil.getCurrentAndAncestorSiteGroupIds(
+								themeDisplay.getScopeGroupId()),
+							keywords, itemTypes.toArray(new String[0]));
+				}
+				else {
+					assetListEntries =
+						_assetListEntryService.getAssetListEntries(
+							PortalUtil.getCurrentAndAncestorSiteGroupIds(
+								themeDisplay.getScopeGroupId()),
+							itemTypes.toArray(new String[0]),
+							searchContainer.getStart(),
+							searchContainer.getEnd(),
+							searchContainer.getOrderByComparator());
+
+					assetListEntriesCount =
+						_assetListEntryService.getAssetListEntriesCount(
+							PortalUtil.getCurrentAndAncestorSiteGroupIds(
+								themeDisplay.getScopeGroupId()),
+							itemTypes.toArray(new String[0]));
+				}
+			}
+			else {
+				if (Validator.isNotNull(keywords)) {
+					assetListEntries =
+						_assetListEntryService.getAssetListEntries(
+							PortalUtil.getCurrentAndAncestorSiteGroupIds(
+								themeDisplay.getScopeGroupId()),
+							keywords,
+							_infoListItemSelectorCriterion.getItemSubtype(),
+							_infoListItemSelectorCriterion.getItemType(),
+							searchContainer.getStart(),
+							searchContainer.getEnd(),
+							searchContainer.getOrderByComparator());
+
+					assetListEntriesCount =
+						_assetListEntryService.getAssetListEntriesCount(
+							PortalUtil.getCurrentAndAncestorSiteGroupIds(
+								themeDisplay.getScopeGroupId()),
+							keywords,
+							_infoListItemSelectorCriterion.getItemSubtype(),
+							_infoListItemSelectorCriterion.getItemType());
+				}
+				else {
+					assetListEntries =
+						_assetListEntryService.getAssetListEntries(
+							PortalUtil.getCurrentAndAncestorSiteGroupIds(
+								themeDisplay.getScopeGroupId()),
+							_infoListItemSelectorCriterion.getItemSubtype(),
+							_infoListItemSelectorCriterion.getItemType(),
+							searchContainer.getStart(),
+							searchContainer.getEnd(),
+							searchContainer.getOrderByComparator());
+
+					assetListEntriesCount =
+						_assetListEntryService.getAssetListEntriesCount(
+							PortalUtil.getCurrentAndAncestorSiteGroupIds(
+								themeDisplay.getScopeGroupId()),
+							_infoListItemSelectorCriterion.getItemSubtype(),
+							_infoListItemSelectorCriterion.getItemType());
+				}
 			}
 
-			return _getSearchContainer(
-				keywords, themeDisplay.getScopeGroupId(), searchContainer);
+			searchContainer.setResults(assetListEntries);
+			searchContainer.setTotal(assetListEntriesCount);
+
+			return searchContainer;
 		}
 
 		@Override
@@ -349,88 +449,6 @@ public class AssetListItemSelectorView
 		@Override
 		public boolean isShowSearch() {
 			return true;
-		}
-
-		private SearchContainer _getFilteredSearchContainer(
-				String keywords, long groupId, SearchContainer searchContainer)
-			throws PortalException {
-
-			List<AssetListEntry> assetListEntries = null;
-
-			if (Validator.isNotNull(keywords)) {
-				assetListEntries = _assetListEntryService.getAssetListEntries(
-					PortalUtil.getCurrentAndAncestorSiteGroupIds(groupId),
-					keywords, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-					searchContainer.getOrderByComparator());
-			}
-			else {
-				assetListEntries = _assetListEntryService.getAssetListEntries(
-					PortalUtil.getCurrentAndAncestorSiteGroupIds(groupId),
-					QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-					searchContainer.getOrderByComparator());
-			}
-
-			Stream<AssetListEntry> assetListEntriesStream =
-				assetListEntries.stream();
-
-			assetListEntries = assetListEntriesStream.filter(
-				assetListEntry -> {
-					if (Objects.equals(
-							_infoListItemSelectorCriterion.getItemType(),
-							_getClassName(assetListEntry))) {
-
-						return true;
-					}
-
-					return false;
-				}
-			).collect(
-				Collectors.toList()
-			);
-
-			searchContainer.setResults(
-				ListUtil.subList(
-					assetListEntries, searchContainer.getStart(),
-					searchContainer.getEnd()));
-			searchContainer.setTotal(assetListEntries.size());
-
-			return searchContainer;
-		}
-
-		private SearchContainer _getSearchContainer(
-				String keywords, long groupId, SearchContainer searchContainer)
-			throws PortalException {
-
-			List<AssetListEntry> assetListEntries = null;
-			int assetListEntriesCount = 0;
-
-			if (Validator.isNotNull(keywords)) {
-				assetListEntries = _assetListEntryService.getAssetListEntries(
-					PortalUtil.getCurrentAndAncestorSiteGroupIds(groupId),
-					keywords, searchContainer.getStart(),
-					searchContainer.getEnd(),
-					searchContainer.getOrderByComparator());
-
-				assetListEntriesCount =
-					_assetListEntryService.getAssetListEntriesCount(
-						PortalUtil.getCurrentAndAncestorSiteGroupIds(groupId),
-						keywords);
-			}
-			else {
-				assetListEntries = _assetListEntryService.getAssetListEntries(
-					PortalUtil.getCurrentAndAncestorSiteGroupIds(groupId),
-					searchContainer.getStart(), searchContainer.getEnd(),
-					searchContainer.getOrderByComparator());
-
-				assetListEntriesCount =
-					_assetListEntryService.getAssetListEntriesCount(
-						PortalUtil.getCurrentAndAncestorSiteGroupIds(groupId));
-			}
-
-			searchContainer.setResults(assetListEntries);
-			searchContainer.setTotal(assetListEntriesCount);
-
-			return searchContainer;
 		}
 
 		private final HttpServletRequest _httpServletRequest;

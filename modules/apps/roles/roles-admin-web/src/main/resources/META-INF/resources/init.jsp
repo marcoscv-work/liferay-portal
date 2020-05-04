@@ -108,6 +108,7 @@ page import="com.liferay.portal.kernel.util.Constants" %><%@
 page import="com.liferay.portal.kernel.util.GetterUtil" %><%@
 page import="com.liferay.portal.kernel.util.HashMapBuilder" %><%@
 page import="com.liferay.portal.kernel.util.HtmlUtil" %><%@
+page import="com.liferay.portal.kernel.util.LinkedHashMapBuilder" %><%@
 page import="com.liferay.portal.kernel.util.ListUtil" %><%@
 page import="com.liferay.portal.kernel.util.ParamUtil" %><%@
 page import="com.liferay.portal.kernel.util.PortalUtil" %><%@
@@ -144,7 +145,6 @@ page import="com.liferay.users.admin.kernel.util.UsersAdminUtil" %>
 
 <%@ page import="java.util.ArrayList" %><%@
 page import="java.util.Collections" %><%@
-page import="java.util.HashMap" %><%@
 page import="java.util.HashSet" %><%@
 page import="java.util.LinkedHashMap" %><%@
 page import="java.util.List" %><%@
@@ -207,8 +207,8 @@ private String _getActionLabel(HttpServletRequest request, ThemeDisplay themeDis
 	return actionLabel;
 }
 
-private String _getAssigneesMessage(HttpServletRequest request, Role role) throws Exception {
-	if (_isImpliedRole(role)) {
+private String _getAssigneesMessage(HttpServletRequest request, Role role, RoleDisplayContext roleDisplayContext) throws Exception {
+	if (roleDisplayContext.isAutomaticallyAssigned(role)) {
 		return LanguageUtil.get(request, "this-role-is-automatically-assigned");
 	}
 
@@ -232,16 +232,6 @@ private StringBundler _getResourceHtmlId(String resource) {
 	sb.append(StringUtil.replace(resource, '.', '_'));
 
 	return sb;
-}
-
-private boolean _isImpliedRole(Role role) {
-	String name = role.getName();
-
-	if (name.equals(RoleConstants.GUEST) || name.equals(RoleConstants.ORGANIZATION_USER) || name.equals(RoleConstants.OWNER) || name.equals(RoleConstants.SITE_MEMBER) || name.equals(RoleConstants.USER)) {
-		return true;
-	}
-
-	return false;
 }
 
 private boolean _isShowScope(HttpServletRequest request, Role role, String curModelResource, String curPortletResource) throws SystemException {

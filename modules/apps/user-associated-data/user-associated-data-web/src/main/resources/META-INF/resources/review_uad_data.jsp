@@ -38,7 +38,7 @@ renderResponse.setTitle(StringBundler.concat(selectedUser.getFullName(), " - ", 
 <liferay-util:include page="/uad_data_navigation_bar.jsp" servletContext="<%= application %>" />
 
 <div class="container-fluid container-fluid-max-xl container-form-lg">
-	<div class="row">
+	<clay:row>
 		<div class="col-lg-3">
 			<div class="panel panel-secondary">
 				<div class="collapse-icon collapse-icon-middle panel-header" data-target="#<portlet:namespace />scopePanelBody" data-toggle="liferay-collapse">
@@ -208,7 +208,7 @@ renderResponse.setTitle(StringBundler.concat(selectedUser.getFullName(), " - ", 
 				</div>
 			</div>
 		</div>
-	</div>
+	</clay:row>
 </div>
 
 <portlet:renderURL var="reviewUADDataURL">
@@ -223,13 +223,13 @@ renderResponse.setTitle(StringBundler.concat(selectedUser.getFullName(), " - ", 
 
 	var clickListeners = [];
 
-	var registerClickHandler = function(element, clickHandlerFn) {
+	var registerClickHandler = function (element, clickHandlerFn) {
 		clickListeners.push(
 			dom.delegate(element, 'click', 'input', clickHandlerFn)
 		);
 	};
 
-	registerClickHandler(<portlet:namespace />applicationPanelBody, function(
+	registerClickHandler(<portlet:namespace />applicationPanelBody, function (
 		event
 	) {
 		var url = new URL(baseURL, window.location.origin);
@@ -243,7 +243,7 @@ renderResponse.setTitle(StringBundler.concat(selectedUser.getFullName(), " - ", 
 	});
 
 	<c:if test="<%= !Objects.equals(viewUADEntitiesDisplay.getApplicationKey(), UADConstants.ALL_APPLICATIONS) %>">
-		registerClickHandler(<portlet:namespace />entitiesTypePanelBody, function(
+		registerClickHandler(<portlet:namespace />entitiesTypePanelBody, function (
 			event
 		) {
 			var url = new URL(baseURL, window.location.origin);
@@ -257,7 +257,7 @@ renderResponse.setTitle(StringBundler.concat(selectedUser.getFullName(), " - ", 
 		});
 	</c:if>
 
-	registerClickHandler(<portlet:namespace />scopePanelBody, function(event) {
+	registerClickHandler(<portlet:namespace />scopePanelBody, function (event) {
 		var url = new URL(baseURL, window.location.origin);
 
 		url.searchParams.set('<portlet:namespace />applicationKey', '');

@@ -23,7 +23,6 @@ const Card = ({cardIndex, nextTransitions = [], tasks}) => {
 		bulkTransition: {transition, transitionTasks},
 		setBulkTransition,
 	} = useContext(ModalContext);
-	const [addComment, setAddComment] = useState(false);
 	const [comment, setComment] = useState('');
 	const [hasError, setHasError] = useState(true);
 	const [selectedTransition, setSelectedTransition] = useState('');
@@ -158,8 +157,7 @@ const Card = ({cardIndex, nextTransitions = [], tasks}) => {
 						className="control-label"
 						htmlFor={`transitionSelect${cardIndex}`}
 					>
-						{`${Liferay.Language.get('transition-to')} `}
-
+						{`${Liferay.Language.get('transition-to')}`}{' '}
 						<ClayIcon
 							className="reference-mark text-warning"
 							symbol="asterisk"
@@ -175,7 +173,7 @@ const Card = ({cardIndex, nextTransitions = [], tasks}) => {
 					>
 						<ClaySelect.Option label="" value="" />
 
-						{nextTransitions.map(nextTransition => (
+						{nextTransitions.map((nextTransition) => (
 							<ClaySelect.Option
 								key={nextTransition.name}
 								label={nextTransition.label}
@@ -197,41 +195,49 @@ const Card = ({cardIndex, nextTransitions = [], tasks}) => {
 				</div>
 			</ClayPanel.Body>
 
-			<ClayPanel.Footer
-				className="pb-3"
-				data-testid="selectTransitionFooter"
-			>
-				{!addComment ? (
-					<ClayButton
-						data-testid="addCommentButton"
-						displayType="secondary"
-						onClick={() => setAddComment(true)}
-					>
-						<ClayIcon className="mr-3" symbol="message" />
-
-						{Liferay.Language.get('add-comment')}
-					</ClayButton>
-				) : (
-					<>
-						<label htmlFor="commentTextArea">
-							{`${Liferay.Language.get(
-								'comment'
-							)} (${Liferay.Language.get('optional')})`}
-						</label>
-
-						<ClayInput
-							component="textarea"
-							data-testid="commentField"
-							id="commentTextArea"
-							onChange={({target}) => setComment(target.value)}
-							placeholder={Liferay.Language.get('comment')}
-							type="text"
-						/>
-					</>
-				)}
-			</ClayPanel.Footer>
+			<Card.Footer comment={comment} setComment={setComment} />
 		</>
 	);
 };
+
+const Footer = ({comment, setComment}) => {
+	const [addComment, setAddComment] = useState(false);
+
+	return (
+		<ClayPanel.Footer className="pb-3" data-testid="selectTransitionFooter">
+			{!addComment ? (
+				<ClayButton
+					data-testid="addCommentButton"
+					displayType="secondary"
+					onClick={() => setAddComment(true)}
+				>
+					<ClayIcon className="mr-3" symbol="message" />
+
+					{Liferay.Language.get('add-comment')}
+				</ClayButton>
+			) : (
+				<>
+					<label htmlFor="commentTextArea">
+						{`${Liferay.Language.get(
+							'comment'
+						)} (${Liferay.Language.get('optional')})`}
+					</label>
+
+					<ClayInput
+						component="textarea"
+						data-testid="commentField"
+						id="commentTextArea"
+						onChange={({target}) => setComment(target.value)}
+						placeholder={Liferay.Language.get('comment')}
+						type="text"
+						value={comment}
+					/>
+				</>
+			)}
+		</ClayPanel.Footer>
+	);
+};
+
+Card.Footer = Footer;
 
 export {Card};

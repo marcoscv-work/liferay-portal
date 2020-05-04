@@ -45,13 +45,7 @@ definition {
 	@description = "This test asserts that users get the proper notification based on depot sharing permissions granted to him."
 	@priority = "5"
 	test AssertNotifications {
-		property portal.upstream = "quarantine";
-
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-depot-name");
 
 		DMDocument.addMultipleCP(dmDocumentFileList = "Document_1.doc,Document_1.png,Document_1.odt");
 
@@ -63,11 +57,13 @@ definition {
 			userEmailAddress = "userea@liferay.com",
 			userName = "userfn userln");
 
-		DepotNavigator.openDepotAdmin();
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-depot-name");
 
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		LexiconEntry.changeDisplayStyle(displayStyle = "Cards");
+
+		AssertVisible(
+			key_dmDocumentTitle = "Document_1.doc",
+			locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_SHARED");
 
 		DepotNavigator.gotoShare(dmDocumentTitle = "Document_1.png");
 
@@ -76,11 +72,13 @@ definition {
 			userEmailAddress = "userea@liferay.com",
 			userName = "userfn userln");
 
-		DepotNavigator.openDepotAdmin();
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-depot-name");
 
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		LexiconEntry.changeDisplayStyle(displayStyle = "list");
+
+		AssertVisible(
+			key_dmDocumentTitle = "Document_1.png",
+			locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_SHARED");
 
 		DepotNavigator.gotoShare(dmDocumentTitle = "Document_1.odt");
 
@@ -88,6 +86,14 @@ definition {
 			sharingPermissions = "Comment",
 			userEmailAddress = "userea@liferay.com",
 			userName = "userfn userln");
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-depot-name");
+
+		LexiconEntry.changeDisplayStyle(displayStyle = "table");
+
+		AssertVisible(
+			key_dmDocumentTitle = "Document_1.odt",
+			locator1 = "DocumentsAndMedia#TABLE_DOCUMENT_SHARED");
 
 		User.logoutPG();
 
@@ -134,11 +140,7 @@ definition {
 			dmDocumentTitle = "Document_1.doc",
 			groupName = "Test Depot Name");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-depot-name");
 
 		LexiconEntry.changeDisplayStyle(displayStyle = "list");
 
@@ -170,11 +172,7 @@ definition {
 			dmDocumentTitle = "Document_1.txt",
 			groupName = "Test Depot Name");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-depot-name");
 
 		LexiconEntry.changeDisplayStyle(displayStyle = "list");
 
@@ -193,11 +191,7 @@ definition {
 			dmDocumentTitle = "Document_1.doc",
 			groupName = "Test Depot Name");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-depot-name");
 
 		DepotNavigator.gotoShare(dmDocumentTitle = "Document_1.doc");
 
@@ -207,11 +201,7 @@ definition {
 			userEmailAddress = "userea@liferay.com",
 			userName = "userfn userln");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-depot-name");
 
 		DMNavigator.gotoDocumentCP(dmDocumentTitle = "Document_1.doc");
 
@@ -258,11 +248,7 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-depot-name");
 
 		DMNavigator.gotoDocumentCP(dmDocumentTitle = "Document_1.doc");
 
@@ -325,11 +311,7 @@ definition {
 			dmDocumentTitle = "Document_1.doc",
 			groupName = "Test Depot Name");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-depot-name");
 
 		DepotNavigator.gotoShare(dmDocumentTitle = "Document_1.doc");
 
@@ -338,11 +320,7 @@ definition {
 			userEmailAddress = "userea@liferay.com",
 			userName = "userfn userln");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-depot-name");
 
 		DepotNavigator.gotoShare(dmDocumentTitle = "Document_1.doc");
 
@@ -351,21 +329,15 @@ definition {
 			userEmailAddress = "userea2@liferay.com",
 			userName = "userfn2 userln2");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-depot-name");
 
 		DMNavigator.gotoDocumentCP(dmDocumentTitle = "Document_1.doc");
 
+		DMDocumentSharing.viewSharedFlag(detailsView = "true");
+
 		DMDocumentSharing.viewCollaborators(collaboratorList = "userfn,userfn2");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepot(
-			depotName = "Test Depot Name",
-			portlet = "Documents and Media");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-depot-name");
 
 		DMNavigator.gotoDocumentCP(dmDocumentTitle = "Document_1.doc");
 

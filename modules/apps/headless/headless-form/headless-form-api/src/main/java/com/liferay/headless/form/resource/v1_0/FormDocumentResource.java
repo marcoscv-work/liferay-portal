@@ -17,6 +17,8 @@ package com.liferay.headless.form.resource.v1_0;
 import com.liferay.headless.form.dto.v1_0.FormDocument;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 
+import java.util.Locale;
+
 import javax.annotation.Generated;
 
 import javax.servlet.http.HttpServletRequest;
@@ -86,6 +88,8 @@ public interface FormDocumentResource {
 
 		public Builder httpServletRequest(
 			HttpServletRequest httpServletRequest);
+
+		public Builder preferredLocale(Locale preferredLocale);
 
 		public Builder user(com.liferay.portal.kernel.model.User user);
 

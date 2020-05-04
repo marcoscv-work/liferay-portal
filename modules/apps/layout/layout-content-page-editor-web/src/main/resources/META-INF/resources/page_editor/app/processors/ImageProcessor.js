@@ -26,7 +26,7 @@ import {openImageSelector} from '../../core/openImageSelector';
  */
 function createEditor(element, changeCallback, destroyCallback) {
 	openImageSelector(
-		image => changeCallback(image && image.url ? image.url : ''),
+		(image) => changeCallback(image && image.url ? image.url : ''),
 		destroyCallback
 	);
 }
@@ -72,7 +72,12 @@ function render(element, value, config = {}) {
 			}
 		}
 
-		image.src = value.url || value;
+		const imageValue =
+			value && typeof value !== 'string' ? value.url : value;
+
+		if (imageValue) {
+			image.src = imageValue;
+		}
 	}
 }
 

@@ -66,7 +66,7 @@ export default withRouter(
 
 		const [active, setActive] = useState(false);
 
-		const [debounceCallback] = useDebounceCallback(value => {
+		const [debounceCallback] = useDebounceCallback((value) => {
 			searchChange(value);
 		}, 500);
 
@@ -86,20 +86,26 @@ export default withRouter(
 
 		return (
 			<div className="d-flex flex-column flex-lg-row justify-content-between">
-				<div className="d-flex justify-content-between">
+				<div className="d-flex">
 					<ClayDropDown
 						active={active}
+						className="questions-navigation-dropdown"
 						onActiveChange={setActive}
 						trigger={
 							<div className="align-items-center d-flex h-100">
 								{section.parentSection && (
 									<ClayInput.Group>
-										<ClayInput.GroupItem shrink>
-											{section.parentSection.title}
-											{':'}
+										<ClayInput.GroupItem className="align-items-center">
+											<div className="questions-navigation-parent-section-title text-truncate">
+												{section.parentSection.title}
+												{':'}
+											</div>
 										</ClayInput.GroupItem>
 
-										<ClayInput.GroupItem shrink>
+										<ClayInput.GroupItem
+											className="questions-navigation-section-title text-truncate"
+											shrink
+										>
 											{section.title ===
 											section.parentSection.title
 												? Liferay.Language.get('all')
@@ -118,10 +124,12 @@ export default withRouter(
 						}
 					>
 						<Link
-							to={`/questions/${(section &&
-								section.parentSection &&
-								section.parentSection.title) ||
-								sectionTitle}`}
+							to={`/questions/${
+								(section &&
+									section.parentSection &&
+									section.parentSection.title) ||
+								sectionTitle
+							}`}
 						>
 							<ClayDropDown.Help>
 								{Liferay.Language.get('all')}
@@ -141,16 +149,18 @@ export default withRouter(
 						</ClayDropDown.ItemList>
 					</ClayDropDown>
 
-					<div className="c-ml-3">
-						<SectionSubscription section={section} />
-					</div>
+					{section && section.actions && section.actions.subscribe && (
+						<div className="c-ml-3">
+							<SectionSubscription section={section} />
+						</div>
+					)}
 				</div>
 
 				<div className="c-mt-3 c-mt-lg-0 d-flex flex-column flex-md-row">
 					<ClayInput.Group className="justify-content-lg-end">
 						<ClayInput.GroupItem shrink>
 							<label
-								className="align-items-center d-inline-flex text-secondary"
+								className="align-items-center d-inline-flex m-0 text-secondary"
 								htmlFor="questionsFilter"
 							>
 								{Liferay.Language.get('filter-by')}
@@ -161,11 +171,11 @@ export default withRouter(
 							<ClaySelect
 								className="bg-transparent border-0"
 								id="questionsFilter"
-								onChange={event =>
+								onChange={(event) =>
 									filterChange(event.target.value)
 								}
 							>
-								{filterOptions.map(option => (
+								{filterOptions.map((option) => (
 									<ClaySelect.Option
 										key={option.value}
 										label={option.label}
@@ -180,7 +190,7 @@ export default withRouter(
 						<ClayInput.GroupItem>
 							<ClayInput
 								className="bg-transparent form-control input-group-inset input-group-inset-after"
-								onChange={event =>
+								onChange={(event) =>
 									debounceCallback(event.target.value)
 								}
 								placeholder={Liferay.Language.get('search')}
@@ -200,37 +210,41 @@ export default withRouter(
 							</ClayInput.GroupInsetItem>
 						</ClayInput.GroupItem>
 
-						{context.canCreateThread && (
-							<ClayInput.GroupItem shrink>
-								<ClayButton
-									className="c-ml-3 d-none d-sm-block text-nowrap"
-									displayType="primary"
-									onClick={() =>
-										historyPushParser(
-											`/questions/${sectionTitle}/new`
-										)
-									}
-								>
-									{Liferay.Language.get('ask-question')}
-								</ClayButton>
-
-								<ClayButton
-									className="btn-monospaced d-block d-sm-none position-fixed questions-button shadow"
-									displayType="primary"
-									onClick={() =>
-										historyPushParser(
-											`/questions/${sectionTitle}/new`
-										)
-									}
-								>
-									<ClayIcon symbol="pencil" />
-
-									<span className="sr-only">
+						{section &&
+							section.actions &&
+							section.actions['add-thread'] && (
+								<ClayInput.GroupItem shrink>
+									<ClayButton
+										className="c-ml-3 d-none d-sm-block text-nowrap"
+										displayType="primary"
+										onClick={() =>
+											historyPushParser(
+												`/questions/${sectionTitle}/new`
+											)
+										}
+									>
 										{Liferay.Language.get('ask-question')}
-									</span>
-								</ClayButton>
-							</ClayInput.GroupItem>
-						)}
+									</ClayButton>
+
+									<ClayButton
+										className="btn-monospaced d-block d-sm-none position-fixed questions-button shadow"
+										displayType="primary"
+										onClick={() =>
+											historyPushParser(
+												`/questions/${sectionTitle}/new`
+											)
+										}
+									>
+										<ClayIcon symbol="pencil" />
+
+										<span className="sr-only">
+											{Liferay.Language.get(
+												'ask-question'
+											)}
+										</span>
+									</ClayButton>
+								</ClayInput.GroupItem>
+							)}
 					</ClayInput.Group>
 				</div>
 			</div>

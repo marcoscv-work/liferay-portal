@@ -311,18 +311,30 @@ definition {
 
 		SitePages.openPagesAdmin(siteURLKey = "guest");
 
+		SitePages.addPublicPage(
+			pageName = "Test Page",
+			sitePageType = "Widget Page");
+
+		SitePages.configurePage(
+			columnName = "1 Column",
+			pageName = "Test Page",
+			privacy = "Public Pages",
+			sitePageType = "Widget Page");
+
+		SitePages.openPagesAdmin(siteURLKey = "guest");
+
 		SitePages.gotoPageMenuItem(
 			menuItem = "Configure",
-			pageName = "Home");
+			pageName = "Test Page");
 
 		Page.viewSelectedLayoutColumn(columnName = "1 Column");
 
-		Page.editName(pageNameEdit = "Home Edit");
+		Page.editName(pageNameEdit = "Test Page Edit");
 
-		Navigator.gotoPage(pageName = "Home Edit");
+		Navigator.gotoPage(pageName = "Test Page Edit");
 
 		Page.view(
-			pageName = "Home Edit",
+			pageName = "Test Page Edit",
 			privacy = "Public Pages");
 	}
 

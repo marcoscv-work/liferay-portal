@@ -39,6 +39,10 @@ import java.util.UUID;
 public class LayoutStructure {
 
 	public static LayoutStructure of(String layoutStructure) {
+		if (Validator.isNull(layoutStructure)) {
+			return new LayoutStructure();
+		}
+
 		try {
 			JSONObject layoutStructureJSONObject =
 				JSONFactoryUtil.createJSONObject(layoutStructure);
@@ -49,17 +53,33 @@ public class LayoutStructure {
 			JSONObject itemsJSONObject =
 				layoutStructureJSONObject.getJSONObject("items");
 
+			Map<Long, LayoutStructureItem> fragmentLayoutStructureItems =
+				new HashMap<>(itemsJSONObject.length());
+
 			Map<String, LayoutStructureItem> layoutStructureItems =
 				new HashMap<>(itemsJSONObject.length());
 
 			for (String key : itemsJSONObject.keySet()) {
-				layoutStructureItems.put(
-					key,
-					LayoutStructureItem.of(itemsJSONObject.getJSONObject(key)));
+				LayoutStructureItem layoutStructureItem =
+					LayoutStructureItem.of(itemsJSONObject.getJSONObject(key));
+
+				layoutStructureItems.put(key, layoutStructureItem);
+
+				if (layoutStructureItem instanceof
+						FragmentLayoutStructureItem) {
+
+					FragmentLayoutStructureItem fragmentLayoutStructureItem =
+						(FragmentLayoutStructureItem)layoutStructureItem;
+
+					fragmentLayoutStructureItems.put(
+						fragmentLayoutStructureItem.getFragmentEntryLinkId(),
+						fragmentLayoutStructureItem);
+				}
 			}
 
 			return new LayoutStructure(
-				layoutStructureItems, rootItemsJSONObject.getString("main"));
+				fragmentLayoutStructureItems, layoutStructureItems,
+				rootItemsJSONObject.getString("main"));
 		}
 		catch (JSONException jsonException) {
 			if (_log.isDebugEnabled()) {
@@ -71,8 +91,34 @@ public class LayoutStructure {
 	}
 
 	public LayoutStructure() {
+		_fragmentLayoutStructureItems = new HashMap<>();
 		_layoutStructureItems = new HashMap<>();
 		_mainItemId = StringPool.BLANK;
+	}
+
+	public LayoutStructureItem addCollectionItemLayoutStructureItem(
+		String parentItemId, int position) {
+
+		CollectionItemLayoutStructureItem collectionItemLayoutStructureItem =
+			new CollectionItemLayoutStructureItem(parentItemId);
+
+		_updateLayoutStructure(collectionItemLayoutStructureItem, position);
+
+		return collectionItemLayoutStructureItem;
+	}
+
+	public LayoutStructureItem addCollectionLayoutStructureItem(
+		String parentItemId, int position) {
+
+		CollectionLayoutStructureItem collectionLayoutStructureItem =
+			new CollectionLayoutStructureItem(parentItemId);
+
+		_updateLayoutStructure(collectionLayoutStructureItem, position);
+
+		addCollectionItemLayoutStructureItem(
+			collectionLayoutStructureItem.getItemId(), 0);
+
+		return collectionLayoutStructureItem;
 	}
 
 	public LayoutStructureItem addColumnLayoutStructureItem(
@@ -108,6 +154,18 @@ public class LayoutStructure {
 		_updateLayoutStructure(dropZoneLayoutStructureItem, position);
 
 		return dropZoneLayoutStructureItem;
+	}
+
+	public LayoutStructureItem addFragmentDropZoneLayoutStructureItem(
+		String parentItemId, int position) {
+
+		FragmentDropZoneLayoutStructureItem
+			fragmentDropZoneLayoutStructureItem =
+				new FragmentDropZoneLayoutStructureItem(parentItemId);
+
+		_updateLayoutStructure(fragmentDropZoneLayoutStructureItem, position);
+
+		return fragmentDropZoneLayoutStructureItem;
 	}
 
 	public LayoutStructureItem addFragmentLayoutStructureItem(
@@ -149,7 +207,9 @@ public class LayoutStructure {
 
 		_updateLayoutStructure(rootLayoutStructureItem, 0);
 
-		_mainItemId = rootLayoutStructureItem.getItemId();
+		if (Validator.isNull(_mainItemId)) {
+			_mainItemId = rootLayoutStructureItem.getItemId();
+		}
 
 		return rootLayoutStructureItem;
 	}
@@ -189,10 +249,15 @@ public class LayoutStructure {
 
 		deletedLayoutStructureItems.add(layoutStructureItem);
 
-		LayoutStructureItem parentLayoutStructureItem =
-			_layoutStructureItems.get(layoutStructureItem.getParentItemId());
+		if (Validator.isNotNull(layoutStructureItem.getParentItemId())) {
+			LayoutStructureItem parentLayoutStructureItem =
+				_layoutStructureItems.get(
+					layoutStructureItem.getParentItemId());
 
-		parentLayoutStructureItem.deleteChildrenItem(itemId);
+			if (parentLayoutStructureItem != null) {
+				parentLayoutStructureItem.deleteChildrenItem(itemId);
+			}
+		}
 
 		_layoutStructureItems.remove(itemId);
 
@@ -253,6 +318,12 @@ public class LayoutStructure {
 
 	public LayoutStructureItem getLayoutStructureItem(String itemId) {
 		return _layoutStructureItems.get(itemId);
+	}
+
+	public LayoutStructureItem getLayoutStructureItemByFragmentEntryLinkId(
+		long fragmentEntryLinkId) {
+
+		return _fragmentLayoutStructureItems.get(fragmentEntryLinkId);
 	}
 
 	public List<LayoutStructureItem> getLayoutStructureItems() {
@@ -413,9 +484,11 @@ public class LayoutStructure {
 	}
 
 	private LayoutStructure(
+		Map<Long, LayoutStructureItem> fragmentLayoutStructureItems,
 		Map<String, LayoutStructureItem> layoutStructureItems,
 		String mainItemId) {
 
+		_fragmentLayoutStructureItems = fragmentLayoutStructureItems;
 		_layoutStructureItems = layoutStructureItems;
 		_mainItemId = mainItemId;
 	}
@@ -497,6 +570,7 @@ public class LayoutStructure {
 	private static final Log _log = LogFactoryUtil.getLog(
 		LayoutStructure.class);
 
+	private final Map<Long, LayoutStructureItem> _fragmentLayoutStructureItems;
 	private final Map<String, LayoutStructureItem> _layoutStructureItems;
 	private String _mainItemId;
 

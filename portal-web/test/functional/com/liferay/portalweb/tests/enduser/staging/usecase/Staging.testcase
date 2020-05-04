@@ -166,7 +166,6 @@ definition {
 	}
 
 	@description = "This is a use case for LPS-94325."
-	@ignore = "true"
 	@priority = "3"
 	test ActivateStagingWithWCDOnFragment {
 		JSONFragment.addFragmentCollection(
@@ -405,7 +404,6 @@ definition {
 			privacy = "Public Pages");
 	}
 
-	@ignore = "true"
 	@priority = "4"
 	test EnableStagingWithWebContentReferencedFromDeletedSite {
 		JSONWebcontent.addWebContent(
@@ -680,7 +678,7 @@ definition {
 
 		Staging.gotoPublishToLive();
 
-		Staging.publishToLive();
+		Staging.publishToLive(remoteStaging = "true");
 
 		User.logoutPG(
 			password = "test",
@@ -783,7 +781,7 @@ definition {
 
 		Staging.gotoPublishToLive();
 
-		Staging.publishToLive();
+		Staging.publishToLive(remoteStaging = "true");
 
 		User.logoutPG(
 			password = "test",
@@ -1059,6 +1057,8 @@ definition {
 	@description = "This is a use case for LPS-96155."
 	@priority = "4"
 	test PublishReviewedPageRevision {
+		property portal.upstream = "quarantine";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Site Name",
 			layoutName = "Staging Test Page 1");
@@ -1699,7 +1699,7 @@ definition {
 			pageName = "Staging Test Page",
 			siteName = "Site Name");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryPG(
 			entryContent = "Bodzavirágból, bodzavirágból hullik a, hullik a sárga virágpor.",
 			entryTitle = "Tavaszi felhők");
 	}
@@ -1920,7 +1920,8 @@ definition {
 
 	@priority = "5"
 	test StagingMultipleDM {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
+		property test.name.skip.portal.instance = "Staging#StagingMultipleDM";
 		property testray.component.names = "Training";
 
 		JSONLayout.addWidgetToPublicLayout(
@@ -1975,9 +1976,13 @@ definition {
 		DMDocument.viewStagingDetailsPG();
 	}
 
+	// Ignored because of the ticket LPS-111590
+
+	@ignore = "true"
 	@priority = "5"
 	test StagingOnlyApprovedPublishToLive {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
+		property test.name.skip.portal.instance = "Staging#StagingOnlyApprovedPublishToLive";
 		property testray.component.names = "Training";
 
 		JSONLayout.addPublicLayout(
@@ -2190,7 +2195,7 @@ definition {
 
 		Staging.gotoPublishToLive();
 
-		Staging.publishToLive();
+		Staging.publishToLive(remoteStaging = "true");
 
 		User.logoutPG(
 			password = "test",
@@ -2282,7 +2287,7 @@ definition {
 
 		Staging.gotoPublishToLive();
 
-		Staging.publishToLive();
+		Staging.publishToLive(remoteStaging = "true");
 
 		User.logoutPG(
 			password = "test",
@@ -2392,7 +2397,7 @@ definition {
 
 		Staging.configurePublishToLive(contentDateRange = "All");
 
-		Staging.publishToLive();
+		Staging.publishToLive(remoteStaging = "true");
 
 		User.logoutPG(
 			password = "test",
@@ -2504,7 +2509,7 @@ definition {
 
 		Staging.gotoPublishToLive();
 
-		Staging.publishToLive();
+		Staging.publishToLive(remoteStaging = "true");
 
 		Navigator.gotoSitePage(
 			pageName = "Staging Test Page",
@@ -2611,7 +2616,7 @@ definition {
 
 		Staging.gotoPublishToLive();
 
-		Staging.publishToLive();
+		Staging.publishToLive(remoteStaging = "true");
 
 		User.logoutPG(
 			password = "test",
@@ -2640,7 +2645,6 @@ definition {
 		property app.server.bundles.size = "1";
 		property custom.properties = "tunneling.servlet.shared.secret=1234567890123456${line.separator}auth.verifier.TunnelAuthVerifier.hosts.allowed=";
 		property databases.size = "1";
-		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "Staging#StagingRemoteWithDynamicExportLimit";
 
 		Staging.remoteStagingSetUp(
@@ -2877,6 +2881,74 @@ definition {
 			dmDocumentTitle = "DM Document Title");
 	}
 
+	@description = "This is a use case for LPS-110838."
+	@priority = "3"
+	test StagingWithReplicateIndividualDeletionsByDefault {
+		property test.name.skip.portal.instance = "Staging#StagingWithReplicateIndividualDeletionsByDefault";
+
+		ProductMenu.gotoPortlet(
+			category = "Configuration",
+			panel = "Control Panel",
+			portlet = "System Settings");
+
+		SystemSettings.gotoConfiguration(
+			configurationCategory = "Infrastructure",
+			configurationName = "Export/Import",
+			configurationScope = "Virtual Instance Scope");
+
+		SystemSettings.configureSystemSetting(
+			enableSetting = "true",
+			settingFieldName = "Replicate Individual Deletions by Default");
+
+		SystemSettings.configureSystemSetting(
+			enableSetting = "true",
+			settingFieldName = "Publish Permissions by Default");
+
+		WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name");
+
+		WebContentNavigator.gotoAddCP();
+
+		WebContent.addCP(
+			webContentContent = "Web Content Content 1",
+			webContentTitle = "Web Content Title 1");
+
+		PortletEntry.publish();
+
+		WebContentNavigator.gotoAddCP();
+
+		WebContent.addCP(
+			webContentContent = "Web Content Content 2",
+			webContentTitle = "Web Content Title 2");
+
+		PortletEntry.publish();
+
+		Staging.openStagingAdmin(siteURLKey = "site-name");
+
+		Staging.activateStagingCP(siteName = "Site Name");
+
+		WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name-staging");
+
+		WebContent.deleteCP(
+			siteURLKey = "site-name-staging",
+			webContentTitle = "Web Content Title 1");
+
+		Staging.openStagingAdmin(siteURLKey = "site-name-staging");
+
+		Staging.addCustomPublication();
+
+		Staging.viewDefaultConfiguration(configurationNameList = "Replicate Individual Deletions");
+
+		Staging.publishToLive();
+
+		WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name");
+
+		WebContent.viewNotPresentCP(webContentTitle = "Web Content Title 1");
+
+		WebContent.viewTitle(
+			onLive = "true",
+			webContentTitle = "Web Content Title 2");
+	}
+
 	@description = "This is a use case for LPS-98473."
 	@priority = "3"
 	test SubscribeWebContentWithStaging {
@@ -2923,9 +2995,9 @@ definition {
 
 		Role.openRolesAdmin();
 
-		Role.assignRegRoleCP(
+		JSONRole.assignRoleToUser(
 			roleTitle = "Web Content Subscriber Role",
-			userScreenName = "usersn");
+			userEmailAddress = "userea@liferay.com");
 
 		SitePages.openPagesAdmin(siteURLKey = "Test Site");
 
@@ -3284,6 +3356,8 @@ definition {
 	@description = "This is a use case for LPS-97827."
 	@priority = "2"
 	test ViewParentPageNameAfterPublishChangesInChildPage {
+		property portal.upstream = "quarantine";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Site Name",
 			layoutName = "Child Page A",
@@ -3432,8 +3506,6 @@ definition {
 	@description = "This is a use case for LPS-82355."
 	@priority = "5"
 	test ViewPublishDocumentTypeWithConfiguredAssetType {
-		property portal.upstream = "quarantine";
-
 		JSONLayout.addWidgetToPublicLayout(
 			groupName = "Site Name",
 			layoutName = "Staging Test Page",
@@ -3685,8 +3757,6 @@ definition {
 	@description = "This is a use case for LPS-87280."
 	@priority = "4"
 	test ViewPublishedWCWithApostropheInImageField {
-		property portal.upstream = "quarantine";
-
 		Staging.openStagingAdmin(siteURLKey = "site-name");
 
 		Staging.activateStagingCP(siteName = "Site Name");

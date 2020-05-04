@@ -21,7 +21,7 @@ RedirectNotFoundEntriesDisplayContext redirectNotFoundEntriesDisplayContext = ne
 
 SearchContainer<RedirectNotFoundEntry> redirectNotFoundEntriesSearchContainer = redirectNotFoundEntriesDisplayContext.searchContainer();
 
-RedirectNotFountEntriesManagementToolbarDisplayContext redirectNotFoundEntriesManagementToolbarDisplayContext = new RedirectNotFountEntriesManagementToolbarDisplayContext(request, liferayPortletRequest, liferayPortletResponse, redirectNotFoundEntriesSearchContainer);
+RedirectNotFoundEntriesManagementToolbarDisplayContext redirectNotFoundEntriesManagementToolbarDisplayContext = new RedirectNotFoundEntriesManagementToolbarDisplayContext(request, liferayPortletRequest, liferayPortletResponse, redirectNotFoundEntriesSearchContainer);
 %>
 
 <clay:management-toolbar
@@ -37,6 +37,7 @@ RedirectNotFountEntriesManagementToolbarDisplayContext redirectNotFoundEntriesMa
 	<c:choose>
 		<c:when test="<%= results.size() > 0 %>">
 			<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
+			<aui:input name="ignored" type="hidden" />
 
 			<liferay-ui:search-container
 				id="<%= redirectNotFoundEntriesDisplayContext.getSearchContainerId() %>"
@@ -47,6 +48,11 @@ RedirectNotFountEntriesManagementToolbarDisplayContext redirectNotFoundEntriesMa
 					keyProperty="redirectNotFoundEntryId"
 					modelVar="redirectNotFoundEntry"
 				>
+
+					<%
+					row.setData(HashMapBuilder.<String, Object>put("actions", redirectNotFoundEntriesManagementToolbarDisplayContext.getAvailableActions(redirectNotFoundEntry)).build());
+					%>
+
 					<liferay-ui:search-container-column-text
 						cssClass="table-cell-content"
 						name="not-found-urls"
@@ -54,11 +60,30 @@ RedirectNotFountEntriesManagementToolbarDisplayContext redirectNotFoundEntriesMa
 						<%= HtmlUtil.escape(RedirectUtil.getGroupBaseURL(themeDisplay) + StringPool.SLASH + redirectNotFoundEntry.getUrl()) %>
 					</liferay-ui:search-container-column-text>
 
+					<c:if test='<%= StringUtil.equals("all", ParamUtil.getString(request, "filterType")) %>'>
+						<liferay-ui:search-container-column-text
+							cssClass="table-cell-minw-200 table-cell-smallest table-column-text-center"
+							name="ignored-urls"
+						>
+							<c:if test="<%= redirectNotFoundEntry.isIgnored() %>">
+								<clay:icon
+									symbol="hidden"
+								/>
+							</c:if>
+						</liferay-ui:search-container-column-text>
+					</c:if>
+
 					<liferay-ui:search-container-column-text
-						cssClass="table-cell-content"
+						cssClass="table-cell-expand-smallest"
 						name="requests"
 					>
 						<%= redirectNotFoundEntry.getHits() %>
+					</liferay-ui:search-container-column-text>
+
+					<liferay-ui:search-container-column-text>
+						<clay:dropdown-actions
+							dropdownItems="<%= redirectNotFoundEntriesDisplayContext.getActionDropdownItems(redirectNotFoundEntry) %>"
+						/>
 					</liferay-ui:search-container-column-text>
 				</liferay-ui:search-container-row>
 
@@ -72,8 +97,14 @@ RedirectNotFountEntriesManagementToolbarDisplayContext redirectNotFoundEntriesMa
 			<liferay-frontend:empty-result-message
 				animationType="<%= EmptyResultMessageKeys.AnimationType.SEARCH %>"
 				description="<%= LanguageUtil.get(request, redirectNotFoundEntriesSearchContainer.getEmptyResultsMessage()) %>"
-				title='<%= LanguageUtil.get(request, "great-job") %>'
+				title='<%= LanguageUtil.get(request, "all-is-in-order") %>'
 			/>
 		</c:otherwise>
 	</c:choose>
 </aui:form>
+
+<liferay-frontend:component
+	componentId="<%= redirectNotFoundEntriesManagementToolbarDisplayContext.getDefaultEventHandler() %>"
+	context="<%= redirectNotFoundEntriesManagementToolbarDisplayContext.getComponentContext() %>"
+	module="js/RedirectNotFoundEntriesManagementToolbarDefaultEventHandler.es"
+/>

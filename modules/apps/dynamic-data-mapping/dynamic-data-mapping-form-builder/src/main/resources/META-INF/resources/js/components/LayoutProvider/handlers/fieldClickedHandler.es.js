@@ -14,13 +14,19 @@
 
 import {FormSupport, PagesVisitor} from 'dynamic-data-mapping-form-renderer';
 
-import {localizeField} from '../../../util/fieldSupport.es';
+import {getParentFieldSet, localizeField} from '../../../util/fieldSupport.es';
 
 const handleFieldClicked = (props, state, event) => {
-	const {fieldName} = event;
+	let {fieldName} = event;
 	const {pages} = state;
 
-	const fieldProperties = FormSupport.findFieldByName(pages, fieldName);
+	const parentFieldSet = getParentFieldSet(pages, fieldName);
+
+	if (parentFieldSet) {
+		fieldName = parentFieldSet.fieldName;
+	}
+
+	const fieldProperties = FormSupport.findFieldByFieldName(pages, fieldName);
 	const {settingsContext} = fieldProperties;
 	const visitor = new PagesVisitor(settingsContext.pages);
 
@@ -28,7 +34,7 @@ const handleFieldClicked = (props, state, event) => {
 		...fieldProperties,
 		settingsContext: {
 			...settingsContext,
-			pages: visitor.mapFields(field => {
+			pages: visitor.mapFields((field) => {
 				const {fieldName} = field;
 				const {defaultLanguageId, editingLanguageId} = props;
 

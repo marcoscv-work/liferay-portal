@@ -184,8 +184,6 @@ definition {
 	@description = "This is a use case for LPS-71786"
 	@priority = "3"
 	test AssertDeletedAssetLinkRemovedFromLiveSite {
-		property portal.upstream = "quarantine";
-
 		Navigator.gotoStagedSitePage(
 			pageName = "Staging Test Page",
 			siteName = "Site Name");
@@ -580,7 +578,6 @@ definition {
 	@priority = "5"
 	test ImportLARsOnStagedSite {
 		property portal.acceptance = "quarantine";
-		property portal.upstream = "quarantine";
 		property testray.component.names = "Training";
 
 		LAR.importSiteCP(
@@ -757,7 +754,6 @@ definition {
 
 	@priority = "5"
 	test PublishPortlet {
-		property portal.upstream = "quarantine";
 		property testray.component.names = "Training";
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name-staging");
@@ -991,13 +987,9 @@ definition {
 
 		Portlet.addPG(portletName = "Blogs");
 
-		Portlet.gotoPortletOptions(
+		Portlet.selectScopePG(
 			portletName = "Blogs",
-			portletOption = "Configuration");
-
-		IFrame.selectConfigurationFrame();
-
-		Portlet.selectScope(scope = "Staging Test Page (Create New)");
+			scope = "Staging Test Page");
 
 		Navigator.gotoStagedSitePage(
 			pageName = "Staging Test Page",
@@ -1036,7 +1028,9 @@ definition {
 
 		Portlet.addPG(portletName = "Asset Publisher");
 
-		AssetPublisherPortlet.configureTagsFilterPG(tagNameList = "tag1");
+		AssetPublisherPortlet.configureTagsFilterPG(
+			queryAndOperator = "Any",
+			tagNameList = "tag1");
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name-staging");
 
@@ -1104,7 +1098,6 @@ definition {
 			webContentTitle = "Web Content Title 2");
 	}
 
-	@ignore = "true"
 	@priority = "4"
 	test StagingPublishChildSiteWithReference {
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name-staging");

@@ -38,11 +38,11 @@ const SaveFragmentCompositionModal = ({
 	onErrorDismiss,
 }) => {
 	const dispatch = useDispatch();
-	const store = useSelector(state => state);
+	const store = useSelector((state) => state);
 
-	const collections = useSelector(state => state.collections);
+	const collections = useSelector((state) => state.collections);
 
-	const [name, setName] = useState('');
+	const [name, setName] = useState(undefined);
 	const [description, setDescription] = useState('');
 	const [fragmentCollectionId, setFragmentCollectionId] = useState(
 		collections.length > 0 ? collections[0].fragmentCollectionId : -1
@@ -55,40 +55,45 @@ const SaveFragmentCompositionModal = ({
 
 	const [thumbnail, setThumbnail] = useState({});
 
-	const handleSubmit = event => {
+	const handleSubmit = (event) => {
 		event.preventDefault();
 
-		setLoading(true);
+		if (!name) {
+			setName('');
+		}
+		else {
+			setLoading(true);
 
-		dispatch(
-			addFragmentComposition({
-				description,
-				fragmentCollectionId,
-				itemId,
-				name,
-				previewImageURL: thumbnail.url,
-				saveInlineContent,
-				saveMappingConfiguration,
-				store,
-			})
-		)
-			.then(() => {
-				onClose();
-			})
-			.catch(() => {
-				openToast({
-					message: Liferay.Language.get(
-						'an-unexpected-error-occurred'
-					),
-					title: Liferay.Language.get('error'),
-					type: 'danger',
+			dispatch(
+				addFragmentComposition({
+					description,
+					fragmentCollectionId,
+					itemId,
+					name,
+					previewImageURL: thumbnail.url,
+					saveInlineContent,
+					saveMappingConfiguration,
+					store,
+				})
+			)
+				.then(() => {
+					onClose();
+				})
+				.catch(() => {
+					openToast({
+						message: Liferay.Language.get(
+							'an-unexpected-error-occurred'
+						),
+						title: Liferay.Language.get('error'),
+						type: 'danger',
+					});
+
+					setLoading(false);
 				});
-
-				setLoading(false);
-			});
+		}
 	};
 
-	const handleThumbnailSelected = image => {
+	const handleThumbnailSelected = (image) => {
 		setThumbnail(image);
 	};
 
@@ -104,11 +109,16 @@ const SaveFragmentCompositionModal = ({
 			size="lg"
 		>
 			<ClayModal.Header>
-				{Liferay.Language.get('new-fragment')}
+				{Liferay.Language.get('save-as-fragment')}
 			</ClayModal.Header>
 
-			<ClayModal.Body>
-				<ClayForm autoComplete="off" className="mb-3" noValidate>
+			<ClayModal.Body scrollable>
+				<ClayForm
+					autoComplete="off"
+					className="mb-3"
+					noValidate
+					onSubmit={handleSubmit}
+				>
 					<InvisibleFieldset disabled={loading}>
 						{errorMessage && (
 							<ClayAlert
@@ -117,7 +127,9 @@ const SaveFragmentCompositionModal = ({
 								title={errorMessage}
 							/>
 						)}
-						<ClayForm.Group className="mb-3">
+						<ClayForm.Group
+							className={name === '' ? 'has-error mb-3' : 'mb-3'}
+						>
 							<label htmlFor={nameInputId}>
 								{Liferay.Language.get('name')}
 
@@ -132,12 +144,25 @@ const SaveFragmentCompositionModal = ({
 							<ClayInput
 								autoFocus
 								id={nameInputId}
-								onChange={event => setName(event.target.value)}
+								onChange={(event) =>
+									setName(event.target.value)
+								}
 								placeholder={Liferay.Language.get('name')}
 								required
 								type="text"
 								value={name}
 							/>
+
+							{name === '' && (
+								<ClayForm.FeedbackGroup>
+									<ClayForm.FeedbackItem>
+										<ClayForm.FeedbackIndicator symbol="exclamation-full" />
+										{Liferay.Language.get(
+											'this-field-is-required'
+										)}
+									</ClayForm.FeedbackItem>
+								</ClayForm.FeedbackGroup>
+							)}
 						</ClayForm.Group>
 
 						<ClayForm.Group>
@@ -184,7 +209,7 @@ const SaveFragmentCompositionModal = ({
 							<ClayInput
 								component="textarea"
 								id={descriptionInputId}
-								onChange={event =>
+								onChange={(event) =>
 									setDescription(event.target.value)
 								}
 								placeholder={Liferay.Language.get(
@@ -204,7 +229,7 @@ const SaveFragmentCompositionModal = ({
 										label={Liferay.Language.get(
 											'save-inline-content'
 										)}
-										onChange={event =>
+										onChange={(event) =>
 											setSaveInlineContent(
 												event.target.checked
 											)
@@ -218,7 +243,7 @@ const SaveFragmentCompositionModal = ({
 										label={Liferay.Language.get(
 											'save-mapping-configuration'
 										)}
-										onChange={event =>
+										onChange={(event) =>
 											setSaveMappingConfiguration(
 												event.target.checked
 											)
@@ -237,7 +262,7 @@ const SaveFragmentCompositionModal = ({
 									</p>
 
 									<div className="row">
-										{collections.map(collection => (
+										{collections.map((collection) => (
 											<div
 												className="col-md-4"
 												key={

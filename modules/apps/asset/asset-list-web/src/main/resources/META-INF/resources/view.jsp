@@ -79,6 +79,28 @@ AssetListManagementToolbarDisplayContext assetListManagementToolbarDisplayContex
 						</h6>
 
 						<%
+						String assetEntryTypeLabel = ResourceActionsUtil.getModelResource(locale, assetListEntry.getAssetEntryType());
+
+						long classTypeId = GetterUtil.getLong(assetListEntry.getAssetEntrySubtype());
+
+						if (classTypeId > 0) {
+							AssetRendererFactory assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(assetListEntry.getAssetEntryType());
+
+							if ((assetRendererFactory != null) && assetRendererFactory.isSupportsClassTypes()) {
+								ClassTypeReader classTypeReader = assetRendererFactory.getClassTypeReader();
+
+								ClassType classType = classTypeReader.getClassType(classTypeId, locale);
+
+								assetEntryTypeLabel = assetEntryTypeLabel + " - " + classType.getName();
+							}
+						}
+						%>
+
+						<h6 class="text-default">
+							<strong><%= assetEntryTypeLabel %></strong>
+						</h6>
+
+						<%
 						Date statusDate = assetListEntry.getCreateDate();
 						%>
 
@@ -109,7 +131,7 @@ AssetListManagementToolbarDisplayContext assetListManagementToolbarDisplayContex
 				componentId="emptyResultMessageComponent"
 				defaultEventHandler="emptyResultMessageComponentDefaultEventHandler"
 				description="<%= assetListDisplayContext.getEmptyResultMessageDescription() %>"
-				elementType='<%= LanguageUtil.get(request, "content-sets") %>'
+				elementType='<%= LanguageUtil.get(request, "collections") %>'
 			/>
 		</c:otherwise>
 	</c:choose>

@@ -13,7 +13,7 @@
  */
 
 import {ClayInput} from '@clayui/form';
-import React, {useCallback, useState} from 'react';
+import React, {useState} from 'react';
 
 import {ImageSelector} from '../../../common/components/ImageSelector';
 import {useDebounceCallback} from '../../../core/hooks/useDebounceCallback';
@@ -22,7 +22,6 @@ import {BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR} from '../../config/constants/
 import {EDITABLE_FRAGMENT_ENTRY_PROCESSOR} from '../../config/constants/editableFragmentEntryProcessor';
 import {EDITABLE_TYPES} from '../../config/constants/editableTypes';
 import selectEditableValueContent from '../../selectors/selectEditableValueContent';
-import selectPrefixedSegmentsExperienceId from '../../selectors/selectPrefixedSegmentsExperienceId';
 import {useDispatch, useSelector} from '../../store/index';
 import updateEditableValuesThunk from '../../thunks/updateEditableValues';
 
@@ -30,17 +29,17 @@ export function ImagePropertiesPanel({item}) {
 	const {editableId, editableType, fragmentEntryLinkId} = item;
 
 	const dispatch = useDispatch();
-	const state = useSelector(state => state);
+	const state = useSelector((state) => state);
 
-	const processoryKey =
+	const processorKey =
 		editableType === EDITABLE_TYPES.backgroundImage
 			? BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR
 			: EDITABLE_FRAGMENT_ENTRY_PROCESSOR;
 
-	const editableValue =
-		state.fragmentEntryLinks[fragmentEntryLinkId].editableValues[
-			processoryKey
-		][editableId];
+	const editableValues =
+		state.fragmentEntryLinks[fragmentEntryLinkId].editableValues;
+
+	const editableValue = editableValues[processorKey][editableId];
 
 	const editableConfig = editableValue.config || {};
 
@@ -48,55 +47,51 @@ export function ImagePropertiesPanel({item}) {
 		editableConfig.alt
 	);
 
-	const imageUrl = useSelector(state => {
+	const imageUrl = useSelector((state) => {
 		const url = selectEditableValueContent(
 			state,
 			fragmentEntryLinkId,
 			editableId,
-			processoryKey
+			processorKey
 		);
 
 		return url === editableValue.defaultValue ? '' : url;
 	});
 
-	const updateEditableValues = useCallback(
-		newConfig => {
-			const editableValues =
-				state.fragmentEntryLinks[fragmentEntryLinkId].editableValues;
-			const editableProcessorValues = editableValues[processoryKey];
+	const updateEditableValues = (
+		alt,
+		editableValues,
+		editableId,
+		processorKey
+	) => {
+		const editableProcessorValues = editableValues[processorKey];
 
-			const nextEditableValues = {
-				...editableValues,
-				[processoryKey]: {
-					...editableProcessorValues,
-					[editableId]: {
-						...editableProcessorValues[editableId],
-						config: {
-							...editableConfig,
-							...newConfig,
-						},
+		const editableValue = editableValues[processorKey][editableId];
+
+		const editableConfig = editableValue.config || {};
+
+		const nextEditableValues = {
+			...editableValues,
+			[processorKey]: {
+				...editableProcessorValues,
+				[editableId]: {
+					...editableProcessorValues[editableId],
+					config: {
+						...editableConfig,
+						alt,
 					},
 				},
-			};
+			},
+		};
 
-			dispatch(
-				updateEditableValuesThunk({
-					editableValues: nextEditableValues,
-					fragmentEntryLinkId,
-					segmentsExperienceId: state.segmentsExperienceId,
-				})
-			);
-		},
-		[
-			dispatch,
-			editableConfig,
-			editableId,
-			fragmentEntryLinkId,
-			processoryKey,
-			state.fragmentEntryLinks,
-			state.segmentsExperienceId,
-		]
-	);
+		dispatch(
+			updateEditableValuesThunk({
+				editableValues: nextEditableValues,
+				fragmentEntryLinkId,
+				segmentsExperienceId: state.segmentsExperienceId,
+			})
+		);
+	};
 
 	const [debounceUpdateEditableValues] = useDebounceCallback(
 		updateEditableValues,
@@ -106,13 +101,9 @@ export function ImagePropertiesPanel({item}) {
 	const onImageChange = (imageTitle, imageUrl) => {
 		const {editableValues} = state.fragmentEntryLinks[fragmentEntryLinkId];
 
-		const editableProcessorValues = editableValues[processoryKey];
+		const editableProcessorValues = editableValues[processorKey];
 
 		const editableValue = editableProcessorValues[editableId];
-
-		const prefixedSegmentsExperienceId = selectPrefixedSegmentsExperienceId(
-			state
-		);
 
 		let nextEditableValue = {};
 
@@ -128,28 +119,16 @@ export function ImagePropertiesPanel({item}) {
 			nextEditableValueConfig.imageTitle = imageTitle;
 		}
 
-		if (prefixedSegmentsExperienceId) {
-			nextEditableValue = {
-				...editableValue,
-				config: nextEditableValueConfig,
-				[prefixedSegmentsExperienceId]: {
-					...editableValue[prefixedSegmentsExperienceId],
-					[state.languageId]: imageUrl,
-				},
-			};
-		}
-		else {
-			nextEditableValue = {
-				...editableValue,
-				config: nextEditableValueConfig,
-				[state.languageId]: imageUrl,
-			};
-		}
+		nextEditableValue = {
+			...editableValue,
+			config: nextEditableValueConfig,
+			[state.languageId]: imageUrl,
+		};
 
 		const nextEditableValues = {
 			...editableValues,
 
-			[processoryKey]: {
+			[processorKey]: {
 				...editableProcessorValues,
 				[editableId]: {
 					...nextEditableValue,
@@ -172,7 +151,9 @@ export function ImagePropertiesPanel({item}) {
 				imageTitle={editableConfig.imageTitle || imageUrl}
 				label={Liferay.Language.get('image')}
 				onClearButtonPressed={() => onImageChange('', '')}
-				onImageSelected={image => onImageChange(image.title, image.url)}
+				onImageSelected={(image) =>
+					onImageChange(image.title, image.url)
+				}
 			/>
 
 			{editableType === EDITABLE_TYPES.image && (
@@ -182,12 +163,15 @@ export function ImagePropertiesPanel({item}) {
 					</label>
 					<ClayInput
 						id="imageDescription"
-						onChange={event => {
+						onChange={(event) => {
 							setImageDescription(event.target.value);
 
-							debounceUpdateEditableValues({
-								alt: event.target.value,
-							});
+							debounceUpdateEditableValues(
+								event.target.value,
+								editableValues,
+								editableId,
+								processorKey
+							);
 						}}
 						sizing="sm"
 						type="text"

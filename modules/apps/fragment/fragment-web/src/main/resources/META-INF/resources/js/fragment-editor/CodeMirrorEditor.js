@@ -84,6 +84,7 @@ const MODES = {
 	html: {
 		hint: (cm, options) => {
 			const {
+				customDataAttributes,
 				customEntities,
 				customEntitiesSymbolsRegex,
 				customTags,
@@ -103,17 +104,51 @@ const MODES = {
 
 				const resultSet = new Set(htmlCompletion.list);
 
-				customTags.forEach(item => {
-					if (
-						item.name.startsWith(content) &&
-						!resultSet.has(item.content)
-					) {
-						resultSet.add({
-							displayText: item.name,
-							text: item.content,
-						});
-					}
-				});
+				if (
+					token.type === 'attribute' &&
+					token.string.startsWith('data')
+				) {
+					customDataAttributes.forEach((item) => {
+						let attributeName = `data-${item}`;
+						let attributeValue = '';
+
+						if (attributeName.indexOf(':') !== -1) {
+							attributeValue = attributeName.substring(
+								attributeName.indexOf(':') + 1
+							);
+
+							attributeName = attributeName.substring(
+								0,
+								attributeName.indexOf(':')
+							);
+						}
+
+						if (
+							attributeName.startsWith(content) &&
+							!resultSet.has(attributeName)
+						) {
+							resultSet.add({
+								displayText: `${attributeName}${
+									attributeValue ? ':' + attributeValue : ''
+								}`,
+								text: `${attributeName}="${attributeValue}"`,
+							});
+						}
+					});
+				}
+				else {
+					customTags.forEach((item) => {
+						if (
+							item.name.startsWith(content) &&
+							!resultSet.has(item.content)
+						) {
+							resultSet.add({
+								displayText: item.name,
+								text: item.content,
+							});
+						}
+					});
+				}
 
 				return {
 					...htmlCompletion,
@@ -132,16 +167,19 @@ const MODES = {
 					return;
 				}
 
-				const customEntity = customEntities.find(entity =>
+				const customEntity = customEntities.find((entity) =>
 					match.startsWith(entity.start)
 				);
 
 				const content = match.slice(customEntity.start.length);
 
 				const results = customEntity.content
-					.filter(entityContent => entityContent.startsWith(content))
+					.filter((entityContent) =>
+						entityContent.startsWith(content)
+					)
 					.map(
-						entityContent => `${customEntity.start}${entityContent}`
+						(entityContent) =>
+							`${customEntity.start}${entityContent}`
 					);
 
 				return {
@@ -164,18 +202,18 @@ const MODES = {
 	},
 };
 
-const escapeChars = string => string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
+const escapeChars = (string) => string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
 
 const noop = () => {};
 
 const FixedText = ({helpText, text = ''}) => {
 	return (
-		<div class="source-editor__fixed-text">
-			<code class="source-editor__fixed-text__content">{text}</code>
+		<div className="source-editor__fixed-text">
+			<code className="source-editor__fixed-text__content">{text}</code>
 
 			{helpText && (
 				<span
-					class="float-right source-editor__fixed-text__help"
+					className="float-right source-editor__fixed-text__help"
 					data-title={helpText}
 				>
 					<ClayIcon
@@ -189,6 +227,7 @@ const FixedText = ({helpText, text = ''}) => {
 };
 
 const CodeMirrorEditor = ({
+	customDataAttributes,
 	customEntities,
 	customTags,
 	onChange = noop,
@@ -208,7 +247,7 @@ const CodeMirrorEditor = ({
 		}
 
 		return `${customEntities
-			.map(entity => {
+			.map((entity) => {
 				const start = escapeChars(entity.start);
 				const end = escapeChars(entity.end);
 
@@ -229,6 +268,7 @@ const CodeMirrorEditor = ({
 				gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
 				hintOptions: {
 					completeSingle: false,
+					customDataAttributes,
 					customEntities,
 					customEntitiesSymbolsRegex,
 					customTags,
@@ -246,7 +286,7 @@ const CodeMirrorEditor = ({
 				viewportMargin: Infinity,
 			});
 
-			codeMirror.on('change', cm => {
+			codeMirror.on('change', (cm) => {
 				onChange(cm.getValue());
 			});
 
@@ -295,9 +335,9 @@ const CodeMirrorEditor = ({
 
 	return (
 		<>
-			<nav class="source-editor-toolbar tbar">
-				<ul class="tbar-nav">
-					<li class="source-editor-toolbar__syntax tbar-item tbar-item-expand text-center">
+			<nav className="source-editor-toolbar tbar">
+				<ul className="tbar-nav">
+					<li className="source-editor-toolbar__syntax tbar-item tbar-item-expand text-center">
 						{MODES[mode].name}
 					</li>
 				</ul>

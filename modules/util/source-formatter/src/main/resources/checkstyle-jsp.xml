@@ -120,12 +120,6 @@
 			<property name="description" value="Checks that string literals are not used with == or !=." />
 			<property name="documentationLocation" value="config_coding.html#StringLiteralEquality" />
 		</module>
-		<module name="TypeNameCheck">
-			<property name="description" value="Checks that type names conform to a specified pattern." />
-			<property name="documentationLocation" value="config_naming.html#TypeName" />
-			<property name="format" value="^[A-Z][_a-zA-Z0-9]*" />
-			<message key="name.invalidPattern" value="Class, interface, enum or annotation ''{0}'' must match pattern ''{1}''" />
-		</module>
 		<module name="UnnecessaryParenthesesCheck">
 			<property name="description" value="Checks if unnecessary parentheses are used in a statement or expression." />
 			<property name="documentationLocation" value="config_coding.html#UnnecessaryParentheses" />
@@ -208,6 +202,13 @@
 		<module name="com.liferay.source.formatter.checkstyle.checks.LiteralStringEqualsCheck">
 			<message key="objects.equals.use.1" value="Use ''Objects.equals'' instead of calling ''equals'' on a literal String" />
 			<message key="objects.equals.use.2" value="Either use ''{0}'' or use ''Objects.equals'' if ''{1}'' can have a ''null'' value, instead of calling ''equals'' on a literal String" />
+		</module>
+		<module name="com.liferay.source.formatter.checkstyle.checks.MapBuilderCheck">
+			<property name="enabled" value="false" />
+			<message key="builder.include" value="Include method call ''{0}'' ({1}) in ''{2}'' ({3})" />
+			<message key="builder.use" value="Use ''{0}'' ({1}, {2})" />
+			<message key="builder.use.instead" value="Use ''{0}'' instead of new instance of ''{1}''" />
+			<message key="null.value.incorrect" value="Null values are not allowed in ''{0}''" />
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.MapIterationCheck">
 			<message key="entry.set.use" value="Use Map.entrySet() to retrieve values" />

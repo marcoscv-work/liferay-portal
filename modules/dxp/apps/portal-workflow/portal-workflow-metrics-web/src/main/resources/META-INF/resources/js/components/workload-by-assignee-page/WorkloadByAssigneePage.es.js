@@ -28,21 +28,19 @@ const WorkloadByAssigneePage = ({query, routeParams}) => {
 	useProcessTitle(processId, Liferay.Language.get('workload-by-assignee'));
 
 	const {
-		filterValues: {roleIds, taskKeys},
+		filterValues: {roleIds, taskNames},
 		prefixedKeys,
 		selectedFilters,
 	} = useFilter({filterKeys});
-
-	const filtered = search || selectedFilters.length > 0;
 
 	const {data, postData} = usePost({
 		body: {
 			keywords: search,
 			roleIds,
-			taskKeys,
+			taskNames,
 		},
 		params: paginationParams,
-		url: `/processes/${processId}/assignee-users`,
+		url: `/processes/${processId}/assignees/metrics`,
 	});
 
 	const promises = useMemo(() => [postData()], [postData]);
@@ -57,10 +55,10 @@ const WorkloadByAssigneePage = ({query, routeParams}) => {
 			/>
 
 			<WorkloadByAssigneePage.Body
-				data={data}
-				filtered={filtered}
+				{...data}
+				filtered={search || selectedFilters.length > 0}
 				processId={processId}
-				taskKeys={taskKeys}
+				taskNames={taskNames}
 			/>
 		</PromisesResolver>
 	);

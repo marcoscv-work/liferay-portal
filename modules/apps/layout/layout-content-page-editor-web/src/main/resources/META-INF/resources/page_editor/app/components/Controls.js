@@ -16,13 +16,13 @@ import React, {useCallback, useContext, useReducer} from 'react';
 
 import {ITEM_ACTIVATION_ORIGINS} from '../config/constants/itemActivationOrigins';
 import {ITEM_TYPES} from '../config/constants/itemTypes';
+import {useFromControlsId, useToControlsId} from './CollectionItemContext';
 
 const INITIAL_STATE = {
 	activationOrigin: null,
 	activeItemId: null,
 	activeItemType: null,
 	hoveredItemId: null,
-	selectedItemsIds: [],
 };
 
 const HOVER_ITEM = 'HOVER_ITEM';
@@ -32,7 +32,7 @@ const ControlsContext = React.createContext([INITIAL_STATE, () => {}]);
 const ControlsConsumer = ControlsContext.Consumer;
 
 const reducer = (state, action) => {
-	const {itemId, itemType, multiSelect, origin, type} = action;
+	const {itemId, itemType, origin, type} = action;
 	let nextState = state;
 
 	if (type === HOVER_ITEM && itemId !== nextState.hoveredItemId) {
@@ -42,40 +42,13 @@ const reducer = (state, action) => {
 			hoveredItemType: itemType,
 		};
 	}
-	else if (type === SELECT_ITEM) {
-		if (multiSelect && itemId) {
-			const wasSelected = state.selectedItemsIds.includes(itemId);
-
-			nextState = {
-				...nextState,
-				activationOrigin: origin,
-				activeItemId: wasSelected ? null : itemId,
-				activeItemType: itemType,
-				selectedItemsIds: wasSelected
-					? state.selectedItemsIds.filter(id => id !== itemId)
-					: state.selectedItemsIds.concat([itemId]),
-			};
-		}
-		else if (itemId && itemId !== nextState.activeItemId) {
-			nextState = {
-				...nextState,
-				activationOrigin: origin,
-				activeItemId: itemId,
-				activeItemType: itemType,
-				selectedItemsIds: [itemId],
-			};
-		}
-		else if (
-			nextState.activeItemId ||
-			nextState.selectedItemsIds.length
-		) {
-			nextState = {
-				...nextState,
-				activeItemId: null,
-				activeItemType: null,
-				selectedItemsIds: [],
-			};
-		}
+	else if (type === SELECT_ITEM && itemId !== nextState.activeItemId) {
+		nextState = {
+			...nextState,
+			activationOrigin: origin,
+			activeItemId: itemId,
+			activeItemType: itemType,
+		};
 	}
 
 	return nextState;
@@ -99,8 +72,9 @@ const useActivationOrigin = () => {
 
 const useActiveItemId = () => {
 	const [state] = useContext(ControlsContext);
+	const fromControlsId = useFromControlsId();
 
-	return state.activeItemId;
+	return fromControlsId(state.activeItemId);
 };
 
 const useActiveItemType = () => {
@@ -111,8 +85,9 @@ const useActiveItemType = () => {
 
 const useHoveredItemId = () => {
 	const [state] = useContext(ControlsContext);
+	const fromControlsId = useFromControlsId();
 
-	return state.hoveredItemId;
+	return fromControlsId(state.hoveredItemId);
 };
 
 const useHoveredItemType = () => {
@@ -123,6 +98,7 @@ const useHoveredItemType = () => {
 
 const useHoverItem = () => {
 	const [, dispatch] = useContext(ControlsContext);
+	const toControlsId = useToControlsId();
 
 	return useCallback(
 		(
@@ -132,67 +108,62 @@ const useHoverItem = () => {
 			}
 		) =>
 			dispatch({
-				itemId,
+				itemId: toControlsId(itemId),
 				itemType,
 				type: HOVER_ITEM,
 			}),
-		[dispatch]
+		[dispatch, toControlsId]
 	);
 };
 
 const useIsActive = () => {
 	const [state] = useContext(ControlsContext);
+	const toControlsId = useToControlsId();
 
-	return useCallback(itemId => state.activeItemId === itemId, [
-		state.activeItemId,
-	]);
+	return useCallback(
+		(itemId) => state.activeItemId === toControlsId(itemId),
+		[state.activeItemId, toControlsId]
+	);
 };
 
 const useIsHovered = () => {
 	const [state] = useContext(ControlsContext);
+	const toControlsId = useToControlsId();
 
-	return useCallback(itemId => state.hoveredItemId === itemId, [
-		state.hoveredItemId,
-	]);
-};
-
-const useIsSelected = () => {
-	const [state] = useContext(ControlsContext);
-
-	return useCallback(itemId => state.selectedItemsIds.includes(itemId), [
-		state.selectedItemsIds,
-	]);
+	return useCallback(
+		(itemId) => state.hoveredItemId === toControlsId(itemId),
+		[state.hoveredItemId, toControlsId]
+	);
 };
 
 const useSelectItem = () => {
 	const [, dispatch] = useContext(ControlsContext);
+	const toControlsId = useToControlsId();
 
 	return useCallback(
 		(
 			itemId,
 			{
-				multiSelect = false,
 				itemType = ITEM_TYPES.layoutDataItem,
 				origin = ITEM_ACTIVATION_ORIGINS.pageEditor,
 			} = {
 				itemType: ITEM_TYPES.layoutDataItem,
-				multiSelect: false,
 			}
 		) =>
 			dispatch({
-				itemId,
+				itemId: toControlsId(itemId),
 				itemType,
-				multiSelect,
 				origin,
 				type: SELECT_ITEM,
 			}),
-		[dispatch]
+		[dispatch, toControlsId]
 	);
 };
 
 export {
 	ControlsConsumer,
 	ControlsProvider,
+	reducer,
 	useActivationOrigin,
 	useActiveItemId,
 	useActiveItemType,
@@ -201,6 +172,5 @@ export {
 	useHoverItem,
 	useIsActive,
 	useIsHovered,
-	useIsSelected,
 	useSelectItem,
 };

@@ -30,9 +30,9 @@ RuleGroupSearch ruleGroupSearch = new RuleGroupSearch(liferayPortletRequest, Por
 
 RuleGroupSearchTerms searchTerms = (RuleGroupSearchTerms)ruleGroupSearch.getSearchTerms();
 
-LinkedHashMap<String, Object> params = new LinkedHashMap<String, Object>();
-
-params.put("includeGlobalScope", Boolean.TRUE);
+LinkedHashMap<String, Object> params = LinkedHashMapBuilder.<String, Object>put(
+	"includeGlobalScope", Boolean.TRUE
+).build();
 
 int mdrRuleGroupsCount = MDRRuleGroupLocalServiceUtil.searchByKeywordsCount(groupId, searchTerms.getKeywords(), params, searchTerms.isAndOperator());
 
@@ -234,7 +234,7 @@ ruleGroupSearch.setResults(mdrRuleGroups);
 </aui:form>
 
 <script>
-	(function() {
+	(function () {
 		var deleteSelectedDeviceFamiliesButton = document.getElementById(
 			'<portlet:namespace />deleteSelectedDeviceFamilies'
 		);
@@ -242,7 +242,7 @@ ruleGroupSearch.setResults(mdrRuleGroups);
 		if (deleteSelectedDeviceFamiliesButton) {
 			deleteSelectedDeviceFamiliesButton.addEventListener(
 				'click',
-				function() {
+				function () {
 					if (
 						confirm(
 							'<%= UnicodeLanguageUtil.get(resourceBundle, "are-you-sure-you-want-to-delete-this") %>'

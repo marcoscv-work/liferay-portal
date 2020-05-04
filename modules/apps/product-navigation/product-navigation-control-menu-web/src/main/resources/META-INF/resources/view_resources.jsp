@@ -53,9 +53,9 @@ if (Validator.isNotNull(keywords)) {
 					continue;
 				}
 
-				Map<String, Object> data = new HashMap<String, Object>();
-
-				data.put("delta", curDelta);
+				Map<String, Object> data = HashMapBuilder.<String, Object>put(
+					"delta", curDelta
+				).build();
 			%>
 
 				<li class="num-item <%= (delta == curDelta) ? "active" : StringPool.BLANK %>">
@@ -71,9 +71,9 @@ if (Validator.isNotNull(keywords)) {
 	<span class="float-right" id="<portlet:namespace />displayStyleContainer">
 
 		<%
-		Map<String, Object> data = new HashMap<String, Object>();
-
-		data.put("displaystyle", "icon");
+		Map<String, Object> data = HashMapBuilder.<String, Object>put(
+			"displaystyle", "icon"
+		).build();
 		%>
 
 		<liferay-ui:icon
@@ -116,7 +116,9 @@ if (Validator.isNotNull(keywords)) {
 	<liferay-ui:message key="<%= panelTitle %>" />
 </h4>
 
-<div class="m-1 row">
+<clay:row
+	className="m-1"
+>
 
 	<%
 	long[] availableClassNameIds = AssetRendererFactoryRegistryUtil.getClassNameIds(company.getCompanyId());
@@ -171,10 +173,11 @@ if (Validator.isNotNull(keywords)) {
 
 		boolean hasAddToPagePermission = PortletPermissionUtil.contains(permissionChecker, layout, portletId, ActionKeys.ADD_TO_PAGE);
 
-		Map<String, Object> itemData = new HashMap<String, Object>();
-
-		itemData.put("class-name", assetEntry.getClassName());
-		itemData.put("class-pk", assetEntry.getClassPK());
+		Map<String, Object> itemData = HashMapBuilder.<String, Object>put(
+			"class-name", assetEntry.getClassName()
+		).put(
+			"class-pk", assetEntry.getClassPK()
+		).build();
 
 		if (hasAddToPagePermission) {
 			itemData.put("draggable", true);
@@ -206,12 +209,12 @@ if (Validator.isNotNull(keywords)) {
 	}
 	%>
 
-</div>
+</clay:row>
 
 <aui:script use="aui-base">
 	A.one('#<portlet:namespace />numItemsContainer').delegate(
 		'click',
-		function(event) {
+		function (event) {
 			var delta = event.currentTarget.attr('data-delta');
 
 			Liferay.fire('AddContent:refreshContentList', {
@@ -223,7 +226,7 @@ if (Validator.isNotNull(keywords)) {
 
 	A.one('#<portlet:namespace />displayStyleContainer').delegate(
 		'click',
-		function(event) {
+		function (event) {
 			var displayStyle = event.currentTarget.attr('data-displaystyle');
 
 			Liferay.fire('AddContent:refreshContentList', {

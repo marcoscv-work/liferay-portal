@@ -189,6 +189,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>EMAIL_VERIFICATION_CODE</td>
+	<td>//div[label[contains(.,'Email Verification Code')]]/input</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ENTER_AGAIN</td>
 	<td>//div[label[contains(.,'Enter Again')]]/input</td>
 	<td></td>
@@ -235,12 +240,17 @@
 </tr>
 <tr>
 	<td>GENERIC_TEXT_INPUT</td>
-	<td>//div[label[contains(.,'${key_fieldLabel}')]]//input[@type='text'] | //div[p[contains(.,'${key_fieldLabel}')]]//input[@type='text']</td>
+	<td>//div[label[contains(.,'${key_fieldLabel}')]]//input[@type='text'] | //div[contains(@class,'ddm-field') and contains(.,'${key_fieldLabel}')]//input[@type='text']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>GOOGLE_ANALYTICS_ID</td>
 	<td>//input[contains(@id,'googleAnalyticsId')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>GRACE_LIMIT</td>
+	<td>//div[label[contains(.,'Grace Limit')]]//input[@type='text']</td>
 	<td></td>
 </tr>
 <tr>
@@ -431,6 +441,21 @@
 <tr>
 	<td>PRIVATE_VIRTUAL_HOST_URL</td>
 	<td>//input[contains(@id,'privateVirtualHost')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REDIRECT_DESTINATION_URL</td>
+	<td>//input[contains(@id,'destinationURL')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REDIRECT_SOURCE_URL</td>
+	<td>//input[contains(@id,'sourceURL')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REDIRECT_SOURCE_URL_PREFIX</td>
+	<td>//div[contains(@class,'form-text')]</td>
 	<td></td>
 </tr>
 <tr>

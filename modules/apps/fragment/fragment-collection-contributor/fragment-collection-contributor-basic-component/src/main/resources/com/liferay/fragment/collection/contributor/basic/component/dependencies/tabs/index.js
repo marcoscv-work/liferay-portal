@@ -1,6 +1,7 @@
 /*eslint-disable*/
 const dropdown = fragmentElement.querySelector('.navbar-collapse');
 const dropdownButton = fragmentElement.querySelector('.navbar-toggler-link');
+const editMode = document.body.classList.contains('has-edit-mode-menu');
 const tabItems = [].slice.call(fragmentElement.querySelectorAll('.nav-link'));
 const tabPanelItems = [].slice.call(
 	fragmentElement.querySelectorAll('.tab-panel-item')
@@ -52,18 +53,21 @@ function handleDropdownButtonName(item) {
 
 function openTabPanel(event, i) {
 	const {currentTarget, target} = event;
-	const isEditable =
-		target.classList.contains('page-editor__editable') ||
-		target.parentElement.classList.contains('page-editor__editable');
+	const isEditable = target.hasAttribute('data-lfr-editable-id') || target.hasAttribute('contenteditable');
+	const dropdownIsOpen = JSON.parse(dropdownButton.getAttribute('aria-expanded'));
 
-	if (!isEditable) {
-		handleDropdown({event, item: currentTarget});
+	if (!isEditable || !editMode) {	
+		if (dropdownIsOpen) {
+			handleDropdown({event, item: currentTarget});
+		}
+
+		currentTarget.focus();
+
+		activeTab(currentTarget, i);
+		activeTabPanel(tabPanelItems[i]);
+
+		this.tabIndex = i;
 	}
-
-	activeTab(currentTarget, i);
-	activeTabPanel(tabPanelItems[i]);
-
-	this.tabIndex = i;
 }
 
 function main() {

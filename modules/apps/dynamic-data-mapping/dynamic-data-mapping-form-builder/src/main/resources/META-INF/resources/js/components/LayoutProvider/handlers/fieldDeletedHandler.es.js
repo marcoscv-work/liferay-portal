@@ -20,10 +20,10 @@ import {updateField} from '../util/settingsContext.es';
 export const formatRules = (state, pages) => {
 	const visitor = new PagesVisitor(pages);
 
-	const rules = (state.rules || []).map(rule => {
+	const rules = (state.rules || []).map((rule) => {
 		const {actions, conditions} = rule;
 
-		conditions.forEach(condition => {
+		conditions.forEach((condition) => {
 			let firstOperandFieldExists = false;
 			let secondOperandFieldExists = false;
 
@@ -69,25 +69,31 @@ export const formatRules = (state, pages) => {
 export const removeField = (props, pages, fieldName) => {
 	const visitor = new PagesVisitor(pages);
 
-	const filter = fields =>
+	const filter = (fields) =>
 		fields
-			.filter(field => field.fieldName !== fieldName)
-			.map(field => {
-				const pages = [{rows: field.rows}];
-				const visitor = new PagesVisitor(pages);
-
+			.filter((field) => field.fieldName !== fieldName)
+			.map((field) => {
 				const nestedFields = field.nestedFields
 					? filter(field.nestedFields)
 					: [];
 
 				field = updateField(props, field, 'nestedFields', nestedFields);
 
+				const visitor = new PagesVisitor([
+					{
+						rows:
+							typeof field.rows === 'string'
+								? JSON.parse(field.rows)
+								: field.rows || [],
+					},
+				]);
+
 				const rows = field.rows
 					? FormSupport.removeEmptyRows(
-							visitor.mapColumns(column => ({
+							visitor.mapColumns((column) => ({
 								...column,
 								fields: column.fields.filter(
-									nestedFieldName =>
+									(nestedFieldName) =>
 										fieldName !== nestedFieldName
 								),
 							})),
@@ -104,7 +110,7 @@ export const removeField = (props, pages, fieldName) => {
 				};
 			});
 
-	return visitor.mapColumns(column => ({
+	return visitor.mapColumns((column) => ({
 		...column,
 		fields: filter(column.fields),
 	}));

@@ -149,7 +149,7 @@ if (portletTitleBasedNavigation) {
 							<aui:script>
 								print();
 
-								setTimeout(function() {
+								setTimeout(function () {
 									window.close();
 								}, 100);
 							</aui:script>
@@ -186,16 +186,20 @@ if (portletTitleBasedNavigation) {
 					formattedContent = wikiPage.getContent();
 				}
 
-				Map<String, Object> contextObjects = new HashMap<String, Object>();
-
-				contextObjects.put("assetEntry", layoutAssetEntry);
-				contextObjects.put("formattedContent", formattedContent);
-				contextObjects.put("viewURL", viewPageURL.toString());
-				contextObjects.put("wikiPortletInstanceConfiguration", wikiPortletInstanceConfiguration);
+				Map<String, Object> contextObjects = HashMapBuilder.<String, Object>put(
+					"assetEntry", layoutAssetEntry
+				).put(
+					"formattedContent", formattedContent
+				).put(
+					"viewURL", viewPageURL.toString()
+				).put(
+					"wikiPortletInstanceConfiguration", wikiPortletInstanceConfiguration
 
 				// Deprecated
 
-				contextObjects.put("wikiPortletInstanceOverriddenConfiguration", wikiPortletInstanceConfiguration);
+				).put(
+					"wikiPortletInstanceOverriddenConfiguration", wikiPortletInstanceConfiguration
+				).build();
 				%>
 
 				<c:if test="<%= !portletTitleBasedNavigation %>">
@@ -355,7 +359,7 @@ if (portletTitleBasedNavigation) {
 
 								<c:if test="<%= wikiPortletInstanceSettingsHelper.isEnablePageRatings() %>">
 									<div class="page-ratings">
-										<liferay-ui:ratings
+										<liferay-ratings:ratings
 											className="<%= WikiPage.class.getName() %>"
 											classPK="<%= wikiPage.getResourcePrimKey() %>"
 											inTrash="<%= wikiPage.isInTrash() %>"

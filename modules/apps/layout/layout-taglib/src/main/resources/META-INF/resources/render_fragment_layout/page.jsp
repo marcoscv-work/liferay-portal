@@ -18,32 +18,33 @@
 
 <%
 LayoutStructure layoutStructure = (LayoutStructure)request.getAttribute("liferay-layout:render-fragment-layout:layoutStructure");
+String mainItemId = (String)request.getAttribute("liferay-layout:render-fragment-layout:mainItemId");
+
+RenderFragmentLayoutDisplayContext renderFragmentLayoutDisplayContext = (RenderFragmentLayoutDisplayContext)request.getAttribute("liferay-layout:render-fragment-layout:renderFragmentLayoutDisplayContext");
 %>
 
-<div class="layout-content portlet-layout" id="main-content" role="main">
+<liferay-util:html-top>
+	<%= renderFragmentLayoutDisplayContext.getPortletHeaderPaths() %>
+</liferay-util:html-top>
 
-	<%
-	try {
-		request.setAttribute(WebKeys.SHOW_PORTLET_TOPPER, Boolean.TRUE);
+<%
+try {
+	request.setAttribute(WebKeys.SHOW_PORTLET_TOPPER, Boolean.TRUE);
 
-		RenderFragmentLayoutDisplayContext renderFragmentLayoutDisplayContext = new RenderFragmentLayoutDisplayContext(request, response);
+	LayoutStructureItem layoutStructureItem = layoutStructure.getLayoutStructureItem(mainItemId);
 
-		request.setAttribute("render_layout_structure.jsp-renderFragmentLayoutDisplayContext", renderFragmentLayoutDisplayContext);
+	request.setAttribute("render_layout_structure.jsp-childrenItemIds", layoutStructureItem.getChildrenItemIds());
+%>
 
-		LayoutStructureItem layoutStructureItem = layoutStructure.getMainLayoutStructureItem();
+	<liferay-util:include page="/render_fragment_layout/render_layout_structure.jsp" servletContext="<%= application %>" />
 
-		request.setAttribute("render_layout_structure.jsp-childrenItemIds", layoutStructureItem.getChildrenItemIds());
-	%>
+<%
+}
+finally {
+	request.removeAttribute(WebKeys.SHOW_PORTLET_TOPPER);
+}
+%>
 
-		<%= renderFragmentLayoutDisplayContext.getPortletPaths() %>
-
-		<liferay-util:include page="/render_fragment_layout/render_layout_structure.jsp" servletContext="<%= application %>" />
-
-	<%
-	}
-	finally {
-		request.removeAttribute(WebKeys.SHOW_PORTLET_TOPPER);
-	}
-	%>
-
-</div>
+<liferay-util:html-bottom>
+	<%= renderFragmentLayoutDisplayContext.getPortletFooterPaths() %>
+</liferay-util:html-bottom>

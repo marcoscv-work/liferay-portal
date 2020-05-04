@@ -18,11 +18,10 @@ import QuickActionKebab from '../../shared/components/quick-action-kebab/QuickAc
 import moment from '../../shared/util/moment.es';
 import {capitalize} from '../../shared/util/util.es';
 import {AppContext} from '../AppContext.es';
-import {processStatusConstants} from '../filter/ProcessStatusFilter.es';
 import {InstanceListContext} from './InstanceListPageProvider.es';
 import {ModalContext} from './modal/ModalProvider.es';
 
-const getSLAStatusIcon = slaStatus => {
+const getSLAStatusIcon = (slaStatus) => {
 	const items = {
 		OnTime: {
 			bgColor: 'bg-success-light',
@@ -59,36 +58,33 @@ const Item = ({totalCount, ...instance}) => {
 	const {
 		assetTitle,
 		assetType,
-		assigneeUsers = [],
-		creatorUser,
+		assignees = [],
+		completed,
+		creator,
 		dateCreated,
 		id,
-		status,
 		slaStatus,
-		taskNames,
+		taskNames = [Liferay.Language.get('not-available')],
 	} = instance;
 
 	useEffect(() => {
-		setChecked(!!selectedItems.find(item => item.id === id));
+		setChecked(!!selectedItems.find((item) => item.id === id));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedItems]);
 
-	const assignedToUser = !!assigneeUsers.find(({id}) => id == userId);
-	const assigneeUserNames = assigneeUsers.map(user => user.name).join(', ');
-	const completed = status === processStatusConstants.completed;
-	const unassigned = !!assigneeUsers.find(({id}) => id === -1);
+	const assignedToUser = !!assignees.find(({id}) => id === Number(userId));
+	const assigneeNames = assignees.map((user) => user.name).join(', ');
+	const {reviewer} = assignees.find(({id}) => id === -1) || {};
 
-	const disableCheckbox = (!assignedToUser && !unassigned) || completed;
+	const disableCheckbox = (!assignedToUser && !reviewer) || completed;
 	const slaStatusIcon = getSLAStatusIcon(slaStatus);
 
 	const formattedAssignees = !completed
-		? assigneeUserNames
+		? assigneeNames
 		: Liferay.Language.get('not-available');
 
 	const formattedTaskNames = !completed
-		? taskNames
-			? taskNames.join(', ')
-			: Liferay.Language.get('not-available')
+		? taskNames.join(', ')
 		: Liferay.Language.get('completed');
 
 	const handleCheck = ({target}) => {
@@ -96,7 +92,7 @@ const Item = ({totalCount, ...instance}) => {
 
 		const updatedItems = target.checked
 			? [...selectedItems, instance]
-			: selectedItems.filter(item => item.id !== id);
+			: selectedItems.filter((item) => item.id !== id);
 
 		setSelectAll(totalCount > 0 && totalCount === updatedItems.length);
 		setSelectedItems(updatedItems);
@@ -146,7 +142,7 @@ const Item = ({totalCount, ...instance}) => {
 			</ClayTable.Cell>
 
 			<ClayTable.Cell data-testid="assetInfoCell">
-				{`${assetType}: ${assetTitle} `}
+				{`${assetType}: ${assetTitle}`}
 			</ClayTable.Cell>
 
 			<ClayTable.Cell data-testid="taskNamesCell">
@@ -157,8 +153,8 @@ const Item = ({totalCount, ...instance}) => {
 				{formattedAssignees}
 			</ClayTable.Cell>
 
-			<ClayTable.Cell data-testid="creatorUserCell">
-				{creatorUser ? creatorUser.name : ''}
+			<ClayTable.Cell data-testid="creatorCell">
+				{creator ? creator.name : ''}
 			</ClayTable.Cell>
 
 			<ClayTable.Cell data-testid="dateCreatedCell">

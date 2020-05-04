@@ -20,13 +20,15 @@ import {AppContext} from '../../AppContext.es';
 import Error from '../../components/Error.es';
 import QuestionRow from '../../components/QuestionRow.es';
 import {getRankedThreads, getThreads} from '../../utils/client.es';
+import {slugToText} from '../../utils/utils.es';
 import QuestionsNavigationBar from '../QuestionsNavigationBar.es';
 
 export default ({
 	match: {
-		params: {creatorId, tag: taxonomyCategoryId},
+		params: {creatorId, tag},
 	},
 }) => {
+	const [currentTag, setCurrentTag] = useState('');
 	const [error, setError] = useState({});
 	const [loading, setLoading] = useState(true);
 	const [page, setPage] = useState(1);
@@ -40,6 +42,10 @@ export default ({
 	const siteKey = context.siteKey;
 
 	useEffect(() => {
+		setCurrentTag(tag ? slugToText(tag) : '');
+	}, [tag]);
+
+	useEffect(() => {
 		if (section.id) {
 			renderQuestions(loadThreads());
 		}
@@ -50,15 +56,15 @@ export default ({
 		section,
 		search,
 		siteKey,
-		taxonomyCategoryId,
+		currentTag,
 		loadThreads,
 	]);
 
-	const renderQuestions = questions => {
+	const renderQuestions = (questions) => {
 		questions
-			.then(data => setQuestions(data || []))
+			.then((data) => setQuestions(data || []))
 			.then(() => setLoading(false))
-			.catch(error => {
+			.catch((error) => {
 				if (process.env.NODE_ENV === 'development') {
 					console.error(error);
 				}
@@ -68,29 +74,21 @@ export default ({
 	};
 
 	const loadThreads = useCallback(
-		sort =>
+		(sort) =>
 			getThreads({
 				creatorId,
+				keywords: currentTag,
 				page,
 				pageSize,
 				search,
 				section,
 				siteKey,
 				sort,
-				taxonomyCategoryId,
 			}),
-		[
-			creatorId,
-			page,
-			pageSize,
-			search,
-			section,
-			siteKey,
-			taxonomyCategoryId,
-		]
+		[creatorId, currentTag, page, pageSize, search, section, siteKey]
 	);
 
-	const filterChange = type => {
+	const filterChange = (type) => {
 		if (type === 'latest-edited') {
 			renderQuestions(loadThreads('dateModified:desc'));
 		}
@@ -115,11 +113,11 @@ export default ({
 		<section className="questions-section questions-section-list">
 			<div className="questions-container">
 				<div className="row">
-					<div className="c-mt-3 col">
+					<div className="c-mt-3 col col-xl-12">
 						<QuestionsNavigationBar
 							filterChange={filterChange}
-							searchChange={search => setSearch(search)}
-							sectionChange={section => setSection(section)}
+							searchChange={(search) => setSearch(search)}
+							sectionChange={(section) => setSection(section)}
 						/>
 					</div>
 
@@ -128,7 +126,7 @@ export default ({
 							<ClayLoadingIndicator />
 						) : (
 							questions.items &&
-							questions.items.map(question => (
+							questions.items.map((question) => (
 								<QuestionRow
 									key={question.id}
 									question={question}

@@ -19,6 +19,7 @@ import {Config} from 'metal-state';
  * Shows a dialog and handles the selected item.
  */
 class ItemSelectorDialog extends Component {
+
 	/**
 	 * Closes the dialog.
 	 */
@@ -39,10 +40,10 @@ class ItemSelectorDialog extends Component {
 
 		const dialogEvents = {
 			on: {
-				click: event => {
+				click: (event) => {
 					event.domEvent.preventDefault();
 				},
-				visibleChange: event => {
+				visibleChange: (event) => {
 					if (!event.newVal) {
 						this.selectedItem = this._selectedItem;
 
@@ -146,6 +147,7 @@ class ItemSelectorDialog extends Component {
  * @type {!Object}
  */
 ItemSelectorDialog.STATE = {
+
 	/**
 	 * Label for the Add button.
 	 *

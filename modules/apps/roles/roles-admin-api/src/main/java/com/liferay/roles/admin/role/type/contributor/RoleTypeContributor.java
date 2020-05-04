@@ -15,6 +15,7 @@
 package com.liferay.roles.admin.role.type.contributor;
 
 import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.util.ArrayUtil;
 
 import java.util.Locale;
 
@@ -35,6 +36,16 @@ public interface RoleTypeContributor {
 	 */
 	public default String getClassName() {
 		return null;
+	}
+
+	/**
+	 * Returns a list of role names whose permissions cannot be manually
+	 * defined by users.
+	 *
+	 * @return
+	 */
+	public default String[] getExcludedRoleNames() {
+		return new String[0];
 	}
 
 	/**
@@ -108,7 +119,13 @@ public interface RoleTypeContributor {
 	 * @param role
 	 * @return
 	 */
-	public boolean isAllowDefinePermissions(Role role);
+	public default boolean isAllowDefinePermissions(Role role) {
+		if (ArrayUtil.contains(getExcludedRoleNames(), role.getName())) {
+			return false;
+		}
+
+		return true;
+	}
 
 	/**
 	 * Returns whether or not the given role can be deleted.
@@ -117,5 +134,15 @@ public interface RoleTypeContributor {
 	 * @return
 	 */
 	public boolean isAllowDelete(Role role);
+
+	/**
+	 * Returns whether or not the given role is automatically assigned.
+	 *
+	 * @param role
+	 * @return
+	 */
+	public default boolean isAutomaticallyAssigned(Role role) {
+		return false;
+	}
 
 }

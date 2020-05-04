@@ -38,6 +38,7 @@ a.control-menu-icon,
 
 		&:focus,
 		&:hover {
+			background-color: $control-menu-level-1-link-background-color;
 			color: $control-menu-level-1-link-hover-color;
 			text-decoration: none;
 		}

@@ -33,6 +33,16 @@ definition {
 		}
 	}
 
+	macro changeLanguagesOrder {
+		var key_fromRowNumber = "${fromRowNumber}";
+		var key_toRowNumber = "${toRowNumber}";
+
+		DragAndDrop.javaScriptDragAndDropToObject(
+			locator1 = "LanguageConfiguration#DEPOT_LANGUAGE_ORDER_FROM",
+			locator2 = "LanguageConfiguration#DEPOT_LANGUAGE_ORDER_TO",
+			value1 = "");
+	}
+
 	macro configureApplication {
 		if ("${status}" == "Enabled") {
 			for (var applicationList : list "${applicationList}") {
@@ -208,7 +218,7 @@ definition {
 			Alert.viewSuccessMessage();
 		}
 		else {
-			ClickNoError(locator1 = "Icon#TRASH");
+			ClickNoError(locator1 = "Icon#MOVE_TO_RECYCLE_BIN");
 
 			if (isSet(webContent)) {
 				AssertConfirm(value1 = "Are you sure you want to move the selected entries to the Recycle Bin?");
@@ -308,6 +318,42 @@ definition {
 		else {
 			Alert.viewSuccessMessage();
 		}
+	}
+
+	macro moveLanguage {
+		Click(
+			key_language = "${depotLanguage}",
+			locator1 = "Icon#DEPOT_LANGUAGES_ELLIPSIS");
+
+		if ("${moveDown}" == "true") {
+			MenuItem.click(menuItem = "Move Down");
+		}
+
+		else {
+			MenuItem.click(menuItem = "Move Up");
+		}
+
+		Button.click(button = "Save");
+
+		Alert.viewSuccessMessage();
+	}
+
+	macro view4LanguagesOrder {
+		AssertTextEquals.assertPartialText(
+			locator1 = "LanguageConfiguration#DEPOT_LANGUAGE_LOCALIZATION_NAME_1",
+			value1 = "${localizationName1}");
+
+		AssertTextEquals.assertPartialText(
+			locator1 = "LanguageConfiguration#DEPOT_LANGUAGE_LOCALIZATION_NAME_2",
+			value1 = "${localizationName2}");
+
+		AssertTextEquals.assertPartialText(
+			locator1 = "LanguageConfiguration#DEPOT_LANGUAGE_LOCALIZATION_NAME_3",
+			value1 = "${localizationName3}");
+
+		AssertTextEquals.assertPartialText(
+			locator1 = "LanguageConfiguration#DEPOT_LANGUAGE_LOCALIZATION_NAME_4",
+			value1 = "${localizationName4}");
 	}
 
 	macro viewApplication {
@@ -449,30 +495,60 @@ definition {
 			fieldName = "Description");
 	}
 
-	macro viewLanguageOptionsInWebContent {
+	macro viewLanguageItems {
+		Click(
+			key_language = "${depotLanguage}",
+			locator1 = "Icon#DEPOT_LANGUAGES_ELLIPSIS");
+
+		if ("${firstLanguageItem}" == "true") {
+			MenuItem.viewNotPresent(menuItem = "Move Up");
+
+			MenuItem.viewVisible(menuItem = "Move Down");
+		}
+
+		else if ("${lastLanguageItem}" == "true") {
+			MenuItem.viewNotPresent(menuItem = "Move Down");
+
+			MenuItem.viewVisible(menuItem = "Move Up");
+		}
+
+		else {
+			MenuItem.viewVisible(menuItem = "Move Down");
+
+			MenuItem.viewVisible(menuItem = "Move Up");
+		}
+	}
+
+	macro viewLanguageOrderInWebContent {
 		Click(locator1 = "Button#LOCALIZATION_GENERIC");
 
-		for (var locale : list "${currentLanguageList}") {
-			AssertElementPresent(
-				key_locale = "${locale}",
-				locator1 = "Translation#LOCALIZATION_NAME");
-		}
+		Depot.view4LanguagesOrder(
+			localizationName1 = "${localizationName1}",
+			localizationName2 = "${localizationName2}",
+			localizationName3 = "${localizationName3}",
+			localizationName4 = "${localizationName4}");
 
 		Click(
 			key_portletName = "JournalPortlet_Menu",
 			locator1 = "Button#LANGUAGE_DROPDOWN");
 
-		for (var locale : list "${currentLanguageList}") {
-			AssertElementPresent(
-				key_locale = "${locale}",
-				locator1 = "Translation#LOCALIZATION_NAME");
-		}
+		Depot.view4LanguagesOrder(
+			localizationName1 = "${localizationName1}",
+			localizationName2 = "${localizationName2}",
+			localizationName3 = "${localizationName3}",
+			localizationName4 = "${localizationName4}");
 
 		Panel.expandPanel(panel = "Basic Information");
 
-		Page.viewFriendlyURLLanguageOptionsPG(
-			currentLanguageList = "${currentLanguageList}",
-			fieldName = "Summary");
+		Click(
+			key_fieldName = "Summary",
+			locator1 = "Button#LOCALIZATION");
+
+		Depot.view4LanguagesOrder(
+			localizationName1 = "${localizationName1}",
+			localizationName2 = "${localizationName2}",
+			localizationName3 = "${localizationName3}",
+			localizationName4 = "${localizationName4}");
 
 		Panel.expandPanel(panel = "Friendly URL");
 
@@ -480,11 +556,11 @@ definition {
 			key_portletName = "JournalPortlet_friendlyURLMenu",
 			locator1 = "Button#LANGUAGE_DROPDOWN");
 
-		for (var locale : list "${currentLanguageList}") {
-			AssertElementPresent(
-				key_locale = "${locale}",
-				locator1 = "Translation#LOCALIZATION_NAME");
-		}
+		Depot.view4LanguagesOrder(
+			localizationName1 = "${localizationName1}",
+			localizationName2 = "${localizationName2}",
+			localizationName3 = "${localizationName3}",
+			localizationName4 = "${localizationName4}");
 	}
 
 	macro viewNoConnectedSiteCP {

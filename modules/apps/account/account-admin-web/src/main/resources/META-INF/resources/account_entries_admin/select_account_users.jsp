@@ -28,7 +28,7 @@ SelectAccountUsersManagementToolbarDisplayContext selectAccountUsersManagementTo
 	displayContext="<%= selectAccountUsersManagementToolbarDisplayContext %>"
 />
 
-<aui:container cssClass="container-fluid container-fluid-max-xl">
+<clay:container>
 	<c:if test='<%= !Objects.equals(selectAccountUsersManagementToolbarDisplayContext.getNavigation(), "all-users") %>'>
 		<clay:alert
 			message='<%= LanguageUtil.get(request, "showing-users-with-valid-domains-only") %>'
@@ -40,14 +40,14 @@ SelectAccountUsersManagementToolbarDisplayContext selectAccountUsersManagementTo
 		searchContainer="<%= userSearchContainer %>"
 	>
 		<liferay-ui:search-container-row
-			className="com.liferay.portal.kernel.model.User"
+			className="com.liferay.account.admin.web.internal.display.AccountUserDisplay"
 			keyProperty="userId"
-			modelVar="user"
+			modelVar="accountUserDisplay"
 		>
 			<liferay-ui:search-container-column-text
 				cssClass="table-cell-expand-small table-cell-minw-150"
 				name="name"
-				property="fullName"
+				property="name"
 			/>
 
 			<liferay-ui:search-container-column-text
@@ -59,7 +59,7 @@ SelectAccountUsersManagementToolbarDisplayContext selectAccountUsersManagementTo
 			<liferay-ui:search-container-column-text
 				cssClass="table-cell-expand-small table-cell-minw-150"
 				name="account-roles"
-				value=""
+				value="<%= accountUserDisplay.getAccountRoleNames(accountEntryId, locale) %>"
 			/>
 		</liferay-ui:search-container-row>
 
@@ -67,14 +67,14 @@ SelectAccountUsersManagementToolbarDisplayContext selectAccountUsersManagementTo
 			markupView="lexicon"
 		/>
 	</liferay-ui:search-container>
-</aui:container>
+</clay:container>
 
 <aui:script use="liferay-search-container">
 	var searchContainer = Liferay.SearchContainer.get(
 		'<portlet:namespace />accountUsers'
 	);
 
-	searchContainer.on('rowToggled', function(event) {
+	searchContainer.on('rowToggled', function (event) {
 		var selectedItems = event.elements.allSelectedElements;
 
 		var result = {};

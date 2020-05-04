@@ -122,6 +122,8 @@ public class SpiraReleaseBuild extends BaseSpiraArtifact {
 			searchParameters);
 	}
 
+	protected static final String ARTIFACT_TYPE_NAME = "build";
+
 	protected static final String ID_KEY = "BuildId";
 
 	private static List<JSONObject> _requestSpiraReleaseBuilds(
@@ -168,6 +170,8 @@ public class SpiraReleaseBuild extends BaseSpiraArtifact {
 
 	private SpiraReleaseBuild(JSONObject jsonObject) {
 		super(jsonObject);
+
+		cacheSpiraArtifact(SpiraReleaseBuild.class, this);
 	}
 
 }

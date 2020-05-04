@@ -32,12 +32,12 @@ const getStatus = (isOnline, status, lastSaveDate) => {
 	return null;
 };
 
-const parseDate = date => {
+const parseDate = (date) => {
 	if (!date) {
 		return null;
 	}
 
-	const lastSaveDateText = Liferay.Language.get('draft-saved-at-x');
+	const lastSaveDateText = Liferay.Language.get('changes-saved');
 
 	return lastSaveDateText.replace(
 		'{0}',

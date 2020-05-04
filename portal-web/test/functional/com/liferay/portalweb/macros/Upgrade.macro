@@ -132,6 +132,7 @@ definition {
 
 		task ("Edit the Title fragment's editable text") {
 			PageEditor.editFragmentText(
+				contributed = "false",
 				fragmentName = "Title",
 				id = "title",
 				text = "New editable fragment text");
@@ -314,7 +315,9 @@ definition {
 
 		DMNavigator.gotoAddDocumentTypePG(dmDocumentTypeName = "${dmDocumentTypeName}");
 
-		OneDrive.AddDocument(dmDocumentTitle = "${dmDocumentTypeName} Title After Upgrade");
+		OneDrive.AddDocument(
+			dmDocumentTitle = "${dmDocumentTypeName} Title After Upgrade",
+			dmDocumentTypeName = "${dmDocumentTypeName}");
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
@@ -346,61 +349,32 @@ definition {
 	}
 
 	macro addUserAndSuborganization {
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONOrganization.addOrganization(organizationName = "Organization2");
 
-		Organization.addCP(
-			orgName = "Organization2",
-			orgType = "Organization");
+		JSONOrganization.addOrganization(
+			organizationName = "Sub-organization2",
+			parentOrganizationName = "Organization2");
 
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		JSONOrganization.addOrganization(
+			organizationName = "Sub-organization1",
+			parentOrganizationName = "Organization1");
 
-		UsersAndOrganizationsNavigator.gotoOrganizations();
-
-		Suborganization.addCP(
-			orgName = "Organization2",
-			suborgName = "Sub-organization2");
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		UsersAndOrganizationsNavigator.gotoOrganizations();
-
-		Suborganization.addCP(
-			orgName = "Organization1",
-			suborgName = "Sub-organization1");
-
-		ProductMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
+		JSONUser.addUser(
 			userEmailAddress = "user2@liferay.com",
 			userFirstName = "user2",
 			userLastName = "user2",
 			userScreenName = "user2");
 
+		JSONOrganization.assignUserToOrganization(
+			organizationName = "Organization1",
+			userEmailAddress = "user2@liferay.com");
+
 		ProductMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
 
 		UsersAndOrganizationsNavigator.gotoOrganizations();
-
-		Organization.addMemberCP(
-			orgName = "Organization1",
-			userFirstName = "user2",
-			userLastName = "user2",
-			userName = "user2 user2",
-			userScreenName = "user2");
 
 		Organization.addMemberCP(
 			orgName = "Sub-organization1",
@@ -408,6 +382,8 @@ definition {
 			userLastName = "user2",
 			userName = "user2 user2",
 			userScreenName = "user2");
+
+		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
 			category = "Users",
@@ -425,6 +401,8 @@ definition {
 		Organization.viewAssignMemberCP(
 			userName = "userfn userln",
 			userScreenName = "usersn");
+
+		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
 			category = "Users",
@@ -447,6 +425,8 @@ definition {
 			userName = "userfn userln",
 			userScreenName = "usersn");
 
+		Navigator.openURL();
+
 		ProductMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
@@ -457,6 +437,8 @@ definition {
 		Organization.editSiteCP(
 			orgName = "Organization1",
 			orgNameEdit = "Organization1 Edit");
+
+		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
 			category = "Users",
@@ -469,6 +451,8 @@ definition {
 			orgName = "Sub-organization1",
 			orgNameEdit = "Sub-organization1 Edit");
 
+		Navigator.openURL();
+
 		ProductMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
@@ -478,6 +462,8 @@ definition {
 
 		Organization.deleteCP(orgName = "Sub-organization2");
 
+		Navigator.openURL();
+
 		ProductMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
@@ -486,6 +472,8 @@ definition {
 		UsersAndOrganizationsNavigator.gotoOrganizations();
 
 		Organization.deleteCP(orgName = "Organization2");
+
+		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
 			category = "Users",
@@ -498,6 +486,8 @@ definition {
 			orgName = "Sub-organization1 Edit",
 			userFullName = "user2 user2");
 
+		Navigator.openURL();
+
 		ProductMenu.gotoPortlet(
 			category = "Users",
 			panel = "Control Panel",
@@ -506,6 +496,8 @@ definition {
 		UsersAndOrganizationsNavigator.gotoOrganizations();
 
 		Organization.deleteCP(orgName = "Sub-organization1 Edit");
+
+		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
 			category = "Users",
@@ -757,7 +749,7 @@ definition {
 
 		BlogsNavigator.gotoEntryCP(entryTitle = "Blogs Workflow Title");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryCP(
 			entryContent = "Blogs Workflow Content",
 			entryTitle = "Blogs Workflow Title");
 
@@ -1115,7 +1107,7 @@ definition {
 
 		BlogsNavigator.gotoEntryCP(entryTitle = "New Blog After Upgrade");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryCP(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "New Blog After Upgrade");
 
@@ -1315,6 +1307,10 @@ definition {
 			user = "Test Test");
 
 		PageEditor.deleteComment(fragmentComment = "This is a fragment comment");
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
+
+		ContentPages.clickPencil();
 
 		PageEditor.addComment(
 			content = "This is static text.",
@@ -1525,7 +1521,7 @@ definition {
 
 		UserBar.gotoDropdownItem(dropdownItem = "My Profile");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryPG(
 			entryContent = "Usersn Blog Entry Content",
 			entryTitle = "Usersn Blog Entry Title");
 
@@ -1637,7 +1633,7 @@ definition {
 			panel = "Control Panel",
 			portlet = "Users and Organizations");
 
-		User.UnassignRegularRoleCP(
+		User.unassignRegularRoleCP(
 			regularRoleName = "Administrator",
 			userScreenName = "usersn1");
 
@@ -1830,6 +1826,14 @@ definition {
 			searchTerm = "Drools");
 	}
 
+	macro viewHomePage {
+		Navigator.openURL();
+
+		// Assert the Home page is a widget page in the default site when upgrade from 7.2
+
+		AssertVisible(locator1 = "Icon#EDIT_PENCIL");
+	}
+
 	macro viewInstanceSettings {
 		PortalSettings.gotoConfiguration(
 			configurationCategory = "Instance Configuration",
@@ -1873,13 +1877,16 @@ definition {
 			configurationScope = "Virtual Instance Scope");
 
 		FormFields.viewTextMultilineValue(
-			fieldName = "reserved-screen-names",
+			fieldName = "reserved.screen.names",
 			fieldValue = "usersn");
 
 		FormFields.viewTextMultilineValue(
-			fieldName = "reserved-email-addresses",
+			fieldName = "reserved.email.addresses",
 			fieldValue = "userea@liferay.com");
 
+		// Ignore test until LPS-98192 is resolved
+
+		/*
 		PortalSettings.gotoConfiguration(
 			configurationCategory = "Users",
 			configurationName = "Fields",
@@ -1889,7 +1896,7 @@ definition {
 
 		FormFields.viewCheckboxNotChecked(fieldName = "field-enable-com-liferay-portal-kernel-model-Contact-birthday");
 
-		FormFields.viewCheckboxNotChecked(fieldName = "field-enable-com-liferay-portal-kernel-model-Contact-male");
+		FormFields.viewCheckboxNotChecked(fieldName = "field-enable-com-liferay-portal-kernel-model-Contact-male");*/
 
 		PortalSettings.gotoConfiguration(
 			configurationCategory = "Users",
@@ -1897,11 +1904,11 @@ definition {
 			configurationScope = "Virtual Instance Scope");
 
 		FormFields.viewTextMultilineValue(
-			fieldName = "default-group-names",
+			fieldName = "default.group.names",
 			fieldValue = "Liferay");
 
 		FormFields.viewTextMultilineValue(
-			fieldName = "default-role-names",
+			fieldName = "default.role.names",
 			fieldValue = "Administrator");
 
 		PortalSettings.gotoConfiguration(
@@ -1910,7 +1917,7 @@ definition {
 			configurationScope = "Virtual Instance Scope");
 
 		FormFields.viewTextValue(
-			fieldName = "email-from-name",
+			fieldName = "email.from.name",
 			fieldValue = "Test Test");
 
 		PortalSettings.gotoConfiguration(
@@ -1929,9 +1936,13 @@ definition {
 			configurationName = "Language",
 			configurationScope = "Virtual Instance Scope");
 
-		AssertTextEquals(
+		AssertTextEquals.assertPartialText(
 			locator1 = "LanguageConfiguration#LANGUAGES_CURRENT",
-			value1 = "Spanish (Spain)   English (United States)");
+			value1 = "English (United States)");
+
+		AssertTextEquals.assertPartialText(
+			locator1 = "LanguageConfiguration#LANGUAGES_CURRENT",
+			value1 = "Spanish (Spain)");
 
 		PortalSettings.gotoConfiguration(
 			configurationCategory = "Localization",
@@ -2444,8 +2455,6 @@ definition {
 
 		FormFields.viewCheckboxNotChecked(fieldName = "journalArticleForceAutogenerateId");
 
-		FormFields.viewCheckboxNotChecked(fieldName = "journalArticlesSearchWithIndex");
-
 		ProductMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
@@ -2534,6 +2543,9 @@ definition {
 
 		FormFields.viewCheckboxNotChecked(fieldName = "enableRelatedAssets");
 
+		// Ignore test until LPS-97976 is resolved
+
+		/*
 		ProductMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
@@ -2570,7 +2582,7 @@ definition {
 
 		FormFields.viewCheckboxNotChecked(fieldName = "autogenerateStructureKey");
 
-		FormFields.viewCheckboxNotChecked(fieldName = "autogenerateTemplateKey");
+		FormFields.viewCheckboxNotChecked(fieldName = "autogenerateTemplateKey");*/
 	}
 
 	macro viewUpgrade {
@@ -2626,7 +2638,7 @@ definition {
 
 		Navigator.gotoPage(pageName = "Blogs");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryPG(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 
@@ -2641,6 +2653,7 @@ definition {
 		SignIn.signIn(userEmailAddress = "user@liferay.com");
 
 		Smoke.viewWelcomePage(
+			upgrade = "true",
 			userFirstName = "Userfn",
 			userLastName = "Userln");
 
@@ -2695,7 +2708,7 @@ definition {
 
 		Navigator.gotoPage(pageName = "Blogs");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryPG(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 
@@ -2708,6 +2721,16 @@ definition {
 		SignOut.signOut();
 
 		SignIn.signIn();
+	}
+
+	macro viewWelcomePage {
+		Navigator.openURL();
+
+		// Assert the Welcome page is a widget page in the default site when upgrade from 7.1 and 7.0
+
+		AssertNotVisible(locator1 = "Icon#EDIT_PENCIL");
+
+		AssertVisible(locator1 = "ControlMenu#ADD");
 	}
 
 }

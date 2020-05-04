@@ -63,11 +63,7 @@ public class DataRuleSerDes {
 			sb.append("[");
 
 			for (int i = 0; i < dataRule.getActions().length; i++) {
-				sb.append("\"");
-
-				sb.append(_escape(dataRule.getActions()[i]));
-
-				sb.append("\"");
+				sb.append(dataRule.getActions()[i]);
 
 				if ((i + 1) < dataRule.getActions().length) {
 					sb.append(", ");
@@ -87,11 +83,7 @@ public class DataRuleSerDes {
 			sb.append("[");
 
 			for (int i = 0; i < dataRule.getConditions().length; i++) {
-				sb.append("\"");
-
-				sb.append(_escape(dataRule.getConditions()[i]));
-
-				sb.append("\"");
+				sb.append(dataRule.getConditions()[i]);
 
 				if ((i + 1) < dataRule.getConditions().length) {
 					sb.append(", ");
@@ -113,6 +105,16 @@ public class DataRuleSerDes {
 			sb.append(_escape(dataRule.getLogicalOperator()));
 
 			sb.append("\"");
+		}
+
+		if (dataRule.getName() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"name\": ");
+
+			sb.append(_toJSON(dataRule.getName()));
 		}
 
 		sb.append("}");
@@ -156,6 +158,13 @@ public class DataRuleSerDes {
 				String.valueOf(dataRule.getLogicalOperator()));
 		}
 
+		if (dataRule.getName() == null) {
+			map.put("name", null);
+		}
+		else {
+			map.put("name", String.valueOf(dataRule.getName()));
+		}
+
 		return map;
 	}
 
@@ -178,17 +187,24 @@ public class DataRuleSerDes {
 
 			if (Objects.equals(jsonParserFieldName, "actions")) {
 				if (jsonParserFieldValue != null) {
-					dataRule.setActions((Object[])jsonParserFieldValue);
+					dataRule.setActions((Map[])jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "conditions")) {
 				if (jsonParserFieldValue != null) {
-					dataRule.setConditions((Object[])jsonParserFieldValue);
+					dataRule.setConditions((Map[])jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "logicalOperator")) {
 				if (jsonParserFieldValue != null) {
 					dataRule.setLogicalOperator((String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "name")) {
+				if (jsonParserFieldValue != null) {
+					dataRule.setName(
+						(Map)DataRuleSerDes.toMap(
+							(String)jsonParserFieldValue));
 				}
 			}
 			else {

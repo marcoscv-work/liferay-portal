@@ -16,11 +16,9 @@ package com.liferay.friendly.url.servlet.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.layout.test.util.LayoutTestUtil;
-import com.liferay.petra.function.UnsafeRunnable;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.configuration.test.util.ConfigurationTemporarySwapper;
 import com.liferay.portal.kernel.exception.NoSuchGroupException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
@@ -38,7 +36,6 @@ import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -61,7 +58,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import java.util.Arrays;
-import java.util.Dictionary;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -69,6 +65,7 @@ import java.util.Objects;
 
 import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -135,7 +132,8 @@ public class FriendlyURLServletTest {
 			"com.liferay.friendly.url.internal.servlet.FriendlyURLServlet");
 
 		_getRedirectMethod = clazz.getDeclaredMethod(
-			"getRedirect", HttpServletRequest.class, String.class);
+			"getRedirect", HttpServletRequest.class, HttpServletResponse.class,
+			String.class);
 
 		clazz = classLoader.loadClass(
 			"com.liferay.friendly.url.internal.servlet.FriendlyURLServlet" +
@@ -291,6 +289,26 @@ public class FriendlyURLServletTest {
 	}
 
 	@Test
+	public void testServiceForwardToDefaultLayoutWith404OnMissingLayout()
+		throws Throwable {
+
+		MockHttpServletResponse mockHttpServletResponse =
+			new MockHttpServletResponse();
+
+		testGetRedirect(
+			new MockHttpServletRequest(
+				"GET",
+				StringBundler.concat(
+					PropsValues.LAYOUT_FRIENDLY_URL_PUBLIC_SERVLET_MAPPING,
+					_group.getFriendlyURL(), StringPool.SLASH, "path")),
+			mockHttpServletResponse, getPath(_group, _layout) + "/path",
+			Portal.PATH_MAIN,
+			_redirectConstructor1.newInstance(getURL(_layout)));
+
+		Assert.assertEquals(404, mockHttpServletResponse.getStatus());
+	}
+
+	@Test
 	public void testServiceRedirect() throws Throwable {
 		MockHttpServletRequest mockHttpServletRequest =
 			new MockHttpServletRequest();
@@ -332,78 +350,72 @@ public class FriendlyURLServletTest {
 	public void testServiceRedirectWithMatchingPermanentRedirectEntry()
 		throws Exception {
 
-		_withRedirectEnabled(
-			() -> {
-				RedirectEntry redirectEntry =
-					_redirectEntryLocalService.addRedirectEntry(
-						_group.getGroupId(), "http://www.liferay.com", null,
-						true, "path",
-						ServiceContextTestUtil.getServiceContext());
+		RedirectEntry redirectEntry =
+			_redirectEntryLocalService.addRedirectEntry(
+				_group.getGroupId(), "http://www.liferay.com", null, true,
+				"path", ServiceContextTestUtil.getServiceContext());
 
-				try {
-					MockHttpServletResponse mockHttpServletResponse =
-						new MockHttpServletResponse();
+		try {
+			MockHttpServletResponse mockHttpServletResponse =
+				new MockHttpServletResponse();
 
-					_servlet.service(
-						new MockHttpServletRequest(
-							"GET",
-							StringBundler.concat(
-								PropsValues.
-									LAYOUT_FRIENDLY_URL_PUBLIC_SERVLET_MAPPING,
-								_group.getFriendlyURL(), StringPool.SLASH,
-								"path")),
-						mockHttpServletResponse);
+			_servlet.service(
+				new MockHttpServletRequest(
+					"GET",
+					StringBundler.concat(
+						PropsValues.LAYOUT_FRIENDLY_URL_PUBLIC_SERVLET_MAPPING,
+						_group.getFriendlyURL(), StringPool.SLASH, "path")),
+				mockHttpServletResponse);
 
-					Assert.assertEquals(
-						301, mockHttpServletResponse.getStatus());
-					Assert.assertEquals(
-						"http://www.liferay.com",
-						mockHttpServletResponse.getHeader("Location"));
-				}
-				finally {
-					_redirectEntryLocalService.deleteRedirectEntry(
-						redirectEntry);
-				}
-			});
+			Assert.assertEquals(301, mockHttpServletResponse.getStatus());
+			Assert.assertEquals(
+				"http://www.liferay.com",
+				mockHttpServletResponse.getHeader("Location"));
+
+			redirectEntry = _redirectEntryLocalService.fetchRedirectEntry(
+				_group.getGroupId(), "path");
+
+			Assert.assertNotNull(redirectEntry.getLastOccurrenceDate());
+		}
+		finally {
+			_redirectEntryLocalService.deleteRedirectEntry(redirectEntry);
+		}
 	}
 
 	@Test
 	public void testServiceRedirectWithMatchingTemporaryRedirectEntry()
 		throws Exception {
 
-		_withRedirectEnabled(
-			() -> {
-				RedirectEntry redirectEntry =
-					_redirectEntryLocalService.addRedirectEntry(
-						_group.getGroupId(), "http://www.liferay.com", null,
-						false, "path",
-						ServiceContextTestUtil.getServiceContext());
+		RedirectEntry redirectEntry =
+			_redirectEntryLocalService.addRedirectEntry(
+				_group.getGroupId(), "http://www.liferay.com", null, false,
+				"path", ServiceContextTestUtil.getServiceContext());
 
-				try {
-					MockHttpServletResponse mockHttpServletResponse =
-						new MockHttpServletResponse();
+		try {
+			MockHttpServletResponse mockHttpServletResponse =
+				new MockHttpServletResponse();
 
-					_servlet.service(
-						new MockHttpServletRequest(
-							"GET",
-							StringBundler.concat(
-								PropsValues.
-									LAYOUT_FRIENDLY_URL_PUBLIC_SERVLET_MAPPING,
-								_group.getFriendlyURL(), StringPool.SLASH,
-								"path")),
-						mockHttpServletResponse);
+			_servlet.service(
+				new MockHttpServletRequest(
+					"GET",
+					StringBundler.concat(
+						PropsValues.LAYOUT_FRIENDLY_URL_PUBLIC_SERVLET_MAPPING,
+						_group.getFriendlyURL(), StringPool.SLASH, "path")),
+				mockHttpServletResponse);
 
-					Assert.assertEquals(
-						302, mockHttpServletResponse.getStatus());
-					Assert.assertEquals(
-						"http://www.liferay.com",
-						mockHttpServletResponse.getHeader("Location"));
-				}
-				finally {
-					_redirectEntryLocalService.deleteRedirectEntry(
-						redirectEntry);
-				}
-			});
+			Assert.assertEquals(302, mockHttpServletResponse.getStatus());
+			Assert.assertEquals(
+				"http://www.liferay.com",
+				mockHttpServletResponse.getHeader("Location"));
+
+			redirectEntry = _redirectEntryLocalService.fetchRedirectEntry(
+				_group.getGroupId(), "path");
+
+			Assert.assertNotNull(redirectEntry.getLastOccurrenceDate());
+		}
+		finally {
+			_redirectEntryLocalService.deleteRedirectEntry(redirectEntry);
+		}
 	}
 
 	protected String getI18nLanguageId(HttpServletRequest httpServletRequest) {
@@ -492,35 +504,30 @@ public class FriendlyURLServletTest {
 	}
 
 	protected void testGetRedirect(
-			HttpServletRequest httpServletRequest, String path, String mainPath,
-			Object expectedRedirect)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse, String path,
+			String mainPath, Object expectedRedirect)
 		throws Throwable {
 
 		try {
 			Assert.assertEquals(
 				expectedRedirect,
-				_getRedirectMethod.invoke(_servlet, httpServletRequest, path));
+				_getRedirectMethod.invoke(
+					_servlet, httpServletRequest, httpServletResponse, path));
 		}
 		catch (InvocationTargetException invocationTargetException) {
 			throw invocationTargetException.getCause();
 		}
 	}
 
-	private void _withRedirectEnabled(UnsafeRunnable<Exception> unsafeRunnable)
-		throws Exception {
+	protected void testGetRedirect(
+			HttpServletRequest httpServletRequest, String path, String mainPath,
+			Object expectedRedirect)
+		throws Throwable {
 
-		Dictionary<String, Object> dictionary = new HashMapDictionary<>();
-
-		dictionary.put("enabled", true);
-
-		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
-				new ConfigurationTemporarySwapper(
-					"com.liferay.redirect.web.internal.configuration." +
-						"FFRedirectConfiguration",
-					dictionary)) {
-
-			unsafeRunnable.run();
-		}
+		testGetRedirect(
+			httpServletRequest, new MockHttpServletResponse(), path, mainPath,
+			expectedRedirect);
 	}
 
 	@Inject

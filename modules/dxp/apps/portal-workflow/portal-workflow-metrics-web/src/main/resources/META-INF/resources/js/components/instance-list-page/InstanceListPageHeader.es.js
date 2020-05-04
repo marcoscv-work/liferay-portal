@@ -57,7 +57,7 @@ const Header = ({
 		[selectedItems, setVisibleModal]
 	);
 
-	const compareId = itemId => ({id}) => id === itemId;
+	const compareId = (itemId) => ({id}) => id === itemId;
 
 	const kebabItems = [
 		{
@@ -94,13 +94,15 @@ const Header = ({
 	};
 
 	const isRemainingItem = useCallback(
-		clear => ({assigneeUsers = [], id, status}) => {
-			const assignedToUser = !!assigneeUsers.find(({id}) => id == userId);
+		(clear) => ({assignees = [], id, status}) => {
+			const assignedToUser = !!assignees.find(
+				({id}) => id === Number(userId)
+			);
 			const completed = status === processStatusConstants.completed;
 			const selected = clear && selectedItems.find(compareId(id));
-			const unassigned = !!assigneeUsers.find(({id}) => id === -1);
+			const {reviewer} = assignees.find(({id}) => id === -1) || {};
 
-			return (unassigned || assignedToUser) && !completed && !selected;
+			return (reviewer || assignedToUser) && !completed && !selected;
 		},
 		[selectedItems, userId]
 	);
@@ -139,7 +141,7 @@ const Header = ({
 	};
 
 	const handleCheck = useCallback(
-		checked => () => {
+		(checked) => () => {
 			const updatedItems = checked
 				? [...selectedItems, ...remainingItems]
 				: selectedItems.filter(({id}) => !items.find(compareId(id)));
@@ -152,7 +154,7 @@ const Header = ({
 	);
 
 	const statusesFilterItem = useMemo(
-		() => selectedFilters.find(filter => filter.key === 'statuses'),
+		() => selectedFilters.find((filter) => filter.key === 'statuses'),
 		[selectedFilters]
 	);
 	const {key} = statusesFilterItem ? statusesFilterItem.items[0] : {};
@@ -168,7 +170,7 @@ const Header = ({
 	const selectedFilterItems = useMemo(
 		() =>
 			selectedFilters.filter(
-				filter =>
+				(filter) =>
 					completedStatusSelected ||
 					filter.key !== filterConstants.timeRange.key
 			),

@@ -60,7 +60,7 @@ export default ({
 	useEffect(() => {
 		if (dataLayoutId) {
 			getItem(`/o/data-engine/v2.0/data-layouts/${dataLayoutId}`).then(
-				dataLayout =>
+				(dataLayout) =>
 					dispatch({
 						payload: {dataLayout},
 						type: UPDATE_DATA_LAYOUT,
@@ -73,7 +73,7 @@ export default ({
 		if (dataDefinitionId) {
 			getItem(
 				`/o/data-engine/v2.0/data-definitions/${dataDefinitionId}`
-			).then(dataDefinition =>
+			).then((dataDefinition) =>
 				dispatch({
 					payload: {dataDefinition},
 					type: UPDATE_DATA_DEFINITION,
@@ -84,12 +84,18 @@ export default ({
 
 	useEffect(() => {
 		if (config.allowFieldSets && contentType) {
-			const globalFieldSetsPromise = getItem(
-				`/o/data-engine/v2.0/sites/${groupId}/data-definitions/by-content-type/${contentType}`
-			);
+			const fieldSetContentType = contentType + '-fieldset';
+
+			let globalFieldSetsPromise = [];
+
+			if (groupId) {
+				globalFieldSetsPromise = getItem(
+					`/o/data-engine/v2.0/sites/${groupId}/data-definitions/by-content-type/${fieldSetContentType}`
+				);
+			}
 
 			const groupFieldSetsPromise = getItem(
-				`/o/data-engine/v2.0/data-definitions/by-content-type/${contentType}`
+				`/o/data-engine/v2.0/data-definitions/by-content-type/${fieldSetContentType}`
 			);
 
 			Promise.all([globalFieldSetsPromise, groupFieldSetsPromise])
@@ -109,7 +115,7 @@ export default ({
 						});
 					}
 				)
-				.catch(error => {
+				.catch((error) => {
 					if (process.env.NODE_ENV === 'development') {
 						console.warn(
 							`AppContextProvider: promise rejected: ${error}`

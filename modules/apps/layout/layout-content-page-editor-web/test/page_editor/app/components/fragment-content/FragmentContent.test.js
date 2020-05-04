@@ -20,7 +20,6 @@ import '@testing-library/jest-dom/extend-expect';
 import {cleanup, render} from '@testing-library/react';
 
 import {ControlsProvider} from '../../../../../src/main/resources/META-INF/resources/page_editor/app/components/Controls';
-import {EditableDecorationProvider} from '../../../../../src/main/resources/META-INF/resources/page_editor/app/components/fragment-content/EditableDecorationContext';
 import {EditableProcessorContextProvider} from '../../../../../src/main/resources/META-INF/resources/page_editor/app/components/fragment-content/EditableProcessorContext';
 import FragmentContent from '../../../../../src/main/resources/META-INF/resources/page_editor/app/components/fragment-content/FragmentContent';
 import resolveEditableValue from '../../../../../src/main/resources/META-INF/resources/page_editor/app/components/fragment-content/resolveEditableValue';
@@ -99,7 +98,7 @@ const item = {
 	type: '',
 };
 
-const renderFragmentContent = fragmentEntryLink => {
+const renderFragmentContent = (fragmentEntryLink) => {
 	const state = {
 		fragmentEntryLinks: {
 			[FRAGMENT_ENTRY_LINK_ID]: fragmentEntryLink,
@@ -115,13 +114,11 @@ const renderFragmentContent = fragmentEntryLink => {
 		<StoreAPIContextProvider dispatch={() => {}} getState={() => state}>
 			<EditableProcessorContextProvider>
 				<ControlsProvider>
-					<EditableDecorationProvider>
-						<FragmentContent
-							fragmentEntryLinkId={FRAGMENT_ENTRY_LINK_ID}
-							itemId={item.itemId}
-							ref={ref}
-						/>
-					</EditableDecorationProvider>
+					<FragmentContent
+						fragmentEntryLinkId={FRAGMENT_ENTRY_LINK_ID}
+						itemId={item.itemId}
+						ref={ref}
+					/>
 				</ControlsProvider>
 			</EditableProcessorContextProvider>
 		</StoreAPIContextProvider>
@@ -155,7 +152,23 @@ describe('FragmentContent', () => {
 			'editable-id',
 			EDITABLE_FRAGMENT_ENTRY_PROCESSOR,
 			'en_US',
-			'segments-experience-id-0',
+			expect.any(Function)
+		);
+	});
+
+	it('calls resolve editable values with the correct parameters when content has a data-lfr-editable-id', () => {
+		const fragmentEntryLink = getFragmentEntryLink({
+			content:
+				'<p data-lfr-editable-id="editable-id" data-lfr-editable-type="text">Default content</p>',
+		});
+
+		renderFragmentContent(fragmentEntryLink);
+
+		expect(resolveEditableValue).toBeCalledWith(
+			fragmentEntryLink.editableValues,
+			'editable-id',
+			EDITABLE_FRAGMENT_ENTRY_PROCESSOR,
+			'en_US',
 			expect.any(Function)
 		);
 	});
@@ -178,7 +191,6 @@ describe('FragmentContent', () => {
 			'background-id',
 			BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR,
 			'en_US',
-			'segments-experience-id-0',
 			expect.any(Function)
 		);
 	});

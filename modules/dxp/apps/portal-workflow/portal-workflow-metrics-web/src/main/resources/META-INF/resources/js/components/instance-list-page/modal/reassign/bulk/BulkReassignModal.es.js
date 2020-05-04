@@ -20,7 +20,7 @@ import {InstanceListContext} from '../../../InstanceListPageProvider.es';
 import {ModalContext} from '../../ModalProvider.es';
 import SelectTasksStep from '../../shared/select-tasks-step/SelectTasksStep.es';
 import {useFetchTasks} from '../../shared/select-tasks-step/hooks/useFetchTasks.es';
-import BulkReassignSelectAssigneesStep from './select-assignees-step/BulkReassignSelectAssigneesStep.es';
+import SelectAssigneesStep from './select-assignees-step/SelectAssigneesStep.es';
 
 const BulkReassignModal = () => {
 	const {
@@ -99,7 +99,7 @@ const BulkReassignModal = () => {
 			reassignedTasks.length > 0 &&
 			reassignedTasks.length === tasks.length
 		) {
-			setBulkReassign(bulkReassign => ({
+			setBulkReassign((bulkReassign) => ({
 				...bulkReassign,
 				reassigning: true,
 			}));
@@ -131,7 +131,7 @@ const BulkReassignModal = () => {
 						'your-request-has-failed'
 					)} ${Liferay.Language.get('select-reassign-to-retry')}`;
 
-					setBulkReassign(bulkReassign => ({
+					setBulkReassign((bulkReassign) => ({
 						...bulkReassign,
 						reassigning: false,
 					}));
@@ -143,14 +143,14 @@ const BulkReassignModal = () => {
 	}, [patchData, setBulkReassign]);
 
 	const getStep = useCallback(
-		step => {
+		(step) => {
 			const steps = {
 				selectAssignees: {
 					cancelBtn: {
 						disabled: reassigning,
 						handle: onClose,
 					},
-					component: BulkReassignSelectAssigneesStep,
+					component: SelectAssigneesStep,
 					nextBtn: {
 						disabled:
 							reassigning ||

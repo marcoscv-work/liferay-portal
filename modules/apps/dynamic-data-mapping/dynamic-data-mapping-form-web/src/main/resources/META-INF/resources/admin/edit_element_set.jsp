@@ -83,7 +83,7 @@ renderResponse.setTitle((structure == null) ? LanguageUtil.get(request, "new-ele
 		<div class="ddm-form-basic-info">
 			<div class="container-fluid-1280">
 				<h1>
-					<liferay-ui:input-editor
+					<liferay-editor:editor
 						autoCreate="<%= false %>"
 						contents="<%= HtmlUtil.escape(ddmFormAdminDisplayContext.getFormName()) %>"
 						cssClass="ddm-form-name"
@@ -97,7 +97,7 @@ renderResponse.setTitle((structure == null) ? LanguageUtil.get(request, "new-ele
 				<aui:input name="name" type="hidden" />
 
 				<h5>
-					<liferay-ui:input-editor
+					<liferay-editor:editor
 						autoCreate="<%= false %>"
 						contents="<%= HtmlUtil.escape(ddmFormAdminDisplayContext.getFormDescription()) %>"
 						cssClass="ddm-form-description h5"
@@ -117,7 +117,7 @@ renderResponse.setTitle((structure == null) ? LanguageUtil.get(request, "new-ele
 </div>
 
 <div class="hide">
-	<%= ddmFormAdminDisplayContext.serializeSettingsForm() %>
+	<%= ddmFormAdminDisplayContext.serializeSettingsForm(pageContext) %>
 </div>
 
 <aui:script>
@@ -128,13 +128,13 @@ renderResponse.setTitle((structure == null) ? LanguageUtil.get(request, "new-ele
 	};
 
 	Liferay.Forms.App = {
-		dispose: function() {
+		dispose: function () {
 			if (Liferay.Forms.instance) {
 				Liferay.Forms.instance.dispose();
 				Liferay.Forms.instance = null;
 			}
 		},
-		reset: function() {
+		reset: function () {
 			var pages;
 
 			if (Liferay.Forms.instance) {
@@ -144,10 +144,10 @@ renderResponse.setTitle((structure == null) ? LanguageUtil.get(request, "new-ele
 			this.dispose();
 			this.start(pages);
 		},
-		start: function(initialPages) {
+		start: function (initialPages) {
 			Liferay.Loader.require(
 				'<%= mainRequire %>',
-				function(packageName) {
+				function (packageName) {
 					var context = <%= serializedFormBuilderContext %>;
 
 					if (context.pages.length === 0 && initialPages) {
@@ -179,14 +179,14 @@ renderResponse.setTitle((structure == null) ? LanguageUtil.get(request, "new-ele
 						'#<portlet:namespace />-container'
 					);
 				},
-				function(error) {
+				function (error) {
 					throw error;
 				}
 			);
 		},
 	};
 
-	var clearPortletHandlers = function(event) {
+	var clearPortletHandlers = function (event) {
 		if (event.portletId === '<%= portletDisplay.getRootPortletId() %>') {
 			Liferay.Forms.App.dispose();
 
@@ -194,7 +194,7 @@ renderResponse.setTitle((structure == null) ? LanguageUtil.get(request, "new-ele
 				'<portlet:namespace />translationManager'
 			);
 
-			Liferay.destroyComponents(function(component) {
+			Liferay.destroyComponents(function (component) {
 				var destroy = false;
 
 				if (component === translationManager) {
@@ -214,7 +214,7 @@ renderResponse.setTitle((structure == null) ? LanguageUtil.get(request, "new-ele
 		Liferay.Forms.App.start();
 	}
 	else {
-		Liferay.onceAfter('DMMFieldTypesReady', function() {
+		Liferay.onceAfter('DMMFieldTypesReady', function () {
 			Liferay.Forms.App.start();
 		});
 	}

@@ -32,6 +32,79 @@ definition {
 		}
 	}
 
+	@description = "This is a use case for LPS-109555. Can bulk restore multiple items from recycle bin."
+	@priority = "5"
+	test BulkRestoreMultipleAssetsFromRecycleBin {
+		task ("Add a Web Content Article, Blogs Entry and Document") {
+			JSONWebcontent.addWebContent(
+				content = "Web Content Content",
+				groupName = "Site Name",
+				title = "Web Content Title");
+
+			JSONBlog.addEntry(
+				entryContent = "Blogs Entry Content",
+				entryTitle = "Blogs Entry Title",
+				groupName = "Site Name");
+
+			JSONDocument.addFileWithUploadedFile(
+				dmDocumentTitle = "Document_1.png",
+				groupName = "Site Name",
+				mimeType = "image/png",
+				sourceFileName = "Document_1.png");
+		}
+
+		task ("Move them to recycle bin") {
+			DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "site-name");
+
+			DMDocument.moveToRecycleBinCP(dmDocumentTitle = "Document_1.png");
+
+			BlogsNavigator.openBlogsAdmin(siteURLKey = "site-name");
+
+			BlogsEntry.moveToRecycleBinCP(
+				entryContent = "Blogs Entry Content",
+				entryTitle = "Blogs Entry Title");
+
+			WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name");
+
+			WebContent.moveToRecycleBinCP(webContentTitle = "Web Content Title");
+		}
+
+		task ("Bulk restore them from recycle bin") {
+			RecycleBin.openRecycleBinAdmin(siteURLKey = "site-name");
+
+			RecycleBin.viewCP(
+				assetName = "Document_1.png",
+				assetType = "Document",
+				deleteUser = "Test Test");
+
+			RecycleBin.viewCP(
+				assetName = "Blogs Entry Title",
+				assetType = "Blogs Entry",
+				deleteUser = "Test Test");
+
+			RecycleBin.viewCP(
+				assetName = "Web Content Title",
+				assetType = "Web Content Article",
+				deleteUser = "Test Test");
+
+			RecycleBin.bulkRestoreCP(assetList = "Document_1.png,Blogs Entry Title,Web Content Title");
+		}
+
+		task ("Assert they are restored") {
+			DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "site-name");
+
+			DMDocument.viewCardTitle(dmDocumentTitle = "Document_1.png");
+
+			BlogsNavigator.openBlogsAdmin(siteURLKey = "site-name");
+
+			Blogs.viewEntryPresent(entryTitle = "Blogs Entry Title");
+
+			WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name");
+
+			WebContentAdmin.viewEntryTitle(entry = "Web Content Title");
+		}
+	}
+
 	@priority = "3"
 	test DisableRecycleBin {
 		Site.openSiteSettingsAdmin(siteURLKey = "site-name");
@@ -85,7 +158,7 @@ definition {
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 
-		BlogsEntry.viewEntry(
+		BlogsEntry.viewEntryPG(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 	}
@@ -180,12 +253,8 @@ definition {
 			bookmarkURL = "https://www.liferay.com");
 	}
 
-	@ignore = "true"
 	@priority = "3"
 	test RecycleBinMBAttachment {
-
-		// Ignore test until LRQA-56957 is resolved
-
 		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "site-name");
 
 		MessageboardsThread.addCP(
@@ -256,7 +325,6 @@ definition {
 		RecycleBin.viewDefaultCP(assetName = "Blogs Entry Title");
 	}
 
-	@ignore = "true"
 	@priority = "3"
 	test RecycleBinSearchBlogsEntries {
 		Portlet.addPG(portletName = "Blogs");
@@ -453,7 +521,6 @@ definition {
 			deleteUser = "Test Test");
 	}
 
-	@ignore = "true"
 	@priority = "3"
 	test RecycleBinWebContent {
 		WebContentStructures.openWebContentStructuresAdmin(siteURLKey = "site-name");
@@ -609,6 +676,65 @@ definition {
 			wikiPageTitle = "Wiki Page Title");
 	}
 
+	@description = "This is a use case for LPS-109555. Automatically rename documents when bulk restore them from recycle bin if document names already exist in the destination."
+	@priority = "5"
+	test RenameBulkRestoreDocumentsAutomaticallyWhenDocumentNamesAlreadyExistInTheDestination {
+		task ("Add multiple document entries") {
+			JSONDocument.addFileWithUploadedFile(
+				dmDocumentTitle = "Document_1.png",
+				groupName = "Site Name",
+				mimeType = "image/png",
+				sourceFileName = "Document_1.png");
+
+			JSONDocument.addFileWithUploadedFile(
+				dmDocumentTitle = "Document_1.txt",
+				groupName = "Site Name",
+				mimeType = "text/plain",
+				sourceFileName = "Document_1.txt");
+		}
+
+		task ("Move all items to recycle bin") {
+			DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "site-name");
+
+			DMDocument.moveAllToRecycleBinCP();
+		}
+
+		task ("Add multiple document entries with the same names as ones in recycle bin") {
+			JSONDocument.addFileWithUploadedFile(
+				dmDocumentTitle = "Document_1.png",
+				groupName = "Site Name",
+				mimeType = "image/png",
+				sourceFileName = "Document_1.png");
+
+			JSONDocument.addFileWithUploadedFile(
+				dmDocumentTitle = "Document_1.txt",
+				groupName = "Site Name",
+				mimeType = "text/plain",
+				sourceFileName = "Document_1.txt");
+		}
+
+		task ("Bulk restore all documents in recycle bin") {
+			RecycleBin.openRecycleBinAdmin(siteURLKey = "site-name");
+
+			for (var entryName : list "Document_1.png,Document_1.txt") {
+				RecycleBin.viewCP(
+					assetName = "${entryName}",
+					assetType = "Document",
+					deleteUser = "Test Test");
+			}
+
+			RecycleBin.bulkRestoreCP(assetList = "Document_1.png,Document_1.txt");
+		}
+
+		task ("Assert restored documents are renamed") {
+			DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "site-name");
+
+			for (var assetName : list "Document_1.png,Document_1.txt,Document_1 (1).png,Document_1 (1).txt") {
+				DMDocument.viewCardTitle(dmDocumentTitle = "${assetName}");
+			}
+		}
+	}
+
 	@priority = "5"
 	test RestoreDMDocumentFromFolderCP {
 		property portal.acceptance = "true";
@@ -645,63 +771,6 @@ definition {
 		DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM Document Title 2");
 
 		DMDocument.viewCP(dmDocumentTitle = "DM Document Title 2");
-	}
-
-	@priority = "3"
-	test RestoreMessageboardsThreadViaRBCP {
-		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "site-name");
-
-		MessageboardsCategory.addCP(categoryName = "MB Category Name");
-
-		MessageboardsCategory.gotoCP(
-			categoryName = "MB Category Name",
-			siteScopeName = "Site Name");
-
-		MessageboardsThread.addCP(
-			threadBody = "MB Body",
-			threadSubject = "MB Subject");
-
-		MessageboardsThread.replyCP(
-			threadReplyBody = "MB Body Reply",
-			threadSubject = "MB Subject");
-
-		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "site-name");
-
-		MessageboardsCategory.deleteCP(
-			assetType = "Message Boards Category",
-			categoryName = "MB Category Name",
-			siteScopeName = "Site Name");
-
-		RecycleBin.openRecycleBinAdmin(siteURLKey = "site-name");
-
-		RecycleBin.viewCP(
-			assetName = "MB Category Name",
-			assetType = "Message Boards Category",
-			deleteUser = "Test Test");
-
-		RecycleBin.restoreCP(
-			assetName = "MB Category Name",
-			assetRestoreLocation = "Home",
-			assetType = "Message Boards Category");
-
-		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "site-name");
-
-		MessageboardsCategory.viewCP(
-			categoryCount = "0",
-			categoryName = "MB Category Name",
-			replyCount = "1",
-			threadCount = "1");
-
-		MessageboardsThread.viewCP(
-			replyCount = "1",
-			threadBody = "MB Body",
-			threadSubject = "MB Subject",
-			userName = "Test Test");
-
-		MessageboardsThread.viewReplyCP(
-			threadBody = "MB Body Reply",
-			threadSubject = "MB Subject",
-			userName = "Test Test");
 	}
 
 	@priority = "3"

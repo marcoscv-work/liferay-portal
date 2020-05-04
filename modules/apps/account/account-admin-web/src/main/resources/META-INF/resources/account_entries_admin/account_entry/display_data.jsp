@@ -25,7 +25,7 @@ AccountEntryDisplay accountEntryDisplay = (AccountEntryDisplay)request.getAttrib
 		<%= LanguageUtil.get(request, "account-display-data") %>
 	</h3>
 
-	<aui:row>
+	<clay:row>
 		<aui:col width="<%= 50 %>">
 			<aui:field-wrapper cssClass="form-group lfr-input-text-container">
 				<aui:input label="account-name" name="name" required="<%= true %>" type="text" value="<%= (accountEntryDisplay == null) ? StringPool.BLANK : accountEntryDisplay.getName() %>">
@@ -37,14 +37,14 @@ AccountEntryDisplay accountEntryDisplay = (AccountEntryDisplay)request.getAttrib
 		<aui:col width="<%= 40 %>">
 			<div class="text-center">
 				<liferay-ui:logo-selector
-					currentLogoURL='<%= ((accountEntryDisplay == null) || (accountEntryDisplay.getLogoId() == 0)) ? themeDisplay.getPathImage() + "/organization_logo?img_id=0" : accountEntryDisplay.getLogoURL(themeDisplay) %>'
+					currentLogoURL='<%= ((accountEntryDisplay == null) || (accountEntryDisplay.getLogoId() == 0)) ? themeDisplay.getPathThemeImages() + "/lexicon/briefcase.svg" : accountEntryDisplay.getLogoURL(themeDisplay) %>'
 					defaultLogo="<%= (accountEntryDisplay == null) || (accountEntryDisplay.getLogoId() == 0) %>"
-					defaultLogoURL='<%= themeDisplay.getPathImage() + "/organization_logo?img_id=0" %>'
+					defaultLogoURL='<%= themeDisplay.getPathThemeImages() + "/lexicon/briefcase.svg" %>'
 					tempImageFileName='<%= (accountEntryDisplay == null) ? "0" : String.valueOf(accountEntryDisplay.getAccountEntryId()) %>'
 				/>
 			</div>
 		</aui:col>
-	</aui:row>
+	</clay:row>
 
 	<aui:field-wrapper cssClass="form-group lfr-input-text-container">
 		<aui:input name="description" type="textarea" value="<%= (accountEntryDisplay == null) ? StringPool.BLANK : accountEntryDisplay.getDescription() %>" />

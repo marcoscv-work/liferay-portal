@@ -120,7 +120,7 @@ public abstract class TopLevelBuild extends BaseBuild {
 		if (jobName.contains("pullrequest")) {
 			String acceptanceUpstreamJobURL = JenkinsResultsParserUtil.combine(
 				"https://test-1-1.liferay.com/job/",
-				jobName.replace("pullrequest", "upstream"));
+				jobName.replace("pullrequest", "upstream-dxp"));
 
 			try {
 				JenkinsResultsParserUtil.toString(
@@ -305,6 +305,17 @@ public abstract class TopLevelBuild extends BaseBuild {
 	@Override
 	public JSONObject getTestReportJSONObject() {
 		return null;
+	}
+
+	@Override
+	public String getTestSuiteName() {
+		String testSuiteName = getParameterValue("CI_TEST_SUITE");
+
+		if (testSuiteName == null) {
+			testSuiteName = "default";
+		}
+
+		return testSuiteName;
 	}
 
 	public BaseBuild.TimelineData getTimelineData() {
@@ -1366,16 +1377,6 @@ public abstract class TopLevelBuild extends BaseBuild {
 		}
 
 		return testCount;
-	}
-
-	protected String getTestSuiteName() {
-		String testSuiteName = getParameterValue("CI_TEST_SUITE");
-
-		if (testSuiteName == null) {
-			testSuiteName = "default";
-		}
-
-		return testSuiteName;
 	}
 
 	protected Element getTopGitHubMessageElement() {

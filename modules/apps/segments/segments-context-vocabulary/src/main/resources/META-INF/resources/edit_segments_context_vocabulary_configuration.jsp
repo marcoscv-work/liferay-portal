@@ -17,9 +17,9 @@
 <%@ include file="/init.jsp" %>
 
 <%
-PortalUtil.addPortletBreadcrumbEntry(request, portletDisplay.getPortletDisplayName(), String.valueOf(renderResponse.createRenderURL()));
-
 SegmentsContextVocabularyConfigurationDisplayContext segmentsContextVocabularyConfigurationDisplayContext = (SegmentsContextVocabularyConfigurationDisplayContext)renderRequest.getAttribute(SegmentsContextVocabularyWebKeys.SEGMENTS_CONTEXT_VOCABULARY_CONFIGURATION_DISPLAY_CONTEXT);
+
+segmentsContextVocabularyConfigurationDisplayContext.addPortletBreadcrumbEntries();
 %>
 
 <liferay-ui:error exception="<%= ConfigurationModelListenerException.class %>">
@@ -43,9 +43,27 @@ SegmentsContextVocabularyConfigurationDisplayContext segmentsContextVocabularyCo
 </div>
 
 <div class="container-fluid container-fluid-max-xl">
-	<div class="row">
+	<clay:row>
 		<div class="col-md-3">
-			<liferay-util:include page="/configuration_category_menu.jsp" servletContext="<%= application %>" />
+			<nav class="menubar menubar-transparent menubar-vertical-expand-md">
+				<div class="collapse menubar-collapse" id="<%= 12 %>">
+					<ul class="nav nav-nested">
+						<li class="nav-item">
+							<a class="nav-link text-uppercase">
+								<liferay-ui:message key='<%= "scope.system" %>' />
+							</a>
+
+							<div>
+								<ul class="nav nav-stacked">
+									<li>
+										<aui:a cssClass="nav-link" href="<%= String.valueOf(segmentsContextVocabularyConfigurationDisplayContext.getRedirect()) %>"><liferay-ui:message key="segments-context-vocabulary-configuration-name" /></aui:a>
+									</li>
+								</ul>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</nav>
 		</div>
 
 		<div class="col-md-9">
@@ -81,7 +99,7 @@ SegmentsContextVocabularyConfigurationDisplayContext segmentsContextVocabularyCo
 							for (ConfigurationFieldOptionsProvider.Option option : segmentsContextVocabularyConfigurationDisplayContext.getEntityFieldOptions()) {
 							%>
 
-								<aui:option label="<%= option.getLabel(locale) %>" selected="<%= Objects.equals(segmentsContextVocabularyConfigurationDisplayContext.getEntityField(), option.getValue()) %>" value="<%= option.getValue() %>" />
+								<aui:option disabled="<%= segmentsContextVocabularyConfigurationDisplayContext.isDisabled(option.getValue()) %>" label="<%= option.getLabel(locale) %>" selected="<%= Objects.equals(segmentsContextVocabularyConfigurationDisplayContext.getEntityField(), option.getValue()) %>" value="<%= option.getValue() %>" />
 
 							<%
 							}
@@ -89,7 +107,12 @@ SegmentsContextVocabularyConfigurationDisplayContext segmentsContextVocabularyCo
 
 						</aui:select>
 
-						<span class="form-text"><liferay-ui:message key="segments-context-vocabulary-configuration-entity-field-description" /></span>
+						<span class="form-text <%= segmentsContextVocabularyConfigurationDisplayContext.isDuplicated()? "text-danger" : "" %>">
+							<c:if test="<%= segmentsContextVocabularyConfigurationDisplayContext.isDuplicated() %>">
+								<aui:icon image="exclamation-full" markupView="lexicon" />
+							</c:if>
+
+						<%= segmentsContextVocabularyConfigurationDisplayContext.getEntityFieldHelpMessage() %></span>
 					</div>
 
 					<div class="form-group">
@@ -125,5 +148,5 @@ SegmentsContextVocabularyConfigurationDisplayContext segmentsContextVocabularyCo
 				</aui:form>
 			</div>
 		</div>
-	</div>
+	</clay:row>
 </div>

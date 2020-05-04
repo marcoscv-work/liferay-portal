@@ -54,7 +54,7 @@ const PREVIEW_SIZES = [
 	'full-size',
 ];
 
-const stopEventPropagation = event => {
+const stopEventPropagation = (event) => {
 	event.preventDefault();
 	event.stopPropagation();
 };
@@ -92,8 +92,8 @@ const FragmentPreview = ({
 					body: formData,
 					method: 'POST',
 				})
-					.then(response => response.text())
-					.then(response => {
+					.then((response) => response.text())
+					.then((response) => {
 						if (isMounted()) {
 							setLoading(false);
 						}
@@ -159,9 +159,9 @@ const FragmentPreview = ({
 	useEventListener('resize', updatePreviewStyles, true, window);
 
 	return (
-		<div class="fragment-preview" ref={ref}>
-			<div class="btn-group fragment-preview__toolbar">
-				{PREVIEW_SIZES.map(previewSize => (
+		<div className="fragment-preview" ref={ref}>
+			<div className="btn-group fragment-preview__toolbar">
+				{PREVIEW_SIZES.map((previewSize) => (
 					<ClayButtonWithIcon
 						borderless={true}
 						className={classNames({
@@ -184,16 +184,16 @@ const FragmentPreview = ({
 				style={previewStyles}
 			>
 				{loading && (
-					<div class="fragment-preview__loading-indicator">
+					<div className="fragment-preview__loading-indicator">
 						<span
 							aria-hidden="true"
-							class="loading-animation"
+							className="loading-animation"
 						></span>
 					</div>
 				)}
 
 				<iframe
-					class="fragment-preview__content"
+					className="fragment-preview__content"
 					onLoad={updatePreview}
 					ref={iframeRef}
 					src={urls.preview}

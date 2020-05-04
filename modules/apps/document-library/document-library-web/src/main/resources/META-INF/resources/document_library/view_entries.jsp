@@ -99,11 +99,13 @@ if (portletTitleBasedNavigation && (folderId != DLFolderConstants.DEFAULT_PARENT
 						dlSearchContainer.setRowChecker(entriesChecker);
 					}
 
-					Map<String, Object> rowData = new HashMap<String, Object>();
-
-					rowData.put("actions", StringUtil.merge(dlAdminManagementToolbarDisplayContext.getAvailableActions(fileEntry)));
-					rowData.put("draggable", draggable);
-					rowData.put("title", fileEntry.getTitle());
+					Map<String, Object> rowData = HashMapBuilder.<String, Object>put(
+						"actions", StringUtil.merge(dlAdminManagementToolbarDisplayContext.getAvailableActions(fileEntry))
+					).put(
+						"draggable", draggable
+					).put(
+						"title", fileEntry.getTitle()
+					).build();
 
 					row.setData(rowData);
 
@@ -254,19 +256,19 @@ if (portletTitleBasedNavigation && (folderId != DLFolderConstants.DEFAULT_PARENT
 									<aui:a href="<%= rowURL.toString() %>"><%= latestFileVersion.getTitle() %></aui:a>
 
 									<c:if test="<%= fileEntry.hasLock() || fileEntry.isCheckedOut() %>">
-										<span class="file-icon-color-0 inline-item inline-item-after">
+										<span class="inline-item inline-item-after state-icon">
 											<aui:icon image="lock" markupView="lexicon" message="locked" />
 										</span>
 									</c:if>
 
 									<c:if test="<%= dlViewFileVersionDisplayContext.isShared() %>">
-										<span class="file-icon-color-0 inline-item inline-item-after lfr-portal-tooltip" title="<%= LanguageUtil.get(request, "shared") %>">
+										<span class="inline-item inline-item-after lfr-portal-tooltip state-icon" title="<%= LanguageUtil.get(request, "shared") %>">
 											<aui:icon image="users" markupView="lexicon" message="shared" />
 										</span>
 									</c:if>
 
 									<c:if test="<%= fileShortcut != null %>">
-										<span class="file-icon-color-0 inline-item inline-item-after">
+										<span class="inline-item inline-item-after state-icon">
 											<aui:icon image="shortcut" markupView="lexicon" message="shortcut" />
 										</span>
 									</c:if>
@@ -372,13 +374,17 @@ if (portletTitleBasedNavigation && (folderId != DLFolderConstants.DEFAULT_PARENT
 						}
 					}
 
-					Map<String, Object> rowData = new HashMap<String, Object>();
-
-					rowData.put("actions", StringUtil.merge(dlAdminManagementToolbarDisplayContext.getAvailableActions(curFolder)));
-					rowData.put("draggable", draggable);
-					rowData.put("folder", true);
-					rowData.put("folder-id", curFolder.getFolderId());
-					rowData.put("title", curFolder.getName());
+					Map<String, Object> rowData = HashMapBuilder.<String, Object>put(
+						"actions", StringUtil.merge(dlAdminManagementToolbarDisplayContext.getAvailableActions(curFolder))
+					).put(
+						"draggable", draggable
+					).put(
+						"folder", true
+					).put(
+						"folder-id", curFolder.getFolderId()
+					).put(
+						"title", curFolder.getName()
+					).build();
 
 					row.setData(rowData);
 

@@ -11,8 +11,10 @@
 
 import {useIsMounted} from 'frontend-js-react-web';
 import PropTypes from 'prop-types';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 
+import ConnectionContext from '../context/ConnectionContext';
+import {useWarning} from '../context/store';
 import Hint from './Hint';
 
 function TotalCount({
@@ -25,23 +27,38 @@ function TotalCount({
 	popoverMessage,
 	popoverPosition,
 }) {
+	const {validAnalyticsConnection} = useContext(ConnectionContext);
+
 	const [value, setValue] = useState('-');
+
 	const isMounted = useIsMounted();
 
+	const [, addWarning] = useWarning();
+
 	useEffect(() => {
-		dataProvider()
-			.then(value => {
-				if (isMounted()) {
-					setValue(value);
-				}
-			})
-			.catch(() => {
-				if (isMounted()) {
-					setValue('-');
-				}
-			});
+		if (validAnalyticsConnection) {
+			dataProvider()
+				.then((value) => {
+					if (isMounted()) {
+						setValue(value);
+					}
+				})
+				.catch(() => {
+					if (isMounted()) {
+						setValue('-');
+						addWarning();
+					}
+				});
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dataProvider]);
+	}, [dataProvider, validAnalyticsConnection]);
+
+	let displayValue = '-';
+
+	if (validAnalyticsConnection) {
+		displayValue =
+			percentage && value !== '-' ? <span>{`${value}%`}</span> : value;
+	}
 
 	return (
 		<div className={className}>
@@ -54,13 +71,7 @@ function TotalCount({
 					title={popoverHeader}
 				/>
 			</span>
-			<span className="font-weight-bold">
-				{percentage && value !== '-' ? (
-					<span>{`${value * 100}%`}</span>
-				) : (
-					value
-				)}
-			</span>
+			<span className="font-weight-bold">{displayValue}</span>
 		</div>
 	);
 }

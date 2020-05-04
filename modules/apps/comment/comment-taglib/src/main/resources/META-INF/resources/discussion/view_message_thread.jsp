@@ -118,10 +118,11 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 									</liferay-util:buffer>
 
 									<%
-									Map<String, String> dataInReply = new HashMap<>();
-
-									dataInReply.put("inreply-content", parentDiscussionComment.getBody());
-									dataInReply.put("inreply-title", parentCommentUserBuffer);
+									Map<String, String> dataInReply = HashMapBuilder.put(
+										"inreply-content", parentDiscussionComment.getBody()
+									).put(
+										"inreply-title", parentCommentUserBuffer
+									).build();
 									%>
 
 									<clay:link
@@ -167,6 +168,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 				<c:if test="<%= commentTreeDisplayContext.isActionControlsVisible() && (index > 0) %>">
 					<div class="autofit-col">
 						<liferay-ui:icon-menu
+							cssClass="actions-menu"
 							direction="left-side"
 							icon="<%= StringPool.BLANK %>"
 							markupView="lexicon"
@@ -219,7 +221,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 							</aui:button-row>
 
 							<aui:script>
-								window['<%= namespace + index %>EditOnChange'] = function(html) {
+								window['<%= namespace + index %>EditOnChange'] = function (html) {
 									Liferay.Util.toggleDisabled(
 										'#<%= namespace %>editReplyButton<%= index %>',
 										html.trim() === ''
@@ -252,7 +254,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 
 					<c:if test="<%= commentTreeDisplayContext.isRatingsVisible() %>">
 						<div class="autofit-col">
-							<liferay-ui:ratings
+							<liferay-ratings:ratings
 								className="<%= CommentConstants.getDiscussionClassName() %>"
 								classPK="<%= discussionComment.getCommentId() %>"
 								inTrash="<%= false %>"
@@ -289,7 +291,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 						</aui:button-row>
 
 						<aui:script>
-							window['<%= namespace + index %>ReplyOnChange'] = function(html) {
+							window['<%= namespace + index %>ReplyOnChange'] = function (html) {
 								Liferay.Util.toggleDisabled(
 									'#<%= namespace %>postReplyButton<%= index %>',
 									html.trim() === ''

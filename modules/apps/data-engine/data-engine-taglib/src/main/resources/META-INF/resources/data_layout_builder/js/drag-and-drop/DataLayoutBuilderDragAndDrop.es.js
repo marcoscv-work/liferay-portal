@@ -20,21 +20,25 @@ import DataLayoutBuilderColumnDropZone from './DataLayoutBuilderColumnDropZone.e
 import DragLayer from './DragLayer.es';
 
 const getColumns = () => [
-	...document.querySelectorAll('.col-empty .ddm-target'),
+	...document.querySelectorAll(
+		'.col-empty .ddm-target:not([data-drop-disabled="true"])'
+	),
 ];
 
 const getFields = () => [
-	...document.querySelectorAll('.ddm-field-container.ddm-target'),
+	...document.querySelectorAll(
+		'.ddm-field-container.ddm-target:not([data-drop-disabled="true"])'
+	),
 ];
 
-const getColumnKey = node => {
+const getColumnKey = (node) => {
 	const {columnIndex, pageIndex, rowIndex} = getIndexes(node.parentElement);
 	const placeholder = !!dom.closest(node, '.placeholder');
 
 	return `column_${pageIndex}_${rowIndex}_${columnIndex}_${placeholder}`;
 };
 
-const getFieldKey = node => {
+const getFieldKey = (node) => {
 	return node.dataset.fieldName;
 };
 

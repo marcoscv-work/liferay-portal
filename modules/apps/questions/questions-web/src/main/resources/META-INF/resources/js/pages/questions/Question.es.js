@@ -27,6 +27,7 @@ import Answer from '../../components/Answer.es';
 import ArticleBodyRenderer from '../../components/ArticleBodyRenderer.es';
 import CreatorRow from '../../components/CreatorRow.es';
 import Link from '../../components/Link.es';
+import Modal from '../../components/Modal.es';
 import Rating from '../../components/Rating.es';
 import RelatedQuestions from '../../components/RelatedQuestions.es';
 import SectionLabel from '../../components/SectionLabel.es';
@@ -34,6 +35,7 @@ import Subscription from '../../components/Subscription.es';
 import TagList from '../../components/TagList.es';
 import {
 	createAnswer,
+	deleteMessageBoardThread,
 	getMessages,
 	getThread,
 	markAsAnswerMessageBoardMessage,
@@ -47,6 +49,7 @@ import {
 
 export default withRouter(
 	({
+		history,
 		location: key,
 		match: {
 			params: {questionId},
@@ -57,6 +60,7 @@ export default withRouter(
 
 		const [answers, setAnswers] = useState([]);
 		const [articleBody, setArticleBody] = useState();
+		const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 		const [page, setPage] = useState(1);
 		const [question, setQuestion] = useState();
 		const [sectionTitle, setSectionTitle] = useState('');
@@ -68,7 +72,7 @@ export default withRouter(
 
 		const loadThread = useCallback(
 			() =>
-				getThread(questionId, context.siteKey, page).then(data => {
+				getThread(questionId, context.siteKey, page).then((data) => {
 					setQuestion(data);
 					setAnswers(data.messageBoardMessages.items);
 					setSectionTitle(data.messageBoardSection.title);
@@ -84,11 +88,28 @@ export default withRouter(
 			});
 		};
 
+		const updateMarkAsAnswer = useCallback(
+			(answerId) => {
+				setAnswers([
+					...answers.map((otherAnswer) => {
+						otherAnswer.showAsAnswer = otherAnswer.id === answerId;
+
+						return otherAnswer;
+					}),
+				]);
+			},
+			[answers]
+		);
+
+		const deleteThread = () => {
+			deleteMessageBoardThread(question.id).then(() => history.goBack());
+		};
+
 		const deleteAnswer = useCallback(
-			answer => {
+			(answer) => {
 				setAnswers([
 					...answers.filter(
-						otherAnswer => answer.id !== otherAnswer.id
+						(otherAnswer) => answer.id !== otherAnswer.id
 					),
 				]);
 			},
@@ -96,30 +117,26 @@ export default withRouter(
 		);
 
 		const answerChange = useCallback(
-			answerId => {
+			(answerId) => {
 				const answer = answers.find(
-					answer => answer.showAsAnswer && answer.id !== answerId
+					(answer) => answer.showAsAnswer && answer.id !== answerId
 				);
 
 				if (answer) {
 					markAsAnswerMessageBoardMessage(answer.id, false).then(
 						() => {
-							setAnswers([
-								...answers.map(otherAnswer => {
-									otherAnswer.showAsAnswer =
-										otherAnswer.id === answerId;
-
-									return otherAnswer;
-								}),
-							]);
+							updateMarkAsAnswer(answerId);
 						}
 					);
 				}
+				else {
+					updateMarkAsAnswer(answerId);
+				}
 			},
-			[answers]
+			[answers, updateMarkAsAnswer]
 		);
 
-		const filterBy = filterBy => {
+		const filterBy = (filterBy) => {
 			let promise;
 			if (filterBy === 'votes') {
 				promise = getMessages(
@@ -127,7 +144,7 @@ export default withRouter(
 					'dateModified:desc',
 					1,
 					100
-				).then(answers =>
+				).then((answers) =>
 					answers.sort((answer1, answer2) => {
 						if (answer2.showAsAnswer) {
 							return 1;
@@ -156,7 +173,7 @@ export default withRouter(
 				promise = getMessages(question.id, 'dateModified:asc');
 			}
 
-			promise.then(x => {
+			promise.then((x) => {
 				setFilter(filterBy);
 				setAnswers(x);
 			});
@@ -223,7 +240,9 @@ export default withRouter(
 										>
 											{question.actions.subscribe && (
 												<Subscription
-													onSubscription={subscribed =>
+													onSubscription={(
+														subscribed
+													) =>
 														setQuestion({
 															...question,
 															subscribed,
@@ -231,6 +250,42 @@ export default withRouter(
 													}
 													question={question}
 												/>
+											)}
+
+											{question.actions.delete && (
+												<>
+													<Modal
+														body={Liferay.Language.get(
+															'do-you-want-to-delete–this-thread'
+														)}
+														callback={deleteThread}
+														onClose={() =>
+															setDeleteModalVisible(
+																false
+															)
+														}
+														status="warning"
+														textPrimaryButton={Liferay.Language.get(
+															'delete'
+														)}
+														title={Liferay.Language.get(
+															'delete-thread'
+														)}
+														visible={
+															deleteModalVisible
+														}
+													/>
+													<ClayButton
+														displayType="secondary"
+														onClick={() =>
+															setDeleteModalVisible(
+																true
+															)
+														}
+													>
+														<ClayIcon symbol="trash" />
+													</ClayButton>
+												</>
 											)}
 
 											{question.actions.replace && (
@@ -251,9 +306,7 @@ export default withRouter(
 								</div>
 
 								<div className="c-mt-4">
-									<TagList
-										tags={question.taxonomyCategoryBriefs}
-									/>
+									<TagList tags={question.keywords} />
 								</div>
 
 								<div className="c-mt-4 position-relative questions-creator text-center text-md-right">
@@ -320,7 +373,7 @@ export default withRouter(
 								)}
 
 								<div className="c-mt-3">
-									{answers.map(answer => (
+									{answers.map((answer) => (
 										<Answer
 											answer={answer}
 											answerChange={answerChange}
@@ -343,48 +396,50 @@ export default withRouter(
 										/>
 									)}
 
-								{context.canCreateThread && (
-									<div className="c-mt-5">
-										<ClayForm>
-											<ClayForm.Group className="form-group-sm">
-												<label htmlFor="basicInput">
-													{Liferay.Language.get(
-														'your-answer'
-													)}
+								{question &&
+									question.actions &&
+									question.actions['reply-to-thread'] && (
+										<div className="c-mt-5">
+											<ClayForm>
+												<ClayForm.Group className="form-group-sm">
+													<label htmlFor="basicInput">
+														{Liferay.Language.get(
+															'your-answer'
+														)}
 
-													<span className="c-ml-2 reference-mark">
-														<ClayIcon symbol="asterisk" />
-													</span>
-												</label>
+														<span className="c-ml-2 reference-mark">
+															<ClayIcon symbol="asterisk" />
+														</span>
+													</label>
 
-												<div className="c-mt-2">
-													<Editor
-														config={getCKEditorConfig()}
-														data={articleBody}
-														onBeforeLoad={
-															onBeforeLoadCKEditor
-														}
-														onChange={event =>
-															setArticleBody(
-																event.editor.getData()
-															)
-														}
-													/>
-												</div>
-											</ClayForm.Group>
-										</ClayForm>
+													<div className="c-mt-2">
+														<Editor
+															config={getCKEditorConfig()}
+															data={articleBody}
+															onBeforeLoad={
+																onBeforeLoadCKEditor
+															}
+															onChange={(event) =>
+																setArticleBody(
+																	event.editor.getData()
+																)
+															}
+														/>
+													</div>
+												</ClayForm.Group>
+											</ClayForm>
 
-										<ClayButton
-											disabled={!articleBody}
-											displayType="primary"
-											onClick={postAnswer}
-										>
-											{Liferay.Language.get(
-												'post-answer'
-											)}
-										</ClayButton>
-									</div>
-								)}
+											<ClayButton
+												disabled={!articleBody}
+												displayType="primary"
+												onClick={postAnswer}
+											>
+												{Liferay.Language.get(
+													'post-answer'
+												)}
+											</ClayButton>
+										</div>
+									)}
 							</div>
 						</div>
 					)}

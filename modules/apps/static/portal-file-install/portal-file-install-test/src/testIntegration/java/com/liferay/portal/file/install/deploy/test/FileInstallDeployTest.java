@@ -128,6 +128,42 @@ public class FileInstallDeployTest {
 	}
 
 	@Test
+	public void testConfigurationSystem() throws Exception {
+		Path path = Paths.get(
+			PropsValues.MODULE_FRAMEWORK_CONFIGS_DIR,
+			_CONFIGURATION_PID.concat(".config"));
+
+		String systemTestPropertyKey = StringBundler.concat(
+			_CONFIGURATION_PID, StringPool.PERIOD, _TEST_KEY);
+
+		System.setProperty(systemTestPropertyKey, _TEST_VALUE_1);
+
+		try {
+			_updateConfiguration(
+				() -> {
+					String content = StringBundler.concat(
+						_TEST_KEY, StringPool.EQUAL, "${",
+						systemTestPropertyKey, "}");
+
+					Files.write(path, content.getBytes());
+				});
+
+			Configuration configuration = _configurationAdmin.getConfiguration(
+				_CONFIGURATION_PID, StringPool.QUESTION);
+
+			Dictionary<String, Object> properties =
+				configuration.getProperties();
+
+			Assert.assertEquals(_TEST_VALUE_1, properties.get(_TEST_KEY));
+		}
+		finally {
+			System.clearProperty(systemTestPropertyKey);
+
+			Files.deleteIfExists(path);
+		}
+	}
+
+	@Test
 	public void testDeployAndDelete() throws Exception {
 		Path path = Paths.get(
 			PropsValues.MODULE_FRAMEWORK_MODULES_DIR, _TEST_JAR_NAME);
@@ -175,27 +211,18 @@ public class FileInstallDeployTest {
 		Bundle bundle = null;
 
 		try {
-			_createJAR(path, _TEST_JAR_SYMBOLIC_NAME, baseVersion);
+			_createJAR(path, _TEST_JAR_SYMBOLIC_NAME, baseVersion, null);
 
 			installCountDownLatch.await();
 
-			for (Bundle currentBundle : _bundleContext.getBundles()) {
-				if (Objects.equals(
-						currentBundle.getSymbolicName(),
-						_TEST_JAR_SYMBOLIC_NAME)) {
-
-					bundle = currentBundle;
-
-					break;
-				}
-			}
+			bundle = _getBundle(_TEST_JAR_SYMBOLIC_NAME);
 
 			Assert.assertNotNull(bundle);
 
 			Assert.assertEquals(Bundle.ACTIVE, bundle.getState());
 			Assert.assertEquals(baseVersion, bundle.getVersion());
 
-			_createJAR(path, _TEST_JAR_SYMBOLIC_NAME, updateVersion);
+			_createJAR(path, _TEST_JAR_SYMBOLIC_NAME, updateVersion, null);
 
 			updateCountDownLatch.await();
 
@@ -215,7 +242,106 @@ public class FileInstallDeployTest {
 		}
 	}
 
-	private void _createJAR(Path path, String symbolicName, Version version)
+	@Test
+	public void testDeployAndDeleteFragmentHost() throws Exception {
+		String testFragmentSymbolicName = _TEST_JAR_SYMBOLIC_NAME.concat(
+			".fragment");
+
+		Path path = Paths.get(
+			PropsValues.MODULE_FRAMEWORK_MODULES_DIR, _TEST_JAR_NAME);
+
+		Path fragmentPath = Paths.get(
+			PropsValues.MODULE_FRAMEWORK_MODULES_DIR,
+			testFragmentSymbolicName.concat(".jar"));
+
+		CountDownLatch installCountDownLatch = new CountDownLatch(1);
+
+		CountDownLatch fragmentInstallCountDownLatch = new CountDownLatch(1);
+
+		CountDownLatch deleteCountDownLatch = new CountDownLatch(1);
+
+		CountDownLatch fragmentDeleteCountDownLatch = new CountDownLatch(1);
+
+		BundleListener bundleListener = new BundleListener() {
+
+			@Override
+			public void bundleChanged(BundleEvent bundleEvent) {
+				Bundle bundle = bundleEvent.getBundle();
+
+				int type = bundleEvent.getType();
+
+				if (Objects.equals(
+						bundle.getSymbolicName(), testFragmentSymbolicName)) {
+
+					if (type == BundleEvent.RESOLVED) {
+						fragmentInstallCountDownLatch.countDown();
+					}
+					else if (type == BundleEvent.UNINSTALLED) {
+						fragmentDeleteCountDownLatch.countDown();
+					}
+				}
+
+				if (Objects.equals(
+						bundle.getSymbolicName(), _TEST_JAR_SYMBOLIC_NAME)) {
+
+					if (type == BundleEvent.STARTED) {
+						installCountDownLatch.countDown();
+					}
+					else if (type == BundleEvent.UNINSTALLED) {
+						deleteCountDownLatch.countDown();
+					}
+				}
+			}
+
+		};
+
+		_bundleContext.addBundleListener(bundleListener);
+
+		Version version = new Version(1, 0, 0);
+
+		try {
+			_createJAR(path, _TEST_JAR_SYMBOLIC_NAME, version, null);
+
+			installCountDownLatch.await();
+
+			Bundle bundle = _getBundle(_TEST_JAR_SYMBOLIC_NAME);
+
+			Assert.assertEquals(Bundle.ACTIVE, bundle.getState());
+
+			_createJAR(
+				fragmentPath, testFragmentSymbolicName, version,
+				_TEST_JAR_SYMBOLIC_NAME);
+
+			fragmentInstallCountDownLatch.await();
+
+			Bundle fragmentBundle = _getBundle(testFragmentSymbolicName);
+
+			Assert.assertEquals(Bundle.RESOLVED, fragmentBundle.getState());
+
+			Files.delete(path);
+
+			deleteCountDownLatch.await();
+
+			Assert.assertEquals(Bundle.UNINSTALLED, bundle.getState());
+
+			Files.delete(fragmentPath);
+
+			fragmentDeleteCountDownLatch.await();
+
+			Assert.assertEquals(Bundle.UNINSTALLED, fragmentBundle.getState());
+		}
+		finally {
+			_bundleContext.removeBundleListener(bundleListener);
+
+			Files.deleteIfExists(path);
+
+			Files.deleteIfExists(fragmentPath);
+		}
+	}
+
+	private void _createJAR(
+			Path path, String symbolicName, Version version,
+			String fragmentHost)
 		throws IOException {
 
 		try (OutputStream outputStream = Files.newOutputStream(path);
@@ -229,6 +355,11 @@ public class FileInstallDeployTest {
 			attributes.putValue(Constants.BUNDLE_MANIFESTVERSION, "2");
 			attributes.putValue(Constants.BUNDLE_SYMBOLICNAME, symbolicName);
 			attributes.putValue(Constants.BUNDLE_VERSION, version.toString());
+
+			if (fragmentHost != null) {
+				attributes.putValue(Constants.FRAGMENT_HOST, fragmentHost);
+			}
+
 			attributes.putValue("Manifest-Version", "2");
 
 			jarOutputStream.putNextEntry(new ZipEntry(JarFile.MANIFEST_NAME));
@@ -237,6 +368,16 @@ public class FileInstallDeployTest {
 
 			jarOutputStream.closeEntry();
 		}
+	}
+
+	private Bundle _getBundle(String symbolicName) {
+		for (Bundle currentBundle : _bundleContext.getBundles()) {
+			if (Objects.equals(currentBundle.getSymbolicName(), symbolicName)) {
+				return currentBundle;
+			}
+		}
+
+		return null;
 	}
 
 	private void _updateConfiguration(UnsafeRunnable<Exception> runnable)

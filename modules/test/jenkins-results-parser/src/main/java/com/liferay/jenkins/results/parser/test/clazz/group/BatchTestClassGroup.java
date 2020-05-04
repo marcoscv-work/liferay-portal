@@ -27,7 +27,6 @@ import java.io.File;
 import java.nio.file.PathMatcher;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -554,10 +553,6 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 				}
 
 				requiredModuleDirs.add(requiredModuleDir);
-
-				requiredModuleDirs.addAll(
-					_getRequiredModuleDirs(
-						Arrays.asList(requiredModuleDir), requiredModuleDirs));
 			}
 		}
 

@@ -58,9 +58,9 @@ JournalViewMoreMenuItemsDisplayContext journalViewMoreMenuItemsDisplayContext = 
 		>
 
 			<%
-			Map<String, Object> data = new HashMap<>();
-
-			data.put("ddmStructureKey", ddmStructure.getStructureKey());
+			Map<String, Object> data = HashMapBuilder.<String, Object>put(
+				"ddmStructureKey", ddmStructure.getStructureKey()
+			).build();
 			%>
 
 			<liferay-ui:search-container-column-text
@@ -102,7 +102,7 @@ JournalViewMoreMenuItemsDisplayContext journalViewMoreMenuItemsDisplayContext = 
 		'<portlet:namespace />addMenuItemFm'
 	);
 
-	dom.delegate(addMenuItemFm, 'click', '.selector-button', function(event) {
+	dom.delegate(addMenuItemFm, 'click', '.selector-button', function (event) {
 		Util.getOpener().Liferay.fire(
 			'<%= HtmlUtil.escapeJS(journalViewMoreMenuItemsDisplayContext.getEventName()) %>',
 			{

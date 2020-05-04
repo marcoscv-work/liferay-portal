@@ -29,7 +29,7 @@ OrderByComparator orderByComparator = KBUtil.getKBArticleOrderByComparator(order
 List<KBArticle> kbArticles = KBArticleServiceUtil.getKBArticleVersions(scopeGroupId, kbArticle.getResourcePrimKey(), selStatus, QueryUtil.ALL_POS, QueryUtil.ALL_POS, orderByComparator);
 %>
 
-<aui:row>
+<clay:row>
 	<aui:col width="<%= 100 %>">
 		<ul class="sidebar-block tabular-list-group-unstyled">
 
@@ -86,9 +86,9 @@ List<KBArticle> kbArticles = KBArticleServiceUtil.getKBArticleVersions(scopeGrou
 							</portlet:renderURL>
 
 							<%
-							Map<String, Object> data = new HashMap<String, Object>();
-
-							data.put("uri", compareVersionsURL);
+							Map<String, Object> data = HashMapBuilder.<String, Object>put(
+								"uri", compareVersionsURL
+							).build();
 							%>
 
 							<liferay-ui:icon
@@ -108,7 +108,7 @@ List<KBArticle> kbArticles = KBArticleServiceUtil.getKBArticleVersions(scopeGrou
 
 		</ul>
 	</aui:col>
-</aui:row>
+</clay:row>
 
 <portlet:renderURL var="compareVersionURL">
 	<portlet:param name="mvcPath" value="/admin/common/compare_versions.jsp" />
@@ -118,7 +118,7 @@ List<KBArticle> kbArticles = KBArticleServiceUtil.getKBArticleVersions(scopeGrou
 </portlet:renderURL>
 
 <aui:script require="metal-dom/src/dom as dom">
-	dom.delegate(document.body, 'click', '.compare-to-link > a', function(event) {
+	dom.delegate(document.body, 'click', '.compare-to-link > a', function (event) {
 		var currentTarget = event.delegateTarget;
 
 		Liferay.Util.selectEntity(
@@ -133,7 +133,7 @@ List<KBArticle> kbArticles = KBArticleServiceUtil.getKBArticleVersions(scopeGrou
 				title: '<liferay-ui:message key="compare-versions" />',
 				uri: currentTarget.dataset.uri,
 			},
-			function(event) {
+			function (event) {
 				var uri = '<%= HtmlUtil.escapeJS(compareVersionURL) %>';
 
 				uri = Liferay.Util.addParams(

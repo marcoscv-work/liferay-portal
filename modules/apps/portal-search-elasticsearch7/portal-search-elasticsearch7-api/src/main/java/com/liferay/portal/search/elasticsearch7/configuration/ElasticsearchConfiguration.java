@@ -18,6 +18,8 @@ import aQute.bnd.annotation.metatype.Meta;
 
 import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Michael C. Han
  */
@@ -27,6 +29,7 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 	localization = "content/Language",
 	name = "elasticsearch7-configuration-name"
 )
+@ProviderType
 public interface ElasticsearchConfiguration {
 
 	@Meta.AD(
@@ -163,5 +166,43 @@ public interface ElasticsearchConfiguration {
 		name = "http-cors-configurations", required = false
 	)
 	public String httpCORSConfigurations();
+
+	@Meta.AD(
+		deflt = "false", description = "sidecar-debug-help",
+		name = "sidecar-debug", required = false
+	)
+	public boolean sidecarDebug();
+
+	@Meta.AD(
+		deflt = "-agentlib:jdwp\\=transport\\=dt_socket\\,address\\=8001\\,server\\=y\\,suspend\\=y\\,quiet\\=y",
+		description = "sidecar-debug-settings-help",
+		name = "sidecar-debug-settings", required = false
+	)
+	public String sidecarDebugSettings();
+
+	@Meta.AD(
+		deflt = "10000", description = "sidecar-heartbeat-interval-help",
+		name = "sidecar-heartbeat-interval", required = false
+	)
+	public long sidecarHeartbeatInterval();
+
+	@Meta.AD(
+		deflt = "elasticsearch7", description = "sidecar-home-help",
+		name = "sidecar-home", required = false
+	)
+	public String sidecarHome();
+
+	@Meta.AD(
+		deflt = "-Xms1g|-Xmx1g|-XX:+AlwaysPreTouch",
+		description = "sidecar-jvm-options-help", name = "sidecar-jvm-options",
+		required = false
+	)
+	public String[] sidecarJVMOptions();
+
+	@Meta.AD(
+		deflt = "10000", description = "sidecar-shutdown-timeout-help",
+		name = "sidecar-shutdown-timeout", required = false
+	)
+	public long sidecarShutdownTimeout();
 
 }

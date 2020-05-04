@@ -14,7 +14,7 @@
 
 AUI.add(
 	'liferay-input-localized',
-	A => {
+	(A) => {
 		var Lang = A.Lang;
 
 		var STR_BLANK = '';
@@ -657,7 +657,13 @@ AUI.add(
 					instances[id] = inputLocalizedInstance;
 				}
 
-				Liferay.component(id, inputLocalizedInstance);
+				var portletId = inputLocalizedInstance
+					.get('namespace')
+					.replace(/^_|_$/gm, '');
+
+				Liferay.component(id, inputLocalizedInstance, {
+					portletId,
+				});
 			},
 
 			unregister(id) {
@@ -666,16 +672,6 @@ AUI.add(
 		});
 
 		Liferay.InputLocalized = InputLocalized;
-
-		Liferay.on('destroyPortlet', event => {
-			var portletNamespace = '_' + event.portletId + '_';
-
-			A.Object.each(Liferay.InputLocalized._instances, item => {
-				if (item.get('namespace') === portletNamespace) {
-					item.destroy();
-				}
-			});
-		});
 	},
 	'',
 	{

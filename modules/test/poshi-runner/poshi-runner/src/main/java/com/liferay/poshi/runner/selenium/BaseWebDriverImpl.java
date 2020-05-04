@@ -2891,7 +2891,20 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 		while (retryCount < maxRetries) {
 			webElement.clear();
 
-			typeKeys(locator, value);
+			if (retryCount == 0) {
+				typeKeys(locator, value);
+			}
+			else {
+				for (char c : value.toCharArray()) {
+					typeKeys(locator, Character.toString(c));
+
+					try {
+						Thread.sleep(200);
+					}
+					catch (InterruptedException interruptedException) {
+					}
+				}
+			}
 
 			String webElementTagNametagName = webElement.getTagName();
 
@@ -3038,6 +3051,24 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 		sb.append("\")");
 
 		runScript(sb.toString());
+	}
+
+	@Override
+	public void typeCodeMirrorEditor(String locator, String value)
+		throws Exception {
+
+		WebElement webElement = getWebElement(locator);
+
+		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
+
+		WebDriver wrappedWebDriver = wrapsDriver.getWrappedDriver();
+
+		JavascriptExecutor javascriptExecutor =
+			(JavascriptExecutor)wrappedWebDriver;
+
+		javascriptExecutor.executeScript(
+			"arguments[0].CodeMirror.setValue(arguments[1]);", webElement,
+			value);
 	}
 
 	@Override

@@ -20,24 +20,42 @@ import com.liferay.data.engine.rest.client.dto.v2_0.DataDefinitionField;
 import com.liferay.data.engine.rest.client.dto.v2_0.DataLayout;
 import com.liferay.data.engine.rest.client.pagination.Page;
 import com.liferay.data.engine.rest.client.pagination.Pagination;
+import com.liferay.data.engine.rest.client.problem.Problem;
 import com.liferay.data.engine.rest.resource.v2_0.test.util.DataLayoutTestUtil;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.exception.ModelListenerException;
+import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.model.BaseModelListener;
+import com.liferay.portal.kernel.model.ModelListener;
+import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HashMapDictionary;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.Inject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * @author Jeyvison Nascimento
@@ -46,20 +64,39 @@ import org.junit.runner.RunWith;
 public class DataDefinitionResourceTest
 	extends BaseDataDefinitionResourceTestCase {
 
+	@BeforeClass
+	public static void setUpClass() throws Exception {
+		Bundle bundle = FrameworkUtil.getBundle(
+			DataDefinitionResourceTest.class);
+
+		BundleContext bundleContext = bundle.getBundleContext();
+
+		_serviceRegistration = bundleContext.registerService(
+			ModelListener.class,
+			new BaseModelListener<DDMStructure>() {
+
+				@Override
+				public void onAfterCreate(DDMStructure ddmStructure)
+					throws ModelListenerException {
+
+					_ddmStructures.add(ddmStructure);
+				}
+
+			},
+			new HashMapDictionary<>());
+	}
+
+	@AfterClass
+	public static void tearDownClass() throws Exception {
+		_serviceRegistration.unregister();
+	}
+
 	@Before
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 
-		_dataDefinitions = new ArrayList<>();
-	}
-
-	@After
-	public void tearDown() throws Exception {
-		super.tearDown();
-
-		for (DataDefinition dataDefinition : _dataDefinitions) {
-			dataDefinitionResource.deleteDataDefinition(dataDefinition.getId());
-		}
+		_ddmStructures = new ArrayList<>();
 	}
 
 	@Override
@@ -132,22 +169,169 @@ public class DataDefinitionResourceTest
 		Assert.assertEquals(1, page.getTotalCount());
 	}
 
-	@Ignore
 	@Override
 	@Test
-	public void testGraphQLDeleteDataDefinition() {
+	public void testGraphQLGetDataDefinition() throws Exception {
+		DataDefinition dataDefinition =
+			testGraphQLDataDefinition_addDataDefinition();
+
+		Assert.assertEquals(
+			MapUtil.getString(dataDefinition.getName(), "en_US"),
+			JSONUtil.getValue(
+				invokeGraphQLQuery(
+					new GraphQLField(
+						"dataDefinition",
+						HashMapBuilder.<String, Object>put(
+							"dataDefinitionId", dataDefinition.getId()
+						).build(),
+						getGraphQLFields())),
+				"JSONObject/data", "JSONObject/dataDefinition",
+				"JSONObject/name", "Object/en_US"));
 	}
 
-	@Ignore
 	@Override
 	@Test
-	public void testGraphQLGetDataDefinition() {
+	public void testGraphQLGetSiteDataDefinitionByContentTypeByDataDefinitionKey()
+		throws Exception {
+
+		DataDefinition dataDefinition =
+			dataDefinitionResource.postSiteDataDefinitionByContentType(
+				testGroup.getGroupId(), _CONTENT_TYPE, randomDataDefinition());
+
+		Assert.assertEquals(
+			MapUtil.getString(dataDefinition.getName(), "en_US"),
+			JSONUtil.getValue(
+				invokeGraphQLQuery(
+					new GraphQLField(
+						"dataDefinitionByContentTypeByDataDefinitionKey",
+						HashMapBuilder.<String, Object>put(
+							"contentType",
+							StringBundler.concat(
+								StringPool.QUOTE, _CONTENT_TYPE,
+								StringPool.QUOTE)
+						).put(
+							"dataDefinitionKey",
+							StringBundler.concat(
+								StringPool.QUOTE,
+								dataDefinition.getDataDefinitionKey(),
+								StringPool.QUOTE)
+						).put(
+							"siteKey",
+							StringBundler.concat(
+								StringPool.QUOTE,
+								String.valueOf(dataDefinition.getSiteId()),
+								StringPool.QUOTE)
+						).build(),
+						getGraphQLFields())),
+				"JSONObject/data",
+				"JSONObject/dataDefinitionByContentTypeByDataDefinitionKey",
+				"JSONObject/name", "Object/en_US"));
 	}
 
-	@Ignore
 	@Override
 	@Test
-	public void testGraphQLGetSiteDataDefinitionByContentTypeByDataDefinitionKey() {
+	public void testPostDataDefinitionByContentType() throws Exception {
+		super.testPostDataDefinitionByContentType();
+
+		// MustNotDuplicateFieldName
+
+		try {
+			dataDefinitionResource.postDataDefinitionByContentType(
+				_CONTENT_TYPE,
+				new DataDefinition() {
+					{
+						availableLanguageIds = new String[] {"en_US", "pt_BR"};
+						dataDefinitionFields = new DataDefinitionField[] {
+							new DataDefinitionField() {
+								{
+									fieldType = "text";
+									label = HashMapBuilder.<String, Object>put(
+										"en_US", RandomTestUtil.randomString()
+									).put(
+										"pt_BR", RandomTestUtil.randomString()
+									).build();
+									name = "text1";
+								}
+							},
+							new DataDefinitionField() {
+								{
+									fieldType = "text";
+									label = HashMapBuilder.<String, Object>put(
+										"en_US", RandomTestUtil.randomString()
+									).put(
+										"pt_BR", RandomTestUtil.randomString()
+									).build();
+									name = "text2";
+								}
+							},
+							new DataDefinitionField() {
+								{
+									fieldType = "text";
+									label = HashMapBuilder.<String, Object>put(
+										"en_US", RandomTestUtil.randomString()
+									).put(
+										"pt_BR", RandomTestUtil.randomString()
+									).build();
+									name = "text2";
+								}
+							}
+						};
+						dataDefinitionKey = RandomTestUtil.randomString();
+						defaultLanguageId = "en_US";
+						name = HashMapBuilder.<String, Object>put(
+							"en_US", RandomTestUtil.randomString()
+						).build();
+					}
+				});
+
+			Assert.fail("An exception must be thrown");
+		}
+		catch (Problem.ProblemException problemException) {
+			Problem problem = problemException.getProblem();
+
+			Assert.assertEquals("text2", problem.getDetail());
+			Assert.assertEquals("BAD_REQUEST", problem.getStatus());
+			Assert.assertEquals("MustNotDuplicateFieldName", problem.getType());
+		}
+
+		// MustSetValidContentType
+
+		try {
+			dataDefinitionResource.postDataDefinitionByContentType(
+				"INVALID",
+				new DataDefinition() {
+					{
+						availableLanguageIds = new String[] {"en_US", "pt_BR"};
+						dataDefinitionFields = new DataDefinitionField[] {
+							new DataDefinitionField() {
+								{
+									fieldType = "text";
+									label = HashMapBuilder.<String, Object>put(
+										"en_US", RandomTestUtil.randomString()
+									).put(
+										"pt_BR", RandomTestUtil.randomString()
+									).build();
+									name = "text1";
+								}
+							}
+						};
+						dataDefinitionKey = RandomTestUtil.randomString();
+						defaultLanguageId = "en_US";
+						name = HashMapBuilder.<String, Object>put(
+							"en_US", RandomTestUtil.randomString()
+						).build();
+					}
+				});
+
+			Assert.fail("An exception must be thrown");
+		}
+		catch (Problem.ProblemException problemException) {
+			Problem problem = problemException.getProblem();
+
+			Assert.assertEquals("INVALID", problem.getDetail());
+			Assert.assertEquals("BAD_REQUEST", problem.getStatus());
+			Assert.assertEquals("MustSetValidContentType", problem.getType());
+		}
 	}
 
 	@Override
@@ -182,11 +366,8 @@ public class DataDefinitionResourceTest
 		assertValid(getDataDefinition);
 	}
 
-	@Ignore
-	@Override
-	@Test
-	public void testPutDataDefinitionPermission() throws Exception {
-	}
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
 
 	@Override
 	protected void assertValid(DataDefinition dataDefinition) {
@@ -216,9 +397,12 @@ public class DataDefinitionResourceTest
 
 	@Override
 	protected String[] getAdditionalAssertFieldNames() {
-		return new String[] {
-			"availableLanguageIds", "defaultLanguageId", "name", "userId"
-		};
+		return new String[] {"name"};
+	}
+
+	@Override
+	protected String[] getIgnoredEntityFieldNames() {
+		return new String[] {"name"};
 	}
 
 	@Override
@@ -249,13 +433,8 @@ public class DataDefinitionResourceTest
 				String contentType, DataDefinition dataDefinition)
 		throws Exception {
 
-		DataDefinition postDataDefinition =
-			dataDefinitionResource.postDataDefinitionByContentType(
-				contentType, dataDefinition);
-
-		_dataDefinitions.add(postDataDefinition);
-
-		return postDataDefinition;
+		return dataDefinitionResource.postDataDefinitionByContentType(
+			contentType, dataDefinition);
 	}
 
 	@Override
@@ -307,6 +486,14 @@ public class DataDefinitionResourceTest
 	}
 
 	@Override
+	protected DataDefinition testGraphQLDataDefinition_addDataDefinition()
+		throws Exception {
+
+		return dataDefinitionResource.postSiteDataDefinitionByContentType(
+			testGroup.getGroupId(), _CONTENT_TYPE, randomDataDefinition());
+	}
+
+	@Override
 	protected DataDefinition
 			testPostDataDefinitionByContentType_addDataDefinition(
 				DataDefinition dataDefinition)
@@ -334,6 +521,14 @@ public class DataDefinitionResourceTest
 			testGroup.getGroupId(), _CONTENT_TYPE, randomDataDefinition());
 	}
 
+	@Override
+	protected DataDefinition testPutDataDefinitionPermission_addDataDefinition()
+		throws Exception {
+
+		return dataDefinitionResource.postSiteDataDefinitionByContentType(
+			testGroup.getGroupId(), _CONTENT_TYPE, randomDataDefinition());
+	}
+
 	private DataDefinition _createDataDefinition(
 			String description, String name)
 		throws Exception {
@@ -349,11 +544,15 @@ public class DataDefinitionResourceTest
 							).build();
 							fieldType = "text";
 							label = HashMapBuilder.<String, Object>put(
-								"label", RandomTestUtil.randomString()
+								"en_US", RandomTestUtil.randomString()
+							).put(
+								"pt_BR", RandomTestUtil.randomString()
 							).build();
 							name = RandomTestUtil.randomString();
 							tip = HashMapBuilder.<String, Object>put(
-								"tip", RandomTestUtil.randomString()
+								"en_US", RandomTestUtil.randomString()
+							).put(
+								"pt_BR", RandomTestUtil.randomString()
 							).build();
 						}
 					}
@@ -411,7 +610,10 @@ public class DataDefinitionResourceTest
 
 	private static final String _CONTENT_TYPE = "app-builder";
 
-	private List<DataDefinition> _dataDefinitions;
+	@DeleteAfterTestRun
+	private static List<DDMStructure> _ddmStructures;
+
+	private static ServiceRegistration _serviceRegistration;
 
 	@Inject(type = Portal.class)
 	private Portal _portal;

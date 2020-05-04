@@ -379,6 +379,21 @@ public class AppBuilderAppLocalServiceUtil {
 			groupId, companyId, ddmStructureId);
 	}
 
+	public static java.util.List<com.liferay.app.builder.model.AppBuilderApp>
+		getCompanyAppBuilderApps(
+			long companyId, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.app.builder.model.AppBuilderApp>
+					orderByComparator) {
+
+		return getService().getCompanyAppBuilderApps(
+			companyId, start, end, orderByComparator);
+	}
+
+	public static int getCompanyAppBuilderAppsCount(long companyId) {
+		return getService().getCompanyAppBuilderAppsCount(companyId);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery
 		getExportActionableDynamicQuery(
 			com.liferay.exportimport.kernel.lar.PortletDataContext

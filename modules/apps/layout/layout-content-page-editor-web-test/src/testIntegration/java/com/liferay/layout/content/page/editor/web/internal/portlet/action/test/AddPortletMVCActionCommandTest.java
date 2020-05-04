@@ -65,7 +65,6 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -73,9 +72,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 
 /**
  * @author Jürgen Kappler
@@ -124,7 +120,7 @@ public class AddPortletMVCActionCommandTest {
 		ReflectionTestUtil.invoke(
 			_mvcActionCommand, "processAddPortlet",
 			new Class<?>[] {ActionRequest.class, ActionResponse.class},
-			actionRequest, new MockActionResponse());
+			actionRequest, new MockLiferayPortletActionResponse());
 
 		List<FragmentEntryLink> actualFragmentEntryLinks =
 			_fragmentEntryLinkLocalService.getFragmentEntryLinks(
@@ -147,7 +143,7 @@ public class AddPortletMVCActionCommandTest {
 		ReflectionTestUtil.invoke(
 			_mvcActionCommand, "processAddPortlet",
 			new Class<?>[] {ActionRequest.class, ActionResponse.class},
-			actionRequest, new MockActionResponse());
+			actionRequest, new MockLiferayPortletActionResponse());
 	}
 
 	@Test(expected = PortletIdException.class)
@@ -159,12 +155,12 @@ public class AddPortletMVCActionCommandTest {
 		ReflectionTestUtil.invoke(
 			_mvcActionCommand, "processAddPortlet",
 			new Class<?>[] {ActionRequest.class, ActionResponse.class},
-			actionRequest, new MockActionResponse());
+			actionRequest, new MockLiferayPortletActionResponse());
 
 		JSONObject jsonObject = ReflectionTestUtil.invoke(
 			_mvcActionCommand, "processAddPortlet",
 			new Class<?>[] {ActionRequest.class, ActionResponse.class},
-			actionRequest, new MockActionResponse());
+			actionRequest, new MockLiferayPortletActionResponse());
 
 		Assert.assertTrue(jsonObject.has("error"));
 	}
@@ -178,7 +174,7 @@ public class AddPortletMVCActionCommandTest {
 		JSONObject jsonObject = ReflectionTestUtil.invoke(
 			_mvcActionCommand, "processAddPortlet",
 			new Class<?>[] {ActionRequest.class, ActionResponse.class},
-			actionRequest, new MockActionResponse());
+			actionRequest, new MockLiferayPortletActionResponse());
 
 		JSONObject fragmentEntryLinkJSONObject = jsonObject.getJSONObject(
 			"fragmentEntryLink");
@@ -222,7 +218,7 @@ public class AddPortletMVCActionCommandTest {
 		JSONObject jsonObject = ReflectionTestUtil.invoke(
 			_mvcActionCommand, "processAddPortlet",
 			new Class<?>[] {ActionRequest.class, ActionResponse.class},
-			actionRequest, new MockActionResponse());
+			actionRequest, new MockLiferayPortletActionResponse());
 
 		JSONObject layoutDataJSONObject = jsonObject.getJSONObject(
 			"layoutData");
@@ -355,34 +351,19 @@ public class AddPortletMVCActionCommandTest {
 		public MockActionRequest(Layout layout, ThemeDisplay themeDisplay) {
 			_layout = layout;
 			_themeDisplay = themeDisplay;
-		}
 
-		@Override
-		public HttpServletRequest getHttpServletRequest() {
-			MockHttpServletRequest httpServletRequest =
-				new MockHttpServletRequest();
+			HttpServletRequest httpServletRequest = getHttpServletRequest();
 
 			httpServletRequest.setAttribute(
-				JavaConstants.JAVAX_PORTLET_RESPONSE, new MockActionResponse());
+				JavaConstants.JAVAX_PORTLET_RESPONSE,
+				new MockLiferayPortletActionResponse());
 			httpServletRequest.setAttribute(WebKeys.LAYOUT, _layout);
 			httpServletRequest.setAttribute(
 				WebKeys.THEME_DISPLAY, _themeDisplay);
-
-			return httpServletRequest;
 		}
 
 		private final Layout _layout;
 		private final ThemeDisplay _themeDisplay;
-
-	}
-
-	private static class MockActionResponse
-		extends MockLiferayPortletActionResponse {
-
-		@Override
-		public HttpServletResponse getHttpServletResponse() {
-			return new MockHttpServletResponse();
-		}
 
 	}
 

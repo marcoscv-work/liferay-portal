@@ -14,6 +14,11 @@
 
 package com.liferay.analytics.reports.web.internal.model;
 
+import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
+
+import java.util.Objects;
+
 /**
  * @author David Arques
  */
@@ -22,10 +27,32 @@ public class TrafficSource {
 	public TrafficSource() {
 	}
 
-	public TrafficSource(String name, int trafficAmount, float trafficShare) {
+	public TrafficSource(String name, int trafficAmount, double trafficShare) {
 		_name = name;
 		_trafficAmount = trafficAmount;
 		_trafficShare = trafficShare;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof TrafficSource)) {
+			return false;
+		}
+
+		TrafficSource trafficSource = (TrafficSource)obj;
+
+		if (Objects.equals(_name, trafficSource._name) &&
+			Objects.equals(_trafficAmount, trafficSource._trafficAmount) &&
+			Objects.equals(_trafficShare, trafficSource._trafficShare)) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	public String getName() {
@@ -40,6 +67,11 @@ public class TrafficSource {
 		return _trafficShare;
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(_name, _trafficAmount, _trafficShare);
+	}
+
 	public void setName(String name) {
 		_name = name;
 	}
@@ -48,8 +80,22 @@ public class TrafficSource {
 		_trafficAmount = trafficAmount;
 	}
 
-	public void setTrafficShare(float trafficShare) {
+	public void setTrafficShare(double trafficShare) {
 		_trafficShare = trafficShare;
+	}
+
+	public JSONObject toJSONObject(String helpMessage, String title) {
+		return JSONUtil.put(
+			"helpMessage", helpMessage
+		).put(
+			"name", getName()
+		).put(
+			"share", getTrafficShare()
+		).put(
+			"title", title
+		).put(
+			"value", getTrafficAmount()
+		);
 	}
 
 	private String _name;

@@ -29,7 +29,7 @@
 	<aui:input name="redirect" type="hidden" value="<%= configurationRenderURL %>" />
 
 	<liferay-frontend:edit-form-body>
-		<aui:row>
+		<clay:row>
 			<aui:col width="<%= 50 %>">
 				<liferay-frontend:fieldset-group>
 					<liferay-frontend:fieldset>
@@ -66,7 +66,7 @@
 					showBorders="<%= true %>"
 				/>
 			</aui:col>
-		</aui:row>
+		</clay:row>
 	</liferay-frontend:edit-form-body>
 
 	<liferay-frontend:edit-form-footer>
@@ -103,7 +103,7 @@
 	);
 
 	if (selectDisplayStyle) {
-		selectDisplayStyle.addEventListener('change', function(event) {
+		selectDisplayStyle.addEventListener('change', function (event) {
 			if (selectDisplayStyle.selectedIndex > -1) {
 				data[
 					'_<%= HtmlUtil.escapeJS(siteNavigationBreadcrumbDisplayContext.getPortletResource()) %>_displayStyle'
@@ -120,7 +120,7 @@
 	var checkBoxes = document.getElementById('<portlet:namespace />checkBoxes');
 
 	if (checkBoxes) {
-		checkBoxes.addEventListener('change', function(event) {
+		checkBoxes.addEventListener('change', function (event) {
 			if (event.target.classList.contains('toggle-switch')) {
 				var target = event.target;
 
@@ -134,7 +134,7 @@
 		});
 	}
 
-	var handler = Liferay.on('portletReady', function(event) {
+	var handler = Liferay.on('portletReady', function (event) {
 		Liferay.Portlet.refresh(
 			'#p_p_id_<%= HtmlUtil.escapeJS(siteNavigationBreadcrumbDisplayContext.getPortletResource()) %>_',
 			data
@@ -145,7 +145,7 @@
 		handler = null;
 	});
 
-	var destroyHandler = Liferay.on('destroyHandler', function(event) {
+	var destroyHandler = Liferay.on('destroyHandler', function (event) {
 		if (handler) {
 			handler.detach();
 

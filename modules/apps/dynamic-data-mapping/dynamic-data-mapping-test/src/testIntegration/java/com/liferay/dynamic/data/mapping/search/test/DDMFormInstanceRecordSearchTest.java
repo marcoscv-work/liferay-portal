@@ -50,6 +50,7 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
@@ -148,11 +149,13 @@ public class DDMFormInstanceRecordSearchTest {
 
 		ddmForm.addDDMFormField(nameDDMFormField);
 
-		DDMFormField notIndexableDDMFormField =
+		DDMFormField descriptionDDMFormField =
 			DDMFormTestUtil.createTextDDMFormField(
-				"notIndexable", true, false, false);
+				"description", true, false, false);
 
-		notIndexableDDMFormField.setIndexType("");
+		descriptionDDMFormField.setIndexType("");
+
+		ddmForm.addDDMFormField(descriptionDDMFormField);
 
 		DDMFormInstanceTestHelper ddmFormInstanceTestHelper =
 			new DDMFormInstanceTestHelper(_group);
@@ -185,6 +188,9 @@ public class DDMFormInstanceRecordSearchTest {
 
 		assertSearch("Another The Example", 1);
 	}
+
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
 
 	protected static SearchContext getSearchContext(
 			Group group, User user, DDMFormInstance ddmFormInstance)

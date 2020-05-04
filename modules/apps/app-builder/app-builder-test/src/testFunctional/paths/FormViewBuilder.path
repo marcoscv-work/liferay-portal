@@ -66,7 +66,7 @@
 
 <tr>
 	<td>SIDEBAR_FIELDS_TAB</td>
-	<td>//li[@class='nav-item']//a[contains(text(),'Fields')]</td>
+	<td>//li[@class='nav-item']//*[contains(text(),'Fields')]</td>
 	<td></td>
 </tr>
 
@@ -132,7 +132,7 @@
 
 <tr>
 	<td>OPTIONS_OPTION_VALUE_FIELD</td>
-	<td>//div[contains(@class,'ddm-field-options-container')]//div[contains(@class,'ddm-field-options')][${key_rowNumber}]//input</td>
+	<td>//div[contains(@class,'ddm-field-options-container')]//div[contains(@class,'ddm-field-options')][${key_rowNumber}]//input[contains(@name,'keyValueLabeloption')]</td>
 	<td></td>
 </tr>
 
@@ -148,6 +148,48 @@
 	<td></td>
 </tr>
 
+<tr>
+	<td>SIDEBAR_ADVANCED_PREDEFINED_TEXT</td>
+	<td>//input[contains(@name,'predefinedValue')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>SIDEBAR_ADVANCED_PREDEFINED_DATE</td>
+	<td>//input[contains(@name,'predefinedValue')]/preceding-sibling::input</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>SIDEBAR_ADVANCED_PREDEFINED_SELECT_FROM_LIST</td>
+	<td>//div[contains(@data-field-name,'predefinedValue')]//div[contains(@class,'ddm-select-dropdown')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>PREDEFINED_VALUE_AT_FORM</td>
+	<td>//p[contains(text(),'${key_fieldName}')]/..//input[contains(@value,'${key_fieldValue}')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>PREDEFINED_VALUE_AT_FORM_DATE_FIELD</td>
+	<td>//p[contains(text(),'${key_fieldName}')]/../following-sibling::div[contains(@class,'input')]//input[contains(@value,'${key_fieldValue}')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>PREDEFINED_VALUE_AT_FORM_SINGLE_SELECTION</td>
+	<td>//p[contains(text(),'${key_fieldName}')]/..//span[contains(.,'${key_fieldValue}')]/../input[contains(@type,'radio')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>PREDEFINED_VALUE_AT_FORM_SELECTLIST</td>
+	<td>//p[contains(text(),'${key_fieldName}')]/../following-sibling::div[contains(@class,'ddm-select-dropdown')]//div[contains(@class,'option-selected') and contains(text(),'${key_fieldValue}')]</td>
+	<td></td>
+</tr>
+
 <!--FIELDS_AT_DEPLOYED_APP-->
 
 <tr>
@@ -159,7 +201,7 @@
 <!--SELECT-->
 <tr>
 	<td>SELECT_FIELD</td>
-	<td>//p[contains(text(),'${key_fieldName}')]/following-sibling::div[contains(@class,'ddm-select-dropdown')]//button</td>
+	<td>//p[contains(text(),'${key_fieldName}')]/following-sibling::div[contains(@class,'ddm-select-dropdown') or contains(@class,'input-group-container')]</td>
 	<td></td>
 </tr>
 
@@ -177,8 +219,26 @@
 </tr>
 
 <tr>
+	<td>CHECKBOX_AT_FORM_BODY</td>
+	<td>//p[contains(text(),'${key_fieldName}')]/..//input[contains(@type,'checkbox')]//following-sibling::span[contains(.,'${key_fieldValue}')]/..//input[contains(@type,'checkbox')]</td>
+	<td></td>
+</tr>
+
+<tr>
 	<td>CHECKBOX_LABEL</td>
-	<td>//input[contains(@type,'checkbox')]//following-sibling::span[contains(.,'${key_fieldName}')]</td>
+	<td>//p[contains(text(),'${key_fieldName}')]/..//input[contains(@type,'checkbox')]//following-sibling::span[contains(.,'${key_fieldValue}')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>CHECKBOX_PREDEFINED</td>
+	<td>//li[contains(@class,'dropdown-item')]//input[contains(@type,'checkbox')]//following-sibling::span[contains(.,'${key_fieldName}')]/..//preceding-sibling::input[contains(@type,'checkbox')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>CHECKBOX_PREDEFINED_LIST</td>
+	<td>//li[contains(@class,'dropdown-item')]//input[contains(@type,'checkbox')]//following-sibling::span[contains(.,'${key_fieldName}')]</td>
 	<td></td>
 </tr>
 
@@ -192,7 +252,7 @@
 <!--DATE-->
 <tr>
 	<td>DATE_FIELD</td>
-	<td>//p[contains(text(),'${key_fieldName}')]/..//input[1]</td>
+	<td>//p[contains(text(),'${key_fieldName}')]/..//input[@type!="hidden"]</td>
 	<td></td>
 </tr>
 
@@ -243,18 +303,6 @@
 </tr>
 
 <tr>
-	<td>DELETE_OBJECT_LABEL_DELETE_BUTTON</td>
-	<td>//div[@class='btn-group-item']//*[contains(text(),'Delete')]</td>
-	<td></td>
-</tr>
-
-<tr>
-	<td>VALIDATE_DELETE_OBJECT_MESSAGE</td>
-	<td>//p[@class='remove-object-field-message'][contains(text(),'Are you sure you want to delete this field? It will be deleted immediately.')]</td>
-	<td></td>
-</tr>
-
-<tr>
 	<td>OBJECT_FIELD_SEARCH_RESULT</td>
 	<td>//div[contains(@class,'custom-object-field')]//span[contains(text(),'${key_fieldName}')]</td>
 	<td></td>
@@ -294,6 +342,26 @@
 <tr>
 	<td>FIELD_ELLIPSIS_ACTION</td>
 	<td>//div[contains(@class,'dropdown-menu show')]//button[contains(@class,'dropdown-item')][contains(text(),'${key_selectAction}')]</td>
+	<td></td>
+</tr>
+
+<!--OBJECT_SIDEBAR-->
+
+<tr>
+	<td>DELETE_OBJECT_LABEL_DELETE_BUTTON</td>
+	<td>//button[contains(@class,'btn btn-primary')][contains(text(),'Delete')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>VALIDATE_DELETE_OBJECT_MESSAGE</td>
+	<td>//p[@class='remove-object-field-message'][contains(text(),'Are you sure you want to delete this field? It will be deleted immediately.')]</td>
+	<td></td>
+</tr>
+
+<tr>
+	<td>VALIDATE_OBJECT_SIDEBAR_FIELD_NAME</td>
+	<td>//div[contains(@class,'custom-object-field autofit-row autofit-row-center')]//small[contains(text(),'${fieldName}')]</td>
 	<td></td>
 </tr>
 

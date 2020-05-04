@@ -83,6 +83,11 @@ portletDisplay.setURLBack(backURL);
 				headerNames="name,roles,null"
 				searchContainer="<%= accountEntryDisplaySearchContainer %>"
 			>
+
+				<%
+				AccountUserDisplay accountUserDisplay = AccountUserDisplay.of(selUser);
+				%>
+
 				<liferay-ui:search-container-row
 					className="com.liferay.account.admin.web.internal.display.AccountEntryDisplay"
 					keyProperty="accountEntryId"
@@ -97,7 +102,7 @@ portletDisplay.setURLBack(backURL);
 					<liferay-ui:search-container-column-text
 						cssClass="table-cell-expand"
 						name="roles"
-						value="<%= StringPool.BLANK %>"
+						value="<%= accountUserDisplay.getAccountRoleNames(accountEntryDisplay.getAccountEntryId(), locale) %>"
 					/>
 
 					<liferay-ui:search-container-column-text>
@@ -135,7 +140,7 @@ portletDisplay.setURLBack(backURL);
 
 	searchContainerContentBox.delegate(
 		'click',
-		function(event) {
+		function (event) {
 			var link = event.currentTarget;
 
 			var rowId = link.attr('data-rowId');
@@ -173,7 +178,7 @@ portletDisplay.setURLBack(backURL);
 	var selectAccountLink = A.one('#<portlet:namespace />selectAccountLink');
 
 	if (selectAccountLink) {
-		selectAccountLink.on('click', function(event) {
+		selectAccountLink.on('click', function (event) {
 			var searchContainerData = searchContainer.getData();
 
 			if (!searchContainerData.length) {
@@ -190,15 +195,15 @@ portletDisplay.setURLBack(backURL);
 						destroyOnHide: true,
 						modal: true,
 					},
-					eventName: '<portlet:namespace />addAccountUser',
-					id: '<portlet:namespace />selectAccount',
+					eventName: '<portlet:namespace />selectAccountEntry',
+					id: '<portlet:namespace />selectAccountEntry',
 					selectedData: searchContainerData,
 					title:
 						'<liferay-ui:message arguments="account" key="select-x" />',
 					uri:
 						'<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="mvcPath" value="/account_users_admin/select_account_entry.jsp" /><portlet:param name="userId" value="<%= String.valueOf(selUser.getUserId()) %>" /></portlet:renderURL>',
 				},
-				function(event) {
+				function (event) {
 					var entityId = event.entityid;
 
 					var rowColumns = [];

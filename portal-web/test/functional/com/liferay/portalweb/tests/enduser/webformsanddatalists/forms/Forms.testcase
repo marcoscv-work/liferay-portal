@@ -1148,7 +1148,6 @@ definition {
 	@priority = "5"
 	test DeletePages {
 		property test.name.skip.portal.instance = "Forms#DeletePages";
-		property portal.upstream = "quarantine";
 
 		Navigator.openURL();
 
@@ -4065,7 +4064,6 @@ definition {
 	@priority = "2"
 	test ViewAltSuccessPagePagination {
 		property test.name.skip.portal.instance = "Forms#ViewAltSuccessPagePagination";
-		property portal.upstream = "quarantine";
 
 		Navigator.openURL();
 
@@ -4133,7 +4131,6 @@ definition {
 	@priority = "3"
 	test ViewBlankLabelWhenAddingNewField {
 		property test.name.skip.portal.instance = "Forms#ViewBlankLabelWhenAddingNewField";
-		property portal.upstream = "quarantine";
 
 		Navigator.openURL();
 
@@ -4430,7 +4427,6 @@ definition {
 	@priority = "4"
 	test ViewRepeatableTextFieldLabel {
 		property test.name.skip.portal.instance = "Forms#ViewRepeatableTextFieldLabel";
-		property portal.upstream = "quarantine";
 
 		Navigator.openURL();
 
@@ -4524,7 +4520,6 @@ definition {
 	test ViewSuccessPage {
 		property test.name.skip.portal.instance = "Forms#ViewSuccessPage";
 		property testray.component.names = "Training";
-		property portal.upstream = "quarantine";
 
 		Navigator.openURL();
 

@@ -353,7 +353,8 @@ public class AssetPublisherDisplayContext {
 	}
 
 	public List<InfoListProvider> getAssetEntryInfoListProviders() {
-		return _infoListProviderTracker.getInfoListProviders(AssetEntry.class);
+		return _infoListProviderTracker.getInfoListProviders(
+			AssetEntry.class.getName());
 	}
 
 	public AssetEntryQuery getAssetEntryQuery() throws Exception {
@@ -414,8 +415,6 @@ public class AssetPublisherDisplayContext {
 			return Collections.emptyList();
 		}
 
-		List<AssetEntryResult> assetEntryResults = null;
-
 		SearchContainer searchContainer = getSearchContainer();
 
 		searchContainer.setTotal(assetEntries.size());
@@ -425,7 +424,7 @@ public class AssetPublisherDisplayContext {
 
 		searchContainer.setResults(assetEntries);
 
-		assetEntryResults = new ArrayList<>();
+		List<AssetEntryResult> assetEntryResults = new ArrayList<>();
 
 		assetEntryResults.add(new AssetEntryResult(assetEntries));
 

@@ -75,13 +75,13 @@ renderResponse.setTitle(selLayout.getName(locale));
 			<aui:button cssClass="remove-layout" id="deleteLayoutButton" name="deleteLayout" value="delete-in-all-pages-variations" />
 
 			<script>
-				(function() {
+				(function () {
 					var enableLayoutButton = document.getElementById(
 						'<portlet:namespace />enableLayoutButton'
 					);
 
 					if (enableLayoutButton) {
-						enableLayoutButton.addEventListener('click', function(event) {
+						enableLayoutButton.addEventListener('click', function (event) {
 							<portlet:actionURL name="/layout/enable_layout" var="enableLayoutURL">
 								<portlet:param name="redirect" value="<%= currentURL %>" />
 								<portlet:param name="incompleteLayoutRevisionId" value="<%= String.valueOf(layoutRevision.getLayoutRevisionId()) %>" />
@@ -96,7 +96,7 @@ renderResponse.setTitle(selLayout.getName(locale));
 					);
 
 					if (deleteLayoutButton) {
-						deleteLayoutButton.addEventListener('click', function(event) {
+						deleteLayoutButton.addEventListener('click', function (event) {
 							<portlet:actionURL name="/layout/delete_layout" var="deleteLayoutURL">
 								<portlet:param name="redirect" value="<%= currentURL %>" />
 								<portlet:param name="selPlid" value="<%= String.valueOf(layoutsAdminDisplayContext.getSelPlid()) %>" />
@@ -164,7 +164,7 @@ renderResponse.setTitle(selLayout.getName(locale));
 						</c:if>
 
 						<c:if test="<%= lte.getType() == LayoutTypeException.FIRST_LAYOUT_PERMISSION %>">
-							<liferay-ui:message key="you-cannot-delete-this-page-because-the-next-page-is-not-vieweable-by-unathenticated-users-and-so-cannot-be-the-first-page" />
+							<liferay-ui:message key="you-cannot-delete-this-page-because-the-next-page-is-not-viewable-by-unauthenticated-users-and-so-cannot-be-the-first-page" />
 						</c:if>
 
 						<c:if test="<%= lte.getType() == LayoutTypeException.NOT_INSTANCEABLE %>">
@@ -255,7 +255,7 @@ renderResponse.setTitle(selLayout.getName(locale));
 <aui:script>
 	var form = document.getElementById('<portlet:namespace />editLayoutFm');
 
-	form.addEventListener('submit', function(event) {
+	form.addEventListener('submit', function (event) {
 		var applyLayoutPrototype = document.getElementById(
 			'<portlet:namespace />applyLayoutPrototype'
 		);

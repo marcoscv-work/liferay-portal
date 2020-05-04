@@ -200,7 +200,7 @@ if (portletTitleBasedNavigation) {
 
 				<aui:input autoFocus="<%= windowState.equals(WindowState.MAXIMIZED) %>" name="subject" value="<%= subject %>" />
 
-				<aui:field-wrapper cssClass="message-content" label="body">
+				<aui:field-wrapper cssClass="message-content">
 					<c:choose>
 						<c:when test='<%= ((messageId != 0) && message.isFormatBBCode()) || ((messageId == 0) && messageFormat.equals("bbcode")) %>'>
 							<%@ include file="/message_boards/bbcode_editor.jspf" %>
@@ -248,13 +248,8 @@ if (portletTitleBasedNavigation) {
 								keyProperty="fileEntryId"
 								modelVar="fileEntry"
 							>
-
-								<%
-								String rowURL = PortletFileRepositoryUtil.getDownloadPortletFileEntryURL(themeDisplay, fileEntry, "status=" + WorkflowConstants.STATUS_APPROVED);
-								%>
-
 								<liferay-ui:search-container-column-text
-									href="<%= rowURL %>"
+									href='<%= PortletFileRepositoryUtil.getDownloadPortletFileEntryURL(themeDisplay, fileEntry, "status=" + WorkflowConstants.STATUS_APPROVED) %>'
 									name="file-name"
 									value="<%= fileEntry.getTitle() %>"
 								/>
@@ -405,11 +400,7 @@ if (portletTitleBasedNavigation) {
 			</c:if>
 
 			<c:if test="<%= (message == null) && captchaConfiguration.messageBoardsEditMessageCaptchaEnabled() %>">
-				<portlet:resourceURL id="/message_boards/captcha" var="captchaURL" />
-
-				<liferay-captcha:captcha
-					url="<%= captchaURL %>"
-				/>
+				<liferay-captcha:captcha />
 			</c:if>
 		</aui:fieldset-group>
 

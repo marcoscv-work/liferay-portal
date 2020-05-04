@@ -100,7 +100,6 @@ definition {
 	@priority = "5"
 	test PublishContentPage {
 		property portal.acceptance = "true";
-		property portal.upstream = "quarantine";
 
 		task ("Navigate to the content page in the staging site") {
 			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name-staging/test-content-page-name");
@@ -187,6 +186,7 @@ definition {
 
 		task ("Edit the Rich Text fragment's editable text") {
 			PageEditor.editFragmentText(
+				contributed = "false",
 				fragmentName = "Rich Text",
 				id = "rich-text",
 				text = "New editable fragment text");

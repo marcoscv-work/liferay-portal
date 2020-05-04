@@ -19,37 +19,40 @@ import HTML5Backend from 'react-dnd-html5-backend';
 
 import MillerColumnsColumn from './MillerColumnsColumn';
 
-const getItemsMap = columns => {
+const getItemsMap = (columns) => {
 	const map = new Map();
 
-	let parentId;
+	let parentId, parentKey;
 
 	columns.forEach((column, columnIndex) => {
 		let childrenCount = 0;
-		let newParentId;
+		let newParentId, newParentKey;
 
-		column.forEach(item => {
+		column.forEach((item) => {
 			childrenCount++;
 
-			map.set(item.id, {
+			map.set(item.key, {
 				...item,
 				columnIndex,
 				parentId,
+				parentKey,
 			});
 
 			if (item.active && item.hasChild) {
 				newParentId = item.id;
+				newParentKey = item.key;
 			}
 		});
 
-		if (parentId) {
-			map.set(parentId, {
-				...map.get(parentId),
+		if (parentKey) {
+			map.set(parentKey, {
+				...map.get(parentKey),
 				childrenCount,
 			});
 		}
 
 		parentId = newParentId;
+		parentKey = newParentKey;
 	});
 
 	return map;
@@ -70,6 +73,7 @@ const MillerColumns = ({
 	const [items, setItems] = useState(() => getItemsMap(initialColumns));
 
 	// Transform items map into a columns-like array.
+
 	const columns = useMemo(() => {
 		const columns = [];
 
@@ -88,8 +92,9 @@ const MillerColumns = ({
 		}
 
 		// Add empty column in the end if last column has an active item
+
 		const lastColumnActiveItem = columns[columns.length - 1].items.find(
-			item => item.active
+			(item) => item.active
 		);
 		if (lastColumnActiveItem && !lastColumnActiveItem.hasChild) {
 			columns.push({
@@ -125,10 +130,13 @@ const MillerColumns = ({
 	const onItemDrop = (sourceId, newParentId, newIndex) => {
 		const newItems = new Map();
 
-		const source = items.get(sourceId);
-		const parent = items.get(newParentId);
+		const itemsArray = Array.from(items.values());
+
+		const source = itemsArray.find((item) => item.id === sourceId);
+		const parent = itemsArray.find((item) => item.id === newParentId);
 
 		// If no newIndex is provided set it as the last of the siblings.
+
 		if (typeof newIndex !== 'number') {
 			newIndex = parent.childrenCount || 0;
 		}
@@ -148,9 +156,11 @@ const MillerColumns = ({
 			const columnIndex = item.columnIndex;
 
 			if (item.columnIndex > prevColumnIndex) {
+
 				// Exit if source was active but not anymore and we are on the
 				// next column to where source used to live to avoid saving its
 				// children (which must not be shown anymore)
+
 				if (
 					source.active &&
 					!newSource.active &&
@@ -160,10 +170,12 @@ const MillerColumns = ({
 				}
 
 				// Reset itemIndex counter on each column
+
 				itemIndex = 0;
 			}
 
 			// Skip the source item iteration
+
 			if (item.id === sourceId) {
 				itemIndex++;
 				prevColumnIndex = item.columnIndex;
@@ -198,10 +210,10 @@ const MillerColumns = ({
 				columnIndex === newSource.columnIndex &&
 				parent.active
 			) {
-				newItems.set(newSource.id, newSource);
+				newItems.set(newSource.key, newSource);
 			}
 
-			newItems.set(item.id, {...item});
+			newItems.set(item.key, {...item});
 
 			itemIndex++;
 			prevColumnIndex = item.columnIndex;
@@ -210,6 +222,7 @@ const MillerColumns = ({
 		// If source parent is active (children are visible) set (again or not)
 		// the newSource in the map in case it's being placed as the last
 		// element (so won't reach that position in the loop).
+
 		if (parent.active) {
 			newItems.set(newSource.id, newSource);
 		}

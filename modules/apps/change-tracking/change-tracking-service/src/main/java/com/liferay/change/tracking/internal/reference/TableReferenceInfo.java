@@ -15,14 +15,10 @@
 package com.liferay.change.tracking.internal.reference;
 
 import com.liferay.change.tracking.reference.TableReferenceDefinition;
-import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.Table;
-import com.liferay.petra.sql.dsl.query.FromStep;
-import com.liferay.petra.sql.dsl.query.JoinStep;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * @author Preston Crary
@@ -31,39 +27,30 @@ public class TableReferenceInfo<T extends Table<T>> {
 
 	public TableReferenceInfo(
 		TableReferenceDefinition<T> tableReferenceDefinition,
-		Column<T, ?> primaryKeyColumn,
-		Map<Table<?>, List<Function<FromStep, JoinStep>>> parentJoinMap,
-		Map<Table<?>, List<Function<FromStep, JoinStep>>> childJoinMap) {
+		Map<Table<?>, List<TableJoinHolder>> parentTableJoinHoldersMap,
+		Map<Table<?>, List<TableJoinHolder>> childTableJoinHoldersMap) {
 
 		_tableReferenceDefinition = tableReferenceDefinition;
-		_primaryKeyColumn = primaryKeyColumn;
-		_parentJoinMap = parentJoinMap;
-		_childJoinMap = childJoinMap;
+		_parentTableJoinHoldersMap = parentTableJoinHoldersMap;
+		_childTableJoinHoldersMap = childTableJoinHoldersMap;
 	}
 
-	public Map<Table<?>, List<Function<FromStep, JoinStep>>> getChildJoinMap() {
-		return _childJoinMap;
+	public Map<Table<?>, List<TableJoinHolder>> getChildTableJoinHoldersMap() {
+		return _childTableJoinHoldersMap;
 	}
 
-	public Map<Table<?>, List<Function<FromStep, JoinStep>>>
-		getParentJoinMap() {
-
-		return _parentJoinMap;
-	}
-
-	public Column<T, ?> getPrimaryKeyColumn() {
-		return _primaryKeyColumn;
+	public Map<Table<?>, List<TableJoinHolder>> getParentTableJoinHoldersMap() {
+		return _parentTableJoinHoldersMap;
 	}
 
 	public TableReferenceDefinition<T> getTableReferenceDefinition() {
 		return _tableReferenceDefinition;
 	}
 
-	private final Map<Table<?>, List<Function<FromStep, JoinStep>>>
-		_childJoinMap;
-	private final Map<Table<?>, List<Function<FromStep, JoinStep>>>
-		_parentJoinMap;
-	private final Column<T, ?> _primaryKeyColumn;
+	private final Map<Table<?>, List<TableJoinHolder>>
+		_childTableJoinHoldersMap;
+	private final Map<Table<?>, List<TableJoinHolder>>
+		_parentTableJoinHoldersMap;
 	private final TableReferenceDefinition<T> _tableReferenceDefinition;
 
 }

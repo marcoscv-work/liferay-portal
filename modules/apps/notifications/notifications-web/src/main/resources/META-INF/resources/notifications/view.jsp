@@ -99,12 +99,13 @@ navigationURL.setParameter(SearchContainer.DEFAULT_CUR_PARAM, "0");
 				>
 
 					<%
-					Map<String, Object> rowData = new HashMap<String, Object>();
-
 					UserNotificationFeedEntry userNotificationFeedEntry = UserNotificationManagerUtil.interpret(StringPool.BLANK, userNotificationEvent, ServiceContextFactory.getInstance(request));
 
-					rowData.put("actions", StringUtil.merge(notificationsManagementToolbarDisplayContext.getAvailableActions(userNotificationEvent, userNotificationFeedEntry)));
-					rowData.put("userNotificationFeedEntry", userNotificationFeedEntry);
+					Map<String, Object> rowData = HashMapBuilder.<String, Object>put(
+						"actions", StringUtil.merge(notificationsManagementToolbarDisplayContext.getAvailableActions(userNotificationEvent, userNotificationFeedEntry))
+					).put(
+						"userNotificationFeedEntry", userNotificationFeedEntry
+					).build();
 
 					row.setData(rowData);
 					%>
@@ -122,7 +123,7 @@ navigationURL.setParameter(SearchContainer.DEFAULT_CUR_PARAM, "0");
 </div>
 
 <aui:script sandbox="<%= true %>">
-	var deleteNotifications = function() {
+	var deleteNotifications = function () {
 		var form = document.getElementById('<portlet:namespace />fm');
 
 		form.setAttribute('method', 'post');
@@ -133,7 +134,7 @@ navigationURL.setParameter(SearchContainer.DEFAULT_CUR_PARAM, "0");
 		);
 	};
 
-	var markNotificationsAsRead = function() {
+	var markNotificationsAsRead = function () {
 		var form = document.getElementById('<portlet:namespace />fm');
 
 		form.setAttribute('method', 'post');
@@ -144,7 +145,7 @@ navigationURL.setParameter(SearchContainer.DEFAULT_CUR_PARAM, "0");
 		);
 	};
 
-	var markNotificationsAsUnread = function() {
+	var markNotificationsAsUnread = function () {
 		var form = document.getElementById('<portlet:namespace />fm');
 
 		form.setAttribute('method', 'post');
@@ -161,10 +162,10 @@ navigationURL.setParameter(SearchContainer.DEFAULT_CUR_PARAM, "0");
 		markNotificationsAsUnread: markNotificationsAsUnread,
 	};
 
-	Liferay.componentReady('notificationsManagementToolbar').then(function(
+	Liferay.componentReady('notificationsManagementToolbar').then(function (
 		managementToolbar
 	) {
-		managementToolbar.on('actionItemClicked', function(event) {
+		managementToolbar.on('actionItemClicked', function (event) {
 			var itemData = event.data.item.data;
 
 			if (itemData && itemData.action && ACTIONS[itemData.action]) {
@@ -179,7 +180,7 @@ navigationURL.setParameter(SearchContainer.DEFAULT_CUR_PARAM, "0");
 
 	form.delegate(
 		'click',
-		function(event) {
+		function (event) {
 			event.preventDefault();
 
 			var currentTarget = event.currentTarget;
@@ -187,10 +188,10 @@ navigationURL.setParameter(SearchContainer.DEFAULT_CUR_PARAM, "0");
 			Liferay.Util.fetch(currentTarget.attr('href'), {
 				method: 'POST',
 			})
-				.then(function(response) {
+				.then(function (response) {
 					return response.json();
 				})
-				.then(function(response) {
+				.then(function (response) {
 					if (response.success) {
 						var notificationContainer = currentTarget.ancestor(
 							'li.list-group-item'

@@ -24,8 +24,6 @@ DDMDataProviderInstance ddmDataProviderInstance = ddmDataProviderDisplayContext.
 long dataProviderInstanceId = BeanParamUtil.getLong(ddmDataProviderInstance, request, "dataProviderInstanceId");
 
 long groupId = BeanParamUtil.getLong(ddmDataProviderInstance, request, "groupId", scopeGroupId);
-String name = BeanParamUtil.getString(ddmDataProviderInstance, request, "name");
-String description = BeanParamUtil.getString(ddmDataProviderInstance, request, "description");
 String type = BeanParamUtil.getString(ddmDataProviderInstance, request, "type");
 
 portletDisplay.setShowBackIcon(true);
@@ -115,7 +113,7 @@ renderResponse.setTitle((ddmDataProviderInstance == null) ? LanguageUtil.get(req
 						cssClass: 'btn-primary',
 						label: '<liferay-ui:message key="save" />',
 						on: {
-							click: function() {
+							click: function () {
 								document.<portlet:namespace />fm.submit();
 							},
 						},
@@ -124,7 +122,7 @@ renderResponse.setTitle((ddmDataProviderInstance == null) ? LanguageUtil.get(req
 						cssClass: 'btn-link',
 						label: '<liferay-ui:message key="cancel" />',
 						on: {
-							click: function() {
+							click: function () {
 								location.href = '<%= viewDataProviderURL.toString() %>';
 							},
 						},

@@ -16,8 +16,8 @@ package com.liferay.layout.admin.web.internal.portlet.action;
 
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
 import com.liferay.layout.admin.web.internal.configuration.LayoutConverterConfiguration;
-import com.liferay.layout.admin.web.internal.configuration.LayoutEditorTypeConfiguration;
 import com.liferay.layout.admin.web.internal.display.context.LayoutsAdminDisplayContext;
+import com.liferay.layout.admin.web.internal.display.context.MillerColumnsDisplayContext;
 import com.liferay.layout.util.LayoutCopyHelper;
 import com.liferay.layout.util.template.LayoutConverterRegistry;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
@@ -47,10 +47,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	configurationPid = {
-		"com.liferay.layout.admin.web.internal.configuration.LayoutConverterConfiguration",
-		"com.liferay.layout.admin.web.internal.configuration.LayoutEditorTypeConfiguration"
-	},
+	configurationPid = "com.liferay.layout.admin.web.internal.configuration.LayoutConverterConfiguration",
 	immediate = true,
 	property = {
 		"javax.portlet.name=" + LayoutAdminPortletKeys.GROUP_PAGES,
@@ -65,9 +62,6 @@ public class GetLayoutChildrenMVCActionCommand extends BaseMVCActionCommand {
 	protected void activate(Map<String, Object> properties) {
 		_layoutConverterConfiguration = ConfigurableUtil.createConfigurable(
 			LayoutConverterConfiguration.class, properties);
-
-		_layoutEditorTypeConfiguration = ConfigurableUtil.createConfigurable(
-			LayoutEditorTypeConfiguration.class, properties);
 	}
 
 	@Override
@@ -82,12 +76,18 @@ public class GetLayoutChildrenMVCActionCommand extends BaseMVCActionCommand {
 		LayoutsAdminDisplayContext layoutsAdminDisplayContext =
 			new LayoutsAdminDisplayContext(
 				_layoutConverterConfiguration, _layoutConverterRegistry,
-				_layoutCopyHelper, _layoutEditorTypeConfiguration,
+				_layoutCopyHelper,
 				_portal.getLiferayPortletRequest(actionRequest),
 				_portal.getLiferayPortletResponse(actionResponse),
 				_stagingGroupHelper);
 
-		JSONArray jsonArray = layoutsAdminDisplayContext.getLayoutsJSONArray(
+		MillerColumnsDisplayContext millerColumnsDisplayContext =
+			new MillerColumnsDisplayContext(
+				layoutsAdminDisplayContext,
+				_portal.getLiferayPortletRequest(actionRequest),
+				_portal.getLiferayPortletResponse(actionResponse));
+
+		JSONArray jsonArray = millerColumnsDisplayContext.getLayoutsJSONArray(
 			layout.getLayoutId(), layout.isPrivateLayout());
 
 		JSONObject jsonObject = JSONUtil.put("children", jsonArray);
@@ -103,9 +103,6 @@ public class GetLayoutChildrenMVCActionCommand extends BaseMVCActionCommand {
 
 	@Reference
 	private LayoutCopyHelper _layoutCopyHelper;
-
-	private volatile LayoutEditorTypeConfiguration
-		_layoutEditorTypeConfiguration;
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;

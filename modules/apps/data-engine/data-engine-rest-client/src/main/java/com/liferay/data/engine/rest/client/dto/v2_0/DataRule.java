@@ -17,6 +17,7 @@ package com.liferay.data.engine.rest.client.dto.v2_0;
 import com.liferay.data.engine.rest.client.function.UnsafeSupplier;
 import com.liferay.data.engine.rest.client.serdes.v2_0.DataRuleSerDes;
 
+import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.Generated;
@@ -28,16 +29,16 @@ import javax.annotation.Generated;
 @Generated("")
 public class DataRule implements Cloneable {
 
-	public Object[] getActions() {
+	public Map[] getActions() {
 		return actions;
 	}
 
-	public void setActions(Object[] actions) {
+	public void setActions(Map[] actions) {
 		this.actions = actions;
 	}
 
 	public void setActions(
-		UnsafeSupplier<Object[], Exception> actionsUnsafeSupplier) {
+		UnsafeSupplier<Map[], Exception> actionsUnsafeSupplier) {
 
 		try {
 			actions = actionsUnsafeSupplier.get();
@@ -47,18 +48,18 @@ public class DataRule implements Cloneable {
 		}
 	}
 
-	protected Object[] actions;
+	protected Map[] actions;
 
-	public Object[] getConditions() {
+	public Map[] getConditions() {
 		return conditions;
 	}
 
-	public void setConditions(Object[] conditions) {
+	public void setConditions(Map[] conditions) {
 		this.conditions = conditions;
 	}
 
 	public void setConditions(
-		UnsafeSupplier<Object[], Exception> conditionsUnsafeSupplier) {
+		UnsafeSupplier<Map[], Exception> conditionsUnsafeSupplier) {
 
 		try {
 			conditions = conditionsUnsafeSupplier.get();
@@ -68,7 +69,7 @@ public class DataRule implements Cloneable {
 		}
 	}
 
-	protected Object[] conditions;
+	protected Map[] conditions;
 
 	public String getLogicalOperator() {
 		return logicalOperator;
@@ -90,6 +91,27 @@ public class DataRule implements Cloneable {
 	}
 
 	protected String logicalOperator;
+
+	public Map<String, Object> getName() {
+		return name;
+	}
+
+	public void setName(Map<String, Object> name) {
+		this.name = name;
+	}
+
+	public void setName(
+		UnsafeSupplier<Map<String, Object>, Exception> nameUnsafeSupplier) {
+
+		try {
+			name = nameUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Map<String, Object> name;
 
 	@Override
 	public DataRule clone() throws CloneNotSupportedException {

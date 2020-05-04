@@ -140,7 +140,7 @@ boolean showPermanentLink = GetterUtil.getBoolean(request.getAttribute("edit-mes
 
 			<aui:model-context bean="<%= message %>" model="<%= MBMessage.class %>" />
 
-			<liferay-ui:input-editor
+			<liferay-editor:editor
 				allowBrowseDocuments="<%= false %>"
 				autoCreate="<%= true %>"
 				configKey="replyMBEditor"
@@ -149,7 +149,7 @@ boolean showPermanentLink = GetterUtil.getBoolean(request.getAttribute("edit-mes
 				editorName="<%= editorName %>"
 				name='<%= "replyMessageBody" + parentMessageId %>'
 				onChangeMethod='<%= "replyMessageOnChange" + parentMessageId %>'
-				placeholder='<%= LanguageUtil.get(request, "type-your-reply") %>'
+				placeholder="body"
 				showSource="<%= false %>"
 				skipEditorLoading="<%= true %>"
 			/>
@@ -157,11 +157,7 @@ boolean showPermanentLink = GetterUtil.getBoolean(request.getAttribute("edit-mes
 			<aui:input name="body" type="hidden" />
 
 			<c:if test="<%= captchaConfiguration.messageBoardsEditMessageCaptchaEnabled() %>">
-				<portlet:resourceURL id="/message_boards/captcha" var="captchaURL" />
-
-				<liferay-captcha:captcha
-					url="<%= captchaURL %>"
-				/>
+				<liferay-captcha:captcha />
 			</c:if>
 
 			<aui:button cssClass="advanced-reply btn btn-link btn-sm" value="advanced-reply" />
@@ -232,7 +228,7 @@ boolean showPermanentLink = GetterUtil.getBoolean(request.getAttribute("edit-mes
 <aui:script>
 	window[
 		'<portlet:namespace />replyMessageOnChange' + <%= parentMessageId %>
-	] = function(html) {
+	] = function (html) {
 		Liferay.Util.toggleDisabled(
 			'#<portlet:namespace />replyMessageButton<%= parentMessageId %>',
 			html === ''

@@ -13,13 +13,13 @@ import React, {useMemo} from 'react';
 
 import Filter from '../../shared/components/filter/Filter.es';
 import {useFilterFetch} from '../../shared/components/filter/hooks/useFilterFetch.es';
-import {useFilterName} from '../../shared/components/filter/hooks/useFilterName.es';
+import {useFilterNameWithLabel} from '../../shared/components/filter/hooks/useFilterName.es';
 import filterConstants from '../../shared/components/filter/util/filterConstants.es';
 
 const allStepsItem = {
 	dividerAfter: true,
-	key: 'allSteps',
-	name: Liferay.Language.get('all-steps'),
+	label: Liferay.Language.get('all-steps'),
+	name: 'allSteps',
 };
 
 const ProcessStepFilter = ({
@@ -49,6 +49,7 @@ const ProcessStepFilter = ({
 	const {items, selectedItems} = useFilterFetch({
 		filterKey,
 		prefixKey,
+		propertyKey: 'name',
 		requestUrl: `/processes/${processId}/tasks?page=0&pageSize=0`,
 		staticItems,
 		withoutRouteParams: options.withoutRouteParams,
@@ -60,21 +61,23 @@ const ProcessStepFilter = ({
 		selectedItems[0] = defaultItem;
 	}
 
-	const filterName = useFilterName(
-		options.multiple,
+	const filterName = useFilterNameWithLabel({
+		labelPropertyName: 'label',
+		multiple: options.multiple,
 		selectedItems,
-		Liferay.Language.get('process-step'),
-		options.withSelectionTitle
-	);
+		title: Liferay.Language.get('process-step'),
+		withSelectionTitle: options.withSelectionTitle,
+	});
 
 	return (
 		<Filter
-			dataTestId="processStepFilter"
+			data-testid="processStepFilter"
 			defaultItem={defaultItem}
 			disabled={disabled}
 			elementClasses={className}
 			filterKey={filterKey}
 			items={items}
+			labelPropertyName="label"
 			name={filterName}
 			prefixKey={prefixKey}
 			{...options}

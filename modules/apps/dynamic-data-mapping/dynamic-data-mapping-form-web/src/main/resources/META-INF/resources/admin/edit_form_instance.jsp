@@ -19,8 +19,6 @@
 <%
 String redirect = ParamUtil.getString(request, "redirect");
 
-String serializedSettingsForm = ddmFormAdminDisplayContext.serializeSettingsForm();
-
 DDMFormInstance formInstance = ddmFormAdminDisplayContext.getDDMFormInstance();
 
 long formInstanceId = BeanParamUtil.getLong(formInstance, request, "formInstanceId");
@@ -55,7 +53,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 		navigationItems="<%= ddmFormAdminDisplayContext.getFormBuilderNavigationItems() %>"
 	/>
 
-	<nav class="management-bar management-bar-light navbar navbar-expand-md toolbar-group-field">
+	<nav class="management-bar management-bar-light navbar navbar-expand-md toolbar-group-field" id="<portlet:namespace />managementToolbar">
 		<div class="autosave-bar container toolbar">
 			<div class="navbar-form navbar-form-autofit navbar-overlay toolbar-group-content">
 				<span class="autosave-feedback management-bar-text" id="<portlet:namespace />autosaveMessage"></span>
@@ -104,7 +102,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 		<div class="ddm-form-basic-info">
 			<div class="container-fluid-1280">
 				<h1>
-					<liferay-ui:input-editor
+					<liferay-editor:editor
 						autoCreate="<%= false %>"
 						contents="<%= HtmlUtil.escapeAttribute(ddmFormAdminDisplayContext.getFormName()) %>"
 						cssClass="ddm-form-name"
@@ -116,7 +114,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 				</h1>
 
 				<h5>
-					<liferay-ui:input-editor
+					<liferay-editor:editor
 						autoCreate="<%= false %>"
 						contents="<%= HtmlUtil.escapeAttribute(ddmFormAdminDisplayContext.getFormDescription()) %>"
 						cssClass="ddm-form-description h5"
@@ -133,7 +131,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 	</aui:form>
 
 	<div class="container-fluid-1280 ddm-form-instance-settings hide" id="<portlet:namespace />settings">
-		<%= serializedSettingsForm %>
+		<%= ddmFormAdminDisplayContext.serializeSettingsForm(pageContext) %>
 	</div>
 </div>
 
@@ -142,6 +140,10 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 </portlet:actionURL>
 
 <liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" id="saveFormInstance" var="autoSaveFormInstanceURL" />
+
+<c:if test="<%= ddmFormAdminDisplayContext.isShowReport() %>">
+	<liferay-util:include page="/admin/view_form_instance_report.jsp" servletContext="<%= application %>" />
+</c:if>
 
 <aui:script>
 	Liferay.namespace('DDM').FormSettings = {
@@ -157,13 +159,13 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 	};
 
 	Liferay.Forms.App = {
-		dispose: function() {
+		dispose: function () {
 			if (Liferay.Forms.instance) {
 				Liferay.Forms.instance.dispose();
 				Liferay.Forms.instance = null;
 			}
 		},
-		reset: function() {
+		reset: function () {
 			var pages;
 
 			if (Liferay.Forms.instance) {
@@ -173,10 +175,10 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 			this.dispose();
 			this.start(pages);
 		},
-		start: function(initialPages) {
+		start: function (initialPages) {
 			Liferay.Loader.require(
 				'<%= mainRequire %>',
-				function(packageName) {
+				function (packageName) {
 					var context = <%= serializedFormBuilderContext %>;
 
 					if (context.pages.length === 0 && initialPages) {
@@ -215,14 +217,14 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 						'#<portlet:namespace />-container'
 					);
 				},
-				function(error) {
+				function (error) {
 					throw error;
 				}
 			);
 		},
 	};
 
-	var clearPortletHandlers = function(event) {
+	var clearPortletHandlers = function (event) {
 		if (event.portletId === '<%= portletDisplay.getRootPortletId() %>') {
 			Liferay.Forms.App.dispose();
 
@@ -230,7 +232,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 				'<portlet:namespace />translationManager'
 			);
 
-			Liferay.destroyComponents(function(component) {
+			Liferay.destroyComponents(function (component) {
 				var destroy = false;
 
 				if (component === translationManager) {
@@ -250,14 +252,14 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 		Liferay.Forms.App.start();
 	}
 	else {
-		Liferay.onceAfter('DMMFieldTypesReady', function() {
+		Liferay.onceAfter('DMMFieldTypesReady', function () {
 			Liferay.Forms.App.start();
 		});
 	}
 </aui:script>
 
 <aui:script use="aui-base">
-	Liferay.namespace('FormPortlet').destroySettings = function() {
+	Liferay.namespace('FormPortlet').destroySettings = function () {
 		var settingsNode = A.one('#<portlet:namespace />settingsModal');
 
 		if (settingsNode) {
@@ -265,7 +267,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 		}
 	};
 
-	Liferay.namespace('DDM').openSettings = function() {
+	Liferay.namespace('DDM').openSettings = function () {
 		Liferay.Util.openWindow(
 			{
 				dialog: {
@@ -277,7 +279,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 							cssClass: 'btn-link',
 							label: '<liferay-ui:message key="cancel" />',
 							on: {
-								click: function() {
+								click: function () {
 									Liferay.Util.getWindow(
 										'<portlet:namespace />settingsModal'
 									).hide();
@@ -288,7 +290,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 							cssClass: 'btn-primary',
 							label: '<liferay-ui:message key="done" />',
 							on: {
-								click: function() {
+								click: function () {
 									Liferay.Util.getWindow(
 										'<portlet:namespace />settingsModal'
 									).hide();
@@ -302,7 +304,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 				stack: false,
 				title: '<liferay-ui:message key="form-settings" />',
 			},
-			function(dialogWindow) {
+			function (dialogWindow) {
 				var bodyNode = dialogWindow.bodyNode;
 
 				var settingsNode = A.one('#<portlet:namespace />settings');
@@ -314,7 +316,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 		);
 	};
 
-	var clearPortletHandlers = function(event) {
+	var clearPortletHandlers = function (event) {
 		if (event.portletId === '<%= portletDisplay.getRootPortletId() %>') {
 			Liferay.namespace('FormPortlet').destroySettings();
 

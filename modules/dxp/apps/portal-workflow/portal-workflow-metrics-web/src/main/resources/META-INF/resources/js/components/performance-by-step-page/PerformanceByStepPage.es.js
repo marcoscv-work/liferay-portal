@@ -46,7 +46,7 @@ const PerformanceByStepPage = ({query, routeParams}) => {
 			...paginationParams,
 			...timeRange,
 		},
-		url: `/processes/${processId}/tasks`,
+		url: `/processes/${processId}/nodes/metrics`,
 	});
 
 	const promises = useMemo(() => [fetchData()], [fetchData]);
@@ -59,7 +59,7 @@ const PerformanceByStepPage = ({query, routeParams}) => {
 				totalCount={data.totalCount}
 			/>
 
-			<PerformanceByStepPage.Body data={data} filtered={search} />
+			<PerformanceByStepPage.Body {...data} filtered={search} />
 		</PromisesResolver>
 	);
 };

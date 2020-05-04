@@ -87,6 +87,7 @@ long formInstanceId = ddmFormDisplayContext.getFormInstanceId();
 
 				<div class="portlet-forms">
 					<aui:form action="<%= addFormInstanceRecordActionURL %>" data-DDMFormInstanceId="<%= formInstanceId %>" data-senna-off="true" method="post" name="fm">
+						<aui:input name="currentURL" type="hidden" value="<%= currentURL %>" />
 
 						<%
 						String redirectURL = ddmFormDisplayContext.getRedirectURL();
@@ -291,7 +292,7 @@ long formInstanceId = ddmFormDisplayContext.getFormInstanceId();
 					else {
 						Liferay.componentReady(
 							'<%= ddmFormDisplayContext.getContainerId() %>'
-						).then(function(component) {
+						).then(function (component) {
 							<portlet:namespace />form = component;
 
 							if (component) {

@@ -37,14 +37,14 @@ const Clear = ({filters = [], filterKeys = [], withoutRouteParams}) => {
 	const routerProps = useRouter();
 
 	const handleClearAll = useCallback(() => {
-		filters.map(filter => {
-			filter.items.map(item => {
+		filters.map((filter) => {
+			filter.items.map((item) => {
 				item.active = false;
 			});
 		});
 
-		filterKeys.forEach(key => {
-			filterState[key] = undefined;
+		filterKeys.forEach((key) => {
+			delete filterState[key];
 		});
 
 		dispatch(filterState);
@@ -109,7 +109,7 @@ const FilterItem = ({filter, item, withoutRouteParams}) => {
 
 							<strong>
 								{filter.items[0].key !== 'custom'
-									? item.name
+									? item.label || item.name
 									: item.resultName}
 							</strong>
 						</div>
@@ -134,7 +134,7 @@ const FilterItem = ({filter, item, withoutRouteParams}) => {
 };
 
 const FilterItems = ({filters = [], ...props}) => {
-	return filters.map(filter =>
+	return filters.map((filter) =>
 		filter.items.map((item, index) => (
 			<FilterItem filter={filter} item={item} key={index} {...props} />
 		))

@@ -22,10 +22,8 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
-import com.liferay.portal.search.document.DocumentBuilderFactory;
-import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
-import com.liferay.portal.search.query.Queries;
 import com.liferay.portal.test.rule.Inject;
+import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Assignee;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Process;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Role;
 import com.liferay.portal.workflow.metrics.rest.client.pagination.Page;
@@ -38,7 +36,6 @@ import java.util.Objects;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 
 /**
@@ -46,14 +43,6 @@ import org.junit.runner.RunWith;
  */
 @RunWith(Arquillian.class)
 public class RoleResourceTest extends BaseRoleResourceTestCase {
-
-	@BeforeClass
-	public static void setUpClass() throws Exception {
-		BaseRoleResourceTestCase.setUpClass();
-
-		_workflowMetricsRESTTestHelper = new WorkflowMetricsRESTTestHelper(
-			_documentBuilderFactory, _queries, _searchEngineAdapter);
-	}
 
 	@Before
 	@Override
@@ -124,8 +113,13 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 
 		_userLocalService.addRoleUser(role.getId(), user);
 
-		_workflowMetricsRESTTestHelper.addTask(
-			user.getUserId(), testGroup.getCompanyId(),
+		_workflowMetricsRESTTestHelper.addNodeMetric(
+			new Assignee() {
+				{
+					id = user.getUserId();
+				}
+			},
+			testGroup.getCompanyId(),
 			() -> _workflowMetricsRESTTestHelper.addInstance(
 				testGroup.getCompanyId(), Objects.equals(status, "COMPLETED"),
 				processId),
@@ -150,17 +144,6 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 		return role;
 	}
 
-	@Inject
-	private static DocumentBuilderFactory _documentBuilderFactory;
-
-	@Inject
-	private static Queries _queries;
-
-	@Inject(blocking = false, filter = "search.engine.impl=Elasticsearch")
-	private static SearchEngineAdapter _searchEngineAdapter;
-
-	private static WorkflowMetricsRESTTestHelper _workflowMetricsRESTTestHelper;
-
 	private Process _process;
 
 	@Inject
@@ -172,5 +155,8 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 
 	@Inject
 	private UserLocalService _userLocalService;
+
+	@Inject
+	private WorkflowMetricsRESTTestHelper _workflowMetricsRESTTestHelper;
 
 }

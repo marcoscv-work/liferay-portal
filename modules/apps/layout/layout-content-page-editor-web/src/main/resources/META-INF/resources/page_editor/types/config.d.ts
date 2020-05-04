@@ -22,6 +22,16 @@ export interface Config {
 		};
 	};
 
+	availableViewportSizes: {
+		[key: string]: {
+			icon: string;
+			label: string;
+			maxWidth: string;
+			minWidth: string;
+			sizeId: string;
+		};
+	};
+
 	defaultEditorConfigurations: {
 		[key: 'comment' | 'rich-text' | 'text']: {
 			editorConfig: object;
@@ -45,6 +55,8 @@ export interface Config {
 	getAssetFieldValueURL: string;
 	getAssetMappingFieldsURL: string;
 	getAvailableTemplatesURL: string;
+	getCollectionFieldURL: string;
+	getCollectionMappingFieldsURL: string;
 	getExperienceUsedPortletsURL: string;
 	getPageContentsURL: string;
 	imageSelectorURL: string;

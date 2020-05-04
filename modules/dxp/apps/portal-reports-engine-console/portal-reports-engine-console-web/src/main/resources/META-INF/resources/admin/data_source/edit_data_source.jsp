@@ -26,8 +26,6 @@ String backURL = ParamUtil.getString(request, "backURL", searchSourcesURL);
 
 Source source = (Source)request.getAttribute(ReportsEngineWebKeys.SOURCE);
 
-String name = BeanParamUtil.getString(source, request, "name");
-
 portletDisplay.setShowBackIcon(true);
 portletDisplay.setURLBack(backURL);
 
@@ -85,7 +83,7 @@ renderResponse.setTitle((source != null) ? LanguageUtil.format(request, "edit-x"
 	Liferay.provide(
 		window,
 		'<portlet:namespace />testDatabaseConnection',
-		function() {
+		function () {
 			var A = AUI();
 
 			var url =
@@ -132,7 +130,7 @@ renderResponse.setTitle((source != null) ? LanguageUtil.format(request, "edit-x"
 									cssClass: 'btn-lg btn-primary',
 									label: '<liferay-ui:message key="close" />',
 									on: {
-										click: function() {
+										click: function () {
 											databaseConnectionModal.hide();
 										},
 									},
@@ -146,7 +144,7 @@ renderResponse.setTitle((source != null) ? LanguageUtil.format(request, "edit-x"
 										'times'
 									),
 									on: {
-										click: function() {
+										click: function () {
 											databaseConnectionModal.hide();
 										},
 									},
@@ -162,7 +160,7 @@ renderResponse.setTitle((source != null) ? LanguageUtil.format(request, "edit-x"
 
 				A.io.request(url, {
 					after: {
-						success: function() {
+						success: function () {
 							var response = this.get('responseData');
 
 							databaseConnectionModal.bodyNode.append(response);

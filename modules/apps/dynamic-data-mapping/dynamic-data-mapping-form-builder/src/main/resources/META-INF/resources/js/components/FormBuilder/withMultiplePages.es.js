@@ -25,7 +25,7 @@ import {Config} from 'metal-state';
 import {setValue} from '../../util/i18n.es';
 import formBuilderProps from './props.es';
 
-const withMultiplePages = ChildComponent => {
+const withMultiplePages = (ChildComponent) => {
 	class MultiplePages extends Component {
 		getPages() {
 			let {pages} = this.props;
@@ -43,7 +43,7 @@ const withMultiplePages = ChildComponent => {
 				];
 			}
 
-			return pages.map(page => {
+			return pages.map((page) => {
 				return {
 					...page,
 					enabled: true,
@@ -133,7 +133,12 @@ const withMultiplePages = ChildComponent => {
 		}
 
 		_getPageSettingsItems() {
-			const {pages, paginationMode, successPageSettings} = this.props;
+			const {
+				allowSuccessPage,
+				pages,
+				paginationMode,
+				successPageSettings,
+			} = this.props;
 			const pageSettingsItems = [
 				{
 					label: Liferay.Language.get('add-new-page'),
@@ -154,7 +159,7 @@ const withMultiplePages = ChildComponent => {
 				});
 			}
 
-			if (successPageSettings.enabled) {
+			if (allowSuccessPage && !successPageSettings.enabled) {
 				pageSettingsItems.push({
 					label: Liferay.Language.get('add-success-page'),
 					settingsItem: 'add-success-page',
@@ -245,10 +250,20 @@ const withMultiplePages = ChildComponent => {
 	}
 
 	MultiplePages.PROPS = {
+
+		/**
+		 * @instance
+		 * @memberof LayoutProvider
+		 * @type {boolean}
+		 */
+
+		allowSuccessPage: Config.bool().value(true),
+
 		...formBuilderProps,
 	};
 
 	MultiplePages.STATE = {
+
 		/**
 		 * @default false
 		 * @instance
@@ -256,9 +271,7 @@ const withMultiplePages = ChildComponent => {
 		 * @type {boolean}
 		 */
 
-		dropdownExpanded: Config.bool()
-			.value(false)
-			.internal(),
+		dropdownExpanded: Config.bool().value(false).internal(),
 	};
 
 	return MultiplePages;

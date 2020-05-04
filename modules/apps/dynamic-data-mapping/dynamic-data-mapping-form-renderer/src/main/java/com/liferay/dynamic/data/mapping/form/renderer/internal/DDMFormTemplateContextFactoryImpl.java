@@ -23,6 +23,8 @@ import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.service.DDMDataProviderInstanceService;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.util.DDM;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
@@ -30,6 +32,7 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.AggregateResourceBundle;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -107,7 +110,7 @@ public class DDMFormTemplateContextFactoryImpl
 			containerId = StringUtil.randomId();
 		}
 
-		setDDMFormFieldsEvaluableProperty(ddmForm);
+		setDDMFormFieldsEvaluableProperty(ddmForm, ddmFormLayout);
 
 		Locale locale = ddmFormRenderingContext.getLocale();
 
@@ -135,7 +138,15 @@ public class DDMFormTemplateContextFactoryImpl
 		templateContext.put(
 			"portletNamespace", ddmFormRenderingContext.getPortletNamespace());
 		templateContext.put("readOnly", ddmFormRenderingContext.isReadOnly());
-		templateContext.put("rules", toObjectList(ddmForm.getDDMFormRules()));
+
+		List<DDMFormRule> ddmFormRules = ddmFormLayout.getDDMFormRules();
+
+		if (ListUtil.isEmpty(ddmFormRules)) {
+			ddmFormRules = ddmForm.getDDMFormRules();
+		}
+
+		templateContext.put("rules", toObjectList(ddmFormRules));
+
 		templateContext.put(
 			"showRequiredFieldsWarning",
 			ddmFormRenderingContext.isShowRequiredFieldsWarning());
@@ -188,7 +199,8 @@ public class DDMFormTemplateContextFactoryImpl
 
 		DDMFormPagesTemplateContextFactory ddmFormPagesTemplateContextFactory =
 			new DDMFormPagesTemplateContextFactory(
-				ddmForm, ddmFormLayout, ddmFormRenderingContext);
+				ddmForm, ddmFormLayout, ddmFormRenderingContext,
+				_ddmStructureLayoutLocalService, _ddmStructureLocalService);
 
 		ddmFormPagesTemplateContextFactory.setDDMFormEvaluator(
 			_ddmFormEvaluator);
@@ -244,13 +256,15 @@ public class DDMFormTemplateContextFactoryImpl
 		return "ddm.paginated_form";
 	}
 
-	protected void setDDMFormFieldsEvaluableProperty(DDMForm ddmForm) {
+	protected void setDDMFormFieldsEvaluableProperty(
+		DDMForm ddmForm, DDMFormLayout ddmFormLayout) {
+
 		Map<String, DDMFormField> ddmFormFieldsMap =
 			ddmForm.getDDMFormFieldsMap(true);
 
 		for (String evaluableDDMFormFieldName :
 				_ddmFormTemplateContextFactoryHelper.
-					getEvaluableDDMFormFieldNames(ddmForm)) {
+					getEvaluableDDMFormFieldNames(ddmForm, ddmFormLayout)) {
 
 			DDMFormField ddmFormField = ddmFormFieldsMap.get(
 				evaluableDDMFormFieldName);
@@ -303,6 +317,12 @@ public class DDMFormTemplateContextFactoryImpl
 	private final DDMFormTemplateContextFactoryHelper
 		_ddmFormTemplateContextFactoryHelper =
 			new DDMFormTemplateContextFactoryHelper();
+
+	@Reference
+	private DDMStructureLayoutLocalService _ddmStructureLayoutLocalService;
+
+	@Reference
+	private DDMStructureLocalService _ddmStructureLocalService;
 
 	@Reference
 	private JSONFactory _jsonFactory;

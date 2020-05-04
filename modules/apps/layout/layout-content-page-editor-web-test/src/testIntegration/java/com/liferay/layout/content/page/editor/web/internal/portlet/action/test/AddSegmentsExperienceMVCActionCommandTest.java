@@ -44,10 +44,10 @@ import com.liferay.segments.model.SegmentsEntry;
 import com.liferay.segments.model.SegmentsExperience;
 import com.liferay.segments.service.SegmentsExperienceService;
 import com.liferay.segments.test.util.SegmentsTestUtil;
+import com.liferay.spring.mock.web.portlet.MockActionResponse;
 
 import javax.portlet.ActionRequest;
-
-import javax.servlet.http.HttpServletRequest;
+import javax.portlet.ActionResponse;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -126,27 +126,29 @@ public class AddSegmentsExperienceMVCActionCommandTest {
 	private JSONObject _addSegmentsExperience(String name, long segmentsEntryId)
 		throws Exception {
 
-		AddSegmentsExperienceMVCActionCommandTest.MockActionRequest
-			mockActionRequest = _getMockActionRequest(name, segmentsEntryId);
+		MockLiferayPortletActionRequest mockActionRequest =
+			_getMockLiferayPortletActionRequest(name, segmentsEntryId);
 
 		return ReflectionTestUtil.invoke(
 			_mvcActionCommand, "addSegmentsExperience",
-			new Class<?>[] {ActionRequest.class}, mockActionRequest);
+			new Class<?>[] {ActionRequest.class, ActionResponse.class},
+			mockActionRequest, new MockActionResponse());
 	}
 
-	private MockActionRequest _getMockActionRequest(
+	private MockLiferayPortletActionRequest _getMockLiferayPortletActionRequest(
 			String name, long segmentsEntryId)
 		throws PortalException {
 
-		MockActionRequest mockActionRequest = new MockActionRequest();
+		MockLiferayPortletActionRequest mockLiferayPortletActionRequest =
+			new MockLiferayPortletActionRequest();
 
-		mockActionRequest.addParameter("name", name);
-		mockActionRequest.addParameter(
+		mockLiferayPortletActionRequest.addParameter("name", name);
+		mockLiferayPortletActionRequest.addParameter(
 			"segmentsEntryId", String.valueOf(segmentsEntryId));
-		mockActionRequest.setAttribute(
+		mockLiferayPortletActionRequest.setAttribute(
 			WebKeys.THEME_DISPLAY, _getThemeDisplay());
 
-		return mockActionRequest;
+		return mockLiferayPortletActionRequest;
 	}
 
 	private ThemeDisplay _getThemeDisplay() throws PortalException {
@@ -184,15 +186,5 @@ public class AddSegmentsExperienceMVCActionCommandTest {
 
 	@Inject
 	private SegmentsExperienceService _segmentsExperienceService;
-
-	private static class MockActionRequest
-		extends MockLiferayPortletActionRequest {
-
-		@Override
-		public HttpServletRequest getHttpServletRequest() {
-			return new MockHttpServletRequest();
-		}
-
-	}
 
 }

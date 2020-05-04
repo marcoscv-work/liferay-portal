@@ -15,44 +15,10 @@
 import * as FormSupport from 'dynamic-data-mapping-form-renderer/js/components/FormRenderer/FormSupport.es';
 import {PagesVisitor} from 'dynamic-data-mapping-form-renderer/js/util/visitors.es';
 
+import {FIELD_TYPE_FIELDSET} from '../../../util/constants.es';
 import {createField} from '../../../util/fieldSupport.es';
 import {updateField} from '../util/settingsContext.es';
-
-const removeNestedField = ({field, nestedField, props}) => {
-	let layout = [{rows: field.rows}];
-	const visitor = new PagesVisitor(layout);
-
-	let indexesToRemove = {};
-
-	visitor.mapFields((field, fieldIndex, columnIndex, rowIndex, pageIndex) => {
-		if (field.fieldName === nestedField.fieldName) {
-			indexesToRemove = {columnIndex, pageIndex, rowIndex};
-		}
-	});
-
-	layout = FormSupport.removeFields(
-		layout,
-		indexesToRemove.pageIndex,
-		indexesToRemove.rowIndex,
-		indexesToRemove.columnIndex
-	);
-
-	const nestedFields = field.nestedFields.filter(
-		({fieldName}) => fieldName !== nestedField.fieldName
-	);
-
-	field = updateField(props, field, 'nestedFields', nestedFields);
-
-	const {rows} = layout[0];
-
-	field = updateField(props, field, 'rows', rows);
-
-	return {
-		...field,
-		nestedFields,
-		rows,
-	};
-};
+import handleFieldDeleted from './fieldDeletedHandler.es';
 
 const addNestedField = ({field, indexes, nestedField, props}) => {
 	const layout = FormSupport.addFieldToColumn(
@@ -65,6 +31,7 @@ const addNestedField = ({field, indexes, nestedField, props}) => {
 	const nestedFields = [...field.nestedFields, nestedField];
 
 	field = updateField(props, field, 'nestedFields', nestedFields);
+
 	const {rows} = layout[indexes.pageIndex];
 
 	field = updateField(props, field, 'rows', rows);
@@ -83,7 +50,7 @@ const addNestedFields = ({field, indexes, nestedFields, props}) => {
 	visitor.mapFields((field, fieldIndex, columnIndex, rowIndex, pageIndex) => {
 		if (
 			!nestedFields.some(
-				nestedField => nestedField.fieldName === field.fieldName
+				(nestedField) => nestedField.fieldName === field.fieldName
 			)
 		) {
 			layout = FormSupport.removeFields(
@@ -95,7 +62,7 @@ const addNestedFields = ({field, indexes, nestedFields, props}) => {
 		}
 	});
 
-	[...nestedFields].reverse().forEach(nestedField => {
+	[...nestedFields].reverse().forEach((nestedField) => {
 		layout = FormSupport.addFieldToColumn(
 			layout,
 			indexes.pageIndex,
@@ -116,21 +83,21 @@ const addNestedFields = ({field, indexes, nestedFields, props}) => {
 	};
 };
 
-export const createSection = (
+export const createFieldSet = (
 	props,
 	event,
 	nestedFields,
 	rows = [{columns: [{fields: [], size: 12}]}]
 ) => {
 	const {fieldTypes} = props;
-	const fieldType = fieldTypes.find(fieldType => {
-		return fieldType.name === 'section';
+	const fieldType = fieldTypes.find((fieldType) => {
+		return fieldType.name === FIELD_TYPE_FIELDSET;
 	});
-	const sectionField = createField(props, {...event, fieldType});
+	const fieldSetField = createField(props, {...event, fieldType});
 
 	return addNestedFields({
 		field: {
-			...sectionField,
+			...fieldSetField,
 			rows,
 		},
 		indexes: {
@@ -149,48 +116,58 @@ const handleSectionAdded = (props, state, event) => {
 	const {pages} = state;
 
 	const newField = event.newField || createField(props, event);
-	const existingField = FormSupport.findFieldByName(pages, fieldName);
-	const sectionField = createSection(props, event, [existingField, newField]);
+	const existingField = FormSupport.findFieldByFieldName(pages, fieldName);
+	const fieldSetField = createFieldSet(props, event, [
+		existingField,
+		newField,
+	]);
 
 	const visitor = new PagesVisitor(pages);
 
-	let modified = false;
+	let newPages;
 
-	const newState = {
-		focusedField: {
-			...newField,
-		},
-		pages: visitor.mapFields(
-			field => {
-				if (field.fieldName === fieldName && !modified) {
-					modified = true;
-
-					return sectionField;
-				}
-				else if (field.fieldName === parentFieldName) {
-					const newParentField = removeNestedField({
-						field,
-						nestedField: existingField,
-						props,
-					});
+	if (parentFieldName) {
+		newPages = visitor.mapFields(
+			(field) => {
+				if (field.fieldName === parentFieldName) {
+					const updatedParentField = FormSupport.findFieldByFieldName(
+						handleFieldDeleted(props, state, {
+							fieldName,
+						}).pages,
+						parentFieldName
+					);
 
 					return addNestedField({
-						field: newParentField,
+						field: updatedParentField,
 						indexes,
-						nestedField: sectionField,
+						nestedField: fieldSetField,
 						props,
 					});
 				}
 
 				return field;
 			},
-			true,
+			false,
 			true
-		),
-		previousFocusedField: sectionField,
-	};
+		);
+	}
+	else {
+		newPages = visitor.mapFields((field) => {
+			if (field.fieldName === fieldName) {
+				return fieldSetField;
+			}
 
-	return newState;
+			return field;
+		});
+	}
+
+	return {
+		focusedField: {
+			...newField,
+		},
+		pages: newPages,
+		previousFocusedField: fieldSetField,
+	};
 };
 
 export default handleSectionAdded;

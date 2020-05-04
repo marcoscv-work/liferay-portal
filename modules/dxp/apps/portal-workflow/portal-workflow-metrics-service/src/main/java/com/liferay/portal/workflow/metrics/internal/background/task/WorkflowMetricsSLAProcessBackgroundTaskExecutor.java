@@ -23,12 +23,10 @@ import com.liferay.portal.kernel.backgroundtask.display.BackgroundTaskDisplay;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
-import com.liferay.portal.kernel.search.Document;
-import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
+import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
-import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.search.aggregation.Aggregations;
 import com.liferay.portal.search.aggregation.bucket.BucketAggregationResult;
 import com.liferay.portal.search.aggregation.bucket.FilterAggregation;
@@ -39,6 +37,7 @@ import com.liferay.portal.search.aggregation.metrics.TopHitsAggregationResult;
 import com.liferay.portal.search.aggregation.pipeline.BucketSelectorPipelineAggregation;
 import com.liferay.portal.search.aggregation.pipeline.BucketSortPipelineAggregation;
 import com.liferay.portal.search.aggregation.pipeline.GapPolicy;
+import com.liferay.portal.search.document.Document;
 import com.liferay.portal.search.engine.adapter.search.SearchRequestExecutor;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchRequest;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchResponse;
@@ -57,12 +56,11 @@ import com.liferay.portal.workflow.metrics.internal.sla.processor.WorkflowMetric
 import com.liferay.portal.workflow.metrics.internal.sla.processor.WorkflowMetricsSLATaskResult;
 import com.liferay.portal.workflow.metrics.model.WorkflowMetricsSLADefinition;
 import com.liferay.portal.workflow.metrics.model.WorkflowMetricsSLADefinitionVersion;
+import com.liferay.portal.workflow.metrics.search.index.name.WorkflowMetricsIndexNameBuilder;
 import com.liferay.portal.workflow.metrics.service.WorkflowMetricsSLADefinitionLocalService;
 import com.liferay.portal.workflow.metrics.service.WorkflowMetricsSLADefinitionVersionLocalService;
 import com.liferay.portal.workflow.metrics.sla.processor.WorkflowMetricsSLAStatus;
 import com.liferay.portal.workflow.metrics.util.comparator.WorkflowMetricsSLADefinitionVersionIdComparator;
-
-import java.text.DateFormat;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -162,11 +160,6 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 		return null;
 	}
 
-	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")
-	protected void setModuleServiceLifecycle(
-		ModuleServiceLifecycle moduleServiceLifecycle) {
-	}
-
 	private BooleanQuery _createBooleanQuery(
 		long companyId, Date endDate, long processId, long slaDefinitionId,
 		Date startDate) {
@@ -176,7 +169,10 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 		BooleanQuery instancesBooleanQuery = _queries.booleanQuery();
 
 		instancesBooleanQuery.addFilterQueryClauses(
-			_queries.term("_index", "workflow-metrics-instances"));
+			_queries.term(
+				"_index",
+				_instanceWorkflowMetricsIndexNameBuilder.getIndexName(
+					companyId)));
 		instancesBooleanQuery.addMustQueryClauses(
 			_createInstancesBooleanQuery(
 				companyId, true, endDate, processId, startDate));
@@ -184,7 +180,10 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 		BooleanQuery slaInstanceResultsBooleanQuery = _queries.booleanQuery();
 
 		slaInstanceResultsBooleanQuery.addFilterQueryClauses(
-			_queries.term("_index", "workflow-metrics-sla-instance-results"));
+			_queries.term(
+				"_index",
+				_slaInstanceResultWorkflowMetricsIndexNameBuilder.getIndexName(
+					companyId)));
 		slaInstanceResultsBooleanQuery.addMustQueryClauses(
 			_createSLAResultsBooleanQuery(
 				companyId, processId, slaDefinitionId));
@@ -237,10 +236,10 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 			RangeTermQuery rangeTermQuery = _queries.rangeTerm(
 				"completionDate", true, false);
 
-			rangeTermQuery.setLowerBound(_formatDate(startDate));
+			rangeTermQuery.setLowerBound(_getDate(startDate));
 
 			if (endDate != null) {
-				rangeTermQuery.setUpperBound(_formatDate(endDate));
+				rangeTermQuery.setUpperBound(_getDate(endDate));
 			}
 
 			booleanQuery.addMustQueryClauses(rangeTermQuery);
@@ -270,12 +269,10 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 			_queries.term("status", WorkflowMetricsSLAStatus.COMPLETED.name()));
 	}
 
-	private String _formatDate(Date date) {
-		DateFormat dateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
-			_INDEX_DATE_FORMAT_PATTERN);
-
+	private String _getDate(Date date) {
 		try {
-			return dateFormat.format(date);
+			return DateUtil.getDate(
+				date, "yyyyMMddHHmmss", LocaleUtil.getDefault());
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
@@ -291,7 +288,8 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 
 		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
 
-		searchSearchRequest.setIndexNames("workflow-metrics-nodes");
+		searchSearchRequest.setIndexNames(
+			_nodeWorkflowMetricsIndexNameBuilder.getIndexName(companyId));
 
 		BooleanQuery booleanQuery = _queries.booleanQuery();
 
@@ -332,7 +330,11 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 			"instanceId", "instanceId");
 
 		FilterAggregation indexFilterAggregation = _aggregations.filter(
-			"index", _queries.term("_index", "workflow-metrics-instances"));
+			"index",
+			_queries.term(
+				"_index",
+				_instanceWorkflowMetricsIndexNameBuilder.getIndexName(
+					companyId)));
 
 		indexFilterAggregation.addChildAggregation(
 			_aggregations.topHits("topHits"));
@@ -350,8 +352,9 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 		searchSearchRequest.addAggregation(termsAggregation);
 
 		searchSearchRequest.setIndexNames(
-			"workflow-metrics-instances",
-			"workflow-metrics-sla-instance-results");
+			_instanceWorkflowMetricsIndexNameBuilder.getIndexName(companyId),
+			_slaInstanceResultWorkflowMetricsIndexNameBuilder.getIndexName(
+				companyId));
 
 		BooleanQuery booleanQuery = _queries.booleanQuery();
 
@@ -406,12 +409,10 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 					workflowMetricsSLADefinitionVersion.getCompanyId(),
 					LocalDateTime.parse(
 						(String)sourcesMap.get("completionDate"),
-						DateTimeFormatter.ofPattern(
-							_INDEX_DATE_FORMAT_PATTERN)),
+						_dateTimeFormatter),
 					LocalDateTime.parse(
 						(String)sourcesMap.get("createDate"),
-						DateTimeFormatter.ofPattern(
-							_INDEX_DATE_FORMAT_PATTERN)),
+						_dateTimeFormatter),
 					GetterUtil.getLong(sourcesMap.get("instanceId")),
 					LocalDateTime.now(), startNodeId,
 					workflowMetricsSLADefinitionVersion)
@@ -512,7 +513,9 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 
 		searchSearchRequest.addAggregation(termsAggregation);
 
-		searchSearchRequest.setIndexNames("workflow-metrics-instances");
+		searchSearchRequest.setIndexNames(
+			_instanceWorkflowMetricsIndexNameBuilder.getIndexName(
+				workflowMetricsSLADefinitionVersion.getCompanyId()));
 
 		BooleanQuery booleanQuery = _queries.booleanQuery();
 
@@ -561,8 +564,7 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 			sourcesMap -> _workflowMetricsSLAProcessor.process(
 				workflowMetricsSLADefinitionVersion.getCompanyId(), null,
 				LocalDateTime.parse(
-					(String)sourcesMap.get("createDate"),
-					DateTimeFormatter.ofPattern(_INDEX_DATE_FORMAT_PATTERN)),
+					(String)sourcesMap.get("createDate"), _dateTimeFormatter),
 				GetterUtil.getLong(sourcesMap.get("instanceId")),
 				LocalDateTime.now(), startNodeId,
 				workflowMetricsSLADefinitionVersion)
@@ -593,14 +595,25 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 			slaTaskResultDocuments);
 	}
 
-	private static final String _INDEX_DATE_FORMAT_PATTERN = PropsUtil.get(
-		PropsKeys.INDEX_DATE_FORMAT_PATTERN);
-
 	private static final Log _log = LogFactoryUtil.getLog(
 		WorkflowMetricsSLAProcessBackgroundTaskExecutor.class);
 
 	@Reference
 	private Aggregations _aggregations;
+
+	private final DateTimeFormatter _dateTimeFormatter =
+		DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+	@Reference(target = "(workflow.metrics.index.entity.name=instance)")
+	private WorkflowMetricsIndexNameBuilder
+		_instanceWorkflowMetricsIndexNameBuilder;
+
+	@Reference(target = ModuleServiceLifecycle.PORTLETS_INITIALIZED)
+	private ModuleServiceLifecycle _moduleServiceLifecycle;
+
+	@Reference(target = "(workflow.metrics.index.entity.name=node)")
+	private WorkflowMetricsIndexNameBuilder
+		_nodeWorkflowMetricsIndexNameBuilder;
 
 	@Reference
 	private Queries _queries;
@@ -619,6 +632,12 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 	@Reference
 	private SLAInstanceResultWorkflowMetricsIndexer
 		_slaInstanceResultWorkflowMetricsIndexer;
+
+	@Reference(
+		target = "(workflow.metrics.index.entity.name=sla-instance-result)"
+	)
+	private WorkflowMetricsIndexNameBuilder
+		_slaInstanceResultWorkflowMetricsIndexNameBuilder;
 
 	@Reference
 	private SLATaskResultWorkflowMetricsIndexer

@@ -31,7 +31,7 @@ const PerformanceByAssigneePage = ({query, routeParams}) => {
 	useProcessTitle(processId, Liferay.Language.get('performance-by-assignee'));
 
 	const {
-		filterValues: {dateEnd, dateStart, roleIds, taskKeys},
+		filterValues: {dateEnd, dateStart, roleIds, taskNames},
 		prefixedKeys,
 		selectedFilters,
 	} = useFilter({filterKeys});
@@ -46,11 +46,11 @@ const PerformanceByAssigneePage = ({query, routeParams}) => {
 			completed: true,
 			keywords: search,
 			roleIds,
-			taskKeys,
+			taskNames,
 			...timeRange,
 		},
 		params: paginationParams,
-		url: `/processes/${processId}/assignee-users`,
+		url: `/processes/${processId}/assignees/metrics`,
 	});
 
 	const promises = useMemo(() => [postData()], [postData]);
@@ -65,7 +65,7 @@ const PerformanceByAssigneePage = ({query, routeParams}) => {
 			/>
 
 			<PerformanceByAssigneePage.Body
-				data={data}
+				{...data}
 				filtered={search || selectedFilters.length > 0}
 			/>
 		</PromisesResolver>

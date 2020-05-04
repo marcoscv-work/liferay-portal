@@ -36,12 +36,14 @@ definition {
 				fragmentName = "Rich Text");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Title",
 				fragmentName = "Title",
 				id = "title",
 				source = "Basic Web Content (Default)");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Content",
 				fragmentName = "Rich Text",
 				id = "rich-text",
@@ -196,10 +198,14 @@ definition {
 		}
 	}
 
+	// Ignored because of the ticket LRQA-57518
+
 	@description = "This is a test for LPS-86191. A user can configure the page settings for each individual display page. This test changes the theme."
+	@ignore = "true"
 	@priority = "4"
 	test ConfigureDisplayPageTheme {
 		property osgi.app.includes = "frontend-theme-fjord";
+		property portal.upstream = "quarantine";
 
 		task ("Add a web content that uses the display page") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
@@ -738,7 +744,6 @@ definition {
 	@priority = "5"
 	test ViewDisplayPageViaAssetPublisher {
 		property portal.acceptance = "true";
-		property portal.upstream = "quarantine";
 
 		task ("Add a web content article that uses the display page") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
@@ -859,12 +864,14 @@ definition {
 				fragmentName = "Title");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Content",
 				fragmentName = "Rich Text",
 				id = "rich-text",
 				source = "Basic Web Content (Default)");
 
 			PageEditorMapping.mapEditableTextToField(
+				contributed = "false",
 				field = "Title",
 				fragmentName = "Title",
 				id = "title",

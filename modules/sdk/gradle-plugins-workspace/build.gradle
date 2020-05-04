@@ -68,18 +68,18 @@ copyRepo {
 
 dependencies {
 	compile group: "com.bmuschko", name: "gradle-docker-plugin", version: "3.6.2"
-	compile group: "com.liferay", name: "com.liferay.ant.bnd", version: "3.2.3"
-	compile(group: "com.liferay", name: "com.liferay.gradle.plugins", version: "5.0.18") {
+	compile group: "com.liferay", name: "com.liferay.ant.bnd", version: "3.2.5"
+	compile(group: "com.liferay", name: "com.liferay.gradle.plugins", version: "5.0.54") {
 		exclude group: "biz.aQute.bnd", module: "biz.aQute.bnd"
 	}
-	compile(group: "com.liferay", name: "com.liferay.gradle.plugins.poshi.runner", version: "2.2.23") {
+	compile(group: "com.liferay", name: "com.liferay.gradle.plugins.poshi.runner", version: "2.2.26") {
 		exclude group: "biz.aQute.bnd", module: "biz.aQute.bnd"
 	}
-	compile group: "com.liferay", name: "com.liferay.gradle.plugins.target.platform", version: "2.1.3"
+	compile group: "com.liferay", name: "com.liferay.gradle.plugins.target.platform", version: "2.1.5"
 	compile(group: "com.liferay", name: "com.liferay.gradle.plugins.theme.builder", version: "2.0.12") {
 		exclude group: "biz.aQute.bnd", module: "biz.aQute.bnd"
 	}
-	compile(group: "com.liferay", name: "com.liferay.portal.tools.bundle.support", version: "3.5.4") {
+	compile(group: "com.liferay", name: "com.liferay.portal.tools.bundle.support", version: "3.5.5") {
 		exclude group: "biz.aQute.bnd", module: "biz.aQute.bnd"
 	}
 	compile group: "de.undercouch", name: "gradle-download-task", version: "3.2.0"

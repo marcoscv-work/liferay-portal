@@ -733,6 +733,92 @@ public class JenkinsResultsParserUtil {
 		return new File(buildProperties.getProperty("base.repository.dir"));
 	}
 
+	public static String getBatchTestSuiteProperty(
+		Properties properties, String basePropertyName, String batchName,
+		String testSuiteName) {
+
+		if ((batchName != null) && !batchName.isEmpty() &&
+			(testSuiteName != null) && !testSuiteName.isEmpty()) {
+
+			String propertyValue = getProperty(
+				properties,
+				combine(
+					basePropertyName, "[", batchName, "]", "[", testSuiteName,
+					"]"));
+
+			if (propertyValue != null) {
+				return propertyValue;
+			}
+
+			String batchTestSuitePropertyNameRegex = combine(
+				Pattern.quote(basePropertyName), "\\[([^\\]]+)\\]\\[",
+				Pattern.quote(testSuiteName), "\\]");
+
+			for (String propertyName : properties.stringPropertyNames()) {
+				if (!propertyName.matches(batchTestSuitePropertyNameRegex)) {
+					continue;
+				}
+
+				String batchNameRegex = propertyName.replaceAll(
+					batchTestSuitePropertyNameRegex, "$1");
+
+				batchNameRegex = batchNameRegex.replaceAll(
+					"[^\\*]+", "\\\\Q$0\\\\E");
+
+				batchNameRegex = batchNameRegex.replace("*", ".+");
+
+				if (!batchName.matches(batchNameRegex)) {
+					continue;
+				}
+
+				return getProperty(properties, propertyName);
+			}
+		}
+
+		if ((batchName != null) && !batchName.isEmpty()) {
+			String propertyValue = getProperty(
+				properties, combine(basePropertyName, "[", batchName, "]"));
+
+			if (propertyValue != null) {
+				return propertyValue;
+			}
+
+			String batchPropertyNameRegex =
+				Pattern.quote(basePropertyName) + "\\[([^\\]]+)\\]";
+
+			for (String propertyName : properties.stringPropertyNames()) {
+				if (!propertyName.matches(batchPropertyNameRegex)) {
+					continue;
+				}
+
+				String batchNameRegex = propertyName.replaceAll(
+					batchPropertyNameRegex, "$1");
+
+				batchNameRegex = batchNameRegex.replaceAll(
+					"[^\\*]+", "\\\\Q$0\\\\E");
+
+				batchNameRegex = batchNameRegex.replace("*", ".+");
+
+				if (!batchName.matches(batchNameRegex)) {
+					continue;
+				}
+
+				return getProperty(properties, propertyName);
+			}
+		}
+
+		if ((testSuiteName != null) && !testSuiteName.isEmpty()) {
+			String propertyValue = getProperty(
+				properties, combine(basePropertyName, "[", testSuiteName, "]"));
+
+			if (propertyValue != null) {
+				return propertyValue;
+			}
+		}
+
+		return getProperty(properties, basePropertyName);
+	}
+
 	public static String getBuildParameter(String buildURL, String key) {
 		Map<String, String> buildParameters = getBuildParameters(buildURL);
 
@@ -1054,6 +1140,11 @@ public class JenkinsResultsParserUtil {
 		}
 
 		return "";
+	}
+
+	public static String getGitHubApiSearchUrl(List<String> filters) {
+		return combine(
+			"https://api.github.com/search/issues?q=", join("+", filters));
 	}
 
 	public static String getGitHubApiUrl(
@@ -1872,7 +1963,7 @@ public class JenkinsResultsParserUtil {
 				directory.getName() + " is not a directory");
 		}
 
-		String directoryCanonicalPath = getCanonicalPath(directory);
+		String directoryCanonicalPath = getCanonicalPath(directory) + "/";
 		String fileCanonicalPath = getCanonicalPath(file);
 
 		if (fileCanonicalPath.startsWith(directoryCanonicalPath)) {
@@ -2434,21 +2525,29 @@ public class JenkinsResultsParserUtil {
 	}
 
 	public static String toDurationString(long duration) {
+		long remainingDuration = duration;
+
 		StringBuilder sb = new StringBuilder();
 
-		duration = _appendDurationStringForUnit(
-			duration, _MILLIS_DAY, sb, "day", "days");
+		remainingDuration = _appendDurationStringForUnit(
+			remainingDuration, _MILLIS_DAY, false, sb, "day", "days");
 
-		duration = _appendDurationStringForUnit(
-			duration, _MILLIS_HOUR, sb, "hour", "hours");
+		remainingDuration = _appendDurationStringForUnit(
+			remainingDuration, _MILLIS_HOUR, false, sb, "hour", "hours");
 
-		duration = _appendDurationStringForUnit(
-			duration, _MILLIS_MINUTE, sb, "minute", "minutes");
+		remainingDuration = _appendDurationStringForUnit(
+			remainingDuration, _MILLIS_MINUTE, true, sb, "minute", "minutes");
 
-		duration = _appendDurationStringForUnit(
-			duration, _MILLIS_SECOND, sb, "second", "seconds");
+		if (duration < 60000) {
+			remainingDuration = _appendDurationStringForUnit(
+				remainingDuration, _MILLIS_SECOND, true, sb, "second",
+				"seconds");
+		}
 
-		duration = _appendDurationStringForUnit(duration, 1, sb, "ms", "ms");
+		if (duration < 1000) {
+			_appendDurationStringForUnit(
+				remainingDuration, 1, true, sb, "ms", "ms");
+		}
 
 		String durationString = sb.toString();
 
@@ -2965,11 +3064,17 @@ public class JenkinsResultsParserUtil {
 	}
 
 	private static long _appendDurationStringForUnit(
-		long duration, long millisInUnit, StringBuilder sb,
+		long duration, long millisInUnit, boolean round, StringBuilder sb,
 		String unitDescriptionSingular, String unitDescriptionPlural) {
 
 		if (duration >= millisInUnit) {
 			long units = duration / millisInUnit;
+
+			long remainder = duration % millisInUnit;
+
+			if (round && (remainder >= (millisInUnit / 2))) {
+				units++;
+			}
 
 			sb.append(units);
 
@@ -2982,7 +3087,7 @@ public class JenkinsResultsParserUtil {
 
 			sb.append(" ");
 
-			return duration % millisInUnit;
+			return remainder;
 		}
 
 		return duration;

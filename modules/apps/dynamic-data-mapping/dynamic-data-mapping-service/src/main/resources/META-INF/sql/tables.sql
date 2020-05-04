@@ -26,7 +26,8 @@ create table DDMDataProviderInstance (
 	name STRING null,
 	description TEXT null,
 	definition TEXT null,
-	type_ VARCHAR(75) null
+	type_ VARCHAR(75) null,
+	lastPublishDate DATE null
 );
 
 create table DDMDataProviderInstanceLink (
@@ -93,6 +94,17 @@ create table DDMFormInstanceRecordVersion (
 	statusByUserId LONG,
 	statusByUserName VARCHAR(75) null,
 	statusDate DATE null
+);
+
+create table DDMFormInstanceReport (
+	mvccVersion LONG default 0 not null,
+	formInstanceReportId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
+	createDate DATE null,
+	modifiedDate DATE null,
+	formInstanceId LONG,
+	data_ TEXT null
 );
 
 create table DDMFormInstanceVersion (

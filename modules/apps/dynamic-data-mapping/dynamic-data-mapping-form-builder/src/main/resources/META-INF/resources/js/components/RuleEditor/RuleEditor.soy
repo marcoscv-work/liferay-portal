@@ -129,6 +129,7 @@
 			value: string
 		]>
 	}
+	{@param? handleRuleAdded: any}
 	{@param invalidRule: bool}
 	{@param logicalOperator: string}
 	{@param pageOptions: list<[
@@ -151,7 +152,6 @@
 	{@param? _handleLogicalOperationChange: any}
 	{@param? _handleModalButtonClicked: any}
 	{@param? _handleOperatorEdited: any}
-	{@param? _handleRuleAdded: any}
 	{@param? _handleRuleCancelled: any}
 	{@param? _handleSecondOperandFieldEdited: any}
 	{@param? _handleSecondOperandTypeEdited: any}
@@ -163,11 +163,13 @@
 	]>}
 
 	<div class="form-builder-rule-builder liferay-ddm-form-builder-rule-builder-content">
-		<h2 class="form-builder-section-title text-default">
-			{msg desc=""}rule{/msg}
-		</h2>
+		<div class="liferay-ddm-form-rule-builder-header">
+			<h2 class="form-builder-section-title text-default">
+				{msg desc=""}rule{/msg}
+			</h2>
 
-		<h4 class="text-default">{msg desc=""}define-condition-and-action-to-change-fields-and-elements-on-the-form{/msg}</h4>
+			<h4 class="text-default">{msg desc=""}define-condition-and-action-to-change-fields-and-elements-on-the-form{/msg}</h4>
+		</div>
 
 		<ul class="liferay-ddm-form-builder-rule-condition-list liferay-ddm-form-rule-builder-timeline timeline {length($conditions) > 1 ? 'can-remove-item' : ''}">
 			{let $enableLogicalOperator: (length($conditions) > 1) ? true : false /}
@@ -287,7 +289,7 @@
 		<div class="liferay-ddm-form-rule-builder-footer">
 			{call ClayButton.render}
 				{param events: [
-					'click': $_handleRuleAdded
+					'click': $handleRuleAdded
 				] /}
 				{param disabled: $invalidRule /}
 				{param label kind="text"}

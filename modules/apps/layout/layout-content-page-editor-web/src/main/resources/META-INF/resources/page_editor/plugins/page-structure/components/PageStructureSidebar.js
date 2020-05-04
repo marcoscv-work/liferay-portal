@@ -30,9 +30,9 @@ import StructureTreeNode from './StructureTreeNode';
 
 export default function PageStructureSidebar() {
 	const activeItemId = useActiveItemId();
-	const layoutData = useSelector(state => state.layoutData);
-	const masterLayoutData = useSelector(state => state.masterLayoutData);
-	const state = useSelector(state => state);
+	const layoutData = useSelector((state) => state.layoutData);
+	const masterLayoutData = useSelector((state) => state.masterLayoutData);
+	const state = useSelector((state) => state);
 
 	const isMasterPage = config.pageType === PAGE_TYPES.master;
 
@@ -78,7 +78,8 @@ export default function PageStructureSidebar() {
 function isRemovable(item, layoutData) {
 	if (
 		item.type === LAYOUT_DATA_ITEM_TYPES.dropZone ||
-		item.type === LAYOUT_DATA_ITEM_TYPES.column
+		item.type === LAYOUT_DATA_ITEM_TYPES.column ||
+		item.type === LAYOUT_DATA_ITEM_TYPES.collectionItem
 	) {
 		return false;
 	}
@@ -91,6 +92,12 @@ function getName(item, fragmentEntryLinks) {
 
 	if (item.type === LAYOUT_DATA_ITEM_TYPES.fragment) {
 		name = fragmentEntryLinks[item.config.fragmentEntryLinkId].name;
+	}
+	else if (item.type === LAYOUT_DATA_ITEM_TYPES.collection) {
+		name = LAYOUT_DATA_ITEM_TYPE_LABELS.collection;
+	}
+	else if (item.type === LAYOUT_DATA_ITEM_TYPES.collectionItem) {
+		name = LAYOUT_DATA_ITEM_TYPE_LABELS.collectionItem;
 	}
 	else if (item.type === LAYOUT_DATA_ITEM_TYPES.container) {
 		name = LAYOUT_DATA_ITEM_TYPE_LABELS.container;
@@ -122,10 +129,11 @@ function visit(item, items, {activeItemId, isMasterPage, state}) {
 				EDITABLE_FRAGMENT_ENTRY_PROCESSOR
 			] || {};
 
-		Object.keys(fragmentChildren).forEach(editableId => {
+		Object.keys(fragmentChildren).forEach((editableId) => {
 			const childId = `${item.config.fragmentEntryLinkId}-${editableId}`;
 
 			children.push({
+				activable: true,
 				children: [],
 				disabled: !isMasterPage && itemInMasterLayout,
 				expanded: childId === activeItemId,
@@ -137,7 +145,7 @@ function visit(item, items, {activeItemId, isMasterPage, state}) {
 		});
 	}
 	else {
-		item.children.forEach(childId => {
+		item.children.forEach((childId) => {
 			const childItem = items[childId];
 
 			if (
@@ -172,7 +180,9 @@ function visit(item, items, {activeItemId, isMasterPage, state}) {
 		activable:
 			layoutData.items[item.itemId] &&
 			layoutData.items[item.itemId].type !==
-				LAYOUT_DATA_ITEM_TYPES.column,
+				LAYOUT_DATA_ITEM_TYPES.column &&
+			layoutData.items[item.itemId].type !==
+				LAYOUT_DATA_ITEM_TYPES.collectionItem,
 		children,
 		disabled: !isMasterPage && itemInMasterLayout,
 		expanded: item.itemId === activeItemId,

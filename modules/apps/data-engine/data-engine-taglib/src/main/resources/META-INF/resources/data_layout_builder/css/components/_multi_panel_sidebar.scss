@@ -1,0 +1,53 @@
+@import 'atlas-variables';
+
+@import '../variables';
+
+$zIndexButtons: 1;
+$zIndexContent: 0;
+
+.multi-panel-sidebar {
+	display: flex;
+	height: calc(100vh - #{$toolbarHeight});
+	position: fixed;
+	right: 0;
+	top: $toolbarHeight;
+	z-index: $zIndexMultiPanelSidebar;
+
+	&__buttons {
+		z-index: $zIndexButtons;
+
+		hr {
+			margin: 12px 8px;
+		}
+	}
+
+	&__content {
+		background-color: #fff;
+		height: calc(100vh - #{$controlMenuHeight + $toolbarHeight});
+		position: fixed;
+		right: $multiPanelSidebarButtonWidth;
+		transform: translateX(100%);
+		transition: transform ease $defaultTransitionDuration;
+		width: $multiPanelSidebarContentWidth;
+		z-index: $zIndexContent;
+
+		.rtl & {
+			transform: translateX(-100%);
+		}
+
+		&.multi-panel-sidebar__content--open {
+			transform: translateX(0);
+		}
+
+		&:not(&--open) {
+			.sidebar-light {
+				box-shadow: none;
+			}
+		}
+	}
+
+	body.has-control-menu & {
+		height: calc(100vh - #{$desktopControlMenuHeight + $toolbarHeight});
+		top: $desktopControlMenuHeight + $toolbarHeight;
+	}
+}
