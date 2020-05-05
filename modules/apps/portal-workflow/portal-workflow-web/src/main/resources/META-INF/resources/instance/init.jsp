@@ -17,7 +17,6 @@
 <%@ include file="/init.jsp" %>
 
 <%@ taglib uri="http://liferay.com/tld/asset" prefix="liferay-asset" %><%@
-taglib uri="http://liferay.com/tld/clay" prefix="clay" %><%@
 taglib uri="http://liferay.com/tld/comment" prefix="liferay-comment" %><%@
 taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
 taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %>
