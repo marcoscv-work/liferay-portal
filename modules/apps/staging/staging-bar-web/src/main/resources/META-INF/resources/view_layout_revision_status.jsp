@@ -65,21 +65,3 @@ else {
 		</div>
 	</div>
 </span>
-
-<c:if test="<%= layoutRevision.isIncomplete() || (layoutRevision.isPending() && StagingUtil.hasWorkflowTask(user.getUserId(), layoutRevision)) %>">
-	<div class="staging-bar-level-3-message">
-		<div class="staging-bar-level-3-message-container">
-			<div class="alert alert-fluid alert-info" role="alert">
-				<div class="container-fluid container-fluid-max-xl staging-alert-container">
-					<span class="alert-indicator">
-						<svg aria-hidden="true" class="lexicon-icon lexicon-icon-info-circle">
-							<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg#info-circle" />
-						</svg>
-					</span>
-
-					<liferay-ui:message arguments="<%= new Object[] {HtmlUtil.escape(layoutRevision.getName(locale)), layoutSetBranchName} %>" key="the-page-x-is-not-enabled-in-x,-but-is-available-in-other-pages-variations" translateArguments="<%= false %>" />
-				</div>
-			</div>
-		</div>
-	</div>
-</c:if>
