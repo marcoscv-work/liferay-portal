@@ -9,6 +9,11 @@
 		right: 0;
 		top: 0;
 		-webkit-overflow-scrolling: touch;
+
+		.barebones-page-content {
+			padding: 1.5rem;
+			position: static;
+		}
 	}
 }
 

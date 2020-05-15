@@ -37,7 +37,7 @@
 	</header>
 
 	<div class="container" id="content">
-		<div class="sheet sheet-lg" id="main-content">
+		<div class="barebones-page-content sheet sheet-lg" id="main-content">
 			<h2 class="sheet-title" title="<liferay-ui:message key="basic-configuration" />">
 				<liferay-ui:message key="basic-configuration" />
 			</h2>

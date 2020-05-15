@@ -37,7 +37,7 @@
 		</header>
 
 		<div id="content">
-			<div id="main-content">
+			<div class="barebones-page-content" id="main-content">
 				<aui:row>
 					<aui:col cssClass="lfr-api-navigation" width="<%= 25 %>">
 						<liferay-util:include page="/html/portal/api/jsonws/actions.jsp" />
