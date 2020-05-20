@@ -120,18 +120,28 @@ function GlobalMenu({panelAppsURL}) {
 	});
 
 	const [activeTab, setActiveTab] = useState(0);
-	const [context, setContext] = useState({});
+	const [panelAppsData, setPanelAppsData] = useState({});
 
 	const preloadPromise = useRef();
 
-	const {items = [], portletNamespace, recentSites, viewAllURL} = context;
+	const {
+		items = [],
+		portletNamespace,
+		recentSites,
+		viewAllURL,
+	} = panelAppsData;
 
-	function preloadItems() {
+	const handleOnClick = () => {
+		preloadItems();
+		showMenu();
+	};
+
+	const preloadItems = () => {
 		if (!preloadPromise.current) {
 			preloadPromise.current = fetch(panelAppsURL)
 				.then((response) => response.json())
 				.then(({items, portletNamespace, recentSites, viewAllURL}) => {
-					setContext({
+					setPanelAppsData({
 						items,
 						portletNamespace,
 						recentSites,
@@ -139,7 +149,11 @@ function GlobalMenu({panelAppsURL}) {
 					});
 				});
 		}
-	}
+	};
+
+	const showMenu = () => {
+		setVisible(true);
+	};
 
 	return (
 		<>
@@ -181,13 +195,9 @@ function GlobalMenu({panelAppsURL}) {
 			)}
 
 			<ClayButtonWithIcon
-				className={'lfr-portal-tooltip'}
+				className="lfr-portal-tooltip"
 				displayType="unstyled"
-				onClick={() => {
-					preloadItems();
-
-					setVisible(true);
-				}}
+				onClick={handleOnClick}
 				onFocus={preloadItems}
 				symbol="grid"
 				title={Liferay.Language.get('global-menu')}
