@@ -894,10 +894,10 @@ public class PortalImpl implements Portal {
 
 		actionResponse.setRenderParameter("p_p_lifecycle", "1");
 
-		Enumeration<String> enu = actionRequest.getParameterNames();
+		Enumeration<String> enumeration = actionRequest.getParameterNames();
 
-		while (enu.hasMoreElements()) {
-			String param = enu.nextElement();
+		while (enumeration.hasMoreElements()) {
+			String param = enumeration.nextElement();
 
 			if (renderParameters.get(actionResponse.getNamespace() + param) ==
 					null) {
@@ -2169,10 +2169,11 @@ public class PortalImpl implements Portal {
 
 		List<String> names = new ArrayList<>();
 
-		Enumeration<String> enu = httpServletRequest.getParameterNames();
+		Enumeration<String> enumeration =
+			httpServletRequest.getParameterNames();
 
-		while (enu.hasMoreElements()) {
-			String param = enu.nextElement();
+		while (enumeration.hasMoreElements()) {
+			String param = enumeration.nextElement();
 
 			if (param.contains("ExpandoAttributeName--")) {
 				String name = ParamUtil.getString(httpServletRequest, param);
@@ -3432,11 +3433,11 @@ public class PortalImpl implements Portal {
 		// Get locale from the request
 
 		if (PropsValues.LOCALE_DEFAULT_REQUEST) {
-			Enumeration<Locale> locales = httpServletRequest.getLocales();
+			Enumeration<Locale> enumeration = httpServletRequest.getLocales();
 
-			while (locales.hasMoreElements()) {
+			while (enumeration.hasMoreElements()) {
 				Locale requestLocale = getAvailableLocale(
-					groupId, locales.nextElement());
+					groupId, enumeration.nextElement());
 
 				if (LanguageUtil.isAvailableLocale(groupId, requestLocale)) {
 					if (initialize) {
@@ -4121,18 +4122,12 @@ public class PortalImpl implements Portal {
 
 	@Override
 	public String getPortalURL(PortletRequest portletRequest) {
-		return getPortalURL(portletRequest, portletRequest.isSecure());
+		return getPortalURL(getHttpServletRequest(portletRequest));
 	}
 
 	@Override
 	public String getPortalURL(PortletRequest portletRequest, boolean secure) {
-		int port = portletRequest.getServerPort();
-
-		if (Validator.isNull(PropsValues.WEB_SERVER_HOST)) {
-			return _getPortalURL(portletRequest.getServerName(), port, secure);
-		}
-
-		return _getPortalURL(PropsValues.WEB_SERVER_HOST, port, secure);
+		return getPortalURL(getHttpServletRequest(portletRequest), secure);
 	}
 
 	@Override
@@ -7288,10 +7283,10 @@ public class PortalImpl implements Portal {
 
 		List<Portlet> filteredPortlets = new ArrayList<>(portlets);
 
-		Iterator<Portlet> itr = filteredPortlets.iterator();
+		Iterator<Portlet> iterator = filteredPortlets.iterator();
 
-		while (itr.hasNext()) {
-			Portlet portlet = itr.next();
+		while (iterator.hasNext()) {
+			Portlet portlet = iterator.next();
 
 			try {
 				if (!portlet.isActive() || portlet.isInstanceable() ||
@@ -7299,13 +7294,13 @@ public class PortalImpl implements Portal {
 						themeDisplay.getPermissionChecker(),
 						themeDisplay.getScopeGroupId(), portlet)) {
 
-					itr.remove();
+					iterator.remove();
 				}
 			}
 			catch (Exception exception) {
 				_log.error(exception, exception);
 
-				itr.remove();
+				iterator.remove();
 			}
 		}
 

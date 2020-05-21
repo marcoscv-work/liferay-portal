@@ -14,13 +14,16 @@
 
 package com.liferay.change.tracking.reference.builder;
 
+import com.liferay.asset.kernel.model.AssetEntryTable;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.Table;
 import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.petra.sql.dsl.query.FromStep;
 import com.liferay.petra.sql.dsl.query.JoinStep;
+import com.liferay.portal.kernel.model.ClassNameTable;
 import com.liferay.portal.kernel.model.CompanyTable;
 import com.liferay.portal.kernel.model.GroupTable;
+import com.liferay.portal.kernel.model.ResourcePermissionTable;
 import com.liferay.portal.kernel.model.UserTable;
 
 import java.util.Date;
@@ -31,8 +34,28 @@ import java.util.function.Function;
  */
 public interface TableReferenceInfoBuilder<T extends Table<T>> {
 
+	public default TableReferenceInfoBuilder<T> assetEntryReference(
+		Column<T, Long> pkColumn, Class<?> modelClass) {
+
+		return referenceInnerJoin(
+			fromStep -> fromStep.from(
+				AssetEntryTable.INSTANCE
+			).innerJoinON(
+				pkColumn.getTable(),
+				pkColumn.eq(AssetEntryTable.INSTANCE.classPK)
+			).innerJoinON(
+				ClassNameTable.INSTANCE,
+				ClassNameTable.INSTANCE.value.eq(
+					modelClass.getName()
+				).and(
+					ClassNameTable.INSTANCE.classNameId.eq(
+						AssetEntryTable.INSTANCE.classNameId)
+				)
+			));
+	}
+
 	public default TableReferenceInfoBuilder<T> groupedModel(T table) {
-		singleColumnReference(
+		return singleColumnReference(
 			table.getColumn("groupId", Long.class), GroupTable.INSTANCE.groupId
 		).singleColumnReference(
 			table.getColumn("companyId", Long.class),
@@ -44,8 +67,6 @@ public interface TableReferenceInfoBuilder<T extends Table<T>> {
 			table.getColumn("createDate", Date.class),
 			table.getColumn("modifiedDate", Date.class)
 		);
-
-		return this;
 	}
 
 	public TableReferenceInfoBuilder<T> nonreferenceColumn(Column<T, ?> column);
@@ -75,13 +96,35 @@ public interface TableReferenceInfoBuilder<T extends Table<T>> {
 		Column<T, C> aliasPKColumn = aliasParentTable.getColumn(
 			pkColumn.getName(), pkColumn.getJavaType());
 
-		singleColumnReference(parentPKColumn, aliasPKColumn);
-
-		return this;
+		return singleColumnReference(parentPKColumn, aliasPKColumn);
 	}
 
 	public TableReferenceInfoBuilder<T> referenceInnerJoin(
 		Function<FromStep, JoinStep> joinFunction);
+
+	public default TableReferenceInfoBuilder<T> resourcePermissionReference(
+		Column<T, Long> pkColumn, Class<?> modelClass) {
+
+		T table = pkColumn.getTable();
+
+		Column<T, Long> companyIdColumn = table.getColumn(
+			"companyId", Long.class);
+
+		return referenceInnerJoin(
+			fromStep -> fromStep.from(
+				ResourcePermissionTable.INSTANCE
+			).innerJoinON(
+				table,
+				companyIdColumn.eq(
+					ResourcePermissionTable.INSTANCE.companyId
+				).and(
+					ResourcePermissionTable.INSTANCE.name.eq(
+						modelClass.getName())
+				).and(
+					pkColumn.eq(ResourcePermissionTable.INSTANCE.primKeyId)
+				)
+			));
+	}
 
 	public default <C> TableReferenceInfoBuilder<T> singleColumnReference(
 		Column<T, C> column1, Column<?, C> column2) {
@@ -92,14 +135,12 @@ public interface TableReferenceInfoBuilder<T extends Table<T>> {
 
 		Predicate predicate = column1.eq(column2);
 
-		referenceInnerJoin(
+		return referenceInnerJoin(
 			fromStep -> fromStep.from(
 				column2.getTable()
 			).innerJoinON(
 				column1.getTable(), predicate
 			));
-
-		return this;
 	}
 
 }

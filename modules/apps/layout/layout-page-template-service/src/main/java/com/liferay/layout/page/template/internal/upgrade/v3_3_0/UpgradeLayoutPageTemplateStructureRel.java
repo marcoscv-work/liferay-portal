@@ -21,17 +21,28 @@ import com.liferay.layout.page.template.util.LayoutDataConverter;
 import com.liferay.layout.util.structure.FragmentLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.model.PortletPreferences;
+import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.segments.constants.SegmentsExperienceConstants;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Eudaldo Alonso
@@ -39,14 +50,74 @@ import java.sql.Statement;
 public class UpgradeLayoutPageTemplateStructureRel extends UpgradeProcess {
 
 	public UpgradeLayoutPageTemplateStructureRel(
-		FragmentEntryLinkLocalService fragmentEntryLinkLocalService) {
+		FragmentEntryLinkLocalService fragmentEntryLinkLocalService,
+		PortletPreferencesLocalService portletPreferencesLocalService) {
 
 		_fragmentEntryLinkLocalService = fragmentEntryLinkLocalService;
+		_portletPreferencesLocalService = portletPreferencesLocalService;
 	}
 
 	@Override
 	protected void doUpgrade() throws Exception {
 		_upgradeLayoutPageTemplateStructureRel();
+	}
+
+	private List<PortletPreferences> _getPortletPreferencesByPlid(long plid) {
+		if (_portletPreferencesMap.containsKey(plid)) {
+			return _portletPreferencesMap.get(plid);
+		}
+
+		List<PortletPreferences> portletPreferencesList =
+			_portletPreferencesLocalService.getPortletPreferencesByPlid(plid);
+
+		Stream<PortletPreferences> stream = portletPreferencesList.stream();
+
+		portletPreferencesList = stream.filter(
+			portletPreferences -> {
+				String portletId = portletPreferences.getPortletId();
+
+				return portletId.contains(_INSTANCE_SEPARATOR) &&
+					   portletId.contains(_SEGMENTS_EXPERIENCE_SEPARATOR);
+			}
+		).collect(
+			Collectors.toList()
+		);
+
+		_portletPreferencesMap.put(plid, portletPreferencesList);
+
+		return _portletPreferencesMap.get(plid);
+	}
+
+	private void _updatePortletPreferences(
+		String newNamespace, String oldNamespace, long plid,
+		long segmentsExperienceId) {
+
+		List<PortletPreferences> portletPreferencesList =
+			_getPortletPreferencesByPlid(plid);
+
+		for (PortletPreferences portletPreferences : portletPreferencesList) {
+			String portletId = portletPreferences.getPortletId();
+
+			if (!portletId.contains(oldNamespace) ||
+				!portletId.contains(
+					_SEGMENTS_EXPERIENCE_SEPARATOR + segmentsExperienceId)) {
+
+				continue;
+			}
+
+			String newPortletId = StringUtil.replace(
+				portletId,
+				new String[] {
+					oldNamespace,
+					_SEGMENTS_EXPERIENCE_SEPARATOR + segmentsExperienceId
+				},
+				new String[] {newNamespace, StringPool.BLANK});
+
+			portletPreferences.setPortletId(newPortletId);
+
+			_portletPreferencesLocalService.updatePortletPreferences(
+				portletPreferences);
+		}
 	}
 
 	private String _upgradeLayoutData(String data, long segmentsExperienceId)
@@ -74,6 +145,10 @@ public class UpgradeLayoutPageTemplateStructureRel extends UpgradeProcess {
 				_fragmentEntryLinkLocalService.fetchFragmentEntryLink(
 					fragmentLayoutStructureItem.getFragmentEntryLinkId());
 
+			if (fragmentEntryLink == null) {
+				continue;
+			}
+
 			if (segmentsExperienceId ==
 					SegmentsExperienceConstants.ID_DEFAULT) {
 
@@ -81,10 +156,36 @@ public class UpgradeLayoutPageTemplateStructureRel extends UpgradeProcess {
 					fragmentLayoutStructureItem.getFragmentEntryLinkId(),
 					EditableValuesTransformerUtil.getEditableValues(
 						fragmentEntryLink.getEditableValues(),
-						segmentsExperienceId));
+						segmentsExperienceId),
+					false);
 
 				continue;
 			}
+
+			String newNamespace = StringUtil.randomId();
+			String oldNamespace = fragmentEntryLink.getNamespace();
+
+			JSONObject editableValuesJSONObject =
+				JSONFactoryUtil.createJSONObject(
+					fragmentEntryLink.getEditableValues());
+
+			String instanceId = editableValuesJSONObject.getString(
+				"instanceId");
+			String portletId = editableValuesJSONObject.getString("portletId");
+
+			if (Validator.isNotNull(instanceId) &&
+				Validator.isNotNull(portletId)) {
+
+				editableValuesJSONObject.remove("instanceId");
+
+				editableValuesJSONObject.put("instanceId", newNamespace);
+
+				oldNamespace = instanceId;
+			}
+
+			_updatePortletPreferences(
+				newNamespace, oldNamespace, fragmentEntryLink.getClassPK(),
+				segmentsExperienceId);
 
 			FragmentEntryLink newFragmentEntryLink =
 				_fragmentEntryLinkLocalService.addFragmentEntryLink(
@@ -97,10 +198,9 @@ public class UpgradeLayoutPageTemplateStructureRel extends UpgradeProcess {
 					fragmentEntryLink.getHtml(), fragmentEntryLink.getJs(),
 					fragmentEntryLink.getConfiguration(),
 					EditableValuesTransformerUtil.getEditableValues(
-						fragmentEntryLink.getEditableValues(),
+						editableValuesJSONObject.toString(),
 						segmentsExperienceId),
-					fragmentEntryLink.getNamespace(),
-					fragmentEntryLink.getPosition(),
+					newNamespace, fragmentEntryLink.getPosition(),
 					fragmentEntryLink.getRendererKey(), new ServiceContext());
 
 			fragmentLayoutStructureItem.setFragmentEntryLinkId(
@@ -142,6 +242,15 @@ public class UpgradeLayoutPageTemplateStructureRel extends UpgradeProcess {
 		}
 	}
 
+	private static final String _INSTANCE_SEPARATOR = "_INSTANCE_";
+
+	private static final String _SEGMENTS_EXPERIENCE_SEPARATOR =
+		"_SEGMENTS_EXPERIENCE_";
+
 	private final FragmentEntryLinkLocalService _fragmentEntryLinkLocalService;
+	private final PortletPreferencesLocalService
+		_portletPreferencesLocalService;
+	private final Map<Long, List<PortletPreferences>> _portletPreferencesMap =
+		new HashMap<>();
 
 }

@@ -36,6 +36,7 @@ import org.gradle.api.XmlProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.PluginContainer;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.plugins.ide.api.FileContentMerger;
 import org.gradle.plugins.ide.api.XmlFileContentMerger;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
@@ -57,12 +58,40 @@ public class EclipseDefaultsPlugin extends BaseDefaultsPlugin<EclipsePlugin> {
 	protected void applyPluginDefaults(
 		Project project, EclipsePlugin eclipsePlugin) {
 
+		// Extensions
+
+		final EclipseModel eclipseModelExtension = GradleUtil.getExtension(
+			project, EclipseModel.class);
+
+		// Tasks
+
+		TaskProvider<Task> eclipseTaskProvider = GradleUtil.getTaskProvider(
+			project, _ECLIPSE_TASK_NAME);
+
+		_configureTaskEclipseProvider(eclipseTaskProvider);
+
+		// Other
+
 		final File portalRootDir = GradleUtil.getRootDir(
 			project.getRootProject(), "portal-impl");
 
-		_configureEclipseClasspathFile(project);
-		_configureEclipseProject(project, portalRootDir);
-		_configureTaskEclipse(project);
+		_configureEclipseClasspath(project, eclipseModelExtension);
+		_configureEclipseProject(
+			project, eclipseModelExtension, eclipseTaskProvider, portalRootDir);
+
+		PluginContainer pluginContainer = project.getPlugins();
+
+		pluginContainer.configureEach(
+			new Action<Plugin>() {
+
+				@Override
+				public void execute(Plugin plugin) {
+					if (plugin instanceof JavaPlugin) {
+						_configurePluginJava(project, eclipseModelExtension);
+					}
+				}
+
+			});
 	}
 
 	@Override
@@ -73,11 +102,11 @@ public class EclipseDefaultsPlugin extends BaseDefaultsPlugin<EclipsePlugin> {
 	private EclipseDefaultsPlugin() {
 	}
 
-	private void _configureEclipseClasspathFile(final Project project) {
-		EclipseModel eclipseModel = GradleUtil.getExtension(
-			project, EclipseModel.class);
+	private void _configureEclipseClasspath(
+		final Project project, EclipseModel eclipseModelExtension) {
 
-		final EclipseClasspath eclipseClasspath = eclipseModel.getClasspath();
+		final EclipseClasspath eclipseClasspath =
+			eclipseModelExtension.getClasspath();
 
 		FileContentMerger fileContentMerger = eclipseClasspath.getFile();
 
@@ -112,46 +141,19 @@ public class EclipseDefaultsPlugin extends BaseDefaultsPlugin<EclipsePlugin> {
 		};
 
 		fileContentMerger.whenMerged(closure);
-
-		PluginContainer pluginContainer = project.getPlugins();
-
-		pluginContainer.withType(
-			JavaPlugin.class,
-			new Action<JavaPlugin>() {
-
-				@Override
-				public void execute(JavaPlugin javaPlugin) {
-					_configureEclipseClasspathFileForJavaPlugin(
-						project, eclipseClasspath);
-				}
-
-			});
 	}
 
-	private void _configureEclipseClasspathFileForJavaPlugin(
-		Project project, EclipseClasspath eclipseClasspath) {
+	private void _configureEclipseProject(
+		Project project, EclipseModel eclipseModelExtension,
+		TaskProvider<Task> eclipseTaskProvider, File portalRootDir) {
 
-		Collection<Configuration> configurations =
-			eclipseClasspath.getPlusConfigurations();
+		EclipseProject eclipseProject = eclipseModelExtension.getProject();
 
-		Configuration configuration = GradleUtil.getConfiguration(
-			project, JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME);
-
-		configurations.add(configuration);
-	}
-
-	private void _configureEclipseProject(Project project, File portalRootDir) {
-		EclipseModel eclipseModel = GradleUtil.getExtension(
-			project, EclipseModel.class);
-
-		EclipseProject eclipseProject = eclipseModel.getProject();
-
-		String name = project.getName();
-
-		Task task = GradleUtil.getTask(project, _ECLIPSE_TASK_NAME);
+		String eclipseProjectName = project.getName();
 
 		String gitWorkingBranch = GradleUtil.getTaskPrefixedProperty(
-			task, "git.working.branch");
+			project.getPath(), eclipseTaskProvider.getName(),
+			"git.working.branch");
 
 		if (Boolean.parseBoolean(gitWorkingBranch) && (portalRootDir != null) &&
 			portalRootDir.exists()) {
@@ -160,11 +162,12 @@ public class EclipseDefaultsPlugin extends BaseDefaultsPlugin<EclipsePlugin> {
 				project, "git.working.branch.name", (String)null);
 
 			if (Validator.isNotNull(gitWorkingBranchName)) {
-				name = name + '-' + gitWorkingBranchName;
+				eclipseProjectName =
+					eclipseProjectName + '-' + gitWorkingBranchName;
 			}
 		}
 
-		eclipseProject.setName(name);
+		eclipseProject.setName(eclipseProjectName);
 
 		List<String> natures = eclipseProject.getNatures();
 
@@ -210,10 +213,33 @@ public class EclipseDefaultsPlugin extends BaseDefaultsPlugin<EclipsePlugin> {
 		xmlFileContentMerger.withXml(action);
 	}
 
-	private void _configureTaskEclipse(Project project) {
-		Task task = GradleUtil.getTask(project, _ECLIPSE_TASK_NAME);
+	private void _configurePluginJava(
+		Project project, EclipseModel eclipseModelExtension) {
 
-		task.dependsOn(_CLEAN_ECLIPSE_TASK_NAME);
+		EclipseClasspath eclipseClasspath =
+			eclipseModelExtension.getClasspath();
+
+		Collection<Configuration> configurations =
+			eclipseClasspath.getPlusConfigurations();
+
+		Configuration configuration = GradleUtil.getConfiguration(
+			project, JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME);
+
+		configurations.add(configuration);
+	}
+
+	private void _configureTaskEclipseProvider(
+		TaskProvider<Task> eclipseTaskProvider) {
+
+		eclipseTaskProvider.configure(
+			new Action<Task>() {
+
+				@Override
+				public void execute(Task eclipseTask) {
+					eclipseTask.dependsOn(_CLEAN_ECLIPSE_TASK_NAME);
+				}
+
+			});
 	}
 
 	private static final String _CLEAN_ECLIPSE_TASK_NAME = "cleanEclipse";

@@ -1,10 +1,12 @@
 definition {
 
 	macro configureRatingType {
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Site Administration",
-			portlet = "Settings");
+		if (isSet(siteName)) {
+			Site.openSiteSettingsAdmin(siteURLKey = "${siteName}");
+		}
+		else {
+			Site.openSiteSettingsAdmin(siteURLKey = "guest");
+		}
 
 		Navigator.gotoNavTab(navTab = "Social");
 
@@ -48,6 +50,10 @@ definition {
 	macro rateStar {
 		Click(locator1 = "Ratings#YOUR_RATING_STAR");
 
+		if (isSet(checkDeleteButton)) {
+			AssertElementPresent(locator1 = "Ratings#YOUR_RATING_STAR_DELETE_DISABLE");
+		}
+
 		Click.clickNoMouseOver(
 			key_ratingStarCount = "${ratingStarCount}",
 			locator1 = "Ratings#YOUR_RATING_STAR_COUNT");
@@ -82,6 +88,14 @@ definition {
 				key_ratingResult = "${ratingResult}",
 				locator1 = "Ratings#THUMB");
 		}
+	}
+
+	macro revokeStarsRating {
+		Click(locator1 = "Ratings#YOUR_RATING_STAR");
+
+		Click.clickNoMouseOver(locator1 = "Ratings#YOUR_RATING_STAR_DELETE");
+
+		AssertElementPresent(locator1 = "Ratings#YOUR_RATING_STAR_EMPTY");
 	}
 
 	macro viewRateLike {

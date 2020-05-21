@@ -53,6 +53,7 @@ import com.liferay.users.admin.test.util.search.GroupSearchFixture;
 
 import java.io.Serializable;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -207,9 +208,19 @@ public class OrganizationIndexerIndexedFieldsTest {
 	private Map<String, Object> _expectedFieldValues(Organization organization)
 		throws Exception {
 
-		Map<String, Object> map = HashMapBuilder.put(
-			Field.COMPANY_ID,
-			(Object)String.valueOf(organization.getCompanyId())
+		Map<String, String> map = new HashMap<>();
+
+		_indexedFieldsFixture.populateUID(
+			Organization.class.getName(), organization.getOrganizationId(),
+			map);
+
+		_populateDates(organization, map);
+		_populateRoles(organization, map);
+
+		return HashMapBuilder.<String, Object>putAll(
+			map
+		).put(
+			Field.COMPANY_ID, String.valueOf(organization.getCompanyId())
 		).put(
 			Field.ENTRY_CLASS_NAME, Organization.class.getName()
 		).put(
@@ -225,6 +236,8 @@ public class OrganizationIndexerIndexedFieldsTest {
 			String.valueOf(organization.getOrganizationId())
 		).put(
 			Field.TREE_PATH, organization.getTreePath()
+		).put(
+			Field.TYPE, organization.getType()
 		).put(
 			Field.USER_ID, String.valueOf(organization.getUserId())
 		).put(
@@ -248,17 +261,6 @@ public class OrganizationIndexerIndexedFieldsTest {
 				return StringUtil.toLowerCase(region.getName());
 			}
 		).build();
-
-		_indexedFieldsFixture.populateUID(
-			Organization.class.getName(), organization.getOrganizationId(),
-			map);
-
-		map.put(Field.TYPE, organization.getType());
-
-		_populateDates(organization, map);
-		_populateRoles(organization, map);
-
-		return map;
 	}
 
 	private Map<String, Object> _expectedFieldValuesWithExpando(
@@ -279,7 +281,7 @@ public class OrganizationIndexerIndexedFieldsTest {
 	}
 
 	private void _populateDates(
-		Organization organization, Map<String, Object> map) {
+		Organization organization, Map<String, String> map) {
 
 		_indexedFieldsFixture.populateDate(
 			Field.CREATE_DATE, organization.getCreateDate(), map);
@@ -288,7 +290,7 @@ public class OrganizationIndexerIndexedFieldsTest {
 	}
 
 	private void _populateRoles(
-			Organization organization, Map<String, Object> map)
+			Organization organization, Map<String, String> map)
 		throws Exception {
 
 		_indexedFieldsFixture.populateRoleIdFields(

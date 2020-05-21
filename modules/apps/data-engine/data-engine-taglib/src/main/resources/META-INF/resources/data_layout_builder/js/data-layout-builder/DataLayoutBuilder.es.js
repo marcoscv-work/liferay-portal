@@ -197,21 +197,18 @@ class DataLayoutBuilder extends React.Component {
 					}
 				}
 				else {
+					const formattedValue = this.getDataDefinitionFieldFormattedValue(
+						dataType,
+						value
+					);
+
 					if (this._isCustomProperty(fieldName)) {
 						fieldConfig.customProperties[
 							fieldName
-						] = this.getDataDefinitionFieldFormattedValue(
-							dataType,
-							value
-						);
+						] = formattedValue;
 					}
 					else {
-						fieldConfig[
-							fieldName
-						] = this.getDataDefinitionFieldFormattedValue(
-							dataType,
-							value
-						);
+						fieldConfig[fieldName] = formattedValue;
 					}
 				}
 			},
@@ -401,11 +398,15 @@ class DataLayoutBuilder extends React.Component {
 
 		return (
 			<div
-				className={classNames('ddm-form-builder', {
-					'ddm-form-builder--sidebar-open': sidebarOpen,
-				})}
-				ref={this.containerRef}
-			></div>
+				className={classNames(
+					'data-engine-form-builder ddm-form-builder',
+					{
+						'ddm-form-builder--sidebar-open': sidebarOpen,
+					}
+				)}
+			>
+				<div className="sheet" ref={this.containerRef} />
+			</div>
 		);
 	}
 

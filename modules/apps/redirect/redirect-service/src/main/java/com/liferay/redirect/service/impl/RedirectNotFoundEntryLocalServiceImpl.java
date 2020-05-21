@@ -16,6 +16,7 @@ package com.liferay.redirect.service.impl;
 
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.OrderFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
@@ -88,8 +89,8 @@ public class RedirectNotFoundEntryLocalServiceImpl
 
 		return redirectNotFoundEntryLocalService.dynamicQuery(
 			_getRedirectNotFoundEntriesDynamicQuery(
-				groupId, ignored, minModifiedDate),
-			start, end, obc);
+				groupId, ignored, minModifiedDate, obc),
+			start, end);
 	}
 
 	@Override
@@ -99,8 +100,8 @@ public class RedirectNotFoundEntryLocalServiceImpl
 
 		return redirectNotFoundEntryLocalService.dynamicQuery(
 			_getRedirectNotFoundEntriesDynamicQuery(
-				groupId, null, minModifiedDate),
-			start, end, obc);
+				groupId, null, minModifiedDate, obc),
+			start, end);
 	}
 
 	@Override
@@ -169,6 +170,26 @@ public class RedirectNotFoundEntryLocalServiceImpl
 		if (minModifiedDate != null) {
 			redirectNotFoundEntriesDynamicQuery.add(
 				RestrictionsFactoryUtil.gt("modifiedDate", minModifiedDate));
+		}
+
+		return redirectNotFoundEntriesDynamicQuery;
+	}
+
+	private DynamicQuery _getRedirectNotFoundEntriesDynamicQuery(
+		long groupId, Boolean ignored, Date minModifiedDate,
+		OrderByComparator<RedirectNotFoundEntry> obc) {
+
+		DynamicQuery redirectNotFoundEntriesDynamicQuery =
+			_getRedirectNotFoundEntriesDynamicQuery(
+				groupId, ignored, minModifiedDate);
+
+		if (obc != null) {
+			OrderFactoryUtil.addOrderByComparator(
+				redirectNotFoundEntriesDynamicQuery, obc);
+		}
+		else {
+			redirectNotFoundEntriesDynamicQuery.addOrder(
+				OrderFactoryUtil.asc("createDate"));
 		}
 
 		return redirectNotFoundEntriesDynamicQuery;

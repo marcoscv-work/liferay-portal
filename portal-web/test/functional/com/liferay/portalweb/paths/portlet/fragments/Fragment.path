@@ -44,8 +44,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>PAGE_EDITOR_NO_FRAGMENTS_MESSAGE</td>
+	<td>xpath=(//*[contains(@class,'fragment-${key_fragmentClass}')]//lfr-drop-zone//div[contains(@class,'no-fragments-message__title') and contains(.,'${key_content}')])[${key_position}]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>FRAGMENT_BODY</td>
 	<td>//div[contains(@class,'page-editor__topper') and contains(.,'${key_fragmentName}')]/div[contains(@class,'page-editor__topper__content')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRAGMENT_BODY_IN_FRAGMENT</td>
+	<td>//div[contains(@class,'page-editor__topper') and contains(.,'${key_fragmentName}')]/div[contains(@class,'page-editor__topper__content')]//preceding-sibling::div[contains(.,'${key_inFragmentName}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -127,6 +137,17 @@
 <tr>
 	<td>FRAGMENT_COMMENT_ICON</td>
 	<td>//div[contains(@class,'page-editor__topper__bar') and contains(.,'${key_fragmentName}')]//button[*[name()='svg'][*[contains(@class,'comments-borde')]]]</td>
+	<td></td>
+</tr>
+<!--FRAGMENT_TABS-->
+<tr>
+	<td>ACTIVE_NAV_ITEM_TAB</td>
+	<td>//div[contains(@class,'navbar')]//button[contains(@aria-selected,'true') and normalize-space()='${key_navItem}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>NAV_ITEM_TAB</td>
+	<td>//div[contains(@class,'navbar')]//button[normalize-space()='${key_navItem}']</td>
 	<td></td>
 </tr>
 <!--FRAGMENT_CONFIGURAION-->

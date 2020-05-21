@@ -16,8 +16,9 @@ import {useModal} from '@clayui/modal';
 import classNames from 'classnames';
 import {useIsMounted} from 'frontend-js-react-web';
 import PropTypes from 'prop-types';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 
+import useSetRef from '../../../core/hooks/useSetRef';
 import {
 	LayoutDataPropTypes,
 	getLayoutDataItemPropTypes,
@@ -30,6 +31,7 @@ import {LAYOUT_DATA_ITEM_TYPES} from '../../config/constants/layoutDataItemTypes
 import {useDispatch, useSelector} from '../../store/index';
 import duplicateItem from '../../thunks/duplicateItem';
 import resizeColumns from '../../thunks/resizeColumns';
+import {getResponsiveConfig} from '../../utils/getResponsiveConfig';
 import Topper from '../Topper';
 import FloatingToolbar from '../floating-toolbar/FloatingToolbar';
 import SaveFragmentCompositionModal from '../floating-toolbar/SaveFragmentCompositionModal';
@@ -68,11 +70,12 @@ const RowWithControls = React.forwardRef(
 		const selectedViewportSize = useSelector(
 			(state) => state.selectedViewportSize
 		);
-		const selectedViewportSizeConfig =
-			config[selectedViewportSize] || config;
 
-		const rowRef = useRef(null);
-		const rowRect = getRect(rowRef.current);
+		const rowConfig = getResponsiveConfig(config, selectedViewportSize);
+
+		const [setRef, itemElement] = useSetRef(ref);
+
+		const rowRect = getRect(itemElement);
 		const [highlightedColumn, setHighLightedColumn] = useState(null);
 		const [resizeFinished, setResizeFinished] = useState(false);
 		const [showOverlay, setShowOverlay] = useState(false);
@@ -114,7 +117,7 @@ const RowWithControls = React.forwardRef(
 		};
 
 		const onResizing = ({clientX}, columnInfo) => {
-			if (rowRef.current) {
+			if (itemElement) {
 				const index = getHighlightedColumnIndex(clientX);
 				setHighLightedColumn(index);
 
@@ -184,33 +187,27 @@ const RowWithControls = React.forwardRef(
 
 		buttons.push(LAYOUT_DATA_FLOATING_TOOLBAR_BUTTONS.rowConfiguration);
 
+		const {verticalAlignment} = rowConfig;
+
 		return (
-			<Topper item={item} itemRef={ref} layoutData={layoutData}>
+			<Topper
+				item={item}
+				itemElement={itemElement}
+				layoutData={layoutData}
+			>
 				<Row
 					className={classNames('page-editor__row', {
-						'align-bottom':
-							selectedViewportSizeConfig.verticalAlignment ===
-							'bottom',
-						'align-middle':
-							selectedViewportSizeConfig.verticalAlignment ===
-							'middle',
+						'align-bottom': verticalAlignment === 'bottom',
+						'align-middle': verticalAlignment === 'middle',
 					})}
 					item={item}
 					layoutData={layoutData}
-					ref={(node) => {
-						if (node) {
-							rowRef.current = node;
-
-							if (ref) {
-								ref.current = node;
-							}
-						}
-					}}
+					ref={setRef}
 				>
 					<FloatingToolbar
 						buttons={buttons}
 						item={item}
-						itemRef={ref}
+						itemElement={itemElement}
 						onButtonClick={handleButtonClick}
 					/>
 

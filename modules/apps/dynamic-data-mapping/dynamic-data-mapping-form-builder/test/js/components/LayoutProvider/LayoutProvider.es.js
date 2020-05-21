@@ -415,6 +415,7 @@ describe('LayoutProvider', () => {
 				).toEqual(2);
 
 				const mockEvent = {
+					activePage: 0,
 					fieldName: 'text1',
 				};
 
@@ -437,6 +438,7 @@ describe('LayoutProvider', () => {
 
 				const {child, provider} = component.refs;
 				const mockEvent = {
+					activePage: 0,
 					fieldName: 'radio',
 				};
 
@@ -606,7 +608,7 @@ describe('LayoutProvider', () => {
 
 				const {dispatch} = child.context;
 
-				dispatch('pageAdded');
+				dispatch('pageAdded', {pageIndex: 1});
 
 				jest.runAllTimers();
 
@@ -625,7 +627,7 @@ describe('LayoutProvider', () => {
 
 				const {dispatch} = child.context;
 
-				dispatch('pageReset');
+				dispatch('pageReset', {pageIndex: 0});
 
 				jest.runAllTimers();
 

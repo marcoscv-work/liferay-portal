@@ -12,6 +12,10 @@
  * details.
  */
 
+import * as FormSupport from '../FormRenderer/FormSupport.es';
+
+import './MultiPagesRenderer.soy';
+
 import './PaginatedPageRenderer.soy';
 
 import './SimplePageRenderer.soy';
@@ -24,6 +28,8 @@ import 'clay-button';
 
 import 'clay-dropdown';
 
+import templates from './PageRenderer.soy';
+
 import 'clay-modal';
 import core from 'metal';
 import Component from 'metal-component';
@@ -31,8 +37,12 @@ import dom from 'metal-dom';
 import Soy from 'metal-soy';
 import {Config} from 'metal-state';
 
-import * as FormSupport from '../FormRenderer/FormSupport.es';
-import templates from './PageRenderer.soy';
+import '../SuccessPage/SuccessPagePaginationItem.soy';
+
+import '../SuccessPage/SuccessPageRenderer.soy';
+
+import '../SuccessPage/SuccessPageWizardItem.soy';
+import {setValue} from '../../util/i18n.es';
 
 class PageRenderer extends Component {
 	getPage(page) {
@@ -79,11 +89,107 @@ class PageRenderer extends Component {
 	}
 
 	prepareStateForRender(states) {
+		if (states.view === 'fieldSets') {
+			this._updateSuccessPage({
+				body: '',
+				enabled: false,
+				title: '',
+			});
+		}
+
 		return {
 			...states,
 			empty: this.isEmptyPage(states.page),
 			page: this.getPage(states.page),
+			pageSettingsItems: this._pageSettingsItems(states.pages),
+			pageSuccessSettingsItems: this._pageSuccessSettingsItems(
+				states.pages
+			),
 		};
+	}
+
+	_addPage(pageIndex) {
+		const {dispatch} = this.context;
+
+		dispatch('pageAdded', {
+			pageIndex,
+		});
+	}
+
+	_addSuccessPage() {
+		const {dispatch} = this.context;
+		const {pages} = this;
+
+		this._updateSuccessPage({
+			body: Liferay.Language.get(
+				'your-information-was-successfully-received-thank-you-for-filling-out-the-form'
+			),
+			enabled: true,
+			title: Liferay.Language.get('thank-you'),
+		});
+
+		dispatch('activePageUpdated', pages.length);
+	}
+
+	_deletePage() {
+		const {dispatch} = this.context;
+
+		dispatch('pageDeleted', this.pageIndex);
+	}
+
+	_deleteSuccessPage() {
+		const {dispatch} = this.context;
+		const {pages} = this;
+
+		this._updateSuccessPage({
+			enabled: false,
+		});
+
+		dispatch('activePageUpdated', pages.length - 1);
+	}
+
+	_resetPage(pageIndex) {
+		const {dispatch} = this.context;
+
+		dispatch('pageReset', {
+			pageIndex,
+		});
+	}
+
+	_handleAddPageClicked() {
+		const {pageIndex} = this;
+
+		this._addPage(pageIndex);
+	}
+
+	_handleAddSuccessPageClicked() {
+		const {pageIndex} = this;
+
+		this._addSuccessPage(pageIndex);
+	}
+
+	_handleDropdownItemClicked({data}) {
+		const {pageIndex, successPageSettings} = this;
+		const {settingsItem} = data.item;
+
+		this.setState({
+			dropdownExpanded: false,
+		});
+
+		if (settingsItem === 'reset-page') {
+			this._resetPage(pageIndex);
+		}
+		else if (settingsItem === 'remove-page') {
+			if (
+				successPageSettings.enabled &&
+				pageIndex == this.pages.length - 1
+			) {
+				this._deleteSuccessPage();
+			}
+			else {
+				this._deletePage();
+			}
+		}
 	}
 
 	_handleFieldBlurred(event) {
@@ -110,6 +216,54 @@ class PageRenderer extends Component {
 	_handleFieldFocused(event) {
 		this.emit('fieldFocused', event);
 	}
+
+	_pageSettingsItems(pages) {
+		const {successPageSettings} = this;
+		const pageSettingsItems = [
+			{
+				label: Liferay.Language.get('reset-page'),
+				settingsItem: 'reset-page',
+			},
+		];
+
+		if (
+			(successPageSettings.enabled && pages.length > 2) ||
+			(pages.length > 1 && !successPageSettings.enabled)
+		) {
+			pageSettingsItems.push({
+				label: Liferay.Language.get('remove-page'),
+				settingsItem: 'remove-page',
+			});
+		}
+
+		return pageSettingsItems;
+	}
+
+	_pageSuccessSettingsItems() {
+		const pageSuccessSettingsItems = [
+			{
+				label: Liferay.Language.get('remove-success-page'),
+				settingsItem: 'remove-page',
+			},
+		];
+
+		return pageSuccessSettingsItems;
+	}
+
+	_updateSuccessPage({body = '', enabled, title = ''}) {
+		const {dispatch} = this.context;
+		const {editingLanguageId} = this;
+		const successPageSettings = {
+			body: {},
+			enabled,
+			title: {},
+		};
+
+		setValue(successPageSettings, editingLanguageId, 'body', body);
+		setValue(successPageSettings, editingLanguageId, 'title', title);
+
+		dispatch('successPageChanged', successPageSettings);
+	}
 }
 
 PageRenderer.STATE = {
@@ -121,6 +275,14 @@ PageRenderer.STATE = {
 	 */
 
 	activePage: Config.number().value(0),
+
+	/**
+	 * @instance
+	 * @memberof FormPage
+	 * @type {?number}
+	 */
+
+	dropdownExpanded: Config.bool().value(false),
 
 	/**
 	 * @instance
@@ -148,6 +310,24 @@ PageRenderer.STATE = {
 	pageIndex: Config.number().value(0),
 
 	/**
+	 * @default 1
+	 * @instance
+	 * @memberof FormPage
+	 * @type {?number}
+	 */
+
+	pageSettingsItems: Config.array(),
+
+	/**
+	 * @default 1
+	 * @instance
+	 * @memberof FormPage
+	 * @type {?number}
+	 */
+
+	pageSuccessSettingsItems: Config.array(),
+
+	/**
 	 * @default undefined
 	 * @instance
 	 * @memberof FormRenderer
@@ -155,6 +335,16 @@ PageRenderer.STATE = {
 	 */
 
 	spritemap: Config.string().required(),
+
+	strings: Config.object().value({
+		'success-page': Liferay.Language.get('success-page'),
+	}),
+
+	successPageSettings: Config.shapeOf({
+		body: Config.object(),
+		enabled: Config.bool(),
+		title: Config.object(),
+	}).value({}),
 };
 
 Soy.register(PageRenderer, templates);

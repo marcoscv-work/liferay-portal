@@ -30,24 +30,24 @@ long formInstanceId = ddmFormDisplayContext.getFormInstanceId();
 	</c:when>
 	<c:when test="<%= !ddmFormDisplayContext.hasAddFormInstanceRecordPermission() && !ddmFormDisplayContext.hasViewPermission() %>">
 		<div class="ddm-form-basic-info">
-			<div class="container-fluid-1280">
+			<clay:container-fluid>
 				<clay:alert
 					message='<%= LanguageUtil.get(resourceBundle, "you-do-not-have-the-permission-to-view-this-form") %>'
 					style="warning"
 					title='<%= LanguageUtil.get(resourceBundle, "warning") %>'
 				/>
-			</div>
+			</clay:container-fluid>
 		</div>
 	</c:when>
 	<c:when test="<%= ddmFormDisplayContext.isRequireAuthentication() %>">
 		<div class="ddm-form-basic-info">
-			<div class="container-fluid-1280">
+			<clay:container-fluid>
 				<clay:alert
 					message='<%= LanguageUtil.get(resourceBundle, "you-need-to-be-signed-in-to-view-this-form") %>'
 					style="warning"
 					title='<%= LanguageUtil.get(resourceBundle, "warning") %>'
 				/>
-			</div>
+			</clay:container-fluid>
 		</div>
 	</c:when>
 	<c:otherwise>
@@ -70,11 +70,11 @@ long formInstanceId = ddmFormDisplayContext.getFormInstanceId();
 
 				<div class="portlet-forms">
 					<div class="ddm-form-basic-info ddm-form-success-page">
-						<div class="container-fluid-1280">
+						<clay:container-fluid>
 							<h1 class="ddm-form-name"><%= HtmlUtil.escape(GetterUtil.getString(title.getString(displayLocale), title.getString(title.getDefaultLocale()))) %></h1>
 
 							<h5 class="ddm-form-description"><%= HtmlUtil.escape(GetterUtil.getString(body.getString(displayLocale), body.getString(body.getDefaultLocale()))) %></h5>
-						</div>
+						</clay:container-fluid>
 					</div>
 				</div>
 			</c:when>
@@ -133,7 +133,7 @@ long formInstanceId = ddmFormDisplayContext.getFormInstanceId();
 						<liferay-ui:error-principal />
 
 						<c:if test="<%= ddmFormDisplayContext.isFormShared() %>">
-							<div class="container-fluid-1280">
+							<clay:container-fluid>
 								<div class="locale-actions">
 									<liferay-ui:language
 										formAction="<%= currentURL %>"
@@ -141,23 +141,23 @@ long formInstanceId = ddmFormDisplayContext.getFormInstanceId();
 										languageIds="<%= ddmFormDisplayContext.getAvailableLanguageIds() %>"
 									/>
 								</div>
-							</div>
+							</clay:container-fluid>
 						</c:if>
 
 						<c:if test="<%= !ddmFormDisplayContext.hasAddFormInstanceRecordPermission() %>">
 							<div class="ddm-form-basic-info">
-								<div class="container-fluid-1280">
+								<clay:container-fluid>
 									<clay:alert
 										message='<%= LanguageUtil.get(resourceBundle, "you-do-not-have-the-permission-to-submit-this-form") %>'
 										style="warning"
 										title='<%= LanguageUtil.get(resourceBundle, "warning") %>'
 									/>
-								</div>
+								</clay:container-fluid>
 							</div>
 						</c:if>
 
 						<div class="ddm-form-basic-info">
-							<div class="container-fluid-1280">
+							<clay:container-fluid>
 								<h1 class="ddm-form-name"><%= HtmlUtil.escape(formInstance.getName(displayLocale)) %></h1>
 
 								<%
@@ -167,14 +167,17 @@ long formInstanceId = ddmFormDisplayContext.getFormInstanceId();
 								<c:if test="<%= Validator.isNotNull(description) %>">
 									<h5 class="ddm-form-description"><%= description %></h5>
 								</c:if>
-							</div>
+							</clay:container-fluid>
 						</div>
 
-						<div class="container-fluid-1280 ddm-form-builder-app ddm-form-builder-app-not-ready" id="<%= ddmFormDisplayContext.getContainerId() %>container">
+						<clay:container-fluid
+							className="ddm-form-builder-app ddm-form-builder-app-not-ready"
+							id='<%= ddmFormDisplayContext.getContainerId() + "container" %>'
+						>
 							<%= ddmFormDisplayContext.getDDMFormHTML() %>
 
 							<aui:input name="empty" type="hidden" value="" />
-						</div>
+						</clay:container-fluid>
 					</aui:form>
 				</div>
 
@@ -282,24 +285,30 @@ long formInstanceId = ddmFormDisplayContext.getFormInstanceId();
 						</c:choose>
 					}
 
-					<portlet:namespace />form = Liferay.component(
-						'<%= ddmFormDisplayContext.getContainerId() %>'
-					);
+					<portlet:namespace />sessionIntervalId = setInterval(function () {
+						if (Liferay.Session) {
+							clearInterval(<portlet:namespace />sessionIntervalId);
 
-					if (<portlet:namespace />form) {
-						<portlet:namespace />initForm();
-					}
-					else {
-						Liferay.componentReady(
-							'<%= ddmFormDisplayContext.getContainerId() %>'
-						).then(function (component) {
-							<portlet:namespace />form = component;
+							<portlet:namespace />form = Liferay.component(
+								'<%= ddmFormDisplayContext.getContainerId() %>'
+							);
 
-							if (component) {
+							if (<portlet:namespace />form) {
 								<portlet:namespace />initForm();
 							}
-						});
-					}
+							else {
+								Liferay.componentReady(
+									'<%= ddmFormDisplayContext.getContainerId() %>'
+								).then(function (component) {
+									<portlet:namespace />form = component;
+
+									if (component) {
+										<portlet:namespace />initForm();
+									}
+								});
+							}
+						}
+					}, 1000);
 				</aui:script>
 			</c:when>
 			<c:otherwise>

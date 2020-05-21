@@ -13,15 +13,17 @@
  */
 
 import ClayForm, {ClayInput, ClaySelectWithOption} from '@clayui/form';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {config} from '../../../app/config/index';
 import CollectionSelector from '../../../common/components/CollectionSelector';
 import {LAYOUT_DATA_ITEM_DEFAULT_CONFIGURATIONS} from '../../config/constants/layoutDataItemDefaultConfigurations';
 import {LAYOUT_DATA_ITEM_TYPES} from '../../config/constants/layoutDataItemTypes';
 import selectSegmentsExperienceId from '../../selectors/selectSegmentsExperienceId';
+import InfoItemService from '../../services/InfoItemService';
 import {useDispatch, useSelector} from '../../store/index';
 import updateItemConfig from '../../thunks/updateItemConfig';
+import {useId} from '../../utils/useId';
 
 const LAYOUT_OPTIONS = [
 	{label: Liferay.Language.get('full-width'), value: '1'},
@@ -37,7 +39,10 @@ function collectionIsMapped(collectionConfig) {
 }
 
 export const CollectionConfigurationPanel = ({item}) => {
+	const collectionLayoutId = useId();
+	const collectionNumberOfItemsId = useId();
 	const dispatch = useDispatch();
+	const listStyleId = useId();
 	const segmentsExperienceId = useSelector(selectSegmentsExperienceId);
 
 	const collectionConfig = {
@@ -57,6 +62,26 @@ export const CollectionConfigurationPanel = ({item}) => {
 		);
 	};
 
+	const [availableListRenderers, setAvailableListRenderers] = useState([]);
+
+	const collectionItemType = collectionConfig.collection
+		? collectionConfig.collection.itemType
+		: null;
+
+	useEffect(() => {
+		if (collectionItemType) {
+			InfoItemService.getAvailableListRenderers({
+				className: collectionItemType,
+			})
+				.then((response) => {
+					setAvailableListRenderers(response);
+				})
+				.catch(() => {
+					setAvailableListRenderers([]);
+				});
+		}
+	}, [collectionItemType]);
+
 	return (
 		<>
 			<ClayForm.Group small>
@@ -73,13 +98,32 @@ export const CollectionConfigurationPanel = ({item}) => {
 			</ClayForm.Group>
 			{collectionIsMapped(item.config) && (
 				<>
+					{availableListRenderers.length > 0 && (
+						<ClayForm.Group small>
+							<label htmlFor={listStyleId}>
+								{Liferay.Language.get('list-style')}
+							</label>
+							<ClaySelectWithOption
+								aria-label={Liferay.Language.get('list-style')}
+								id={listStyleId}
+								onChange={({target: {value}}) =>
+									handleConfigurationChanged({
+										listStyle: value,
+									})
+								}
+								options={availableListRenderers}
+								value={item.config.listStyle}
+							/>
+						</ClayForm.Group>
+					)}
+
 					<ClayForm.Group small>
-						<label htmlFor="collectionLayout">
+						<label htmlFor={collectionLayoutId}>
 							{Liferay.Language.get('layout')}
 						</label>
 						<ClaySelectWithOption
 							aria-label={Liferay.Language.get('layout')}
-							id="collectionLayout"
+							id={collectionLayoutId}
 							onChange={({target: {value}}) =>
 								handleConfigurationChanged({
 									numberOfColumns: value,
@@ -91,11 +135,11 @@ export const CollectionConfigurationPanel = ({item}) => {
 					</ClayForm.Group>
 
 					<ClayForm.Group small>
-						<label htmlFor="collectionNumberOfItems">
+						<label htmlFor={collectionNumberOfItemsId}>
 							{Liferay.Language.get('max-number-of-items')}
 						</label>
 						<ClayInput
-							id="collectionNumberOfItems"
+							id={collectionNumberOfItemsId}
 							min={1}
 							onChange={({target: {value}}) =>
 								handleConfigurationChanged({

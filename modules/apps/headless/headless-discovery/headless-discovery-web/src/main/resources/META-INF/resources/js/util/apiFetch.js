@@ -14,14 +14,16 @@
 
 import {fetch} from 'frontend-js-web';
 
-const apiFetch = (url, method = 'get', data, contentType) => {
+const apiFetch = (url, method = 'get', data, contentType, headers) => {
 	const request = {
+		headers: getHeaders(headers),
 		method: method.toUpperCase(),
 	};
 
 	if (method === 'post' || method === 'put') {
 		if (contentType === 'application/json') {
 			request.body = JSON.stringify(data);
+			request.headers['Content-Type'] = 'application/json';
 		}
 		else if (contentType === 'multipart/form-data') {
 			const formData = new FormData();
@@ -47,6 +49,16 @@ const apiFetch = (url, method = 'get', data, contentType) => {
 
 		return retVal;
 	});
+
+	function getHeaders(headers) {
+		if (headers && headers.filter((obj) => obj.key).length) {
+			return Object.assign(
+				...headers.map((obj) => ({[obj.key]: obj.value}))
+			);
+		}
+
+		return {};
+	}
 };
 
 export default apiFetch;

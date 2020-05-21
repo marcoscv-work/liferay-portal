@@ -16,6 +16,7 @@ package com.liferay.portal.vulcan.yaml;
 
 import com.liferay.portal.vulcan.yaml.config.ConfigYAML;
 import com.liferay.portal.vulcan.yaml.config.Security;
+import com.liferay.portal.vulcan.yaml.exception.InvalidYAMLException;
 import com.liferay.portal.vulcan.yaml.openapi.Items;
 import com.liferay.portal.vulcan.yaml.openapi.OpenAPIYAML;
 import com.liferay.portal.vulcan.yaml.openapi.Parameter;
@@ -25,9 +26,12 @@ import com.liferay.portal.vulcan.yaml.openapi.Schema;
 import java.util.List;
 import java.util.Map;
 
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.error.MarkedYAMLException;
 import org.yaml.snakeyaml.introspector.PropertyUtils;
 import org.yaml.snakeyaml.representer.Representer;
 
@@ -37,11 +41,21 @@ import org.yaml.snakeyaml.representer.Representer;
 public class YAMLUtil {
 
 	public static ConfigYAML loadConfigYAML(String yamlString) {
-		return _YAML_CONFIG.loadAs(yamlString, ConfigYAML.class);
+		try {
+			return _YAML_CONFIG.loadAs(yamlString, ConfigYAML.class);
+		}
+		catch (MarkedYAMLException markedYAMLException) {
+			throw new InvalidYAMLException(markedYAMLException);
+		}
 	}
 
 	public static OpenAPIYAML loadOpenAPIYAML(String yamlString) {
-		return _YAML_OPEN_API.loadAs(yamlString, OpenAPIYAML.class);
+		try {
+			return _YAML_OPEN_API.loadAs(yamlString, OpenAPIYAML.class);
+		}
+		catch (MarkedYAMLException markedYAMLException) {
+			throw new InvalidYAMLException(markedYAMLException);
+		}
 	}
 
 	private static final Yaml _YAML_CONFIG;
@@ -65,7 +79,13 @@ public class YAMLUtil {
 
 		configYAMLConstructor.addTypeDescription(securityTypeDescription);
 
-		_YAML_CONFIG = new Yaml(configYAMLConstructor, representer);
+		LoaderOptions loaderOptions = new LoaderOptions();
+
+		loaderOptions.setAllowDuplicateKeys(false);
+
+		_YAML_CONFIG = new Yaml(
+			configYAMLConstructor, representer, new DumperOptions(),
+			loaderOptions);
 
 		Constructor openAPIYAMLConstructor = new Constructor(OpenAPIYAML.class);
 
@@ -151,7 +171,9 @@ public class YAMLUtil {
 
 		openAPIYAMLConstructor.addTypeDescription(schemaTypeDescription);
 
-		_YAML_OPEN_API = new Yaml(openAPIYAMLConstructor, representer);
+		_YAML_OPEN_API = new Yaml(
+			openAPIYAMLConstructor, representer, new DumperOptions(),
+			loaderOptions);
 	}
 
 }

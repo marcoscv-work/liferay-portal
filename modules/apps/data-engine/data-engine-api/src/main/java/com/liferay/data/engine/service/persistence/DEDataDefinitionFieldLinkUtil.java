@@ -1114,6 +1114,98 @@ public class DEDataDefinitionFieldLinkUtil {
 	}
 
 	/**
+	 * Returns all the de data definition field links where classNameId = &#63; and ddmStructureId = &#63; and fieldName = any &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>DEDataDefinitionFieldLinkModelImpl</code>.
+	 * </p>
+	 *
+	 * @param classNameId the class name ID
+	 * @param ddmStructureId the ddm structure ID
+	 * @param fieldNames the field names
+	 * @return the matching de data definition field links
+	 */
+	public static List<DEDataDefinitionFieldLink> findByC_DDMSI_F(
+		long classNameId, long ddmStructureId, String[] fieldNames) {
+
+		return getPersistence().findByC_DDMSI_F(
+			classNameId, ddmStructureId, fieldNames);
+	}
+
+	/**
+	 * Returns a range of all the de data definition field links where classNameId = &#63; and ddmStructureId = &#63; and fieldName = any &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>DEDataDefinitionFieldLinkModelImpl</code>.
+	 * </p>
+	 *
+	 * @param classNameId the class name ID
+	 * @param ddmStructureId the ddm structure ID
+	 * @param fieldNames the field names
+	 * @param start the lower bound of the range of de data definition field links
+	 * @param end the upper bound of the range of de data definition field links (not inclusive)
+	 * @return the range of matching de data definition field links
+	 */
+	public static List<DEDataDefinitionFieldLink> findByC_DDMSI_F(
+		long classNameId, long ddmStructureId, String[] fieldNames, int start,
+		int end) {
+
+		return getPersistence().findByC_DDMSI_F(
+			classNameId, ddmStructureId, fieldNames, start, end);
+	}
+
+	/**
+	 * Returns an ordered range of all the de data definition field links where classNameId = &#63; and ddmStructureId = &#63; and fieldName = any &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>DEDataDefinitionFieldLinkModelImpl</code>.
+	 * </p>
+	 *
+	 * @param classNameId the class name ID
+	 * @param ddmStructureId the ddm structure ID
+	 * @param fieldNames the field names
+	 * @param start the lower bound of the range of de data definition field links
+	 * @param end the upper bound of the range of de data definition field links (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching de data definition field links
+	 */
+	public static List<DEDataDefinitionFieldLink> findByC_DDMSI_F(
+		long classNameId, long ddmStructureId, String[] fieldNames, int start,
+		int end,
+		OrderByComparator<DEDataDefinitionFieldLink> orderByComparator) {
+
+		return getPersistence().findByC_DDMSI_F(
+			classNameId, ddmStructureId, fieldNames, start, end,
+			orderByComparator);
+	}
+
+	/**
+	 * Returns an ordered range of all the de data definition field links where classNameId = &#63; and ddmStructureId = &#63; and fieldName = &#63;, optionally using the finder cache.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>DEDataDefinitionFieldLinkModelImpl</code>.
+	 * </p>
+	 *
+	 * @param classNameId the class name ID
+	 * @param ddmStructureId the ddm structure ID
+	 * @param fieldName the field name
+	 * @param start the lower bound of the range of de data definition field links
+	 * @param end the upper bound of the range of de data definition field links (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching de data definition field links
+	 */
+	public static List<DEDataDefinitionFieldLink> findByC_DDMSI_F(
+		long classNameId, long ddmStructureId, String[] fieldNames, int start,
+		int end, OrderByComparator<DEDataDefinitionFieldLink> orderByComparator,
+		boolean useFinderCache) {
+
+		return getPersistence().findByC_DDMSI_F(
+			classNameId, ddmStructureId, fieldNames, start, end,
+			orderByComparator, useFinderCache);
+	}
+
+	/**
 	 * Removes all the de data definition field links where classNameId = &#63; and ddmStructureId = &#63; and fieldName = &#63; from the database.
 	 *
 	 * @param classNameId the class name ID
@@ -1140,6 +1232,21 @@ public class DEDataDefinitionFieldLinkUtil {
 
 		return getPersistence().countByC_DDMSI_F(
 			classNameId, ddmStructureId, fieldName);
+	}
+
+	/**
+	 * Returns the number of de data definition field links where classNameId = &#63; and ddmStructureId = &#63; and fieldName = any &#63;.
+	 *
+	 * @param classNameId the class name ID
+	 * @param ddmStructureId the ddm structure ID
+	 * @param fieldNames the field names
+	 * @return the number of matching de data definition field links
+	 */
+	public static int countByC_DDMSI_F(
+		long classNameId, long ddmStructureId, String[] fieldNames) {
+
+		return getPersistence().countByC_DDMSI_F(
+			classNameId, ddmStructureId, fieldNames);
 	}
 
 	/**
@@ -1229,6 +1336,23 @@ public class DEDataDefinitionFieldLinkUtil {
 
 		return getPersistence().countByC_C_DDMSI_F(
 			classNameId, classPK, ddmStructureId, fieldName);
+	}
+
+	/**
+	 * Returns the number of de data definition field links where classNameId = &#63; and classPK = &#63; and ddmStructureId = &#63; and fieldName = any &#63;.
+	 *
+	 * @param classNameId the class name ID
+	 * @param classPK the class pk
+	 * @param ddmStructureId the ddm structure ID
+	 * @param fieldNames the field names
+	 * @return the number of matching de data definition field links
+	 */
+	public static int countByC_C_DDMSI_F(
+		long classNameId, long classPK, long ddmStructureId,
+		String[] fieldNames) {
+
+		return getPersistence().countByC_C_DDMSI_F(
+			classNameId, classPK, ddmStructureId, fieldNames);
 	}
 
 	/**

@@ -19,14 +19,14 @@ import com.liferay.fragment.renderer.FragmentRendererController;
 import com.liferay.info.display.contributor.InfoDisplayContributorTracker;
 import com.liferay.layout.list.retriever.LayoutListRetrieverTracker;
 import com.liferay.layout.list.retriever.ListObjectReferenceFactoryTracker;
+import com.liferay.layout.type.controller.BaseLayoutTypeControllerImpl;
 import com.liferay.layout.type.controller.portlet.internal.constants.PortletLayoutTypeControllerWebKeys;
 import com.liferay.layout.type.controller.portlet.internal.display.context.PortletLayoutDisplayContext;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
+import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutTypeController;
 import com.liferay.portal.kernel.model.Portlet;
-import com.liferay.portal.kernel.model.impl.BaseLayoutTypeControllerImpl;
 import com.liferay.portal.kernel.service.PortletLocalService;
 import com.liferay.portal.kernel.servlet.DirectRequestDispatcherFactoryUtil;
 import com.liferay.portal.kernel.servlet.TransferHeadersHelperUtil;
@@ -166,6 +166,21 @@ public class PortletLayoutTypeController extends BaseLayoutTypeControllerImpl {
 	@Override
 	public boolean isURLFriendliable() {
 		return true;
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *			 #createServletResponse(HttpServletResponse, UnsyncStringWriter)}
+	 */
+	@Deprecated
+	@Override
+	protected ServletResponse createServletResponse(
+		HttpServletResponse httpServletResponse,
+		com.liferay.portal.kernel.io.unsync.UnsyncStringWriter
+			unsyncStringWriter) {
+
+		return new PipingServletResponse(
+			httpServletResponse, unsyncStringWriter);
 	}
 
 	@Override

@@ -34,18 +34,7 @@ public class LegacyDataArchiveHelper {
 		GitWorkingDirectory legacyGitWorkingDirectory) {
 
 		_generatedArchiveDirectory = generatedArchiveDirectory;
-
 		_legacyGitWorkingDirectory = legacyGitWorkingDirectory;
-
-		LocalGitBranch upstreamLocalGitBranch =
-			_legacyGitWorkingDirectory.getUpstreamLocalGitBranch();
-
-		_legacyGitWorkingDirectory.checkoutLocalGitBranch(
-			upstreamLocalGitBranch);
-
-		_legacyGitWorkingDirectory.reset("--hard");
-
-		_legacyGitWorkingDirectory.clean();
 
 		_buildProperties = _getBuildProperties();
 

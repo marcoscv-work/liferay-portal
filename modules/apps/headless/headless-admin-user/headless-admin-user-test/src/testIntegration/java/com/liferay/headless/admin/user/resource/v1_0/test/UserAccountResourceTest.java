@@ -42,6 +42,7 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.test.rule.Inject;
 
@@ -251,20 +252,20 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 			userAccount2.getUserAccountContactInformation();
 
 		Assert.assertEquals(
-			userAccountContactInformation1.getFacebook(),
-			userAccountContactInformation2.getFacebook());
+			StringUtil.lowerCase(userAccountContactInformation1.getFacebook()),
+			StringUtil.lowerCase(userAccountContactInformation2.getFacebook()));
 		Assert.assertEquals(
-			userAccountContactInformation1.getJabber(),
-			userAccountContactInformation2.getJabber());
+			StringUtil.lowerCase(userAccountContactInformation1.getJabber()),
+			StringUtil.lowerCase(userAccountContactInformation2.getJabber()));
 		Assert.assertEquals(
-			userAccountContactInformation1.getSkype(),
-			userAccountContactInformation2.getSkype());
+			StringUtil.lowerCase(userAccountContactInformation1.getSkype()),
+			StringUtil.lowerCase(userAccountContactInformation2.getSkype()));
 		Assert.assertEquals(
-			userAccountContactInformation1.getSms(),
-			userAccountContactInformation2.getSms());
+			StringUtil.lowerCase(userAccountContactInformation1.getSms()),
+			StringUtil.lowerCase(userAccountContactInformation2.getSms()));
 		Assert.assertEquals(
-			userAccountContactInformation1.getTwitter(),
-			userAccountContactInformation2.getTwitter());
+			StringUtil.lowerCase(userAccountContactInformation1.getTwitter()),
+			StringUtil.lowerCase(userAccountContactInformation2.getTwitter()));
 
 		_assertUserAccountContactInformation(
 			userAccountContactInformation1, userAccountContactInformation2,
@@ -283,7 +284,7 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 
 	@Override
 	protected String[] getAdditionalAssertFieldNames() {
-		return new String[] {"familyName", "givenName"};
+		return new String[] {"alternateName", "familyName", "givenName"};
 	}
 
 	@Override
@@ -382,11 +383,23 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 	}
 
 	@Override
+	protected UserAccount testPatchUserAccount_addUserAccount()
+		throws Exception {
+
+		return _addUserAccount(testGroup.getGroupId(), randomUserAccount());
+	}
+
+	@Override
 	protected UserAccount testPostUserAccount_addUserAccount(
 			UserAccount userAccount)
 		throws Exception {
 
 		return _addUserAccount(testGroup.getGroupId(), userAccount);
+	}
+
+	@Override
+	protected UserAccount testPutUserAccount_addUserAccount() throws Exception {
+		return _addUserAccount(testGroup.getGroupId(), randomUserAccount());
 	}
 
 	private UserAccount _addUserAccount(long siteId, UserAccount userAccount)
@@ -489,7 +502,7 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 				setPostalAddresses(
 					new PostalAddress[] {_randomPostalAddress()});
 				setSkype(RandomTestUtil.randomString());
-				setSms(RandomTestUtil.randomString());
+				setSms(RandomTestUtil.randomString() + "@liferay.com");
 				setTelephones(new Phone[] {_randomPhone()});
 				setTwitter(RandomTestUtil.randomString());
 				setWebUrls(new WebUrl[] {_randomWebUrl()});

@@ -82,7 +82,6 @@ export default withRouter(
 					<div className="row">
 						<div className="c-mx-auto col-xl-10">
 							<h1>{Liferay.Language.get('new-question')}</h1>
-
 							<ClayForm className="c-mt-5">
 								<ClayForm.Group>
 									<label htmlFor="basicInput">
@@ -179,6 +178,7 @@ export default withRouter(
 
 								<TagSelector
 									className="c-mt-3"
+									tags={tags}
 									tagsChange={(tags) => setTags(tags)}
 									tagsLoaded={setTagsLoaded}
 								/>

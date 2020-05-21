@@ -29,6 +29,8 @@ import {Config} from 'metal-state';
 
 import templates from './FormRenderer.soy';
 
+import '../SuccessPage/SuccessPage.es';
+
 /**
  * FormRenderer.
  * @extends Component
@@ -43,6 +45,16 @@ class FormRenderer extends Component {
 		const {defaultLanguageId} = this;
 
 		return defaultLanguageId;
+	}
+
+	_getDisplayableFn() {
+		const {containerId, readOnly, viewMode} = this;
+
+		return (
+			readOnly ||
+			!viewMode ||
+			document.getElementById(containerId) !== null
+		);
 	}
 
 	_handleFieldBlurred(event) {
@@ -80,7 +92,25 @@ FormRenderer.STATE = {
 	 * @required
 	 */
 
+	containerId: Config.string().value(''),
+
+	/**
+	 * @default undefined
+	 * @memberof FormRenderer
+	 * @type {string}
+	 * @required
+	 */
+
 	defaultLanguageId: Config.string().valueFn('_defaultLanguageIdValueFn'),
+
+	/**
+	 * @default false
+	 * @instance
+	 * @memberof FormRenderer
+	 * @type {?bool}
+	 */
+
+	displayable: Config.bool().valueFn('_getDisplayableFn'),
 
 	/**
 	 * @default false
@@ -118,6 +148,15 @@ FormRenderer.STATE = {
 	portletNamespace: Config.string().required(),
 
 	/**
+	 * @default false
+	 * @instance
+	 * @memberof FormRenderer
+	 * @type {?bool}
+	 */
+
+	readOnly: Config.bool().value(false),
+
+	/**
 	 * @default []
 	 * @instance
 	 * @memberof FormRenderer
@@ -134,6 +173,15 @@ FormRenderer.STATE = {
 	 */
 
 	spritemap: Config.string().required(),
+
+	/**
+	 * @default false
+	 * @instance
+	 * @memberof FormRenderer
+	 * @type {?bool}
+	 */
+
+	viewMode: Config.bool().value(false),
 };
 
 Soy.register(FormRenderer, templates);

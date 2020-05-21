@@ -40,6 +40,7 @@ class RuleEditorWrapper extends RuleEditor {
 
 const RuleEditorModalContent = ({onClose, rule}) => {
 	const ruleEditorRef = useRef();
+	const [invalidRule, setInvalidRule] = useState(true);
 	const [ruleEditor, setRuleEditor] = useState(null);
 	const [ruleName, setRuleName] = useState('');
 
@@ -91,6 +92,8 @@ const RuleEditorModalContent = ({onClose, rule}) => {
 						dataLayoutBuilder.dispatch('ruleEdited', rule);
 						onClose();
 					},
+					ruleValidatorChanged: (isInvalid) =>
+						setInvalidRule(isInvalid),
 				},
 				key: 'create',
 				pages,
@@ -172,7 +175,7 @@ const RuleEditorModalContent = ({onClose, rule}) => {
 							{Liferay.Language.get('cancel')}
 						</ClayButton>
 						<ClayButton
-							disabled={!ruleName}
+							disabled={invalidRule || !ruleName}
 							onClick={() =>
 								rule
 									? ruleEditor.handleRuleEdited({ruleName})

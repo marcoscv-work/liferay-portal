@@ -128,6 +128,9 @@ public class FriendlyURLEntryLocalizationPersistenceTest {
 		newFriendlyURLEntryLocalization.setMvccVersion(
 			RandomTestUtil.nextLong());
 
+		newFriendlyURLEntryLocalization.setCtCollectionId(
+			RandomTestUtil.nextLong());
+
 		newFriendlyURLEntryLocalization.setCompanyId(RandomTestUtil.nextLong());
 
 		newFriendlyURLEntryLocalization.setFriendlyURLEntryId(
@@ -156,6 +159,9 @@ public class FriendlyURLEntryLocalizationPersistenceTest {
 		Assert.assertEquals(
 			existingFriendlyURLEntryLocalization.getMvccVersion(),
 			newFriendlyURLEntryLocalization.getMvccVersion());
+		Assert.assertEquals(
+			existingFriendlyURLEntryLocalization.getCtCollectionId(),
+			newFriendlyURLEntryLocalization.getCtCollectionId());
 		Assert.assertEquals(
 			existingFriendlyURLEntryLocalization.
 				getFriendlyURLEntryLocalizationId(),
@@ -212,6 +218,17 @@ public class FriendlyURLEntryLocalizationPersistenceTest {
 	}
 
 	@Test
+	public void testCountByG_C_C_L() throws Exception {
+		_persistence.countByG_C_C_L(
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), "");
+
+		_persistence.countByG_C_C_L(0L, 0L, 0L, "null");
+
+		_persistence.countByG_C_C_L(0L, 0L, 0L, (String)null);
+	}
+
+	@Test
 	public void testFindByPrimaryKeyExisting() throws Exception {
 		FriendlyURLEntryLocalization newFriendlyURLEntryLocalization =
 			addFriendlyURLEntryLocalization();
@@ -243,9 +260,10 @@ public class FriendlyURLEntryLocalizationPersistenceTest {
 
 		return OrderByComparatorFactoryUtil.create(
 			"FriendlyURLEntryLocalization", "mvccVersion", true,
-			"friendlyURLEntryLocalizationId", true, "companyId", true,
-			"friendlyURLEntryId", true, "languageId", true, "urlTitle", true,
-			"groupId", true, "classNameId", true, "classPK", true);
+			"ctCollectionId", true, "friendlyURLEntryLocalizationId", true,
+			"companyId", true, "friendlyURLEntryId", true, "languageId", true,
+			"urlTitle", true, "groupId", true, "classNameId", true, "classPK",
+			true);
 	}
 
 	@Test
@@ -518,6 +536,9 @@ public class FriendlyURLEntryLocalizationPersistenceTest {
 			_persistence.create(pk);
 
 		friendlyURLEntryLocalization.setMvccVersion(RandomTestUtil.nextLong());
+
+		friendlyURLEntryLocalization.setCtCollectionId(
+			RandomTestUtil.nextLong());
 
 		friendlyURLEntryLocalization.setCompanyId(RandomTestUtil.nextLong());
 

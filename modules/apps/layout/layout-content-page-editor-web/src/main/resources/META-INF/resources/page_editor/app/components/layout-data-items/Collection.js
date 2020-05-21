@@ -28,7 +28,7 @@ function getCollectionPrefix(collectionId, index) {
 	return `collection-${collectionId}-${index}${COLLECTION_ID_DIVIDER}`;
 }
 
-function getToControlsId(collectionId, index) {
+export function getToControlsId(collectionId, index) {
 	return (itemId) => {
 		if (!itemId) {
 			return null;
@@ -91,10 +91,6 @@ const Grid = ({
 							<CollectionItemContextProvider
 								key={index}
 								value={{
-									canElevate: {
-										bottom: i === numberOfRows - 1,
-										top: i === 0,
-									},
 									collectionFields,
 									collectionItem:
 										collection[i * numberOfColumns + j],

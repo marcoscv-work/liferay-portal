@@ -9,6 +9,7 @@
 	{@param? _handleFieldFocused: any}
 	{@param? activePage: int}
 	{@param? cancelLabel: string}
+	{@param? displayable: bool}
 	{@param? editable: bool}
 	{@param? editingLanguageId: string}
 	{@param? paginationMode: string}
@@ -18,77 +19,93 @@
 	{@param? showSubmitButton: bool}
 	{@param? strings: map<string, string>}
 	{@param? submitLabel: string}
+	{@param? view: string}
+	{@param? viewMode: bool}
+	{@param? successPageSettings: ?}
 
-	{let $currentPaginationMode: $paginationMode ?: 'wizard' /}
-	{let $currentPage: $activePage ?: 0 /}
-	{let $total: length($pages) /}
+	{if $displayable}
+		{let $currentPaginationMode: $paginationMode ?: 'wizard' /}
+		{let $currentPage: $activePage ?: 0 /}
+		{let $total: length($pages) /}
 
-	{let $classes kind="text"}
-		lfr-ddm-form-container position-relative
+		{let $sheet: $view == 'fieldSets' ? 'sheet' : '' /}
 
-		{if not $editable}
-			{sp}ddm-user-view-content
-		{/if}
-	{/let}
+		<div class="{$sheet}">
 
-	<div class="{$classes}">
-		{if $currentPaginationMode == 'tabbed'}
-			{let $page: $pages[$currentPage] /}
+			{let $classes kind="text"}
+				lfr-ddm-form-container position-relative
 
-			{call PageRenderer.render}
-				{param activePage: $activePage /}
-				{param cancelLabel: $cancelLabel ?: 'cancel' /}
-				{param editable: $editable /}
-				{param events: [
-					'fieldBlurred': $_handleFieldBlurred,
-					'fieldClicked': $_handleFieldClicked,
-					'fieldEdited': $_handleFieldEdited,
-					'fieldFocused': $_handleFieldFocused
-				] /}
-				{param key: 'pageRenderer' + $activePage /}
-				{param page: $page /}
-				{param pageIndex: $activePage /}
-				{param pages: $pages /}
-				{param paginationMode: $currentPaginationMode /}
-				{param readOnly: $readOnly /}
-				{param redirectURL: $redirectURL /}
-				{param ref: 'pageRenderer' + $activePage /}
-				{param showCancelButton: $showCancelButton != false /}
-				{param showSubmitButton: $showSubmitButton != false /}
-				{param spritemap: $spritemap /}
-				{param strings: $strings /}
-				{param submitLabel: $submitLabel ?: 'submit' /}
-				{param total: $total /}
-			{/call}
-		{else}
-			{foreach $page in $pages}
-				{call PageRenderer.render}
-					{param activePage: $activePage /}
-					{param cancelLabel: $cancelLabel ?: 'cancel' /}
-					{param editable: $editable /}
-					{param editingLanguageId: $editingLanguageId /}
-					{param events: [
-						'fieldBlurred': $_handleFieldBlurred,
-						'fieldClicked': $_handleFieldClicked,
-						'fieldEdited': $_handleFieldEdited,
-						'fieldFocused': $_handleFieldFocused
-					] /}
-					{param key: index($page) /}
-					{param page: $page /}
-					{param pageIndex: index($page) /}
-					{param pages: $pages /}
-					{param paginationMode: $currentPaginationMode /}
-					{param readOnly: $readOnly /}
-					{param redirectURL: $redirectURL /}
-					{param ref: 'pageRenderer' + index($page) /}
-					{param showCancelButton: $showCancelButton != false /}
-					{param showSubmitButton: $showSubmitButton != false /}
-					{param spritemap: $spritemap /}
-					{param strings: $strings /}
-					{param submitLabel: $submitLabel ?: 'submit' /}
-					{param total: $total /}
-				{/call}
-			{/foreach}
-		{/if}
-	</div>
+				{if not $editable}
+					{sp}ddm-user-view-content
+				{/if}
+			{/let}
+
+			<div class="{$classes}">
+				{if $currentPaginationMode == 'tabbed'}
+					{let $page: $pages[$currentPage] /}
+
+					{call PageRenderer.render}
+						{param activePage: $activePage /}
+						{param cancelLabel: $cancelLabel ?: 'cancel' /}
+						{param editable: $editable /}
+						{param events: [
+							'fieldBlurred': $_handleFieldBlurred,
+							'fieldClicked': $_handleFieldClicked,
+							'fieldEdited': $_handleFieldEdited,
+							'fieldFocused': $_handleFieldFocused
+						] /}
+						{param key: 'pageRenderer' + $activePage /}
+						{param page: $page /}
+						{param pageIndex: $activePage /}
+						{param pages: $pages /}
+						{param paginationMode: $currentPaginationMode /}
+						{param readOnly: $readOnly /}
+						{param redirectURL: $redirectURL /}
+						{param ref: 'pageRenderer' + $activePage /}
+						{param showCancelButton: $showCancelButton != false /}
+						{param showSubmitButton: $showSubmitButton != false /}
+						{param spritemap: $spritemap /}
+						{param strings: $strings /}
+						{param submitLabel: $submitLabel ?: 'submit' /}
+						{param total: $total /}
+						{param viewMode: $viewMode /}
+					{/call}
+				{else}
+					{if $view != 'fieldSets'}
+						<div class="horizontal-line"></div>
+					{/if}
+					{foreach $page in $pages}
+						{call PageRenderer.render}
+							{param activePage: $activePage /}
+							{param cancelLabel: $cancelLabel ?: 'cancel' /}
+							{param editable: $editable /}
+							{param editingLanguageId: $editingLanguageId /}
+							{param events: [
+								'fieldBlurred': $_handleFieldBlurred,
+								'fieldClicked': $_handleFieldClicked,
+								'fieldEdited': $_handleFieldEdited,
+								'fieldFocused': $_handleFieldFocused
+							] /}
+							{param key: index($page) /}
+							{param page: $page /}
+							{param pageIndex: index($page) /}
+							{param pages: $pages /}
+							{param paginationMode: $currentPaginationMode /}
+							{param readOnly: $readOnly /}
+							{param ref: 'pageRenderer' + index($page) /}
+							{param showCancelButton: $showCancelButton != false /}
+							{param showSubmitButton: $showSubmitButton != false /}
+							{param spritemap: $spritemap /}
+							{param strings: $strings /}
+							{param submitLabel: $submitLabel ?: 'submit' /}
+							{param total: $total /}
+							{param view: $view /}
+							{param viewMode: $viewMode /}
+							{param successPageSettings: $successPageSettings /}
+						{/call}
+					{/foreach}
+				{/if}
+			</div>
+		</div>
+	{/if}
 {/template}

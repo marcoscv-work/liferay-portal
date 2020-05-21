@@ -13,11 +13,12 @@ definition {
 	}
 
 	macro addPage {
-		Click(locator1 = "Form#PAGE_CONTROLS_ELLIPSIS_ICON");
+
+		var key_formAddNewPageNumber = "${formAddNewPageNumber}";
 
 		AssertClick(
 			locator1 = "Form#PAGE_CONTROLS_ADD_NEW_PAGE",
-			value1 = "Add New Page");
+			value1 = "New Page");
 	}
 
 	macro addSuccessPage {
@@ -29,7 +30,10 @@ definition {
 	}
 
 	macro addTextField {
-		Form.gotoAddField(fieldType = "Text");
+
+		Form.gotoAddField(
+			fieldType = "Text",
+			key_fieldPositionNumber = "${fieldPositionNumber}");
 	}
 
 	macro addTranslation {
@@ -99,15 +103,29 @@ definition {
 	}
 
 	macro deleteCurrentPage {
-		var key_formPageName = "${formPageName}";
+		var key_formPageNumber = "${formPageNumber}";
 
-		AssertElementPresent(locator1 = "FormPortlet#FORM_PAGE_ACTIVE");
+		//AssertElementPresent(locator1 = "FormPortlet#FORM_PAGE_ACTIVE");
 
 		Click(locator1 = "Form#PAGE_CONTROLS_ELLIPSIS_ICON");
 
 		AssertClick(
 			locator1 = "Form#PAGE_CONTROLS_DELETE_CURRENT_PAGE",
-			value1 = "Delete Current Page");
+			value1 = "Remove Page");
+
+		AssertElementNotPresent(locator1 = "FormPortlet#FORM_PAGE");
+	}
+
+	macro deleteSuccessPage {
+		var key_formPageNumber = "${formPageNumber}";
+
+		//AssertElementPresent(locator1 = "FormPortlet#FORM_PAGE_ACTIVE");
+
+		Click(locator1 = "Form#PAGE_CONTROLS_ELLIPSIS_ICON");
+
+		AssertClick(
+			locator1 = "Form#PAGE_CONTROLS_DELETE_SUCCESS_PAGE",
+			value1 = "Remove Success Page");
 
 		AssertElementNotPresent(locator1 = "FormPortlet#FORM_PAGE");
 	}
@@ -232,6 +250,8 @@ definition {
 	}
 
 	macro editPageTitle {
+		var key_titleNumber = "${formTitleNumber}";
+
 		Type(
 			locator1 = "Form#PAGE_TITLE_FIELD",
 			value1 = "${formPageName}");
@@ -297,6 +317,13 @@ definition {
 		}
 
 		var key_fieldType = "${fieldType}";
+
+		if ("${key_fieldType}" == "Text") {
+			var key_fieldLocation = "${key_fieldPositionNumber}";
+		}
+		else {
+			var key_fieldLocation = "${fieldPositionNumber}";
+		}
 
 		DragAndDrop.dragAndDropPortletToObject(
 			locator1 = "Form#ADD_FIELD_TYPE",

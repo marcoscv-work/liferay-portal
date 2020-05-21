@@ -14,44 +14,67 @@
 
 import React from 'react';
 
-import Card from './components/Card.es';
-import PieChart from './components/PieChart.es';
+import Card from './components/card/Card.es';
+import BarChart from './components/chart/bar/BarChart.es';
+import PieChart from './components/chart/pie/PieChart.es';
+import EmptyState from './components/empty-state/EmptyState.es';
+import toDataArray, {sumTotalEntries} from './utils/data.es';
+import fieldTypes from './utils/fieldTypes.es';
 
-export default ({data}) => {
-	const toArray = (values) =>
-		Object.entries(values).map(([label, count]) => ({count, label}));
-
-	const chartFactory = (type, values, totalEntries) => {
-		if (type === 'radio') {
+const chartFactory = (type, values, totalEntries) => {
+	switch (type) {
+		case 'checkbox_multiple':
 			return (
-				<PieChart data={toArray(values)} totalEntries={totalEntries} />
+				<BarChart
+					data={toDataArray(values)}
+					totalEntries={totalEntries}
+				/>
 			);
-		}
 
-		return null;
-	};
+		case 'radio':
+			return (
+				<PieChart
+					data={toDataArray(values)}
+					totalEntries={totalEntries}
+				/>
+			);
 
-	const sumTotalEntries = (values) =>
-		Object.values(values).reduce((acc, value) => acc + value, 0);
+		default:
+			return null;
+	}
+};
 
-	return Object.entries(data).map(([fieldName, {type, values}], index) => {
+export default ({data, fields}) => {
+	let hasCards = false;
+
+	const cards = fields.map(({name, type}, index) => {
+		const {values = {}} = data[name] || {};
 		const totalEntries = sumTotalEntries(values);
 		const chart = chartFactory(type, values, totalEntries);
 
 		if (chart === null) {
 			return null;
 		}
+		else {
+			hasCards = true;
+		}
+
+		const field = {
+			name,
+			type,
+			...fieldTypes[type],
+		};
 
 		return (
-			<Card
-				fieldName={fieldName}
-				key={index}
-				totalEntries={totalEntries}
-				type={type}
-				values={values}
-			>
+			<Card field={field} key={index} totalEntries={totalEntries}>
 				{chart}
 			</Card>
 		);
 	});
+
+	if (!hasCards) {
+		return <EmptyState />;
+	}
+
+	return cards;
 };

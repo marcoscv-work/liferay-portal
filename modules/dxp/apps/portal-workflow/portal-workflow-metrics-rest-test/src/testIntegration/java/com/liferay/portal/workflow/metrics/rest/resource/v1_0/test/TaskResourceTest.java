@@ -16,8 +16,9 @@ package com.liferay.portal.workflow.metrics.rest.resource.v1_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.rule.DataGuard;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
+import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Assignee;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Instance;
@@ -34,12 +35,14 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * @author Rafael Praxedes
  */
+@DataGuard(scope = DataGuard.Scope.METHOD)
 @RunWith(Arquillian.class)
 public class TaskResourceTest extends BaseTaskResourceTestCase {
 
@@ -130,19 +133,6 @@ public class TaskResourceTest extends BaseTaskResourceTestCase {
 			Arrays.asList(task1, task2), (List<Task>)page.getItems());
 
 		page = taskResource.postProcessTasksPage(
-			null,
-			new TaskBulkSelection() {
-				{
-					processId = _process.getId();
-				}
-			});
-
-		Assert.assertEquals(2, page.getTotalCount());
-
-		assertEqualsIgnoringOrder(
-			Arrays.asList(task1, task2), (List<Task>)page.getItems());
-
-		page = taskResource.postProcessTasksPage(
 			Pagination.of(1, 10),
 			new TaskBulkSelection() {
 				{
@@ -167,7 +157,103 @@ public class TaskResourceTest extends BaseTaskResourceTestCase {
 
 		assertEqualsIgnoringOrder(
 			Arrays.asList(task2), (List<Task>)page.getItems());
+
+		page = taskResource.postProcessTasksPage(
+			Pagination.of(1, 10),
+			new TaskBulkSelection() {
+				{
+					processId = _process.getId();
+					taskNames = new String[] {task2.getName()};
+				}
+			});
+
+		Assert.assertEquals(1, page.getTotalCount());
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(task2), (List<Task>)page.getItems());
+
+		page = taskResource.postProcessTasksPage(
+			Pagination.of(0, 0),
+			new TaskBulkSelection() {
+				{
+					assigneeIds = new Long[] {_user.getUserId()};
+				}
+			});
+
+		Assert.assertEquals(2, page.getTotalCount());
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(task1, task2), (List<Task>)page.getItems());
+
+		page = taskResource.postProcessTasksPage(
+			Pagination.of(0, 0),
+			new TaskBulkSelection() {
+				{
+					instanceIds = new Long[] {_instance.getId()};
+				}
+			});
+
+		Assert.assertEquals(2, page.getTotalCount());
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(task1, task2), (List<Task>)page.getItems());
+
+		page = taskResource.postProcessTasksPage(
+			Pagination.of(0, 0),
+			new TaskBulkSelection() {
+				{
+					processId = _process.getId();
+				}
+			});
+
+		Assert.assertEquals(2, page.getTotalCount());
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(task1, task2), (List<Task>)page.getItems());
+
+		page = taskResource.postProcessTasksPage(
+			Pagination.of(0, 0),
+			new TaskBulkSelection() {
+				{
+					taskNames = new String[] {task1.getName()};
+				}
+			});
+
+		Assert.assertEquals(1, page.getTotalCount());
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(task1), (List<Task>)page.getItems());
+
+		page = taskResource.postProcessTasksPage(
+			Pagination.of(0, 0),
+			new TaskBulkSelection() {
+				{
+					taskNames = new String[] {task2.getName()};
+				}
+			});
+
+		Assert.assertEquals(1, page.getTotalCount());
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(task2), (List<Task>)page.getItems());
+
+		page = taskResource.postProcessTasksPage(
+			Pagination.of(0, 0),
+			new TaskBulkSelection() {
+				{
+					processId = _process.getId();
+					taskNames = new String[] {task2.getName()};
+				}
+			});
+
+		Assert.assertEquals(1, page.getTotalCount());
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(task2), (List<Task>)page.getItems());
 	}
+
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
 
 	@Override
 	protected String[] getAdditionalAssertFieldNames() {
@@ -224,8 +310,6 @@ public class TaskResourceTest extends BaseTaskResourceTestCase {
 
 	private Instance _instance;
 	private Process _process;
-
-	@DeleteAfterTestRun
 	private User _user;
 
 	@Inject

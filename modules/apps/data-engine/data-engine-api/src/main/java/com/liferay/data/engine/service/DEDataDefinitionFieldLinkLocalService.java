@@ -128,8 +128,16 @@ public interface DEDataDefinitionFieldLinkLocalService
 	public void deleteDEDataDefinitionFieldLinks(
 		long classNameId, long classPK);
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 DEDataDefinitionFieldLinkLocalServiceImpl#deleteDEDataDefinitionFieldLinks(long, long, String[])}
+	 */
+	@Deprecated
 	public void deleteDEDataDefinitionFieldLinks(
 		long classNameId, long ddmStructureId, String fieldName);
+
+	public void deleteDEDataDefinitionFieldLinks(
+		long classNameId, long ddmStructureId, String[] fieldNames);
 
 	/**
 	 * @throws PortalException
@@ -271,9 +279,18 @@ public interface DEDataDefinitionFieldLinkLocalService
 	public List<DEDataDefinitionFieldLink> getDEDataDefinitionFieldLinks(
 		long ddmStructureId);
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 DEDataDefinitionFieldLinkLocalServiceImpl#getDEDataDefinitionFieldLinks(long, long, String[])}
+	 */
+	@Deprecated
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<DEDataDefinitionFieldLink> getDEDataDefinitionFieldLinks(
 		long classNameId, long ddmStructureId, String fieldName);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<DEDataDefinitionFieldLink> getDEDataDefinitionFieldLinks(
+		long classNameId, long ddmStructureId, String[] fieldNames);
 
 	/**
 	 * Returns all the de data definition field links matching the UUID and company.

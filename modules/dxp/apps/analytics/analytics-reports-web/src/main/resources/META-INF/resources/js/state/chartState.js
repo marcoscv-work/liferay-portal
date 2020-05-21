@@ -13,11 +13,13 @@ import {useContext, useReducer} from 'react';
 
 import ConnectionContext from '../context/ConnectionContext';
 
-const ADD_DATA_SET_ITEM = 'add-data-key';
+const ADD_DATA_SET_ITEMS = 'add-data-keys';
 const NEXT_TIME_SPAN = 'next-time-span';
 const PREV_TIME_SPAN = 'previous-time-span';
 const CHANGE_TIME_SPAN_OPTION = 'change-time-span-option';
 const SET_LOADING = 'set-loading';
+
+const FALLBACK_DATA_SET_ITEM = {histogram: [], value: null};
 
 export const useChartState = ({defaultTimeSpanOption, publishDate}) => {
 	const {validAnalyticsConnection} = useContext(ConnectionContext);
@@ -31,10 +33,10 @@ export const useChartState = ({defaultTimeSpanOption, publishDate}) => {
 	});
 
 	const actions = {
-		addDataSetItem: (payload) =>
+		addDataSetItems: (payload) =>
 			dispatch({
 				payload,
-				type: ADD_DATA_SET_ITEM,
+				type: ADD_DATA_SET_ITEMS,
 				validAnalyticsConnection,
 			}),
 		changeTimeSpanOption: (payload) =>
@@ -77,12 +79,22 @@ function reducer(state, action) {
 	let nextState;
 
 	switch (action.type) {
-		case ADD_DATA_SET_ITEM:
-			nextState = addDataSetItem(
-				state,
-				action.payload,
-				action.validAnalyticsConnection
-			);
+		case ADD_DATA_SET_ITEMS:
+			nextState = action.payload.keys.reduce((state, key) => {
+				const dataSetItem =
+					action.payload.dataSetItems?.[key] ??
+					FALLBACK_DATA_SET_ITEM;
+
+				return addDataSetItem(
+					state,
+					{
+						...action.payload,
+						dataSetItem,
+						key,
+					},
+					action.validAnalyticsConnection
+				);
+			}, state);
 			break;
 		case NEXT_TIME_SPAN:
 			nextState = {

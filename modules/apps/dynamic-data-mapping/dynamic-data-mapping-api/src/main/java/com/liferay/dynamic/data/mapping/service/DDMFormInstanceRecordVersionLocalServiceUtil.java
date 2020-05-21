@@ -338,6 +338,16 @@ public class DDMFormInstanceRecordVersionLocalServiceUtil {
 			ddmFormInstanceId);
 	}
 
+	public static
+		com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecordVersion
+				getLatestFormInstanceRecordVersion(
+					long ddmFormInstanceRecordId, int status)
+			throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().getLatestFormInstanceRecordVersion(
+			ddmFormInstanceRecordId, status);
+	}
+
 	/**
 	 * Returns the OSGi service identifier.
 	 *

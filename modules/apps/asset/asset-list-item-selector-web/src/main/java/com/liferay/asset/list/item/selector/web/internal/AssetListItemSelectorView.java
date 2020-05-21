@@ -234,7 +234,7 @@ public class AssetListItemSelectorView
 						return StringPool.BLANK;
 					}
 
-					AssetRendererFactory assetRendererFactory =
+					AssetRendererFactory<?> assetRendererFactory =
 						AssetRendererFactoryRegistryUtil.
 							getAssetRendererFactoryByClassName(
 								assetListEntry.getAssetEntryType());
@@ -281,7 +281,9 @@ public class AssetListItemSelectorView
 		}
 
 		@Override
-		public SearchContainer getSearchContainer() throws PortalException {
+		public SearchContainer<AssetListEntry> getSearchContainer()
+			throws PortalException {
+
 			ThemeDisplay themeDisplay =
 				(ThemeDisplay)_httpServletRequest.getAttribute(
 					WebKeys.THEME_DISPLAY);

@@ -424,7 +424,8 @@ public abstract class BaseWorkflowMetricsIndexerTestCase
 
 	private void _deleteKaleoInstances() {
 		for (Iterator<KaleoInstance> kaleoInstanceIterator =
-				_kaleoInstances.iterator(); kaleoInstanceIterator.hasNext();) {
+				_kaleoInstances.iterator();
+			 kaleoInstanceIterator.hasNext();) {
 
 			_kaleoInstanceLocalService.deleteKaleoInstance(
 				kaleoInstanceIterator.next());

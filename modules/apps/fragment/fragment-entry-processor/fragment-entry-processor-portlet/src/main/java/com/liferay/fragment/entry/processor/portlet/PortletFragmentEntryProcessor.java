@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.model.ModelHintsConstants;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
-import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.PortletLocalService;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -49,9 +48,13 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portlet.PortletPreferencesImpl;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.portlet.PortletPreferences;
 
@@ -153,17 +156,18 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 		}
 
 		FragmentEntryLink originalFragmentEntryLink = null;
+		Set<String> processedPortletIds = new HashSet<>();
 
 		for (Element element : document.select("*")) {
 			String tagName = element.tagName();
 
-			if (!StringUtil.startsWith(tagName, "lfr-widget-")) {
+			String portletName = _getPortletName(tagName);
+
+			if (Validator.isNull(portletName)) {
 				continue;
 			}
 
 			String alias = tagName.substring(11);
-
-			String portletName = _portletRegistry.getPortletName(alias);
 
 			if (Validator.isNull(portletName)) {
 				throw new FragmentEntryContentException(
@@ -189,6 +193,16 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 			if (portlet.isInstanceable()) {
 				instanceId = _getInstanceId(
 					fragmentEntryLink.getNamespace(), id);
+			}
+			else if (processedPortletIds.contains(portletName) ||
+					 _checkNoninstanceablePortletUsed(
+						 fragmentEntryLink, portletName)) {
+
+				throw new FragmentEntryContentException(
+					LanguageUtil.get(
+						_resourceBundle,
+						"noninstanceable-widgets-can-be-embedded-only-once-" +
+							"on-the-same-page"));
 			}
 
 			String defaultPreferences = StringPool.BLANK;
@@ -216,6 +230,8 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 			portletElement.html(portletHTML);
 
 			element.replaceWith(portletElement);
+
+			processedPortletIds.add(portletName);
 		}
 
 		Element bodyElement = document.body();
@@ -230,6 +246,45 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 		Document document = _getDocument(html);
 
 		_validateFragmentEntryHTMLDocument(document);
+	}
+
+	private boolean _checkNoninstanceablePortletUsed(
+		FragmentEntryLink currentFragmentEntryLink, String currentPortletName) {
+
+		List<FragmentEntryLink> fragmentEntryLinks =
+			_fragmentEntryLinkLocalService.getFragmentEntryLinks(
+				currentFragmentEntryLink.getGroupId(),
+				currentFragmentEntryLink.getClassNameId(),
+				currentFragmentEntryLink.getClassPK());
+
+		for (FragmentEntryLink fragmentEntryLink : fragmentEntryLinks) {
+			if ((currentFragmentEntryLink.getFragmentEntryLinkId() ==
+					fragmentEntryLink.getFragmentEntryLinkId()) ||
+				(currentFragmentEntryLink.getSegmentsExperienceId() !=
+					fragmentEntryLink.getSegmentsExperienceId())) {
+
+				continue;
+			}
+
+			List<String> portletIds =
+				_portletRegistry.getFragmentEntryLinkPortletIds(
+					fragmentEntryLink);
+
+			Stream<String> stream = portletIds.stream();
+
+			List<String> portletNames = stream.map(
+				portletId -> PortletIdCodec.decodePortletName(portletId)
+			).distinct(
+			).collect(
+				Collectors.toList()
+			);
+
+			if (portletNames.contains(currentPortletName)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private Document _getDocument(String html) {
@@ -283,6 +338,16 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 		return PortletIdCodec.encode(
 			PortletIdCodec.decodePortletName(portletName),
 			PortletIdCodec.decodeUserId(portletName), instanceId);
+	}
+
+	private String _getPortletName(String tagName) {
+		if (!StringUtil.startsWith(tagName, "lfr-widget-")) {
+			return StringPool.BLANK;
+		}
+
+		String alias = tagName.substring(11);
+
+		return _portletRegistry.getPortletName(alias);
 	}
 
 	private String _getPreferences(
@@ -474,9 +539,6 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 
 	@Reference
 	private FragmentPortletRenderer _fragmentPortletRenderer;
-
-	@Reference
-	private GroupLocalService _groupLocalService;
 
 	@Reference
 	private LayoutPageTemplateEntryLocalService

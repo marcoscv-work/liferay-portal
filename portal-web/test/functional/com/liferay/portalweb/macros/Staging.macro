@@ -352,6 +352,16 @@ definition {
 			value1 = "${pageVariationNameMenulistName}");
 	}
 
+	macro changeSitePageVariationCP {
+		var key_sitePagesVariationName = "${sitePagesVariationName}";
+
+		Click(locator1 = "Staging#SITE_PAGES_VARIATION_MENULIST_NAME");
+
+		AssertTextEquals.assertPartialText(
+			locator1 = "Staging#SITE_PAGES_VARIATION_MENULIST_ACTIVE",
+			value1 = "${sitePagesVariationName}");
+	}
+
 	macro changeSitePageVariationPG {
 		var key_sitePagesVariationName = "${sitePagesVariationName}";
 
@@ -965,7 +975,9 @@ definition {
 	}
 
 	macro redoStagingPageVersioningPG {
-		Click(locator1 = "Icon#HISTORY_VERTICAL_ELLIPSIS");
+		while (IsElementNotPresent(locator1 = "Staging#STAGING_MENU_REDO_BUTTON")) {
+			Click(locator1 = "Icon#STAGING_BAR_VERTICAL_ELLIPSIS");
+		}
 
 		ClickNoError(locator1 = "Staging#STAGING_MENU_REDO_BUTTON");
 
@@ -1444,6 +1456,14 @@ definition {
 					locator1 = "PagesConfiguration#CONTENT_CHOOSE_CONTENT_CHECKBOX_LABEL");
 			}
 		}
+	}
+
+	macro viewSitePagesVariationActiveCP {
+		var key_sitePagesVariationName = "${sitePagesVariationName}";
+
+		AssertTextEquals.assertPartialText(
+			locator1 = "Staging#SITE_PAGES_VARIATION_MENULIST_ACTIVE",
+			value1 = "${sitePagesVariationName}");
 	}
 
 	macro viewSitePagesVariationPG {

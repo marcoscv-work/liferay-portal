@@ -61,7 +61,6 @@ const METRICS_STATIC_VALUES = {
 		iconType: 'square',
 		langKey: Liferay.Language.get('reads-metric'),
 	},
-
 	analyticsReportsHistoricalViews: {
 		color: CHART_COLORS.analyticsReportsHistoricalViews,
 		iconType: 'circle',
@@ -70,21 +69,15 @@ const METRICS_STATIC_VALUES = {
 };
 
 function keyToTranslatedLabelValue(key) {
-	const metricValues = METRICS_STATIC_VALUES[key];
-
-	return metricValues ? metricValues.langKey : key;
+	return METRICS_STATIC_VALUES[key]?.langKey ?? key;
 }
 
 function keyToHexColor(key) {
-	const metricValues = METRICS_STATIC_VALUES[key];
-
-	return metricValues ? metricValues.color : '#666666';
+	return METRICS_STATIC_VALUES[key]?.color ?? '#666666';
 }
 
 function keyToIconType(key) {
-	const metricValues = METRICS_STATIC_VALUES[key];
-
-	return metricValues ? metricValues.iconType : 'line';
+	return METRICS_STATIC_VALUES[key]?.iconType ?? 'line';
 }
 
 /*
@@ -164,61 +157,51 @@ export default function Chart({
 				? HOUR_IN_MILLISECONDS
 				: DAY_IN_MILLISECONDS;
 
+		const keys = ['analyticsReportsHistoricalViews'];
+
+		if (readsEnabled) {
+			keys.push('analyticsReportsHistoricalReads');
+		}
+
 		if (validAnalyticsConnection) {
-			dataProviders.map((getter) => {
-				getter({
+			const promises = dataProviders.map((getter) => {
+				return getter({
 					timeSpanKey: chartState.timeSpanOption,
 					timeSpanOffset: chartState.timeSpanOffset,
-				})
-					.then((data) => {
-						if (!gone) {
-							if (isMounted()) {
-								Object.keys(data).map((key) => {
-									actions.addDataSetItem({
-										dataSetItem: data[key],
-										key,
-										timeSpanComparator,
-									});
-								});
-							}
-						}
-					})
-					.catch((_error) => {
-						let key = '';
+				});
+			});
 
-						if (getter.name === 'getHistoricalReads') {
-							key = 'analyticsReportsHistoricalReads';
-						}
-						else if (getter.name === 'getHistoricalViews') {
-							key = 'analyticsReportsHistoricalViews';
-						}
+			allSettled(promises).then((data) => {
+				if (gone || !isMounted()) {
+					return;
+				}
 
-						if (!hasHistoricalWarning) {
-							addHistoricalWarning();
-						}
+				var dataSetItems = {};
 
-						actions.addDataSetItem({
-							dataSetItem: {histogram: [], value: null},
-							key,
-							timeSpanComparator,
-						});
-					});
+				for (var i = 0; i < data.length; i++) {
+					if (data[i].status === 'fulfilled') {
+						dataSetItems = {
+							...dataSetItems,
+							...data[i].value,
+						};
+					}
+					else if (!hasHistoricalWarning) {
+						addHistoricalWarning();
+					}
+				}
+
+				actions.addDataSetItems({
+					dataSetItems,
+					keys,
+					timeSpanComparator,
+				});
 			});
 		}
 		else {
-			actions.addDataSetItem({
-				dataSetItem: {histogram: [], value: null},
-				key: 'analyticsReportsHistoricalViews',
+			actions.addDataSetItems({
+				keys,
 				timeSpanComparator,
 			});
-
-			if (readsEnabled) {
-				actions.addDataSetItem({
-					dataSetItem: {histogram: [], value: null},
-					key: 'analyticsReportsHistoricalReads',
-					timeSpanComparator,
-				});
-			}
 		}
 
 		return () => {
@@ -499,6 +482,20 @@ export default function Chart({
 				</div>
 			) : null}
 		</>
+	);
+}
+
+function allSettled(promises) {
+	return Promise.all(
+		promises.map((promise) => {
+			return promise
+				.then((value) => {
+					return {status: 'fulfilled', value};
+				})
+				.catch((reason) => {
+					return {reason, status: 'rejected'};
+				});
+		})
 	);
 }
 

@@ -247,9 +247,7 @@ definition {
 			panel = "Site Administration",
 			portlet = "Forms");
 
-		AssertTextEquals(
-			locator1 = "Message#EMPTY_INFO",
-			value1 = "There are no forms. Click on the plus button to add the first one.");
+		AssertElementPresent(locator1 = "Message#EMPTY_INFO_TAGLIB");
 
 		FormsAdminNavigator.gotoAddForm();
 
@@ -907,6 +905,8 @@ definition {
 		}
 
 		task ("Assert could add fragment added to display page after upgrading") {
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
+
 			DisplayPageTemplatesAdmin.gotoDisplayPageEllipsisItem(
 				displayPageName = "Display Page Name",
 				item = "Edit");
@@ -916,7 +916,7 @@ definition {
 				fragmentName = "Paragraph");
 		}
 
-		task ("Assert button frgamnet configuration survived") {
+		task ("Assert button fragment configuration survived") {
 			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-configuration-content-page");
 
 			ContentPages.clickPencil();

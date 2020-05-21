@@ -391,7 +391,7 @@ definition {
 		}
 
 		task ("Add a section layout") {
-			PageEditor.addLayoutSection(dropTarget = "//div[contains(@class,'page-editor__row')]");
+			PageEditor.addLayoutSection(dropTarget = "//div[contains(@class,'page-editor__root page-editor__topper')]");
 		}
 
 		task ("Assert the Section has Fixed Width, padding bottom x1 and padding top x1") {
@@ -597,6 +597,61 @@ definition {
 				key_text = "Publish",
 				locator1 = "Button#ANY_ENABLED");
 		}
+	}
+
+	@description = "This is a test for LPS-101258. Can create a fragment with a Drop Zone area."
+	@priority = "5"
+	test DropButtonFragmentToFrgamentWithOneDropZone {
+		JSONFragment.addFragmentCollection(
+			groupName = "Test Site Name",
+			name = "Collection Name 2");
+
+		FragmentsAdminNavigator.openFragmentsAdmin(siteURLKey = "test-site-name");
+
+		FragmentsAdminNavigator.gotoCollection(collectionName = "Collection Name 2");
+
+		FragmentsAdmin.addFragment(fragmentName = "Fragment Name");
+
+		FragmentsEditor.typeHtmlEditor(content = '''<lfr-drop-zone id="drop-zone"></lfr-drop-zone>''');
+
+		Button.clickPublish();
+
+		AssertElementPresent(locator1 = "Message#SUCCESS");
+
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Content Page Name",
+			type = "content");
+
+		ContentPagesNavigator.openEditContentPage(
+			pageName = "Content Page Name",
+			siteName = "Test Site Name");
+
+		PageEditor.addFragment(
+			collectionName = "Collection Name 2",
+			fragmentName = "Fragment Name");
+
+		AssertVisible(
+			key_content = "Place fragments here.",
+			key_fragmentClass = "content",
+			key_position = "1",
+			locator1 = "Fragment#PAGE_EDITOR_FRAGMENT");
+
+		PageEditor.gotoTab(tabName = "Fragments");
+
+		PageEditor.expandFragmentCollection(collectionName = "Basic Components");
+
+		DragAndDrop.javaScriptDragAndDropToObject(
+			key_fragmentName = "Button",
+			key_index = "2",
+			locator1 = "PageEditor#SECTION_BUILDER_FRAGMENTS",
+			locator2 = "PageEditor#FRAGMENT_WITH_DROP_TARGET",
+			value1 = "");
+
+		AssertElementPresent(
+			key_fragmentName = "Button",
+			key_inFragmentName = "Fragment Name",
+			locator1 = "Fragment#FRAGMENT_BODY_IN_FRAGMENT");
 	}
 
 	@description = "This is a test for LPS-107285. Can duplicate the Row fragment in one Section fragment."
@@ -1098,9 +1153,14 @@ definition {
 	@priority = "5"
 	test ReorganizeFragmentsInContentPage {
 		task ("Add a content page") {
-			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Content Page Name",
+				type = "content");
 
-			ContentPages.addPage(pageName = "Test Content Page Name");
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
 		}
 
 		task ("Add a Button fragment to the content page") {
@@ -1117,14 +1177,14 @@ definition {
 
 		task ("Publish the content page") {
 			PageEditor.clickPublish();
+
+			Pause(locator1 = "3000");
 		}
 
-		task ("Navigate to the content page") {
-			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/test-content-page-name");
-		}
-
-		task ("Navigate to the content page's 'Edit Mode'") {
-			ContentPages.clickPencil();
+		task ("Navigate to the content page in Edit mode") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
 		}
 
 		task ("View Heading frgament is on top of Button fragment") {
@@ -1140,11 +1200,12 @@ definition {
 		task ("Move the fragment") {
 			PageEditor.clickConfigurableField(fragmentName = "Button");
 
-			DragAndDrop.javaScriptDragAndDropToObject(
+			DragAndDrop.javaScriptDragAndDropToUp(
+				id = "element-text",
 				key_dragFragmentName = "Button",
 				key_fragmentName = "Heading",
 				locator1 = "Fragment#FRAGMENT_HEADER_DRAG_HANDLER",
-				locator2 = "Fragment#FRAGMENT_HEADER",
+				locator2 = "Fragment#CONTRIBUTED_FRAGMENT_EDITABLE_FIELD",
 				value1 = "");
 
 			PageEditor.waitForAutoSave();
@@ -1524,12 +1585,253 @@ definition {
 		}
 	}
 
+	@description = "This is a test for LPS-109717. The restriction visual feedback is shown when the existing Section element is placed over the container of another Section."
+	@priority = "4"
+	test ViewRestrictionVisualFeedbackWhenDragExistingSectionOverAnotherOne {
+		task ("Add the first Section to page") {
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Content Page Name",
+				type = "content");
+
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
+
+			PageEditor.addLayoutSection(dropTarget = "//div[contains(@class,'page-editor__root page-editor__topper')]");
+		}
+
+		task ("Add the second Section to page") {
+			PageEditor.addLayoutSection(
+				dropTarget = "//div[contains(@class,'page-editor__root page-editor__topper')]",
+				position = "2");
+		}
+
+		task ("Assert restriction visual feedback shown when drag the second Section over the first one") {
+			DragOver(
+				key_position = "1",
+				locator1 = "//div[contains(@class,'page-editor__root page-editor__topper')]/div[contains(.,'Section')][2]//li[contains(@class,'drag-handler')]",
+				locator2 = "PageEditor#SECTION_CONTAINER");
+
+			AssertVisible(
+				key_position = "1",
+				locator1 = "PageEditor#SECTION_CONTAINER_RESTRICTION_VISUAL_FEEDBACK");
+		}
+
+		task ("Assert container is empty after drop the second Section in the first one") {
+			Refresh();
+
+			PageEditor.assertFragmentSidebarLoaded();
+
+			Click.clickNoWaitForVisible(
+				key_elementType = "Section",
+				key_position = "2",
+				locator1 = "PageEditor#LAYOUT_ELEMENTS_HEADER");
+
+			DragAndDrop.javaScriptDragAndDropToObject(
+				key_position = "1",
+				locator1 = "//div[contains(@class,'page-editor__root page-editor__topper')]/div[contains(.,'Section')][2]//li[contains(@class,'drag-handler')]",
+				locator2 = "PageEditor#SECTION_CONTAINER",
+				value1 = "");
+
+			AssertElementPresent(
+				key_position = "1",
+				locator1 = "PageEditor#SECTION_CONTAINER_EMPTY");
+		}
+	}
+
+	@description = "This is a test for LPS-109717. The restriction visual feedback is shown when the Section draggable card is placed over the container of another Section."
+	@priority = "5"
+	test ViewRestrictionVisualFeedbackWhenDragSectionCardOverAnotherOne {
+		task ("Add a Section to page") {
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Content Page Name",
+				type = "content");
+
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
+
+			PageEditor.addLayoutSection(dropTarget = "//div[contains(@class,'page-editor__root page-editor__topper')]");
+		}
+
+		task ("Assert restriction visual feedback shown when drag Section card over another one") {
+			DragOver(
+				key_elementType = "Section",
+				key_position = "1",
+				locator1 = "PageEditor#SECTION_BUILDER_LAYOUT_ELEMENTS",
+				locator2 = "PageEditor#SECTION_CONTAINER");
+
+			AssertVisible(
+				key_position = "1",
+				locator1 = "PageEditor#SECTION_CONTAINER_RESTRICTION_VISUAL_FEEDBACK");
+		}
+
+		task ("Assert container is empty after drop section in another one") {
+			Refresh();
+
+			PageEditor.assertFragmentSidebarLoaded();
+
+			PageEditor.expandFragmentCollection(collectionName = "Layout Elements");
+
+			DragAndDrop.javaScriptDragAndDropToObject(
+				key_elementType = "Section",
+				key_position = "1",
+				locator1 = "PageEditor#SECTION_BUILDER_LAYOUT_ELEMENTS",
+				locator2 = "PageEditor#SECTION_CONTAINER",
+				value1 = "");
+
+			AssertElementPresent(
+				key_position = "1",
+				locator1 = "PageEditor#SECTION_CONTAINER_EMPTY");
+		}
+	}
+
+	@description = "This is a test for LPS-109717. The restriction visual feedback is shown when the Section draggable card is placed over the column of Row."
+	@priority = "5"
+	test ViewRestrictionVisualFeedbackWhenDragSectionCardOverColumnOfRow {
+		task ("Add a Row to page") {
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Content Page Name",
+				type = "content");
+
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
+
+			PageEditor.addLayoutRow();
+		}
+
+		task ("Assert restriction visual feedback shown when drag Section card over column of Row") {
+			DragOver(
+				key_columnNumber = "1",
+				key_elementType = "Section",
+				key_position = "1",
+				locator1 = "PageEditor#SECTION_BUILDER_LAYOUT_ELEMENTS",
+				locator2 = "PageEditor#ROW_COLUMN");
+
+			AssertVisible(
+				key_columnNumber = "1",
+				key_position = "1",
+				locator1 = "PageEditor#ROW_COLUMN_RESTRICTION_VISUAL_FEEDBACK");
+		}
+
+		task ("Assert column is empty after drop section in column of Row") {
+			Refresh();
+
+			PageEditor.assertFragmentSidebarLoaded();
+
+			PageEditor.expandFragmentCollection(collectionName = "Layout Elements");
+
+			DragAndDrop.javaScriptDragAndDropToObject(
+				key_columnNumber = "1",
+				key_elementType = "Section",
+				key_position = "1",
+				locator1 = "PageEditor#SECTION_BUILDER_LAYOUT_ELEMENTS",
+				locator2 = "PageEditor#ROW_COLUMN",
+				value1 = "");
+
+			AssertElementPresent(
+				key_position = "1",
+				locator1 = "PageEditor#ROW_COLUMN_EMPTY");
+		}
+	}
+
+	@description = "This is a test for LPS-109717. The restriction visual feedback is shown when the existing Section element containing a Heading is placed over the column of Row."
+	@priority = "4"
+	test ViewRestrictionVisualFeedbackWhenDragSectionContainingHeadingOverColumnOfRow {
+		task ("Add a Row to page") {
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Content Page Name",
+				type = "content");
+
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
+
+			PageEditor.addLayoutRow();
+		}
+
+		task ("Add a section layout and add a Heading to section") {
+			PageEditor.addLayoutSection(dropTarget = "//div[contains(@class,'page-editor__root page-editor__topper')]");
+
+			PageEditor.expandFragmentCollection(collectionName = "Basic Components");
+
+			DragAndDrop.javaScriptDragAndDropToObject(
+				key_fragmentName = "Heading",
+				key_position = "1",
+				locator1 = "PageEditor#SECTION_BUILDER_FRAGMENTS",
+				locator2 = "PageEditor#SECTION_CONTAINER",
+				value1 = "");
+
+			PageEditor.waitForAutoSave();
+
+			AssertElementPresent(
+				key_fragmentName = "Heading",
+				locator1 = "Fragment#FRAGMENT_HEADER");
+		}
+
+		task ("Assert restriction visual feedback shown when drag Section over column of Row") {
+			Click.clickNoWaitForVisible(
+				key_elementType = "Section",
+				key_position = "1",
+				locator1 = "PageEditor#LAYOUT_ELEMENTS_HEADER");
+
+			DragOver(
+				key_columnNumber = "1",
+				key_position = "1",
+				locator1 = "//div[contains(@class,'page-editor__root page-editor__topper')]/div[contains(.,'Section')][1]//li[contains(@class,'drag-handler')]",
+				locator2 = "PageEditor#ROW_COLUMN");
+
+			AssertVisible(
+				key_columnNumber = "1",
+				key_position = "1",
+				locator1 = "PageEditor#ROW_COLUMN_RESTRICTION_VISUAL_FEEDBACK");
+		}
+
+		task ("Assert column is empty after drop section in column of Row") {
+			Refresh();
+
+			PageEditor.assertFragmentSidebarLoaded();
+
+			Click.clickNoWaitForVisible(
+				key_elementType = "Section",
+				key_position = "1",
+				locator1 = "PageEditor#LAYOUT_ELEMENTS_HEADER");
+
+			DragAndDrop.javaScriptDragAndDropToObject(
+				key_columnNumber = "1",
+				key_position = "1",
+				locator1 = "//div[contains(@class,'page-editor__root page-editor__topper')]/div[contains(.,'Section')][1]//li[contains(@class,'drag-handler')]",
+				locator2 = "PageEditor#ROW_COLUMN",
+				value1 = "");
+
+			AssertElementPresent(
+				key_position = "1",
+				locator1 = "PageEditor#ROW_COLUMN_EMPTY");
+		}
+	}
+
 	@description = "This is a test for LPS-101255. The saved composition entry is available in Page Fragments admin with specific actions."
 	@priority = "5"
 	test ViewSavedCompositionMenuItem {
-		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+		task ("Add a new site") {
+			JSONGroup.addGroup(groupName = "Site Name");
+		}
 
-		ContentPages.addPage(pageName = "Test Content Page Name");
+		task ("Add a content page") {
+			JSONLayout.addPublicLayout(
+				groupName = "Site Name",
+				layoutName = "Content Page Name",
+				type = "content");
+
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Content Page Name",
+				siteName = "Site Name");
+		}
 
 		task ("Add a Section to page") {
 			PageEditor.addLayoutSection(dropTarget = "//div[contains(@class,'page-editor__root page-editor__topper')]");
@@ -1561,7 +1863,7 @@ definition {
 
 		PageEditorComposition.saveAsFragment(fragmentName = "New Fragment Name");
 
-		FragmentsAdminNavigator.openFragmentsAdmin(siteURLKey = "test-site-name");
+		FragmentsAdminNavigator.openFragmentsAdmin(siteURLKey = "site-name");
 
 		FragmentsAdminNavigator.gotoCollection(collectionName = "Saved Fragments");
 

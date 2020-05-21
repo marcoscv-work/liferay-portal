@@ -22,6 +22,7 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -44,21 +45,25 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "ContentSubtype")
 public class ContentSubtype {
 
-	@Schema
-	public Long getClassTypeId() {
-		return classTypeId;
+	public static ContentSubtype toDTO(String json) {
+		return ObjectMapperUtil.readValue(ContentSubtype.class, json);
 	}
 
-	public void setClassTypeId(Long classTypeId) {
-		this.classTypeId = classTypeId;
+	@Schema
+	public Long getSubtypeId() {
+		return subtypeId;
+	}
+
+	public void setSubtypeId(Long subtypeId) {
+		this.subtypeId = subtypeId;
 	}
 
 	@JsonIgnore
-	public void setClassTypeId(
-		UnsafeSupplier<Long, Exception> classTypeIdUnsafeSupplier) {
+	public void setSubtypeId(
+		UnsafeSupplier<Long, Exception> subtypeIdUnsafeSupplier) {
 
 		try {
-			classTypeId = classTypeIdUnsafeSupplier.get();
+			subtypeId = subtypeIdUnsafeSupplier.get();
 		}
 		catch (RuntimeException re) {
 			throw re;
@@ -70,7 +75,7 @@ public class ContentSubtype {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Long classTypeId;
+	protected Long subtypeId;
 
 	@Override
 	public boolean equals(Object object) {
@@ -99,14 +104,14 @@ public class ContentSubtype {
 
 		sb.append("{");
 
-		if (classTypeId != null) {
+		if (subtypeId != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"classTypeId\": ");
+			sb.append("\"subtypeId\": ");
 
-			sb.append(classTypeId);
+			sb.append(subtypeId);
 		}
 
 		sb.append("}");

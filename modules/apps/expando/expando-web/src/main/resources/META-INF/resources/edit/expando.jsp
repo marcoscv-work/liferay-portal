@@ -115,14 +115,14 @@ else {
 	<portlet:param name="mvcPath" value="/edit/expando.jsp" />
 </portlet:actionURL>
 
-<div class="container-fluid container-fluid-max-xl">
+<clay:container-fluid>
 	<liferay-ui:breadcrumb
 		showCurrentGroup="<%= false %>"
 		showGuestGroup="<%= false %>"
 		showLayout="<%= false %>"
 		showPortletBreadcrumb="<%= true %>"
 	/>
-</div>
+</clay:container-fluid>
 
 <liferay-frontend:edit-form
 	action="<%= editExpandoURL %>"

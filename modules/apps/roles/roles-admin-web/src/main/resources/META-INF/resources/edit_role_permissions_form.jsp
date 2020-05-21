@@ -45,7 +45,7 @@ if (Validator.isNotNull(portletResource)) {
 	}
 }
 
-List modelResources = null;
+List<String> modelResources = null;
 
 if (Validator.isNotNull(portletResource)) {
 	modelResources = ResourceActionsUtil.getPortletModelResources(portletResource);
@@ -103,7 +103,7 @@ if (Validator.isNotNull(portletResource)) {
 					modelResources = ListUtil.sort(modelResources, new ModelResourceWeightComparator());
 
 					for (int i = 0; i < modelResources.size(); i++) {
-						String curModelResource = (String)modelResources.get(i);
+						String curModelResource = modelResources.get(i);
 
 						String curModelResourceName = ResourceActionsUtil.getModelResource(request, curModelResource);
 					%>
@@ -143,7 +143,7 @@ if (Validator.isNotNull(portletResource)) {
 
 					searchContainer.setRowChecker(new ResourceActionRowChecker(liferayPortletResponse));
 
-					List resultRows = searchContainer.getResultRows();
+					List<com.liferay.portal.kernel.dao.search.ResultRow> resultRows = searchContainer.getResultRows();
 
 					List<TemplateHandler> templateHandlers = PortletDisplayTemplateUtil.getPortletDisplayTemplateHandlers();
 
@@ -181,7 +181,7 @@ if (Validator.isNotNull(portletResource)) {
 							groupIdsArray = new long[groups.size()];
 
 							for (int i = 0; i < groups.size(); i++) {
-								Group group = (Group)groups.get(i);
+								Group group = groups.get(i);
 
 								groupIdsArray[i] = group.getGroupId();
 

@@ -31,6 +31,14 @@ const initialState = {
 
 const appStateReducer = (state, action) => {
 	switch (action.type) {
+		case 'ADD_HEADERS': {
+			const {headers} = action;
+
+			return {
+				...state,
+				headers,
+			};
+		}
 		case 'LOAD_API_RESPONSE': {
 			return {
 				...state,
@@ -52,10 +60,11 @@ const appStateReducer = (state, action) => {
 		case 'LOAD_CATEGORY': {
 			const {category} = action;
 
-			const {components, paths} = category;
+			const {components, info, paths} = category;
 
 			return {
 				...state,
+				info,
 				method: state.method || undefined,
 				paths,
 				schemas: components.schemas,

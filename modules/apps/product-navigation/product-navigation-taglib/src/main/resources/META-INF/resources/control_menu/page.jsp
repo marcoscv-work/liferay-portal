@@ -17,6 +17,8 @@
 <%@ include file="/control_menu/init.jsp" %>
 
 <%
+boolean globalMenuApp = (boolean)request.getAttribute("liferay-product-navigation:control-menu:globalMenuApp");
+
 ProductNavigationControlMenuCategoryRegistry productNavigationControlMenuCategoryRegistry = ServletContextUtil.getProductNavigationControlMenuCategoryRegistry();
 
 List<ProductNavigationControlMenuCategory> productNavigationControlMenuCategories = productNavigationControlMenuCategoryRegistry.getProductNavigationControlMenuCategories(ProductNavigationControlMenuCategoryKeys.ROOT);
@@ -38,11 +40,11 @@ for (ProductNavigationControlMenuCategory productNavigationControlMenuCategory :
 %>
 
 <c:if test="<%= hasControlMenuEntries %>">
-	<div class="control-menu-container">
+	<div class="control-menu-container <%= globalMenuApp ? "global-menu-app" : "" %>">
 		<liferay-util:dynamic-include key="com.liferay.product.navigation.taglib#/page.jsp#pre" />
 
 		<div class="control-menu control-menu-level-1 d-print-none" data-qa-id="controlMenu" id="<portlet:namespace />ControlMenu">
-			<div class="container-fluid container-fluid-max-xl">
+			<clay:container-fluid>
 				<h1 class="sr-only"><liferay-ui:message key="admin-header" /></h1>
 
 				<ul class="control-menu-level-1-nav control-menu-nav" data-namespace="<portlet:namespace />" data-qa-id="header" id="<portlet:namespace />controlMenu">
@@ -87,7 +89,7 @@ for (ProductNavigationControlMenuCategory productNavigationControlMenuCategory :
 					%>
 
 				</ul>
-			</div>
+			</clay:container-fluid>
 
 			<div class="control-menu-body">
 

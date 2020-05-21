@@ -22,25 +22,30 @@ import {
 } from '../../../prop-types/index';
 import {LAYOUT_DATA_ITEM_TYPES} from '../../config/constants/layoutDataItemTypes';
 import {useSelector} from '../../store/index';
+import {getResponsiveConfig} from '../../utils/getResponsiveConfig';
 
 const Row = React.forwardRef(({children, className, item, layoutData}, ref) => {
 	const selectedViewportSize = useSelector(
 		(state) => state.selectedViewportSize
 	);
 
-	const itemConfig = item.config[selectedViewportSize] || item.config;
+	const itemConfig = getResponsiveConfig(item.config, selectedViewportSize);
+
+	const {modulesPerRow, reverseOrder} = itemConfig;
+
 	const rowContent = (
 		<div
 			className={classNames(className, 'row', {
 				empty:
-					itemConfig.numberOfColumns === itemConfig.modulesPerRow &&
+					item.config.numberOfColumns === modulesPerRow &&
 					!item.children.some(
 						(childId) => layoutData.items[childId].children.length
 					),
+				'flex-column': modulesPerRow === 1,
 				'flex-column-reverse':
-					itemConfig.numberOfColumns === 2 &&
-					itemConfig.modulesPerRow === 1 &&
-					itemConfig.reverseOrder,
+					item.config.numberOfColumns === 2 &&
+					modulesPerRow === 1 &&
+					reverseOrder,
 
 				'no-gutters': !item.config.gutters,
 			})}

@@ -20,23 +20,23 @@
 </tr>
 <tr>
 	<td>FIELD</td>
-	<td>//select[contains(@id,'mappingSelectorFieldSelect')]</td>
+	<td>//label[contains(.,'Field')]/following-sibling::select</td>
 	<td></td>
 </tr>
 <tr>
 	<td>URL</td>
-	<td>//div[contains(@class,'form-group')]//input[contains(@id,'floatingToolbarLinkHrefOption')]</td>
+	<td>//label[contains(.,'URL')]/following-sibling::input</td>
 	<td></td>
 </tr>
 <tr>
 	<td>LINK_TYPE</td>
-	<td>//select[contains(@id,'floatingToolbarLinkSourceOption')]</td>
+	<td>//label[contains(.,'Link')]/following-sibling::select</td>
 	<td></td>
 </tr>
 <!--LAYOUT_BACKGROUND_IMAGE-->
 <tr>
 	<td>LAYOUT_BACKGROUND_IMAGE_FIELD</td>
-	<td>//select[contains(@id,'mappingSelectorFieldSelect')]</td>
+	<td>//label[contains(.,'Field')]/following-sibling::select</td>
 	<td></td>
 </tr>
 <tr>

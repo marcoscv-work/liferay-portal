@@ -20,9 +20,10 @@
 	{@param? readOnly: bool}
 	{@param? redirectURL: string}
 	{@param? strings: map<string, string>}
+	{@param? view: string}
 
 	<div class="ddm-form-page-container wizard">
-		{if length($pages) > 1 and $pageIndex == $activePage}
+		{if length($pages) > 1 and $pageIndex == $activePage and $view != 'fieldSets'}
 			{call DDM.Form.Wizard.render}
 				{param activePage: $activePage /}
 				{param editable: $editable /}

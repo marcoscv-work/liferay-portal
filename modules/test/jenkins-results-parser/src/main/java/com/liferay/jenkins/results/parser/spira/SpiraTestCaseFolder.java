@@ -14,6 +14,7 @@
 
 package com.liferay.jenkins.results.parser.spira;
 
+import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
 import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil.HttpRequestMethod;
 
 import java.io.IOException;
@@ -162,13 +163,13 @@ public class SpiraTestCaseFolder extends PathSpiraArtifact {
 		}
 	}
 
-	public List<SpiraTestCaseObject> getChildSpiraTestCases() {
-		if (_childSpiraTestCases != null) {
-			return _childSpiraTestCases;
+	public List<SpiraTestCaseObject> getChildSpiraTestCaseObjects() {
+		if (_childSpiraTestCaseObjects != null) {
+			return _childSpiraTestCaseObjects;
 		}
 
-		_childSpiraTestCases = new ArrayList<>(
-			SpiraTestCaseObject.getSpiraTestCases(
+		_childSpiraTestCaseObjects = new ArrayList<>(
+			SpiraTestCaseObject.getSpiraTestCaseObjects(
 				getSpiraProject(),
 				new SearchQuery.SearchParameter("TestCaseFolderId", getID())));
 
@@ -179,11 +180,11 @@ public class SpiraTestCaseFolder extends PathSpiraArtifact {
 					"ParentTestCaseFolderId", getID()));
 
 		for (SpiraTestCaseFolder spiraTestCaseFolder : spiraTestCaseFolders) {
-			_childSpiraTestCases.addAll(
-				spiraTestCaseFolder.getChildSpiraTestCases());
+			_childSpiraTestCaseObjects.addAll(
+				spiraTestCaseFolder.getChildSpiraTestCaseObjects());
 		}
 
-		return _childSpiraTestCases;
+		return _childSpiraTestCaseObjects;
 	}
 
 	public SpiraTestCaseFolder getParentSpiraTestCaseFolder() {
@@ -207,6 +208,15 @@ public class SpiraTestCaseFolder extends PathSpiraArtifact {
 			(Integer)testCaseFolderID);
 
 		return _parentSpiraTestCaseFolder;
+	}
+
+	@Override
+	public String getURL() {
+		SpiraProject spiraProject = getSpiraProject();
+
+		return JenkinsResultsParserUtil.combine(
+			SPIRA_BASE_URL, String.valueOf(spiraProject.getID()),
+			"/TestCase/List/", String.valueOf(getID()), ".aspx");
 	}
 
 	protected static List<SpiraTestCaseFolder> getSpiraTestCaseFolders(
@@ -281,7 +291,7 @@ public class SpiraTestCaseFolder extends PathSpiraArtifact {
 		cacheSpiraArtifact(SpiraTestCaseFolder.class, this);
 	}
 
-	private List<SpiraTestCaseObject> _childSpiraTestCases;
+	private List<SpiraTestCaseObject> _childSpiraTestCaseObjects;
 	private SpiraTestCaseFolder _parentSpiraTestCaseFolder;
 
 }

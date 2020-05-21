@@ -26,6 +26,7 @@ import {PAGE_TYPES} from '../config/constants/pageTypes';
 import {config} from '../config/index';
 import {useDispatch, useSelector} from '../store/index';
 import undo from '../thunks/undo';
+import {useDropClear} from '../utils/useDragAndDrop';
 import {useSelectItem} from './Controls';
 import ExperimentsLabel from './ExperimentsLabel';
 import NetworkStatusBar from './NetworkStatusBar';
@@ -38,6 +39,7 @@ const {Suspense, useCallback, useRef} = React;
 
 function ToolbarBody() {
 	const dispatch = useDispatch();
+	const dropClearRef = useDropClear();
 	const {getInstance, register} = usePlugins();
 	const isMounted = useIsMounted();
 	const load = useLoad();
@@ -45,7 +47,6 @@ function ToolbarBody() {
 	const store = useSelector((state) => state);
 
 	const {
-		layoutData,
 		network,
 		segmentsExperienceId,
 		segmentsExperimentStatus,
@@ -58,7 +59,7 @@ function ToolbarBody() {
 		const isConversionPage = config.pageType === PAGE_TYPES.conversion;
 
 		setEnableDiscard(network.lastFetch || config.draft || isConversionPage);
-	}, [layoutData, network.lastFetch]);
+	}, [network.lastFetch]);
 
 	const loading = useRef(() => {
 		Promise.all(
@@ -175,6 +176,7 @@ function ToolbarBody() {
 		<div
 			className="container-fluid container-fluid-max-xl"
 			onClick={deselectItem}
+			ref={dropClearRef}
 		>
 			<ul
 				className={classNames('navbar-nav', {
@@ -235,26 +237,29 @@ function ToolbarBody() {
 			<ul className="navbar-nav" onClick={deselectItem}>
 				<NetworkStatusBar {...network} />
 				{config.undoEnabled && <Undo onUndo={onUndo} />}
-				<li className="nav-item">
-					<form action={config.discardDraftURL} method="POST">
-						<input
-							name={`${config.portletNamespace}redirect`}
-							type="hidden"
-							value={config.discardDraftRedirectURL}
-						/>
 
-						<ClayButton
-							className="btn btn-secondary mr-3"
-							disabled={!enableDiscard}
-							displayType="secondary"
-							onClick={handleDiscardDraft}
-							small
-							type="submit"
-						>
-							{draftButtonLabel}
-						</ClayButton>
-					</form>
-				</li>
+				{!config.undoEnabled && (
+					<li className="nav-item">
+						<form action={config.discardDraftURL} method="POST">
+							<input
+								name={`${config.portletNamespace}redirect`}
+								type="hidden"
+								value={config.discardDraftRedirectURL}
+							/>
+
+							<ClayButton
+								className="btn btn-secondary mr-3"
+								disabled={!enableDiscard}
+								displayType="secondary"
+								onClick={handleDiscardDraft}
+								small
+								type="submit"
+							>
+								{draftButtonLabel}
+							</ClayButton>
+						</form>
+					</li>
+				)}
 				<li className="nav-item">
 					<form action={config.publishURL} method="POST">
 						<input

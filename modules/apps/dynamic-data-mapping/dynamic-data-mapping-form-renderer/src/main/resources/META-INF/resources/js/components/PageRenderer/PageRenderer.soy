@@ -4,10 +4,14 @@
 	{@param cancelLabel: string}
 	{@param pages: ?}
 	{@param showCancelButton: bool}
+	{@param? dropdownExpanded: bool}
 	{@param showSubmitButton: bool}
 	{@param spritemap: string}
 	{@param submitLabel: string}
 	{@param total: number}
+	{@param? _handleDropdownItemClicked: any}
+	{@param? _handleAddPageClicked: any}
+	{@param? _handleAddSuccessPageClicked: any}
 	{@param? _handleFieldBlurred: any}
 	{@param? _handleFieldClicked: any}
 	{@param? _handleFieldEdited: any}
@@ -19,9 +23,14 @@
 	{@param? page: ?}
 	{@param? pageIndex: number}
 	{@param? paginationMode: string}
+	{@param? pageSettingsItems: ?}
+	{@param? pageSuccessSettingsItems: ?}
 	{@param? readOnly: bool}
 	{@param? redirectURL: string}
 	{@param? strings: map<string, string>}
+	{@param? view: string}
+	{@param? viewMode: bool}
+	{@param? successPageSettings: ?}
 
 	{let $contentRenderer kind="text"}
 		{if $page.contentRenderer != null and $page.contentRenderer != ''}
@@ -34,11 +43,14 @@
 			{/if}
 		{elseif $paginationMode != null and $paginationMode == 'single-page'}
 			single_page
+		{elseif $paginationMode == 'wizard' and not $viewMode and $view != 'fieldSets'}
+			multi_pages
 		{else}
 			{$paginationMode}
 		{/if}
 	{/let}
 
+	<div class="page">
 	{delcall PageRenderer.container variant="$contentRenderer"}
 		{param _handleFieldBlurred: $_handleFieldBlurred /}
 		{param _handleFieldClicked: $_handleFieldClicked /}
@@ -62,7 +74,78 @@
 		{param strings: $strings /}
 		{param submitLabel: $submitLabel /}
 		{param total: $total /}
+		{param view: $view /}
+		{param viewMode: $viewMode /}
 	{/delcall}
+
+		{if $paginationMode == 'wizard' and not $viewMode and $view != 'fieldSets'}
+			{if $successPageSettings.enabled and $pageIndex == length($pages) - 1}
+				<div class="ddm-paginated-builder-dropdown" data-ddm-page-actions="{$pageIndex}">
+					{call ClayActionsDropdown.render}
+						{param items: $pageSuccessSettingsItems /}
+						{param events: [
+							'itemClicked': $_handleDropdownItemClicked
+						] /}
+						{param ref: 'page-actions-' + $pageIndex /}
+						{param expanded: $dropdownExpanded /}
+						{param spritemap: $spritemap /}
+					{/call}
+				</div>
+			{else}
+				<div class="ddm-paginated-builder-dropdown" data-ddm-page-actions="{$pageIndex}">
+					{call ClayActionsDropdown.render}
+						{param items: $pageSettingsItems /}
+						{param events: [
+							'itemClicked': $_handleDropdownItemClicked
+						] /}
+						{param ref: 'page-actions-' + $pageIndex /}
+						{param expanded: $dropdownExpanded /}
+						{param spritemap: $spritemap /}
+					{/call}
+				</div>
+			{/if}
+
+			{if $page.contentRenderer != 'success'}
+				<div class="add-page-button-container">
+					<div class="horizontal-line"></div>
+						{call ClayButton.render}
+							{param label kind="text"}
+								{msg desc=""}New Page{/msg}
+							{/param}
+							{param events: [
+								'click': $_handleAddPageClicked
+							] /}
+							{param elementClasses: 'add-page-button' /}
+							{param ref: 'new-page' /}
+							{param size: 'sm' /}
+							{param spritemap: $spritemap /}
+							{param style: 'secondary' /}
+						{/call}
+					<div class="horizontal-line"></div>
+				</div>
+
+				{if $pageIndex == length($pages) - 1}
+					<div class="add-page-button-container">
+						<div class="horizontal-line"></div>
+							{call ClayButton.render}
+								{param label kind="text"}
+									{msg desc=""}Add Success Page{/msg}
+								{/param}
+								{param events: [
+									'click': $_handleAddSuccessPageClicked
+								] /}
+								{param elementClasses: 'add-page-button' /}
+								{param ref: 'success-page' /}
+								{param size: 'sm' /}
+								{param spritemap: $spritemap /}
+								{param style: 'secondary' /}
+							{/call}
+						<div class="horizontal-line"></div>
+					</div>
+				{/if}
+			{/if}
+		{/if}
+	</div>
 {/template}
 
 {template .page}
@@ -79,7 +162,7 @@
 	{@param? hideHeader: bool }
 	{@param? page: ?}
 
-	<div class="active ddm-form-page lfr-ddm-form-page">
+	<div class="active ddm-form-page lfr-ddm-form-page" data-ddm-page="{$pageIndex}">
 		{let $headerRenderer: $page.headerRenderer ?: '' /}
 
 		{if $activePage == $pageIndex and not $hideHeader}

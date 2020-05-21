@@ -475,6 +475,34 @@ public class SourceFormatter {
 		}
 	}
 
+	private Set<String> _addDependentFileName(
+		Set<String> dependentFileNames, String fileName,
+		String dependentFileName) {
+
+		String dirName = fileName.substring(
+			0, fileName.lastIndexOf(CharPool.SLASH));
+
+		while (true) {
+			String dependentFilePathName = dirName + "/" + dependentFileName;
+
+			File file = new File(dependentFilePathName);
+
+			if (file.exists()) {
+				dependentFileNames.add(dependentFilePathName);
+
+				return dependentFileNames;
+			}
+
+			int pos = dirName.lastIndexOf(CharPool.SLASH);
+
+			if (pos == -1) {
+				return dependentFileNames;
+			}
+
+			dirName = dirName.substring(0, pos);
+		}
+	}
+
 	private void _addDependentFileNames() {
 		Set<String> recentChangesFileNames =
 			_sourceFormatterArgs.getRecentChangesFileNames();
@@ -504,9 +532,15 @@ public class SourceFormatter {
 				buildPropertiesAdded = true;
 			}
 
-			if (recentChangesFileName.endsWith("ServiceImpl.java")) {
-				dependentFileNames = _addServiceXMLFileName(
-					dependentFileNames, recentChangesFileName);
+			if (recentChangesFileName.endsWith(".java") &&
+				recentChangesFileName.contains("/upgrade/")) {
+
+				dependentFileNames = _addDependentFileName(
+					dependentFileNames, recentChangesFileName, "bnd.bnd");
+			}
+			else if (recentChangesFileName.endsWith("ServiceImpl.java")) {
+				dependentFileNames = _addDependentFileName(
+					dependentFileNames, recentChangesFileName, "service.xml");
 			}
 			else if (!tagJavaFilesAdded &&
 					 recentChangesFileName.endsWith(".tld")) {
@@ -532,33 +566,6 @@ public class SourceFormatter {
 
 		_sourceFormatterArgs.addRecentChangesFileNames(
 			dependentFileNames, null);
-	}
-
-	private Set<String> _addServiceXMLFileName(
-		Set<String> dependentFileNames, String serviceImplFileName) {
-
-		String dirName = serviceImplFileName.substring(
-			0, serviceImplFileName.lastIndexOf(CharPool.SLASH));
-
-		while (true) {
-			String serviceFileName = dirName + "/service.xml";
-
-			File file = new File(serviceFileName);
-
-			if (file.exists()) {
-				dependentFileNames.add(serviceFileName);
-
-				return dependentFileNames;
-			}
-
-			int pos = dirName.lastIndexOf(CharPool.SLASH);
-
-			if (pos == -1) {
-				return dependentFileNames;
-			}
-
-			dirName = dirName.substring(0, pos);
-		}
 	}
 
 	private boolean _containsDir(String dirName) {

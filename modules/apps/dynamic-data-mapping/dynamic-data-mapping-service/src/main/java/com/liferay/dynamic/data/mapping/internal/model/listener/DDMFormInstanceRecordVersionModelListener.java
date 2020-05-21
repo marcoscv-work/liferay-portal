@@ -18,13 +18,16 @@ import com.liferay.dynamic.data.mapping.constants.DDMFormInstanceReportConstants
 import com.liferay.dynamic.data.mapping.exception.NoSuchFormInstanceReportException;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecordVersion;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport;
+import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordVersionLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceReportLocalService;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.ModelListener;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -37,21 +40,33 @@ public class DDMFormInstanceRecordVersionModelListener
 	extends BaseModelListener<DDMFormInstanceRecordVersion> {
 
 	@Override
-	public void onAfterCreate(
+	public void onAfterUpdate(
 			DDMFormInstanceRecordVersion ddmFormInstanceRecordVersion)
 		throws ModelListenerException {
 
 		try {
+			if (ddmFormInstanceRecordVersion.getStatus() !=
+					WorkflowConstants.STATUS_APPROVED) {
+
+				return;
+			}
+
 			_updateDDMFormInstanceReport(
 				ddmFormInstanceRecordVersion,
 				DDMFormInstanceReportConstants.EVENT_ADD_RECORD_VERSION);
 		}
 		catch (Exception exception) {
-			_log.error(
-				"Unable to update dynamic data mapping form instance report " +
-					"for dynamic data mapping form instance record " +
-						ddmFormInstanceRecordVersion.getFormInstanceRecordId(),
-				exception);
+			if (_log.isWarnEnabled()) {
+				StringBundler sb = new StringBundler(4);
+
+				sb.append("Unable to update dynamic data mapping form ");
+				sb.append("instance report for dynamic data mapping form ");
+				sb.append("instance record ");
+				sb.append(
+					ddmFormInstanceRecordVersion.getFormInstanceRecordId());
+
+				_log.warn(sb.toString(), exception);
+			}
 		}
 	}
 
@@ -66,11 +81,54 @@ public class DDMFormInstanceRecordVersionModelListener
 				DDMFormInstanceReportConstants.EVENT_DELETE_RECORD_VERSION);
 		}
 		catch (Exception exception) {
-			_log.error(
-				"Unable to update dynamic data mapping form instance report " +
-					"for dynamic data mapping form instance record " +
+			if (_log.isWarnEnabled()) {
+				StringBundler sb = new StringBundler(4);
+
+				sb.append("Unable to update dynamic data mapping form ");
+				sb.append("instance report for dynamic data mapping form ");
+				sb.append("instance record ");
+				sb.append(
+					ddmFormInstanceRecordVersion.getFormInstanceRecordId());
+
+				_log.warn(sb.toString(), exception);
+			}
+		}
+	}
+
+	@Override
+	public void onBeforeUpdate(
+			DDMFormInstanceRecordVersion ddmFormInstanceRecordVersion)
+		throws ModelListenerException {
+
+		try {
+			if (ddmFormInstanceRecordVersion.getStatus() !=
+					WorkflowConstants.STATUS_APPROVED) {
+
+				return;
+			}
+
+			DDMFormInstanceRecordVersion latestDDMFormInstanceRecordVersion =
+				_ddmFormInstanceRecordVersionLocalService.
+					getLatestFormInstanceRecordVersion(
 						ddmFormInstanceRecordVersion.getFormInstanceRecordId(),
-				exception);
+						WorkflowConstants.STATUS_APPROVED);
+
+			_updateDDMFormInstanceReport(
+				latestDDMFormInstanceRecordVersion,
+				DDMFormInstanceReportConstants.EVENT_DELETE_RECORD_VERSION);
+		}
+		catch (Exception exception) {
+			if (_log.isWarnEnabled()) {
+				StringBundler sb = new StringBundler(4);
+
+				sb.append("Unable to update dynamic data mapping form ");
+				sb.append("instance report for dynamic data mapping form ");
+				sb.append("instance record ");
+				sb.append(
+					ddmFormInstanceRecordVersion.getFormInstanceRecordId());
+
+				_log.warn(sb.toString(), exception);
+			}
 		}
 	}
 
@@ -103,6 +161,10 @@ public class DDMFormInstanceRecordVersionModelListener
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DDMFormInstanceRecordVersionModelListener.class);
+
+	@Reference
+	private DDMFormInstanceRecordVersionLocalService
+		_ddmFormInstanceRecordVersionLocalService;
 
 	@Reference
 	private DDMFormInstanceReportLocalService

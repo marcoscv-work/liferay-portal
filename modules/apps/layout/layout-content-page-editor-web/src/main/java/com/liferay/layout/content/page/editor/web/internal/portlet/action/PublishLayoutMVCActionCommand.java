@@ -14,9 +14,14 @@
 
 package com.liferay.layout.content.page.editor.web.internal.portlet.action;
 
+import com.liferay.fragment.processor.PortletRegistry;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
+import com.liferay.layout.content.page.editor.listener.ContentPageEditorListenerTracker;
+import com.liferay.layout.content.page.editor.web.internal.configuration.FFLayoutContentPageEditorConfiguration;
+import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureUtil;
 import com.liferay.layout.util.LayoutCopyHelper;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
@@ -39,11 +44,14 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 
 import java.util.Collections;
+import java.util.Map;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -51,6 +59,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Pavel Savinov
  */
 @Component(
+	configurationPid = "com.liferay.layout.content.page.editor.web.internal.configuration.FFLayoutContentPageEditorConfiguration",
 	immediate = true,
 	property = {
 		"javax.portlet.name=" + ContentPageEditorPortletKeys.CONTENT_PAGE_EDITOR_PORTLET,
@@ -68,6 +77,15 @@ public class PublishLayoutMVCActionCommand
 		throws PortletException {
 
 		return super.processAction(actionRequest, actionResponse);
+	}
+
+	@Activate
+	protected void activate(
+		BundleContext bundleContext, Map<String, Object> properties) {
+
+		_ffLayoutContentPageEditorConfiguration =
+			ConfigurableUtil.createConfigurable(
+				FFLayoutContentPageEditorConfiguration.class, properties);
 	}
 
 	@Override
@@ -107,6 +125,13 @@ public class PublishLayoutMVCActionCommand
 
 				throw principalException;
 			}
+		}
+
+		if (_ffLayoutContentPageEditorConfiguration.undoEnabled()) {
+			LayoutStructureUtil.deleteMarkedForDeletionItems(
+				draftLayout.getCompanyId(), _contentPageEditorListenerTracker,
+				draftLayout.getGroupId(), draftLayout.getPlid(),
+				_portletRegistry);
 		}
 
 		if (_workflowDefinitionLinkLocalService.hasWorkflowDefinitionLink(
@@ -165,6 +190,12 @@ public class PublishLayoutMVCActionCommand
 	}
 
 	@Reference
+	private ContentPageEditorListenerTracker _contentPageEditorListenerTracker;
+
+	private volatile FFLayoutContentPageEditorConfiguration
+		_ffLayoutContentPageEditorConfiguration;
+
+	@Reference
 	private LayoutCopyHelper _layoutCopyHelper;
 
 	@Reference
@@ -172,6 +203,9 @@ public class PublishLayoutMVCActionCommand
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private PortletRegistry _portletRegistry;
 
 	@Reference
 	private WorkflowDefinitionLinkLocalService

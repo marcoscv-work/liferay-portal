@@ -38,13 +38,13 @@ boolean privateLayout = ParamUtil.getBoolean(request, "privateLayout");
 <%
 int exportImportConfigurationType = localPublishing ? ExportImportConfigurationConstants.TYPE_PUBLISH_LAYOUT_LOCAL : ExportImportConfigurationConstants.TYPE_PUBLISH_LAYOUT_REMOTE;
 
-SearchContainer exportImportConfigurationSearchContainer = new SearchContainer(renderRequest, portletURL, null, "there-are-no-saved-publish-templates");
+SearchContainer<ExportImportConfiguration> exportImportConfigurationSearchContainer = new SearchContainer(renderRequest, portletURL, null, "there-are-no-saved-publish-templates");
 
 exportImportConfigurationSearchContainer.setOrderByCol("name");
 exportImportConfigurationSearchContainer.setOrderByComparator(new ExportImportConfigurationNameComparator(true));
 exportImportConfigurationSearchContainer.setOrderByType("asc");
 
-List exportImportConfigurations = ExportImportConfigurationLocalServiceUtil.getExportImportConfigurations(company.getCompanyId(), groupId, keywords, exportImportConfigurationType, exportImportConfigurationSearchContainer.getStart(), exportImportConfigurationSearchContainer.getEnd(), exportImportConfigurationSearchContainer.getOrderByComparator());
+List<ExportImportConfiguration> exportImportConfigurations = ExportImportConfigurationLocalServiceUtil.getExportImportConfigurations(company.getCompanyId(), groupId, keywords, exportImportConfigurationType, exportImportConfigurationSearchContainer.getStart(), exportImportConfigurationSearchContainer.getEnd(), exportImportConfigurationSearchContainer.getOrderByComparator());
 int exportImportConfigurationsCount = ExportImportConfigurationLocalServiceUtil.getExportImportConfigurationsCount(company.getCompanyId(), groupId, keywords, exportImportConfigurationType);
 
 exportImportConfigurationSearchContainer.setResults(exportImportConfigurations);
@@ -55,7 +55,7 @@ clearResultsURL.setParameter("keywords", StringPool.BLANK);
 %>
 
 <div class="export-dialog-tree">
-	<div class="container-fluid-1280">
+	<clay:container-fluid>
 		<div class="alert alert-info">
 			<liferay-ui:message key="publish-templates-can-be-administered-in-the-control-menu" />
 		</div>
@@ -130,5 +130,5 @@ clearResultsURL.setParameter("keywords", StringPool.BLANK);
 				/>
 			</liferay-ui:search-container>
 		</aui:form>
-	</div>
+	</clay:container-fluid>
 </div>

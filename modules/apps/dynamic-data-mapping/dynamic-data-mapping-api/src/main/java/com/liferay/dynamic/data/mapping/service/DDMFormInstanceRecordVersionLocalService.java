@@ -259,6 +259,11 @@ public interface DDMFormInstanceRecordVersionLocalService
 			long ddmFormInstanceId)
 		throws PortalException;
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public DDMFormInstanceRecordVersion getLatestFormInstanceRecordVersion(
+			long ddmFormInstanceRecordId, int status)
+		throws PortalException;
+
 	/**
 	 * Returns the OSGi service identifier.
 	 *

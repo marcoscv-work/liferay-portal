@@ -34,7 +34,6 @@ renderResponse.setTitle((accountEntryDisplay == null) ? LanguageUtil.get(request
 >
 	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= (accountEntryDisplay == null) ? Constants.ADD : Constants.UPDATE %>" />
 	<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
-	<aui:input name="accountEntryId" type="hidden" value='<%= (accountEntryDisplay == null) ? "0" : String.valueOf(accountEntryDisplay.getAccountEntryId()) %>' />
 
 	<liferay-frontend:edit-form-body>
 		<h2 class="sheet-title">
@@ -47,6 +46,8 @@ renderResponse.setTitle((accountEntryDisplay == null) ? LanguageUtil.get(request
 			<liferay-util:include page="/account_entries_admin/account_entry/domains.jsp" servletContext="<%= application %>" />
 
 			<liferay-util:include page="/account_entries_admin/account_entry/parent_account_entry.jsp" servletContext="<%= application %>" />
+
+			<liferay-util:include page="/account_entries_admin/account_entry/categorization.jsp" servletContext="<%= application %>" />
 		</liferay-frontend:fieldset-group>
 	</liferay-frontend:edit-form-body>
 

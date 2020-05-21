@@ -220,7 +220,11 @@ public class MessageBoardThreadResourceImpl
 			for (Sort sort : sorts) {
 				String fieldName = sort.getFieldName();
 
-				fieldName = StringUtil.replace(fieldName, "_sortable", "Date");
+				fieldName = StringUtil.removeSubstring(fieldName, "_sortable");
+
+				if (fieldName.equals("modified")) {
+					fieldName = "modifiedDate";
+				}
 
 				if (sort.isReverse()) {
 					dynamicQuery.addOrder(OrderFactoryUtil.desc(fieldName));
@@ -594,13 +598,12 @@ public class MessageBoardThreadResourceImpl
 						MBMessage.class.getName(), mbMessage.getMessageId()));
 				articleBody = mbMessage.getBody();
 				creator = CreatorUtil.toCreator(
-					_portal,
-					_userLocalService.getUserById(mbThread.getUserId()));
+					_portal, _userLocalService.fetchUser(mbThread.getUserId()));
 				creatorStatistics = CreatorStatisticsUtil.toCreatorStatistics(
 					_mbStatsUserLocalService,
 					contextAcceptLanguage.getPreferredLanguageId(),
 					contextUriInfo,
-					_userLocalService.getUserById(mbThread.getUserId()));
+					_userLocalService.fetchUser(mbThread.getUserId()));
 				customFields = CustomFieldsUtil.toCustomFields(
 					contextAcceptLanguage.isAcceptAllLanguages(),
 					MBMessage.class.getName(), mbMessage.getMessageId(),

@@ -77,13 +77,15 @@ definition {
 
 		Form.editDescription();
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "1");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field");
 
 		Form.closeSidebar();
 
-		Form.gotoAddField(fieldType = "Select from List");
+		Form.gotoAddField(
+			fieldPositionNumber = "2",
+			fieldType = "Select from List");
 
 		Form.editFieldLabelMetal(fieldValue = "Countries");
 
@@ -179,19 +181,25 @@ definition {
 
 		Form.editName();
 
-		Form.gotoAddField(fieldType = "Numeric");
+		Form.gotoAddField(
+			fieldPositionNumber = "1",
+			fieldType = "Numeric");
 
 		Form.editFieldLabelMetal(fieldValue = "Quantity");
 
 		Form.closeSidebar();
 
-		Form.gotoAddField(fieldType = "Numeric");
+		Form.gotoAddField(
+			fieldPositionNumber = "2",
+			fieldType = "Numeric");
 
 		Form.editFieldLabelMetal(fieldValue = "Value");
 
 		Form.closeSidebar();
 
-		Form.gotoAddField(fieldType = "Numeric");
+		Form.gotoAddField(
+			fieldPositionNumber = "3",
+			fieldType = "Numeric");
 
 		Form.editFieldLabelMetal(fieldValue = "Total");
 
@@ -280,13 +288,15 @@ definition {
 
 		Form.editName();
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "1");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field");
 
 		Form.closeSidebar();
 
-		Form.gotoAddField(fieldType = "Date");
+		Form.gotoAddField(
+			fieldPositionNumber = "2",
+			fieldType = "Date");
 
 		Form.editFieldLabelMetal(fieldValue = "Date Field");
 
@@ -368,19 +378,21 @@ definition {
 
 		Form.editName();
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "1");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field 1");
 
 		Form.closeSidebar();
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "2");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field 2");
 
 		Form.closeSidebar();
 
-		Form.gotoAddField(fieldType = "Date");
+		Form.gotoAddField(
+			fieldPositionNumber = "3",
+			fieldType = "Date");
 
 		Form.editFieldLabelMetal(fieldValue = "Date Field");
 
@@ -488,13 +500,13 @@ definition {
 
 		Form.editName();
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "1");
 
 		Form.editFieldLabelMetal(fieldValue = "Public");
 
 		Form.closeSidebar();
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "1");
 
 		Form.editFieldLabelMetal(fieldValue = "Manager");
 
@@ -643,13 +655,13 @@ definition {
 
 		Form.editName();
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "1");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field");
 
 		Form.closeSidebar();
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "1");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field 2");
 
@@ -725,13 +737,15 @@ definition {
 
 		Form.editName();
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "1");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field");
 
 		Form.closeSidebar();
 
-		Form.gotoAddField(fieldType = "Date");
+		Form.gotoAddField(
+			fieldPositionNumber = "2",
+			fieldType = "Date");
 
 		Form.editFieldLabelMetal(fieldValue = "Date Field");
 
@@ -810,13 +824,13 @@ definition {
 
 		Form.editName();
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "1");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field 1");
 
 		Form.closeSidebar();
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "2");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field 2");
 
@@ -871,7 +885,7 @@ definition {
 
 		Form.editName(formName = "Test Form");
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "1");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field 1");
 
@@ -883,7 +897,7 @@ definition {
 
 		Form.closeSidebar();
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "2");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field 2");
 
@@ -957,13 +971,13 @@ definition {
 
 		Form.editName(formName = "Test Form");
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "1");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field 1");
 
 		Form.closeSidebar();
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "2");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field 2");
 
@@ -1028,7 +1042,7 @@ definition {
 
 		Form.editName();
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "1");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field");
 
@@ -1062,19 +1076,21 @@ definition {
 
 		Form.editName(formName = "Test Form");
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "1");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field 1");
 
 		Form.closeSidebar();
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "2");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field 2");
 
 		Form.closeSidebar();
 
-		Form.gotoAddField(fieldType = "Date");
+		Form.gotoAddField(
+			fieldPositionNumber = "3",
+			fieldType = "Date");
 
 		Form.editFieldLabelMetal(fieldValue = "Date Field");
 

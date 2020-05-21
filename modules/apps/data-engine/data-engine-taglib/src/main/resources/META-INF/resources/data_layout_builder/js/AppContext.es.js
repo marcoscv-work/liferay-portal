@@ -52,6 +52,7 @@ const initialState = {
 		unimplementedProperties: [],
 	},
 	dataDefinition: {
+		availableLanguageIds: [],
 		dataDefinitionFields: [],
 		name: {},
 	},
@@ -374,8 +375,19 @@ const createReducer = (dataLayoutBuilder) => {
 				};
 			}
 			case UPDATE_EDITING_LANGUAGE_ID: {
+				const {dataDefinition} = state;
+
 				return {
 					...state,
+					dataDefinition: {
+						...dataDefinition,
+						availableLanguageIds: [
+							...new Set([
+								...dataDefinition.availableLanguageIds,
+								action.payload,
+							]),
+						],
+					},
 					editingLanguageId: action.payload,
 				};
 			}

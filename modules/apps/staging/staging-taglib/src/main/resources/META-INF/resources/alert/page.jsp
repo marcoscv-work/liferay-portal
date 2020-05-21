@@ -70,11 +70,11 @@
 </liferay-util:buffer>
 
 <div class="alert alert-<%= type %><%= dismissible ? " alert-dismissible" : "" %><%= fluid ? " alert-fluid" : "" %>">
-	<div class="container">
+	<clay:container-fluid>
 		<%= icon %>
 
 		<span><%= bodyContentString %></span>
 
 		<%= close %>
-	</div>
+	</clay:container-fluid>
 </div>

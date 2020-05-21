@@ -4,7 +4,7 @@ definition {
 	property app.server.bundles.size = "1";
 	property cluster.enabled = "true";
 	property portal.release = "true";
-	property portal.upstream = "quarantine";
+	property portal.upstream = "true";
 	property remote.elasticsearch.enabled = "true";
 	property test.assert.warning.exceptions = "true";
 	property testray.main.component.name = "Clustering";
@@ -30,6 +30,7 @@ definition {
 
 	@priority = "4"
 	test AddAndDeleteBlogEntriesOnSeparateNodes {
+		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "Clustering#AddAndDeleteBlogEntriesOnSeparateNodes";
 
 		Clustering.viewClusterStatusInConsole();
@@ -158,6 +159,7 @@ definition {
 
 	@priority = "5"
 	test ShutdownAndStartupNodes {
+		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "Clustering#ShutdownAndStartupNodes";
 
 		Clustering.viewClusterStatusInConsole();

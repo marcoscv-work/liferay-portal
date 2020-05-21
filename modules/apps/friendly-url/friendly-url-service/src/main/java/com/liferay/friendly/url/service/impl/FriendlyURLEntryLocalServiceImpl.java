@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Collections;
@@ -237,6 +238,16 @@ public class FriendlyURLEntryLocalServiceImpl
 	}
 
 	@Override
+	public void deleteFriendlyURLLocalizationEntry(
+			long friendlyURLEntryId, String languageId)
+		throws PortalException {
+
+		friendlyURLEntryLocalizationPersistence.
+			removeByFriendlyURLEntryId_LanguageId(
+				friendlyURLEntryId, languageId);
+	}
+
+	@Override
 	public void deleteGroupFriendlyURLEntries(
 		final long groupId, final long classNameId) {
 
@@ -319,6 +330,17 @@ public class FriendlyURLEntryLocalServiceImpl
 
 		return friendlyURLEntryPersistence.findByG_C_C(
 			groupId, classNameId, classPK);
+	}
+
+	@Override
+	public List<FriendlyURLEntryLocalization> getFriendlyURLEntryLocalizations(
+		long groupId, long classNameId, long classPK, String languageId,
+		int start, int end,
+		OrderByComparator<FriendlyURLEntryLocalization> orderByComparator) {
+
+		return friendlyURLEntryLocalizationPersistence.findByG_C_C_L(
+			groupId, classNameId, classPK, languageId, start, end,
+			orderByComparator);
 	}
 
 	@Override

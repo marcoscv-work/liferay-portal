@@ -106,7 +106,11 @@ export default ({
 				dateCreated: fromNow(item.dateCreated),
 				dateModified: fromNow(item.dateModified),
 				id: item.id,
-				name: <a href={getItemURL(item)}>{item.name.en_US}</a>,
+				name: (
+					<a href={getItemURL(item)}>
+						{item.name[Liferay.ThemeDisplay.getDefaultLanguageId()]}
+					</a>
+				),
 			})}
 		</ListView>
 	);

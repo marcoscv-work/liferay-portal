@@ -22,6 +22,7 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
+import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -46,19 +47,24 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "PageCollectionDefinition")
 public class PageCollectionDefinition {
 
+	public static PageCollectionDefinition toDTO(String json) {
+		return ObjectMapperUtil.readValue(PageCollectionDefinition.class, json);
+	}
+
 	@Schema
 	@Valid
-	public Object getCollectionConfig() {
+	public CollectionConfig getCollectionConfig() {
 		return collectionConfig;
 	}
 
-	public void setCollectionConfig(Object collectionConfig) {
+	public void setCollectionConfig(CollectionConfig collectionConfig) {
 		this.collectionConfig = collectionConfig;
 	}
 
 	@JsonIgnore
 	public void setCollectionConfig(
-		UnsafeSupplier<Object, Exception> collectionConfigUnsafeSupplier) {
+		UnsafeSupplier<CollectionConfig, Exception>
+			collectionConfigUnsafeSupplier) {
 
 		try {
 			collectionConfig = collectionConfigUnsafeSupplier.get();
@@ -73,7 +79,7 @@ public class PageCollectionDefinition {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Object collectionConfig;
+	protected CollectionConfig collectionConfig;
 
 	@Schema
 	public Integer getNumberOfColumns() {

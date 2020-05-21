@@ -25,7 +25,7 @@ export function pageOptions(pages, maxPageIndex = 0) {
 		pageIndex++
 	) {
 		let pageTitle = `${pageIndex} ${sub(
-			Liferay.Language.get('untitled-page-x-of-x'),
+			Liferay.Language.get('page-title'),
 			[pageIndex, pages.length]
 		)}`;
 

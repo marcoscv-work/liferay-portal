@@ -14,6 +14,7 @@
 
 package com.liferay.headless.admin.user.internal.resource.v1_0;
 
+import com.liferay.announcements.kernel.service.AnnouncementsDeliveryLocalService;
 import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.asset.kernel.service.AssetTagLocalService;
 import com.liferay.headless.admin.user.dto.v1_0.EmailAddress;
@@ -63,6 +64,7 @@ import com.liferay.portal.kernel.service.ContactLocalService;
 import com.liferay.portal.kernel.service.GroupService;
 import com.liferay.portal.kernel.service.RoleService;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
+import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
 import com.liferay.portal.kernel.service.UserService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
@@ -197,7 +199,7 @@ public class UserAccountResourceImpl
 
 		User user = _userService.addUser(
 			contextCompany.getCompanyId(), true, null, null, false,
-			userAccount.getAdditionalName(), userAccount.getEmailAddress(), 0,
+			userAccount.getAlternateName(), userAccount.getEmailAddress(), 0,
 			null, contextAcceptLanguage.getPreferredLocale(),
 			userAccount.getGivenName(), userAccount.getAdditionalName(),
 			userAccount.getFamilyName(), _getPrefixId(userAccount),
@@ -228,6 +230,113 @@ public class UserAccountResourceImpl
 		}
 
 		return _toUserAccount(user);
+	}
+
+	@Override
+	public UserAccount putUserAccount(
+			Long userAccountId, UserAccount userAccount)
+		throws Exception {
+
+		User user = _userService.getUserById(userAccountId);
+
+		String sms = null;
+		String facebook = null;
+		String jabber = null;
+		String skype = null;
+		String twitter = null;
+
+		UserAccountContactInformation userAccountContactInformation =
+			userAccount.getUserAccountContactInformation();
+
+		if (userAccountContactInformation != null) {
+			sms = userAccountContactInformation.getSms();
+			facebook = userAccountContactInformation.getFacebook();
+			jabber = userAccountContactInformation.getJabber();
+			skype = userAccountContactInformation.getSkype();
+			twitter = userAccountContactInformation.getTwitter();
+		}
+
+		return _toUserAccount(
+			_userService.updateUser(
+				userAccountId, null, null, null, false, null, null,
+				userAccount.getAlternateName(), userAccount.getEmailAddress(),
+				user.getFacebookId(), user.getOpenId(), false, null,
+				user.getLanguageId(), user.getTimeZoneId(), user.getGreeting(),
+				user.getComments(), userAccount.getGivenName(),
+				userAccount.getAdditionalName(), userAccount.getFamilyName(),
+				_getPrefixId(userAccount), _getSuffixId(userAccount), true,
+				_getBirthdayMonth(userAccount), _getBirthdayDay(userAccount),
+				_getBirthdayYear(userAccount), sms, facebook, jabber, skype,
+				twitter, userAccount.getJobTitle(), user.getGroupIds(),
+				user.getOrganizationIds(), user.getRoleIds(),
+				_userGroupRoleLocalService.getUserGroupRoles(userAccountId),
+				user.getUserGroupIds(), _getAddresses(userAccount),
+				_getServiceBuilderEmailAddresses(userAccount),
+				_getServiceBuilderPhones(userAccount),
+				_getWebsites(userAccount),
+				_announcementsDeliveryLocalService.getUserDeliveries(
+					userAccountId),
+				ServiceContextFactory.getInstance(contextHttpServletRequest)));
+	}
+
+	@Override
+	protected void preparePatch(
+		UserAccount userAccount, UserAccount existingUserAccount) {
+
+		UserAccountContactInformation userAccountContactInformation =
+			userAccount.getUserAccountContactInformation();
+
+		if (userAccountContactInformation != null) {
+			UserAccountContactInformation
+				existingUserAccountContactInformation =
+					existingUserAccount.getUserAccountContactInformation();
+
+			Optional.ofNullable(
+				userAccountContactInformation.getEmailAddresses()
+			).ifPresent(
+				existingUserAccountContactInformation::setEmailAddresses
+			);
+			Optional.ofNullable(
+				userAccountContactInformation.getFacebook()
+			).ifPresent(
+				existingUserAccountContactInformation::setFacebook
+			);
+			Optional.ofNullable(
+				userAccountContactInformation.getJabber()
+			).ifPresent(
+				existingUserAccountContactInformation::setJabber
+			);
+			Optional.ofNullable(
+				userAccountContactInformation.getPostalAddresses()
+			).ifPresent(
+				existingUserAccountContactInformation::setPostalAddresses
+			);
+			Optional.ofNullable(
+				userAccountContactInformation.getSkype()
+			).ifPresent(
+				existingUserAccountContactInformation::setSkype
+			);
+			Optional.ofNullable(
+				userAccountContactInformation.getSms()
+			).ifPresent(
+				existingUserAccountContactInformation::setSms
+			);
+			Optional.ofNullable(
+				userAccountContactInformation.getTelephones()
+			).ifPresent(
+				existingUserAccountContactInformation::setTelephones
+			);
+			Optional.ofNullable(
+				userAccountContactInformation.getTwitter()
+			).ifPresent(
+				existingUserAccountContactInformation::setTwitter
+			);
+			Optional.ofNullable(
+				userAccountContactInformation.getWebUrls()
+			).ifPresent(
+				existingUserAccountContactInformation::setWebUrls
+			);
+		}
 	}
 
 	private List<Address> _getAddresses(UserAccount userAccount) {
@@ -541,6 +650,10 @@ public class UserAccountResourceImpl
 		new UserAccountEntityModel();
 
 	@Reference
+	private AnnouncementsDeliveryLocalService
+		_announcementsDeliveryLocalService;
+
+	@Reference
 	private AssetTagLocalService _assetTagLocalService;
 
 	@Reference
@@ -557,6 +670,9 @@ public class UserAccountResourceImpl
 
 	@Reference
 	private RoleService _roleService;
+
+	@Reference
+	private UserGroupRoleLocalService _userGroupRoleLocalService;
 
 	@Reference
 	private UserService _userService;

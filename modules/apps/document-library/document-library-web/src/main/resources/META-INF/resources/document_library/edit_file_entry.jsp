@@ -137,7 +137,7 @@ renderResponse.setTitle(headerTitle);
 	</liferay-frontend:info-bar>
 </c:if>
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<c:if test="<%= checkedOut %>">
 
 		<%
@@ -493,7 +493,7 @@ renderResponse.setTitle(headerTitle);
 						<liferay-asset:asset-categories-selector
 							className="<%= DLFileEntry.class.getName() %>"
 							classPK="<%= assetClassPK %>"
-							classTypePK="<%= fileEntryTypeId %>"
+							classTypePK="<%= (fileEntryTypeId < 0) ? DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT : fileEntryTypeId %>"
 						/>
 
 						<liferay-asset:asset-tags-selector
@@ -555,7 +555,7 @@ renderResponse.setTitle(headerTitle);
 		id="<%= uploadProgressId %>"
 		message="uploading"
 	/>
-</div>
+</clay:container-fluid>
 
 <c:if test="<%= (fileEntry != null) && checkedOut && dlAdminDisplayContext.isVersioningStrategyOverridable() %>">
 

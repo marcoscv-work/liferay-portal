@@ -20,26 +20,38 @@ import antlr.CommonHiddenStreamToken;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.json.JSONArrayImpl;
 import com.liferay.portal.json.JSONObjectImpl;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.tools.ToolsUtil;
+import com.liferay.source.formatter.JSPImportsFormatter;
+import com.liferay.source.formatter.checks.util.JavaSourceUtil;
 import com.liferay.source.formatter.checks.util.SourceUtil;
 import com.liferay.source.formatter.checkstyle.util.CheckstyleUtil;
 import com.liferay.source.formatter.checkstyle.util.DetailASTUtil;
 import com.liferay.source.formatter.util.DebugUtil;
+import com.liferay.source.formatter.util.FileUtil;
 import com.liferay.source.formatter.util.SourceFormatterCheckUtil;
+import com.liferay.source.formatter.util.SourceFormatterUtil;
 
 import com.puppycrawl.tools.checkstyle.api.AbstractCheck;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.FileContents;
+import com.puppycrawl.tools.checkstyle.api.FileText;
 import com.puppycrawl.tools.checkstyle.api.FullIdent;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
+import java.io.File;
+import java.io.IOException;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -153,6 +165,45 @@ public abstract class BaseCheck extends AbstractCheck {
 		return endLineNumber;
 	}
 
+	protected String getFullyQualifiedTypeName(
+		DetailAST typeDetailAST, boolean checkPackage) {
+
+		String typeName = getTypeName(typeDetailAST, false);
+
+		if (typeName.contains(StringPool.PERIOD) &&
+			Character.isLowerCase(typeName.charAt(0))) {
+
+			return typeName;
+		}
+
+		List<String> importNames = getImportNames(typeDetailAST);
+
+		for (String importName : importNames) {
+			int x = importName.lastIndexOf(CharPool.PERIOD);
+
+			String className = importName.substring(x + 1);
+
+			if (typeName.equals(className)) {
+				return importName;
+			}
+
+			if (typeName.startsWith(className + ".")) {
+				return StringUtil.replaceLast(importName, className, typeName);
+			}
+		}
+
+		if (!checkPackage) {
+			return null;
+		}
+
+		FileContents fileContents = getFileContents();
+
+		FileText fileText = fileContents.getText();
+
+		return JavaSourceUtil.getPackageName((String)fileText.getFullText()) +
+			StringPool.PERIOD + typeName;
+	}
+
 	protected CommonHiddenStreamToken getHiddenBefore(DetailAST detailAST) {
 		CommonASTWithHiddenTokens commonASTWithHiddenTokens =
 			(CommonASTWithHiddenTokens)detailAST;
@@ -161,6 +212,14 @@ public abstract class BaseCheck extends AbstractCheck {
 	}
 
 	protected List<String> getImportNames(DetailAST detailAST) {
+		if (isJSPFile()) {
+			String absolutePath = getAbsolutePath();
+
+			return _getJSPImportNames(
+				absolutePath.substring(
+					0, absolutePath.lastIndexOf(CharPool.SLASH)));
+		}
+
 		DetailAST rootDetailAST = detailAST;
 
 		while (true) {
@@ -175,7 +234,7 @@ public abstract class BaseCheck extends AbstractCheck {
 			}
 		}
 
-		List<String> importNamesList = new ArrayList<>();
+		List<String> importNames = new ArrayList<>();
 
 		DetailAST siblingDetailAST = rootDetailAST.getNextSibling();
 
@@ -183,13 +242,13 @@ public abstract class BaseCheck extends AbstractCheck {
 			if ((siblingDetailAST == null) ||
 				(siblingDetailAST.getType() != TokenTypes.IMPORT)) {
 
-				return importNamesList;
+				return importNames;
 			}
 
 			FullIdent importIdent = FullIdent.createFullIdentBelow(
 				siblingDetailAST);
 
-			importNamesList.add(importIdent.getText());
+			importNames.add(importIdent.getText());
 
 			siblingDetailAST = siblingDetailAST.getNextSibling();
 		}
@@ -406,6 +465,13 @@ public abstract class BaseCheck extends AbstractCheck {
 		DetailAST typeArgumentsDetailAST = typeDetailAST.findFirstToken(
 			TokenTypes.TYPE_ARGUMENTS);
 
+		if ((typeArgumentsDetailAST == null) &&
+			(childDetailAST.getType() == TokenTypes.DOT)) {
+
+			typeArgumentsDetailAST = childDetailAST.findFirstToken(
+				TokenTypes.TYPE_ARGUMENTS);
+		}
+
 		if (typeArgumentsDetailAST == null) {
 			return sb.toString();
 		}
@@ -425,6 +491,47 @@ public abstract class BaseCheck extends AbstractCheck {
 		sb.append(CharPool.GREATER_THAN);
 
 		return sb.toString();
+	}
+
+	protected Tuple getTypeNamesTuple(String fileName, String category) {
+		File typeNamesFile = SourceFormatterUtil.getFile(
+			getBaseDirName(),
+			"modules/util/source-formatter/src/main/resources/dependencies/" +
+				fileName,
+			ToolsUtil.PORTAL_MAX_DIR_LEVEL);
+
+		JSONObject jsonObject = null;
+
+		try {
+			String content = null;
+
+			if (typeNamesFile != null) {
+				content = FileUtil.read(typeNamesFile);
+			}
+			else {
+				Class<?> clazz = getClass();
+
+				ClassLoader classLoader = clazz.getClassLoader();
+
+				content = StringUtil.read(
+					classLoader.getResourceAsStream(
+						"dependencies/" + fileName));
+			}
+
+			if (Validator.isNotNull(content)) {
+				jsonObject = new JSONObjectImpl(content);
+			}
+		}
+		catch (Exception exception) {
+		}
+
+		if (jsonObject == null) {
+			jsonObject = new JSONObjectImpl();
+
+			jsonObject.put(category, new JSONArrayImpl());
+		}
+
+		return new Tuple(jsonObject, typeNamesFile);
 	}
 
 	protected List<DetailAST> getVariableCallerDetailASTList(
@@ -779,6 +886,42 @@ public abstract class BaseCheck extends AbstractCheck {
 		TokenTypes.POST_INC, TokenTypes.UNARY_MINUS, TokenTypes.UNARY_PLUS
 	};
 
+	private List<String> _getJSPImportNames(String directoryName) {
+		if (_jspImportNamesMap.containsKey(directoryName)) {
+			return _jspImportNamesMap.get(directoryName);
+		}
+
+		List<String> importNames = new ArrayList<>();
+
+		String fileName = directoryName + "/init.jsp";
+
+		File file = new File(fileName);
+
+		if (file.exists()) {
+			try {
+				List<String> curImportNames =
+					JSPImportsFormatter.getImportNames(FileUtil.read(file));
+
+				importNames.addAll(curImportNames);
+			}
+			catch (IOException ioException) {
+			}
+		}
+
+		int x = directoryName.lastIndexOf(CharPool.SLASH);
+
+		if ((x != -1) && !directoryName.endsWith("/resources") &&
+			!directoryName.endsWith("/docroot")) {
+
+			importNames.addAll(
+				_getJSPImportNames(directoryName.substring(0, x)));
+		}
+
+		_jspImportNamesMap.put(directoryName, importNames);
+
+		return importNames;
+	}
+
 	private String _getVariableName(DetailAST variableDefinitionDetailAST) {
 		DetailAST nameDetailAST = variableDefinitionDetailAST.findFirstToken(
 			TokenTypes.IDENT);
@@ -794,5 +937,7 @@ public abstract class BaseCheck extends AbstractCheck {
 	private JSONObject _excludesJSONObject = new JSONObjectImpl();
 	private final Map<String, List<String>> _excludesValuesMap =
 		new ConcurrentHashMap<>();
+	private final Map<String, List<String>> _jspImportNamesMap =
+		new HashMap<>();
 
 }

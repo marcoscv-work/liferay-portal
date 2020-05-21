@@ -67,7 +67,7 @@ ExportTemplatesToolbarDisplayContext exportTemplatesToolbarDisplayContext = new 
 	showSearch="<%= true %>"
 />
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<aui:form action="<%= portletURL %>">
 		<liferay-ui:search-container
 			searchContainer="<%= exportTemplatesToolbarDisplayContext.getSearchContainer() %>"
@@ -133,4 +133,4 @@ ExportTemplatesToolbarDisplayContext exportTemplatesToolbarDisplayContext = new 
 			/>
 		</liferay-ui:search-container>
 	</aui:form>
-</div>
+</clay:container-fluid>

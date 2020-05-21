@@ -17,6 +17,7 @@ package com.liferay.friendly.url.service;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.friendly.url.model.FriendlyURLEntry;
 import com.liferay.friendly.url.model.FriendlyURLEntryLocalization;
+import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
@@ -31,6 +32,8 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.change.tracking.CTService;
+import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -59,7 +62,8 @@ import org.osgi.annotation.versioning.ProviderType;
 	rollbackFor = {PortalException.class, SystemException.class}
 )
 public interface FriendlyURLEntryLocalService
-	extends BaseLocalService, PersistedModelLocalService {
+	extends BaseLocalService, CTService<FriendlyURLEntry>,
+			PersistedModelLocalService {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -139,6 +143,10 @@ public interface FriendlyURLEntryLocalService
 
 	public void deleteFriendlyURLEntry(
 		long groupId, long classNameId, long classPK);
+
+	public void deleteFriendlyURLLocalizationEntry(
+			long friendlyURLEntryId, String languageId)
+		throws PortalException;
 
 	public void deleteGroupFriendlyURLEntries(long groupId, long classNameId);
 
@@ -341,6 +349,12 @@ public interface FriendlyURLEntryLocalService
 		long friendlyURLEntryId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<FriendlyURLEntryLocalization> getFriendlyURLEntryLocalizations(
+		long groupId, long classNameId, long classPK, String languageId,
+		int start, int end,
+		OrderByComparator<FriendlyURLEntryLocalization> orderByComparator);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -418,5 +432,20 @@ public interface FriendlyURLEntryLocalService
 
 	public void validate(long groupId, long classNameId, String urlTitle)
 		throws PortalException;
+
+	@Override
+	@Transactional(enabled = false)
+	public CTPersistence<FriendlyURLEntry> getCTPersistence();
+
+	@Override
+	@Transactional(enabled = false)
+	public Class<FriendlyURLEntry> getModelClass();
+
+	@Override
+	@Transactional(rollbackFor = Throwable.class)
+	public <R, E extends Throwable> R updateWithUnsafeFunction(
+			UnsafeFunction<CTPersistence<FriendlyURLEntry>, R, E>
+				updateUnsafeFunction)
+		throws E;
 
 }

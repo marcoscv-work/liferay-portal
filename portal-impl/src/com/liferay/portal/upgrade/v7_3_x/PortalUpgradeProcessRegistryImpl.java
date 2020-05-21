@@ -84,6 +84,15 @@ public class PortalUpgradeProcessRegistryImpl
 				"DLFileEntry", "DLFileEntryMetadata", "DLFileEntryType",
 				"DLFileEntryTypes_DLFolders", "DLFileShortcut", "DLFileVersion",
 				"DLFolder"));
+
+		upgradeProcesses.put(
+			new Version(8, 7, 0), new UpgradeSocialMVCCVersion());
+
+		upgradeProcesses.put(
+			new Version(8, 8, 0), new UpgradeExpandoMVCCVersion());
+
+		upgradeProcesses.put(
+			new Version(8, 9, 0), new UpgradeRatingsMVCCVersion());
 	}
 
 }

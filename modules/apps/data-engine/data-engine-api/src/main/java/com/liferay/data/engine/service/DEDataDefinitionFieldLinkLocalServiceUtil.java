@@ -138,11 +138,23 @@ public class DEDataDefinitionFieldLinkLocalServiceUtil {
 		getService().deleteDEDataDefinitionFieldLinks(classNameId, classPK);
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 DEDataDefinitionFieldLinkLocalServiceImpl#deleteDEDataDefinitionFieldLinks(long, long, String[])}
+	 */
+	@Deprecated
 	public static void deleteDEDataDefinitionFieldLinks(
 		long classNameId, long ddmStructureId, String fieldName) {
 
 		getService().deleteDEDataDefinitionFieldLinks(
 			classNameId, ddmStructureId, fieldName);
+	}
+
+	public static void deleteDEDataDefinitionFieldLinks(
+		long classNameId, long ddmStructureId, String[] fieldNames) {
+
+		getService().deleteDEDataDefinitionFieldLinks(
+			classNameId, ddmStructureId, fieldNames);
 	}
 
 	/**
@@ -332,6 +344,11 @@ public class DEDataDefinitionFieldLinkLocalServiceUtil {
 		return getService().getDEDataDefinitionFieldLinks(ddmStructureId);
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 DEDataDefinitionFieldLinkLocalServiceImpl#getDEDataDefinitionFieldLinks(long, long, String[])}
+	 */
+	@Deprecated
 	public static java.util.List
 		<com.liferay.data.engine.model.DEDataDefinitionFieldLink>
 			getDEDataDefinitionFieldLinks(
@@ -339,6 +356,15 @@ public class DEDataDefinitionFieldLinkLocalServiceUtil {
 
 		return getService().getDEDataDefinitionFieldLinks(
 			classNameId, ddmStructureId, fieldName);
+	}
+
+	public static java.util.List
+		<com.liferay.data.engine.model.DEDataDefinitionFieldLink>
+			getDEDataDefinitionFieldLinks(
+				long classNameId, long ddmStructureId, String[] fieldNames) {
+
+		return getService().getDEDataDefinitionFieldLinks(
+			classNameId, ddmStructureId, fieldNames);
 	}
 
 	/**

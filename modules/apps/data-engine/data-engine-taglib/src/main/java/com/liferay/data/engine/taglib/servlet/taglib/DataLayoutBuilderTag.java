@@ -22,10 +22,12 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -44,20 +46,22 @@ public class DataLayoutBuilderTag extends BaseDataLayoutBuilderTag {
 		int result = super.doStartTag();
 
 		try {
+			HttpServletRequest httpServletRequest = getRequest();
+
 			setNamespacedAttribute(
-				request, "dataLayoutBuilderModule",
+				httpServletRequest, "dataLayoutBuilderModule",
 				DataLayoutTaglibUtil.resolveModule(
 					"data-engine-taglib/data_layout_builder/js" +
 						"/DataLayoutBuilder.es"));
 			setNamespacedAttribute(
-				request, "fieldTypes",
+				httpServletRequest, "fieldTypes",
 				DataLayoutTaglibUtil.getFieldTypesJSONArray(
-					request, getScopes()));
+					httpServletRequest, getScopes()));
 			setNamespacedAttribute(
-				request, "fieldTypesModules",
+				httpServletRequest, "fieldTypesModules",
 				DataLayoutTaglibUtil.resolveFieldTypesModules());
 			setNamespacedAttribute(
-				request, "sidebarPanels", _getSidebarPanels());
+				httpServletRequest, "sidebarPanels", _getSidebarPanels());
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
@@ -82,10 +86,13 @@ public class DataLayoutBuilderTag extends BaseDataLayoutBuilderTag {
 			httpServletRequest, "availableLocales",
 			availableLocales.toArray(new Locale[0]));
 
+		HttpServletRequest tagHttpServletRequest = getRequest();
+
 		setNamespacedAttribute(
 			httpServletRequest, "config",
 			DataLayoutTaglibUtil.getDataLayoutConfigJSONObject(
-				getContentType(), request.getLocale()));
+				getContentType(), tagHttpServletRequest.getLocale()));
+
 		setNamespacedAttribute(
 			httpServletRequest, "dataLayout",
 			DataLayoutTaglibUtil.getDataLayoutJSONObject(
@@ -105,6 +112,11 @@ public class DataLayoutBuilderTag extends BaseDataLayoutBuilderTag {
 	}
 
 	private Map<String, Object> _getSidebarPanels() {
+		HttpServletRequest httpServletRequest = getRequest();
+
+		ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
+			"content.Language", httpServletRequest.getLocale(), getClass());
+
 		Map<String, Object> sidebarPanels =
 			LinkedHashMapBuilder.<String, Object>put(
 				"fields",
@@ -113,7 +125,7 @@ public class DataLayoutBuilderTag extends BaseDataLayoutBuilderTag {
 				).put(
 					"isLink", false
 				).put(
-					"label", LanguageUtil.get(request, "fields")
+					"label", LanguageUtil.get(resourceBundle, "builder")
 				).put(
 					"pluginEntryPoint",
 					DataLayoutTaglibUtil.resolveModule(
@@ -129,7 +141,7 @@ public class DataLayoutBuilderTag extends BaseDataLayoutBuilderTag {
 				).put(
 					"isLink", false
 				).put(
-					"label", LanguageUtil.get(request, "rules")
+					"label", LanguageUtil.get(resourceBundle, "rules")
 				).put(
 					"pluginEntryPoint",
 					DataLayoutTaglibUtil.resolveModule(
@@ -140,7 +152,7 @@ public class DataLayoutBuilderTag extends BaseDataLayoutBuilderTag {
 				).build()
 			).build();
 
-		List<Map> additionalPanels = getAdditionalPanels();
+		List<Map<String, Object>> additionalPanels = getAdditionalPanels();
 
 		if (ListUtil.isEmpty(additionalPanels)) {
 			return sidebarPanels;

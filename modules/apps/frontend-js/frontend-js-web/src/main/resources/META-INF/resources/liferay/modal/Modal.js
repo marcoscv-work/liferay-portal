@@ -106,6 +106,8 @@ const Modal = ({
 	id,
 	iframeBodyCssClass,
 	onClose,
+	onSelect,
+	selectEventName,
 	size,
 	title,
 	url,
@@ -173,6 +175,20 @@ const Modal = ({
 
 		return <div ref={bodyRef}></div>;
 	};
+
+	useEffect(() => {
+		let eventHandler;
+
+		if (onSelect && selectEventName) {
+			eventHandler = Liferay.on(selectEventName, onSelect);
+		}
+
+		return () => {
+			if (eventHandler) {
+				eventHandler.detach();
+			}
+		};
+	}, [onSelect, selectEventName]);
 
 	return (
 		<>
@@ -270,12 +286,13 @@ class Iframe extends React.Component {
 
 		const namespace = iframeURL.searchParams.get('p_p_id');
 
+		let bodyCssClass = 'dialog-iframe-popup';
+
 		if (props.iframeBodyCssClass) {
-			iframeURL.searchParams.set(
-				`_${namespace}_bodyCssClass`,
-				props.iframeBodyCssClass
-			);
+			bodyCssClass = `${bodyCssClass} ${props.iframeBodyCssClass}`;
 		}
+
+		iframeURL.searchParams.set(`_${namespace}_bodyCssClass`, bodyCssClass);
 
 		this.state = {loading: true, src: iframeURL.toString()};
 	}
@@ -296,9 +313,17 @@ class Iframe extends React.Component {
 			() => this.props.processClose()
 		);
 
+		iframe.contentWindow.document.body.classList.add('dialog-iframe-popup');
+
 		this.props.updateLoading(false);
 
 		this.setState({loading: false});
+
+		iframe.contentWindow.onunload = () => {
+			this.props.updateLoading(true);
+
+			this.setState({loading: true});
+		};
 
 		Liferay.fire('modalIframeLoaded', {src: this.state.src});
 	};
@@ -337,6 +362,8 @@ Modal.propTypes = {
 	headerHTML: PropTypes.string,
 	id: PropTypes.string,
 	onClose: PropTypes.func,
+	onSelect: PropTypes.func,
+	selectEventName: PropTypes.string,
 	size: PropTypes.oneOf(['full-screen', 'lg', 'sm']),
 	title: PropTypes.string,
 	url: PropTypes.string,

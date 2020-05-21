@@ -2468,20 +2468,6 @@ this task.
 		<replace
 			file="${app.server.wildfly.dir}/standalone/configuration/standalone.xml"
 		>
-			<replacetoken><![CDATA[<extension module="org.jboss.as.weld"/>]]></replacetoken>
-			<replacevalue></replacevalue>
-		</replace>
-
-		<replaceregexp
-			file="${app.server.wildfly.dir}/standalone/configuration/standalone.xml"
-			flags="g"
-			match="&lt;subsystem xmlns=&quot;urn:jboss:domain:weld:\d\.\d&quot;\/&gt;"
-			replace=""
-		/>
-
-		<replace
-			file="${app.server.wildfly.dir}/standalone/configuration/standalone.xml"
-		>
 			<replacetoken><![CDATA[</extensions>]]></replacetoken>
 			<replacevalue>
 				<![CDATA[
@@ -2825,7 +2811,7 @@ plugins.includes=</echo>
 
 				<execute dir="dist/${tstamp.value}">
 					<![CDATA[
-						7z a -md1024m ${project.dir}/dist/${zip.executable.file}-${lp.version}.7z liferay-portal-${lp.version}
+						7z a ${project.dir}/dist/${zip.executable.file}-${lp.version}.7z liferay-portal-${lp.version}
 					]]>
 				</execute>
 

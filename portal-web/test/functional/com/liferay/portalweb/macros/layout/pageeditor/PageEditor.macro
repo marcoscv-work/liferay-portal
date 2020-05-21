@@ -9,17 +9,17 @@ definition {
 
 		if ("${scope}" == "Master") {
 			if ("${dropTarget}" == "Header") {
-				DragAndDrop.javaScriptDragAndDropToObject(
+				DragAndDrop.javaScriptDragAndDropToUp(
 					key_fragmentName = "${fragmentName}",
 					locator1 = "PageEditor#SECTION_BUILDER_FRAGMENTS",
-					locator2 = "PageEditor#FRAGMENT_DROP_TARGET",
+					locator2 = "PageEditor#HEADER_DROP_TARGET",
 					value1 = "");
 			}
 			else if ("${dropTarget}" == "Footer") {
 				DragAndDrop.javaScriptDragAndDropToObject(
 					key_fragmentName = "${fragmentName}",
 					locator1 = "PageEditor#SECTION_BUILDER_FRAGMENTS",
-					locator2 = "PageEditor#FOOTER_DROP_TARGET",
+					locator2 = "PageEditor#FRAGMENT_DROP_TARGET",
 					value1 = "");
 			}
 		}
@@ -114,17 +114,17 @@ definition {
 
 		if ("${scope}" == "Master") {
 			if ("${dropTarget}" == "Header") {
-				DragAndDrop.javaScriptDragAndDropToObject(
+				DragAndDrop.javaScriptDragAndDropToUp(
 					key_fragmentName = "${fragmentName}",
 					locator1 = "PageEditor#SECTION_BUILDER_FRAGMENTS",
-					locator2 = "PageEditor#FRAGMENT_DROP_TARGET",
+					locator2 = "PageEditor#HEADER_DROP_TARGET",
 					value1 = "");
 			}
 			else if ("${dropTarget}" == "Footer") {
 				DragAndDrop.javaScriptDragAndDropToObject(
 					key_fragmentName = "${fragmentName}",
 					locator1 = "PageEditor#SECTION_BUILDER_FRAGMENTS",
-					locator2 = "PageEditor#FOOTER_DROP_TARGET",
+					locator2 = "PageEditor#FRAGMENT_DROP_TARGET",
 					value1 = "");
 			}
 		}
@@ -179,17 +179,17 @@ definition {
 
 		if ("${scope}" == "Master") {
 			if ("${dropTarget}" == "Header") {
-				DragAndDrop.javaScriptDragAndDropToObject(
+				DragAndDrop.javaScriptDragAndDropToUp(
 					key_fragmentName = "${fragmentName}",
 					locator1 = "PageEditor#SECTION_BUILDER_FRAGMENTS",
-					locator2 = "PageEditor#FRAGMENT_DROP_TARGET",
+					locator2 = "PageEditor#HEADER_DROP_TARGET",
 					value1 = "");
 			}
 			else if ("${dropTarget}" == "Footer") {
 				DragAndDrop.javaScriptDragAndDropToObject(
 					key_fragmentName = "${fragmentName}",
 					locator1 = "PageEditor#SECTION_BUILDER_FRAGMENTS",
-					locator2 = "PageEditor#FOOTER_DROP_TARGET",
+					locator2 = "PageEditor#FRAGMENT_DROP_TARGET",
 					value1 = "");
 			}
 		}
@@ -219,17 +219,17 @@ definition {
 
 		if ("${scope}" == "Master") {
 			if ("${dropTarget}" == "Header") {
-				DragAndDrop.javaScriptDragAndDropToObject(
+				DragAndDrop.javaScriptDragAndDropToUp(
 					key_elementType = "Row",
 					locator1 = "PageEditor#SECTION_BUILDER_LAYOUT_ELEMENTS",
-					locator2 = "PageEditor#FRAGMENT_DROP_TARGET",
+					locator2 = "PageEditor#HEADER_DROP_TARGET",
 					value1 = "");
 			}
 			else if ("${dropTarget}" == "Footer") {
 				DragAndDrop.javaScriptDragAndDropToObject(
 					key_elementType = "Row",
 					locator1 = "PageEditor#SECTION_BUILDER_LAYOUT_ELEMENTS",
-					locator2 = "PageEditor#FOOTER_DROP_TARGET",
+					locator2 = "PageEditor#FRAGMENT_DROP_TARGET",
 					value1 = "");
 			}
 		}
@@ -262,9 +262,16 @@ definition {
 			locator2 = "${dropTarget}",
 			value1 = "");
 
+		if (isSet(position)) {
+			var key_position = "${position}";
+		}
+		else {
+			var key_position = "1";
+		}
+
 		AssertVisible(
 			key_elementType = "Section",
-			key_position = "1",
+			key_position = "${position}",
 			locator1 = "PageEditor#LAYOUT_ELEMENTS_HEADER");
 
 		PageEditor.waitForAutoSave();
@@ -293,15 +300,15 @@ definition {
 
 		if ("${scope}" == "Master") {
 			if ("${dropTarget}" == "Header") {
-				DragAndDrop.javaScriptDragAndDropToObject(
+				DragAndDrop.javaScriptDragAndDropToUp(
 					locator1 = "PageEditor#WIDGETS_ADD_PORTLET_DRAG_BUTTON",
-					locator2 = "PageEditor#FRAGMENT_DROP_TARGET",
+					locator2 = "PageEditor#HEADER_DROP_TARGET",
 					value1 = "");
 			}
 			else if ("${dropTarget}" == "Footer") {
 				DragAndDrop.javaScriptDragAndDropToObject(
 					locator1 = "PageEditor#WIDGETS_ADD_PORTLET_DRAG_BUTTON",
-					locator2 = "PageEditor#FOOTER_DROP_TARGET",
+					locator2 = "PageEditor#FRAGMENT_DROP_TARGET",
 					value1 = "");
 			}
 		}
@@ -762,15 +769,13 @@ definition {
 			Pause(locator1 = "3000");
 
 			Type(
-				key_fieldName = "imageDescription",
-				locator1 = "FormFields#TEXT_FIELD",
+				locator1 = "TextInput#IMAGE_DESCRIPTION",
 				value1 = "${imageDescription}");
 
 			Pause(locator1 = "3000");
 
-			AssertTextEquals(
-				key_fieldName = "imageDescription",
-				locator1 = "FormFields#TEXT_FIELD",
+			AssertTextEquals.assertValue(
+				locator1 = "TextInput#IMAGE_DESCRIPTION",
 				value1 = "${imageDescription}");
 
 			Click(locator1 = "PageEditor#EDITABLE_FIELD_TOOLBAR_IMAGE_PROPERTIES_BUTTON");
@@ -1117,6 +1122,16 @@ definition {
 				key_tabName = "${tabName}",
 				locator1 = "PageEditor#FRAGMENT_SIDEBAR_TAB_BUTTON");
 		}
+	}
+
+	macro gotoTabsFragmentNavItem {
+		var key_navItem = "${navItem}";
+
+		Click.javaScriptClick(
+			locator1 = "Fragment#NAV_ITEM_TAB",
+			value1 = "${navItem}");
+
+		AssertElementPresent(locator1 = "Fragment#ACTIVE_NAV_ITEM_TAB");
 	}
 
 	macro removeFragment {

@@ -32,16 +32,11 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "search-
 
 <portlet:renderURL var="viewURL" />
 
-<clay:navigation-bar
-	inverted="<%= true %>"
-	navigationItems='<%= appManagerDisplayContext.getNavigationItems(viewURL, "search") %>'
-/>
-
 <%
 AppManagerSearchResultsManagementToolbarDisplayContext
 	appManagerSearchResultsManagementToolbarDisplayContext = new AppManagerSearchResultsManagementToolbarDisplayContext(request, liferayPortletRequest, liferayPortletResponse);
 
-SearchContainer searchContainer = appManagerSearchResultsManagementToolbarDisplayContext.getSearchContainer();
+SearchContainer<Object> searchContainer = appManagerSearchResultsManagementToolbarDisplayContext.getSearchContainer();
 %>
 
 <clay:management-toolbar
@@ -56,7 +51,7 @@ SearchContainer searchContainer = appManagerSearchResultsManagementToolbarDispla
 	sortingURL="<%= appManagerSearchResultsManagementToolbarDisplayContext.getSortingURL() %>"
 />
 
-<div class="container-fluid container-fluid-max-xl">
+<clay:container-fluid>
 	<liferay-ui:breadcrumb
 		showCurrentGroup="<%= false %>"
 		showGuestGroup="<%= false %>"
@@ -101,4 +96,4 @@ SearchContainer searchContainer = appManagerSearchResultsManagementToolbarDispla
 			resultRowSplitter="<%= new MarketplaceAppManagerResultRowSplitter() %>"
 		/>
 	</liferay-ui:search-container>
-</div>
+</clay:container-fluid>

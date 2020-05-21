@@ -22,6 +22,9 @@ String backURL = ParamUtil.getString(request, "backURL");
 
 RedirectEntry redirectEntry = (RedirectEntry)request.getAttribute(RedirectEntry.class.getName());
 
+String destinationURL = (redirectEntry != null) ? redirectEntry.getDestinationURL() : ParamUtil.getString(request, "destinationURL");
+String sourceURL = (redirectEntry != null) ? redirectEntry.getSourceURL() : ParamUtil.getString(request, "sourceURL");
+
 RedirectDisplayContext redirectDisplayContext = new RedirectDisplayContext(request, liferayPortletRequest, liferayPortletResponse);
 
 portletDisplay.setShowBackIcon(true);
@@ -53,14 +56,11 @@ else {
 	</c:if>
 
 	<liferay-frontend:edit-form-body>
+		<liferay-ui:error exception="<%= CircularRedirectEntryException.DestinationURLMustNotBeEqualToSourceURL.class %>" focusField="destinationURL" message="destination-url-cannot-be-the-same-as-source-url" />
+		<liferay-ui:error exception="<%= CircularRedirectEntryException.MustNotFormALoopWithAnotherRedirectEntry.class %>" focusField="sourceURL" message="please-change-the-source-or-destination-url-to-avoid-redirect-loop" />
 		<liferay-ui:error exception="<%= DuplicateRedirectEntrySourceURLException.class %>" focusField="sourceURL" message="there-is-already-a-redirect-set-for-the-same-source-url" />
 		<liferay-ui:error exception="<%= RequiredRedirectEntryDestinationURLException.class %>" focusField="destinationURL" message="the-destination-url-must-be-specified" />
 		<liferay-ui:error exception="<%= RequiredRedirectEntrySourceURLException.class %>" focusField="sourceURL" message="the-source-url-must-be-specified" />
-
-		<%
-		String sourceURL = (redirectEntry != null) ? redirectEntry.getSourceURL() : ParamUtil.getString(request, "sourceURL");
-		String destinationURL = (redirectEntry != null) ? redirectEntry.getDestinationURL() : ParamUtil.getString(request, "destinationURL");
-		%>
 
 		<aui:field-wrapper cssClass="form-group" label="source-url" name="sourceURL" required="<%= true %>">
 			<div class="form-text"><%= RedirectUtil.getGroupBaseURL(themeDisplay) %></div>
@@ -82,7 +82,7 @@ else {
 		Map<String, Object> data = HashMapBuilder.<String, Object>put(
 			"autofocus", autoFocusDestination
 		).put(
-			"initialDestinationUrl", (redirectEntry != null) ? redirectEntry.getDestinationURL() : StringPool.BLANK
+			"initialDestinationUrl", (redirectEntry != null) ? redirectEntry.getDestinationURL() : ParamUtil.getString(request, "destinationURL")
 		).put(
 			"namespace", liferayPortletResponse.getNamespace()
 		).build();
@@ -97,7 +97,7 @@ else {
 			/>
 		</div>
 
-		<aui:select label="type" name="permanent">
+		<aui:select helpMessage="the-redirect-type-affects-how-search-engines-and-users-browsers-cache-treat-it" label="type" name="permanent">
 			<aui:option selected="<%= (redirectEntry != null) ? redirectEntry.isPermanent() : false %>" value="<%= true %>">
 				<liferay-ui:message arguments="<%= HttpServletResponse.SC_MOVED_PERMANENTLY %>" key="permanent-x" />
 			</aui:option>
@@ -108,6 +108,15 @@ else {
 		</aui:select>
 
 		<aui:input helpMessage="the-redirect-will-be-active-until-the-chosen-date.-leave-it-empty-to-avoid-expiration" name="expirationDate" type="date" value="<%= redirectDisplayContext.getExpirationDateInputValue(redirectEntry) %>" />
+
+		<c:if test="<%= redirectEntry != null %>">
+			<clay:alert
+				elementClasses="hide"
+				id='<%= renderResponse.getNamespace() + "typeInfoAlert" %>'
+				message='<%= LanguageUtil.get(resourceBundle, "changes-to-this-redirect-might-not-be-immediately-seen-for-users-whose-browsers-have-cached-the-old-redirect-configuration") %>'
+				title='<%= LanguageUtil.get(request, "info") + ":" %>'
+			/>
+		</c:if>
 	</liferay-frontend:edit-form-body>
 
 	<liferay-frontend:edit-form-footer>
@@ -127,13 +136,14 @@ else {
 	/>
 </div>
 
-<portlet:actionURL name="/redirect/check_redirect_entry_chain" var="checkRedirectEntryChainURL" />
+<portlet:resourceURL id="/redirect/get_redirect_entry_chain_cause" var="getRedirectEntryChainCauseURL" />
 
 <liferay-frontend:component
 	context='<%=
 		HashMapBuilder.<String, Object>put(
-			"checkRedirectEntryChainURL", checkRedirectEntryChainURL
-		).build()
+			"getRedirectEntryChainCauseURL", getRedirectEntryChainCauseURL
+		).put("initialDestinationURL", destinationURL)
+		.put("initialIsPermanent", (redirectEntry != null) ? redirectEntry.isPermanent() : false).build()
 	%>'
 	module="js/editRedirectEntry"
 />

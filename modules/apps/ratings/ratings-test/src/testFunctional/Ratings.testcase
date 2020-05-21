@@ -266,7 +266,9 @@ definition {
 			pageName = "Staging Test Page",
 			siteName = "Site Name");
 
-		LAR.exportPortlet(larFileName = "Wiki.portlet.lar");
+		LAR.exportPortlet(
+			larFileName = "Wiki.portlet.lar",
+			wikiPortlet = "true");
 
 		JSONGroup.addGroup(groupName = "Second Site");
 
@@ -282,7 +284,9 @@ definition {
 
 		Navigator.openSiteURL(siteName = "Second Site");
 
-		LAR.importPortlet(larFileName = "Wiki.portlet.lar");
+		LAR.importPortlet(
+			larFileName = "Wiki.portlet.lar",
+			wikiPortlet = "true");
 
 		Navigator.openSiteURL(siteName = "Second Site");
 
@@ -545,6 +549,8 @@ definition {
 
 	@priority = "4"
 	test RateBookmarksWithLikeStyle {
+		property portal.release = "false";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Guest",
 			layoutName = "Bookmarks Page");
@@ -708,6 +714,70 @@ definition {
 		Ratings.viewRateStar(
 			averageRatingStarCount = "4.0",
 			ratingStarCount = "4");
+	}
+
+	@description = "This ensures that the stars rating can be revoked."
+	@priority = "5"
+	test RevokeBlogsStarsRating {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Blogs Page");
+
+		JSONLayout.addWidgetToPublicLayout(
+			column = "1",
+			groupName = "Guest",
+			layoutName = "Blogs Page",
+			widgetName = "Blogs");
+
+		JSONBlog.addEntry(
+			entryContent = "Blogs Entry Content",
+			entryTitle = "Blogs Entry Title",
+			groupName = "Guest");
+
+		JSONUser.addUser(
+			userEmailAddress = "userea@liferay.com",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
+
+		User.openUsersAdmin();
+
+		User.assignRegularRoleCP(
+			roleTitle = "Administrator",
+			userScreenName = "usersn");
+
+		Ratings.configureRatingType(
+			applications = "Blogs",
+			ratingType = "Stars");
+
+		Navigator.gotoPage(pageName = "Blogs Page");
+
+		Ratings.rateStar(
+			checkDeleteButton = "true",
+			ratingStarCount = "3");
+
+		Ratings.revokeStarsRating();
+
+		Ratings.rateStar(ratingStarCount = "4");
+
+		User.logoutAndLoginPG(
+			userLoginEmailAddress = "userea@liferay.com",
+			userLoginFullName = "userfn userln");
+
+		Navigator.gotoPage(pageName = "Blogs Page");
+
+		Ratings.rateStar(ratingStarCount = "5");
+
+		Ratings.viewRateStar(
+			averageRatingStarCount = "4.5 (2 Votes)",
+			ratingStarCount = "5");
 	}
 
 	@priority = "3"

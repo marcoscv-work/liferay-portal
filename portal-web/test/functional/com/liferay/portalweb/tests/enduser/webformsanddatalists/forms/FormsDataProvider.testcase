@@ -67,7 +67,7 @@ definition {
 
 		Form.editDescription();
 
-		Form.addTextField();
+		Form.addTextField(fieldPositionNumber = "1");
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field With Autocomplete");
 
@@ -229,7 +229,9 @@ definition {
 
 		Form.editDescription();
 
-		Form.gotoAddField(fieldType = "Select from List");
+		Form.gotoAddField(
+			fieldPositionNumber = "1",
+			fieldType = "Select from List");
 
 		Form.editFieldLabelMetal(fieldValue = "Data Provider Select Field");
 
@@ -334,7 +336,9 @@ definition {
 
 		Form.editDescription();
 
-		Form.gotoAddField(fieldType = "Select from List");
+		Form.gotoAddField(
+			fieldPositionNumber = "1",
+			fieldType = "Select from List");
 
 		Form.editFieldLabelMetal(fieldValue = "Countries");
 

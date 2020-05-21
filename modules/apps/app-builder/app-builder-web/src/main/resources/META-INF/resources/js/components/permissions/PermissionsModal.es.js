@@ -75,7 +75,7 @@ export default ({
 					roles,
 				}));
 
-				const roleNames = roles.map(({name}) => name);
+				const roleNames = roles.map(({name}) => name).join(',');
 
 				return getItem(endpoint, {roleNames});
 			})

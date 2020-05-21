@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.util.Validator;
 
 import javax.portlet.RenderResponse;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 
 /**
@@ -39,7 +40,7 @@ public class DataLayoutRendererTag extends BaseDataLayoutRendererTag {
 	public int doStartTag() throws JspException {
 		int result = super.doStartTag();
 
-		setNamespacedAttribute(request, "content", _getContent());
+		setNamespacedAttribute(getRequest(), "content", _getContent());
 
 		return result;
 	}
@@ -53,20 +54,22 @@ public class DataLayoutRendererTag extends BaseDataLayoutRendererTag {
 
 			dataLayoutRendererContext.setContainerId(getContainerId());
 
+			HttpServletRequest httpServletRequest = getRequest();
+
 			if (Validator.isNotNull(getDataRecordId())) {
 				dataLayoutRendererContext.setDataRecordValues(
 					DataLayoutTaglibUtil.getDataRecordValues(
-						getDataRecordId(), request));
+						getDataRecordId(), httpServletRequest));
 			}
 			else {
 				dataLayoutRendererContext.setDataRecordValues(
 					getDataRecordValues());
 			}
 
-			dataLayoutRendererContext.setHttpServletRequest(request);
+			dataLayoutRendererContext.setHttpServletRequest(httpServletRequest);
 			dataLayoutRendererContext.setHttpServletResponse(
 				PortalUtil.getHttpServletResponse(
-					(RenderResponse)request.getAttribute(
+					(RenderResponse)httpServletRequest.getAttribute(
 						JavaConstants.JAVAX_PORTLET_RESPONSE)));
 			dataLayoutRendererContext.setPortletNamespace(getNamespace());
 
@@ -77,7 +80,7 @@ public class DataLayoutRendererTag extends BaseDataLayoutRendererTag {
 			else if (Validator.isNotNull(getDataDefinitionId())) {
 				DataDefinition dataDefinition =
 					DataLayoutTaglibUtil.getDataDefinition(
-						getDataDefinitionId(), request);
+						getDataDefinitionId(), httpServletRequest);
 
 				DataLayout dataLayout = dataDefinition.getDefaultDataLayout();
 

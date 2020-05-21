@@ -22,9 +22,10 @@ import useDeleteDefinitionField from './useDeleteDefinitionField.es';
 import useDeleteDefinitionFieldModal from './useDeleteDefinitionFieldModal.es';
 
 export default ({children, dataLayoutBuilder}) => {
-	const [{dataDefinition, dataLayout}, dispatch] = useContext(
-		FormViewContext
-	);
+	const [
+		{dataDefinition, editingLanguageId, focusedField},
+		dispatch,
+	] = useContext(FormViewContext);
 	const deleteDefinitionField = useDeleteDefinitionField({dataLayoutBuilder});
 	const onDeleteDefinitionField = useDeleteDefinitionFieldModal(
 		(fieldName) => {
@@ -35,26 +36,47 @@ export default ({children, dataLayoutBuilder}) => {
 	useEffect(() => {
 		const provider = dataLayoutBuilder.getLayoutProvider();
 
+		provider.props = {
+			...provider.props,
+			availableLanguageIds: [
+				...new Set([
+					...provider.props.availableLanguageIds,
+					editingLanguageId,
+				]),
+			],
+			editingLanguageId,
+		};
+
+		if (Object.keys(focusedField).length) {
+			provider.getEvents().fieldClicked(focusedField);
+		}
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dataLayoutBuilder, dispatch, editingLanguageId]);
+
+	useEffect(() => {
+		const provider = dataLayoutBuilder.getLayoutProvider();
+
 		provider.props.fieldActions = [
 			{
-				action: (fieldName) =>
-					dataLayoutBuilder.dispatch('fieldDuplicated', {fieldName}),
+				action: (event) =>
+					dataLayoutBuilder.dispatch('fieldDuplicated', event),
 				label: Liferay.Language.get('duplicate'),
 			},
 			{
-				action: (fieldName) => {
+				action: (event) => {
 					dispatch({
-						payload: {fieldName},
+						payload: {fieldName: event.fieldName},
 						type: DataLayoutBuilderActions.DELETE_DATA_LAYOUT_FIELD,
 					});
 
-					dataLayoutBuilder.dispatch('fieldDeleted', {fieldName});
+					dataLayoutBuilder.dispatch('fieldDeleted', event);
 				},
 				label: Liferay.Language.get('remove'),
 				separator: true,
 			},
 			{
-				action: (fieldName) => {
+				action: ({fieldName}) => {
 					onDeleteDefinitionField(fieldName);
 				},
 				label: Liferay.Language.get('delete-from-object'),
@@ -63,13 +85,20 @@ export default ({children, dataLayoutBuilder}) => {
 		];
 
 		provider.props.shouldAutoGenerateName = () => false;
-	}, [dataLayout, dataLayoutBuilder, dispatch, onDeleteDefinitionField]);
+	}, [dataLayoutBuilder, dispatch, onDeleteDefinitionField]);
 
 	useEffect(() => {
 		const provider = dataLayoutBuilder.getLayoutProvider();
 
-		provider.props.fieldNameGenerator = (desiredFieldName) =>
-			generateDataDefinitionFieldName(dataDefinition, desiredFieldName);
+		provider.props.fieldNameGenerator = (
+			desiredFieldName,
+			currentFieldName
+		) =>
+			generateDataDefinitionFieldName(
+				dataDefinition,
+				desiredFieldName,
+				currentFieldName
+			);
 	}, [dataDefinition, dataLayoutBuilder]);
 
 	return (

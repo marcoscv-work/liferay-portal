@@ -24,8 +24,13 @@
 	<td></td>
 </tr>
 <tr>
-	<td>FOOTER_DROP_TARGET</td>
-	<td>//button[contains(.,'Configure Allowed Fragments')]</td>
+	<td>FRAGMENT_WITH_DROP_TARGET</td>
+	<td>xpath=(//div[contains(@class,'page-editor__root page-editor__topper')])[${key_index}]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>HEADER_DROP_TARGET</td>
+	<td>//div[contains(@class,'page-editor__drop-zone')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -72,7 +77,7 @@
 </tr>
 <tr>
 	<td>FRAGMENT_SIDEBAR_COMMENTS</td>
-	<td>//div[contains(@class,'alloy-editor-container') and contains(@id,'pageEditorCommentEditor')]/div[contains(@data-placeholder,'Type your comment here.')]</td>
+	<td>//div[contains(@class,'alloy-editor-container')]/div[contains(@data-placeholder,'Type your comment here.')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -327,6 +332,16 @@
 	<td></td>
 </tr>
 <tr>
+  <td>ROW_COLUMN_EMPTY</td>
+  <td>//div[contains(@class,'page-editor__topper') and contains(.,'Row')][${key_position}]//div[contains(@class,'row empty')]</td>
+  <td></td>
+</tr>
+<tr>
+	<td>ROW_COLUMN_RESTRICTION_VISUAL_FEEDBACK</td>
+	<td>//div[contains(@class,'page-editor__topper') and contains(.,'Row')][${key_position}]//div[contains(@class,'page-editor__col')][${key_columnNumber}][@data-advice='A Section cannot be dropped inside a Column.']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ROW_COLUMN_NESTED_ELEMENT</td>
 	<td>//div[contains(@class,'page-editor__topper') and contains(.,'Row')][${key_position}]//div[contains(@class,'page-editor__col')][${key_columnNumber}]${key_elementHeader}</td>
 	<td></td>
@@ -334,6 +349,16 @@
 <tr>
 	<td>SECTION_CONTAINER</td>
 	<td>//div[contains(@class,'page-editor__topper') and contains(.,'Section')][${key_position}]//div[contains(@class,'page-editor__container')]</td>
+	<td></td>
+</tr>
+<tr>
+  <td>SECTION_CONTAINER_EMPTY</td>
+  <td>//div[contains(@class,'page-editor__topper') and contains(.,'Section')][${key_position}]//div[contains(@class,'page-editor__container empty')]</td>
+  <td></td>
+</tr>
+<tr>
+	<td>SECTION_CONTAINER_RESTRICTION_VISUAL_FEEDBACK</td>
+	<td>//div[contains(@class,'page-editor__topper') and contains(.,'Section')][${key_position}]//div[contains(@class,'page-editor__container') and @data-advice='A Section cannot be dropped inside a Section.']</td>
 	<td></td>
 </tr>
 <tr>
@@ -405,7 +430,7 @@
 </tr>
 <tr>
 	<td>EDITABLE_FIELD_TOOLBAR_MAP_ASSET_SELECT_POPUP_BUTTON</td>
-	<td>//div/input[contains(@id,'itemSelectorInput')]/following-sibling::button</td>
+	<td>//label[contains(.,'Content')]/following-sibling::div/button</td>
 	<td></td>
 </tr>
 <tr>

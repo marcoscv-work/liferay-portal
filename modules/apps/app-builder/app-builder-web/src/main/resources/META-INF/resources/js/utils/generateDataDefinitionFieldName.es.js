@@ -14,15 +14,20 @@
 
 import {normalizeFieldName} from 'dynamic-data-mapping-form-renderer';
 
-const findFieldByName = (dataDefinitionFields, fieldName) =>
-	dataDefinitionFields.find(({name}) => name === fieldName);
+import {findFieldByName} from './findFieldByName.es';
 
-export default ({dataDefinitionFields}, fieldTypeName) => {
+export default ({dataDefinitionFields}, desiredName, currentName = null) => {
 	let counter = 0;
-	let name = normalizeFieldName(fieldTypeName);
+	let name = normalizeFieldName(desiredName);
 
-	while (findFieldByName(dataDefinitionFields, name)) {
-		name = normalizeFieldName(`${fieldTypeName}${++counter}`);
+	let existingField;
+
+	while (
+		(existingField = findFieldByName(dataDefinitionFields, name)) &&
+		existingField &&
+		existingField.name !== currentName
+	) {
+		name = normalizeFieldName(`${desiredName}${++counter}`);
 	}
 
 	return name;

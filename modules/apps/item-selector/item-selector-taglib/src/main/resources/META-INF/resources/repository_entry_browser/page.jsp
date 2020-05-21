@@ -27,7 +27,7 @@ String itemSelectedEventName = GetterUtil.getString(request.getAttribute("lifera
 ItemSelectorReturnTypeResolver itemSelectorReturnTypeResolver = (ItemSelectorReturnTypeResolver)request.getAttribute("liferay-item-selector:repository-entry-browser:itemSelectorReturnTypeResolver");
 long maxFileSize = GetterUtil.getLong(request.getAttribute("liferay-item-selector:repository-entry-browser:maxFileSize"));
 PortletURL portletURL = (PortletURL)request.getAttribute("liferay-item-selector:repository-entry-browser:portletURL");
-List repositoryEntries = (List)request.getAttribute("liferay-item-selector:repository-entry-browser:repositoryEntries");
+List<FileEntry> repositoryEntries = (List<FileEntry>)request.getAttribute("liferay-item-selector:repository-entry-browser:repositoryEntries");
 int repositoryEntriesCount = GetterUtil.getInteger(request.getAttribute("liferay-item-selector:repository-entry-browser:repositoryEntriesCount"));
 boolean showBreadcrumb = GetterUtil.getBoolean(request.getAttribute("liferay-item-selector:repository-entry-browser:showBreadcrumb"));
 boolean showDragAndDropZone = GetterUtil.getBoolean(request.getAttribute("liferay-item-selector:repository-entry-browser:showDragAndDropZone"));
@@ -35,7 +35,7 @@ boolean showSearch = GetterUtil.getBoolean(request.getAttribute("liferay-item-se
 String tabName = GetterUtil.getString(request.getAttribute("liferay-item-selector:repository-entry-browser:tabName"));
 PortletURL uploadURL = (PortletURL)request.getAttribute("liferay-item-selector:repository-entry-browser:uploadURL");
 
-SearchContainer searchContainer = new SearchContainer(renderRequest, PortletURLUtil.clone(portletURL, liferayPortletResponse), null, emptyResultsMessage);
+SearchContainer<?> searchContainer = new SearchContainer(renderRequest, PortletURLUtil.clone(portletURL, liferayPortletResponse), null, emptyResultsMessage);
 
 String keywords = ParamUtil.getString(request, "keywords");
 
@@ -70,7 +70,10 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 	viewTypeItems="<%= itemSelectorRepositoryEntryManagementToolbarDisplayContext.getViewTypes() %>"
 />
 
-<div class="container-fluid container-fluid-max-xl item-selector lfr-item-viewer" id="<%= randomNamespace %>ItemSelectorContainer">
+<clay:container-fluid
+	className="item-selector lfr-item-viewer"
+	id='<%= randomNamespace + "ItemSelectorContainer" %>'
+>
 	<c:if test="<%= showSearchInfo %>">
 		<liferay-util:include page="/repository_entry_browser/search_info.jsp" servletContext="<%= application %>" />
 	</c:if>
@@ -508,7 +511,7 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 	</c:if>
 
 	<div class="item-selector-preview-container"></div>
-</div>
+</clay:container-fluid>
 
 <aui:script require='<%= npmResolvedPackageName + "/repository_entry_browser/js/ItemSelectorRepositoryEntryBrowser.es as ItemSelectorRepositoryEntryBrowser" %>'>
 	var itemSelector = new ItemSelectorRepositoryEntryBrowser.default({

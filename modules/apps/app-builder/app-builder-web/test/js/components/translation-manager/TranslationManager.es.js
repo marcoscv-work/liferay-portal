@@ -95,11 +95,13 @@ describe('TranslationManager', () => {
 	});
 
 	it('change language when click in a dropdown label', () => {
-		const onChangeCallback = jest.fn();
+		const onEditingLanguageIdChange = jest.fn();
 
 		render(
 			<TranslationManagerWrapper
-				onChangeLanguageId={(id) => onChangeCallback(id)}
+				onEditingLanguageIdChange={(id) =>
+					onEditingLanguageIdChange(id)
+				}
 			/>
 		);
 
@@ -116,8 +118,8 @@ describe('TranslationManager', () => {
 
 		fireEvent.click(button);
 
-		expect(onChangeCallback.mock.calls.length).toBe(1);
-		expect(onChangeCallback.mock.calls[0][0]).toEqual('pt_BR');
+		expect(onEditingLanguageIdChange.mock.calls.length).toBe(1);
+		expect(onEditingLanguageIdChange.mock.calls[0][0]).toEqual('pt_BR');
 	});
 
 	it('renders dropdown menu when clicked', () => {

@@ -16,36 +16,34 @@ package com.liferay.portal.workflow.kaleo.internal.runtime.integration.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.messaging.proxy.ProxyMessageListener;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.DataGuard;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
 import com.liferay.portal.kernel.workflow.WorkflowDefinitionManager;
 import com.liferay.portal.kernel.workflow.WorkflowException;
+import com.liferay.portal.test.log.CaptureAppender;
+import com.liferay.portal.test.log.Log4JLoggerTestUtil;
+import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.io.InputStream;
 
-import java.util.Collection;
-import java.util.Iterator;
+import org.apache.log4j.Level;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
-
 /**
  * @author Marcellus Tavares
  */
+@DataGuard(scope = DataGuard.Scope.METHOD)
 @RunWith(Arquillian.class)
 public class WorkflowDefinitionManagerTest {
 
@@ -54,61 +52,22 @@ public class WorkflowDefinitionManagerTest {
 	public static final AggregateTestRule aggregateTestRule =
 		new LiferayIntegrationTestRule();
 
-	@Before
-	public void setUp() throws Exception {
-		Bundle bundle = FrameworkUtil.getBundle(
-			WorkflowDefinitionManagerTest.class);
-
-		_bundleContext = bundle.getBundleContext();
-
-		int count = 0;
-
-		do {
-			Collection<ServiceReference<WorkflowDefinitionManager>>
-				serviceReferences = _bundleContext.getServiceReferences(
-					WorkflowDefinitionManager.class, "(proxy.bean=false)");
-
-			if (serviceReferences.isEmpty()) {
-				count++;
-
-				if (count >= 5) {
-					throw new IllegalStateException(
-						"Unable to get reference to a workflow definition " +
-							"manager");
-				}
-
-				Thread.sleep(500);
-			}
-
-			Iterator<ServiceReference<WorkflowDefinitionManager>> iterator =
-				serviceReferences.iterator();
-
-			_serviceReference = iterator.next();
-		}
-		while (_serviceReference == null);
-
-		_workflowDefinitionManager = _bundleContext.getService(
-			_serviceReference);
-	}
-
-	@After
-	public void tearDown() throws Exception {
-		_bundleContext.ungetService(_serviceReference);
-
-		_bundleContext = null;
-	}
-
 	@Test(expected = WorkflowException.class)
 	public void testDeleteSaveWorkflowDefinition() throws Exception {
-		WorkflowDefinition workflowDefinition = _saveWorkflowDefinition();
+		try (CaptureAppender captureAppender =
+				Log4JLoggerTestUtil.configureLog4JLogger(
+					ProxyMessageListener.class.getName(), Level.OFF)) {
 
-		_workflowDefinitionManager.undeployWorkflowDefinition(
-			TestPropsValues.getCompanyId(), TestPropsValues.getUserId(),
-			workflowDefinition.getName(), workflowDefinition.getVersion());
+			WorkflowDefinition workflowDefinition = _saveWorkflowDefinition();
 
-		_workflowDefinitionManager.getWorkflowDefinition(
-			TestPropsValues.getCompanyId(), workflowDefinition.getName(),
-			workflowDefinition.getVersion());
+			_workflowDefinitionManager.undeployWorkflowDefinition(
+				TestPropsValues.getCompanyId(), TestPropsValues.getUserId(),
+				workflowDefinition.getName(), workflowDefinition.getVersion());
+
+			_workflowDefinitionManager.getWorkflowDefinition(
+				TestPropsValues.getCompanyId(), workflowDefinition.getName(),
+				workflowDefinition.getVersion());
+		}
 	}
 
 	@Test
@@ -468,7 +427,10 @@ public class WorkflowDefinitionManagerTest {
 	private String _assertInvalid(InputStream inputStream) throws Exception {
 		byte[] bytes = FileUtil.getBytes(inputStream);
 
-		try {
+		try (CaptureAppender captureAppender =
+				Log4JLoggerTestUtil.configureLog4JLogger(
+					ProxyMessageListener.class.getName(), Level.OFF)) {
+
 			_workflowDefinitionManager.validateWorkflowDefinition(bytes);
 
 			Assert.fail();
@@ -515,8 +477,7 @@ public class WorkflowDefinitionManagerTest {
 			StringUtil.randomId(), bytes);
 	}
 
-	private BundleContext _bundleContext;
-	private ServiceReference<WorkflowDefinitionManager> _serviceReference;
+	@Inject
 	private WorkflowDefinitionManager _workflowDefinitionManager;
 
 }

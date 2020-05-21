@@ -66,7 +66,7 @@ String randomNamespace = ParamUtil.getString(request, "randomNamespace");
 			<aui:input name="imageUploaded" type="hidden" value='<%= SessionMessages.contains(renderRequest, "imageUploaded") %>' />
 
 			<div class="dialog-body">
-				<div class="container-fluid-1280">
+				<clay:container-fluid>
 
 					<%
 					DLConfiguration dlConfiguration = ConfigurationProviderUtil.getSystemConfiguration(DLConfiguration.class);
@@ -114,7 +114,7 @@ String randomNamespace = ParamUtil.getString(request, "randomNamespace");
 							</div>
 						</aui:fieldset>
 					</aui:fieldset-group>
-				</div>
+				</clay:container-fluid>
 			</div>
 
 			<aui:button-row>

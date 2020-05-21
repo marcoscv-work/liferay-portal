@@ -106,13 +106,13 @@ public class ListUtil {
 
 		Set<E> set = new HashSet<>();
 
-		Iterator<? extends E> itr = list.iterator();
+		Iterator<? extends E> iterator = list.iterator();
 
-		while (itr.hasNext()) {
-			E obj = itr.next();
+		while (iterator.hasNext()) {
+			E obj = iterator.next();
 
 			if (!set.add(obj)) {
-				itr.remove();
+				iterator.remove();
 			}
 		}
 
@@ -283,11 +283,13 @@ public class ListUtil {
 		return list;
 	}
 
-	public static <E> List<E> fromEnumeration(Enumeration<? extends E> enu) {
+	public static <E> List<E> fromEnumeration(
+		Enumeration<? extends E> enumeration) {
+
 		List<E> list = new ArrayList<>();
 
-		while (enu.hasMoreElements()) {
-			E obj = enu.nextElement();
+		while (enumeration.hasMoreElements()) {
+			E obj = enumeration.nextElement();
 
 			list.add(obj);
 		}

@@ -47,6 +47,7 @@ import com.liferay.portal.vulcan.yaml.openapi.Parameter;
 import com.liferay.portal.vulcan.yaml.openapi.PathItem;
 import com.liferay.portal.vulcan.yaml.openapi.RequestBody;
 import com.liferay.portal.vulcan.yaml.openapi.Response;
+import com.liferay.portal.vulcan.yaml.openapi.ResponseCode;
 import com.liferay.portal.vulcan.yaml.openapi.Schema;
 
 import java.io.File;
@@ -115,9 +116,13 @@ public class RESTBuilder {
 			}
 		}
 		catch (ParameterException parameterException) {
-			System.err.println(parameterException.getMessage());
-
 			_printHelp(jCommander);
+
+			throw new RuntimeException(parameterException.getMessage());
+		}
+		catch (Exception exception) {
+			throw new RuntimeException(
+				"Error generating REST API\n" + exception.getMessage());
 		}
 	}
 
@@ -130,6 +135,11 @@ public class RESTBuilder {
 
 		try (InputStream is = new FileInputStream(configFile)) {
 			_configYAML = YAMLUtil.loadConfigYAML(StringUtil.read(is));
+		}
+		catch (Exception exception) {
+			throw new RuntimeException(
+				"Error in file \"rest-config.yaml\": " +
+					exception.getMessage());
 		}
 	}
 
@@ -169,7 +179,15 @@ public class RESTBuilder {
 		File[] files = FileUtil.getFiles(_configDir, "rest-openapi", ".yaml");
 
 		for (File file : files) {
-			_checkOpenAPIYAMLFile(freeMarkerTool, file);
+			try {
+				_checkOpenAPIYAMLFile(freeMarkerTool, file);
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(
+					StringBundler.concat(
+						"Error in file \"", file.getName(), "\": ",
+						exception.getMessage()));
+			}
 
 			OpenAPIYAML openAPIYAML = _loadOpenAPIYAML(FileUtil.read(file));
 
@@ -1116,9 +1134,10 @@ public class RESTBuilder {
 						contents, index, yamlString);
 				}
 
-				Map<Integer, Response> responses = operation.getResponses();
+				Map<ResponseCode, Response> responses =
+					operation.getResponses();
 
-				for (Map.Entry<Integer, Response> entry2 :
+				for (Map.Entry<ResponseCode, Response> entry2 :
 						responses.entrySet()) {
 
 					Response response = entry2.getValue();

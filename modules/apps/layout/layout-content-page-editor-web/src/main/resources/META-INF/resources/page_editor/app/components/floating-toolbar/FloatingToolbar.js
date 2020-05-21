@@ -34,9 +34,10 @@ import {useHoverItem, useIsActive} from '../Controls';
 export default function FloatingToolbar({
 	buttons,
 	item,
-	itemRef,
+	itemElement,
 	onButtonClick = () => {},
 }) {
+	const isActive = useIsActive();
 	const isMounted = useIsMounted();
 	const [panelId, setPanelId] = useState(null);
 	const panelRef = useRef(null);
@@ -45,15 +46,12 @@ export default function FloatingToolbar({
 	const [hidden, setHidden] = useState(true);
 	const [windowScrollPosition, setWindowScrollPosition] = useState(0);
 	const [windowWidth, setWindowWidth] = useState(0);
+	const [show, setShow] = useState(false);
 
 	const languageId = useSelector((state) => state.languageId);
 	const selectedViewportSize = useSelector(
 		(state) => state.selectedViewportSize
 	);
-
-	const itemElement = itemRef.current;
-
-	const show = useIsActive()(item.itemId) && itemElement;
 
 	const PanelComponent = useMemo(
 		() => FLOATING_TOOLBAR_CONFIGURATIONS[panelId] || null,
@@ -61,27 +59,29 @@ export default function FloatingToolbar({
 	);
 
 	const alignElement = useCallback(
-		(elementRef, anchorRef, callback) => {
+		(element, anchor, callback) => {
 			if (
 				isMounted() &&
 				show &&
-				elementRef.current &&
-				anchorRef.current &&
-				document.body.contains(anchorRef.current)
+				element &&
+				anchor &&
+				document.body.contains(anchor)
 			) {
 				try {
 					Align.align(
-						elementRef.current,
-						anchorRef.current,
+						element,
+						anchor,
 						getElementAlign(
-							elementRef.current,
-							anchorRef.current,
+							element,
+							anchor,
 							config.languageDirection[languageId] === 'rtl'
 						),
 						false
 					);
 				}
-				catch (error) {}
+				catch (error) {
+					console.error(error);
+				}
 
 				if (callback) {
 					requestAnimationFrame(() => {
@@ -100,7 +100,7 @@ export default function FloatingToolbar({
 
 	const handleButtonClick = useCallback(
 		(buttonId, newPanelId) => {
-			onButtonClick(buttonId, itemRef);
+			onButtonClick(buttonId);
 
 			if (newPanelId) {
 				if (newPanelId === panelId) {
@@ -111,8 +111,12 @@ export default function FloatingToolbar({
 				}
 			}
 		},
-		[itemRef, onButtonClick, panelId]
+		[onButtonClick, panelId]
 	);
+
+	useEffect(() => {
+		setShow(isActive(item.itemId) && itemElement);
+	}, [isActive, item.itemId, itemElement]);
 
 	useEffect(() => {
 		const handleWindowResize = debounceRAF(() => {
@@ -133,14 +137,14 @@ export default function FloatingToolbar({
 	}, []);
 
 	useEffect(() => {
-		if (!itemRef.current) {
+		if (!itemElement) {
 			return;
 		}
 
 		const {
 			marginLeft: itemRefMarginLeft,
 			marginRight: itemRefMarginRight,
-		} = getComputedStyle(itemRef.current);
+		} = getComputedStyle(itemElement);
 
 		const rtl = config.languageDirection[languageId] === 'rtl';
 
@@ -151,11 +155,11 @@ export default function FloatingToolbar({
 		if (show && marginValue) {
 			toolbarRef.current.style.transform = `translate(${marginValue}px)`;
 		}
-	}, [itemRef, languageId, show]);
+	}, [itemElement, languageId, show]);
 
 	useEffect(() => {
-		alignElement(toolbarRef, itemRef, () => {
-			alignElement(panelRef, toolbarRef, () => {
+		alignElement(toolbarRef.current, itemElement, () => {
+			alignElement(panelRef.current, toolbarRef.current, () => {
 				setHidden(false);
 			});
 		});
@@ -163,7 +167,6 @@ export default function FloatingToolbar({
 		alignElement,
 		item.config,
 		itemElement,
-		itemRef,
 		panelId,
 		selectedViewportSize,
 		show,
@@ -179,8 +182,8 @@ export default function FloatingToolbar({
 		if (sidebarElement) {
 			const handleTransitionEnd = (event) => {
 				if (event.target === sidebarElement) {
-					alignElement(toolbarRef, itemRef, () => {
-						alignElement(panelRef, toolbarRef);
+					alignElement(toolbarRef.current, itemElement, () => {
+						alignElement(panelRef.current, toolbarRef.current);
 					});
 					setHidden(false);
 				}
@@ -213,7 +216,7 @@ export default function FloatingToolbar({
 				);
 			};
 		}
-	}, [alignElement, item, itemRef]);
+	}, [alignElement, item, itemElement]);
 
 	useEffect(() => {
 		const sideNavigation =
@@ -223,8 +226,8 @@ export default function FloatingToolbar({
 			);
 
 		const handleTransitionEnd = () => {
-			alignElement(toolbarRef, itemRef, () => {
-				alignElement(panelRef, toolbarRef);
+			alignElement(toolbarRef.current, itemElement, () => {
+				alignElement(panelRef.current, toolbarRef.current);
 			});
 			setHidden(false);
 		};
@@ -258,7 +261,7 @@ export default function FloatingToolbar({
 				listener.removeListener()
 			);
 		};
-	}, [alignElement, itemRef]);
+	}, [alignElement, itemElement]);
 
 	useEffect(() => {
 		if (panelId && !show) {
@@ -358,7 +361,7 @@ FloatingToolbar.propTypes = {
 		getEditableItemPropTypes(),
 		getLayoutDataItemPropTypes(),
 	]),
-	itemRef: PropTypes.shape({current: PropTypes.object}),
+	itemElement: PropTypes.object,
 	onButtonClick: PropTypes.func,
 };
 

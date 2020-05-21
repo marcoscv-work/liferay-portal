@@ -174,10 +174,10 @@ public class RoleFinderImpl extends RoleFinderBaseImpl implements RoleFinder {
 			queryPos.add(groupId);
 			queryPos.add(userId);
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			if (itr.hasNext()) {
-				Long count = itr.next();
+			if (iterator.hasNext()) {
+				Long count = iterator.next();
 
 				if (count != null) {
 					return count.intValue();
@@ -242,10 +242,10 @@ public class RoleFinderImpl extends RoleFinderBaseImpl implements RoleFinder {
 			queryPos.add(groupId);
 			queryPos.add(userId);
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			if (itr.hasNext()) {
-				Long count = itr.next();
+			if (iterator.hasNext()) {
+				Long count = iterator.next();
 
 				if (count != null) {
 					return count.intValue();
@@ -643,7 +643,6 @@ public class RoleFinderImpl extends RoleFinderBaseImpl implements RoleFinder {
 			QueryPos queryPos = QueryPos.getInstance(sqlQuery);
 
 			queryPos.add(userId);
-			queryPos.add(groupIds);
 
 			return sqlQuery.list(true);
 		}
@@ -705,10 +704,10 @@ public class RoleFinderImpl extends RoleFinderBaseImpl implements RoleFinder {
 
 			Map<String, List<String>> roleMap = new HashMap<>();
 
-			Iterator<Object[]> itr = sqlQuery.iterate();
+			Iterator<Object[]> iterator = sqlQuery.iterate();
 
-			while (itr.hasNext()) {
-				Object[] array = itr.next();
+			while (iterator.hasNext()) {
+				Object[] array = iterator.next();
 
 				String roleName = (String)array[0];
 				String actionId = (String)array[1];
@@ -841,10 +840,10 @@ public class RoleFinderImpl extends RoleFinderBaseImpl implements RoleFinder {
 			queryPos.add(keywordsArray, 2);
 			queryPos.add(keywordsArray, 2);
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			if (itr.hasNext()) {
-				Long count = itr.next();
+			if (iterator.hasNext()) {
+				Long count = iterator.next();
 
 				if (count != null) {
 					return count.intValue();
@@ -922,10 +921,10 @@ public class RoleFinderImpl extends RoleFinderBaseImpl implements RoleFinder {
 			queryPos.add(descriptions, 2);
 			queryPos.add(types);
 
-			Iterator<Long> itr = sqlQuery.iterate();
+			Iterator<Long> iterator = sqlQuery.iterate();
 
-			if (itr.hasNext()) {
-				Long count = itr.next();
+			if (iterator.hasNext()) {
+				Long count = iterator.next();
 
 				if (count != null) {
 					return count.intValue();
@@ -1140,16 +1139,20 @@ public class RoleFinderImpl extends RoleFinderBaseImpl implements RoleFinder {
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(groupIds.length * 3 - 1);
+		StringBundler sb = new StringBundler((groupIds.length * 2) + 2);
+
+		sb.append(table);
+		sb.append(".groupId IN (");
 
 		for (int i = 0; i < groupIds.length; i++) {
-			sb.append(table);
-			sb.append(".groupId = ?");
+			sb.append(groupIds[i]);
 
 			if ((i + 1) < groupIds.length) {
-				sb.append(" OR ");
+				sb.append(", ");
 			}
 		}
+
+		sb.append(StringPool.CLOSE_PARENTHESIS);
 
 		return sb.toString();
 	}

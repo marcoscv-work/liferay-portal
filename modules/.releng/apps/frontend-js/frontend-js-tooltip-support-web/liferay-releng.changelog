@@ -47,3 +47,8 @@
 # Bundle Version 1.0.11
 #
 f704962ea9ddcfc038b7bd67f981d0b9aaf300fa^..ca5f12594a4d5121e90faa96ba6525c45eaff307=LPS-110292
+
+#
+# Bundle Version 1.0.12
+#
+ca5f12594a4d5121e90faa96ba6525c45eaff307^..f09aea0e5bac71799e3a1f127e2c73a70f4cc0c7=LPS-110511 LPS-112509 LPS-112568

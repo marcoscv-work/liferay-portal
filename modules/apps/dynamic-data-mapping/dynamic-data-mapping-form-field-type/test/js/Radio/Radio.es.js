@@ -72,7 +72,7 @@ describe('Field Radio', () => {
 					label: 'label2',
 					name: 'name',
 					showLabel: true,
-					value: 'item',
+					value: 'item2',
 				},
 			],
 		});

@@ -28,16 +28,21 @@ import javax.annotation.Generated;
 @Generated("")
 public class PageCollectionDefinition implements Cloneable {
 
-	public Object getCollectionConfig() {
+	public static PageCollectionDefinition toDTO(String json) {
+		return PageCollectionDefinitionSerDes.toDTO(json);
+	}
+
+	public CollectionConfig getCollectionConfig() {
 		return collectionConfig;
 	}
 
-	public void setCollectionConfig(Object collectionConfig) {
+	public void setCollectionConfig(CollectionConfig collectionConfig) {
 		this.collectionConfig = collectionConfig;
 	}
 
 	public void setCollectionConfig(
-		UnsafeSupplier<Object, Exception> collectionConfigUnsafeSupplier) {
+		UnsafeSupplier<CollectionConfig, Exception>
+			collectionConfigUnsafeSupplier) {
 
 		try {
 			collectionConfig = collectionConfigUnsafeSupplier.get();
@@ -47,7 +52,7 @@ public class PageCollectionDefinition implements Cloneable {
 		}
 	}
 
-	protected Object collectionConfig;
+	protected CollectionConfig collectionConfig;
 
 	public Integer getNumberOfColumns() {
 		return numberOfColumns;

@@ -14,7 +14,6 @@
 
 import ClayButton from '@clayui/button';
 import ClayForm, {ClayInput} from '@clayui/form';
-import ClayIcon from '@clayui/icon';
 import ClayModal, {useModal} from '@clayui/modal';
 import {ItemSelectorDialog, cancelDebounce, debounce} from 'frontend-js-web';
 import React, {useEffect, useRef, useState} from 'react';
@@ -31,7 +30,7 @@ const useDebounceCallback = (callback, milliseconds) => {
 
 const ImagePicker = ({
 	id,
-	inputValue = '',
+	inputValue,
 	itemSelectorURL,
 	name,
 	onClearClick,
@@ -40,13 +39,13 @@ const ImagePicker = ({
 	portletNamespace,
 	readOnly,
 }) => {
-	const [imageValues, setImageValues] = useState({});
+	const [imageValues, setImageValues] = useState(inputValue);
 	const [modalVisible, setModalVisible] = useState(false);
 
 	useEffect(() => {
 		setImageValues({
 			...{description: '', title: '', url: ''},
-			...JSON.parse(inputValue || '{}'),
+			...inputValue,
 		});
 	}, [inputValue]);
 
@@ -133,10 +132,6 @@ const ImagePicker = ({
 		? ''
 		: Liferay.Language.get('add-image-description');
 
-	const {height = '0', width = '0'} = {
-		...JSON.parse(inputValue || '{}'),
-	};
-
 	return (
 		<>
 			<ClayForm.Group style={{marginBottom: '0.5rem'}}>
@@ -184,7 +179,7 @@ const ImagePicker = ({
 				</ClayInput.Group>
 			</ClayForm.Group>
 
-			{imageValues.url && modalVisible && (
+			{imageValues.url && modalVisible ? (
 				<ClayModal
 					className="image-picker-preview-modal"
 					observer={observer}
@@ -207,39 +202,33 @@ const ImagePicker = ({
 						</p>
 					</ClayModal.Body>
 				</ClayModal>
-			)}
-
-			{imageValues.url && (
-				<>
-					<div className="image-picker-preview">
-						<img
-							alt={imageValues.description}
-							className="d-block img-fluid mb-2 rounded"
-							src={imageValues.url}
-						/>
-						<div
-							className="image-picker-priview-backdor"
-							onClick={() => setModalVisible(true)}
-							style={{
-								height: `${height}px`,
-								width: `${width}px`,
-							}}
-						>
-							<ClayIcon symbol="search" />
+			) : (
+				imageValues.url && (
+					<>
+						<div className="image-picker-preview">
+							<img
+								alt={imageValues.description}
+								className="d-block img-fluid mb-2 rounded"
+								onClick={() => setModalVisible(true)}
+								src={imageValues.url}
+								style={{
+									cursor: 'pointer',
+								}}
+							/>
 						</div>
-					</div>
 
-					<ClayForm.Group>
-						<ClayInput
-							defaultValue={imageValues.description}
-							disabled={readOnly}
-							name={`${name}-description`}
-							onChange={handleDescriptionChange}
-							placeholder={placeholder}
-							type="text"
-						/>
-					</ClayForm.Group>
-				</>
+						<ClayForm.Group>
+							<ClayInput
+								defaultValue={imageValues.description}
+								disabled={readOnly}
+								name={`${name}-description`}
+								onChange={handleDescriptionChange}
+								placeholder={placeholder}
+								type="text"
+							/>
+						</ClayForm.Group>
+					</>
+				)
 			)}
 		</>
 	);
@@ -254,34 +243,59 @@ const ImagePickerProxy = connectStore(
 		name,
 		portletNamespace,
 		readOnly,
+		value,
 		...otherProps
-	}) => (
-		<FieldBaseProxy {...otherProps} id={id} name={name} readOnly={readOnly}>
-			<ImagePicker
+	}) => {
+		const formatValue = (sourceValue) => {
+			if (sourceValue) {
+				if (typeof sourceValue === 'string') {
+					return JSON.parse(sourceValue);
+				}
+				else if (typeof sourceValue === 'object') {
+					return sourceValue;
+				}
+			}
+
+			return null;
+		};
+
+		return (
+			<FieldBaseProxy
+				{...otherProps}
 				id={id}
-				inputValue={inputValue}
-				itemSelectorURL={itemSelectorURL}
 				name={name}
-				onClearClick={(data) => {
-					const {event} = data;
-
-					emit('fieldEdited', event, data);
-				}}
-				onDescriptionChange={(data) => {
-					const {event} = data;
-
-					emit('fieldEdited', event, data);
-				}}
-				onFieldChanged={(data) => {
-					const {event} = data;
-
-					emit('fieldEdited', event, data);
-				}}
-				portletNamespace={portletNamespace}
 				readOnly={readOnly}
-			/>
-		</FieldBaseProxy>
-	)
+			>
+				<ImagePicker
+					id={id}
+					inputValue={{
+						...(formatValue(inputValue) ||
+							formatValue(value) ||
+							{}),
+					}}
+					itemSelectorURL={itemSelectorURL}
+					name={name}
+					onClearClick={(data) => {
+						const {event} = data;
+
+						emit('fieldEdited', event, data);
+					}}
+					onDescriptionChange={(data) => {
+						const {event} = data;
+
+						emit('fieldEdited', event, data);
+					}}
+					onFieldChanged={(data) => {
+						const {event} = data;
+
+						emit('fieldEdited', event, data);
+					}}
+					portletNamespace={portletNamespace}
+					readOnly={readOnly}
+				/>
+			</FieldBaseProxy>
+		);
+	}
 );
 
 const ReactImagePickerAdapter = getConnectedReactComponentAdapter(

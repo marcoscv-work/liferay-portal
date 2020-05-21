@@ -22,6 +22,7 @@ import {
 import React, {useContext} from 'react';
 
 import useDoubleClick from '../../hooks/useDoubleClick.es';
+import {findFieldByName} from '../../utils/findFieldByName.es';
 import DataLayoutBuilderContext from './DataLayoutBuilderInstanceContext.es';
 import FormViewContext from './FormViewContext.es';
 import useDeleteDefinitionField from './useDeleteDefinitionField.es';
@@ -30,6 +31,7 @@ import useDeleteDefinitionFieldModal from './useDeleteDefinitionFieldModal.es';
 const getFieldTypes = ({
 	dataDefinition,
 	dataLayout,
+	editingLanguageId,
 	fieldTypes,
 	focusedCustomObjectField,
 }) => {
@@ -47,6 +49,13 @@ const getFieldTypes = ({
 				return name === fieldType;
 			});
 
+			if (label[editingLanguageId] && label[editingLanguageId] !== '') {
+				label = label[editingLanguageId];
+			}
+			else {
+				label = label[Liferay.ThemeDisplay.getDefaultLanguageId()];
+			}
+
 			dataDefinitionFields.push({
 				active: name === focusedCustomObjectField.name,
 				className: 'custom-object-field',
@@ -58,7 +67,7 @@ const getFieldTypes = ({
 				dragAlignment: 'right',
 				dragType: DragTypes.DRAG_DATA_DEFINITION_FIELD,
 				icon: fieldTypeSettings.icon,
-				label: label.en_US,
+				label,
 				name,
 			});
 		}
@@ -74,9 +83,7 @@ export default ({keywords}) => {
 	const {dataDefinitionFields} = dataDefinition;
 	const fieldTypes = getFieldTypes(state);
 	const onClick = ({name}) => {
-		const dataDefinitionField = dataDefinitionFields.find(
-			({name: currentName}) => currentName === name
-		);
+		const dataDefinitionField = findFieldByName(dataDefinitionFields, name);
 
 		dispatch({
 			payload: {dataDefinitionField},

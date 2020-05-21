@@ -224,10 +224,10 @@
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.CamelCaseNameCheck">
 			<property name="enabled" value="false" />
-			<message key="constant.invalidName" value="''{0}'' should not be followe by ''_'' for variable ''{1}''" />
-			<message key="method.invalidName" value="''{0}'' should be followed by a lowercase character for method ''{1}''" />
-			<message key="parameter.invalidName" value="''{0}'' should be followed by a lowercase character for parameter ''{1}''" />
-			<message key="variable.invalidName" value="''{0}'' should be followed by a lowercase character for variable ''{1}''" />
+			<message key="following.underscore.incorrect" value="''{0}'' should not be followed by ''_'' for variable ''{1}''" />
+			<message key="following.uppercase.incorrect" value="''{0}'' should not be followed by an uppercase character for {1} ''{2}''" />
+			<message key="preceding.underscore.required" value="''{0}'' should be preceded by ''_'' for variable ''{1}''" />
+			<message key="starting.uppercase.required" value="''{0}'' should start with an uppercase character for {1} ''{2}''" />
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.ChainingCheck">
 			<property name="allowedClassNames" value="ActionSemantics,.*[Bb]uilder(s)?,Assertions,Awaitility,.*Consumer,CreationMenuBuilder,DSL.+FactoryUtil,EasyMock,Either,Filter,FormNavigatorEntryConfigurationRetriever,GenericUtil,JSONUtil,List,MemberMatcher,Option,Optional,Response,RestAssured,(Double|Int|Long)?Stream,.+Table,Try,Validation" />
@@ -304,6 +304,11 @@
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.FullyQualifiedNameCheck">
 			<message key="import.statement.use" value="Use import statement instead of Fully Qualified Name for ''{0}'" />
+		</module>
+		<module name="com.liferay.source.formatter.checkstyle.checks.GenericTypeCheck">
+			<property name="enabled" value="false" />
+			<property name="populateTypeNames" value="false" />
+			<message key="generic.type.parameterize" value="Parameterize the generic {0} for ''{1}'" />
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.InstanceofOrderCheck">
 			<message key="instanceof.order" value="''{0}'' should come before ''{1}''" />
@@ -499,12 +504,16 @@
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.TryWithResourcesCheck">
 			<property name="enabled" value="false" />
+			<property name="populateTypeNames" value="false" />
 			<message key="try.with.resources.use" value="Use Try-With-Resources statement to declare ''{0}'' instead of closing the resource in the ''finally'' statement using ''{1}''" />
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.UnnecessaryAssignCheck">
 			<message key="assign.unnecessary.before.reassign" value="No need to assign call to variable ''{0}'', because ''{0}'' is reassigned another value without being used" />
 			<message key="assign.unnecessary.before.return" value="No need to assign call to variable ''{0}'', because ''{0}'' is returned right after" />
 			<message key="assign.unnecessary.unused" value="No need to assign call to variable ''{0}'', because ''{0}'' is not used after the call" />
+		</module>
+		<module name="com.liferay.source.formatter.checkstyle.checks.UnnecessaryTypeCastCheck">
+			<message key="type.cast.unnecessary" value="No need to apply Type Cast to method ''{0}''" />
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.UnnecessaryVariableDeclarationCheck">
 			<message key="variable.declaration.unnecessary.before.reassign" value="No need to declare variable ''{0}'' because ''{0}'' is reassigned another value without being used" />

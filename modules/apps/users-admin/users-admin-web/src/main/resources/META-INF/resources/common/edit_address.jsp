@@ -49,7 +49,7 @@ PortalUtil.addPortletBreadcrumbEntry(request, editContactInformationDisplayConte
 	<aui:input name="listType" type="hidden" value="<%= ListTypeConstants.ADDRESS %>" />
 	<aui:input name="primaryKey" type="hidden" value="<%= String.valueOf(editContactInformationDisplayContext.getPrimaryKey()) %>" />
 
-	<div class="container-fluid container-fluid-max-xl">
+	<clay:container-fluid>
 		<div class="sheet-lg" id="breadcrumb">
 			<liferay-ui:breadcrumb
 				showCurrentGroup="<%= false %>"
@@ -118,9 +118,9 @@ PortalUtil.addPortletBreadcrumbEntry(request, editContactInformationDisplayConte
 				<aui:button href="<%= editContactInformationDisplayContext.getRedirect() %>" type="cancel" />
 			</div>
 		</div>
-	</div>
+	</clay:container-fluid>
 
-	<aui:script use="liferay-dynamic-select">
+	<script>
 		new Liferay.DynamicSelect([
 			{
 				select: '<portlet:namespace />addressCountryId',
@@ -138,7 +138,7 @@ PortalUtil.addPortletBreadcrumbEntry(request, editContactInformationDisplayConte
 				selectVal: '<%= regionId %>',
 			},
 		]);
-	</aui:script>
+	</script>
 </aui:form>
 
 <aui:script use="liferay-form">

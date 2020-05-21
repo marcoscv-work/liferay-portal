@@ -39,6 +39,7 @@ import com.liferay.portal.kernel.util.Validator;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -54,11 +55,12 @@ public class WidgetLayoutStructureItemImporter
 	@Override
 	public LayoutStructureItem addLayoutStructureItem(
 			Layout layout, LayoutStructure layoutStructure,
-			PageElement pageElement, String parentItemId, int position)
+			PageElement pageElement, String parentItemId, int position,
+			Set<String> warningMessages)
 		throws Exception {
 
 		FragmentEntryLink fragmentEntryLink = _addFragmentEntryLink(
-			layout, pageElement);
+			layout, pageElement, warningMessages);
 
 		if (fragmentEntryLink == null) {
 			return null;
@@ -74,7 +76,7 @@ public class WidgetLayoutStructureItemImporter
 	}
 
 	private FragmentEntryLink _addFragmentEntryLink(
-			Layout layout, PageElement pageElement)
+			Layout layout, PageElement pageElement, Set<String> warningMessages)
 		throws Exception {
 
 		Map<String, Object> definitionMap = getDefinitionMap(
@@ -131,7 +133,7 @@ public class WidgetLayoutStructureItemImporter
 		_portletPermissionsImporterHelper.importPortletPermissions(
 			layout.getPlid(),
 			PortletIdCodec.encode(widgetName, widgetInstanceId),
-			widgetPermissionsMaps);
+			warningMessages, widgetPermissionsMaps);
 
 		return _fragmentEntryLinkLocalService.addFragmentEntryLink(
 			layout.getUserId(), layout.getGroupId(), 0, 0, 0,

@@ -66,7 +66,7 @@ public class FriendlyURLEntryLocalizationModelImpl
 	public static final String TABLE_NAME = "FriendlyURLEntryLocalization";
 
 	public static final Object[][] TABLE_COLUMNS = {
-		{"mvccVersion", Types.BIGINT},
+		{"mvccVersion", Types.BIGINT}, {"ctCollectionId", Types.BIGINT},
 		{"friendlyURLEntryLocalizationId", Types.BIGINT},
 		{"companyId", Types.BIGINT}, {"friendlyURLEntryId", Types.BIGINT},
 		{"languageId", Types.VARCHAR}, {"urlTitle", Types.VARCHAR},
@@ -79,6 +79,7 @@ public class FriendlyURLEntryLocalizationModelImpl
 
 	static {
 		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("ctCollectionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("friendlyURLEntryLocalizationId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("friendlyURLEntryId", Types.BIGINT);
@@ -90,7 +91,7 @@ public class FriendlyURLEntryLocalizationModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table FriendlyURLEntryLocalization (mvccVersion LONG default 0 not null,friendlyURLEntryLocalizationId LONG not null primary key,companyId LONG,friendlyURLEntryId LONG,languageId VARCHAR(75) null,urlTitle VARCHAR(255) null,groupId LONG,classNameId LONG,classPK LONG)";
+		"create table FriendlyURLEntryLocalization (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,friendlyURLEntryLocalizationId LONG not null,companyId LONG,friendlyURLEntryId LONG,languageId VARCHAR(75) null,urlTitle VARCHAR(255) null,groupId LONG,classNameId LONG,classPK LONG,primary key (friendlyURLEntryLocalizationId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table FriendlyURLEntryLocalization";
@@ -109,16 +110,18 @@ public class FriendlyURLEntryLocalizationModelImpl
 
 	public static final long CLASSNAMEID_COLUMN_BITMASK = 1L;
 
-	public static final long FRIENDLYURLENTRYID_COLUMN_BITMASK = 2L;
+	public static final long CLASSPK_COLUMN_BITMASK = 2L;
 
-	public static final long GROUPID_COLUMN_BITMASK = 4L;
+	public static final long FRIENDLYURLENTRYID_COLUMN_BITMASK = 4L;
 
-	public static final long LANGUAGEID_COLUMN_BITMASK = 8L;
+	public static final long GROUPID_COLUMN_BITMASK = 8L;
 
-	public static final long URLTITLE_COLUMN_BITMASK = 16L;
+	public static final long LANGUAGEID_COLUMN_BITMASK = 16L;
+
+	public static final long URLTITLE_COLUMN_BITMASK = 32L;
 
 	public static final long FRIENDLYURLENTRYLOCALIZATIONID_COLUMN_BITMASK =
-		32L;
+		64L;
 
 	public static void setEntityCacheEnabled(boolean entityCacheEnabled) {
 		_entityCacheEnabled = entityCacheEnabled;
@@ -270,6 +273,12 @@ public class FriendlyURLEntryLocalizationModelImpl
 			(BiConsumer<FriendlyURLEntryLocalization, Long>)
 				FriendlyURLEntryLocalization::setMvccVersion);
 		attributeGetterFunctions.put(
+			"ctCollectionId", FriendlyURLEntryLocalization::getCtCollectionId);
+		attributeSetterBiConsumers.put(
+			"ctCollectionId",
+			(BiConsumer<FriendlyURLEntryLocalization, Long>)
+				FriendlyURLEntryLocalization::setCtCollectionId);
+		attributeGetterFunctions.put(
 			"friendlyURLEntryLocalizationId",
 			FriendlyURLEntryLocalization::getFriendlyURLEntryLocalizationId);
 		attributeSetterBiConsumers.put(
@@ -335,6 +344,16 @@ public class FriendlyURLEntryLocalizationModelImpl
 	@Override
 	public void setMvccVersion(long mvccVersion) {
 		_mvccVersion = mvccVersion;
+	}
+
+	@Override
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		_ctCollectionId = ctCollectionId;
 	}
 
 	@Override
@@ -502,7 +521,19 @@ public class FriendlyURLEntryLocalizationModelImpl
 
 	@Override
 	public void setClassPK(long classPK) {
+		_columnBitmask |= CLASSPK_COLUMN_BITMASK;
+
+		if (!_setOriginalClassPK) {
+			_setOriginalClassPK = true;
+
+			_originalClassPK = _classPK;
+		}
+
 		_classPK = classPK;
+	}
+
+	public long getOriginalClassPK() {
+		return _originalClassPK;
 	}
 
 	public long getColumnBitmask() {
@@ -544,6 +575,7 @@ public class FriendlyURLEntryLocalizationModelImpl
 			new FriendlyURLEntryLocalizationImpl();
 
 		friendlyURLEntryLocalizationImpl.setMvccVersion(getMvccVersion());
+		friendlyURLEntryLocalizationImpl.setCtCollectionId(getCtCollectionId());
 		friendlyURLEntryLocalizationImpl.setFriendlyURLEntryLocalizationId(
 			getFriendlyURLEntryLocalizationId());
 		friendlyURLEntryLocalizationImpl.setCompanyId(getCompanyId());
@@ -642,6 +674,11 @@ public class FriendlyURLEntryLocalizationModelImpl
 
 		friendlyURLEntryLocalizationModelImpl._setOriginalClassNameId = false;
 
+		friendlyURLEntryLocalizationModelImpl._originalClassPK =
+			friendlyURLEntryLocalizationModelImpl._classPK;
+
+		friendlyURLEntryLocalizationModelImpl._setOriginalClassPK = false;
+
 		friendlyURLEntryLocalizationModelImpl._columnBitmask = 0;
 	}
 
@@ -652,6 +689,9 @@ public class FriendlyURLEntryLocalizationModelImpl
 				new FriendlyURLEntryLocalizationCacheModel();
 
 		friendlyURLEntryLocalizationCacheModel.mvccVersion = getMvccVersion();
+
+		friendlyURLEntryLocalizationCacheModel.ctCollectionId =
+			getCtCollectionId();
 
 		friendlyURLEntryLocalizationCacheModel.friendlyURLEntryLocalizationId =
 			getFriendlyURLEntryLocalizationId();
@@ -766,6 +806,7 @@ public class FriendlyURLEntryLocalizationModelImpl
 	private static boolean _finderCacheEnabled;
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _friendlyURLEntryLocalizationId;
 	private long _companyId;
 	private long _friendlyURLEntryId;
@@ -782,6 +823,8 @@ public class FriendlyURLEntryLocalizationModelImpl
 	private long _originalClassNameId;
 	private boolean _setOriginalClassNameId;
 	private long _classPK;
+	private long _originalClassPK;
+	private boolean _setOriginalClassPK;
 	private long _columnBitmask;
 	private FriendlyURLEntryLocalization _escapedModel;
 

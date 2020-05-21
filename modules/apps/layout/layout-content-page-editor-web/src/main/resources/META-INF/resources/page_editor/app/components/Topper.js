@@ -16,7 +16,7 @@ import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 
 import {
 	LayoutDataPropTypes,
@@ -29,8 +29,11 @@ import selectCanUpdate from '../selectors/selectCanUpdate';
 import {useDispatch, useSelector} from '../store/index';
 import deleteItem from '../thunks/deleteItem';
 import moveItem from '../thunks/moveItem';
-import useDragAndDrop, {TARGET_POSITION} from '../utils/useDragAndDrop';
-import {useToControlsId} from './CollectionItemContext';
+import {
+	TARGET_POSITION,
+	useDragItem,
+	useDropTarget,
+} from '../utils/useDragAndDrop';
 import {
 	useActiveItemId,
 	useHoverItem,
@@ -77,8 +80,7 @@ export default function ({children, ...props}) {
 	return canUpdate ? <Topper {...props}>{children}</Topper> : children;
 }
 
-function Topper({children, item, itemRef, layoutData}) {
-	const containerRef = useRef(null);
+function Topper({children, item, itemElement, layoutData}) {
 	const dispatch = useDispatch();
 	const store = useSelector((state) => state);
 	const activeItemId = useActiveItemId();
@@ -87,37 +89,27 @@ function Topper({children, item, itemRef, layoutData}) {
 	const isHovered = useIsHovered();
 	const isActive = useIsActive();
 	const selectItem = useSelectItem();
-	const toControlsId = useToControlsId();
 
 	const {
-		drag,
-		drop,
-		isDragging,
-		state: {
-			dropItem,
-			dropTargetItemId,
-			droppable,
-			targetPositionWithMiddle,
-			targetPositionWithoutMiddle,
-		},
-	} = useDragAndDrop({
-		containerRef,
-		dropTargetItem: item,
-		layoutData,
-		onDragEnd: (data) =>
+		canDropOverTarget,
+		isOverTarget,
+		sourceItem,
+		targetPosition,
+		targetRef,
+	} = useDropTarget(item, layoutData);
+
+	const {handlerRef, isDraggingSource} = useDragItem(
+		item,
+		(parentItemId, position) =>
 			dispatch(
 				moveItem({
-					...data,
+					itemId: item.itemId,
+					parentItemId,
+					position,
 					store,
 				})
-			),
-	});
-
-	const targetPosition =
-		item.type === LAYOUT_DATA_ITEM_TYPES.fragment ||
-		item.type === LAYOUT_DATA_ITEM_TYPES.collection
-			? targetPositionWithoutMiddle
-			: targetPositionWithMiddle;
+			)
+	);
 
 	const itemIsRemovable = useMemo(() => isRemovable(item, layoutData), [
 		item,
@@ -165,35 +157,29 @@ function Topper({children, item, itemRef, layoutData}) {
 	}, []);
 
 	useEffect(() => {
-		if (itemRef && itemRef.current) {
+		if (itemElement) {
 			const itemTop =
-				itemRef.current.getBoundingClientRect().top - TOPPER_BAR_HEIGHT;
-			const controlMenuHeight = document
-				.getElementById('ControlMenu')
-				.getBoundingClientRect().height;
-			const managementToolbarHeight = document
-				.querySelector('.page-editor__toolbar')
-				.getBoundingClientRect().height;
+				itemElement.getBoundingClientRect().top - TOPPER_BAR_HEIGHT;
 
-			if (itemTop < controlMenuHeight + managementToolbarHeight) {
+			const controlMenuContainerHeight = document.querySelector(
+				'.control-menu-container'
+			).offsetHeight;
+
+			if (itemTop < controlMenuContainerHeight) {
 				setIsInset(true);
 			}
 			else {
 				setIsInset(false);
 			}
 		}
-	}, [itemRef, layoutData, windowScrollPosition]);
-
-	const isDraggableInPosition = (position) =>
-		targetPosition === position &&
-		dropTargetItemId === toControlsId(item.itemId);
+	}, [itemElement, layoutData, windowScrollPosition]);
 
 	const dataAdvice =
-		!droppable && isDraggableInPosition(TARGET_POSITION.MIDDLE)
+		isOverTarget && !canDropOverTarget
 			? Liferay.Util.sub(
 					Liferay.Language.get('a-x-cannot-be-dropped-inside-a-x'),
 					[
-						getLabelName(dropItem, fragmentEntryLinks),
+						getLabelName(sourceItem, fragmentEntryLinks),
 						getLabelName(item, fragmentEntryLinks),
 					]
 			  )
@@ -203,23 +189,21 @@ function Topper({children, item, itemRef, layoutData}) {
 		<div
 			className={classNames('page-editor__topper', {
 				active: isActive(item.itemId),
-				'drag-over-bottom': isDraggableInPosition(
-					TARGET_POSITION.BOTTOM
-				),
-				'drag-over-middle': isDraggableInPosition(
-					TARGET_POSITION.MIDDLE
-				),
-				'drag-over-top': isDraggableInPosition(TARGET_POSITION.TOP),
-				dragged: isDragging,
+				'drag-over-bottom':
+					isOverTarget && targetPosition === TARGET_POSITION.BOTTOM,
+				'drag-over-middle':
+					isOverTarget && targetPosition === TARGET_POSITION.MIDDLE,
+				'drag-over-top':
+					isOverTarget && targetPosition === TARGET_POSITION.TOP,
+				dragged: isDraggingSource,
 				hovered: isHovered(item.itemId) || fragmentShouldBeHovered(),
-				'not-droppable':
-					!droppable && isDraggableInPosition(TARGET_POSITION.MIDDLE),
+				'not-droppable': !!dataAdvice,
 				'page-editor__topper--mapped': itemIsMappedCollection(item),
 			})}
 			onClick={(event) => {
 				event.stopPropagation();
 
-				if (isDragging) {
+				if (isDraggingSource) {
 					return;
 				}
 
@@ -228,7 +212,7 @@ function Topper({children, item, itemRef, layoutData}) {
 			onMouseLeave={(event) => {
 				event.stopPropagation();
 
-				if (isDragging) {
+				if (isDraggingSource) {
 					return;
 				}
 
@@ -239,13 +223,13 @@ function Topper({children, item, itemRef, layoutData}) {
 			onMouseOver={(event) => {
 				event.stopPropagation();
 
-				if (isDragging) {
+				if (isDraggingSource) {
 					return;
 				}
 
 				hoverItem(item.itemId);
 			}}
-			ref={containerRef}
+			ref={handlerRef}
 		>
 			<div
 				className={classNames('page-editor__topper__bar', 'tbar', {
@@ -256,10 +240,7 @@ function Topper({children, item, itemRef, layoutData}) {
 				})}
 			>
 				<ul className="tbar-nav">
-					<TopperListItem
-						className="page-editor__topper__drag-handler"
-						ref={drag}
-					>
+					<TopperListItem className="page-editor__topper__drag-handler">
 						<ClayIcon
 							className="page-editor__topper__drag-icon page-editor__topper__icon"
 							symbol="drag"
@@ -320,7 +301,7 @@ function Topper({children, item, itemRef, layoutData}) {
 					)}
 				</ul>
 			</div>
-			<div className="page-editor__topper__content" ref={drop}>
+			<div className="page-editor__topper__content" ref={targetRef}>
 				{dataAdvice
 					? React.cloneElement(children, {
 							data: {'data-advice': dataAdvice},
@@ -333,6 +314,7 @@ function Topper({children, item, itemRef, layoutData}) {
 
 Topper.propTypes = {
 	item: getLayoutDataItemPropTypes().isRequired,
+	itemElement: PropTypes.object,
 	layoutData: LayoutDataPropTypes.isRequired,
 };
 

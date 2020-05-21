@@ -36,7 +36,9 @@ weDeployAuthAppsSearchContainer.setResults(weDeployAuthApps);
 	displayContext="<%= new WeDeployAuthAppsManagementToolbarDisplayContext(request, liferayPortletRequest, liferayPortletResponse, weDeployAuthAppsSearchContainer) %>"
 />
 
-<div class="container-fluid container-fluid-max-xl container-view">
+<clay:container-fluid
+	className="container-view"
+>
 	<liferay-ui:search-container
 		id="weDeployAuthApps"
 		searchContainer="<%= weDeployAuthAppsSearchContainer %>"
@@ -91,4 +93,4 @@ weDeployAuthAppsSearchContainer.setResults(weDeployAuthApps);
 			markupView="lexicon"
 		/>
 	</liferay-ui:search-container>
-</div>
+</clay:container-fluid>

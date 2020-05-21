@@ -38,7 +38,7 @@ else {
 }
 %>
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<aui:form method="post" name="selectCategoryFm">
 		<liferay-ui:breadcrumb
 			showGuestGroup="<%= false %>"
@@ -140,7 +140,7 @@ else {
 			/>
 		</liferay-ui:search-container>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
 <aui:script>
 	Liferay.Util.selectEntityHandler(

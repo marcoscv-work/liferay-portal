@@ -54,7 +54,11 @@ function renderCollection(itemConfig = {}) {
 	return render(
 		<DndProvider backend={HTML5Backend}>
 			<StoreAPIContextProvider dispatch={() => {}} getState={() => state}>
-				<DragAndDropContextProvider>
+				<DragAndDropContextProvider
+					layoutData={{
+						items: [],
+					}}
+				>
 					<Collection
 						item={{
 							config: {...defaultConfig, ...itemConfig},

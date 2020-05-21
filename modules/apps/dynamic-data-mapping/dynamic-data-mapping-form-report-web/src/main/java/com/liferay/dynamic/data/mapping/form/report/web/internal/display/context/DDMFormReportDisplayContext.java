@@ -15,11 +15,16 @@
 package com.liferay.dynamic.data.mapping.form.report.web.internal.display.context;
 
 import com.liferay.dynamic.data.mapping.form.report.web.internal.portlet.DDMFormReportPortlet;
+import com.liferay.dynamic.data.mapping.model.DDMForm;
+import com.liferay.dynamic.data.mapping.model.DDMFormField;
+import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.DateUtil;
@@ -29,6 +34,7 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.portlet.RenderRequest;
@@ -48,6 +54,31 @@ public class DDMFormReportDisplayContext {
 
 	public DDMFormInstanceReport getDDMFormInstanceReport() {
 		return _ddmFormInstanceReport;
+	}
+
+	public JSONArray getFieldsJSONArray() throws PortalException {
+		JSONArray fieldsJSONArray = JSONFactoryUtil.createJSONArray();
+
+		if (_ddmFormInstanceReport == null) {
+			return fieldsJSONArray;
+		}
+
+		DDMFormInstance ddmFormInstance =
+			_ddmFormInstanceReport.getFormInstance();
+
+		DDMForm ddmForm = ddmFormInstance.getDDMForm();
+
+		List<DDMFormField> ddmFormFields = ddmForm.getDDMFormFields();
+
+		ddmFormFields.forEach(
+			ddmFormField -> fieldsJSONArray.put(
+				JSONUtil.put(
+					"name", ddmFormField.getName()
+				).put(
+					"type", ddmFormField.getType()
+				)));
+
+		return fieldsJSONArray;
 	}
 
 	public String getLastModifiedDate() {

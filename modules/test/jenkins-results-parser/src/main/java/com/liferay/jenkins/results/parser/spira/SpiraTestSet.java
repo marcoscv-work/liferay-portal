@@ -14,6 +14,7 @@
 
 package com.liferay.jenkins.results.parser.spira;
 
+import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
 import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil.HttpRequestMethod;
 
 import java.io.IOException;
@@ -104,6 +105,15 @@ public class SpiraTestSet extends PathSpiraArtifact {
 		return _parentSpiraTestSetFolder;
 	}
 
+	@Override
+	public String getURL() {
+		SpiraProject spiraProject = getSpiraProject();
+
+		return JenkinsResultsParserUtil.combine(
+			SPIRA_BASE_URL, String.valueOf(spiraProject.getID()), "/TestSet/",
+			String.valueOf(getID()), ".aspx");
+	}
+
 	public static enum Status {
 
 		BLOCKED(4), COMPLETED(3), DEFERRED(5), IN_PROGRESS(2), NOT_STARTED(1);
@@ -162,11 +172,11 @@ public class SpiraTestSet extends PathSpiraArtifact {
 			searchParameters);
 	}
 
-	protected SpiraTestSetTestCase assignSpiraTestCase(
-		SpiraTestCaseObject spiraTestCase) {
+	protected SpiraTestSetTestCase assignSpiraTestCaseObject(
+		SpiraTestCaseObject spiraTestCaseObject) {
 
-		if (_spiraTestSetTestCases.containsKey(spiraTestCase.getID())) {
-			return _spiraTestSetTestCases.get(spiraTestCase.getID());
+		if (_spiraTestSetTestCases.containsKey(spiraTestCaseObject.getID())) {
+			return _spiraTestSetTestCases.get(spiraTestCaseObject.getID());
 		}
 
 		Map<String, String> urlPathReplacements = new HashMap<>();
@@ -177,7 +187,7 @@ public class SpiraTestSet extends PathSpiraArtifact {
 			"project_id", String.valueOf(spiraProject.getID()));
 
 		urlPathReplacements.put(
-			"test_case_id", String.valueOf(spiraTestCase.getID()));
+			"test_case_id", String.valueOf(spiraTestCaseObject.getID()));
 
 		urlPathReplacements.put("test_set_id", String.valueOf(getID()));
 
@@ -218,6 +228,19 @@ public class SpiraTestSet extends PathSpiraArtifact {
 	protected static final String ID_KEY = "TestSetId";
 
 	protected static class SpiraTestSetTestCase extends BaseSpiraArtifact {
+
+		@Override
+		public String getURL() {
+			SpiraTestCaseObject spiraTestCaseObject = getSpiraTestCaseObject();
+
+			return spiraTestCaseObject.getURL();
+		}
+
+		protected SpiraTestCaseObject getSpiraTestCaseObject() {
+			SpiraProject spiraProject = getSpiraProject();
+
+			return spiraProject.getSpiraTestCaseObjectByID(getTestCaseID());
+		}
 
 		protected Integer getTestCaseID() {
 			return jsonObject.getInt(SpiraTestCaseObject.ID_KEY);

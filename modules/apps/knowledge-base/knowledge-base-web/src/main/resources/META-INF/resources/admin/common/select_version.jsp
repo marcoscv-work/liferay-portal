@@ -33,7 +33,7 @@ portletURL.setParameter("resourcePrimKey", String.valueOf(kbArticle.getResourceP
 portletURL.setParameter("sourceVersion", String.valueOf(sourceVersion));
 %>
 
-<div class="container-fluid-1280">
+<clay:container-fluid>
 	<aui:form action="<%= portletURL.toString() %>" method="post" name="selectVersionFm">
 		<liferay-ui:search-container
 			id="articleVersionSearchContainer"
@@ -93,7 +93,7 @@ portletURL.setParameter("sourceVersion", String.valueOf(sourceVersion));
 			/>
 		</liferay-ui:search-container>
 	</aui:form>
-</div>
+</clay:container-fluid>
 
 <aui:script>
 	Liferay.Util.selectEntityHandler(

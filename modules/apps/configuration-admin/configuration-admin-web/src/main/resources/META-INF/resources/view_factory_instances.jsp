@@ -50,7 +50,7 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle(categoryDisplayName);
 %>
 
-<div class="container-fluid container-fluid-max-xl">
+<clay:container-fluid>
 	<clay:col
 		size="12"
 	>
@@ -61,9 +61,9 @@ renderResponse.setTitle(categoryDisplayName);
 			showParentGroups="<%= false %>"
 		/>
 	</clay:col>
-</div>
+</clay:container-fluid>
 
-<div class="container-fluid container-fluid-max-xl">
+<clay:container-fluid>
 	<clay:row>
 		<clay:col
 			md="3"
@@ -226,4 +226,4 @@ renderResponse.setTitle(categoryDisplayName);
 			</div>
 		</clay:col>
 	</clay:row>
-</div>
+</clay:container-fluid>
