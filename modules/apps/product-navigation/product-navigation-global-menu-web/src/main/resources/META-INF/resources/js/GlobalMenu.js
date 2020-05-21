@@ -164,7 +164,7 @@ const GlobalMenu = ({panelAppsURL}) => {
 	useEventListener(
 		'click',
 		(event) => {
-			if (!elementRef.current.contains(event.target)) {
+			if (!elementRef.current?.contains(event.target)) {
 				setPanelVisible(false);
 			}
 		},
