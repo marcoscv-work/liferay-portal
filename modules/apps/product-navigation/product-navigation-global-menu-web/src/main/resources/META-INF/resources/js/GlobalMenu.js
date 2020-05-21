@@ -154,7 +154,7 @@ const GlobalMenu = ({panelAppsURL}) => {
 	const [panelVisible, setPanelVisible] = useState(false);
 
 	const elementRef = useRef();
-	const preloadPromiseRef = useRef();
+	const fetchCategoriesPromiseRef = useRef();
 
 	const handleButtonOnClick = () => {
 		fetchCategories();
@@ -173,8 +173,8 @@ const GlobalMenu = ({panelAppsURL}) => {
 	);
 
 	const fetchCategories = () => {
-		if (!preloadPromiseRef.current) {
-			preloadPromiseRef.current = fetch(panelAppsURL)
+		if (!fetchCategoriesPromiseRef.current) {
+			fetchCategoriesPromiseRef.current = fetch(panelAppsURL)
 				.then((response) => response.json())
 				.then(({items, portletNamespace, recentSites, viewAllURL}) => {
 					setAppsPanelData({
@@ -183,6 +183,9 @@ const GlobalMenu = ({panelAppsURL}) => {
 						recentSites,
 						viewAllURL,
 					});
+				})
+				.cath(() => {
+					fetchCategoriesPromiseRef.current = null;
 				});
 		}
 	};
