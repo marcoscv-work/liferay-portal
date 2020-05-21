@@ -184,7 +184,7 @@ const GlobalMenu = ({panelAppsURL}) => {
 						viewAllURL,
 					});
 				})
-				.cath(() => {
+				.catch(() => {
 					fetchCategoriesPromiseRef.current = null;
 				});
 		}
