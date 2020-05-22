@@ -44,21 +44,24 @@ PortalUtil.addPortletBreadcrumbEntry(request, editContactInformationDisplayConte
 	<aui:input name="primaryKey" type="hidden" value="<%= String.valueOf(editContactInformationDisplayContext.getPrimaryKey()) %>" />
 
 	<clay:container-fluid>
-		<div class="sheet-lg" id="breadcrumb">
+		<clay:container-fluid
+			className="sheet-lg"
+			id="breadcrumb"
+		>
 			<liferay-ui:breadcrumb
 				showCurrentGroup="<%= false %>"
 				showGuestGroup="<%= false %>"
 				showLayout="<%= false %>"
 				showPortletBreadcrumb="<%= true %>"
 			/>
-		</div>
+		</clay:container-fluid>
 
-		<div class="sheet sheet-lg">
-			<div class="sheet-header">
+		<clay:sheet>
+			<clay:sheet-header>
 				<h2 class="sheet-title"><%= editContactInformationDisplayContext.getSheetTitle() %></h2>
-			</div>
+			</clay:sheet-header>
 
-			<div class="sheet-section">
+			<clay:sheet-section>
 				<clay:alert
 					message='<%= LanguageUtil.format(request, "url-must-start-with-x-or-x", new String[] {"http://", "https://"}, false) %>'
 					style="info"
@@ -76,13 +79,13 @@ PortalUtil.addPortletBreadcrumbEntry(request, editContactInformationDisplayConte
 				<liferay-ui:error exception="<%= WebsiteURLException.class %>" message="please-enter-a-valid-url" />
 
 				<aui:input fieldParam="websiteUrl" id="websiteUrl" name="url" required="<%= true %>" />
-			</div>
+			</clay:sheet-section>
 
-			<div class="sheet-footer">
+			<clay:sheet-footer>
 				<aui:button primary="<%= true %>" type="submit" />
 
 				<aui:button href="<%= editContactInformationDisplayContext.getRedirect() %>" type="cancel" />
-			</div>
-		</div>
+			</clay:sheet-footer>
+		</clay:sheet>
 	</clay:container-fluid>
 </aui:form>
