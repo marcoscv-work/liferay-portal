@@ -61,14 +61,14 @@ portletDisplay.setShowBackIcon(true);
 <liferay-ui:error exception="<%= CTCollectionDescriptionException.class %>" message="the-publication-description-is-too-long" />
 <liferay-ui:error exception="<%= CTCollectionNameException.class %>" message="the-publication-name-is-too-long" />
 
-<div class="custom-sheet sheet sheet-lg">
+<clay:sheet>
 	<aui:form action='<%= actionURL + "&etag=0&strip=0" %>' cssClass="lfr-export-dialog" method="post" name="editChangeListFm">
 		<aui:input name="ctCollectionId" type="hidden" value="<%= ctCollectionId %>" />
 
 		<c:if test="<%= revert %>">
 			<p class="sheet-text"><liferay-ui:message key="reverting-creates-a-new-publication-with-the-reverted-changes" /></p>
 
-			<div class="sheet-section">
+			<clay:sheet-section>
 				<h3 class="sheet-subtitle">
 					<liferay-ui:message key="publication-with-reverted-changes" />
 				</h3>
@@ -84,7 +84,7 @@ portletDisplay.setShowBackIcon(true);
 			</aui:input>
 
 		<c:if test="<%= revert %>">
-			</div>
+			</clay:sheet-section>
 		</c:if>
 
 		<aui:button-row>
@@ -93,4 +93,4 @@ portletDisplay.setShowBackIcon(true);
 			<aui:button href="<%= redirect %>" type="cancel" />
 		</aui:button-row>
 	</aui:form>
-</div>
+</clay:sheet>
