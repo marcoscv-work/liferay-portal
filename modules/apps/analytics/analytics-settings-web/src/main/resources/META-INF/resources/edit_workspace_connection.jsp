@@ -60,7 +60,7 @@ if (analyticsConfiguration != null) {
 
 <portlet:actionURL name="/analytics/edit_workspace_connection" var="editWorkspaceConnectionURL" />
 
-<div class="sheet sheet-lg">
+<clay:sheet>
 	<c:if test="<%= AnalyticsSettingsUtil.isAnalyticsEnabledWithOAuth(themeDisplay.getCompanyId()) %>">
 		<aui:alert type="warning">
 			<div class="mb-2">
@@ -177,7 +177,7 @@ if (analyticsConfiguration != null) {
 			<aui:button disabled="<%= !connected %>" href="<%= selectSitesURL.toString() %>" primary="<%= true %>" value="select-sites" />
 		</aui:button-row>
 	</aui:fieldset>
-</div>
+</clay:sheet>
 
 <script>
 	function <portlet:namespace />confirmation(event) {

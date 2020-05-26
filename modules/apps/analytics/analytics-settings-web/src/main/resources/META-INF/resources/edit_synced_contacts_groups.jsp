@@ -50,11 +50,11 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(resourceBundle, "
 	</clay:row>
 </clay:container-fluid>
 
-<div class="sheet sheet-lg">
 	<h2 class="autofit-row">
 		<span class="autofit-col autofit-col-expand">
 			<liferay-ui:message key="select-contacts-by-user-groups" />
 		</span>
+<clay:sheet>
 	</h2>
 
 	<hr />
@@ -106,4 +106,4 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(resourceBundle, "
 			<aui:button href="<%= redirect %>" type="cancel" value="cancel" />
 		</aui:button-row>
 	</aui:form>
-</div>
+<clay:sheet>
