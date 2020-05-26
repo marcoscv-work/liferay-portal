@@ -30,11 +30,9 @@ GroupDisplayContext groupDisplayContext = new GroupDisplayContext("/analytics/ed
 
 <portlet:actionURL name="/analytics/edit_synced_sites" var="editSyncedSitesURL" />
 
-	<h2 class="autofit-row">
-		<span class="autofit-col autofit-col-expand">
-			<liferay-ui:message key="choose-sites-to-sync" />
-		</span>
 <clay:sheet>
+	<h2>
+		<liferay-ui:message key="choose-sites-to-sync" />
 	</h2>
 
 	<clay:management-toolbar

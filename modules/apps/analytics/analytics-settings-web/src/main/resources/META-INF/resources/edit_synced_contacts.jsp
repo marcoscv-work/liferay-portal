@@ -33,13 +33,11 @@ Set<String> syncedUserGroupIds = SetUtil.fromArray(analyticsConfiguration.synced
 
 <portlet:actionURL name="/analytics/edit_synced_contacts" var="editSyncedContactsURL" />
 
-	<h2 class="autofit-row">
-		<span class="autofit-col autofit-col-expand">
-			<liferay-ui:message key="contact-data" />
-		</span>
 <clay:sheet
 	className="portlet-analytics-settings"
 >
+	<h2>
+		<liferay-ui:message key="contact-data" />
 	</h2>
 
 	<aui:form action="<%= editSyncedContactsURL %>" method="post" name="fm">

@@ -50,19 +50,15 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(resourceBundle, "
 	</clay:row>
 </clay:container-fluid>
 
-	<h2 class="autofit-row">
-		<span class="autofit-col autofit-col-expand">
-			<liferay-ui:message key="select-contacts-by-organizations" />
-		</span>
 <clay:sheet>
+	<h2>
+		<liferay-ui:message key="select-contacts-by-organizations" />
 	</h2>
 
 	<hr />
 
-	<div class="autofit-row form-text">
-		<span class="autofit-col autofit-col-expand pb-3">
-			<liferay-ui:message key="select-contacts-by-organizations-help" />
-		</span>
+	<div class="c-pb-3 form-text">
+		<liferay-ui:message key="select-contacts-by-organizations-help" />
 	</div>
 
 	<%

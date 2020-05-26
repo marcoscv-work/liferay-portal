@@ -79,10 +79,8 @@ if (analyticsConfiguration != null) {
 		</aui:alert>
 	</c:if>
 
-	<h2 class="autofit-row">
-		<span class="autofit-col autofit-col-expand">
-			<liferay-ui:message key="connect-analytics-cloud" />
-		</span>
+	<h2>
+		<liferay-ui:message key="connect-analytics-cloud" />
 	</h2>
 
 	<aui:form action="<%= editWorkspaceConnectionURL %>" data-senna-off="true" method="post" name="fm" onSubmit='<%= renderResponse.getNamespace() + "confirmation(event);" %>'>
