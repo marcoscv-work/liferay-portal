@@ -65,14 +65,14 @@ List<RedirectEntry> redirectEntries = (List<RedirectEntry>)GetterUtil.getObject(
 					<clay:content-row
 						cssClass="sidebar-panel widget-metadata"
 					>
+
+						<%
+						User owner = UserLocalServiceUtil.fetchUser(redirectEntry.getUserId());
+						%>
+
 						<clay:content-col
 							cssClass="inline-item-before"
 						>
-
-							<%
-							User owner = UserLocalServiceUtil.fetchUser(redirectEntry.getUserId());
-							%>
-
 							<liferay-ui:user-portrait
 								size="sm"
 								user="<%= owner %>"
