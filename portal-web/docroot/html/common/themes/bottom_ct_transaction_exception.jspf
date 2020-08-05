@@ -25,12 +25,12 @@ if (SessionErrors.contains(request, CTTransactionException.class)) {
 %>
 
 <c:if test="<%= message != null %>">
-	<script>
+	<aui:script>
 		Liferay.Util.openToast({
 			autoClose: 0,
 			message: '<%= message %>',
 			title: '<liferay-ui:message key="error"/>:',
 			type: 'danger',
 		});
-	</script>
+	</aui:script>
 </c:if>
