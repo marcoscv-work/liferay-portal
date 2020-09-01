@@ -1,3 +1,17 @@
+// Buttons colors
+
+$custom-properties-button-colors: ();
+$custom-properties-button-colors: map-merge(
+	(
+		primary: $btn-primary,
+		outline-primary: $btn-outline-primary,
+		secondary: $btn-secondary,
+		outline-secondary: $btn-outline-secondary,
+		link: $btn-link,
+	),
+	$custom-properties-button-colors
+);
+
 // Spacers map copy
 
 $custom-properties-spacers: ();
@@ -20,8 +34,8 @@ $custom-properties-spacers: map-merge(
 
 // Theme colors
 
-$theme-colors-cp: ();
-$theme-colors-cp: map-deep-merge(
+$custom-properties-theme-colors: ();
+$custom-properties-theme-colors: map-merge(
 	(
 		danger: var(--danger),
 		dark: var(--dark),
@@ -34,7 +48,7 @@ $theme-colors-cp: map-deep-merge(
 		success: var(--success),
 		warning: var(--warning),
 	),
-	$theme-colors-cp
+	$custom-properties-theme-colors
 );
 
 :root {
@@ -64,6 +78,41 @@ $theme-colors-cp: map-deep-merge(
 	--border-radius: #{$border-radius};
 	--rounded-pill: #{$rounded-pill};
 
+	// Buttons
+
+	@each $key, $map in $custom-properties-button-colors {
+		@each $status in (normal, hover, focus, active, disabled) {
+			$prefix: $status + '-';
+
+			@if ($status == normal) {
+				$prefix: '';
+			}
+
+			@each $prop in (background-color, border-color, color) {
+				$alias: $prefix + $prop;
+				$btn-variable: '';
+
+				@if ($prop == background) {
+					$alias: $prefix + 'bg';
+				}
+
+				@if (map-has-key($map, #{$alias})) {
+					$btn-variable: map-get($map, #{$alias});
+				} @else if($status == normal) {
+					$btn-variable: map-get($map, #{$prop});
+				} @else {
+					$btn-variable: map-get(map-get($map, #{$status}), #{$prop});
+				}
+
+				@if ($btn-variable == null) {
+					$btn-variable: 'null';
+				}
+
+				--btn-#{$key}-#{$prefix}#{$prop}: #{$btn-variable};
+			}
+		}
+	}
+
 	// Colors
 
 	--black: #{$black};
@@ -82,20 +131,6 @@ $theme-colors-cp: map-deep-merge(
 	@each $key, $value in $theme-colors {
 		--#{$key}: #{$value};
 	}
-
-	--danger-l1: #{$danger-l1};
-	--danger-l2: #{$danger-l2};
-	--info-l1: #{$info-l1};
-	--info-l2: #{$info-l2};
-	--primary-d1: #{$primary-d1};
-	--primary-l1: #{$primary-l1};
-	--primary-l3: #{$primary-l3};
-	--secondary-d1: var(--gray-800);
-	--success-d1: #{$success-d1};
-	--success-l1: #{$success-l1};
-	--success-l2: #{$success-l2};
-	--warning-l1: #{$warning-l1};
-	--warning-l2: #{$warning-l2};
 
 	// Container max
 
