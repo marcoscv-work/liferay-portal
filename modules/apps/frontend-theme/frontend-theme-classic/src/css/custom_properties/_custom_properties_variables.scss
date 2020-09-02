@@ -11,6 +11,7 @@ $custom-properties-button-colors: map-merge(
 	),
 	$custom-properties-button-colors
 );
+$custom-properties-button-maps: ();
 
 // Spacers map copy
 
@@ -51,6 +52,75 @@ $custom-properties-theme-colors: map-merge(
 	$custom-properties-theme-colors
 );
 
+// Buttons
+
+@each $key, $map in $custom-properties-button-colors {
+	$normal: ();
+	$hover: ();
+
+	:root {
+		@each $status in (normal, hover) {
+			$prefix: $status + '-';
+
+			@if ($status == normal) {
+				$prefix: '';
+			}
+
+			@each $prop in (background-color, border-color, color) {
+				$alias: $prefix + $prop;
+				$btn-variable: '';
+
+				@if ($prop == background) {
+					$alias: $prefix + 'bg';
+				}
+
+				@if (map-has-key($map, #{$alias})) {
+					$btn-variable: map-get($map, #{$alias});
+				} @else if($status == normal) {
+					$btn-variable: map-get($map, #{$prop});
+				} @else {
+					$btn-variable: map-get(map-get($map, #{$status}), #{$prop});
+				}
+
+				@if ($btn-variable != null) {
+					--btn-#{$key}-#{$prefix}#{$prop}: #{$btn-variable};
+
+					@if ($status == normal) {
+						$normal: map-merge(
+							(#{$prop}: var(--btn-#{$key}-#{$prop})),
+							$normal
+						);
+					} @else {
+						$hover: map-merge(
+							(#{$prop}: var(--btn-#{$key}-#{$prop})),
+							$hover
+						);
+					}
+				}
+			}
+		}
+	}
+
+	@if ($hover) {
+		$normal: map-merge(
+			(
+				hover: $hover,
+				focus: $hover,
+				active: $hover,
+				disabled: $hover,
+			),
+			$normal
+		);
+	}
+
+	@if ($normal) {
+		$custom-properties-button-maps: map-merge(
+			(#{$key}: $normal),
+			$custom-properties-button-maps
+		);
+	}
+}
+
 :root {
 	// Aspect ratios
 
@@ -77,37 +147,6 @@ $custom-properties-theme-colors: map-merge(
 	--border-radius-sm: #{$border-radius-sm};
 	--border-radius: #{$border-radius};
 	--rounded-pill: #{$rounded-pill};
-
-	// Buttons
-
-	@each $key, $map in $custom-properties-button-colors {
-		@each $status in (normal, hover) {
-			$prefix: $status + '-';
-
-			@if ($status == normal) {
-				$prefix: '';
-			}
-
-			@each $prop in (background-color, border-color, color) {
-				$alias: $prefix + $prop;
-				$btn-variable: '';
-
-				@if ($prop == background) {
-					$alias: $prefix + 'bg';
-				}
-
-				@if (map-has-key($map, #{$alias})) {
-					$btn-variable: map-get($map, #{$alias});
-				} @else if($status == normal) {
-					$btn-variable: map-get($map, #{$prop});
-				} @else {
-					$btn-variable: map-get(map-get($map, #{$status}), #{$prop});
-				}
-
-				--btn-#{$key}-#{$prefix}#{$prop}: #{$btn-variable};
-			}
-		}
-	}
 
 	// Colors
 

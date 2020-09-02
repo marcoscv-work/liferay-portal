@@ -51,35 +51,9 @@ body,
 
 // Buttons
 
-@each $key, $value in $custom-properties-button-colors {
+@each $key, $map in $custom-properties-button-maps {
 	.btn-#{$key} {
-		@include clay-button-variant(
-			(
-				background-color: var(--btn-#{$key}-background-color),
-				border-color: var(--btn-#{$key}-border-color),
-				color: var(--btn-#{$key}-color),
-				hover: (
-					background-color: var(--btn-#{$key}-hover-background-color),
-					border-color: var(--btn-#{$key}-hover-border-color),
-					color: var(--btn-#{$key}-hover-color),
-				),
-				focus: (
-					background-color: var(--btn-#{$key}-hover-background-color),
-					border-color: var(--btn-#{$key}-hover-border-color),
-					color: var(--btn-#{$key}-hover-color),
-				),
-				active: (
-					background-color: var(--btn-#{$key}-hover-background-color),
-					border-color: var(--btn-#{$key}-hover-border-color),
-					color: var(--btn-#{$key}-hover-color),
-				),
-				disabled: (
-					background-color: var(--btn-#{$key}-hover-background-color),
-					border-color: var(--btn-#{$key}-hover-border-color),
-					color: var(--btn-#{$key}-hover-color),
-				),
-			)
-		);
+		@include clay-button-variant($map);
 	}
 }
 
