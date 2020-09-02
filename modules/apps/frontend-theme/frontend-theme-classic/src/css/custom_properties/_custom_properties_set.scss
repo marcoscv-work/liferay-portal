@@ -64,14 +64,19 @@ body,
 					color: var(--btn-#{$key}-hover-color),
 				),
 				focus: (
-					background-color: var(--btn-#{$key}-focus-background-color),
-					border-color: var(--btn-#{$key}-focus-border-color),
-					color: var(--btn-#{$key}-focus-color),
+					background-color: var(--btn-#{$key}-hover-background-color),
+					border-color: var(--btn-#{$key}-hover-border-color),
+					color: var(--btn-#{$key}-hover-color),
 				),
 				active: (
-					background-color: var(--btn-#{$key}-active-background-color),
-					border-color: var(--btn-#{$key}-active-border-color),
-					color: var(--btn-#{$key}-active-color),
+					background-color: var(--btn-#{$key}-hover-background-color),
+					border-color: var(--btn-#{$key}-hover-border-color),
+					color: var(--btn-#{$key}-hover-color),
+				),
+				disabled: (
+					background-color: var(--btn-#{$key}-hover-background-color),
+					border-color: var(--btn-#{$key}-hover-border-color),
+					color: var(--btn-#{$key}-hover-color),
 				),
 			)
 		);

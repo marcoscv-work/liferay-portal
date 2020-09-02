@@ -81,7 +81,7 @@ $custom-properties-theme-colors: map-merge(
 	// Buttons
 
 	@each $key, $map in $custom-properties-button-colors {
-		@each $status in (normal, hover, focus, active, disabled) {
+		@each $status in (normal, hover) {
 			$prefix: $status + '-';
 
 			@if ($status == normal) {
@@ -102,10 +102,6 @@ $custom-properties-theme-colors: map-merge(
 					$btn-variable: map-get($map, #{$prop});
 				} @else {
 					$btn-variable: map-get(map-get($map, #{$status}), #{$prop});
-				}
-
-				@if ($btn-variable == null) {
-					$btn-variable: 'null';
 				}
 
 				--btn-#{$key}-#{$prefix}#{$prop}: #{$btn-variable};
