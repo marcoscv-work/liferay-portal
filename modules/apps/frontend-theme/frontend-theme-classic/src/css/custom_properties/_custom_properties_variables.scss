@@ -92,7 +92,7 @@ $custom-properties-theme-colors: map-merge(
 						);
 					} @else {
 						$hover: map-merge(
-							(#{$prop}: var(--btn-#{$key}-#{$prop})),
+							(#{$prop}: var(--btn-#{$key}-#{$prefix}#{$prop})),
 							$hover
 						);
 					}
