@@ -70,7 +70,7 @@ $custom-properties-theme-colors: map-merge(
 				$alias: $prefix + $prop;
 				$btn-variable: '';
 
-				@if ($prop == background) {
+				@if ($prop == background-color) {
 					$alias: $prefix + 'bg';
 				}
 
