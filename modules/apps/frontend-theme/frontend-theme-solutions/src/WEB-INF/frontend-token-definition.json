@@ -5,6 +5,342 @@
 				{
 					"frontendTokens": [
 						{
+							"defaultValue": "#5924EB",
+							"editorType": "ColorPicker",
+							"label": "action-primary-default",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-primary-default"
+								}
+							],
+							"name": "actionPrimaryDefault",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#4429B3",
+							"editorType": "ColorPicker",
+							"label": "action-primary-hover",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-primary-hover"
+								}
+							],
+							"name": "actionPrimaryHover",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#3C249E",
+							"editorType": "ColorPicker",
+							"label": "action-primary-active",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-primary-active"
+								}
+							],
+							"name": "actionPrimaryActive",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#4D2EC980",
+							"editorType": "ColorPicker",
+							"label": "action-primary-disabled",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-primary-disabled"
+								}
+							],
+							"name": "actionPrimaryDisabled",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#4429B3F9",
+							"editorType": "ColorPicker",
+							"label": "action-primary-hover-10",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-primary-hover-10"
+								}
+							],
+							"name": "actionPrimaryHover10",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#3C249EEF",
+							"editorType": "ColorPicker",
+							"label": "action-primary-active-20",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-primary-active-20"
+								}
+							],
+							"name": "actionPrimaryActive20",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#FFF",
+							"editorType": "ColorPicker",
+							"label": "action-primary-inverted",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-primary-inverted"
+								}
+							],
+							"name": "actionPrimaryInverted",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#5E38BA",
+							"editorType": "ColorPicker",
+							"label": "action-primary-visited",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-primary-visited"
+								}
+							],
+							"name": "actionPrimaryVisited",
+							"type": "String"
+						}
+					],
+					"label": "primary-actions",
+					"name": "actionPrimary"
+				},
+				{
+					"frontendTokens": [
+						{
+							"defaultValue": "#ED7105",
+							"editorType": "ColorPicker",
+							"label": "action-secondary-default",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-secondary-default"
+								}
+							],
+							"name": "actionSecondaryDefault",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#D26404",
+							"editorType": "ColorPicker",
+							"label": "action-secondary-hover",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-secondary-hover"
+								}
+							],
+							"name": "actionSecondaryHover",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#B95804",
+							"editorType": "ColorPicker",
+							"label": "action-secondary-active",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-secondary-active"
+								}
+							],
+							"name": "actionSecondaryActive",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#ED710580",
+							"editorType": "ColorPicker",
+							"label": "action-secondary-disabled",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-secondary-disabled"
+								}
+							],
+							"name": "actionSecondaryDisabled",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#D26404E6",
+							"editorType": "ColorPicker",
+							"label": "action-secondary-hover-10",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-secondary-hover-10"
+								}
+							],
+							"name": "actionSecondaryHover10",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#B95804CD",
+							"editorType": "ColorPicker",
+							"label": "action-secondary-active-20",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-secondary-active-20"
+								}
+							],
+							"name": "actionSecondaryActive20",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#FFF",
+							"editorType": "ColorPicker",
+							"label": "action-secondary-inverted",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-secondary-inverted"
+								}
+							],
+							"name": "actionSecondaryInverted",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#5E38BA",
+							"editorType": "ColorPicker",
+							"label": "action-secondary-visited",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-secondary-visited"
+								}
+							],
+							"name": "actionSecondaryVisited",
+							"type": "String"
+						}
+					],
+					"label": "secondary-actions",
+					"name": "actionSecondary"
+				},
+				{
+					"frontendTokens": [
+						{
+							"defaultValue": "#2B3A4B",
+							"editorType": "ColorPicker",
+							"label": "action-neutral-default",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-neutral-default"
+								}
+							],
+							"name": "actionNeutralDefault",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#34465B",
+							"editorType": "ColorPicker",
+							"label": "action-neutral-hover",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-neutral-hover"
+								}
+							],
+							"name": "actionNeutralHover",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#3D536B",
+							"editorType": "ColorPicker",
+							"label": "action-neutral-active",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-neutral-active"
+								}
+							],
+							"name": "actionNeutralActive",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#2B3A4B80",
+							"editorType": "ColorPicker",
+							"label": "action-neutral-disabled",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-neutral-disabled"
+								}
+							],
+							"name": "actionNeutralDisabled",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#2B3A4BE6",
+							"editorType": "ColorPicker",
+							"label": "action-neutral-hover-10",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-neutral-hover-10"
+								}
+							],
+							"name": "actionNeutralHover10",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#2B3A4BCD",
+							"editorType": "ColorPicker",
+							"label": "action-neutral-active-20",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-neutral-active-20"
+								}
+							],
+							"name": "actionNeutralActive20",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#FFF",
+							"editorType": "ColorPicker",
+							"label": "action-neutral-inverted",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-neutral-inverted"
+								}
+							],
+							"name": "actionNeutralInverted",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#5E38BA",
+							"editorType": "ColorPicker",
+							"label": "action-neutral-visited",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-neutral-visited"
+								}
+							],
+							"name": "actionNeutralVisited",
+							"type": "String"
+						}
+					],
+					"label": "neutral-actions",
+					"name": "actionNeutral"
+				}
+			],
+			"label": "dialect-actions",
+			"name": "dialectActions"
+		},
+		{
+			"frontendTokenSets": [
+				{
+					"frontendTokens": [
+						{
 							"defaultValue": "#fff",
 							"editorType": "ColorPicker",
 							"label": "white",
