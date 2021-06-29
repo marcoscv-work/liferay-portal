@@ -491,15 +491,15 @@
 	}
 
 	&.btn-primary {
-		@include elevation("tight-4", $action-primary-disabled);
+		box-shadow: $elevation-tight-4 $action-primary-disabled;
 	}
 
 	&.btn-secondary {
-		@include elevation("tight-4", $action-secondary-disabled);
+		box-shadow: $elevation-tight-4 $action-secondary-disabled;
 	}
 
 	&.btn-neutral {
-		@include elevation("tight-4", $action-neutral-disabled);
+		box-shadow: $elevation-tight-4 $action-neutral-disabled;
 	}
 }
 
