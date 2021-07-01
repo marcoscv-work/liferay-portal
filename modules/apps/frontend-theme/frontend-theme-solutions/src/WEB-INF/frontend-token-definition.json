@@ -96,6 +96,32 @@
 							"type": "String"
 						},
 						{
+							"defaultValue": "#FFFFFF19",
+							"editorType": "ColorPicker",
+							"label": "action-primary-inverted-hover",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-primary-inverted-hover"
+								}
+							],
+							"name": "actionPrimaryInvertedHover",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#FFFFFF80",
+							"editorType": "ColorPicker",
+							"label": "action-primary-inverted-disabled",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-primary-inverted-disabled"
+								}
+							],
+							"name": "actionPrimaryInvertedDisabled",
+							"type": "String"
+						},
+						{
 							"defaultValue": "#5E38BA",
 							"editorType": "ColorPicker",
 							"label": "action-primary-visited",
@@ -206,6 +232,32 @@
 							"type": "String"
 						},
 						{
+							"defaultValue": "#FFFFFF19",
+							"editorType": "ColorPicker",
+							"label": "action-secondary-inverted-hover",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-secondary-inverted-hover"
+								}
+							],
+							"name": "actionSecondaryInvertedHover",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#FFFFFF80",
+							"editorType": "ColorPicker",
+							"label": "action-secondary-inverted-disabled",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-secondary-inverted-disabled"
+								}
+							],
+							"name": "actionSecondaryInvertedDisabled",
+							"type": "String"
+						},
+						{
 							"defaultValue": "#5E38BA",
 							"editorType": "ColorPicker",
 							"label": "action-secondary-visited",
@@ -313,6 +365,32 @@
 								}
 							],
 							"name": "actionNeutralInverted",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#FFFFFF19",
+							"editorType": "ColorPicker",
+							"label": "action-neutral-inverted-hover",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-neutral-inverted-hover"
+								}
+							],
+							"name": "actionNeutralInvertedHover",
+							"type": "String"
+						},
+						{
+							"defaultValue": "#FFFFFF80",
+							"editorType": "ColorPicker",
+							"label": "action-neutral-inverted-disabled",
+							"mappings": [
+								{
+									"type": "cssVariable",
+									"value": "action-neutral-inverted-disabled"
+								}
+							],
+							"name": "actionNeutralInvertedDisabled",
 							"type": "String"
 						},
 						{

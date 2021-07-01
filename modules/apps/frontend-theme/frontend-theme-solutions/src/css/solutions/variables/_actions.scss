@@ -7,6 +7,8 @@ $action-primary-disabled: var(--action-primary-disabled, #4D2EC980);
 $action-primary-hover-10: var(--action-primary-hover-10, #4429B3F9);
 $action-primary-active-20: var(--action-primary-active-20, #3C249EEF);
 $action-primary-inverted: var(--action-primary-inverted, #FFF);
+$action-primary-inverted-hover: var(--action-primary-inverted-hover, #FFFFFF19);
+$action-primary-inverted-disabled: var(--action-primary-inverted-disabled, #FFFFFF80);
 $action-primary-visited: var(--action-primary-visited, #5E38BA);
 
 // Action Secondary
@@ -18,6 +20,8 @@ $action-secondary-disabled: var(--action-secondary-disabled, #ED710580);
 $action-secondary-hover-10: var(--action-secondary-hover-10, #D26404E6);
 $action-secondary-active-20: var(--action-secondary-active-20, #B95804CD);
 $action-secondary-inverted: var(--action-secondary-inverted, #FFF);
+$action-secondary-inverted-hover: var(--action-secondary-inverted-hover, #FFFFFF19);
+$action-secondary-inverted-disabled: var(--action-secondary-inverted-disabled, #FFFFFF80);
 $action-secondary-visited: var(--action-secondary-visited, #5E38BA);
 
 // Action Neutral
@@ -29,4 +33,6 @@ $action-neutral-disabled: var(--action-neutral-disabled, #2B3A4B80);
 $action-neutral-hover-10: var(--action-neutral-hover-10, #2B3A4BE6);
 $action-neutral-active-20: var(--action-neutral-active-20, #2B3A4BCD);
 $action-neutral-inverted: var(--action-neutral-inverted, #FFF);
+$action-neutral-inverted-hover: var(--action-neutral-inverted-hover, #FFFFFF19);
+$action-neutral-inverted-disabled: var(--action-neutral-inverted-disabled, #FFFFFF80);
 $action-neutral-visited: var(--action-neutral-visited, #5E38BA);
