@@ -409,7 +409,7 @@ const ValidationDate = ({
 						{label !== '' && (
 							<>
 								<label>{label.toUpperCase()}</label>
-								<div className="separator" />
+								<hr />
 							</>
 						)}
 
