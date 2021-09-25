@@ -104,9 +104,10 @@
 	}
 
 	function copySiteName(event) {
-		console.log(event);
-		debugger;
-		from = document.getElementById("lod");
+		copyFrom = document.getElementById("sn");
+		copyTo = document.getElementById("lod");
+
+		copyTo.value = copyFrom.value + ".liferay.online"
 	}
 
 	function openItem(itemID, cpInstanceId, commerceChannelId, commerceAccountId) {
@@ -116,7 +117,7 @@
 			bodyHTML: `<div class="form-group">
 					<label for="sn">Site name</label>
 
-					<input class="form-control" id="sn" onKeyUp="copySiteName()" placeholder="Site name" type="text" />
+					<input class="form-control" id="sn" maxlength="30" onKeyUp="copySiteName()" placeholder="Site name" type="text" />
 				</div>
 
 				<div class="form-group">
