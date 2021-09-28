@@ -13,3 +13,11 @@
 .commerce-orders-container .dnd-tr.with-bg {
 	background-color: transparent;
 }
+
+.my-subscriptions-portlet .table-list {
+	border-style: none;
+}
+
+.my-subscriptions-portlet .management-bar {
+	display: none;
+}
