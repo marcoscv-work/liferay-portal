@@ -138,7 +138,10 @@
 								id: 'selectStarterkit',
 							}
 						);
-						createOrder(cpInstanceId, commerceChannelId, commerceAccountId);
+
+						var domainName = document.getElementById("sn").value;
+
+						createOrder(cpInstanceId, commerceChannelId, commerceAccountId, domainName);
 					},
 				},
 			],

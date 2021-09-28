@@ -12,14 +12,15 @@
  * details.
  */
 
-function createOrder(cpInstanceId, commerceChannelId, commerceAccountId) {
+function createOrder(cpInstanceId, commerceChannelId, commerceAccountId, domainName) {
 
 	// console.log('Account ID: ' + commerceAccountId);
 	// console.log('Channel ID: ' + commerceChannelId);
 	// console.log('Instance ID: ' + cpInstanceId);
+	// console.log('Domain name: ' + domainName);
 
 	Liferay.Util.fetch(
-		'http://localhost:8080/o/headless-commerce-admin-order/v1.0/orders',
+		`http://localhost:8080/o/headless-commerce-delivery-cart/v1.0/channels/${commerceChannelId}/carts`,
 		{
 			body: JSON.stringify({
 				accountId: commerceAccountId,
@@ -36,14 +37,18 @@ function createOrder(cpInstanceId, commerceChannelId, commerceAccountId) {
 		.then((response) => response.json())
 		.then((data) => {
 
-			// console.log('Order ID: ' + data.id);
+			var cartId = data.id;
+
+			// console.log('Cart ID: ' + cartId);
 
 			return Liferay.Util.fetch(
-				`http://localhost:8080/o/headless-commerce-admin-order/v1.0/orders/${data.id}/orderItems`,
+				`http://localhost:8080/o/headless-commerce-delivery-cart/v1.0/carts/${cartId}/items`,
 				{
 					body: JSON.stringify({
 						quantity: 1,
 						skuId: cpInstanceId,
+						subscription: true,
+						options: "[{\"key\":\"domain\",\"value\":[\""+domainName+"\"]}]"
 					}),
 					headers: {
 						Accept: 'application/json',
@@ -51,7 +56,26 @@ function createOrder(cpInstanceId, commerceChannelId, commerceAccountId) {
 					},
 					method: 'POST',
 				}
-			).then((response) => response.json());
+			)
+				.then((response) => response.json())
+				.then((data) => {
+					// console.log(data);
+
+					return Liferay.Util.fetch(
+						`http://localhost:8080/o/headless-commerce-delivery-cart/v1.0/carts/${cartId}/checkout`,
+						{
+							headers: {
+								Accept: 'application/json',
+								'Content-Type': 'application/json',
+							},
+							method: 'POST',
+						}
+					)
+				})
+					.then((response) => response.json())
+					.then((data) => {
+						console.log(data)
+					})
 		})
 		.catch((error) => {
 			var errorMsg = 'Sorry, an error occured ' + error;
