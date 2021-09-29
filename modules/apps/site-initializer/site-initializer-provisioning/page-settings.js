@@ -12,7 +12,12 @@
  * details.
  */
 
-function createOrder(cpInstanceId, commerceChannelId, commerceAccountId, domainName) {
+function createOrder(
+	cpInstanceId,
+	commerceChannelId,
+	commerceAccountId,
+	domainName
+) {
 
 	// console.log('Account ID: ' + commerceAccountId);
 	// console.log('Channel ID: ' + commerceChannelId);
@@ -36,7 +41,6 @@ function createOrder(cpInstanceId, commerceChannelId, commerceAccountId, domainN
 	)
 		.then((response) => response.json())
 		.then((data) => {
-
 			var cartId = data.id;
 
 			// console.log('Cart ID: ' + cartId);
@@ -48,7 +52,8 @@ function createOrder(cpInstanceId, commerceChannelId, commerceAccountId, domainN
 						quantity: 1,
 						skuId: cpInstanceId,
 						subscription: true,
-						options: "[{\"key\":\"domain\",\"value\":[\""+domainName+"\"]}]"
+						options:
+							'[{"key":"domain","value":["' + domainName + '"]}]',
 					}),
 					headers: {
 						Accept: 'application/json',
@@ -59,6 +64,7 @@ function createOrder(cpInstanceId, commerceChannelId, commerceAccountId, domainN
 			)
 				.then((response) => response.json())
 				.then((data) => {
+
 					// console.log(data);
 
 					return Liferay.Util.fetch(
@@ -70,12 +76,12 @@ function createOrder(cpInstanceId, commerceChannelId, commerceAccountId, domainN
 							},
 							method: 'POST',
 						}
-					)
+					);
 				})
-					.then((response) => response.json())
-					.then((data) => {
-						console.log(data)
-					})
+				.then((response) => response.json())
+				.then((data) => {
+					console.log(data);
+				});
 		})
 		.catch((error) => {
 			var errorMsg = 'Sorry, an error occured ' + error;
