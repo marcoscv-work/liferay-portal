@@ -95,6 +95,8 @@
 <script>
 	var items = document.getElementsByClassName("provisioning-item");
 
+	var copySaved = "";
+
 	function addActiveClass(event) {
 		event.target.classList.add("active");
 	}
@@ -104,18 +106,40 @@
 	}
 
 	function copySiteName(event) {
+		var letterNumber = /^[0-9a-zA-Z]+$/;
+
 		copyFrom = document.getElementById("sn");
 		copyTo = document.getElementById("lod");
+		snGroup = document.getElementById("snGroup");
+		createSite = document.getElementById("createSite");
 
-		copyTo.value = copyFrom.value + ".liferay.online"
+		if (copyFrom.value.match(letterNumber)) {
+			copyTo.value = copyFrom.value.toLowerCase() + ".liferay.online"
+			copySaved = copyFrom.value;
+		} else if (copyFrom.value === "") {
+			copySaved = "";
+			copyTo.value = "liferay.online"
+		} else {
+			copyFrom.value = copySaved;
+		}
+
+		if (copyFrom.value.length < 5) {
+			snGroup.classList.add("has-error");
+			createSite.disabled = true;
+		} else {
+			snGroup.classList.remove("has-error");
+			createSite.disabled = false;
+		}
 	}
 
 	function openItem(itemID, cpInstanceId, commerceChannelId, commerceAccountId) {
 		Liferay.Util.openModal({
 			id: 'selectStarterkit',
 			title: 'Select your starterkit',
-			bodyHTML: `<div class="form-group">
-					<label for="sn">Site name</label>
+			bodyHTML: `<div class="form-group" id="snGroup">
+					<label for="sn">Site name
+						<small> (more than 4 characters)</small>
+					</label>
 
 					<input class="form-control" id="sn" maxlength="30" onKeyUp="copySiteName()" placeholder="Site name" type="text" />
 				</div>
@@ -123,14 +147,28 @@
 				<div class="form-group">
 					<label for="lod">Liferay Online Domain</label>
 
-					<input class="form-control"	disabled id="lod" placeholder="liferay.online" type="text" />
+					<input class="form-control" readonly id="lod" placeholder="liferay.online" type="text" />
 				</div>
 
 				<p class="alert alert-feedback alert-info">You can later manage custom domains from site settings.</p>
 			`,
 			size: 'md',
-			buttons: [{
+			buttons: [
+				{
+					displayType: 'secondary',
+					label: Liferay.Language.get('Cancel'),
+					onClick: function () {
+						Liferay.Util.getOpener().Liferay.fire(
+							'closeModal',
+							{
+								id: 'selectStarterkit',
+							}
+						);
+					},
+				},
+				{
 					label: 'Select',
+					id: 'createSite',
 					onClick: function () {
 						Liferay.Util.getOpener().Liferay.fire(
 							'closeModal',
@@ -145,6 +183,9 @@
 					},
 				},
 			],
+			onOpen: function () {
+				document.getElementById("createSite").disabled = true;
+			},
 		});
 	}
 </script>
