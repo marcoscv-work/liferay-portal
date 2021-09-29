@@ -1,7 +1,25 @@
 <#assign
 	image = cpCatalogEntry.getDefaultImageFileUrl()
+
 	name = cpCatalogEntry.getName()
+
 	description = cpCatalogEntry.getDescription()
+
+	commerceContext = request.getAttribute("COMMERCE_CONTEXT")
+
+	commerceChannelId = commerceContext.getCommerceChannelId()
+
+	commerceAccount = commerceContext.getCommerceAccount()
+
+	commerceAccountId = commerceAccount.getCommerceAccountId()
+
+	itemID = cpCatalogEntry.CPDefinitionId
+
+	cpSkus = cpCatalogEntry.getCPSkus()
+
+	cpSku = cpSkus?first
+
+	cpInstanceId = cpSku.getCPInstanceId()
 />
 
 <div class="d-flex mb-6">
@@ -18,7 +36,7 @@
 	</div>
 
 	<div>
-		<a class="btn btn-primary" href="javascript:history.back()">
+		<a class="btn btn-primary" href="javascript:openItem(${itemID},${cpInstanceId},${commerceChannelId},${commerceAccountId})">
 			Start with this starterkit
 		</a>
 	</div>
