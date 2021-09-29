@@ -274,6 +274,18 @@ module.exports = {
 					'item-selector-taglib': {
 						'/': '*',
 					},
+					'liferay-frontend-css-shared': {
+						'/': '*',
+					},
+					'map-common': {
+						'/': '*',
+					},
+					'map-google-maps': {
+						'/': '*',
+					},
+					'map-openstreetmap': {
+						'/': '*',
+					},
 				},
 			},
 			exclude: {

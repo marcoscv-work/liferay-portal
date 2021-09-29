@@ -129,3 +129,5 @@ else {
 		submitForm(document.<portlet:namespace />fm);
 	});
 </aui:script>
+
+<liferay-frontend:stylesheet bundle="com.liferay.frontend.css.shared" css="form_control_inline.css" />
