@@ -24,8 +24,7 @@
 			<tbody>
 				<tr>
 					<td class="border-0">
-						<img src="${cpDefinition.getDefaultImageThumbnailSrc()}" width="80"/>
-						<span class="sr-only">${commerceOrderItem.getName()}</span>
+						<img src="${cpDefinition.getDefaultImageThumbnailSrc()}" width="80" title="${commerceOrderItem.getName(locale)}"/>
 					</td>
 					<td class="border-0">
 						${commerceOrderContentDisplayContext.getCommerceOrderDate(commerceOrder)}${commerceOrderContentDisplayContext.getCommerceOrderTime(commerceOrder)}
