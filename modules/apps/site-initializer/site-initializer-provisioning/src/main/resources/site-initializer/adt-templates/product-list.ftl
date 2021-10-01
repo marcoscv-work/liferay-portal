@@ -63,7 +63,7 @@
 								</div>
 
 								<div class="mt-1">
-									<a class="btn btn-primary" href="javascript:openItem(${itemID},${cpInstanceId},${commerceChannelId},${commerceAccountId})">
+									<a class="btn btn-primary" href="javascript:openItem(${cpInstanceId},${commerceChannelId},${commerceAccountId})">
 										Select
 									</a>
 								</div>

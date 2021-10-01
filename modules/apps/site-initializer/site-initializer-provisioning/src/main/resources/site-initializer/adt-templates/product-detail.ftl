@@ -36,7 +36,7 @@
 	</div>
 
 	<div>
-		<a class="btn btn-primary" href="javascript:openItem(${itemID},${cpInstanceId},${commerceChannelId},${commerceAccountId})">
+		<a class="btn btn-primary" href="javascript:openItem(${cpInstanceId},${commerceChannelId},${commerceAccountId})">
 			Start with this starterkit
 		</a>
 	</div>

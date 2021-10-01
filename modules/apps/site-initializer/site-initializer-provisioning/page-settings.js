@@ -18,7 +18,7 @@
 
  if (starterkitList) {
 	 function addActiveClass(event) {
-		 event.target.classList.add("active");
+		 event.target.classList.add("	active");
 	 }
 
 	 for (var i = 0, len = starterkitList.length; i < len; i++) {
@@ -53,7 +53,7 @@
 	 }
  }
 
- function openItem(itemID, cpInstanceId, commerceChannelId, commerceAccountId) {
+ function openItem(cpInstanceId, commerceChannelId, commerceAccountId) {
 	 Liferay.Util.openModal({
 		 id: 'selectStarterkit',
 		 title: 'Select your starterkit',
@@ -98,9 +98,10 @@
 						 }
 					 );
 
-					 var domainName = document.getElementById("sn").value;
+					 var domainName = document.getElementById("lod").value;
+					 var siteName = document.getElementById("sn").value;
 
-					 createOrder(cpInstanceId, commerceChannelId, commerceAccountId, domainName);
+					 createOrder(cpInstanceId, commerceChannelId, commerceAccountId, domainName, siteName);
 				 },
 			 },
 		 ],
@@ -114,13 +115,15 @@ function createOrder(
 	cpInstanceId,
 	commerceChannelId,
 	commerceAccountId,
-	domainName
+	domainName,
+	siteName
 ) {
 
 	// console.log('Account ID: ' + commerceAccountId);
 	// console.log('Channel ID: ' + commerceChannelId);
 	// console.log('Instance ID: ' + cpInstanceId);
 	// console.log('Domain name: ' + domainName);
+	// console.log('Site name: ' + siteName);
 
 	Liferay.Util.fetch(
 		`http://localhost:8080/o/headless-commerce-delivery-cart/v1.0/channels/${commerceChannelId}/carts`,
@@ -151,7 +154,7 @@ function createOrder(
 						skuId: cpInstanceId,
 						subscription: true,
 						options:
-							'[{"key":"domain","value":["' + domainName + '"]}]',
+							'[{"key":"domain","value":["' + domainName + '"]},{"key":"name","value":["' + siteName + '"]}]',
 					}),
 					headers: {
 						Accept: 'application/json',
@@ -163,7 +166,7 @@ function createOrder(
 				.then((response) => response.json())
 				.then((data) => {
 
-					// console.log(data);
+					console.log(data);
 
 					return Liferay.Util.fetch(
 						`http://localhost:8080/o/headless-commerce-delivery-cart/v1.0/carts/${cartId}/checkout`,
