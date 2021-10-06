@@ -1,3 +1,5 @@
+<h1 class="pb-3 pb-lg-6">My subscription</h1>
+
 <#if entries?has_content>
 	<#assign
 		commerceOrder = entries?first
