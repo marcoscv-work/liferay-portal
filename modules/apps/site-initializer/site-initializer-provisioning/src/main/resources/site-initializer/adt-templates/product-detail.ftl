@@ -20,6 +20,8 @@
 	cpSku = cpSkus?first
 
 	cpInstanceId = cpSku.getCPInstanceId()
+
+	group_id = themeDisplay.getLayout().getGroupId()
 />
 
 <div class="d-flex mb-6">
@@ -36,7 +38,7 @@
 	</div>
 
 	<div>
-		<a class="btn btn-primary" href="javascript:openItem(${cpInstanceId},${commerceChannelId},${commerceAccountId})">
+		<a class="btn btn-primary" href="javascript:openItem(${cpInstanceId},${commerceChannelId},${commerceAccountId},${group_id}))">
 			Start with this starterkit
 		</a>
 	</div>

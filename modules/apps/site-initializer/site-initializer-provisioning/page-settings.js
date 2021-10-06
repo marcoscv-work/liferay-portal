@@ -56,7 +56,7 @@ function copySiteName() {
 	}
 }
 
-function openItem(cpInstanceId, commerceChannelId, commerceAccountId) {
+function openItem(cpInstanceId, commerceChannelId, commerceAccountId, groupId) {
 	Liferay.Util.openModal({
 		id: 'selectStarterkit',
 		title: 'Select your starterkit',
@@ -103,7 +103,8 @@ function openItem(cpInstanceId, commerceChannelId, commerceAccountId) {
 						commerceChannelId,
 						commerceAccountId,
 						domainName,
-						siteName
+						siteName,
+						groupId
 					);
 				},
 			},
@@ -119,7 +120,8 @@ function createOrder(
 	commerceChannelId,
 	commerceAccountId,
 	domainName,
-	siteName
+	siteName,
+	groupId
 ) {
 
 	// console.log('Account ID: ' + commerceAccountId);
@@ -146,6 +148,8 @@ function createOrder(
 		.then((response) => response.json())
 		.then((data) => {
 			var cartId = data.id;
+
+			console.log(data);
 
 			// console.log('Cart ID: ' + cartId);
 
@@ -188,6 +192,14 @@ function createOrder(
 				.then((response) => response.json())
 				.then((data) => {
 					console.log(data);
+
+					var orderUUID = data.orderUUID;
+
+					var url = "http://localhost:8080/o/commerce-payment?groupId=" + groupId + "&uuid=" + orderUUID + "&nextStep=http%3A//localhost%3A8080/web/blank/my-site";
+
+					alert("Order completed! you will be redirected to your dashboard");
+
+					window.location.href = url;
 				});
 		})
 		.catch((error) => {

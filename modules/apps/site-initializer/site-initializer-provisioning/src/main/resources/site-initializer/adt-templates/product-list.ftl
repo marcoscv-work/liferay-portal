@@ -46,6 +46,8 @@
 					cpSku = cpSkus?first
 
 					cpInstanceId = cpSku.getCPInstanceId()
+
+					group_id = themeDisplay.getLayout().getGroupId()
 				/>
 
 				<div class="col-md-4 mb-5">
@@ -63,7 +65,7 @@
 								</div>
 
 								<div class="mt-1">
-									<a class="btn btn-primary" href="javascript:openItem(${cpInstanceId},${commerceChannelId},${commerceAccountId})">
+									<a class="btn btn-primary" href="javascript:openItem(${cpInstanceId},${commerceChannelId},${commerceAccountId},${group_id})">
 										Select
 									</a>
 								</div>
