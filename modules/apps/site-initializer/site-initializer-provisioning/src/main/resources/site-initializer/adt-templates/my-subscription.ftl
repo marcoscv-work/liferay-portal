@@ -23,10 +23,11 @@
 					<th>Current status:</th>
 				</tr>
 			</thead>
+
 			<tbody>
 				<tr>
 					<td class="border-0">
-						<img src="${cpDefinition.getDefaultImageThumbnailSrc()}" width="80" title="${commerceOrderItem.getName(locale)}"/>
+						<img src="${cpDefinition.getDefaultImageThumbnailSrc()}" title="${commerceOrderItem.getName(locale)}" width="80" />
 					</td>
 					<td class="border-0">
 						${commerceOrderContentDisplayContext.getCommerceOrderDate(commerceOrder)}${commerceOrderContentDisplayContext.getCommerceOrderTime(commerceOrder)}
@@ -42,7 +43,6 @@
 		</table>
 	</#if>
 </#if>
-
 
 <#function getJsonKeyValue json key>
 	<#if validator.isNotNull(json)>

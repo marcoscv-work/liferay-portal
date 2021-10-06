@@ -46,13 +46,13 @@
 					<small> (more than 4 characters)</small>
 				</label>
 
-				<input class="form-control" readonly="" id="sn" type="text" value="${getJsonKeyValue(json, 'name')}">
+				<input class="form-control" id="sn" readonly="" type="text" value="${getJsonKeyValue(json, 'name')}">
 			</div>
 
 			<div class="form-group">
 				<label for="lod">Liferay Online Domain</label>
 
-				<input class="form-control" readonly="" id="lod" type="text" value="${getJsonKeyValue(json, 'domain')}">
+				<input class="form-control" id="lod" readonly="" type="text" value="${getJsonKeyValue(json, 'domain')}">
 			</div>
 		</form>
 	</#if>
