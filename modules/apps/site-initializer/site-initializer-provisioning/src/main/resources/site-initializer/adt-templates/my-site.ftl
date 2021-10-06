@@ -30,7 +30,7 @@
 				</span>
 			</div>
 
-			<a href="<@getDomain json/>" target="_blank">
+			<a href="http://${getJsonKeyValue(json, 'domain')}" target="_blank">
 				Go to site
 
 				<@liferay_ui["icon"]
@@ -46,26 +46,28 @@
 					<small> (more than 4 characters)</small>
 				</label>
 
-				<input class="form-control" readonly="" id="sn" type="text" value="commerceOrderItem.getName(locale)">
+				<input class="form-control" readonly="" id="sn" type="text" value="${getJsonKeyValue(json, 'name')}">
 			</div>
 
 			<div class="form-group">
 				<label for="lod">Liferay Online Domain</label>
 
-				<input class="form-control" readonly="" id="lod" type="text" value="<@getDomain json/>">
+				<input class="form-control" readonly="" id="lod" type="text" value="${getJsonKeyValue(json, 'domain')}">
 			</div>
 		</form>
 	</#if>
 </#if>
 
-<#macro getDomain json>
+<#function getJsonKeyValue json key>
 	<#if validator.isNotNull(json)>
 		<#assign jsonArray = jsonFactoryUtil.createJSONArray(json) />
 
 		<#list 0 ..< jsonArray.length() as i>
-			<#if jsonArray.get(i).key == "domain">
-				${jsonArray.get(i).value.get(0)}
-			</#if>
+				<#if jsonArray.get(i).key == key>
+					<#return jsonArray.get(i).value.get(0)?trim>
+				</#if>
 		</#list>
 	</#if>
-</#macro>
+
+	<#return "">
+</#function>

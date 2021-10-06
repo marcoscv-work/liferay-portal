@@ -32,7 +32,7 @@
 						${commerceOrderContentDisplayContext.getCommerceOrderDate(commerceOrder)}${commerceOrderContentDisplayContext.getCommerceOrderTime(commerceOrder)}
 					</td>
 					<td class="border-0">
-						<@getDomain json/>
+						${getJsonKeyValue(json, "domain")}
 					</td>
 					<td class="border-0">
 						${commerceOrderContentDisplayContext.getCommerceOrderStatus(commerceOrder)}
@@ -43,14 +43,17 @@
 	</#if>
 </#if>
 
-<#macro getDomain json>
+
+<#function getJsonKeyValue json key>
 	<#if validator.isNotNull(json)>
 		<#assign jsonArray = jsonFactoryUtil.createJSONArray(json) />
 
 		<#list 0 ..< jsonArray.length() as i>
-			<#if jsonArray.get(i).key == "domain">
-				${jsonArray.get(i).value.get(0)}
-			</#if>
+				<#if jsonArray.get(i).key == key>
+					<#return jsonArray.get(i).value.get(0)?trim>
+				</#if>
 		</#list>
 	</#if>
-</#macro>
+
+	<#return "">
+</#function>
