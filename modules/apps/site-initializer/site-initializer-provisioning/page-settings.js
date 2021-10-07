@@ -18,7 +18,7 @@ var starterkitList = document.getElementsByClassName('provisioning-item');
 
 if (starterkitList) {
 	function addActiveClass(event) {
-		event.target.classList.add('	active');
+		event.target.classList.add('active');
 	}
 
 	for (var i = 0, len = starterkitList.length; i < len; i++) {
