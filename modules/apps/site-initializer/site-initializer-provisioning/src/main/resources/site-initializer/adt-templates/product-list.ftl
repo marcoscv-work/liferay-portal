@@ -47,7 +47,7 @@
 
 					cpInstanceId = cpSku.getCPInstanceId()
 
-					group_id = themeDisplay.getLayout().getGroupId()
+					group_id = commerceContext.getCommerceChannelGroupId()
 				/>
 
 				<div class="col-md-4 mb-5">
