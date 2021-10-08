@@ -130,8 +130,10 @@ function createOrder(
 	// console.log('Domain name: ' + domainName);
 	// console.log('Site name: ' + siteName);
 
+	var cartsURL = themeDisplay.getPortalURL() + "/o/headless-commerce-delivery-cart/v1.0/channels/" + commerceChannelId + "/carts";
+
 	Liferay.Util.fetch(
-		`http://localhost:8080/o/headless-commerce-delivery-cart/v1.0/channels/${commerceChannelId}/carts`,
+		cartsURL,
 		{
 			body: JSON.stringify({
 				accountId: commerceAccountId,
@@ -153,8 +155,10 @@ function createOrder(
 
 			// console.log('Cart ID: ' + cartId);
 
+			var cartURL = themeDisplay.getPortalURL() + "/o/headless-commerce-delivery-cart/v1.0/carts/" + cartId + "/items";
+
 			return Liferay.Util.fetch(
-				`http://localhost:8080/o/headless-commerce-delivery-cart/v1.0/carts/${cartId}/items`,
+				cartURL,
 				{
 					body: JSON.stringify({
 						quantity: 1,
@@ -178,8 +182,10 @@ function createOrder(
 				.then((data) => {
 					console.log(data);
 
+					var checkoutURL = themeDisplay.getPortalURL() + "/o/headless-commerce-delivery-cart/v1.0/carts/" + cartId + "/checkout";
+
 					return Liferay.Util.fetch(
-						`http://localhost:8080/o/headless-commerce-delivery-cart/v1.0/carts/${cartId}/checkout`,
+						checkoutURL,
 						{
 							headers: {
 								Accept: 'application/json',
@@ -195,7 +201,7 @@ function createOrder(
 
 					var orderUUID = data.orderUUID;
 
-					var url = "http://localhost:8080/o/commerce-payment?groupId=" + groupId + "&uuid=" + orderUUID + "&nextStep=http%3A//localhost%3A8080/web/blank/my-site";
+					var url = themeDisplay.getPortalURL() + "/o/commerce-payment?groupId=" + groupId + "&uuid=" + orderUUID + "&nextStep=http%3A//localhost%3A8080/web/blank/my-site";
 
 					alert("Order completed! you will be redirected to your dashboard");
 
