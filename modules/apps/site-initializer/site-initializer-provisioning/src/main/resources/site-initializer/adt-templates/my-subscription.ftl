@@ -6,21 +6,40 @@
 		commerceOrderItems = commerceOrder.getCommerceOrderItems()
 	/>
 
+	<#if serviceLocator??>
+		<#assign
+			commerceSubscriptionEntryService = serviceLocator.findService("com.liferay.commerce.service.CommerceSubscriptionEntryService")
+
+			commerceSubscriptionEntries = commerceSubscriptionEntryService.getCommerceSubscriptionEntries(commerceOrder.getCompanyId(), commerceOrder.getGroupId(), themeDisplay.getUserId(), 0, 1, null)
+		/>
+	</#if>
+
 	<#if commerceOrderItems?has_content>
 		<#assign
 			commerceOrderItem = commerceOrderItems?first
 			json = commerceOrderItem.getJson()
 			cpInstance = commerceOrderItem.fetchCPInstance()
 			cpDefinition = cpInstance.getCPDefinition()
+			commerceSubscriptionEntry = commerceSubscriptionEntries?first
+
+			nextIterationDate = dateUtil.getDate(commerceSubscriptionEntry.getNextIterationDate(),"dd MMM yyyy - HH:mm:ss", locale)
+			startDate = dateUtil.getDate(commerceSubscriptionEntry.getStartDate(),"dd MMM yyyy - HH:mm:ss", locale)
+			subscriptionStatusMap = {"-1": "inactive", "0": "active", "1": "suspended", "2": "cancelled", "3": "completed"}
+
+			subscriptionStatus = subscriptionStatusMap[commerceSubscriptionEntry.getSubscriptionStatus()?string]
 		/>
 
 		<table class="table">
 			<thead>
 				<tr>
 					<th>Starter kit:</th>
-					<th>Created date:</th>
 					<th>Domain name:</th>
-					<th>Current status:</th>
+
+					<#if serviceLocator??>
+						<th>Started date:</th>
+						<th>Next iteration date:</th>
+						<th>Subscription status:</th>
+					</#if>
 				</tr>
 			</thead>
 
@@ -30,14 +49,20 @@
 						<img src="${cpDefinition.getDefaultImageThumbnailSrc()}" title="${commerceOrderItem.getName(locale)}" width="80" />
 					</td>
 					<td class="border-0">
-						${commerceOrderContentDisplayContext.getCommerceOrderDate(commerceOrder)}${commerceOrderContentDisplayContext.getCommerceOrderTime(commerceOrder)}
-					</td>
-					<td class="border-0">
 						${getJsonKeyValue(json, "domain")}
 					</td>
-					<td class="border-0">
-						${commerceOrderContentDisplayContext.getCommerceOrderStatus(commerceOrder)}
-					</td>
+
+					<#if serviceLocator??>
+						<td class="border-0">
+							${startDate}
+						</td>
+						<td class="border-0">
+							${nextIterationDate}
+						</td>
+						<td class="border-0">
+							${subscriptionStatus}
+						</td>
+					</#if>
 				</tr>
 			</tbody>
 		</table>
