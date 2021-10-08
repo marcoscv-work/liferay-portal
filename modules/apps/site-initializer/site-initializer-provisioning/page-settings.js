@@ -130,23 +130,24 @@ function createOrder(
 	// console.log('Domain name: ' + domainName);
 	// console.log('Site name: ' + siteName);
 
-	var cartsURL = themeDisplay.getPortalURL() + "/o/headless-commerce-delivery-cart/v1.0/channels/" + commerceChannelId + "/carts";
+	var cartsURL =
+		themeDisplay.getPortalURL() +
+		'/o/headless-commerce-delivery-cart/v1.0/channels/' +
+		commerceChannelId +
+		'/carts';
 
-	Liferay.Util.fetch(
-		cartsURL,
-		{
-			body: JSON.stringify({
-				accountId: commerceAccountId,
-				channelId: commerceChannelId,
-				currencyCode: 'USD',
-			}),
-			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json',
-			},
-			method: 'POST',
-		}
-	)
+	Liferay.Util.fetch(cartsURL, {
+		body: JSON.stringify({
+			accountId: commerceAccountId,
+			channelId: commerceChannelId,
+			currencyCode: 'USD',
+		}),
+		headers: {
+			Accept: 'application/json',
+			'Content-Type': 'application/json',
+		},
+		method: 'POST',
+	})
 		.then((response) => response.json())
 		.then((data) => {
 			var cartId = data.id;
@@ -155,45 +156,47 @@ function createOrder(
 
 			// console.log('Cart ID: ' + cartId);
 
-			var cartURL = themeDisplay.getPortalURL() + "/o/headless-commerce-delivery-cart/v1.0/carts/" + cartId + "/items";
+			var cartURL =
+				themeDisplay.getPortalURL() +
+				'/o/headless-commerce-delivery-cart/v1.0/carts/' +
+				cartId +
+				'/items';
 
-			return Liferay.Util.fetch(
-				cartURL,
-				{
-					body: JSON.stringify({
-						quantity: 1,
-						skuId: cpInstanceId,
-						subscription: true,
-						options:
-							'[{"key":"domain","value":["' +
-							domainName +
-							'"]},{"key":"name","value":["' +
-							siteName +
-							'"]}]',
-					}),
-					headers: {
-						Accept: 'application/json',
-						'Content-Type': 'application/json',
-					},
-					method: 'POST',
-				}
-			)
+			return Liferay.Util.fetch(cartURL, {
+				body: JSON.stringify({
+					quantity: 1,
+					skuId: cpInstanceId,
+					subscription: true,
+					options:
+						'[{"key":"domain","value":["' +
+						domainName +
+						'"]},{"key":"name","value":["' +
+						siteName +
+						'"]}]',
+				}),
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+				},
+				method: 'POST',
+			})
 				.then((response) => response.json())
 				.then((data) => {
 					console.log(data);
 
-					var checkoutURL = themeDisplay.getPortalURL() + "/o/headless-commerce-delivery-cart/v1.0/carts/" + cartId + "/checkout";
+					var checkoutURL =
+						themeDisplay.getPortalURL() +
+						'/o/headless-commerce-delivery-cart/v1.0/carts/' +
+						cartId +
+						'/checkout';
 
-					return Liferay.Util.fetch(
-						checkoutURL,
-						{
-							headers: {
-								Accept: 'application/json',
-								'Content-Type': 'application/json',
-							},
-							method: 'POST',
-						}
-					);
+					return Liferay.Util.fetch(checkoutURL, {
+						headers: {
+							Accept: 'application/json',
+							'Content-Type': 'application/json',
+						},
+						method: 'POST',
+					});
 				})
 				.then((response) => response.json())
 				.then((data) => {
@@ -201,9 +204,17 @@ function createOrder(
 
 					var orderUUID = data.orderUUID;
 
-					var url = themeDisplay.getPortalURL() + "/o/commerce-payment?groupId=" + groupId + "&uuid=" + orderUUID + "&nextStep=http%3A//localhost%3A8080/web/blank/my-site";
+					var url =
+						themeDisplay.getPortalURL() +
+						'/o/commerce-payment?groupId=' +
+						groupId +
+						'&uuid=' +
+						orderUUID +
+						'&nextStep=http%3A//localhost%3A8080/web/blank/my-site';
 
-					alert("Order completed! you will be redirected to your dashboard");
+					alert(
+						'Order completed! you will be redirected to your dashboard'
+					);
 
 					window.location.href = url;
 				});
