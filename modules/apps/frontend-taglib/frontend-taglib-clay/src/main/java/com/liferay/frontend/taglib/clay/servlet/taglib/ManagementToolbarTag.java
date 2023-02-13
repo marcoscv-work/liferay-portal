@@ -169,6 +169,10 @@ public class ManagementToolbarTag extends BaseContainerTag {
 		return _itemsTotal;
 	}
 
+	public String getItemType() {
+		return _itemType;
+	}
+
 	public ManagementToolbarDisplayContext
 		getManagementToolbarDisplayContext() {
 
@@ -472,6 +476,10 @@ public class ManagementToolbarTag extends BaseContainerTag {
 		_itemsTotal = itemsTotal;
 	}
 
+	public void setItemType(String itemType) {
+		_itemType = itemType;
+	}
+
 	public void setManagementToolbarDisplayContext(
 		ManagementToolbarDisplayContext managementToolbarDisplayContext) {
 
@@ -602,6 +610,7 @@ public class ManagementToolbarTag extends BaseContainerTag {
 		_filterLabelItems = null;
 		_infoPanelId = null;
 		_itemsTotal = null;
+		_itemType = "items";
 		_managementToolbarDisplayContext = null;
 		_namespace = null;
 		_orderDropdownItems = null;
@@ -636,6 +645,9 @@ public class ManagementToolbarTag extends BaseContainerTag {
 
 	@Override
 	protected Map<String, Object> prepareProps(Map<String, Object> props) {
+		ResourceBundle resourceBundle = TagResourceBundleUtil.getResourceBundle(
+			pageContext);
+
 		props.put("clearSelectionURL", getClearSelectionURL());
 		props.put("clearResultsURL", getClearResultsURL());
 		props.put("creationMenu", getCreationMenu());
@@ -652,6 +664,7 @@ public class ManagementToolbarTag extends BaseContainerTag {
 		props.put("initialSelectAllButtonVisible", isShowSelectAllButton());
 		props.put("initialSelectedItems", getSelectedItems());
 		props.put("itemsTotal", getItemsTotal());
+		props.put("itemType", LanguageUtil.get(resourceBundle, getItemType()));
 		props.put("orderDropdownItems", getOrderDropdownItems());
 
 		String searchActionURL = getSearchActionURL();
@@ -1373,6 +1386,7 @@ public class ManagementToolbarTag extends BaseContainerTag {
 	private List<LabelItem> _filterLabelItems;
 	private String _infoPanelId;
 	private Integer _itemsTotal;
+	private String _itemType = "items";
 	private ManagementToolbarDisplayContext _managementToolbarDisplayContext;
 	private String _namespace;
 	private List<DropdownItem> _orderDropdownItems;

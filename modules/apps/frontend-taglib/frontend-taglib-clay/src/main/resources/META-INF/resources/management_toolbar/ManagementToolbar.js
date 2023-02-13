@@ -41,6 +41,7 @@ function ManagementToolbar({
 	disabled,
 	filterDropdownItems,
 	filterLabelItems,
+	itemType,
 	itemsTotal,
 	infoPanelId,
 	initialActionDropdownItems,
@@ -109,6 +110,7 @@ function ManagementToolbar({
 								initialSelectAllButtonVisible
 							}
 							initialSelectedItems={initialSelectedItems}
+							itemType={itemType}
 							itemsTotal={itemsTotal}
 							onCheckboxChange={onCheckboxChange}
 							onClearButtonClick={onClearSelectionButtonClick}
@@ -308,6 +310,7 @@ ManagementToolbar.propTypes = {
 		'indeterminate',
 		'unchecked',
 	]),
+	itemType: PropTypes.string,
 	itemsTotal: PropTypes.number,
 	onCheckboxChange: PropTypes.func,
 	onCreateButtonClick: PropTypes.func,

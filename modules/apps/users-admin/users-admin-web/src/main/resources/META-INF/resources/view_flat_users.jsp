@@ -29,6 +29,7 @@ String displayStyle = viewFlatUsersDisplayContext.getDisplayStyle();
 %>
 
 <clay:management-toolbar
+	itemType='<%= LanguageUtil.get(request, "users") %>'
 	managementToolbarDisplayContext="<%= viewFlatUsersDisplayContext.getManagementToolbarDisplayContext() %>"
 />
 
