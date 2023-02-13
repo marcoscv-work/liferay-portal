@@ -204,7 +204,7 @@ const SelectionControls = ({
 			{active && (
 				<>
 					<ManagementToolbar.Item>
-						<span className="navbar-text">
+						<span aria-live="polite" className="navbar-text">
 							{selectedItems === itemsTotal
 								? Liferay.Language.get('all-selected')
 								: `${sub(
