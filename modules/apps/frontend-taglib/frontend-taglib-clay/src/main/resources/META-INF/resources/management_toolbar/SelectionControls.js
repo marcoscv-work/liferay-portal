@@ -47,6 +47,7 @@ const SelectionControls = ({
 	initialCheckboxStatus,
 	initialSelectAllButtonVisible,
 	initialSelectedItems,
+	itemType,
 	itemsTotal,
 	onCheckboxChange,
 	onClearButtonClick,
@@ -161,14 +162,32 @@ const SelectionControls = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
+	const selectedItemsLabel = `${sub(
+		Liferay.Language.get('x-of-x'),
+		selectedItems,
+		itemsTotal
+	)} ${itemType} ${Liferay.Language.get('selected')}`;
+
 	return (
 		<>
 			<ManagementToolbar.Item>
 				<ClayCheckbox
 					aria-label={
-						checkboxStatus === 'checked'
-							? Liferay.Language.get('clear-selection')
-							: Liferay.Language.get('select-items')
+						checkboxStatus === 'unchecked'
+							? sub(
+									Liferay.Language.get(
+										'select-all-x-on-the-page'
+									),
+									itemType
+							  )
+							: sub(
+									Liferay.Language.get(
+										'clear-selection-currently-x-of-x-x-selected'
+									),
+									selectedItems,
+									itemsTotal,
+									itemType
+							  )
 					}
 					checked={checkboxStatus !== 'unchecked'}
 					disabled={disabled}
@@ -206,12 +225,11 @@ const SelectionControls = ({
 					<ManagementToolbar.Item>
 						<span aria-live="polite" className="navbar-text">
 							{selectedItems === itemsTotal
-								? Liferay.Language.get('all-selected')
-								: `${sub(
-										Liferay.Language.get('x-of-x'),
-										selectedItems,
-										itemsTotal
-								  )} ${Liferay.Language.get('selected')}`}
+								? `${sub(
+										Liferay.Language.get('all-selected'),
+										itemType
+								  )} (${selectedItemsLabel})`
+								: selectedItemsLabel}
 						</span>
 					</ManagementToolbar.Item>
 
