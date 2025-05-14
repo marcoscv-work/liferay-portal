@@ -15,7 +15,8 @@
 						{
 							"id": "sidebarTitle",
 							"value": {
-								"fragmentLink": {}
+								"fragmentLink": {
+								}
 							}
 						}
 					],
@@ -44,23 +45,27 @@
 											"value": {
 												"fragmentImage": {
 													"url": {
-														"value_i18n": {}
+														"value_i18n": {
+														}
 													}
 												},
-												"fragmentLink": {}
+												"fragmentLink": {
+												}
 											}
 										},
 										{
 											"id": "sidebarTitle",
 											"value": {
-												"fragmentLink": {}
+												"fragmentLink": {
+												}
 											}
 										}
 									],
 									"indexed": true,
 									"widgetInstances": [
 										{
-											"widgetConfig": {},
+											"widgetConfig": {
+											},
 											"widgetName": "com_liferay_product_navigation_applications_menu_web_internal_portlet_ProductNavigationApplicationsMenuPortlet"
 										}
 									]
@@ -79,8 +84,10 @@
 														"key": "sidebar-trigger",
 														"siteKey": "CMS"
 													},
-													"fragmentConfig": {},
-													"fragmentFields": [],
+													"fragmentConfig": {
+													},
+													"fragmentFields": [
+													],
 													"indexed": true
 												},
 												"id": "88b7f132-967b-ca14-4875-04240379f1e0",
@@ -114,7 +121,8 @@
 										"source": "",
 										"sublevels": "-1"
 									},
-									"fragmentFields": [],
+									"fragmentFields": [
+									],
 									"indexed": true
 								},
 								"id": "339a84e4-b200-a686-2e8e-724ca1458332",
@@ -132,7 +140,8 @@
 										"source": "",
 										"sublevels": "-1"
 									},
-									"fragmentFields": [],
+									"fragmentFields": [
+									],
 									"indexed": true
 								},
 								"id": "4f273db5-b9c7-6ff3-7c79-653b88a42fc3",
@@ -150,7 +159,8 @@
 							{
 								"definition": {
 									"fragmentSettings": {
-										"unallowedFragments": []
+										"unallowedFragments": [
+										]
 									}
 								},
 								"id": "5b085050-70dd-18d8-7227-06afb1ebac78",
