@@ -50,7 +50,7 @@ const SpacesNavigation: React.FC<SpacesNavigationProps> = ({
 								aria-label={Liferay.Language.get('add-space')}
 								displayType="secondary"
 								onClick={onAddButtonClick}
-								size="sm"
+								size="xs"
 								symbol="plus"
 								title={Liferay.Language.get('add-space')}
 								type="button"
@@ -69,14 +69,17 @@ const SpacesNavigation: React.FC<SpacesNavigationProps> = ({
 								className="nav-link"
 								href={assetLibrary.url}
 							>
-								<SpaceSticker name={assetLibrary.name} />
+								<SpaceSticker
+									name={assetLibrary.name}
+									size="sm"
+								/>
 							</ClayLink>
 						</li>
 					))}
 
 					<li className="nav-item" role="none">
 						<ClayLink className="nav-link" href={allSpacesURL}>
-							<span className="mr-2 sticker">
+							<span className="mr-2 sticker sticker-sm">
 								<ClayIcon symbol="box-container" />
 							</span>
 
