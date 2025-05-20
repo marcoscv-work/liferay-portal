@@ -17,7 +17,7 @@
 		"version": "7.1"
 	},
 	"main": "package.json",
-	"name": "liferay-cms-theme",
+	"name": "@liferay/liferay-cms-theme",
 	"repository": "liferay/liferay-portal",
 	"scripts": {
 		"build": "node-scripts build:theme",
