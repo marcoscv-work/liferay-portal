@@ -1,0 +1,26 @@
+%cms-sidebar-style {
+    background-color: $gray-100;
+    border-right: 0.8px solid $secondary-l0;
+}
+
+.sidebar-container {
+     @extend %cms-sidebar-style;
+}
+
+.sidebar-layout {
+    --sidebar-layout-height: calc(
+        100vh - var(--control-menu-container-height, 0px)
+    );
+    --sidebar-layout-width: 280px;
+
+    &.cms-sidebar-nav {
+        @include media-breakpoint-up(md) {
+            @extend %cms-sidebar-style;
+
+            max-width: var(--sidebar-layout-width);
+            min-height: var(--sidebar-layout-height);
+            min-width: var(--sidebar-layout-width);
+            scroll-behavior: smooth;
+        }
+    }
+}
