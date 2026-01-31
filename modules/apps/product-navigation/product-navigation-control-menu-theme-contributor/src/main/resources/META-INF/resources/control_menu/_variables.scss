@@ -1,8 +1,7 @@
 $admin-panel-width: 320px;
 $admin-panel-zindex: 990 !default;
 
-$control-menu-focus-box-shadow:
-	0 0 0 2px $cadmin-white,
+$control-menu-focus-box-shadow: 0 0 0 2px $cadmin-white,
 	0 0 0 4px $cadmin-primary-l1 !default;
 
 $control-menu-css-transition: all 0.5s ease !default;
@@ -22,7 +21,7 @@ $control-menu-level-1-link-background-color: fade_out(
 ) !default;
 
 $control-menu-level-1-light-bg: $cadmin-white !default;
-$control-menu-level-1-light-border: 1px solid $cadmin-light;
+$control-menu-level-1-light-border: 0.05rem solid $cadmin-secondary-l0;
 $control-menu-level-1-light-color: $cadmin-gray-600 !default;
 $control-menu-level-1-light-link-color: $cadmin-gray-600 !default;
 $control-menu-level-1-light-link-hover-color: $cadmin-gray-800 !default;
