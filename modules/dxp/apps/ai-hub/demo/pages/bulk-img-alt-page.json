@@ -1,0 +1,38 @@
+{
+ "friendlyUrlPath": "/alt-batch",
+ "pageDefinition": {
+  "pageElement": {
+   "pageElements": [
+    {
+     "definition": {
+      "indexed": true,
+      "layout": {
+       "widthType": "Fixed"
+      }
+     },
+     "pageElements": [
+      {
+       "definition": {
+        "fragment": {
+         "key": "alt-batch-generator"
+        }
+       },
+       "type": "Fragment"
+      }
+     ],
+     "type": "Section"
+    }
+   ],
+   "type": "Root"
+  },
+  "settings": {
+   "colorSchemeName": "01",
+   "masterPage": {
+    "key": "cms-master"
+   },
+   "themeName": "CMS"
+  }
+ },
+ "title": "Bulk img alt",
+ "viewableBy": "Anyone"
+}
