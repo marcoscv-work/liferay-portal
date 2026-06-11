@@ -10,7 +10,7 @@ import dev.langchain4j.guardrail.InputGuardrail;
 import dev.langchain4j.guardrail.OutputGuardrail;
 import dev.langchain4j.invocation.InvocationParameters;
 import dev.langchain4j.model.chat.response.ChatResponse;
-import dev.langchain4j.model.vertexai.gemini.VertexAiGeminiStreamingChatModel;
+import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.observability.api.listener.AiServiceListener;
 import dev.langchain4j.rag.RetrievalAugmentor;
 import dev.langchain4j.service.tool.ToolProvider;
@@ -98,7 +98,7 @@ public class AssistantHandlerContext {
 		return _userMessageImageContents;
 	}
 
-	public VertexAiGeminiStreamingChatModel
+	public StreamingChatModel
 		getVertexAiGeminiStreamingChatModel() {
 
 		return _vertexAiGeminiStreamingChatModel;
@@ -205,7 +205,7 @@ public class AssistantHandlerContext {
 		}
 
 		public Builder vertexAiGeminiStreamingChatModel(
-			VertexAiGeminiStreamingChatModel vertexAiGeminiStreamingChatModel) {
+			StreamingChatModel vertexAiGeminiStreamingChatModel) {
 
 			_vertexAiGeminiStreamingChatModel =
 				vertexAiGeminiStreamingChatModel;
@@ -226,7 +226,7 @@ public class AssistantHandlerContext {
 		private Object[] _tools = new Object[0];
 		private String _userMessage;
 		private List<ImageContent> _userMessageImageContents = List.of();
-		private VertexAiGeminiStreamingChatModel
+		private StreamingChatModel
 			_vertexAiGeminiStreamingChatModel;
 
 	}
@@ -244,7 +244,7 @@ public class AssistantHandlerContext {
 	private final Object[] _tools;
 	private final String _userMessage;
 	private final List<ImageContent> _userMessageImageContents;
-	private final VertexAiGeminiStreamingChatModel
+	private final StreamingChatModel
 		_vertexAiGeminiStreamingChatModel;
 
 }

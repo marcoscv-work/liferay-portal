@@ -54,6 +54,7 @@ import dev.langchain4j.guardrail.InputGuardrail;
 import dev.langchain4j.guardrail.OutputGuardrail;
 import dev.langchain4j.invocation.InvocationParameters;
 import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.vertexai.gemini.VertexAiGeminiStreamingChatModel;
 
 import java.io.Serializable;
@@ -120,8 +121,8 @@ public class LLMNodeExecutor extends BaseNodeExecutor {
 			return;
 		}
 
-		VertexAiGeminiStreamingChatModel vertexAiGeminiStreamingChatModel =
-			VertexAiGeminiUtil.createVertexAiGeminiStreamingChatModel(
+		StreamingChatModel vertexAiGeminiStreamingChatModel =
+			VertexAiGeminiUtil.createStreamingChatModel(
 				_quotaManager, serviceContext);
 
 		AtomicReference<ChatResponse> chatResponseAtomicReference =
@@ -181,14 +182,22 @@ public class LLMNodeExecutor extends BaseNodeExecutor {
 					finally {
 						MCPToolProviderUtil.close(sseEventSinkKey);
 
-						vertexAiGeminiStreamingChatModel.close();
+						if (vertexAiGeminiStreamingChatModel instanceof
+							VertexAiGeminiStreamingChatModel closeableModel) {
+
+						closeableModel.close();
+					}
 					}
 				}
 			).onErrorConsumer(
 				throwable -> {
 					MCPToolProviderUtil.close(sseEventSinkKey);
 
-					vertexAiGeminiStreamingChatModel.close();
+					if (vertexAiGeminiStreamingChatModel instanceof
+							VertexAiGeminiStreamingChatModel closeableModel) {
+
+						closeableModel.close();
+					}
 
 					_log.error(throwable);
 				}

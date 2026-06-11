@@ -12,6 +12,8 @@ import com.liferay.portal.configuration.module.configuration.ConfigurationProvid
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.service.ServiceContext;
 
+import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import dev.langchain4j.model.vertexai.gemini.HarmCategory;
 import dev.langchain4j.model.vertexai.gemini.SafetyThreshold;
 import dev.langchain4j.model.vertexai.gemini.VertexAiGeminiChatModel;
@@ -53,6 +55,29 @@ public class VertexAiGeminiUtil {
 		).safetySettings(
 			_safetyThresholds
 		).build();
+	}
+
+	public static StreamingChatModel createStreamingChatModel(
+			QuotaManager quotaManager, ServiceContext serviceContext)
+		throws ConfigurationException {
+
+		String openAiApiKey = System.getenv("OPENAI_API_KEY");
+
+		if ((openAiApiKey != null) && !openAiApiKey.isEmpty()) {
+			return OpenAiStreamingChatModel.builder(
+			).apiKey(
+				openAiApiKey
+			).listeners(
+				Collections.singletonList(
+					new AIHubChatModelListenerImpl(
+						quotaManager, serviceContext))
+			).modelName(
+				"gpt-4o-mini"
+			).build();
+		}
+
+		return createVertexAiGeminiStreamingChatModel(
+			quotaManager, serviceContext);
 	}
 
 	public static VertexAiGeminiStreamingChatModel
