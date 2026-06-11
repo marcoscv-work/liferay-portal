@@ -20,6 +20,8 @@ Import-Package:\
 	\
 	!com.jcraft.jzlib.*,\
 	\
+	!com.knuddels.jtokkit.*,\
+	\
 	!com.ning.compress.*,\
 	\
 	!com.oracle.svm.*,\
