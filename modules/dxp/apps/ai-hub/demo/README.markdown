@@ -8,6 +8,7 @@ Two content pages in the CMS site invoke the agent from the browser:
 
 - **Accessibility Alt** (`/web/cms/accesibilidad`) — `fragment-alt-text`: pick one image, optional page context, and a "Generate Alt Text" button. Informative images get a proposed `alt`; decorative images resolve to `alt=""`.
 - **Bulk img alt** (`/web/cms/alt-batch`) — `fragment-bulk-alt`: drag and drop several images; a sequential queue analyzes them one by one. An "Autogenerate Alt Text" checkbox (checked by default) disables the generation when unchecked.
+- **Local AI** (`/web/cms/local-ai`) — `fragment-local-ai`: the same bulk experience, but it does NOT use the Liferay agent. The browser sends each image directly to a local Ollama vision model (`gemma4:e4b` at `192.168.40.33:11434`, configurable at the top of `main.js`), so images never leave the local network. The page states this explicitly ("No Liferay Agent" badge). The Ollama server must allow CORS for the portal origin (`Access-Control-Allow-Origin`).
 
 Each run opens a fresh SSE channel (`GET /o/ai-hub/v1.0/agent-instances/subscribe`, the `Subscribe` event carries the sink key), then `POST /o/ai-hub/v1.0/agent-instances` with the agent ERC `L_IMAGE_DESCRIPTOR`, the image as a base64 data URI, the context, and the key. The result arrives as an SSE event named `L_IMAGE_DESCRIPTOR`; an absent or empty `data` field means decorative. A fresh channel per run avoids stale-key hangs after SSE reconnects, and a 120s timeout surfaces failures.
 

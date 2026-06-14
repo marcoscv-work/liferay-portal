@@ -1,0 +1,31 @@
+.local-ai-generator .dropzone {
+	border: 2px dashed var(--gray-400);
+	border-radius: 8px;
+	cursor: pointer;
+	padding: 2.5rem 1rem;
+	transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.local-ai-generator .dropzone.dragover {
+	background-color: var(--light);
+	border-color: var(--primary);
+}
+
+.local-ai-generator .local-ai-thumbnail {
+	border-radius: 4px;
+	height: 48px;
+	object-fit: cover;
+	width: 48px;
+}
+
+.local-ai-generator .local-ai-badge {
+	background-color: var(--info-l2, #eef2fa);
+	border-radius: 4px;
+	color: var(--info, #2e5aac);
+	font-size: 0.75rem;
+	font-weight: 600;
+	margin-left: 0.5rem;
+	padding: 0.125rem 0.5rem;
+	text-transform: uppercase;
+	vertical-align: middle;
+}
