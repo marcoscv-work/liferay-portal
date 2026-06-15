@@ -17,6 +17,7 @@ The REST endpoint requires session/cookie authentication: any non-Bearer `Author
 ## Runtime Prerequisites
 
 - Tomcat started with `OPENAI_API_KEY` exported (the demo branch swaps Vertex for OpenAI `gpt-4o-mini` when the variable is present).
+- Alternatively, export `OLLAMA_BASE_URL` (e.g. `http://192.168.40.33:11434`) to run against a local Ollama server instead — it takes precedence over OpenAI. The model defaults to `gemma4:e4b` and can be overridden with `OLLAMA_MODEL`; it must be a vision-capable model. Validated against the raw Ollama API with the agent's prompt: the informative sample resolved to a correct (if less detailed) alt text in ~20s and the decorative sample returned a fully empty response, so the `alt=""` contract holds locally and no image ever leaves the network.
 - `feature.flag.LPD-62272=true` in `portal-ext.properties` (gates all AI Hub REST).
 - Runtime flag `LPS-178052` enabled (headless site-pages POST), e.g. via `POST /o/com-liferay-feature-flag-web/set-enabled`.
 

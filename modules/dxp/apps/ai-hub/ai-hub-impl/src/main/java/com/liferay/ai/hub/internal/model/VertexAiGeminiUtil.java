@@ -13,6 +13,7 @@ import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.service.ServiceContext;
 
 import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.ollama.OllamaStreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import dev.langchain4j.model.vertexai.gemini.HarmCategory;
 import dev.langchain4j.model.vertexai.gemini.SafetyThreshold;
@@ -60,6 +61,27 @@ public class VertexAiGeminiUtil {
 	public static StreamingChatModel createStreamingChatModel(
 			QuotaManager quotaManager, ServiceContext serviceContext)
 		throws ConfigurationException {
+
+		String ollamaBaseURL = System.getenv("OLLAMA_BASE_URL");
+
+		if ((ollamaBaseURL != null) && !ollamaBaseURL.isEmpty()) {
+			String ollamaModelName = System.getenv("OLLAMA_MODEL");
+
+			if ((ollamaModelName == null) || ollamaModelName.isEmpty()) {
+				ollamaModelName = "gemma4:e4b";
+			}
+
+			return OllamaStreamingChatModel.builder(
+			).baseUrl(
+				ollamaBaseURL
+			).listeners(
+				Collections.singletonList(
+					new AIHubChatModelListenerImpl(
+						quotaManager, serviceContext))
+			).modelName(
+				ollamaModelName
+			).build();
+		}
 
 		String openAiApiKey = System.getenv("OPENAI_API_KEY");
 
