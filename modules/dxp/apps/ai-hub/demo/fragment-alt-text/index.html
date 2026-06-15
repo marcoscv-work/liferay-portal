@@ -1,0 +1,40 @@
+<div class="alt-text-generator sheet mt-5 mx-auto" style="max-width: 640px;">
+	<h3 class="sheet-title">Alt Text Generator</h3>
+
+	<p class="text-secondary">
+		Select an image and the AI Hub accessibility agent will propose its
+		<code>alt</code> attribute. If the image is decorative, it will resolve
+		that it conveys no relevant information and leave <code>alt=""</code>.
+	</p>
+
+	<div class="form-group">
+		<label for="altImageFile">Image</label>
+		<input accept="image/*" class="form-control" id="altImageFile" type="file" />
+	</div>
+
+	<div class="form-group">
+		<label for="altImageContext">Page context (optional)</label>
+		<input class="form-control" id="altImageContext" placeholder="This could be the Space description" type="text" />
+	</div>
+
+	<div class="mb-3" id="altImagePreviewWrapper" style="display: none;">
+		<img alt="" id="altImagePreview" style="max-height: 220px; max-width: 100%; border-radius: 4px;" />
+	</div>
+
+	<button class="btn btn-primary" disabled id="altGenerateButton" type="button">
+		Generate Alt Text
+	</button>
+
+	<div class="mt-4" id="altResult" style="display: none;">
+		<div id="altResultLoading">
+			<span aria-hidden="true" class="loading-animation loading-animation-sm"></span>
+			Analyzing the image…
+		</div>
+
+		<div id="altResultContent" style="display: none;">
+			<div class="alert" id="altResultAlert"></div>
+			<label>Resulting code</label>
+			<pre class="rounded border p-3" id="altResultCode" style="background: var(--gray-100); white-space: pre-wrap; word-break: break-all;"></pre>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,38 @@
+{
+ "friendlyUrlPath": "/accesibilidad",
+ "pageDefinition": {
+  "pageElement": {
+   "pageElements": [
+    {
+     "definition": {
+      "indexed": true,
+      "layout": {
+       "widthType": "Fixed"
+      }
+     },
+     "pageElements": [
+      {
+       "definition": {
+        "fragment": {
+         "key": "alt-text-generator"
+        }
+       },
+       "type": "Fragment"
+      }
+     ],
+     "type": "Section"
+    }
+   ],
+   "type": "Root"
+  },
+  "settings": {
+   "colorSchemeName": "01",
+   "masterPage": {
+    "key": "cms-master"
+   },
+   "themeName": "CMS"
+  }
+ },
+ "title": "Accessibility Alt",
+ "viewableBy": "Anyone"
+}

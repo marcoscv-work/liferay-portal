@@ -52,6 +52,7 @@ import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.guardrail.InputGuardrail;
 import dev.langchain4j.guardrail.OutputGuardrail;
 import dev.langchain4j.invocation.InvocationParameters;
+import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.vertexai.gemini.VertexAiGeminiStreamingChatModel;
 
 import java.io.Serializable;
@@ -181,8 +182,8 @@ public class AIDecisionNodeExecutor extends BaseNodeExecutor {
 		String userMessage = VariablesUtil.applyInputVariables(
 			executionContext, "userMessage", kaleoNodeSettingValues);
 
-		VertexAiGeminiStreamingChatModel vertexAiGeminiStreamingChatModel =
-			VertexAiGeminiUtil.createVertexAiGeminiStreamingChatModel(
+		StreamingChatModel vertexAiGeminiStreamingChatModel =
+			VertexAiGeminiUtil.createStreamingChatModel(
 				_quotaManager, serviceContext);
 
 		String sseEventSinkKey = GetterUtil.getString(
@@ -213,7 +214,11 @@ public class AIDecisionNodeExecutor extends BaseNodeExecutor {
 				chatResponse -> {
 					MCPToolProviderUtil.close(sseEventSinkKey);
 
-					vertexAiGeminiStreamingChatModel.close();
+					if (vertexAiGeminiStreamingChatModel instanceof
+							VertexAiGeminiStreamingChatModel closeableModel) {
+
+						closeableModel.close();
+					}
 
 					MessageUtil.sendMessage(
 						chatResponse, kaleoInstanceToken, prompt,
@@ -223,7 +228,11 @@ public class AIDecisionNodeExecutor extends BaseNodeExecutor {
 				throwable -> {
 					MCPToolProviderUtil.close(sseEventSinkKey);
 
-					vertexAiGeminiStreamingChatModel.close();
+					if (vertexAiGeminiStreamingChatModel instanceof
+							VertexAiGeminiStreamingChatModel closeableModel) {
+
+						closeableModel.close();
+					}
 
 					_log.error(throwable);
 				}

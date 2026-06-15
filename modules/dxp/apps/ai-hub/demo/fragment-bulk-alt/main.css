@@ -1,0 +1,19 @@
+.alt-batch-generator .dropzone {
+	border: 2px dashed var(--gray-400);
+	border-radius: 8px;
+	cursor: pointer;
+	padding: 2.5rem 1rem;
+	transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.alt-batch-generator .dropzone.dragover {
+	background-color: var(--light);
+	border-color: var(--primary);
+}
+
+.alt-batch-generator .alt-batch-thumbnail {
+	border-radius: 4px;
+	height: 48px;
+	object-fit: cover;
+	width: 48px;
+}

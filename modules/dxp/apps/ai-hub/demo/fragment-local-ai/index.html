@@ -1,0 +1,40 @@
+<div class="local-ai-generator sheet mt-5 mx-auto" style="max-width: 760px;">
+	<h3 class="sheet-title">
+		Bulk Image Alt Generator — Local AI
+		<span class="local-ai-badge">No Liferay Agent</span>
+	</h3>
+
+	<p class="text-secondary">
+		Same experience, different engine: this page does <strong>not</strong>
+		use the Liferay AI Hub agent. Each image is sent directly from the
+		browser to a local vision model — <code>gemma4:e4b</code> running on
+		Ollama at <code>192.168.40.33:11434</code>. Images never leave the
+		local network. Decorative images are resolved with <code>alt=""</code>.
+	</p>
+
+	<div class="form-group">
+		<label for="localAIContext">Page context (optional)</label>
+		<input class="form-control" id="localAIContext" placeholder="This could be the Space description" type="text" />
+	</div>
+
+	<div class="custom-control custom-checkbox mb-3">
+		<label>
+			<input checked class="custom-control-input" id="localAIAutogenerate" type="checkbox" />
+			<span class="custom-control-label">
+				<span class="custom-control-label-text">Autogenerate Alt Text</span>
+			</span>
+		</label>
+	</div>
+
+	<div class="dropzone" id="localAIDropzone">
+		<input accept="image/*" aria-hidden="true" autocomplete="off" id="localAIInput" multiple style="display: none;" tabindex="-1" type="file" />
+
+		<div class="text-center text-secondary">
+			<img alt="" src="/o/frontend-js-components-web/images/drag_drop_image.svg" />
+			<p class="my-2 text-weight-semi-bold">Drag and Drop Your Images Or</p>
+			<button class="btn btn-secondary" id="localAISelect" type="button">Select Files</button>
+		</div>
+	</div>
+
+	<ul class="list-group mt-4" id="localAIResults" style="display: none;"></ul>
+</div>

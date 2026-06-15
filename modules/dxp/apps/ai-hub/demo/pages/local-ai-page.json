@@ -1,0 +1,38 @@
+{
+ "friendlyUrlPath": "/local-ai",
+ "pageDefinition": {
+  "pageElement": {
+   "pageElements": [
+    {
+     "definition": {
+      "indexed": true,
+      "layout": {
+       "widthType": "Fixed"
+      }
+     },
+     "pageElements": [
+      {
+       "definition": {
+        "fragment": {
+         "key": "local-ai-bulk-alt"
+        }
+       },
+       "type": "Fragment"
+      }
+     ],
+     "type": "Section"
+    }
+   ],
+   "type": "Root"
+  },
+  "settings": {
+   "colorSchemeName": "01",
+   "masterPage": {
+    "key": "cms-master"
+   },
+   "themeName": "CMS"
+  }
+ },
+ "title": "Local AI",
+ "viewableBy": "Anyone"
+}

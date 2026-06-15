@@ -1,0 +1,35 @@
+<div class="alt-batch-generator sheet mt-5 mx-auto" style="max-width: 760px;">
+	<h3 class="sheet-title">Bulk Image Alt Generator</h3>
+
+	<p class="text-secondary">
+		Drag and drop several images and the AI Hub accessibility agent will
+		propose the <code>alt</code> attribute for each one. Decorative images
+		are resolved with <code>alt=""</code>.
+	</p>
+
+	<div class="form-group">
+		<label for="altBatchContext">Page context (optional)</label>
+		<input class="form-control" id="altBatchContext" placeholder="This could be the Space description" type="text" />
+	</div>
+
+	<div class="custom-control custom-checkbox mb-3">
+		<label>
+			<input checked class="custom-control-input" id="altBatchAutogenerate" type="checkbox" />
+			<span class="custom-control-label">
+				<span class="custom-control-label-text">Autogenerate Alt Text</span>
+			</span>
+		</label>
+	</div>
+
+	<div class="dropzone" id="altBatchDropzone">
+		<input accept="image/*" aria-hidden="true" autocomplete="off" id="altBatchInput" multiple style="display: none;" tabindex="-1" type="file" />
+
+		<div class="text-center text-secondary">
+			<img alt="" src="/o/frontend-js-components-web/images/drag_drop_image.svg" />
+			<p class="my-2 text-weight-semi-bold">Drag and Drop Your Images Or</p>
+			<button class="btn btn-secondary" id="altBatchSelect" type="button">Select Files</button>
+		</div>
+	</div>
+
+	<ul class="list-group mt-4" id="altBatchResults" style="display: none;"></ul>
+</div>
