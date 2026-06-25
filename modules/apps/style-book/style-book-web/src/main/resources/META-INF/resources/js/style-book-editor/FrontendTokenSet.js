@@ -60,6 +60,53 @@ export default function FrontendTokenSet({
 		[frontendTokensValues, saveTokenValue, tokenValues]
 	);
 
+	const tokens = frontendTokens.map((frontendToken) => {
+		const FrontendTokenComponent = getFrontendTokenComponent(frontendToken);
+
+		const props = {
+			frontendToken,
+			frontendTokensValues,
+			onValueSelect: (value) =>
+				updateFrontendTokensValues(frontendToken, value),
+			tokenValues,
+			value:
+				frontendTokensValues[frontendToken.name]?.name ||
+				frontendTokensValues[frontendToken.name]?.value ||
+				frontendToken.defaultValue,
+		};
+
+		if (frontendToken.custom) {
+			return (
+				<div
+					className="align-items-end d-flex style-book-editor__custom-token"
+					key={frontendToken.name}
+				>
+					<div className="flex-grow-1">
+						<FrontendTokenComponent {...props} />
+					</div>
+
+					<ClayButton
+						borderless
+						className="ml-1"
+						displayType="secondary"
+						monospaced
+						onClick={() => onEditToken(frontendToken)}
+						size="sm"
+						title={Liferay.Language.get('stylebook-custom-token')}
+					>
+						<ClayIcon symbol="pencil" />
+					</ClayButton>
+				</div>
+			);
+		}
+
+		return <FrontendTokenComponent key={frontendToken.name} {...props} />;
+	});
+
+	if (!label) {
+		return tokens;
+	}
+
 	return (
 		<ClayPanel
 			collapsable
@@ -68,58 +115,7 @@ export default function FrontendTokenSet({
 			displayType="unstyled"
 			showCollapseIcon
 		>
-			<ClayPanel.Body>
-				{frontendTokens.map((frontendToken) => {
-					const FrontendTokenComponent =
-						getFrontendTokenComponent(frontendToken);
-
-					const props = {
-						frontendToken,
-						frontendTokensValues,
-						onValueSelect: (value) =>
-							updateFrontendTokensValues(frontendToken, value),
-						tokenValues,
-						value:
-							frontendTokensValues[frontendToken.name]?.name ||
-							frontendTokensValues[frontendToken.name]?.value ||
-							frontendToken.defaultValue,
-					};
-
-					if (frontendToken.custom) {
-						return (
-							<div
-								className="align-items-end d-flex style-book-editor__custom-token"
-								key={frontendToken.name}
-							>
-								<div className="flex-grow-1">
-									<FrontendTokenComponent {...props} />
-								</div>
-
-								<ClayButton
-									borderless
-									className="ml-1"
-									displayType="secondary"
-									monospaced
-									onClick={() => onEditToken(frontendToken)}
-									size="sm"
-									title={Liferay.Language.get(
-										'stylebook-custom-token'
-									)}
-								>
-									<ClayIcon symbol="pencil" />
-								</ClayButton>
-							</div>
-						);
-					}
-
-					return (
-						<FrontendTokenComponent
-							key={frontendToken.name}
-							{...props}
-						/>
-					);
-				})}
-			</ClayPanel.Body>
+			<ClayPanel.Body>{tokens}</ClayPanel.Body>
 		</ClayPanel>
 	);
 }

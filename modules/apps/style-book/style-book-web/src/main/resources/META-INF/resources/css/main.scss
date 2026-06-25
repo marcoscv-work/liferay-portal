@@ -120,6 +120,9 @@ html#{$cadmin-selector} {
 				}
 			}
 		}
+		.style-book-editor__new-token-modal .modal-body {
+			overflow-x: hidden;
+		}
 	}
 
 	body.has-control-menu .cadmin .style-book-editor__undo-history__overlay {

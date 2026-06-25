@@ -9,6 +9,7 @@ import React, {useContext, useReducer} from 'react';
 import {
 	ADD_REDO_ACTION,
 	ADD_UNDO_ACTION,
+	DELETE_TOKEN_VALUE,
 	SET_DRAFT_STATUS,
 	SET_TOKEN_VALUES,
 	UPDATE_UNDO_REDO_HISTORY,
@@ -109,6 +110,36 @@ export function useSaveTokenValue() {
 			frontendTokensValues,
 			tokens: {[name]: value},
 		}).then((saved) => {
+			dispatch({
+				label,
+				name,
+				type: ADD_UNDO_ACTION,
+				value: previousValue,
+			});
+
+			return saved;
+		});
+	};
+}
+
+export function useDeleteTokenValue() {
+	const dispatch = useDispatch();
+	const frontendTokensValues = useFrontendTokensValues();
+
+	return ({label, name}) => {
+		const previousValue = frontendTokensValues[name];
+
+		const remainingTokens = {...frontendTokensValues};
+
+		delete remainingTokens[name];
+
+		return internalSaveTokenValues({
+			dispatch,
+			frontendTokensValues: remainingTokens,
+			tokens: {},
+		}).then((saved) => {
+			dispatch({name, type: DELETE_TOKEN_VALUE});
+
 			dispatch({
 				label,
 				name,

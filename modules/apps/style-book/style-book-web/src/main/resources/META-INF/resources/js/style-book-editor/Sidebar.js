@@ -14,6 +14,7 @@ import FrontendTokenSet from './FrontendTokenSet';
 import NewCustomTokenModal from './NewCustomTokenModal';
 import {config} from './config';
 import {
+	useDeleteTokenValue,
 	useFrontendTokensValues,
 	useSaveTokenValue,
 } from './contexts/StyleBookEditorContext';
@@ -292,20 +293,22 @@ function FrontendTokenCategories({activeDefinition}) {
 		}
 
 		// Custom tokens (stylebook values not present in the theme's frontend
-		// token definition) are grouped under a dedicated "Custom" category,
-		// organized by their token set.
+		// token definition) are grouped under a dedicated "Custom" category.
+		// Tokens with a token set get their own panel; tokens without one are
+		// listed directly under "Custom".
 
-		const frontendTokenSets = [...customTokensByTokenSet.entries()].map(
-			([tokenSet, frontendTokens]) => ({
+		const frontendTokenSets = [...customTokensByTokenSet.entries()]
+			.sort(
+				([tokenSetA], [tokenSetB]) =>
+					(tokenSetA ? 1 : 0) - (tokenSetB ? 1 : 0)
+			)
+			.map(([tokenSet, frontendTokens]) => ({
 				frontendTokens,
-				label:
-					tokenSet ||
-					Liferay.Language.get('values-not-in-the-theme-definition'),
+				label: tokenSet,
 				name: tokenSet
 					? `out-of-definition-set:${tokenSet}`
 					: 'out-of-definition-set',
-			})
-		);
+			}));
 
 		if (!frontendTokenSets.length) {
 			return null;
@@ -339,6 +342,7 @@ function FrontendTokenCategories({activeDefinition}) {
 		);
 	}, [selectedCategory, allFrontendTokenCategories]);
 
+	const deleteTokenValue = useDeleteTokenValue();
 	const saveTokenValue = useSaveTokenValue();
 
 	const tokenSets = useMemo(
@@ -378,13 +382,16 @@ function FrontendTokenCategories({activeDefinition}) {
 
 	const openNewTokenModal = () => {
 		openModal({
+			className: 'style-book-editor__new-token-modal',
 			contentComponent: ({closeModal}) =>
 				NewCustomTokenModal({
 					closeModal,
+					frontendTokensValues,
 					onSubmit: createToken,
 					tokenSets,
+					tokenValues,
 				}),
-			size: 'sm',
+			disableAutoClose: true,
 		});
 	};
 
@@ -392,9 +399,11 @@ function FrontendTokenCategories({activeDefinition}) {
 		const storedValue = frontendTokensValues[frontendToken.name] || {};
 
 		openModal({
+			className: 'style-book-editor__new-token-modal',
 			contentComponent: ({closeModal}) =>
 				NewCustomTokenModal({
 					closeModal,
+					frontendTokensValues,
 					initialValues: {
 						editorType: storedValue.editorType || '',
 						name:
@@ -403,6 +412,12 @@ function FrontendTokenCategories({activeDefinition}) {
 							frontendToken.label,
 						tokenSet: storedValue.category || '',
 						value: storedValue.value || '',
+					},
+					onDelete: () => {
+						deleteTokenValue({
+							label: frontendToken.label,
+							name: frontendToken.name,
+						});
 					},
 					onSubmit: ({editorType, name, tokenSet, value}) => {
 						saveTokenValue({
@@ -433,8 +448,9 @@ function FrontendTokenCategories({activeDefinition}) {
 					submitLabel: Liferay.Language.get('save'),
 					title: Liferay.Language.get('edit-custom-token'),
 					tokenSets,
+					tokenValues,
 				}),
-			size: 'sm',
+			disableAutoClose: true,
 		});
 	};
 
