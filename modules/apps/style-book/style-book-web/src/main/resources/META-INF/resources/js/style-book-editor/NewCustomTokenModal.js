@@ -16,7 +16,24 @@ const EDITOR_TYPE_OPTIONS = [
 	{label: Liferay.Language.get('default'), value: ''},
 	{label: Liferay.Language.get('color-picker'), value: 'ColorPicker'},
 	{label: Liferay.Language.get('length'), value: 'Length'},
+	{label: Liferay.Language.get('select'), value: 'Select'},
 ];
+
+const MIN_SELECT_OPTIONS = 2;
+
+function ensureMinimumSelectOptions(options) {
+	if (options.length >= MIN_SELECT_OPTIONS) {
+		return options;
+	}
+
+	return [
+		...options,
+		...Array.from({length: MIN_SELECT_OPTIONS - options.length}, () => ({
+			label: '',
+			value: '',
+		})),
+	];
+}
 
 export default function NewCustomTokenModal({
 	closeModal,
@@ -35,8 +52,14 @@ export default function NewCustomTokenModal({
 	const [errorMessage, setErrorMessage] = useState('');
 	const [name, setName] = useState(initialValues.name || '');
 	const [newTokenSet, setNewTokenSet] = useState('');
+	const [optionsErrorMessage, setOptionsErrorMessage] = useState('');
 	const [showNewTokenSet, setShowNewTokenSet] = useState(false);
 	const [tokenSet, setTokenSet] = useState(initialValues.tokenSet || '');
+	const [validValues, setValidValues] = useState(
+		initialValues.editorType === 'Select'
+			? ensureMinimumSelectOptions(initialValues.validValues || [])
+			: initialValues.validValues || []
+	);
 	const [value, setValue] = useState(initialValues.value || '');
 
 	const newTokenSetInputRef = useRef(null);
@@ -62,20 +85,50 @@ export default function NewCustomTokenModal({
 	const handleSubmit = (event) => {
 		event.preventDefault();
 
-		if (!name.trim()) {
+		const selectOptions = validValues.filter((option) => option.value);
+
+		const trimmedName = name.trim();
+
+		let valid = true;
+
+		if (!trimmedName) {
 			setErrorMessage(Liferay.Language.get('this-field-is-required'));
 
+			valid = false;
+		}
+
+		if (
+			editorType === 'Select' &&
+			selectOptions.length < MIN_SELECT_OPTIONS
+		) {
+			setOptionsErrorMessage(
+				Liferay.Language.get('at-least-two-options-are-required')
+			);
+
+			valid = false;
+		}
+
+		if (!valid) {
 			return;
 		}
 
 		onSubmit({
 			editorType,
-			name: name.trim(),
+			name: trimmedName,
 			tokenSet: showNewTokenSet ? newTokenSet.trim() : tokenSet,
+			validValues: editorType === 'Select' ? selectOptions : undefined,
 			value: value.trim(),
 		});
 
 		closeModal();
+	};
+
+	const handleEditorTypeChange = (nextEditorType) => {
+		setEditorType(nextEditorType);
+
+		if (nextEditorType === 'Select') {
+			setValidValues(ensureMinimumSelectOptions(validValues));
+		}
 	};
 
 	const handleToggleNewTokenSet = () => {
@@ -84,6 +137,28 @@ export default function NewCustomTokenModal({
 		}
 
 		setShowNewTokenSet(!showNewTokenSet);
+	};
+
+	const handleAddOption = () => {
+		setOptionsErrorMessage('');
+
+		setValidValues([...validValues, {label: '', value: ''}]);
+	};
+
+	const handleRemoveOption = (index) => {
+		setOptionsErrorMessage('');
+
+		setValidValues(validValues.toSpliced(index, 1));
+	};
+
+	const handleUpdateOption = (index, key, optionValue) => {
+		setOptionsErrorMessage('');
+
+		setValidValues(
+			validValues.map((option, optionIndex) =>
+				optionIndex === index ? {...option, [key]: optionValue} : option
+			)
+		);
 	};
 
 	const handleDelete = () => {
@@ -126,6 +201,19 @@ export default function NewCustomTokenModal({
 						setValue(selectedValue)
 					}
 					showLabel={false}
+					value={value}
+				/>
+			);
+		}
+
+		if (editorType === 'Select') {
+			return (
+				<ClaySelectWithOption
+					onChange={(event) => setValue(event.target.value)}
+					options={[
+						{label: '', value: ''},
+						...validValues.filter((option) => option.value),
+					]}
 					value={value}
 				/>
 			);
@@ -174,12 +262,86 @@ export default function NewCustomTokenModal({
 					>
 						<ClaySelectWithOption
 							onChange={(event) =>
-								setEditorType(event.target.value)
+								handleEditorTypeChange(event.target.value)
 							}
 							options={EDITOR_TYPE_OPTIONS}
 							value={editorType}
 						/>
 					</FieldBase>
+
+					{editorType === 'Select' && (
+						<FieldBase
+							className="mb-0 p-3 panel panel-secondary"
+							errorMessage={optionsErrorMessage}
+							label={Liferay.Language.get('options')}
+						>
+							{validValues.map((option, index) => (
+								<div
+									className="align-items-center d-flex mb-2"
+									key={index}
+								>
+									<ClayInput
+										aria-label={Liferay.Language.get(
+											'label'
+										)}
+										className="mr-2"
+										onChange={(event) =>
+											handleUpdateOption(
+												index,
+												'label',
+												event.target.value
+											)
+										}
+										placeholder={Liferay.Language.get(
+											'label'
+										)}
+										value={option.label}
+									/>
+
+									<ClayInput
+										aria-label={Liferay.Language.get(
+											'value'
+										)}
+										onChange={(event) =>
+											handleUpdateOption(
+												index,
+												'value',
+												event.target.value
+											)
+										}
+										placeholder={Liferay.Language.get(
+											'value'
+										)}
+										value={option.value}
+									/>
+
+									{index >= MIN_SELECT_OPTIONS && (
+										<ClayButtonWithIcon
+											aria-label={Liferay.Language.get(
+												'remove'
+											)}
+											borderless
+											className="flex-shrink-0 ml-2"
+											displayType="secondary"
+											onClick={() =>
+												handleRemoveOption(index)
+											}
+											size="xs"
+											symbol="times"
+										/>
+									)}
+								</div>
+							))}
+
+							<ClayButton
+								displayType="secondary"
+								onClick={handleAddOption}
+								size="sm"
+							>
+								{Liferay.Language.get('add-option')}
+							</ClayButton>
+						</FieldBase>
+					)}
 
 					<FieldBase label={Liferay.Language.get('value')}>
 						{renderValueInput()}
@@ -224,7 +386,7 @@ export default function NewCustomTokenModal({
 
 					{showNewTokenSet && (
 						<FieldBase
-							className="mb-0"
+							className="mb-0 p-3 panel panel-secondary"
 							label={Liferay.Language.get('new-token-set-name')}
 						>
 							<div className="align-items-center d-flex">
@@ -244,7 +406,7 @@ export default function NewCustomTokenModal({
 									data-title={Liferay.Language.get('cancel')}
 									displayType="secondary"
 									onClick={handleToggleNewTokenSet}
-									size="sm"
+									size="xs"
 									symbol="times"
 								/>
 							</div>

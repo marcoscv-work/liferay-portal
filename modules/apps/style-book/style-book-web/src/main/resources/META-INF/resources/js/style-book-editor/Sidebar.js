@@ -241,6 +241,7 @@ function FrontendTokenCategories({activeDefinition}) {
 				label: tokenLabel,
 				tokenDefinitionId,
 				type,
+				validValues,
 				value,
 			} = frontendTokenValue;
 
@@ -267,6 +268,7 @@ function FrontendTokenCategories({activeDefinition}) {
 				name,
 				tokenDefinitionId,
 				type: type || 'String',
+				validValues,
 			});
 		}
 
@@ -350,7 +352,7 @@ function FrontendTokenCategories({activeDefinition}) {
 		[customTokensByTokenSet]
 	);
 
-	const createToken = ({editorType, name, tokenSet, value}) => {
+	const createToken = ({editorType, name, tokenSet, validValues, value}) => {
 		const cssVariableMapping = name
 			.toLowerCase()
 			.replace(/[^a-z0-9]+/g, '-')
@@ -366,6 +368,7 @@ function FrontendTokenCategories({activeDefinition}) {
 				label: name,
 				tokenDefinitionId: config.themeFrontendTokenDefinitionId,
 				type: 'String',
+				validValues,
 				value,
 			},
 		}).then((saved) => {
@@ -411,6 +414,7 @@ function FrontendTokenCategories({activeDefinition}) {
 							storedValue.cssVariableMapping ||
 							frontendToken.label,
 						tokenSet: storedValue.category || '',
+						validValues: storedValue.validValues || [],
 						value: storedValue.value || '',
 					},
 					onDelete: () => {
@@ -419,7 +423,13 @@ function FrontendTokenCategories({activeDefinition}) {
 							name: frontendToken.name,
 						});
 					},
-					onSubmit: ({editorType, name, tokenSet, value}) => {
+					onSubmit: ({
+						editorType,
+						name,
+						tokenSet,
+						validValues,
+						value,
+					}) => {
 						saveTokenValue({
 							label: name,
 							name: frontendToken.name,
@@ -432,6 +442,7 @@ function FrontendTokenCategories({activeDefinition}) {
 								tokenDefinitionId:
 									storedValue.tokenDefinitionId,
 								type: 'String',
+								validValues,
 								value,
 							},
 						}).then((saved) => {

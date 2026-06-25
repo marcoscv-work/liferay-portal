@@ -206,6 +206,110 @@ describe('NewCustomTokenModal', () => {
 		expect(screen.getByTestId('length-input-stub')).toBeInTheDocument();
 	});
 
+	it('starts with two non-removable option rows when the Select editor type is selected', () => {
+		renderComponent();
+
+		fireEvent.change(screen.getAllByRole('combobox')[0], {
+			target: {value: 'Select'},
+		});
+
+		expect(screen.getByText('options')).toBeInTheDocument();
+		expect(screen.getAllByPlaceholderText('label')).toHaveLength(2);
+		expect(
+			screen.queryByRole('button', {name: 'remove'})
+		).not.toBeInTheDocument();
+	});
+
+	it('submits the two filled options as validValues for the Select editor type', async () => {
+		const onSubmit = jest.fn();
+
+		renderComponent({onSubmit});
+
+		await userEvent.type(screen.getAllByRole('textbox')[0], 'Font');
+
+		fireEvent.change(screen.getAllByRole('combobox')[0], {
+			target: {value: 'Select'},
+		});
+
+		await userEvent.type(
+			screen.getAllByPlaceholderText('label')[0],
+			'Sans Serif'
+		);
+		await userEvent.type(
+			screen.getAllByPlaceholderText('value')[0],
+			'sans-serif'
+		);
+		await userEvent.type(
+			screen.getAllByPlaceholderText('label')[1],
+			'Monospace'
+		);
+		await userEvent.type(
+			screen.getAllByPlaceholderText('value')[1],
+			'Courier New'
+		);
+
+		fireEvent.change(screen.getAllByRole('combobox')[1], {
+			target: {value: 'sans-serif'},
+		});
+
+		await userEvent.click(
+			screen.getByRole('button', {name: 'create-token'})
+		);
+
+		expect(onSubmit).toHaveBeenCalledWith({
+			editorType: 'Select',
+			name: 'Font',
+			tokenSet: '',
+			validValues: [
+				{label: 'Sans Serif', value: 'sans-serif'},
+				{label: 'Monospace', value: 'Courier New'},
+			],
+			value: 'sans-serif',
+		});
+	});
+
+	it('blocks submit and shows an error when fewer than two options have a value', async () => {
+		const onSubmit = jest.fn();
+
+		renderComponent({onSubmit});
+
+		await userEvent.type(screen.getAllByRole('textbox')[0], 'Font');
+
+		fireEvent.change(screen.getAllByRole('combobox')[0], {
+			target: {value: 'Select'},
+		});
+
+		await userEvent.type(
+			screen.getAllByPlaceholderText('value')[0],
+			'sans-serif'
+		);
+
+		await userEvent.click(
+			screen.getByRole('button', {name: 'create-token'})
+		);
+
+		expect(
+			screen.getByText('at-least-two-options-are-required')
+		).toBeInTheDocument();
+		expect(onSubmit).not.toHaveBeenCalled();
+	});
+
+	it('allows removing the extra options added beyond the first two', async () => {
+		renderComponent();
+
+		fireEvent.change(screen.getAllByRole('combobox')[0], {
+			target: {value: 'Select'},
+		});
+
+		await userEvent.click(screen.getByRole('button', {name: 'add-option'}));
+
+		expect(screen.getAllByPlaceholderText('label')).toHaveLength(3);
+
+		await userEvent.click(screen.getByRole('button', {name: 'remove'}));
+
+		expect(screen.getAllByPlaceholderText('label')).toHaveLength(2);
+	});
+
 	it('renders a delete button that opens a confirm modal and deletes on confirm', async () => {
 		const closeModal = jest.fn();
 		const onDelete = jest.fn();
