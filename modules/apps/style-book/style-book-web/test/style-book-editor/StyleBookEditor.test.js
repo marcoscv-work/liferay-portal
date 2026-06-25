@@ -29,12 +29,6 @@ jest.mock(
 	() => () => <div data-testid="LayoutPreview" />
 );
 
-global.Liferay = {
-	Language: {
-		get: jest.fn((key) => key),
-	},
-};
-
 const frontendTokenDefinitions = [
 	{
 		frontendTokenCategories: [

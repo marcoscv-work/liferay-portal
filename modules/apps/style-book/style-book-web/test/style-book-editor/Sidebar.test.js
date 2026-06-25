@@ -100,12 +100,6 @@ jest.mock(
 	})
 );
 
-global.Liferay = {
-	Language: {
-		get: jest.fn((key) => key),
-	},
-};
-
 const renderComponent = () => {
 	render(
 		<StyleBookEditorContextProvider
@@ -159,5 +153,25 @@ describe('Sidebar', () => {
 
 		expect(screen.getAllByText('Clay Category')[0]).toBeInTheDocument();
 		expect(screen.queryByText('Category 1')).not.toBeInTheDocument();
+	});
+
+	describe('LPD-95808 custom tokens feature flag', () => {
+		afterEach(() => {
+			Liferay.FeatureFlags['LPD-95808'] = false;
+		});
+
+		it('renders the new-token button when the feature flag is enabled', () => {
+			Liferay.FeatureFlags['LPD-95808'] = true;
+
+			renderComponent();
+
+			expect(screen.getByText('new-token')).toBeInTheDocument();
+		});
+
+		it('does not render the new-token button when the feature flag is disabled', () => {
+			renderComponent();
+
+			expect(screen.queryByText('new-token')).not.toBeInTheDocument();
+		});
 	});
 });

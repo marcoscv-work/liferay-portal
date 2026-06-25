@@ -6,6 +6,7 @@
 import {
 	ADD_REDO_ACTION,
 	ADD_UNDO_ACTION,
+	DELETE_TOKEN_VALUE,
 	SET_DRAFT_STATUS,
 	SET_TOKEN_VALUES,
 	UPDATE_UNDO_REDO_HISTORY,
@@ -74,6 +75,15 @@ describe('editorReducer', () => {
 			...frontendTokensValues,
 			...tokens,
 		});
+	});
+
+	it('removes the token value when dispatching DELETE_TOKEN_VALUE action', () => {
+		const {frontendTokensValues} = editorReducer(STATE, {
+			name: 'testColor1',
+			type: DELETE_TOKEN_VALUE,
+		});
+
+		expect(frontendTokensValues).toEqual({});
 	});
 
 	it('saves needed state when dispatching ADD_UNDO_ACTION action when is a redo action', () => {
