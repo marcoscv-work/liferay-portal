@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import ClayButton from '@clayui/button';
+import ClayIcon from '@clayui/icon';
 import ClayPanel from '@clayui/panel';
 import PropTypes from 'prop-types';
 import React, {useCallback} from 'react';
@@ -21,6 +23,7 @@ import TextFrontendToken from './frontend_tokens/TextFrontendToken';
 export default function FrontendTokenSet({
 	frontendTokens,
 	label,
+	onEditToken,
 	open,
 	tokenValues,
 }) {
@@ -45,6 +48,7 @@ export default function FrontendTokenSet({
 					label,
 					name,
 					value: {
+						...frontendTokensValues[name],
 						cssVariableMapping: cssVariableMapping.value,
 						name: tokenValues[value]?.name,
 						tokenDefinitionId,
@@ -53,7 +57,7 @@ export default function FrontendTokenSet({
 				});
 			}
 		},
-		[saveTokenValue, tokenValues]
+		[frontendTokensValues, saveTokenValue, tokenValues]
 	);
 
 	return (
@@ -80,6 +84,33 @@ export default function FrontendTokenSet({
 							frontendTokensValues[frontendToken.name]?.value ||
 							frontendToken.defaultValue,
 					};
+
+					if (frontendToken.custom) {
+						return (
+							<div
+								className="align-items-end d-flex style-book-editor__custom-token"
+								key={frontendToken.name}
+							>
+								<div className="flex-grow-1">
+									<FrontendTokenComponent {...props} />
+								</div>
+
+								<ClayButton
+									borderless
+									className="ml-1"
+									displayType="secondary"
+									monospaced
+									onClick={() => onEditToken(frontendToken)}
+									size="sm"
+									title={Liferay.Language.get(
+										'stylebook-custom-token'
+									)}
+								>
+									<ClayIcon symbol="pencil" />
+								</ClayButton>
+							</div>
+						);
+					}
 
 					return (
 						<FrontendTokenComponent
@@ -119,5 +150,5 @@ FrontendTokenSet.propTypes = {
 			name: PropTypes.string.isRequired,
 		})
 	),
-	name: PropTypes.string,
+	onEditToken: PropTypes.func,
 };
