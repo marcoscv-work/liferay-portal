@@ -7,10 +7,12 @@ package com.liferay.layout.content.page.editor.web.internal.util;
 
 import com.liferay.frontend.token.definition.FrontendTokenDefinition;
 import com.liferay.frontend.token.definition.FrontendTokenMapping;
+import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.style.book.model.StyleBookEntry;
@@ -28,6 +30,15 @@ public class StyleBookEntryUtil {
 	public static Map<String, Object> getFrontendTokensValues(
 			FrontendTokenDefinition frontendTokenDefinition, Locale locale,
 			StyleBookEntry styleBookEntry)
+		throws Exception {
+
+		return getFrontendTokensValues(
+			frontendTokenDefinition, locale, styleBookEntry, false);
+	}
+
+	public static Map<String, Object> getFrontendTokensValues(
+			FrontendTokenDefinition frontendTokenDefinition, Locale locale,
+			StyleBookEntry styleBookEntry, boolean customTokensEnabled)
 		throws Exception {
 
 		Map<String, Object> frontendTokensValues = new LinkedHashMap<>();
@@ -77,7 +88,77 @@ public class StyleBookEntryUtil {
 			}
 		}
 
+		if (customTokensEnabled) {
+			_addCustomFrontendTokensValues(
+				frontendTokensValues, frontendTokenValuesJSONObject, locale);
+		}
+
 		return frontendTokensValues;
+	}
+
+	private static void _addCustomFrontendTokensValues(
+		Map<String, Object> frontendTokensValues,
+		JSONObject frontendTokenValuesJSONObject, Locale locale) {
+
+		for (String key : frontendTokenValuesJSONObject.keySet()) {
+			JSONObject valueJSONObject =
+				frontendTokenValuesJSONObject.getJSONObject(key);
+
+			if (valueJSONObject == null) {
+				continue;
+			}
+
+			String name = key;
+
+			int index = key.indexOf(CharPool.COLON);
+
+			if (index != -1) {
+				name = key.substring(index + 1);
+			}
+
+			if (frontendTokensValues.containsKey(name)) {
+				continue;
+			}
+
+			String cssVariableMapping = valueJSONObject.getString(
+				"cssVariableMapping");
+
+			if (Validator.isNull(cssVariableMapping)) {
+				continue;
+			}
+
+			String customLabel = LanguageUtil.get(locale, "custom");
+
+			String label = valueJSONObject.getString("label");
+
+			if (Validator.isNull(label)) {
+				label = name;
+			}
+
+			String tokenSetLabel = valueJSONObject.getString("category");
+
+			if (Validator.isNull(tokenSetLabel)) {
+				tokenSetLabel = customLabel;
+			}
+
+			frontendTokensValues.put(
+				name,
+				HashMapBuilder.<String, Object>put(
+					FrontendTokenMapping.TYPE_CSS_VARIABLE, cssVariableMapping
+				).put(
+					"editorType", valueJSONObject.getString("editorType")
+				).put(
+					"label", label
+				).put(
+					"name", name
+				).put(
+					"tokenCategoryLabel", customLabel
+				).put(
+					"tokenSetLabel", tokenSetLabel
+				).put(
+					"value", valueJSONObject.getString("value")
+				).build());
+		}
 	}
 
 	private static JSONObject _getFrontendTokenValuesJSONObject(

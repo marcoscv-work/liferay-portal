@@ -10,6 +10,7 @@ import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
 import com.liferay.layout.constants.LayoutTypeSettingsConstants;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.content.page.editor.web.internal.util.StyleBookEntryUtil;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Layout;
@@ -91,7 +92,9 @@ public class ChangeStyleBookEntryMVCActionCommand
 			StyleBookEntryUtil.getFrontendTokensValues(
 				_frontendTokenDefinitionRegistry.getFrontendTokenDefinition(
 					themeDisplay.getLayout()),
-				themeDisplay.getLocale(), styleBookEntry));
+				themeDisplay.getLocale(), styleBookEntry,
+				FeatureFlagManagerUtil.isEnabled(
+					themeDisplay.getCompanyId(), "LPD-95808")));
 	}
 
 	@Override

@@ -438,7 +438,9 @@ public class ContentPageEditorDisplayContext {
 
 					return StyleBookEntryUtil.getFrontendTokensValues(
 						frontendTokenDefinition, themeDisplay.getLocale(),
-						_getDefaultStyleBookEntry());
+						_getDefaultStyleBookEntry(),
+						FeatureFlagManagerUtil.isEnabled(
+							themeDisplay.getCompanyId(), "LPD-95808"));
 				}
 			).put(
 				"getAvailableImageConfigurationsURL",

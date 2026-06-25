@@ -10,6 +10,8 @@ import com.liferay.portal.json.JSONFactoryImpl;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 import com.liferay.style.book.model.StyleBookEntry;
@@ -40,6 +42,18 @@ public class StyleBookEntryUtilTest {
 		JSONFactoryUtil jsonFactoryUtil = new JSONFactoryUtil();
 
 		jsonFactoryUtil.setJSONFactory(new JSONFactoryImpl());
+
+		Language language = Mockito.mock(Language.class);
+
+		Mockito.when(
+			language.get(Mockito.any(Locale.class), Mockito.anyString())
+		).thenReturn(
+			"Custom"
+		);
+
+		LanguageUtil languageUtil = new LanguageUtil();
+
+		languageUtil.setLanguage(language);
 	}
 
 	@Test
@@ -112,6 +126,35 @@ public class StyleBookEntryUtilTest {
 				_mockStyleBookEntry(JSONFactoryUtil.createJSONObject()));
 
 		Assert.assertTrue(frontendTokensValues.isEmpty());
+	}
+
+	@Test
+	public void testGetFrontendTokensValuesWithCustomToken() throws Exception {
+		Map<String, Object> frontendTokensValues =
+			StyleBookEntryUtil.getFrontendTokensValues(
+				_mockFrontendTokenDefinition(_THEME_ID),
+				LocaleUtil.getDefault(),
+				_mockStyleBookEntry(
+					JSONUtil.put(
+						_THEME_ID + ":brand-accent",
+						JSONUtil.put(
+							"cssVariableMapping", "brand-accent"
+						).put(
+							"editorType", "ColorPicker"
+						).put(
+							"label", "Brand Accent"
+						).put(
+							"value", "#FF00FF"
+						))),
+				true);
+
+		Map<?, ?> frontendTokenValue = (Map<?, ?>)frontendTokensValues.get(
+			"brand-accent");
+
+		Assert.assertEquals(
+			"brand-accent", frontendTokenValue.get("cssVariable"));
+		Assert.assertEquals("Brand Accent", frontendTokenValue.get("label"));
+		Assert.assertEquals("#FF00FF", frontendTokenValue.get("value"));
 	}
 
 	private Object _getFrontendTokenValue(

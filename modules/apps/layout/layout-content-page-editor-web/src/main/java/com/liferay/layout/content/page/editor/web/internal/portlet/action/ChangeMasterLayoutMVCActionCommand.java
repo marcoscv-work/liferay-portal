@@ -19,6 +19,7 @@ import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -214,7 +215,9 @@ public class ChangeMasterLayoutMVCActionCommand
 				"tokenValues",
 				StyleBookEntryUtil.getFrontendTokensValues(
 					frontendTokenDefinition, themeDisplay.getLocale(),
-					defaultStyleBookEntry)
+					defaultStyleBookEntry,
+					FeatureFlagManagerUtil.isEnabled(
+						themeDisplay.getCompanyId(), "LPD-95808"))
 			));
 
 		List<StyleBookEntry> styleBookEntries =
@@ -237,7 +240,9 @@ public class ChangeMasterLayoutMVCActionCommand
 					StyleBookEntryUtil.getFrontendTokensValues(
 						_frontendTokenDefinitionRegistry.
 							getFrontendTokenDefinition(layout),
-						themeDisplay.getLocale(), styleBookEntry)
+						themeDisplay.getLocale(), styleBookEntry,
+						FeatureFlagManagerUtil.isEnabled(
+							themeDisplay.getCompanyId(), "LPD-95808"))
 				));
 		}
 
