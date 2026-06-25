@@ -75,6 +75,8 @@ function internalSaveTokenValues({dispatch, frontendTokensValues, tokens}) {
 				tokens,
 				type: SET_TOKEN_VALUES,
 			});
+
+			return true;
 		})
 		.catch((error) => {
 			if (process.env.NODE_ENV === 'development') {
@@ -90,6 +92,8 @@ function internalSaveTokenValues({dispatch, frontendTokensValues, tokens}) {
 				message: error.message,
 				type: 'danger',
 			});
+
+			return false;
 		});
 }
 
@@ -100,17 +104,19 @@ export function useSaveTokenValue() {
 	return ({label, name, value}) => {
 		const previousValue = frontendTokensValues[name];
 
-		internalSaveTokenValues({
+		return internalSaveTokenValues({
 			dispatch,
 			frontendTokensValues,
 			tokens: {[name]: value},
-		}).then(() => {
+		}).then((saved) => {
 			dispatch({
 				label,
 				name,
 				type: ADD_UNDO_ACTION,
 				value: previousValue,
 			});
+
+			return saved;
 		});
 	};
 }

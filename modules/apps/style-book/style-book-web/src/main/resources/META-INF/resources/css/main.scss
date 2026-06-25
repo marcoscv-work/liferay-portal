@@ -18,6 +18,14 @@ html#{$cadmin-selector} {
 		}
 
 		.style-book-editor {
+			&__custom-token {
+				margin-bottom: 1rem;
+
+				.form-group {
+					margin-bottom: 0;
+				}
+			}
+
 			&__page-preview {
 				flex-grow: 1;
 				position: relative;
