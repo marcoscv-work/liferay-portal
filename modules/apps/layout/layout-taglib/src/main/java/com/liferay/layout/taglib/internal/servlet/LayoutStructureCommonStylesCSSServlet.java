@@ -18,10 +18,12 @@ import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.layout.util.structure.StyledLayoutStructureItem;
 import com.liferay.petra.lang.SafeCloseable;
+import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -344,6 +346,47 @@ public class LayoutStructureCommonStylesCSSServlet extends HttpServlet {
 				).put(
 					"value", value
 				));
+		}
+
+		if (FeatureFlagManagerUtil.isEnabled(
+				layout.getCompanyId(), "LPD-95808")) {
+
+			for (String key : frontendTokenValuesJSONObject.keySet()) {
+				JSONObject valueJSONObject =
+					frontendTokenValuesJSONObject.getJSONObject(key);
+
+				if (valueJSONObject == null) {
+					continue;
+				}
+
+				String name = key;
+
+				int index = key.indexOf(CharPool.COLON);
+
+				if (index != -1) {
+					name = key.substring(index + 1);
+				}
+
+				if (frontendTokensJSONObject.has(name)) {
+					continue;
+				}
+
+				String cssVariableMapping = valueJSONObject.getString(
+					"cssVariableMapping");
+
+				if (Validator.isNull(cssVariableMapping)) {
+					continue;
+				}
+
+				frontendTokensJSONObject.put(
+					name,
+					JSONUtil.put(
+						FrontendTokenMapping.TYPE_CSS_VARIABLE,
+						cssVariableMapping
+					).put(
+						"value", valueJSONObject.getString("value")
+					));
+			}
 		}
 
 		return frontendTokensJSONObject;
