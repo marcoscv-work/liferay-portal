@@ -1,0 +1,4 @@
+Bundle-Name: Liferay Product Navigation Global Search API
+Bundle-SymbolicName: com.liferay.product.navigation.global.search.api
+Bundle-Version: 1.0.0
+Export-Package: com.liferay.product.navigation.global.search
