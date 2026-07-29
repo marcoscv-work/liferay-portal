@@ -7,6 +7,12 @@
 
 <%@ include file="/init.jsp" %>
 
-<li class="control-menu-nav-item control-menu-nav-item-separator">
+<%
+com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay = (com.liferay.portal.kernel.theme.ThemeDisplay)request.getAttribute(com.liferay.portal.kernel.util.WebKeys.THEME_DISPLAY);
+
+boolean globalSearchVisible = themeDisplay.isSignedIn() && !com.liferay.portal.kernel.util.Constants.EDIT.equals(com.liferay.portal.kernel.util.ParamUtil.getString(request, "p_l_mode", com.liferay.portal.kernel.util.Constants.VIEW));
+%>
+
+<li class="control-menu-nav-item <%= globalSearchVisible ? "" : "control-menu-nav-item-separator" %>">
 	<%@ include file="/applications_menu/applications_menu.jspf" %>
 </li>
