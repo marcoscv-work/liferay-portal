@@ -105,6 +105,7 @@ import {config as frontendJsAuiWebSearchContainerSelectConfig} from './tests/fro
 import {config as frontendJsBootstrapSupportWebConfig} from './tests/frontend-js-bootstrap-support-web/main/config';
 import {config as frontendJsClayWebConfig} from './tests/frontend-js-clay-web/main/config';
 import {config as frontendJsComponentsWebConfig} from './tests/frontend-js-components-web/main/config';
+import {config as frontendJsImageEditorWebConfig} from './tests/frontend-js-image-editor-web/main/config';
 import {config as frontendJsItemSelectorWebConfig} from './tests/frontend-js-item-selector-web/main/config';
 import {config as frontendJsSpaWebConfig} from './tests/frontend-js-spa-web/main/config';
 import {config as frontendJsWebConfig} from './tests/frontend-js-web/main/config';
@@ -216,6 +217,8 @@ import {config as segmentsWebConfig} from './tests/segments-web/main/config';
 import {config as seoStudioWebConfig} from './tests/seo-studio-web/main/config';
 import {config as serverAdminWebDatabaseMigrationConfig} from './tests/server-admin-web/database-migration/config';
 import {config as serverAdminWebConfig} from './tests/server-admin-web/main/config';
+import {config as imageEditorFeatureFlagConfig} from './tests/setup/image-editor-feature-flag/main/config';
+import {config as imageEditorFeatureFlagTeardownConfig} from './tests/setup/image-editor-feature-flag/teardown/config';
 import {config as pageManagementSiteConfig} from './tests/setup/page-management-site/main/config';
 import {config as pageManagementSiteTeardownConfig} from './tests/setup/page-management-site/teardown/config';
 import {config as seoStudioSiteConfig} from './tests/setup/seo-studio-site/main/config';
@@ -256,6 +259,8 @@ import {config as commerceWorkspaceConfig} from './tests/workspaces/liferay-work
 import {config as marketplaceConfig} from './tests/workspaces/liferay-workspace-marketplace/main/config';
 
 const setupProjects = [
+	imageEditorFeatureFlagConfig,
+	imageEditorFeatureFlagTeardownConfig,
 	pageManagementSiteConfig,
 	pageManagementSiteTeardownConfig,
 	seoStudioSiteConfig,
@@ -371,6 +376,7 @@ export default defineConfig({
 		frontendJsBootstrapSupportWebConfig,
 		frontendJsClayWebConfig,
 		frontendJsComponentsWebConfig,
+		frontendJsImageEditorWebConfig,
 		frontendJsItemSelectorWebConfig,
 		frontendJsSpaWebConfig,
 		frontendJsWebConfig,

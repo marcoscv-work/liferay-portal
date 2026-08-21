@@ -1,0 +1,12 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
+export const config = {
+	name: 'image-editor-feature-flag.main',
+	teardown: 'image-editor-feature-flag.teardown',
+	testDir: 'tests/setup/image-editor-feature-flag/main',
+	testMatch: 'setup.spec.ts',
+	timeout: 90 * 1000,
+};
