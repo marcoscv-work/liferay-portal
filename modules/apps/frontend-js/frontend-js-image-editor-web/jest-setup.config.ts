@@ -15,3 +15,9 @@ if (!globalThis.ResizeObserver) {
 		unobserve() {}
 	} as unknown as typeof ResizeObserver;
 }
+
+// jsdom implements getContext as a loud console.error; a null context
+// is the honest headless answer.
+
+HTMLCanvasElement.prototype.getContext = (() =>
+	null) as unknown as HTMLCanvasElement['getContext'];

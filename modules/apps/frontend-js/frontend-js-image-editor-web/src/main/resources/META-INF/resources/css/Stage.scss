@@ -1,0 +1,157 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+.image-editor-modal .editor-workspace {
+	background: var(--editor-workspace-bg);
+	display: flex;
+	flex: 1;
+	overflow: scroll;
+	scrollbar-gutter: stable;
+}
+
+.image-editor-modal .editor-workspace:focus-visible {
+	box-shadow: inset 0 0 0 3px rgb(255 255 255 / 60%);
+	outline: 2px solid var(--editor-accent);
+	outline-offset: -2px;
+}
+
+.image-editor-modal .editor-stage {
+	box-sizing: content-box;
+	display: block;
+	margin: auto;
+	overflow: visible;
+	padding: 24px;
+}
+
+.image-editor-modal .crop-dim {
+	fill: rgba(10, 11, 20, 0.6);
+}
+
+.image-editor-modal .crop-border {
+	stroke: var(--editor-accent);
+}
+
+.image-editor-modal .crop-move {
+	cursor: move;
+}
+
+.image-editor-modal .crop-grid {
+	opacity: 0;
+	transition: opacity 400ms ease-out;
+}
+
+.image-editor-modal .crop-grid-visible {
+	opacity: 1;
+}
+
+.image-editor-modal .crop-grid line {
+	stroke: rgba(255, 255, 255, 0.5);
+}
+
+.image-editor-modal .crop-recenter {
+	cursor: pointer;
+	opacity: 0;
+	outline: none;
+	transition: opacity 250ms ease-out;
+}
+
+.image-editor-modal .crop-move:hover ~ .crop-recenter,
+.image-editor-modal .crop-recenter-focused,
+.image-editor-modal .crop-recenter:hover {
+	opacity: 1;
+}
+
+.image-editor-modal .crop-recenter-disc {
+	fill: rgba(255, 255, 255, 0.9);
+}
+
+.image-editor-modal .crop-recenter-icon {
+	color: #14151f;
+	pointer-events: none;
+}
+
+.image-editor-modal .crop-handle-visual {
+	fill: #fff;
+	stroke: var(--editor-accent);
+}
+
+.image-editor-modal .crop-handle {
+	cursor: pointer;
+}
+
+.image-editor-modal .crop-handle,
+.image-editor-modal .crop-move,
+.image-editor-modal .overlay-hit {
+	outline: none;
+}
+
+.image-editor-modal .crop-handle-visual,
+.image-editor-modal .focus-ring-inner,
+.image-editor-modal .focus-ring-outer,
+.image-editor-modal .object-handles,
+.image-editor-modal .selection-ring {
+	animation: image-editor-stage-fade-in 220ms ease-out;
+}
+
+.image-editor-modal .focus-ring-inner {
+	stroke: #fff;
+}
+
+.image-editor-modal .focus-ring-outer {
+	stroke: var(--editor-accent);
+}
+
+.image-editor-modal .editor-crop-size-row {
+	align-items: center;
+	display: flex;
+	gap: 0.25rem;
+}
+
+.image-editor-modal .editor-crop-size-row .form-group {
+	flex: 1;
+}
+
+.image-editor-modal .overlay-hit {
+	cursor: move;
+}
+
+.image-editor-modal .editor-draw-cursor-halo line {
+	stroke: #fff;
+}
+
+.image-editor-modal .editor-draw-cursor-line line {
+	stroke: var(--editor-accent);
+}
+
+.image-editor-modal .editor-draw-cursor-dot {
+	fill: #fff;
+	stroke: var(--editor-accent);
+}
+
+.image-editor-modal .editor-draw-preview {
+	opacity: 0.9;
+}
+
+.image-editor-modal .editor-draw-anchor {
+	fill: #fff;
+	stroke: var(--editor-accent);
+}
+
+.image-editor-modal .editor-draw-anchor-halo {
+	fill: none;
+	stroke: #fff;
+}
+
+.image-editor-modal .editor-draw-surface rect:focus {
+	outline: none;
+}
+
+.image-editor-modal .object-handle {
+	fill: #fff;
+	stroke: var(--editor-accent);
+}
+
+.image-editor-modal .object-handle-rotate {
+	cursor: grab;
+}
