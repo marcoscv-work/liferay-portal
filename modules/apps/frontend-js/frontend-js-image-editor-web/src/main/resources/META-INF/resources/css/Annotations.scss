@@ -60,7 +60,7 @@
 
 .image-editor-modal .editor-layer-item-grouped,
 .image-editor-modal .editor-layer-item-selected {
-	background: var(--primary, #0b5fff);
+	background: var(--editor-primary);
 }
 
 .image-editor-modal .editor-layer-item-grouped .editor-layer-actions .btn,
@@ -96,7 +96,7 @@
 .image-editor-modal .editor-layer-item:focus-within::after {
 	box-shadow:
 		inset 0 0 0 2px #fff,
-		inset 0 0 0 4px var(--primary, #0b5fff);
+		inset 0 0 0 4px var(--editor-primary);
 }
 
 .image-editor-modal .editor-layer-actions {
@@ -186,7 +186,7 @@
 
 .image-editor-modal .editor-emoji-empty,
 .dropdown-menu.editor-menu-popover .editor-emoji-empty {
-	color: var(--editor-text-muted, #6b6c7e);
+	color: var(--editor-text-muted);
 	font-size: 0.8125rem;
 	padding: 1rem 0.25rem;
 	width: 18rem;
@@ -194,13 +194,13 @@
 
 .image-editor-modal .editor-emoji-count,
 .dropdown-menu.editor-menu-popover .editor-emoji-count {
-	color: var(--editor-text-muted, #6b6c7e);
+	color: var(--editor-text-muted);
 	font-size: 0.75rem;
 	padding: 0 0.125rem 0.5rem;
 }
 
 .image-editor-modal .editor-group-note {
-	color: var(--editor-text-muted, #6b6c7e);
+	color: var(--editor-text-muted);
 	font-size: 0.8125rem;
 	margin: 0.25rem 0 0;
 }

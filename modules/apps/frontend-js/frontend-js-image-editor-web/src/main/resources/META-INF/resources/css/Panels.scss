@@ -157,7 +157,7 @@
 	.editor-preset-input:checked
 	~ .editor-preset-label
 	.editor-preset-card {
-	border-color: var(--primary, #0b5fff);
+	border-color: var(--editor-primary);
 }
 
 .image-editor-modal
@@ -172,7 +172,7 @@
 	.editor-preset-input:checked
 	~ .editor-preset-label
 	.editor-preset-card::after {
-	background: var(--primary, #0b5fff);
+	background: var(--editor-primary);
 	border-radius: 50%;
 	color: #fff;
 	content: '\2713';
@@ -190,7 +190,7 @@
 	.editor-preset-input:focus-visible
 	~ .editor-preset-label
 	.editor-preset-card {
-	outline: 2px solid var(--primary, #0b5fff);
+	outline: 2px solid var(--editor-primary);
 	outline-offset: 2px;
 }
 
