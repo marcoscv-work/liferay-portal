@@ -1,0 +1,65 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
+import '@testing-library/jest-dom';
+
+import {
+	ADJUSTMENT_KEYS,
+	ANNOTATE_TOOLS,
+	resolveConfig,
+} from '../src/main/resources/META-INF/resources/js/editorConfig';
+import {FILTER_PRESETS} from '../src/main/resources/META-INF/resources/js/imaging/FilterDefs';
+
+describe('resolveConfig', () => {
+	it('exposes everything by default', () => {
+		const resolved = resolveConfig();
+
+		expect(resolved.adjustments).toEqual(ADJUSTMENT_KEYS);
+		expect(resolved.annotate.tools).toEqual(ANNOTATE_TOOLS);
+		expect(resolved.filters).toEqual(FILTER_PRESETS);
+		expect(resolved.crop).toMatchObject({
+			enabled: true,
+			rotate: true,
+			straighten: true,
+		});
+	});
+
+	it('switches a whole section off with false', () => {
+		const resolved = resolveConfig({adjustments: false, annotate: false});
+
+		expect(resolved.adjustments).toEqual([]);
+		expect(resolved.annotate.tools).toEqual([]);
+
+		expect(resolved.filters).toEqual(FILTER_PRESETS);
+	});
+
+	it('narrows a section to a subset', () => {
+		const resolved = resolveConfig({
+			adjustments: {sliders: ['contrast', 'brightness']},
+			filters: {presets: ['sepia', 'none']},
+		});
+
+		expect(resolved.adjustments).toEqual(['brightness', 'contrast']);
+		expect(resolved.filters).toEqual(['none', 'sepia']);
+	});
+
+	it('ignores names that do not exist', () => {
+		const resolved = resolveConfig({
+			filters: {presets: ['sepia', 'nope' as never]},
+		});
+
+		expect(resolved.filters).toEqual(['sepia']);
+	});
+
+	it('turns crop features off individually', () => {
+		const resolved = resolveConfig({crop: {rotate: false}});
+
+		expect(resolved.crop).toMatchObject({
+			enabled: true,
+			rotate: false,
+			straighten: true,
+		});
+	});
+});
