@@ -6,10 +6,14 @@
 import {CategorizeEventPayload} from '../../Categorization/events';
 import {Result} from '../../TranslateContent/types';
 import {ContentType} from '../components/ContentTypeSelectorMessageBalloon';
-import {GENERATE_FIELD_VALUE_AGENT_EXTERNAL_REFERENCE_CODE} from '../events';
+import {
+	GENERATE_FIELD_VALUE_AGENT_EXTERNAL_REFERENCE_CODE,
+	IMAGE_DESCRIPTOR_AGENT_EXTERNAL_REFERENCE_CODE,
+} from '../events';
 import {Space} from '../services/getSpaces';
 import {AgentComponent, Message} from '../types';
 import getGeneratedFieldValues from './getGeneratedFieldValues';
+import getImageDescription, {ImageDescription} from './getImageDescription';
 import parseContentDraftsMessage from './parseContentDraftsMessage';
 
 export interface TranslateMessage {
@@ -26,6 +30,7 @@ export type ResolvedMessage =
 	| {contentTypes: ContentType[]; type: 'content-types'}
 	| {contentTypes: ContentType[]; spaces: Space[]; type: 'space-selector'}
 	| {fieldValues: Record<string, string>; type: 'field-values'}
+	| {imageDescription: ImageDescription; type: 'image-description'}
 	| {images: string[]; type: 'images'}
 	| {translate: TranslateMessage; type: 'translate'}
 	| {type: 'assistant'}
@@ -43,6 +48,19 @@ function getFieldValues(item: Message): Record<string, string> {
 	}
 
 	return getGeneratedFieldValues(item.text);
+}
+
+function getMessageImageDescription(item: Message): ImageDescription | null {
+	if (
+		item.error ||
+		!item.agentDefinitionExternalReferenceCodes?.includes(
+			IMAGE_DESCRIPTOR_AGENT_EXTERNAL_REFERENCE_CODE
+		)
+	) {
+		return null;
+	}
+
+	return getImageDescription(item.text);
 }
 
 function parseTranslateMessage(text: string): TranslateMessage | null {
@@ -105,6 +123,12 @@ export default function resolveMessage(item: Message): ResolvedMessage {
 
 	if (translate) {
 		return {translate, type: 'translate'};
+	}
+
+	const imageDescription = getMessageImageDescription(item);
+
+	if (imageDescription) {
+		return {imageDescription, type: 'image-description'};
 	}
 
 	const fieldValues = getFieldValues(item);

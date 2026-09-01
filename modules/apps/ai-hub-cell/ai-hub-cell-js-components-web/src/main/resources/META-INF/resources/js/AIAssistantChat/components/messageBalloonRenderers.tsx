@@ -9,12 +9,14 @@ import {APPLY_OBJECT_FIELD_VALUES_EVENT} from '../events';
 import {Message} from '../types';
 import {AIChat} from '../useAIChat';
 import buildContentTypeMessage from '../utils/buildContentTypeMessage';
+import injectAltTextIntoField from '../utils/injectAltTextIntoField';
 import {ResolvedMessage} from '../utils/resolveMessage';
 import AIAssistantMessageBalloon from './AIAssistantMessageBalloon';
 import CategorizationMessageBalloon from './CategorizationMessageBalloon';
 import ContentTypeSelectorMessageBalloon from './ContentTypeSelectorMessageBalloon';
 import ContentsMessageBalloon from './ContentsMessageBalloon';
 import FieldValueMessageBalloon from './FieldValueMessageBalloon';
+import ImageDescriptionMessageBalloon from './ImageDescriptionMessageBalloon';
 import ImageMessageBalloon from './ImageMessageBalloon';
 import QuickRepliesMessageBalloon from './QuickRepliesMessageBalloon';
 import SelectComponentMessageBalloon from './SelectComponentMessageBalloon';
@@ -91,6 +93,49 @@ const MESSAGE_BALLOON_RENDERERS: MessageBalloonRenderers = {
 					}
 				}}
 				values={fieldValues}
+			/>
+		);
+	},
+	'image-description': ({chat, index}, {imageDescription}) => {
+		const chatContext = {
+			...chat.contextRef.current,
+			...chat.getContextRef.current?.(),
+		};
+
+		const previousMessage = chat.messages[index - 1];
+
+		return (
+			<ImageDescriptionMessageBalloon
+				imageDescription={imageDescription}
+				onApply={(altText) => {
+					const injected = injectAltTextIntoField(
+						chatContext.altTextFieldSelector ??
+							chat.fileUploadSelectorRef.current ??
+							'',
+						altText
+					);
+
+					Liferay.Util.openToast(
+						injected
+							? {
+									message: Liferay.Language.get(
+										'the-alt-text-was-applied'
+									),
+									type: 'info',
+								}
+							: {
+									message: Liferay.Language.get(
+										'the-alt-text-could-not-be-applied'
+									),
+									type: 'danger',
+								}
+					);
+				}}
+				onRegenerate={() => {
+					if (previousMessage?.sender === 'user') {
+						chat.sendMessage(previousMessage.text);
+					}
+				}}
 			/>
 		);
 	},
