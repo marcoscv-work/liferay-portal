@@ -12,8 +12,11 @@ import {HttpRequestAction} from './types';
 const AI_HUB_ENDPOINT = '/o/ai-hub/v1.0';
 
 export interface ChatContext {
+	altTextFieldSelector?: string;
 	fileUploadSelector?: string;
 	groupId?: number | string;
+	imageFileEntryExternalReferenceCode?: string;
+	imageURL?: string;
 	objectEntryFolderExternalReferenceCode?: string;
 	[key: string]: unknown;
 }
