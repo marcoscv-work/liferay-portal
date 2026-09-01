@@ -1159,6 +1159,43 @@ public class AgentDefinitionResourceTest
 					active = true;
 					externalReferenceCode =
 						WorkflowDefinitionConstants.
+							EXTERNAL_REFERENCE_CODE_IMAGE_DESCRIPTOR;
+					inputVariables = new Variable[] {
+						new Variable() {
+							{
+								name = "context";
+								type = "string";
+							}
+						},
+						new Variable() {
+							{
+								name = "imageFileEntryExternalReferenceCode";
+								type = "string";
+							}
+						},
+						new Variable() {
+							{
+								name = "imageURL";
+								type = "string";
+							}
+						}
+					};
+					outputVariable = new Variable() {
+						{
+							name = "imageDescription";
+							type = "string";
+						}
+					};
+					version = 1;
+					workflowDefinitionName =
+						WorkflowDefinitionConstants.NAME_IMAGE_DESCRIPTOR;
+				}
+			},
+			new AgentDefinition() {
+				{
+					active = true;
+					externalReferenceCode =
+						WorkflowDefinitionConstants.
 							EXTERNAL_REFERENCE_CODE_IMPROVE_WRITING;
 					inputVariables = new Variable[] {
 						new Variable() {
