@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+
+<workflow-definition
+	xmlns="urn:liferay.com:liferay-workflow_7.4.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:liferay.com:liferay-workflow_7.4.0 http://www.liferay.com/dtd/liferay-workflow-definition_7_4_0.xsd"
+>
+	<name>Image Descriptor</name>
+	<version>1</version>
+	<llm>
+		<name>imageDescriptor</name>
+		<metadata>
+			<![CDATA[
+				{
+					"xy": [
+						276,
+						242
+					]
+				}
+			]]>
+		</metadata>
+		<labels>
+			<label language-id="en_US">
+				Image Descriptor
+			</label>
+		</labels>
+		<input-variables>
+			<![CDATA[
+				[
+					{
+						"name": "context",
+						"type": "string"
+					},
+					{
+						"name": "imageFileEntryExternalReferenceCode",
+						"type": "string"
+					},
+					{
+						"name": "imageURL",
+						"type": "string"
+					}
+				]
+			]]>
+		</input-variables>
+		<output-variables>
+			<![CDATA[
+				[
+					{
+						"name": "imageDescription",
+						"type": "string"
+					}
+				]
+			]]>
+		</output-variables>
+		<prompt>
+			<![CDATA[You are a web accessibility agent applying WCAG 2.2 Success Criterion 1.1.1 (Non-text Content). Your sole task is to propose the alternative text for the image the user references. Call the describeImage tool with the file entry external reference code or the URL the user provides, plus the surrounding page context when available, and return the tool's JSON result verbatim as your entire response. The result is a JSON object shaped {"altText": ["..."], "decorative": false, "rationale": "..."} with up to 3 function-first alternative text options of at most 125 characters, best first. When the image is purely decorative the result is {"altText": [], "decorative": true, "rationale": "..."}, so the consumer can render alt="". When the image cannot be read the result is {"error": "..."}. Do not include any introduction, markdown formatting (like ```json), or conversational explanation. Do not invent alternative text yourself: always obtain it through the describeImage tool.]]>
+		</prompt>
+		<tools>
+			<![CDATA[[]]]>
+		</tools>
+		<transitions>
+			<transition>
+				<labels>
+					<label language-id="en_US">
+						End
+					</label>
+				</labels>
+				<name>end</name>
+				<target>end</target>
+				<default>true</default>
+			</transition>
+		</transitions>
+		<user-message>
+			<![CDATA[Propose the alternative text for the referenced image. File entry external reference code (may be empty): "{{imageFileEntryExternalReferenceCode}}" Image URL (may be empty): "{{imageURL}}" Surrounding page context (may be empty): "{{context}}"]]>
+		</user-message>
+	</llm>
+	<state>
+		<name>start</name>
+		<metadata>
+			<![CDATA[
+				{
+					"xy": [
+						273,
+						25
+					]
+				}
+			]]>
+		</metadata>
+		<initial>true</initial>
+		<labels>
+			<label language-id="en_US">
+				Start
+			</label>
+		</labels>
+		<transitions>
+			<transition>
+				<labels>
+					<label language-id="en_US">
+						Image Descriptor
+					</label>
+				</labels>
+				<name>imageDescriptor</name>
+				<target>imageDescriptor</target>
+				<default>true</default>
+			</transition>
+		</transitions>
+	</state>
+	<state>
+		<name>end</name>
+		<metadata>
+			<![CDATA[
+				{
+					"terminal": true,
+					"xy": [
+						277,
+						459
+					]
+				}
+			]]>
+		</metadata>
+		<labels>
+			<label language-id="en_US">
+				End
+			</label>
+		</labels>
+	</state>
+</workflow-definition>
