@@ -53,6 +53,7 @@ import duplicateBulkAction from './actions/duplicateBulkAction';
 import executeResetPermissionObjectBulkSelectionAction from './actions/executeResetPermissionObjectBulkSelectionAction';
 import expireEntriesBulkAction from './actions/expireEntriesBulkAction';
 import exportTranslationBulkAction from './actions/exportTranslationBulkAction';
+import generateAltTextWithAIAction from './actions/generateAltTextWithAIAction';
 import openFolderItemSelectorAction from './actions/openFolderItemSelectorAction';
 import shareAction from './actions/shareAction';
 import {triggerAssetDownloadBulkAction} from './actions/triggerAssetDownloadBulkAction';
@@ -511,6 +512,16 @@ export default function AssetsFDSPropsTransformer({
 						`<strong>"${Liferay.Util.escapeHTML(itemData.title)}"</strong>`
 					),
 					url: href,
+				});
+			}
+			else if (action?.data?.id === 'generateAltTextWithAI') {
+				event?.preventDefault();
+
+				generateAltTextWithAIAction({
+					action: 'generateAltTextWithAI',
+					imageFileEntryExternalReferenceCode:
+						itemData.embedded?.externalReferenceCode,
+					message: Liferay.Language.get('generate-alt-text'),
 				});
 			}
 			else if (

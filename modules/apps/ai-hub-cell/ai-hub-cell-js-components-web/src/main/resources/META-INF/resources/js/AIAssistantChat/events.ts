@@ -9,6 +9,9 @@ export const APPLY_OBJECT_FIELD_VALUES_EVENT =
 export const GENERATE_FIELD_VALUE_AGENT_EXTERNAL_REFERENCE_CODE =
 	'L_GENERATE_FIELD_VALUE';
 
+export const IMAGE_DESCRIPTOR_AGENT_EXTERNAL_REFERENCE_CODE =
+	'L_IMAGE_DESCRIPTOR';
+
 export interface ApplyObjectFieldValuesPayload {
 	values: Record<string, string>;
 }

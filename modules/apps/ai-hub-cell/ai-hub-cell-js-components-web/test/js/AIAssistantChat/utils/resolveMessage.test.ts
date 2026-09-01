@@ -3,7 +3,10 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {GENERATE_FIELD_VALUE_AGENT_EXTERNAL_REFERENCE_CODE} from '../../../../src/main/resources/META-INF/resources/js/AIAssistantChat/events';
+import {
+	GENERATE_FIELD_VALUE_AGENT_EXTERNAL_REFERENCE_CODE,
+	IMAGE_DESCRIPTOR_AGENT_EXTERNAL_REFERENCE_CODE,
+} from '../../../../src/main/resources/META-INF/resources/js/AIAssistantChat/events';
 import {AgentComponent} from '../../../../src/main/resources/META-INF/resources/js/AIAssistantChat/types';
 import resolveMessage from '../../../../src/main/resources/META-INF/resources/js/AIAssistantChat/utils/resolveMessage';
 
@@ -78,6 +81,43 @@ describe('resolveMessage', () => {
 			fieldValues: {headline: 'A headline'},
 			type: 'field-values',
 		});
+	});
+
+	it('resolves an image description message from the image descriptor agent', () => {
+		expect(
+			resolveMessage({
+				agentDefinitionExternalReferenceCodes: [
+					IMAGE_DESCRIPTOR_AGENT_EXTERNAL_REFERENCE_CODE,
+				],
+				sender: 'assistant',
+				text: JSON.stringify({
+					altText: ['Reset password form'],
+					decorative: false,
+					rationale: 'The image is functional.',
+				}),
+			})
+		).toEqual({
+			imageDescription: {
+				altText: ['Reset password form'],
+				decorative: false,
+				rationale: 'The image is functional.',
+			},
+			type: 'image-description',
+		});
+	});
+
+	it('resolves an image description from other agents as a plain assistant message', () => {
+		expect(
+			resolveMessage({
+				agentDefinitionExternalReferenceCodes: ['L_SOMETHING_ELSE'],
+				sender: 'assistant',
+				text: JSON.stringify({
+					altText: ['Reset password form'],
+					decorative: false,
+					rationale: 'The image is functional.',
+				}),
+			})
+		).toEqual({type: 'assistant'});
 	});
 
 	it('resolves a message carrying a quick replies component', () => {
