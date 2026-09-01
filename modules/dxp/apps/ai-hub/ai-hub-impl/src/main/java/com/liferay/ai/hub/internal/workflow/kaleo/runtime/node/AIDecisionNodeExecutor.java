@@ -8,11 +8,13 @@ package com.liferay.ai.hub.internal.workflow.kaleo.runtime.node;
 import com.liferay.ai.hub.guardrail.ModelArmorHandler;
 import com.liferay.ai.hub.internal.assistant.handler.AssistantHandlerContext;
 import com.liferay.ai.hub.internal.assistant.handler.AssistantHandlerUtil;
+import com.liferay.ai.hub.internal.langchain4j.model.chat.GoogleGenAiChatModel;
 import com.liferay.ai.hub.internal.langchain4j.observability.api.listener.AiServiceErrorListenerImpl;
 import com.liferay.ai.hub.internal.langchain4j.observability.api.listener.InputGuardrailExecutedListenerImpl;
 import com.liferay.ai.hub.internal.langchain4j.observability.api.listener.OutputGuardrailExecutedListenerImpl;
 import com.liferay.ai.hub.internal.mcp.tool.provider.MCPToolProviderUtil;
 import com.liferay.ai.hub.internal.model.GoogleGenAiUtil;
+import com.liferay.ai.hub.internal.tool.ImageDescriptionTools;
 import com.liferay.ai.hub.internal.tool.WorkflowNodeTools;
 import com.liferay.ai.hub.internal.workflow.kaleo.runtime.node.util.GuardrailsUtil;
 import com.liferay.ai.hub.internal.workflow.kaleo.runtime.node.util.KaleoNodeSettingUtil;
@@ -24,6 +26,7 @@ import com.liferay.ai.hub.internal.workflow.kaleo.runtime.node.util.RetrievalAug
 import com.liferay.ai.hub.internal.workflow.kaleo.runtime.node.util.ToolsUtil;
 import com.liferay.ai.hub.internal.workflow.kaleo.runtime.node.util.VariablesUtil;
 import com.liferay.ai.hub.quota.QuotaManager;
+import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.petra.concurrent.NoticeableExecutorService;
@@ -179,6 +182,9 @@ public class AIDecisionNodeExecutor extends BaseNodeExecutor {
 			).systemMessageProviderFunction(
 				memoryId -> prompt
 			).tools(
+				new ImageDescriptionTools(
+					new GoogleGenAiChatModel(_quotaManager, serviceContext),
+					_dlAppLocalService),
 				new WorkflowNodeTools(_workflowNodeManager)
 			).toolProvider(
 				MCPToolProviderUtil.create(
@@ -217,6 +223,9 @@ public class AIDecisionNodeExecutor extends BaseNodeExecutor {
 					executionContext.getWorkflowContext(),
 					executionContext.getServiceContext())));
 	}
+
+	@Reference
+	private DLAppLocalService _dlAppLocalService;
 
 	@Reference
 	private DTOConverterRegistry _dtoConverterRegistry;
