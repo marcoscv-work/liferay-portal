@@ -209,6 +209,35 @@ function FrontendTokenCategories({activeDefinition}) {
 			}
 		}
 
+		// Theme tokens are registered twice in config.frontendTokens: under
+		// their namespaced name and under their bare name, so legacy values
+		// stored without the definition prefix still resolve. Keep a single
+		// entry per token, otherwise the color picker lists every token twice.
+
+		for (const name of Object.keys(nextTokenValues)) {
+			if (name.includes(':')) {
+				continue;
+			}
+
+			const namespacedName = `${config.themeFrontendTokenDefinitionId}:${name}`;
+
+			if (!nextTokenValues[namespacedName]) {
+				continue;
+			}
+
+			if (
+				frontendTokensValues[name] &&
+				!frontendTokensValues[namespacedName]
+			) {
+				nextTokenValues[namespacedName] = {
+					...nextTokenValues[namespacedName],
+					value: nextTokenValues[name].value,
+				};
+			}
+
+			delete nextTokenValues[name];
+		}
+
 		return nextTokenValues;
 	}, [frontendTokensValues]);
 
