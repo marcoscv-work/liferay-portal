@@ -92,3 +92,18 @@
 		}
 	}
 }
+
+.sidebar-container {
+	background-color: var(--light-l1);
+	border-right: 0.05rem solid var(--secondary-l0);
+}
+
+.lfr-layout-structure-item-sidebar .sidebar-container {
+	position: fixed;
+}
+
+@media (max-resolution: 1dppx) {
+	.sidebar-container {
+		border-right-color: var(--secondary-l2);
+	}
+}
