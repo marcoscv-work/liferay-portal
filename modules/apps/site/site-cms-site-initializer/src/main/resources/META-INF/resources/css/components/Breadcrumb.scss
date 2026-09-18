@@ -1,0 +1,27 @@
+@import '_atlas-custom-properties-variables';
+
+$cms-breadcrumb-min-height: 72px;
+
+.cms-breadcrumb {
+	--breadcrumb-divider-svg-icon: url(data:image/svg+xml;charset=utf8,%3Csvg%20viewBox=%270%200%2016%2016%27%20xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cpath%20class=%27lexicon-icon-outline%27%20d=%27M10.859.569a1%201%200%200%200-1.292.574l-5%2013a1%201%200%200%200%201.866.718l5-13A1%201%200%200%200%2010.86.57Z%27%20fill=%27%236b6c7e%27/%3E%3C/svg%3E);
+	--breadcrumb-divider-svg-icon-height: 15px;
+	--breadcrumb-divider-svg-icon-width: 15px;
+
+	min-height: $cms-breadcrumb-min-height;
+
+	.breadcrumb-item {
+		margin-right: 6px;
+
+		+ .breadcrumb-item {
+			padding-left: 21px;
+		}
+
+		.breadcrumb-link:not([href]) {
+			text-decoration: none;
+		}
+	}
+}
+
+[data-color-scheme='dark'] .cms-breadcrumb {
+	--breadcrumb-divider-svg-icon: url(data:image/svg+xml;charset=utf8,%3Csvg%20viewBox=%270%200%2016%2016%27%20xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cpath%20class=%27lexicon-icon-outline%27%20d=%27M10.859.569a1%201%200%200%200-1.292.574l-5%2013a1%201%200%200%200%201.866.718l5-13A1%201%200%200%200%2010.86.57Z%27%20fill=%27%23cdced9%27/%3E%3C/svg%3E);
+}
