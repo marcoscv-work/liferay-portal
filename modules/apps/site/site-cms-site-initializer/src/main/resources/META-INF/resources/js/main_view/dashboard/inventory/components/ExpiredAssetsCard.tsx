@@ -170,7 +170,7 @@ const EmptyState = () => {
 				)}
 				imgSrc={
 					Liferay.ThemeDisplay.getPathThemeImages() +
-					'/states/search_state.svg'
+					'/states/cms_search_state.svg'
 				}
 				title={Liferay.Language.get('no-results-found')}
 			>
