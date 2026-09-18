@@ -323,7 +323,7 @@ public class MasterLayoutsImporterTest {
 
 		_layoutLocalService.updateLookAndFeel(
 			_group.getGroupId(), layout.isPrivateLayout(), layout.getLayoutId(),
-			"cms_WAR_cmstheme", "01", StringPool.BLANK);
+			"prism_WAR_prismtheme", "01", StringPool.BLANK);
 
 		File file = _layoutsExporter.exportLayoutPageTemplateEntries(
 			new long[] {layoutPageTemplateEntry.getLayoutPageTemplateEntryId()},
@@ -345,7 +345,7 @@ public class MasterLayoutsImporterTest {
 		layout = _layoutLocalService.fetchLayout(
 			importedLayoutPageTemplateEntry.getPlid());
 
-		Assert.assertEquals("cms_WAR_cmstheme", layout.getThemeId());
+		Assert.assertEquals("prism_WAR_prismtheme", layout.getThemeId());
 	}
 
 	@Test

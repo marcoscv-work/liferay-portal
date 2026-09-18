@@ -1,0 +1,170 @@
+{
+	"btnOutlinePrimaryHoverBackgroundColor": {
+		"cssVariableMapping": "btn-outline-primary-hover-background-color",
+		"value": "hsl(from var(--primary) h s l / 0.06)"
+	},
+	"btnOutlinePrimaryHoverBorderColor": {
+		"cssVariableMapping": "btn-outline-primary-hover-border-color",
+		"value": "var(--primary)"
+	},
+	"btnOutlinePrimaryHoverColor": {
+		"cssVariableMapping": "btn-outline-primary-hover-color",
+		"value": "var(--primary-d1)"
+	},
+	"btnOutlineSecondaryBorderColor": {
+		"cssVariableMapping": "btn-outline-secondary-border-color",
+		"value": "var(--secondary-l2)"
+	},
+	"btnOutlineSecondaryHoverBackgroundColor": {
+		"cssVariableMapping": "btn-outline-secondary-hover-background-color",
+		"value": "hsl(from var(--gray-900) h s l / 0.06)"
+	},
+	"btnOutlineSecondaryHoverBorderColor": {
+		"cssVariableMapping": "btn-outline-secondary-hover-border-color",
+		"value": "transparent"
+	},
+	"btnOutlineSecondaryHoverColor": {
+		"cssVariableMapping": "btn-outline-secondary-hover-color",
+		"value": "var(--gray-900)"
+	},
+	"btnPrimaryBorderColor": {
+		"cssVariableMapping": "btn-primary-border-color",
+		"value": "var(--primary)"
+	},
+	"chartBlueD1": {
+		"cssVariableMapping": "chart-blue-d1",
+		"value": "light-dark(#006be6, #70b1ff)"
+	},
+	"chartBlueD2": {
+		"cssVariableMapping": "chart-blue-d2",
+		"value": "light-dark(#005fcc, #94c4ff)"
+	},
+	"chartBlueD3": {
+		"cssVariableMapping": "chart-blue-d3",
+		"value": "light-dark(#0053b3, #b8d8ff)"
+	},
+	"chartBlueD4": {
+		"cssVariableMapping": "chart-blue-d4",
+		"value": "light-dark(#004799, #e5f1ff)"
+	},
+	"chartBlueL1": {
+		"cssVariableMapping": "chart-blue-l1",
+		"value": "light-dark(#338fff, #2487ff)"
+	},
+	"chartBlueL2": {
+		"cssVariableMapping": "chart-blue-l2",
+		"value": "light-dark(#66abff, #006be6)"
+	},
+	"chartBlueL3": {
+		"cssVariableMapping": "chart-blue-l3",
+		"value": "light-dark(#97c5ff, #0056b8)"
+	},
+	"chartBlueL4": {
+		"cssVariableMapping": "chart-blue-l4",
+		"value": "light-dark(#cce3ff, #004799)"
+	},
+	"chartBlueL5": {
+		"cssVariableMapping": "chart-blue-l5",
+		"value": "light-dark(#e5f1ff, #002147)"
+	},
+	"chartColor1": {
+		"cssVariableMapping": "chart-color-1",
+		"value": "light-dark(#ffd666, #b88600)"
+	},
+	"chartColor10": {
+		"cssVariableMapping": "chart-color-10",
+		"value": "light-dark(#b2baff, #0019fa)"
+	},
+	"chartColor2": {
+		"cssVariableMapping": "chart-color-2",
+		"value": "light-dark(#006eff, #429aff)"
+	},
+	"chartColor3": {
+		"cssVariableMapping": "chart-color-3",
+		"value": "light-dark(#ffa166, #8f3700)"
+	},
+	"chartColor4": {
+		"cssVariableMapping": "chart-color-4",
+		"value": "light-dark(#42d7be, #1b7e6e)"
+	},
+	"chartColor5": {
+		"cssVariableMapping": "chart-color-5",
+		"value": "light-dark(#ff80c8, #fa008e)"
+	},
+	"chartColor6": {
+		"cssVariableMapping": "chart-color-6",
+		"value": "light-dark(#66ccff, #006699)"
+	},
+	"chartColor7": {
+		"cssVariableMapping": "chart-color-7",
+		"value": "light-dark(#ff6666, #f50000)"
+	},
+	"chartColor8": {
+		"cssVariableMapping": "chart-color-8",
+		"value": "light-dark(#bf66ff, #b54dff)"
+	},
+	"chartColor9": {
+		"cssVariableMapping": "chart-color-9",
+		"value": "light-dark(#9de963, #22430a)"
+	},
+	"chartTrendNegative": {
+		"cssVariableMapping": "chart-trend-negative",
+		"value": "light-dark(#da1414, #f67474)"
+	},
+	"chartTrendNeutral": {
+		"cssVariableMapping": "chart-trend-neutral",
+		"value": "light-dark(#6b6c7e, #b3b3c6)"
+	},
+	"chartTrendPositive": {
+		"cssVariableMapping": "chart-trend-positive",
+		"value": "light-dark(#287d3c, #3bb959)"
+	},
+	"grayDarkColor": {
+		"cssVariableMapping": "gray-dark",
+		"value": "light-dark(#393a4a, #f1f2f5)"
+	},
+	"lightColor": {
+		"cssVariableMapping": "light",
+		"value": "light-dark(#f1f2f5, #313240)"
+	},
+	"lightD1Color": {
+		"cssVariableMapping": "light-d1",
+		"value": "light-dark(#e2e4ea, #3e3f51)"
+	},
+	"lightD2Color": {
+		"cssVariableMapping": "light-d2",
+		"value": "light-dark(#d3d6e0, #47485d)"
+	},
+	"lightL1Color": {
+		"cssVariableMapping": "light-l1",
+		"value": "light-dark(#f7f8f9, #262631)"
+	},
+	"lighterColor": {
+		"cssVariableMapping": "lighter",
+		"value": "light-dark(#f7f8f9, #272833)"
+	},
+	"secondaryColor": {
+		"cssVariableMapping": "secondary",
+		"value": "light-dark(#6b6c7e, #b3b3c6)"
+	},
+	"secondaryL0Color": {
+		"cssVariableMapping": "secondary-l0",
+		"value": "light-dark(#9191a1, #9a9cb2)"
+	},
+	"secondaryL1Color": {
+		"cssVariableMapping": "secondary-l1",
+		"value": "light-dark(#a7a9bc, #7d809c)"
+	},
+	"secondaryL2Color": {
+		"cssVariableMapping": "secondary-l2",
+		"value": "light-dark(#cdced9, #696a7c)"
+	},
+	"secondaryL3Color": {
+		"cssVariableMapping": "secondary-l3",
+		"value": "light-dark(#e7e7ed, #4d4e5b)"
+	},
+	"whiteColor": {
+		"cssVariableMapping": "white",
+		"value": "light-dark(#fff, #1b1b23)"
+	}
+}

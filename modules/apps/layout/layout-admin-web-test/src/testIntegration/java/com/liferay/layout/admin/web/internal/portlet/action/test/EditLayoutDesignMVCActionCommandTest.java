@@ -139,7 +139,8 @@ public class EditLayoutDesignMVCActionCommandTest {
 		MockActionRequest mockActionRequest = _getMockActionRequest(
 			draftLayout);
 
-		mockActionRequest.setParameter("regularThemeId", "cms_WAR_cmstheme");
+		mockActionRequest.setParameter(
+			"regularThemeId", "prism_WAR_prismtheme");
 
 		ReflectionTestUtil.invoke(
 			_mvcActionCommand, "_updateLayout",
@@ -157,7 +158,7 @@ public class EditLayoutDesignMVCActionCommandTest {
 
 		draftLayout = _layoutLocalService.getLayout(draftLayout.getPlid());
 
-		Assert.assertEquals("cms_WAR_cmstheme", draftLayout.getThemeId());
+		Assert.assertEquals("prism_WAR_prismtheme", draftLayout.getThemeId());
 
 		layout = _layoutLocalService.getLayout(layout.getPlid());
 
@@ -167,7 +168,7 @@ public class EditLayoutDesignMVCActionCommandTest {
 
 		layout = _layoutLocalService.getLayout(layout.getPlid());
 
-		Assert.assertEquals("cms_WAR_cmstheme", layout.getThemeId());
+		Assert.assertEquals("prism_WAR_prismtheme", layout.getThemeId());
 	}
 
 	@Test

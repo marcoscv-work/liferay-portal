@@ -26,6 +26,8 @@ import getUuid from '../utils/getUuid';
 import handleAddGroup from '../utils/handleAddGroup';
 import openReferencedStructureModal from '../utils/openReferencedStructureModal';
 
+import '../../../css/structure_builder/AddChildDropdown.scss';
+
 type Item = {
 	className?: string;
 	label: string;

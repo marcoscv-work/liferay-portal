@@ -25,6 +25,8 @@ import {openCMSModal} from '../utils/openCMSModal';
 import {displayErrorToast} from '../utils/toastUtil';
 import SpaceSticker from './SpaceSticker';
 
+import '../../../css/components/Breadcrumb.scss';
+
 export interface ActionDropdownItemProps {
 	confirmationMessage?: string;
 	confirmationTitle?: string;

@@ -15,3 +15,32 @@
 	font-size: 24px;
 	font-weight: 600;
 }
+
+.cms-control-menu {
+	border-bottom-width: 0.05rem;
+	border-color: var(--secondary-l0);
+}
+
+.cms-control-menu h1.tbar-section {
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+@media (max-width: 767.98px) {
+	.cms-control-menu .tbar-item {
+		padding-left: 0.25rem;
+		padding-right: 0.25rem;
+	}
+}
+
+@media (max-resolution: 1dppx) {
+	.cms-control-menu {
+		border-color: var(--secondary-l2);
+	}
+}
+
+.top-bar {
+	top: var(--control-menu-container-height);
+}

@@ -290,8 +290,8 @@ export default function UnscheduledTasksPanel({
 						description={Liferay.Language.get(
 							'review-your-search-and-try-again'
 						)}
-						imgSrc={`${Liferay.ThemeDisplay.getPathThemeImages()}/states/search_state.svg`}
-						imgSrcReducedMotion={`${Liferay.ThemeDisplay.getPathThemeImages()}/states/search_state_reduced_motion.svg`}
+						imgSrc={`${Liferay.ThemeDisplay.getPathThemeImages()}/states/cms_search_state.svg`}
+						imgSrcReducedMotion={`${Liferay.ThemeDisplay.getPathThemeImages()}/states/cms_search_state_reduced_motion.svg`}
 						small
 						title={Liferay.Language.get('no-results-found')}
 					>
