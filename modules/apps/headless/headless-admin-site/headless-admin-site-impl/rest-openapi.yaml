@@ -3936,6 +3936,10 @@ components:
                         The actions and their permissions for this style book.
                     readOnly: true
                     type: object
+                colorScheme:
+                    description:
+                        The color scheme key this style book is a variant for, empty for a base style book.
+                    type: string
                 creator:
                     $ref: ../../headless-admin-user/headless-admin-user-impl/rest-openapi.yaml#Creator
                     description:
@@ -3976,6 +3980,10 @@ components:
                 name:
                     description:
                         The style book's name.
+                    type: string
+                parentStyleBookExternalReferenceCode:
+                    description:
+                        The external reference code of the base style book this style book is a variant of.
                     type: string
                 previewFileEntryExternalReferenceCode:
                     description:
