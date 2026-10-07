@@ -101,6 +101,15 @@ public class StyleBookServiceUpgradeStepRegistrator
 				"StyleBookEntry", "frontendTokenDefinition TEXT null"),
 			UpgradeProcessFactory.addColumns(
 				"StyleBookEntryVersion", "frontendTokenDefinition TEXT null"));
+
+		registry.register(
+			"1.9.0", "1.10.0",
+			UpgradeProcessFactory.addColumns(
+				"StyleBookEntry", "colorScheme VARCHAR(75) null",
+				"parentStyleBookEntryId LONG"),
+			UpgradeProcessFactory.addColumns(
+				"StyleBookEntryVersion", "colorScheme VARCHAR(75) null",
+				"parentStyleBookEntryId LONG"));
 	}
 
 	@Reference

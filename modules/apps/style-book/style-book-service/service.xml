@@ -23,10 +23,12 @@
 
 		<!-- Other fields -->
 
+		<column name="colorScheme" type="String" />
 		<column name="defaultStyleBookEntry" type="boolean" />
 		<column name="frontendTokenDefinition" type="String" />
 		<column name="frontendTokensValues" type="String" />
 		<column name="name" type="String" />
+		<column name="parentStyleBookEntryId" type="long" />
 		<column name="previewFileEntryId" type="long" />
 		<column name="styleBookEntryKey" type="String" />
 		<column name="themeId" type="String" />
@@ -42,6 +44,9 @@
 		<finder name="GroupId" return-type="Collection">
 			<finder-column arrayable-operator="OR" name="groupId" />
 		</finder>
+		<finder name="ParentStyleBookEntryId" return-type="Collection">
+			<finder-column name="parentStyleBookEntryId" />
+		</finder>
 		<finder name="G_D" return-type="Collection">
 			<finder-column name="groupId" />
 			<finder-column name="defaultStyleBookEntry" />
@@ -53,6 +58,10 @@
 		<finder name="G_LikeN" return-type="Collection">
 			<finder-column name="groupId" />
 			<finder-column comparator="LIKE" name="name" />
+		</finder>
+		<finder name="G_P" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column name="parentStyleBookEntryId" />
 		</finder>
 		<finder name="G_SBEK" return-type="StyleBookEntry" unique="true">
 			<finder-column name="groupId" />
@@ -77,11 +86,13 @@
 		<exception>DuplicateStyleBookEntryFrontendToken</exception>
 		<exception>DuplicateStyleBookEntryKey</exception>
 		<exception>DuplicateStyleBookEntryName</exception>
+		<exception>StyleBookEntryColorScheme</exception>
 		<exception>StyleBookEntryFile</exception>
 		<exception>StyleBookEntryFrontendToken</exception>
 		<exception>StyleBookEntryFrontendTokenDefinition</exception>
 		<exception>StyleBookEntryFrontendTokensValues</exception>
 		<exception>StyleBookEntryName</exception>
+		<exception>StyleBookEntryParentStyleBookEntryId</exception>
 		<exception>StyleBookEntryThemeId</exception>
 	</exceptions>
 </service-builder>
