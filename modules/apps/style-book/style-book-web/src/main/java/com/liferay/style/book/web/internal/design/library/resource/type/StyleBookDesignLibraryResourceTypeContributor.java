@@ -105,6 +105,12 @@ public class StyleBookDesignLibraryResourceTypeContributor
 					httpServletRequest, "edit-in-style-book-editor"),
 				null, "get", "link"),
 			new FDSActionDropdownItem(
+				_getViewStyleBookEntryVariantsURL(
+					httpServletRequest, depotEntry, backURL),
+				"adjust", "view-variants",
+				LanguageUtil.get(httpServletRequest, "view-variants"), null,
+				"get", "link"),
+			new FDSActionDropdownItem(
 				"{actions.delete.href}", "trash", "delete",
 				LanguageUtil.get(httpServletRequest, "delete"), "delete",
 				"delete", "async"));
@@ -123,6 +129,11 @@ public class StyleBookDesignLibraryResourceTypeContributor
 	@Override
 	public String getLabel(Locale locale) {
 		return LanguageUtil.get(locale, "style-book");
+	}
+
+	@Override
+	public String getType() {
+		return StyleBookConstants.TYPE_BASE;
 	}
 
 	@Override
@@ -207,6 +218,26 @@ public class StyleBookDesignLibraryResourceTypeContributor
 
 		return (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
+	}
+
+	private String _getViewStyleBookEntryVariantsURL(
+			HttpServletRequest httpServletRequest, DepotEntry depotEntry,
+			String backURL)
+		throws PortalException {
+
+		return PortletURLBuilder.create(
+			PortalUtil.getControlPanelPortletURL(
+				httpServletRequest, depotEntry.getGroup(),
+				StyleBookPortletKeys.STYLE_BOOK, 0, 0,
+				PortletRequest.RENDER_PHASE)
+		).setRedirect(
+			backURL
+		).setParameter(
+			"p_l_back_url_title",
+			_getDepotGroupName(httpServletRequest, depotEntry)
+		).setParameter(
+			"parentStyleBookEntryId", "{embedded.id}"
+		).buildString();
 	}
 
 	@Reference(

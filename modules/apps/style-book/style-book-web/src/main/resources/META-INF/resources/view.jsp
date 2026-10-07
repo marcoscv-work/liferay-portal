@@ -28,9 +28,11 @@ StyleBookEntry parentStyleBookEntry = styleBookDisplayContext.getParentStyleBook
 if (parentStyleBookEntry != null) {
 	portletDisplay.setShowBackIcon(true);
 	portletDisplay.setURLBack(
-		PortletURLBuilder.createRenderURL(
-			renderResponse
-		).buildString());
+		ParamUtil.getString(
+			request, "redirect",
+			PortletURLBuilder.createRenderURL(
+				renderResponse
+			).buildString()));
 	portletDisplay.setURLBackTitle(portletDisplay.getPortletDisplayName());
 
 	renderResponse.setTitle(LanguageUtil.format(request, "variants-of-x", parentStyleBookEntry.getName()));
