@@ -10,9 +10,21 @@ import {
 } from 'frontend-js-components-web';
 import {setFormValues} from 'frontend-js-web';
 
+import openAddStyleBookEntryVariantModal from './openAddStyleBookEntryVariantModal';
 import openDeleteStyleBookModal from './openDeleteStyleBookModal';
 
 const ACTIONS = {
+	addStyleBookEntryVariant(
+		{addStyleBookEntryVariantURL, styleBookEntryName},
+		portletNamespace
+	) {
+		openAddStyleBookEntryVariantModal({
+			addStyleBookEntryVariantURL,
+			namespace: portletNamespace,
+			parentStyleBookEntryName: styleBookEntryName,
+		});
+	},
+
 	copyStyleBookEntry({copyStyleBookEntryURL}) {
 		submitForm(document.hrefFm, copyStyleBookEntryURL);
 	},
