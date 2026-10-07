@@ -11,6 +11,7 @@ import com.liferay.headless.admin.site.internal.dto.v1_0.util.CreatorUtil;
 import com.liferay.headless.admin.site.internal.dto.v1_0.util.ItemScopeUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
 import com.liferay.style.book.model.StyleBookEntry;
@@ -63,6 +64,16 @@ public class StyleBookDTOConverter
 		return new StyleBook() {
 			{
 				setActions(dtoConverterContext::getActions);
+				setColorScheme(
+					() -> {
+						if (Validator.isBlank(
+								styleBookEntry.getColorScheme())) {
+
+							return null;
+						}
+
+						return styleBookEntry.getColorScheme();
+					});
 				setCreator(
 					() -> CreatorUtil.toCreator(
 						styleBookEntry.getUserId(),
@@ -80,6 +91,22 @@ public class StyleBookDTOConverter
 				setId(styleBookEntry::getStyleBookEntryId);
 				setKey(styleBookEntry::getStyleBookEntryKey);
 				setName(styleBookEntry::getName);
+				setParentStyleBookExternalReferenceCode(
+					() -> {
+						if (styleBookEntry.getParentStyleBookEntryId() <= 0) {
+							return null;
+						}
+
+						StyleBookEntry parentStyleBookEntry =
+							_styleBookEntryLocalService.fetchStyleBookEntry(
+								styleBookEntry.getParentStyleBookEntryId());
+
+						if (parentStyleBookEntry == null) {
+							return null;
+						}
+
+						return parentStyleBookEntry.getExternalReferenceCode();
+					});
 				setPreviewFileEntryExternalReferenceCode(
 					() -> {
 						long previewFileEntryId =

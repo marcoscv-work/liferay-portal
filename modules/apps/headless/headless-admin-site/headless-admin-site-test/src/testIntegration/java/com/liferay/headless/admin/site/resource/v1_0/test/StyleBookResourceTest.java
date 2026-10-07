@@ -21,6 +21,7 @@ import com.liferay.headless.admin.site.resource.v1_0.test.util.LayoutUtilityPage
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
@@ -134,6 +135,7 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 		_testPostSiteStyleBookWithDuplicateExternalReferenceCode();
 		_testPostSiteStyleBookWithDuplicateKey();
 		_testPostSiteStyleBookWithNullDefaultStyleBook();
+		_testPostSiteStyleBookWithParentStyleBook();
 	}
 
 	@Override
@@ -142,6 +144,21 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 		super.testPutSiteStyleBook();
 
 		_testPutSiteStyleBookWithNullDefaultStyleBook();
+	}
+
+	@Override
+	protected StyleBook randomStyleBook() throws Exception {
+		StyleBook styleBook = super.randomStyleBook();
+
+		styleBook.setColorScheme(() -> null);
+		styleBook.setFrontendTokensValues(
+			JSONUtil.put(
+				RandomTestUtil.randomString(),
+				JSONUtil.put("value", RandomTestUtil.randomString())
+			).toString());
+		styleBook.setParentStyleBookExternalReferenceCode(() -> null);
+
+		return styleBook;
 	}
 
 	@Override
@@ -778,6 +795,26 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 			randomStyleBook);
 
 		Assert.assertFalse(postStyleBook.getDefaultStyleBook());
+	}
+
+	private void _testPostSiteStyleBookWithParentStyleBook() throws Exception {
+		StyleBook parentStyleBook = testPostSiteStyleBook_addStyleBook(
+			randomStyleBook());
+
+		StyleBook randomStyleBook = randomStyleBook();
+
+		randomStyleBook.setColorScheme(() -> "dark");
+		randomStyleBook.setParentStyleBookExternalReferenceCode(
+			parentStyleBook::getExternalReferenceCode);
+		randomStyleBook.setThemeId(parentStyleBook::getThemeId);
+
+		StyleBook postStyleBook = testPostSiteStyleBook_addStyleBook(
+			randomStyleBook);
+
+		Assert.assertEquals("dark", postStyleBook.getColorScheme());
+		Assert.assertEquals(
+			parentStyleBook.getExternalReferenceCode(),
+			postStyleBook.getParentStyleBookExternalReferenceCode());
 	}
 
 	private void _testPutSiteStyleBookWithNullDefaultStyleBook()
