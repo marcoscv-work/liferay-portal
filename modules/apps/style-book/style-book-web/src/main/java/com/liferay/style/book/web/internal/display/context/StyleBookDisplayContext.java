@@ -52,6 +52,22 @@ public class StyleBookDisplayContext {
 		_liferayPortletResponse = liferayPortletResponse;
 	}
 
+	public StyleBookEntry getParentStyleBookEntry() {
+		return StyleBookEntryLocalServiceUtil.fetchStyleBookEntry(
+			getParentStyleBookEntryId());
+	}
+
+	public long getParentStyleBookEntryId() {
+		if (_parentStyleBookEntryId != null) {
+			return _parentStyleBookEntryId;
+		}
+
+		_parentStyleBookEntryId = ParamUtil.getLong(
+			_httpServletRequest, "parentStyleBookEntryId");
+
+		return _parentStyleBookEntryId;
+	}
+
 	public PortletURL getPortletURL() {
 		PortletURL portletURL = _liferayPortletResponse.createRenderURL();
 
@@ -59,6 +75,14 @@ public class StyleBookDisplayContext {
 
 		if (Validator.isNotNull(keywords)) {
 			portletURL.setParameter("keywords", keywords);
+		}
+
+		long parentStyleBookEntryId = getParentStyleBookEntryId();
+
+		if (parentStyleBookEntryId > 0) {
+			portletURL.setParameter(
+				"parentStyleBookEntryId",
+				String.valueOf(parentStyleBookEntryId));
 		}
 
 		String orderByCol = _getOrderByCol();
@@ -110,27 +134,32 @@ public class StyleBookDisplayContext {
 		else {
 			List<StyleBookEntry> styleBookEntries = new ArrayList<>();
 
+			long parentStyleBookEntryId = getParentStyleBookEntryId();
+
 			int styleBookEntriesCount =
 				StyleBookEntryLocalServiceUtil.getStyleBookEntriesCount(
-					themeDisplay.getScopeGroupId());
+					themeDisplay.getScopeGroupId(), parentStyleBookEntryId);
 
 			int start = styleBookEntriesSearchContainer.getStart();
 			int end = styleBookEntriesSearchContainer.getEnd();
 
-			if (start == 0) {
-				end -= 1;
+			if (parentStyleBookEntryId <= 0) {
+				if (start == 0) {
+					end -= 1;
 
-				styleBookEntries.addAll(
-					_getStyleFromThemeStyleBookEntries(
-						themeDisplay.getScopeGroupId()));
-			}
-			else {
-				start -= 1;
+					styleBookEntries.addAll(
+						_getStyleFromThemeStyleBookEntries(
+							themeDisplay.getScopeGroupId()));
+				}
+				else {
+					start -= 1;
+				}
 			}
 
 			styleBookEntries.addAll(
 				StyleBookEntryLocalServiceUtil.getStyleBookEntries(
-					themeDisplay.getScopeGroupId(), start, end,
+					themeDisplay.getScopeGroupId(), parentStyleBookEntryId,
+					start, end,
 					styleBookEntriesSearchContainer.getOrderByComparator()));
 
 			styleBookEntriesSearchContainer.setResultsAndTotal(
@@ -248,6 +277,7 @@ public class StyleBookDisplayContext {
 	private final LiferayPortletResponse _liferayPortletResponse;
 	private String _orderByCol;
 	private String _orderByType;
+	private Long _parentStyleBookEntryId;
 	private SearchContainer<StyleBookEntry> _styleBookEntriesSearchContainer;
 
 }

@@ -18,9 +18,11 @@ import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.style.book.constants.StyleBookActionKeys;
 import com.liferay.style.book.model.StyleBookEntry;
+import com.liferay.style.book.service.StyleBookEntryLocalServiceUtil;
 import com.liferay.style.book.util.StyleBookUtil;
 import com.liferay.style.book.web.internal.security.permissions.resource.StyleBookPermission;
 
@@ -157,6 +159,35 @@ public class StyleBookManagementToolbarDisplayContext
 
 	@Override
 	public CreationMenu getCreationMenu() {
+		long parentStyleBookEntryId = ParamUtil.getLong(
+			httpServletRequest, "parentStyleBookEntryId");
+
+		if (parentStyleBookEntryId > 0) {
+			StyleBookEntry parentStyleBookEntry =
+				StyleBookEntryLocalServiceUtil.fetchStyleBookEntry(
+					parentStyleBookEntryId);
+
+			return CreationMenuBuilder.addDropdownItem(
+				dropdownItem -> {
+					dropdownItem.putData("action", "addStyleBookEntryVariant");
+					dropdownItem.putData(
+						"addStyleBookEntryVariantURL",
+						PortletURLBuilder.createActionURL(
+							liferayPortletResponse
+						).setActionName(
+							"/style_book/add_style_book_entry"
+						).setParameter(
+							"parentStyleBookEntryId", parentStyleBookEntryId
+						).buildString());
+					dropdownItem.putData(
+						"parentStyleBookEntryName",
+						parentStyleBookEntry.getName());
+					dropdownItem.setLabel(
+						LanguageUtil.get(httpServletRequest, "add"));
+				}
+			).build();
+		}
+
 		return CreationMenuBuilder.addDropdownItem(
 			dropdownItem -> {
 				dropdownItem.putData("action", "addStyleBookEntry");

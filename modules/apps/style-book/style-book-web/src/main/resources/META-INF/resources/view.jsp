@@ -22,6 +22,19 @@
 
 <%
 StyleBookDisplayContext styleBookDisplayContext = (StyleBookDisplayContext)request.getAttribute(StyleBookDisplayContext.class.getName());
+
+StyleBookEntry parentStyleBookEntry = styleBookDisplayContext.getParentStyleBookEntry();
+
+if (parentStyleBookEntry != null) {
+	portletDisplay.setShowBackIcon(true);
+	portletDisplay.setURLBack(
+		PortletURLBuilder.createRenderURL(
+			renderResponse
+		).buildString());
+	portletDisplay.setURLBackTitle(portletDisplay.getPortletDisplayName());
+
+	renderResponse.setTitle(LanguageUtil.format(request, "variants-of-x", parentStyleBookEntry.getName()));
+}
 %>
 
 <clay:management-toolbar
