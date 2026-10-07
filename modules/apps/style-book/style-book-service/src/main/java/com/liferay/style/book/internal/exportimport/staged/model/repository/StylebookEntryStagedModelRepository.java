@@ -45,6 +45,17 @@ public class StylebookEntryStagedModelRepository
 			serviceContext.setUuid(styleBookEntry.getUuid());
 		}
 
+		if (styleBookEntry.getParentStyleBookEntryId() > 0) {
+			return _styleBookEntryLocalService.addStyleBookEntryVariant(
+				styleBookEntry.getExternalReferenceCode(), userId,
+				styleBookEntry.getParentStyleBookEntryId(),
+				styleBookEntry.getColorScheme(),
+				styleBookEntry.getFrontendTokenDefinition(),
+				styleBookEntry.getFrontendTokensValues(),
+				styleBookEntry.getName(), styleBookEntry.getStyleBookEntryKey(),
+				serviceContext);
+		}
+
 		return _styleBookEntryLocalService.addStyleBookEntry(
 			styleBookEntry.getExternalReferenceCode(), userId,
 			styleBookEntry.getGroupId(),
@@ -129,15 +140,21 @@ public class StylebookEntryStagedModelRepository
 			StyleBookEntry styleBookEntry)
 		throws PortalException {
 
-		return _styleBookEntryLocalService.updateStyleBookEntry(
-			portletDataContext.getUserId(styleBookEntry.getUserUuid()),
-			styleBookEntry.getStyleBookEntryId(),
-			styleBookEntry.isDefaultStyleBookEntry(),
-			styleBookEntry.getFrontendTokenDefinition(),
-			styleBookEntry.getFrontendTokensValues(), styleBookEntry.getName(),
-			styleBookEntry.getStyleBookEntryKey(),
-			styleBookEntry.getPreviewFileEntryId(),
-			portletDataContext.createServiceContext(styleBookEntry));
+		StyleBookEntry updatedStyleBookEntry =
+			_styleBookEntryLocalService.updateStyleBookEntry(
+				portletDataContext.getUserId(styleBookEntry.getUserUuid()),
+				styleBookEntry.getStyleBookEntryId(),
+				styleBookEntry.isDefaultStyleBookEntry(),
+				styleBookEntry.getFrontendTokenDefinition(),
+				styleBookEntry.getFrontendTokensValues(),
+				styleBookEntry.getName(), styleBookEntry.getStyleBookEntryKey(),
+				styleBookEntry.getPreviewFileEntryId(),
+				portletDataContext.createServiceContext(styleBookEntry));
+
+		return _styleBookEntryLocalService.updateStyleBookEntryVariant(
+			updatedStyleBookEntry.getStyleBookEntryId(),
+			styleBookEntry.getParentStyleBookEntryId(),
+			styleBookEntry.getColorScheme());
 	}
 
 	@Reference

@@ -97,6 +97,18 @@ public class StylebookEntryStagedModelDataHandler
 				PortletDataContext.REFERENCE_TYPE_WEAK);
 		}
 
+		if (styleBookEntry.getParentStyleBookEntryId() > 0) {
+			StyleBookEntry parentStyleBookEntry =
+				_styleBookEntryLocalService.fetchStyleBookEntry(
+					styleBookEntry.getParentStyleBookEntryId());
+
+			if (parentStyleBookEntry != null) {
+				StagedModelDataHandlerUtil.exportReferenceStagedModel(
+					portletDataContext, styleBookEntry, parentStyleBookEntry,
+					PortletDataContext.REFERENCE_TYPE_STRONG);
+			}
+		}
+
 		Element entryElement = portletDataContext.getExportDataElement(
 			styleBookEntry);
 
@@ -136,6 +148,20 @@ public class StylebookEntryStagedModelDataHandler
 			(StyleBookEntry)styleBookEntry.clone();
 
 		importedStyleBookEntry.setGroupId(portletDataContext.getScopeGroupId());
+
+		if (styleBookEntry.getParentStyleBookEntryId() > 0) {
+			StagedModelDataHandlerUtil.importReferenceStagedModels(
+				portletDataContext, styleBookEntry, StyleBookEntry.class);
+
+			Map<Long, Long> styleBookEntryIds =
+				(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
+					StyleBookEntry.class);
+
+			importedStyleBookEntry.setParentStyleBookEntryId(
+				MapUtil.getLong(
+					styleBookEntryIds,
+					styleBookEntry.getParentStyleBookEntryId(), 0));
+		}
 
 		String originalName = importedStyleBookEntry.getName();
 
