@@ -69,7 +69,7 @@ public class StyleBookEntryVersionCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(41);
+		StringBundler sb = new StringBundler(45);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -97,6 +97,8 @@ public class StyleBookEntryVersionCacheModel
 		sb.append(createDate);
 		sb.append(", modifiedDate=");
 		sb.append(modifiedDate);
+		sb.append(", colorScheme=");
+		sb.append(colorScheme);
 		sb.append(", defaultStyleBookEntry=");
 		sb.append(defaultStyleBookEntry);
 		sb.append(", frontendTokenDefinition=");
@@ -105,6 +107,8 @@ public class StyleBookEntryVersionCacheModel
 		sb.append(frontendTokensValues);
 		sb.append(", name=");
 		sb.append(name);
+		sb.append(", parentStyleBookEntryId=");
+		sb.append(parentStyleBookEntryId);
 		sb.append(", previewFileEntryId=");
 		sb.append(previewFileEntryId);
 		sb.append(", styleBookEntryKey=");
@@ -168,6 +172,13 @@ public class StyleBookEntryVersionCacheModel
 			styleBookEntryVersionImpl.setModifiedDate(new Date(modifiedDate));
 		}
 
+		if (colorScheme == null) {
+			styleBookEntryVersionImpl.setColorScheme("");
+		}
+		else {
+			styleBookEntryVersionImpl.setColorScheme(colorScheme);
+		}
+
 		styleBookEntryVersionImpl.setDefaultStyleBookEntry(
 			defaultStyleBookEntry);
 
@@ -194,6 +205,8 @@ public class StyleBookEntryVersionCacheModel
 			styleBookEntryVersionImpl.setName(name);
 		}
 
+		styleBookEntryVersionImpl.setParentStyleBookEntryId(
+			parentStyleBookEntryId);
 		styleBookEntryVersionImpl.setPreviewFileEntryId(previewFileEntryId);
 
 		if (styleBookEntryKey == null) {
@@ -239,11 +252,14 @@ public class StyleBookEntryVersionCacheModel
 		userName = objectInput.readUTF();
 		createDate = objectInput.readLong();
 		modifiedDate = objectInput.readLong();
+		colorScheme = objectInput.readUTF();
 
 		defaultStyleBookEntry = objectInput.readBoolean();
 		frontendTokenDefinition = (String)objectInput.readObject();
 		frontendTokensValues = (String)objectInput.readObject();
 		name = objectInput.readUTF();
+
+		parentStyleBookEntryId = objectInput.readLong();
 
 		previewFileEntryId = objectInput.readLong();
 		styleBookEntryKey = objectInput.readUTF();
@@ -292,6 +308,13 @@ public class StyleBookEntryVersionCacheModel
 		objectOutput.writeLong(createDate);
 		objectOutput.writeLong(modifiedDate);
 
+		if (colorScheme == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(colorScheme);
+		}
+
 		objectOutput.writeBoolean(defaultStyleBookEntry);
 
 		if (frontendTokenDefinition == null) {
@@ -314,6 +337,8 @@ public class StyleBookEntryVersionCacheModel
 		else {
 			objectOutput.writeUTF(name);
 		}
+
+		objectOutput.writeLong(parentStyleBookEntryId);
 
 		objectOutput.writeLong(previewFileEntryId);
 
@@ -345,13 +370,15 @@ public class StyleBookEntryVersionCacheModel
 	public String userName;
 	public long createDate;
 	public long modifiedDate;
+	public String colorScheme;
 	public boolean defaultStyleBookEntry;
 	public String frontendTokenDefinition;
 	public String frontendTokensValues;
 	public String name;
+	public long parentStyleBookEntryId;
 	public long previewFileEntryId;
 	public String styleBookEntryKey;
 	public String themeId;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1386151244
+// LIFERAY-SERVICE-BUILDER-HASH:-1130810923

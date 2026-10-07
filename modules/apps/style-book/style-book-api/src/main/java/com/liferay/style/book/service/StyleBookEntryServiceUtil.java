@@ -69,6 +69,28 @@ public class StyleBookEntryServiceUtil {
 			serviceContext);
 	}
 
+	public static StyleBookEntry addStyleBookEntryVariant(
+			long parentStyleBookEntryId, String colorScheme, String name,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws PortalException {
+
+		return getService().addStyleBookEntryVariant(
+			parentStyleBookEntryId, colorScheme, name, serviceContext);
+	}
+
+	public static StyleBookEntry addStyleBookEntryVariant(
+			String externalReferenceCode, long parentStyleBookEntryId,
+			String colorScheme, String frontendTokenDefinition,
+			String frontendTokensValues, String name, String styleBookEntryKey,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws PortalException {
+
+		return getService().addStyleBookEntryVariant(
+			externalReferenceCode, parentStyleBookEntryId, colorScheme,
+			frontendTokenDefinition, frontendTokensValues, name,
+			styleBookEntryKey, serviceContext);
+	}
+
 	public static StyleBookEntry copyStyleBookEntry(
 			long groupId, long sourceStyleBookEntryId,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
@@ -256,6 +278,15 @@ public class StyleBookEntryServiceUtil {
 			name, serviceContext);
 	}
 
+	public static StyleBookEntry updateStyleBookEntryVariant(
+			long styleBookEntryId, long parentStyleBookEntryId,
+			String colorScheme)
+		throws PortalException {
+
+		return getService().updateStyleBookEntryVariant(
+			styleBookEntryId, parentStyleBookEntryId, colorScheme);
+	}
+
 	public static StyleBookEntryService getService() {
 		return _serviceSnapshot.get();
 	}
@@ -265,4 +296,4 @@ public class StyleBookEntryServiceUtil {
 			StyleBookEntryServiceUtil.class, StyleBookEntryService.class);
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:693322794
+// LIFERAY-SERVICE-BUILDER-HASH:795949645

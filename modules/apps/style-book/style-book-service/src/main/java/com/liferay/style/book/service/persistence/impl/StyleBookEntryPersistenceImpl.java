@@ -870,6 +870,191 @@ public class StyleBookEntryPersistenceImpl
 	}
 
 	private CollectionPersistenceFinder<StyleBookEntry, NoSuchEntryException>
+		_collectionPersistenceFinderByParentStyleBookEntryId;
+
+	/**
+	 * Returns an ordered range of all the style book entries where parentStyleBookEntryId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>StyleBookEntryModelImpl</code>.
+	 * </p>
+	 *
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @param start the lower bound of the range of style book entries
+	 * @param end the upper bound of the range of style book entries (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching style book entries
+	 */
+	@Override
+	public List<StyleBookEntry> findByParentStyleBookEntryId(
+		long parentStyleBookEntryId, int start, int end,
+		OrderByComparator<StyleBookEntry> orderByComparator,
+		boolean useFinderCache) {
+
+		return _collectionPersistenceFinderByParentStyleBookEntryId.find(
+			finderCache, new Object[] {parentStyleBookEntryId}, start, end,
+			orderByComparator, useFinderCache);
+	}
+
+	/**
+	 * Returns the first style book entry in the ordered set where parentStyleBookEntryId = &#63;.
+	 *
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching style book entry
+	 * @throws NoSuchEntryException if a matching style book entry could not be found
+	 */
+	@Override
+	public StyleBookEntry findByParentStyleBookEntryId_First(
+			long parentStyleBookEntryId,
+			OrderByComparator<StyleBookEntry> orderByComparator)
+		throws NoSuchEntryException {
+
+		return _collectionPersistenceFinderByParentStyleBookEntryId.findFirst(
+			finderCache, new Object[] {parentStyleBookEntryId},
+			orderByComparator);
+	}
+
+	/**
+	 * Returns the first style book entry in the ordered set where parentStyleBookEntryId = &#63;.
+	 *
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching style book entry, or <code>null</code> if a matching style book entry could not be found
+	 */
+	@Override
+	public StyleBookEntry fetchByParentStyleBookEntryId_First(
+		long parentStyleBookEntryId,
+		OrderByComparator<StyleBookEntry> orderByComparator) {
+
+		return _collectionPersistenceFinderByParentStyleBookEntryId.fetchFirst(
+			finderCache, new Object[] {parentStyleBookEntryId},
+			orderByComparator);
+	}
+
+	/**
+	 * Removes all the style book entries where parentStyleBookEntryId = &#63; from the database.
+	 *
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 */
+	@Override
+	public void removeByParentStyleBookEntryId(long parentStyleBookEntryId) {
+		_collectionPersistenceFinderByParentStyleBookEntryId.remove(
+			finderCache, new Object[] {parentStyleBookEntryId});
+	}
+
+	/**
+	 * Returns the number of style book entries where parentStyleBookEntryId = &#63;.
+	 *
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @return the number of matching style book entries
+	 */
+	@Override
+	public int countByParentStyleBookEntryId(long parentStyleBookEntryId) {
+		return _collectionPersistenceFinderByParentStyleBookEntryId.count(
+			finderCache, new Object[] {parentStyleBookEntryId});
+	}
+
+	private CollectionPersistenceFinder<StyleBookEntry, NoSuchEntryException>
+		_collectionPersistenceFinderByParentStyleBookEntryId_Head;
+
+	/**
+	 * Returns an ordered range of all the style book entries where parentStyleBookEntryId = &#63; and head = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>StyleBookEntryModelImpl</code>.
+	 * </p>
+	 *
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @param head the head
+	 * @param start the lower bound of the range of style book entries
+	 * @param end the upper bound of the range of style book entries (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching style book entries
+	 */
+	@Override
+	public List<StyleBookEntry> findByParentStyleBookEntryId_Head(
+		long parentStyleBookEntryId, boolean head, int start, int end,
+		OrderByComparator<StyleBookEntry> orderByComparator,
+		boolean useFinderCache) {
+
+		return _collectionPersistenceFinderByParentStyleBookEntryId_Head.find(
+			finderCache, new Object[] {parentStyleBookEntryId, head}, start,
+			end, orderByComparator, useFinderCache);
+	}
+
+	/**
+	 * Returns the first style book entry in the ordered set where parentStyleBookEntryId = &#63; and head = &#63;.
+	 *
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @param head the head
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching style book entry
+	 * @throws NoSuchEntryException if a matching style book entry could not be found
+	 */
+	@Override
+	public StyleBookEntry findByParentStyleBookEntryId_Head_First(
+			long parentStyleBookEntryId, boolean head,
+			OrderByComparator<StyleBookEntry> orderByComparator)
+		throws NoSuchEntryException {
+
+		return _collectionPersistenceFinderByParentStyleBookEntryId_Head.
+			findFirst(
+				finderCache, new Object[] {parentStyleBookEntryId, head},
+				orderByComparator);
+	}
+
+	/**
+	 * Returns the first style book entry in the ordered set where parentStyleBookEntryId = &#63; and head = &#63;.
+	 *
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @param head the head
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching style book entry, or <code>null</code> if a matching style book entry could not be found
+	 */
+	@Override
+	public StyleBookEntry fetchByParentStyleBookEntryId_Head_First(
+		long parentStyleBookEntryId, boolean head,
+		OrderByComparator<StyleBookEntry> orderByComparator) {
+
+		return _collectionPersistenceFinderByParentStyleBookEntryId_Head.
+			fetchFirst(
+				finderCache, new Object[] {parentStyleBookEntryId, head},
+				orderByComparator);
+	}
+
+	/**
+	 * Removes all the style book entries where parentStyleBookEntryId = &#63; and head = &#63; from the database.
+	 *
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @param head the head
+	 */
+	@Override
+	public void removeByParentStyleBookEntryId_Head(
+		long parentStyleBookEntryId, boolean head) {
+
+		_collectionPersistenceFinderByParentStyleBookEntryId_Head.remove(
+			finderCache, new Object[] {parentStyleBookEntryId, head});
+	}
+
+	/**
+	 * Returns the number of style book entries where parentStyleBookEntryId = &#63; and head = &#63;.
+	 *
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @param head the head
+	 * @return the number of matching style book entries
+	 */
+	@Override
+	public int countByParentStyleBookEntryId_Head(
+		long parentStyleBookEntryId, boolean head) {
+
+		return _collectionPersistenceFinderByParentStyleBookEntryId_Head.count(
+			finderCache, new Object[] {parentStyleBookEntryId, head});
+	}
+
+	private CollectionPersistenceFinder<StyleBookEntry, NoSuchEntryException>
 		_collectionPersistenceFinderByG_D;
 
 	/**
@@ -1547,6 +1732,199 @@ public class StyleBookEntryPersistenceImpl
 	public int countByG_LikeN_Head(long groupId, String name, boolean head) {
 		return _collectionPersistenceFinderByG_LikeN_Head.count(
 			finderCache, new Object[] {groupId, name, head});
+	}
+
+	private CollectionPersistenceFinder<StyleBookEntry, NoSuchEntryException>
+		_collectionPersistenceFinderByG_P;
+
+	/**
+	 * Returns an ordered range of all the style book entries where groupId = &#63; and parentStyleBookEntryId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>StyleBookEntryModelImpl</code>.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @param start the lower bound of the range of style book entries
+	 * @param end the upper bound of the range of style book entries (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching style book entries
+	 */
+	@Override
+	public List<StyleBookEntry> findByG_P(
+		long groupId, long parentStyleBookEntryId, int start, int end,
+		OrderByComparator<StyleBookEntry> orderByComparator,
+		boolean useFinderCache) {
+
+		return _collectionPersistenceFinderByG_P.find(
+			finderCache, new Object[] {groupId, parentStyleBookEntryId}, start,
+			end, orderByComparator, useFinderCache);
+	}
+
+	/**
+	 * Returns the first style book entry in the ordered set where groupId = &#63; and parentStyleBookEntryId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching style book entry
+	 * @throws NoSuchEntryException if a matching style book entry could not be found
+	 */
+	@Override
+	public StyleBookEntry findByG_P_First(
+			long groupId, long parentStyleBookEntryId,
+			OrderByComparator<StyleBookEntry> orderByComparator)
+		throws NoSuchEntryException {
+
+		return _collectionPersistenceFinderByG_P.findFirst(
+			finderCache, new Object[] {groupId, parentStyleBookEntryId},
+			orderByComparator);
+	}
+
+	/**
+	 * Returns the first style book entry in the ordered set where groupId = &#63; and parentStyleBookEntryId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching style book entry, or <code>null</code> if a matching style book entry could not be found
+	 */
+	@Override
+	public StyleBookEntry fetchByG_P_First(
+		long groupId, long parentStyleBookEntryId,
+		OrderByComparator<StyleBookEntry> orderByComparator) {
+
+		return _collectionPersistenceFinderByG_P.fetchFirst(
+			finderCache, new Object[] {groupId, parentStyleBookEntryId},
+			orderByComparator);
+	}
+
+	/**
+	 * Removes all the style book entries where groupId = &#63; and parentStyleBookEntryId = &#63; from the database.
+	 *
+	 * @param groupId the group ID
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 */
+	@Override
+	public void removeByG_P(long groupId, long parentStyleBookEntryId) {
+		_collectionPersistenceFinderByG_P.remove(
+			finderCache, new Object[] {groupId, parentStyleBookEntryId});
+	}
+
+	/**
+	 * Returns the number of style book entries where groupId = &#63; and parentStyleBookEntryId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @return the number of matching style book entries
+	 */
+	@Override
+	public int countByG_P(long groupId, long parentStyleBookEntryId) {
+		return _collectionPersistenceFinderByG_P.count(
+			finderCache, new Object[] {groupId, parentStyleBookEntryId});
+	}
+
+	private CollectionPersistenceFinder<StyleBookEntry, NoSuchEntryException>
+		_collectionPersistenceFinderByG_P_Head;
+
+	/**
+	 * Returns an ordered range of all the style book entries where groupId = &#63; and parentStyleBookEntryId = &#63; and head = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>StyleBookEntryModelImpl</code>.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @param head the head
+	 * @param start the lower bound of the range of style book entries
+	 * @param end the upper bound of the range of style book entries (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching style book entries
+	 */
+	@Override
+	public List<StyleBookEntry> findByG_P_Head(
+		long groupId, long parentStyleBookEntryId, boolean head, int start,
+		int end, OrderByComparator<StyleBookEntry> orderByComparator,
+		boolean useFinderCache) {
+
+		return _collectionPersistenceFinderByG_P_Head.find(
+			finderCache, new Object[] {groupId, parentStyleBookEntryId, head},
+			start, end, orderByComparator, useFinderCache);
+	}
+
+	/**
+	 * Returns the first style book entry in the ordered set where groupId = &#63; and parentStyleBookEntryId = &#63; and head = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @param head the head
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching style book entry
+	 * @throws NoSuchEntryException if a matching style book entry could not be found
+	 */
+	@Override
+	public StyleBookEntry findByG_P_Head_First(
+			long groupId, long parentStyleBookEntryId, boolean head,
+			OrderByComparator<StyleBookEntry> orderByComparator)
+		throws NoSuchEntryException {
+
+		return _collectionPersistenceFinderByG_P_Head.findFirst(
+			finderCache, new Object[] {groupId, parentStyleBookEntryId, head},
+			orderByComparator);
+	}
+
+	/**
+	 * Returns the first style book entry in the ordered set where groupId = &#63; and parentStyleBookEntryId = &#63; and head = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @param head the head
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching style book entry, or <code>null</code> if a matching style book entry could not be found
+	 */
+	@Override
+	public StyleBookEntry fetchByG_P_Head_First(
+		long groupId, long parentStyleBookEntryId, boolean head,
+		OrderByComparator<StyleBookEntry> orderByComparator) {
+
+		return _collectionPersistenceFinderByG_P_Head.fetchFirst(
+			finderCache, new Object[] {groupId, parentStyleBookEntryId, head},
+			orderByComparator);
+	}
+
+	/**
+	 * Removes all the style book entries where groupId = &#63; and parentStyleBookEntryId = &#63; and head = &#63; from the database.
+	 *
+	 * @param groupId the group ID
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @param head the head
+	 */
+	@Override
+	public void removeByG_P_Head(
+		long groupId, long parentStyleBookEntryId, boolean head) {
+
+		_collectionPersistenceFinderByG_P_Head.remove(
+			finderCache, new Object[] {groupId, parentStyleBookEntryId, head});
+	}
+
+	/**
+	 * Returns the number of style book entries where groupId = &#63; and parentStyleBookEntryId = &#63; and head = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param parentStyleBookEntryId the parent style book entry ID
+	 * @param head the head
+	 * @return the number of matching style book entries
+	 */
+	@Override
+	public int countByG_P_Head(
+		long groupId, long parentStyleBookEntryId, boolean head) {
+
+		return _collectionPersistenceFinderByG_P_Head.count(
+			finderCache, new Object[] {groupId, parentStyleBookEntryId, head});
 	}
 
 	private CollectionPersistenceFinder<StyleBookEntry, NoSuchEntryException>
@@ -3339,10 +3717,12 @@ public class StyleBookEntryPersistenceImpl
 		ctStrictColumnNames.add("userName");
 		ctStrictColumnNames.add("createDate");
 		ctIgnoreColumnNames.add("modifiedDate");
+		ctMergeColumnNames.add("colorScheme");
 		ctMergeColumnNames.add("defaultStyleBookEntry");
 		ctMergeColumnNames.add("frontendTokenDefinition");
 		ctMergeColumnNames.add("frontendTokensValues");
 		ctMergeColumnNames.add("name");
+		ctMergeColumnNames.add("parentStyleBookEntryId");
 		ctMergeColumnNames.add("previewFileEntryId");
 		ctMergeColumnNames.add("styleBookEntryKey");
 		ctMergeColumnNames.add("themeId");
@@ -3628,6 +4008,75 @@ public class StyleBookEntryPersistenceImpl
 					"styleBookEntry.", "head", FinderColumn.Type.BOOLEAN, "=",
 					true, true, StyleBookEntry::isHead));
 
+		_collectionPersistenceFinderByParentStyleBookEntryId =
+			new CollectionPersistenceFinder<>(
+				this,
+				new FinderPath(
+					FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
+					"findByParentStyleBookEntryId",
+					new String[] {
+						Long.class.getName(), Integer.class.getName(),
+						Integer.class.getName(),
+						OrderByComparator.class.getName()
+					},
+					new String[] {"parentStyleBookEntryId"}, true),
+				new FinderPath(
+					FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
+					"findByParentStyleBookEntryId",
+					new String[] {Long.class.getName()},
+					new String[] {"parentStyleBookEntryId"}, true),
+				new FinderPath(
+					FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
+					"countByParentStyleBookEntryId",
+					new String[] {Long.class.getName()},
+					new String[] {"parentStyleBookEntryId"}, false),
+				_SQL_SELECT_STYLEBOOKENTRY_WHERE,
+				_SQL_COUNT_STYLEBOOKENTRY_WHERE,
+				StyleBookEntryModelImpl.ORDER_BY_JPQL, _ENTITY_ALIAS_PREFIX, "",
+				"", null,
+				new FinderColumn<>(
+					"styleBookEntry.", "parentStyleBookEntryId",
+					FinderColumn.Type.LONG, "=", true, true,
+					StyleBookEntry::getParentStyleBookEntryId));
+
+		_collectionPersistenceFinderByParentStyleBookEntryId_Head =
+			new CollectionPersistenceFinder<>(
+				this,
+				new FinderPath(
+					FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
+					"findByParentStyleBookEntryId_Head",
+					new String[] {
+						Long.class.getName(), Boolean.class.getName(),
+						Integer.class.getName(), Integer.class.getName(),
+						OrderByComparator.class.getName()
+					},
+					new String[] {"parentStyleBookEntryId", "head"}, true),
+				new FinderPath(
+					FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
+					"findByParentStyleBookEntryId_Head",
+					new String[] {
+						Long.class.getName(), Boolean.class.getName()
+					},
+					new String[] {"parentStyleBookEntryId", "head"}, true),
+				new FinderPath(
+					FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
+					"countByParentStyleBookEntryId_Head",
+					new String[] {
+						Long.class.getName(), Boolean.class.getName()
+					},
+					new String[] {"parentStyleBookEntryId", "head"}, false),
+				_SQL_SELECT_STYLEBOOKENTRY_WHERE,
+				_SQL_COUNT_STYLEBOOKENTRY_WHERE,
+				StyleBookEntryModelImpl.ORDER_BY_JPQL, _ENTITY_ALIAS_PREFIX, "",
+				"", null,
+				new FinderColumn<>(
+					"styleBookEntry.", "parentStyleBookEntryId",
+					FinderColumn.Type.LONG, "=", true, true,
+					StyleBookEntry::getParentStyleBookEntryId),
+				new FinderColumn<>(
+					"styleBookEntry.", "head", FinderColumn.Type.BOOLEAN, "=",
+					true, true, StyleBookEntry::isHead));
+
 		_collectionPersistenceFinderByG_D = new CollectionPersistenceFinder<>(
 			this,
 			new FinderPath(
@@ -3831,6 +4280,80 @@ public class StyleBookEntryPersistenceImpl
 				new FinderColumn<>(
 					"styleBookEntry.", "name", FinderColumn.Type.STRING, "LIKE",
 					true, true, StyleBookEntry::getName),
+				new FinderColumn<>(
+					"styleBookEntry.", "head", FinderColumn.Type.BOOLEAN, "=",
+					true, true, StyleBookEntry::isHead));
+
+		_collectionPersistenceFinderByG_P = new CollectionPersistenceFinder<>(
+			this,
+			new FinderPath(
+				FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByG_P",
+				new String[] {
+					Long.class.getName(), Long.class.getName(),
+					Integer.class.getName(), Integer.class.getName(),
+					OrderByComparator.class.getName()
+				},
+				new String[] {"groupId", "parentStyleBookEntryId"}, true),
+			new FinderPath(
+				FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByG_P",
+				new String[] {Long.class.getName(), Long.class.getName()},
+				new String[] {"groupId", "parentStyleBookEntryId"}, true),
+			new FinderPath(
+				FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByG_P",
+				new String[] {Long.class.getName(), Long.class.getName()},
+				new String[] {"groupId", "parentStyleBookEntryId"}, false),
+			_SQL_SELECT_STYLEBOOKENTRY_WHERE, _SQL_COUNT_STYLEBOOKENTRY_WHERE,
+			StyleBookEntryModelImpl.ORDER_BY_JPQL, _ENTITY_ALIAS_PREFIX, "", "",
+			null,
+			new FinderColumn<>(
+				"styleBookEntry.", "groupId", FinderColumn.Type.LONG, "=", true,
+				true, StyleBookEntry::getGroupId),
+			new FinderColumn<>(
+				"styleBookEntry.", "parentStyleBookEntryId",
+				FinderColumn.Type.LONG, "=", true, true,
+				StyleBookEntry::getParentStyleBookEntryId));
+
+		_collectionPersistenceFinderByG_P_Head =
+			new CollectionPersistenceFinder<>(
+				this,
+				new FinderPath(
+					FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByG_P_Head",
+					new String[] {
+						Long.class.getName(), Long.class.getName(),
+						Boolean.class.getName(), Integer.class.getName(),
+						Integer.class.getName(),
+						OrderByComparator.class.getName()
+					},
+					new String[] {"groupId", "parentStyleBookEntryId", "head"},
+					true),
+				new FinderPath(
+					FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByG_P_Head",
+					new String[] {
+						Long.class.getName(), Long.class.getName(),
+						Boolean.class.getName()
+					},
+					new String[] {"groupId", "parentStyleBookEntryId", "head"},
+					true),
+				new FinderPath(
+					FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
+					"countByG_P_Head",
+					new String[] {
+						Long.class.getName(), Long.class.getName(),
+						Boolean.class.getName()
+					},
+					new String[] {"groupId", "parentStyleBookEntryId", "head"},
+					false),
+				_SQL_SELECT_STYLEBOOKENTRY_WHERE,
+				_SQL_COUNT_STYLEBOOKENTRY_WHERE,
+				StyleBookEntryModelImpl.ORDER_BY_JPQL, _ENTITY_ALIAS_PREFIX, "",
+				"", null,
+				new FinderColumn<>(
+					"styleBookEntry.", "groupId", FinderColumn.Type.LONG, "=",
+					true, true, StyleBookEntry::getGroupId),
+				new FinderColumn<>(
+					"styleBookEntry.", "parentStyleBookEntryId",
+					FinderColumn.Type.LONG, "=", true, true,
+					StyleBookEntry::getParentStyleBookEntryId),
 				new FinderColumn<>(
 					"styleBookEntry.", "head", FinderColumn.Type.BOOLEAN, "=",
 					true, true, StyleBookEntry::isHead));
@@ -4263,4 +4786,4 @@ public class StyleBookEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1849446001
+// LIFERAY-SERVICE-BUILDER-HASH:-661948716

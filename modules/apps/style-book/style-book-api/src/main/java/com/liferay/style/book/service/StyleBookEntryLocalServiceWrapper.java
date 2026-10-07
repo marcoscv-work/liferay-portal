@@ -63,6 +63,32 @@ public class StyleBookEntryLocalServiceWrapper
 	}
 
 	@Override
+	public StyleBookEntry addStyleBookEntryVariant(
+			long userId, long parentStyleBookEntryId, String colorScheme,
+			String name,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _styleBookEntryLocalService.addStyleBookEntryVariant(
+			userId, parentStyleBookEntryId, colorScheme, name, serviceContext);
+	}
+
+	@Override
+	public StyleBookEntry addStyleBookEntryVariant(
+			String externalReferenceCode, long userId,
+			long parentStyleBookEntryId, String colorScheme,
+			String frontendTokenDefinition, String frontendTokensValues,
+			String name, String styleBookEntryKey,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _styleBookEntryLocalService.addStyleBookEntryVariant(
+			externalReferenceCode, userId, parentStyleBookEntryId, colorScheme,
+			frontendTokenDefinition, frontendTokensValues, name,
+			styleBookEntryKey, serviceContext);
+	}
+
+	@Override
 	public StyleBookEntry checkout(
 			StyleBookEntry publishedStyleBookEntry, int version)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -468,6 +494,24 @@ public class StyleBookEntryLocalServiceWrapper
 
 	@Override
 	public java.util.List<StyleBookEntry> getStyleBookEntries(
+		long groupId, long parentStyleBookEntryId) {
+
+		return _styleBookEntryLocalService.getStyleBookEntries(
+			groupId, parentStyleBookEntryId);
+	}
+
+	@Override
+	public java.util.List<StyleBookEntry> getStyleBookEntries(
+		long groupId, long parentStyleBookEntryId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<StyleBookEntry>
+			orderByComparator) {
+
+		return _styleBookEntryLocalService.getStyleBookEntries(
+			groupId, parentStyleBookEntryId, start, end, orderByComparator);
+	}
+
+	@Override
+	public java.util.List<StyleBookEntry> getStyleBookEntries(
 		long groupId, String themeId) {
 
 		return _styleBookEntryLocalService.getStyleBookEntries(
@@ -546,6 +590,14 @@ public class StyleBookEntryLocalServiceWrapper
 	}
 
 	@Override
+	public int getStyleBookEntriesCount(
+		long groupId, long parentStyleBookEntryId) {
+
+		return _styleBookEntryLocalService.getStyleBookEntriesCount(
+			groupId, parentStyleBookEntryId);
+	}
+
+	@Override
 	public int getStyleBookEntriesCount(long groupId, String name) {
 		return _styleBookEntryLocalService.getStyleBookEntriesCount(
 			groupId, name);
@@ -597,6 +649,14 @@ public class StyleBookEntryLocalServiceWrapper
 		return _styleBookEntryLocalService.
 			getStyleBookEntryByExternalReferenceCode(
 				externalReferenceCode, groupId, head);
+	}
+
+	@Override
+	public java.util.List<StyleBookEntry> getStyleBookEntryVariants(
+		long parentStyleBookEntryId) {
+
+		return _styleBookEntryLocalService.getStyleBookEntryVariants(
+			parentStyleBookEntryId);
 	}
 
 	@Override
@@ -757,6 +817,16 @@ public class StyleBookEntryLocalServiceWrapper
 	}
 
 	@Override
+	public StyleBookEntry updateStyleBookEntryVariant(
+			long styleBookEntryId, long parentStyleBookEntryId,
+			String colorScheme)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _styleBookEntryLocalService.updateStyleBookEntryVariant(
+			styleBookEntryId, parentStyleBookEntryId, colorScheme);
+	}
+
+	@Override
 	public BasePersistence<?> getBasePersistence() {
 		return _styleBookEntryLocalService.getBasePersistence();
 	}
@@ -796,4 +866,4 @@ public class StyleBookEntryLocalServiceWrapper
 	private StyleBookEntryLocalService _styleBookEntryLocalService;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1113817741
+// LIFERAY-SERVICE-BUILDER-HASH:613224694

@@ -137,6 +137,8 @@ public class StyleBookEntryPersistenceTest {
 
 		newStyleBookEntry.setModifiedDate(RandomTestUtil.nextDate());
 
+		newStyleBookEntry.setColorScheme(RandomTestUtil.randomString());
+
 		newStyleBookEntry.setDefaultStyleBookEntry(
 			RandomTestUtil.randomBoolean());
 
@@ -147,6 +149,8 @@ public class StyleBookEntryPersistenceTest {
 			RandomTestUtil.randomString());
 
 		newStyleBookEntry.setName(RandomTestUtil.randomString());
+
+		newStyleBookEntry.setParentStyleBookEntryId(RandomTestUtil.nextLong());
 
 		newStyleBookEntry.setPreviewFileEntryId(RandomTestUtil.nextLong());
 
@@ -195,6 +199,9 @@ public class StyleBookEntryPersistenceTest {
 			Time.getShortTimestamp(existingStyleBookEntry.getModifiedDate()),
 			Time.getShortTimestamp(newStyleBookEntry.getModifiedDate()));
 		Assert.assertEquals(
+			existingStyleBookEntry.getColorScheme(),
+			newStyleBookEntry.getColorScheme());
+		Assert.assertEquals(
 			existingStyleBookEntry.isDefaultStyleBookEntry(),
 			newStyleBookEntry.isDefaultStyleBookEntry());
 		Assert.assertEquals(
@@ -205,6 +212,9 @@ public class StyleBookEntryPersistenceTest {
 			newStyleBookEntry.getFrontendTokensValues());
 		Assert.assertEquals(
 			existingStyleBookEntry.getName(), newStyleBookEntry.getName());
+		Assert.assertEquals(
+			existingStyleBookEntry.getParentStyleBookEntryId(),
+			newStyleBookEntry.getParentStyleBookEntryId());
 		Assert.assertEquals(
 			existingStyleBookEntry.getPreviewFileEntryId(),
 			newStyleBookEntry.getPreviewFileEntryId());
@@ -236,6 +246,7 @@ public class StyleBookEntryPersistenceTest {
 		draftStyleBookEntry.setUserName(styleBookEntry.getUserName());
 		draftStyleBookEntry.setCreateDate(styleBookEntry.getCreateDate());
 		draftStyleBookEntry.setModifiedDate(styleBookEntry.getModifiedDate());
+		draftStyleBookEntry.setColorScheme(styleBookEntry.getColorScheme());
 		draftStyleBookEntry.setDefaultStyleBookEntry(
 			styleBookEntry.getDefaultStyleBookEntry());
 		draftStyleBookEntry.setFrontendTokenDefinition(
@@ -243,6 +254,8 @@ public class StyleBookEntryPersistenceTest {
 		draftStyleBookEntry.setFrontendTokensValues(
 			styleBookEntry.getFrontendTokensValues());
 		draftStyleBookEntry.setName(styleBookEntry.getName());
+		draftStyleBookEntry.setParentStyleBookEntryId(
+			styleBookEntry.getParentStyleBookEntryId());
 		draftStyleBookEntry.setPreviewFileEntryId(
 			styleBookEntry.getPreviewFileEntryId());
 		draftStyleBookEntry.setStyleBookEntryKey(
@@ -279,6 +292,9 @@ public class StyleBookEntryPersistenceTest {
 			Time.getShortTimestamp(styleBookEntry.getModifiedDate()),
 			Time.getShortTimestamp(draftStyleBookEntry.getModifiedDate()));
 		Assert.assertEquals(
+			styleBookEntry.getColorScheme(),
+			draftStyleBookEntry.getColorScheme());
+		Assert.assertEquals(
 			styleBookEntry.isDefaultStyleBookEntry(),
 			draftStyleBookEntry.isDefaultStyleBookEntry());
 		Assert.assertEquals(
@@ -289,6 +305,9 @@ public class StyleBookEntryPersistenceTest {
 			draftStyleBookEntry.getFrontendTokensValues());
 		Assert.assertEquals(
 			styleBookEntry.getName(), draftStyleBookEntry.getName());
+		Assert.assertEquals(
+			styleBookEntry.getParentStyleBookEntryId(),
+			draftStyleBookEntry.getParentStyleBookEntryId());
 		Assert.assertEquals(
 			styleBookEntry.getPreviewFileEntryId(),
 			draftStyleBookEntry.getPreviewFileEntryId());
@@ -332,6 +351,8 @@ public class StyleBookEntryPersistenceTest {
 
 		styleBookEntry2.setModifiedDate(RandomTestUtil.nextDate());
 
+		styleBookEntry2.setColorScheme(RandomTestUtil.randomString());
+
 		styleBookEntry2.setDefaultStyleBookEntry(
 			RandomTestUtil.randomBoolean());
 
@@ -341,6 +362,8 @@ public class StyleBookEntryPersistenceTest {
 		styleBookEntry2.setFrontendTokensValues(RandomTestUtil.randomString());
 
 		styleBookEntry2.setName(RandomTestUtil.randomString());
+
+		styleBookEntry2.setParentStyleBookEntryId(RandomTestUtil.nextLong());
 
 		styleBookEntry2.setPreviewFileEntryId(RandomTestUtil.nextLong());
 
@@ -462,6 +485,22 @@ public class StyleBookEntryPersistenceTest {
 	}
 
 	@Test
+	public void testCountByParentStyleBookEntryId() throws Exception {
+		_persistence.countByParentStyleBookEntryId(RandomTestUtil.nextLong());
+
+		_persistence.countByParentStyleBookEntryId(0L);
+	}
+
+	@Test
+	public void testCountByParentStyleBookEntryId_Head() throws Exception {
+		_persistence.countByParentStyleBookEntryId_Head(
+			RandomTestUtil.nextLong(), RandomTestUtil.randomBoolean());
+
+		_persistence.countByParentStyleBookEntryId_Head(
+			0L, RandomTestUtil.randomBoolean());
+	}
+
+	@Test
 	public void testCountByG_D() throws Exception {
 		_persistence.countByG_D(
 			RandomTestUtil.nextLong(), RandomTestUtil.randomBoolean());
@@ -519,6 +558,23 @@ public class StyleBookEntryPersistenceTest {
 
 		_persistence.countByG_LikeN_Head(
 			0L, (String)null, RandomTestUtil.randomBoolean());
+	}
+
+	@Test
+	public void testCountByG_P() throws Exception {
+		_persistence.countByG_P(
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
+
+		_persistence.countByG_P(0L, 0L);
+	}
+
+	@Test
+	public void testCountByG_P_Head() throws Exception {
+		_persistence.countByG_P_Head(
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean());
+
+		_persistence.countByG_P_Head(0L, 0L, RandomTestUtil.randomBoolean());
 	}
 
 	@Test
@@ -696,7 +752,8 @@ public class StyleBookEntryPersistenceTest {
 			"uuid", true, "externalReferenceCode", true, "headId", true,
 			"styleBookEntryId", true, "groupId", true, "companyId", true,
 			"userId", true, "userName", true, "createDate", true,
-			"modifiedDate", true, "defaultStyleBookEntry", true, "name", true,
+			"modifiedDate", true, "colorScheme", true, "defaultStyleBookEntry",
+			true, "name", true, "parentStyleBookEntryId", true,
 			"previewFileEntryId", true, "styleBookEntryKey", true, "themeId",
 			true);
 	}
@@ -1031,6 +1088,8 @@ public class StyleBookEntryPersistenceTest {
 
 		styleBookEntry.setModifiedDate(RandomTestUtil.nextDate());
 
+		styleBookEntry.setColorScheme(RandomTestUtil.randomString());
+
 		styleBookEntry.setDefaultStyleBookEntry(RandomTestUtil.randomBoolean());
 
 		styleBookEntry.setFrontendTokenDefinition(
@@ -1039,6 +1098,8 @@ public class StyleBookEntryPersistenceTest {
 		styleBookEntry.setFrontendTokensValues(RandomTestUtil.randomString());
 
 		styleBookEntry.setName(RandomTestUtil.randomString());
+
+		styleBookEntry.setParentStyleBookEntryId(RandomTestUtil.nextLong());
 
 		styleBookEntry.setPreviewFileEntryId(RandomTestUtil.nextLong());
 
@@ -1057,4 +1118,4 @@ public class StyleBookEntryPersistenceTest {
 	private ClassLoader _dynamicQueryClassLoader;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-357568069
+// LIFERAY-SERVICE-BUILDER-HASH:1430307143

@@ -50,10 +50,12 @@ public class StyleBookEntryVersionWrapper
 		attributes.put("userName", getUserName());
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
+		attributes.put("colorScheme", getColorScheme());
 		attributes.put("defaultStyleBookEntry", isDefaultStyleBookEntry());
 		attributes.put("frontendTokenDefinition", getFrontendTokenDefinition());
 		attributes.put("frontendTokensValues", getFrontendTokensValues());
 		attributes.put("name", getName());
+		attributes.put("parentStyleBookEntryId", getParentStyleBookEntryId());
 		attributes.put("previewFileEntryId", getPreviewFileEntryId());
 		attributes.put("styleBookEntryKey", getStyleBookEntryKey());
 		attributes.put("themeId", getThemeId());
@@ -143,6 +145,12 @@ public class StyleBookEntryVersionWrapper
 			setModifiedDate(modifiedDate);
 		}
 
+		String colorScheme = (String)attributes.get("colorScheme");
+
+		if (colorScheme != null) {
+			setColorScheme(colorScheme);
+		}
+
 		Boolean defaultStyleBookEntry = (Boolean)attributes.get(
 			"defaultStyleBookEntry");
 
@@ -170,6 +178,13 @@ public class StyleBookEntryVersionWrapper
 			setName(name);
 		}
 
+		Long parentStyleBookEntryId = (Long)attributes.get(
+			"parentStyleBookEntryId");
+
+		if (parentStyleBookEntryId != null) {
+			setParentStyleBookEntryId(parentStyleBookEntryId);
+		}
+
 		Long previewFileEntryId = (Long)attributes.get("previewFileEntryId");
 
 		if (previewFileEntryId != null) {
@@ -192,6 +207,16 @@ public class StyleBookEntryVersionWrapper
 	@Override
 	public StyleBookEntryVersion cloneWithOriginalValues() {
 		return wrap(model.cloneWithOriginalValues());
+	}
+
+	/**
+	 * Returns the color scheme of this style book entry version.
+	 *
+	 * @return the color scheme of this style book entry version
+	 */
+	@Override
+	public String getColorScheme() {
+		return model.getColorScheme();
 	}
 
 	/**
@@ -302,6 +327,16 @@ public class StyleBookEntryVersionWrapper
 	@Override
 	public String getName() {
 		return model.getName();
+	}
+
+	/**
+	 * Returns the parent style book entry ID of this style book entry version.
+	 *
+	 * @return the parent style book entry ID of this style book entry version
+	 */
+	@Override
+	public long getParentStyleBookEntryId() {
+		return model.getParentStyleBookEntryId();
 	}
 
 	/**
@@ -425,6 +460,16 @@ public class StyleBookEntryVersionWrapper
 	}
 
 	/**
+	 * Sets the color scheme of this style book entry version.
+	 *
+	 * @param colorScheme the color scheme of this style book entry version
+	 */
+	@Override
+	public void setColorScheme(String colorScheme) {
+		model.setColorScheme(colorScheme);
+	}
+
+	/**
 	 * Sets the company ID of this style book entry version.
 	 *
 	 * @param companyId the company ID of this style book entry version
@@ -532,6 +577,16 @@ public class StyleBookEntryVersionWrapper
 	@Override
 	public void setName(String name) {
 		model.setName(name);
+	}
+
+	/**
+	 * Sets the parent style book entry ID of this style book entry version.
+	 *
+	 * @param parentStyleBookEntryId the parent style book entry ID of this style book entry version
+	 */
+	@Override
+	public void setParentStyleBookEntryId(long parentStyleBookEntryId) {
+		model.setParentStyleBookEntryId(parentStyleBookEntryId);
 	}
 
 	/**
@@ -691,4 +746,4 @@ public class StyleBookEntryVersionWrapper
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:633940839
+// LIFERAY-SERVICE-BUILDER-HASH:-1935009949

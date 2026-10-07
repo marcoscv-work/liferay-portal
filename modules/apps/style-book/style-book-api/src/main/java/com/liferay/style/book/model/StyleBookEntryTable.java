@@ -55,6 +55,8 @@ public class StyleBookEntryTable extends BaseTable<StyleBookEntryTable> {
 		"createDate", Date.class, Types.TIMESTAMP, Column.FLAG_DEFAULT);
 	public final Column<StyleBookEntryTable, Date> modifiedDate = createColumn(
 		"modifiedDate", Date.class, Types.TIMESTAMP, Column.FLAG_DEFAULT);
+	public final Column<StyleBookEntryTable, String> colorScheme = createColumn(
+		"colorScheme", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<StyleBookEntryTable, Boolean> defaultStyleBookEntry =
 		createColumn(
 			"defaultStyleBookEntry", Boolean.class, Types.BOOLEAN,
@@ -69,6 +71,10 @@ public class StyleBookEntryTable extends BaseTable<StyleBookEntryTable> {
 			Column.FLAG_DEFAULT);
 	public final Column<StyleBookEntryTable, String> name = createColumn(
 		"name", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
+	public final Column<StyleBookEntryTable, Long> parentStyleBookEntryId =
+		createColumn(
+			"parentStyleBookEntryId", Long.class, Types.BIGINT,
+			Column.FLAG_DEFAULT);
 	public final Column<StyleBookEntryTable, Long> previewFileEntryId =
 		createColumn(
 			"previewFileEntryId", Long.class, Types.BIGINT,
@@ -85,4 +91,4 @@ public class StyleBookEntryTable extends BaseTable<StyleBookEntryTable> {
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1554132384
+// LIFERAY-SERVICE-BUILDER-HASH:-2054434620
