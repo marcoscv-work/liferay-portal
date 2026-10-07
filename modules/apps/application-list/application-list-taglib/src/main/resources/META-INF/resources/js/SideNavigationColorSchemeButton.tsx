@@ -4,7 +4,7 @@
  */
 
 import {ClayButtonWithIcon} from '@clayui/button';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 function SideNavigationColorSchemeButton({
 	className,
@@ -23,7 +23,15 @@ function SideNavigationColorSchemeButton({
 			: initialColorScheme;
 	});
 
+	const mountedRef = useRef(false);
+
 	useEffect(() => {
+		if (!mountedRef.current) {
+			mountedRef.current = true;
+
+			return;
+		}
+
 		if (document.documentElement.dataset.colorScheme !== colorScheme) {
 			document.documentElement.dataset.colorScheme = colorScheme;
 		}
