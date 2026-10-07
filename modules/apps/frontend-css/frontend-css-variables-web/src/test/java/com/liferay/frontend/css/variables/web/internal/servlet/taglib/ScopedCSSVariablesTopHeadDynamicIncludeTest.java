@@ -174,6 +174,106 @@ public class ScopedCSSVariablesTopHeadDynamicIncludeTest {
 	}
 
 	@Test
+	public void testIncludeWithMediaQueryAndColorScheme() throws IOException {
+		ScopedCSSVariablesTopHeadDynamicInclude
+			scopedCSSVariablesTopHeadDynamicInclude =
+				new ScopedCSSVariablesTopHeadDynamicInclude();
+
+		ScopedCSSVariablesProvider scopedCSSVariablesProvider = Mockito.mock(
+			ScopedCSSVariablesProvider.class);
+
+		Map<String, String> darkCSSVariables = HashMapBuilder.put(
+			"white", "#111"
+		).build();
+
+		Collection<ScopedCSSVariables> scopedCSSVariablesCollection =
+			Arrays.asList(
+				new ScopedCSSVariables() {
+
+					@Override
+					public Map<String, String> getCSSVariables() {
+						return HashMapBuilder.put(
+							"white", "#fff"
+						).build();
+					}
+
+					@Override
+					public String getScope() {
+						return ":root";
+					}
+
+				},
+				new ScopedCSSVariables() {
+
+					@Override
+					public Map<String, String> getCSSVariables() {
+						return darkCSSVariables;
+					}
+
+					@Override
+					public String getColorScheme() {
+						return "dark";
+					}
+
+					@Override
+					public String getMediaQuery() {
+						return "(prefers-color-scheme: dark)";
+					}
+
+					@Override
+					public String getScope() {
+						return ":root:not([data-color-scheme])";
+					}
+
+				},
+				new ScopedCSSVariables() {
+
+					@Override
+					public Map<String, String> getCSSVariables() {
+						return darkCSSVariables;
+					}
+
+					@Override
+					public String getColorScheme() {
+						return "dark";
+					}
+
+					@Override
+					public String getScope() {
+						return "[data-color-scheme='dark']:root";
+					}
+
+				});
+
+		Mockito.when(
+			scopedCSSVariablesProvider.getScopedCSSVariablesCollection(
+				Mockito.any(HttpServletRequest.class))
+		).thenReturn(
+			scopedCSSVariablesCollection
+		);
+
+		scopedCSSVariablesTopHeadDynamicInclude.setScopedCSSVariablesProviders(
+			Arrays.asList(scopedCSSVariablesProvider));
+
+		HttpServletRequest httpServletRequest = Mockito.mock(
+			HttpServletRequest.class);
+
+		HttpServletResponse httpServletResponse = Mockito.mock(
+			HttpServletResponse.class);
+
+		BufferCacheServletResponse bufferCacheServletResponse =
+			new BufferCacheServletResponse(httpServletResponse);
+
+		scopedCSSVariablesTopHeadDynamicInclude.include(
+			httpServletRequest, bufferCacheServletResponse,
+			"/html/common/themes/top_head.jsp#post");
+
+		Assert.assertEquals(
+			_read("liferay_css_variables_3.html", true),
+			bufferCacheServletResponse.getString());
+	}
+
+	@Test
 	public void testIncludeWithMultipleProviders() throws IOException {
 		ScopedCSSVariablesTopHeadDynamicInclude
 			scopedCSSVariablesTopHeadDynamicInclude =
