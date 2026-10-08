@@ -4,16 +4,20 @@
  */
 
 import ClayIcon from '@clayui/icon';
+import ClayLabel from '@clayui/label';
 import ClayLayout from '@clayui/layout';
+import ClayLink from '@clayui/link';
 import ClayPopover from '@clayui/popover';
 import classNames from 'classnames';
-import {ALIGN_POSITIONS, align} from 'frontend-js-web';
+import {ALIGN_POSITIONS, align, sub} from 'frontend-js-web';
 import React, {useLayoutEffect, useRef, useState} from 'react';
 
 import PreviewSelector from './PreviewSelector';
 import PublishButton from './PublishButton';
 import Undo from './Undo';
 import UndoHistory from './UndoHistory';
+import VariantsSelector from './VariantsSelector';
+import {config} from './config';
 import {DRAFT_STATUS} from './constants/draftStatusConstants';
 import {usePreviewLayout} from './contexts/LayoutContext';
 import {useDraftStatus} from './contexts/StyleBookEditorContext';
@@ -36,6 +40,21 @@ export default React.memo(function Toolbar() {
 							<PreviewSelector />
 						</li>
 					)}
+
+					<li className="ml-3 nav-item">
+						{config.colorScheme ? (
+							<ClayLink href={config.parentStyleBookEntryEditURL}>
+								<ClayLabel displayType="info">
+									{sub(
+										Liferay.Language.get('variant-of-x'),
+										config.parentStyleBookEntryName
+									)}
+								</ClayLabel>
+							</ClayLink>
+						) : (
+							<VariantsSelector />
+						)}
+					</li>
 				</ul>
 
 				<ul className="end navbar-nav">

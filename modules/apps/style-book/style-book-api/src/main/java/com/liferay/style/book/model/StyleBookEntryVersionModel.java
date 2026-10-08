@@ -279,6 +279,21 @@ public interface StyleBookEntryVersionModel
 	public void setModifiedDate(Date modifiedDate);
 
 	/**
+	 * Returns the color scheme of this style book entry version.
+	 *
+	 * @return the color scheme of this style book entry version
+	 */
+	@AutoEscape
+	public String getColorScheme();
+
+	/**
+	 * Sets the color scheme of this style book entry version.
+	 *
+	 * @param colorScheme the color scheme of this style book entry version
+	 */
+	public void setColorScheme(String colorScheme);
+
+	/**
 	 * Returns the default style book entry of this style book entry version.
 	 *
 	 * @return the default style book entry of this style book entry version
@@ -345,6 +360,20 @@ public interface StyleBookEntryVersionModel
 	public void setName(String name);
 
 	/**
+	 * Returns the parent style book entry ID of this style book entry version.
+	 *
+	 * @return the parent style book entry ID of this style book entry version
+	 */
+	public long getParentStyleBookEntryId();
+
+	/**
+	 * Sets the parent style book entry ID of this style book entry version.
+	 *
+	 * @param parentStyleBookEntryId the parent style book entry ID of this style book entry version
+	 */
+	public void setParentStyleBookEntryId(long parentStyleBookEntryId);
+
+	/**
 	 * Returns the preview file entry ID of this style book entry version.
 	 *
 	 * @return the preview file entry ID of this style book entry version
@@ -396,4 +425,4 @@ public interface StyleBookEntryVersionModel
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1179815729
+// LIFERAY-SERVICE-BUILDER-HASH:-1972040066

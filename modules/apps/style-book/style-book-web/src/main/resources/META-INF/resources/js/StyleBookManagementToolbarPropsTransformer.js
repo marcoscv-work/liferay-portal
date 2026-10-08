@@ -7,6 +7,7 @@ import {openModal} from 'frontend-js-components-web';
 import {getCheckedCheckboxes} from 'frontend-js-web';
 
 import AddStyleBookModalContent from './AddStyleBookModalContent';
+import openAddStyleBookEntryVariantModal from './openAddStyleBookEntryVariantModal';
 import openDeleteStyleBookModal from './openDeleteStyleBookModal';
 
 export default function propsTransformer({
@@ -80,7 +81,19 @@ export default function propsTransformer({
 				exportSelectedStyleBookEntries();
 			}
 		},
-		onCreateButtonClick() {
+		onCreateButtonClick(event, {item}) {
+			if (item?.data?.action === 'addStyleBookEntryVariant') {
+				openAddStyleBookEntryVariantModal({
+					addStyleBookEntryVariantURL:
+						item.data.addStyleBookEntryVariantURL,
+					namespace: portletNamespace,
+					parentStyleBookEntryName:
+						item.data.parentStyleBookEntryName,
+				});
+
+				return;
+			}
+
 			openModal({
 				contentComponent: ({closeModal}) =>
 					AddStyleBookModalContent({

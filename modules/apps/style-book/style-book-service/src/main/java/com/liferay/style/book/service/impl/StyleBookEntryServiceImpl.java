@@ -81,6 +81,45 @@ public class StyleBookEntryServiceImpl extends StyleBookEntryServiceBaseImpl {
 	}
 
 	@Override
+	public StyleBookEntry addStyleBookEntryVariant(
+			long parentStyleBookEntryId, String colorScheme, String name,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		StyleBookEntry parentStyleBookEntry =
+			styleBookEntryPersistence.findByPrimaryKey(parentStyleBookEntryId);
+
+		_portletResourcePermission.check(
+			getPermissionChecker(), parentStyleBookEntry.getGroupId(),
+			StyleBookActionKeys.MANAGE_STYLE_BOOK_ENTRIES);
+
+		return styleBookEntryLocalService.addStyleBookEntryVariant(
+			getUserId(), parentStyleBookEntryId, colorScheme, name,
+			serviceContext);
+	}
+
+	@Override
+	public StyleBookEntry addStyleBookEntryVariant(
+			String externalReferenceCode, long parentStyleBookEntryId,
+			String colorScheme, String frontendTokenDefinition,
+			String frontendTokensValues, String name, String styleBookEntryKey,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		StyleBookEntry parentStyleBookEntry =
+			styleBookEntryPersistence.findByPrimaryKey(parentStyleBookEntryId);
+
+		_portletResourcePermission.check(
+			getPermissionChecker(), parentStyleBookEntry.getGroupId(),
+			StyleBookActionKeys.MANAGE_STYLE_BOOK_ENTRIES);
+
+		return styleBookEntryLocalService.addStyleBookEntryVariant(
+			externalReferenceCode, getUserId(), parentStyleBookEntryId,
+			colorScheme, frontendTokenDefinition, frontendTokensValues, name,
+			styleBookEntryKey, serviceContext);
+	}
+
+	@Override
 	public StyleBookEntry copyStyleBookEntry(
 			long groupId, long sourceStyleBookEntryId,
 			ServiceContext serviceContext)
@@ -392,6 +431,33 @@ public class StyleBookEntryServiceImpl extends StyleBookEntryServiceBaseImpl {
 		return styleBookEntryLocalService.updateStyleBookEntry(
 			styleBookEntryId, frontendTokenDefinition, frontendTokensValues,
 			name, serviceContext);
+	}
+
+	@Override
+	public StyleBookEntry updateStyleBookEntryVariant(
+			long styleBookEntryId, long parentStyleBookEntryId,
+			String colorScheme)
+		throws PortalException {
+
+		StyleBookEntry styleBookEntry =
+			styleBookEntryPersistence.findByPrimaryKey(styleBookEntryId);
+
+		_portletResourcePermission.check(
+			getPermissionChecker(), styleBookEntry.getGroupId(),
+			StyleBookActionKeys.MANAGE_STYLE_BOOK_ENTRIES);
+
+		if (parentStyleBookEntryId > 0) {
+			StyleBookEntry parentStyleBookEntry =
+				styleBookEntryPersistence.findByPrimaryKey(
+					parentStyleBookEntryId);
+
+			_portletResourcePermission.check(
+				getPermissionChecker(), parentStyleBookEntry.getGroupId(),
+				StyleBookActionKeys.MANAGE_STYLE_BOOK_ENTRIES);
+		}
+
+		return styleBookEntryLocalService.updateStyleBookEntryVariant(
+			styleBookEntryId, parentStyleBookEntryId, colorScheme);
 	}
 
 	@Reference(

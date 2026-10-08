@@ -4,6 +4,7 @@
  */
 
 export {default as AddStyleBookEntryDesignLibraryModalContent} from './AddStyleBookEntryDesignLibraryModalContent';
+export {default as AddStyleBookEntryVariantModalContent} from './AddStyleBookEntryVariantModalContent';
 export {default as AddStyleBookModalContent} from './AddStyleBookModalContent';
 export {default as StyleBookEditorBreadcrumb} from './StyleBookEditorBreadcrumb';
 export {default as StyleBookManagementToolbarPropsTransformer} from './StyleBookManagementToolbarPropsTransformer';

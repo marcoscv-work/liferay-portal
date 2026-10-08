@@ -104,6 +104,51 @@ public class StyleBook implements Serializable {
 	private Supplier<Map<String, Map<String, String>>> _actionsSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "The color scheme key this style book is a variant for, empty for a base style book."
+	)
+	public String getColorScheme() {
+		if (_colorSchemeSupplier != null) {
+			colorScheme = _colorSchemeSupplier.get();
+
+			_colorSchemeSupplier = null;
+		}
+
+		return colorScheme;
+	}
+
+	public void setColorScheme(String colorScheme) {
+		this.colorScheme = colorScheme;
+
+		_colorSchemeSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setColorScheme(
+		UnsafeSupplier<String, Exception> colorSchemeUnsafeSupplier) {
+
+		_colorSchemeSupplier = () -> {
+			try {
+				return colorSchemeUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(
+		description = "The color scheme key this style book is a variant for, empty for a base style book."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String colorScheme;
+
+	@JsonIgnore
+	private Supplier<String> _colorSchemeSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema(
 		description = "The style book's creator."
 	)
 	@Valid
@@ -488,6 +533,56 @@ public class StyleBook implements Serializable {
 	private Supplier<String> _nameSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "The external reference code of the base style book this style book is a variant of."
+	)
+	public String getParentStyleBookExternalReferenceCode() {
+		if (_parentStyleBookExternalReferenceCodeSupplier != null) {
+			parentStyleBookExternalReferenceCode =
+				_parentStyleBookExternalReferenceCodeSupplier.get();
+
+			_parentStyleBookExternalReferenceCodeSupplier = null;
+		}
+
+		return parentStyleBookExternalReferenceCode;
+	}
+
+	public void setParentStyleBookExternalReferenceCode(
+		String parentStyleBookExternalReferenceCode) {
+
+		this.parentStyleBookExternalReferenceCode =
+			parentStyleBookExternalReferenceCode;
+
+		_parentStyleBookExternalReferenceCodeSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setParentStyleBookExternalReferenceCode(
+		UnsafeSupplier<String, Exception>
+			parentStyleBookExternalReferenceCodeUnsafeSupplier) {
+
+		_parentStyleBookExternalReferenceCodeSupplier = () -> {
+			try {
+				return parentStyleBookExternalReferenceCodeUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(
+		description = "The external reference code of the base style book this style book is a variant of."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String parentStyleBookExternalReferenceCode;
+
+	@JsonIgnore
+	private Supplier<String> _parentStyleBookExternalReferenceCodeSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema(
 		description = "The style book's preview file entry external reference code."
 	)
 	public String getPreviewFileEntryExternalReferenceCode() {
@@ -672,6 +767,22 @@ public class StyleBook implements Serializable {
 			sb.append(_toJSON(actions));
 		}
 
+		String colorScheme = getColorScheme();
+
+		if (colorScheme != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"colorScheme\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(colorScheme));
+
+			sb.append("\"");
+		}
+
 		Creator creator = getCreator();
 
 		if (creator != null) {
@@ -800,6 +911,23 @@ public class StyleBook implements Serializable {
 			sb.append("\"");
 
 			sb.append(_escape(name));
+
+			sb.append("\"");
+		}
+
+		String parentStyleBookExternalReferenceCode =
+			getParentStyleBookExternalReferenceCode();
+
+		if (parentStyleBookExternalReferenceCode != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"parentStyleBookExternalReferenceCode\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(parentStyleBookExternalReferenceCode));
 
 			sb.append("\"");
 		}
@@ -971,4 +1099,4 @@ public class StyleBook implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1124919791
+// LIFERAY-REST-BUILDER-HASH:1326637713

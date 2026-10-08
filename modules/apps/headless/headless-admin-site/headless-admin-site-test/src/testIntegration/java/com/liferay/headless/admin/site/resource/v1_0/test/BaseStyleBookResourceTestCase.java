@@ -189,10 +189,12 @@ public abstract class BaseStyleBookResourceTestCase {
 
 		StyleBook styleBook = randomStyleBook();
 
+		styleBook.setColorScheme(regex);
 		styleBook.setExternalReferenceCode(regex);
 		styleBook.setFrontendTokensValues(regex);
 		styleBook.setKey(regex);
 		styleBook.setName(regex);
+		styleBook.setParentStyleBookExternalReferenceCode(regex);
 		styleBook.setPreviewFileEntryExternalReferenceCode(regex);
 		styleBook.setThemeId(regex);
 
@@ -202,10 +204,13 @@ public abstract class BaseStyleBookResourceTestCase {
 
 		styleBook = StyleBookSerDes.toDTO(json);
 
+		Assert.assertEquals(regex, styleBook.getColorScheme());
 		Assert.assertEquals(regex, styleBook.getExternalReferenceCode());
 		Assert.assertEquals(regex, styleBook.getFrontendTokensValues());
 		Assert.assertEquals(regex, styleBook.getKey());
 		Assert.assertEquals(regex, styleBook.getName());
+		Assert.assertEquals(
+			regex, styleBook.getParentStyleBookExternalReferenceCode());
 		Assert.assertEquals(
 			regex, styleBook.getPreviewFileEntryExternalReferenceCode());
 		Assert.assertEquals(regex, styleBook.getThemeId());
@@ -1704,6 +1709,14 @@ public abstract class BaseStyleBookResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("colorScheme", additionalAssertFieldName)) {
+				if (styleBook.getColorScheme() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("creator", additionalAssertFieldName)) {
 				if (styleBook.getCreator() == null) {
 					valid = false;
@@ -1750,6 +1763,19 @@ public abstract class BaseStyleBookResourceTestCase {
 
 			if (Objects.equals("name", additionalAssertFieldName)) {
 				if (styleBook.getName() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"parentStyleBookExternalReferenceCode",
+					additionalAssertFieldName)) {
+
+				if (styleBook.getParentStyleBookExternalReferenceCode() ==
+						null) {
+
 					valid = false;
 				}
 
@@ -1916,6 +1942,17 @@ public abstract class BaseStyleBookResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("colorScheme", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						styleBook1.getColorScheme(),
+						styleBook2.getColorScheme())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("creator", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						styleBook1.getCreator(), styleBook2.getCreator())) {
@@ -2008,6 +2045,20 @@ public abstract class BaseStyleBookResourceTestCase {
 			if (Objects.equals("name", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						styleBook1.getName(), styleBook2.getName())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"parentStyleBookExternalReferenceCode",
+					additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						styleBook1.getParentStyleBookExternalReferenceCode(),
+						styleBook2.getParentStyleBookExternalReferenceCode())) {
 
 					return false;
 				}
@@ -2160,6 +2211,52 @@ public abstract class BaseStyleBookResourceTestCase {
 		if (entityFieldName.equals("actions")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("colorScheme")) {
+			Object object = styleBook.getColorScheme();
+
+			String value = String.valueOf(object);
+
+			if (operator.equals("contains")) {
+				sb = new StringBundler();
+
+				sb.append("contains(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 2)) {
+					sb.append(value.substring(1, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else if (operator.equals("startswith")) {
+				sb = new StringBundler();
+
+				sb.append("startswith(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 1)) {
+					sb.append(value.substring(0, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else {
+				sb.append("'");
+				sb.append(value);
+				sb.append("'");
+			}
+
+			return sb.toString();
 		}
 
 		if (entityFieldName.equals("creator")) {
@@ -2419,6 +2516,52 @@ public abstract class BaseStyleBookResourceTestCase {
 			return sb.toString();
 		}
 
+		if (entityFieldName.equals("parentStyleBookExternalReferenceCode")) {
+			Object object = styleBook.getParentStyleBookExternalReferenceCode();
+
+			String value = String.valueOf(object);
+
+			if (operator.equals("contains")) {
+				sb = new StringBundler();
+
+				sb.append("contains(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 2)) {
+					sb.append(value.substring(1, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else if (operator.equals("startswith")) {
+				sb = new StringBundler();
+
+				sb.append("startswith(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 1)) {
+					sb.append(value.substring(0, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else {
+				sb.append("'");
+				sb.append(value);
+				sb.append("'");
+			}
+
+			return sb.toString();
+		}
+
 		if (entityFieldName.equals("previewFileEntryExternalReferenceCode")) {
 			Object object =
 				styleBook.getPreviewFileEntryExternalReferenceCode();
@@ -2564,6 +2707,8 @@ public abstract class BaseStyleBookResourceTestCase {
 	protected StyleBook randomStyleBook() throws Exception {
 		return new StyleBook() {
 			{
+				colorScheme = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
 				dateCreated = RandomTestUtil.nextDate();
 				dateModified = RandomTestUtil.nextDate();
 				defaultStyleBook = RandomTestUtil.randomBoolean();
@@ -2574,6 +2719,8 @@ public abstract class BaseStyleBookResourceTestCase {
 				id = RandomTestUtil.randomLong();
 				key = StringUtil.toLowerCase(RandomTestUtil.randomString());
 				name = StringUtil.toLowerCase(RandomTestUtil.randomString());
+				parentStyleBookExternalReferenceCode = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
 				previewFileEntryExternalReferenceCode = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
 				themeId = StringUtil.toLowerCase(RandomTestUtil.randomString());
@@ -2824,4 +2971,4 @@ public abstract class BaseStyleBookResourceTestCase {
 		_styleBookResource;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1912454625
+// LIFERAY-REST-BUILDER-HASH:632073497

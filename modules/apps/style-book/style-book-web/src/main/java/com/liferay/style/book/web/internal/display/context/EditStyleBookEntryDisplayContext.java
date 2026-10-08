@@ -32,8 +32,10 @@ import com.liferay.layout.page.template.util.comparator.LayoutPageTemplateEntryM
 import com.liferay.layout.util.comparator.LayoutModifiedDateComparator;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -115,6 +117,19 @@ public class EditStyleBookEntryDisplayContext {
 			"addFrontendTokenURL",
 			_getActionURL("/style_book/add_style_book_entry_frontend_token")
 		).put(
+			"addStyleBookEntryVariantURL",
+			PortletURLBuilder.createActionURL(
+				_renderResponse
+			).setActionName(
+				"/style_book/add_style_book_entry"
+			).setRedirect(
+				_themeDisplay.getURLCurrent()
+			).setParameter(
+				"parentStyleBookEntryId", _getStyleBookEntryId()
+			).buildString()
+		).put(
+			"colorScheme", _styleBookEntry.getColorScheme()
+		).put(
 			"customFrontendTokenDefinition",
 			StyleBookFrontendTokenDefinitionUtil.
 				getCustomFrontendTokenDefinitionJSONObject(
@@ -148,6 +163,19 @@ public class EditStyleBookEntryDisplayContext {
 					styleBookEntry.getFrontendTokensValues());
 			}
 		).put(
+			"inheritedFrontendTokensValues",
+			() -> {
+				StyleBookEntry parentStyleBookEntry =
+					_getParentStyleBookEntry();
+
+				if (parentStyleBookEntry == null) {
+					return JSONFactoryUtil.createJSONObject();
+				}
+
+				return JSONFactoryUtil.createJSONObject(
+					parentStyleBookEntry.getFrontendTokensValues());
+			}
+		).put(
 			"isPrivateLayoutsEnabled",
 			() -> {
 				Group group = _themeDisplay.getScopeGroup();
@@ -156,6 +184,30 @@ public class EditStyleBookEntryDisplayContext {
 			}
 		).put(
 			"namespace", _renderResponse.getNamespace()
+		).put(
+			"parentStyleBookEntryEditURL",
+			() -> {
+				StyleBookEntry parentStyleBookEntry =
+					_getParentStyleBookEntry();
+
+				if (parentStyleBookEntry == null) {
+					return StringPool.BLANK;
+				}
+
+				return _getEditStyleBookEntryURL(parentStyleBookEntry);
+			}
+		).put(
+			"parentStyleBookEntryName",
+			() -> {
+				StyleBookEntry parentStyleBookEntry =
+					_getParentStyleBookEntry();
+
+				if (parentStyleBookEntry == null) {
+					return StringPool.BLANK;
+				}
+
+				return parentStyleBookEntry.getName();
+			}
 		).put(
 			"previewOptions",
 			JSONUtil.putAll(
@@ -200,6 +252,26 @@ public class EditStyleBookEntryDisplayContext {
 		).put(
 			"styleBookEntryId", _getStyleBookEntryId()
 		).put(
+			"styleBookEntryName", _styleBookEntry.getName()
+		).put(
+			"styleBookEntryVariants",
+			() -> {
+				if (_styleBookEntry.getParentStyleBookEntryId() > 0) {
+					return JSONFactoryUtil.createJSONArray();
+				}
+
+				return JSONUtil.toJSONArray(
+					StyleBookEntryLocalServiceUtil.getStyleBookEntryVariants(
+						_getStyleBookEntryId()),
+					styleBookEntry -> JSONUtil.put(
+						"colorScheme", styleBookEntry.getColorScheme()
+					).put(
+						"editURL", _getEditStyleBookEntryURL(styleBookEntry)
+					).put(
+						"name", styleBookEntry.getName()
+					));
+			}
+		).put(
 			"themeFrontendTokenDefinitionId", _styleBookEntry.getThemeId()
 		).put(
 			"themeName",
@@ -209,11 +281,105 @@ public class EditStyleBookEntryDisplayContext {
 		).build();
 	}
 
+	private void _applyInheritedFrontendTokensValues(
+		JSONObject frontendTokenDefinitionJSONObject, String themeId) {
+
+		StyleBookEntry parentStyleBookEntry = _getParentStyleBookEntry();
+
+		if (parentStyleBookEntry == null) {
+			return;
+		}
+
+		JSONObject inheritedFrontendTokensValuesJSONObject = null;
+
+		try {
+			inheritedFrontendTokensValuesJSONObject =
+				JSONFactoryUtil.createJSONObject(
+					parentStyleBookEntry.getFrontendTokensValues());
+		}
+		catch (JSONException jsonException) {
+			_log.error(jsonException);
+
+			return;
+		}
+
+		JSONArray frontendTokenCategoriesJSONArray =
+			frontendTokenDefinitionJSONObject.getJSONArray(
+				"frontendTokenCategories");
+
+		if (frontendTokenCategoriesJSONArray == null) {
+			return;
+		}
+
+		for (int i = 0; i < frontendTokenCategoriesJSONArray.length(); i++) {
+			JSONObject frontendTokenCategoryJSONObject =
+				frontendTokenCategoriesJSONArray.getJSONObject(i);
+
+			JSONArray frontendTokenSetsJSONArray =
+				frontendTokenCategoryJSONObject.getJSONArray(
+					"frontendTokenSets");
+
+			if (frontendTokenSetsJSONArray == null) {
+				continue;
+			}
+
+			for (int j = 0; j < frontendTokenSetsJSONArray.length(); j++) {
+				JSONObject frontendTokenSetJSONObject =
+					frontendTokenSetsJSONArray.getJSONObject(j);
+
+				JSONArray frontendTokensJSONArray =
+					frontendTokenSetJSONObject.getJSONArray("frontendTokens");
+
+				if (frontendTokensJSONArray == null) {
+					continue;
+				}
+
+				for (int k = 0; k < frontendTokensJSONArray.length(); k++) {
+					JSONObject frontendTokenJSONObject =
+						frontendTokensJSONArray.getJSONObject(k);
+
+					String name = frontendTokenJSONObject.getString("name");
+
+					JSONObject inheritedFrontendTokenValueJSONObject =
+						inheritedFrontendTokensValuesJSONObject.getJSONObject(
+							themeId + StringPool.COLON + name);
+
+					if (inheritedFrontendTokenValueJSONObject == null) {
+						inheritedFrontendTokenValueJSONObject =
+							inheritedFrontendTokensValuesJSONObject.
+								getJSONObject(name);
+					}
+
+					if (inheritedFrontendTokenValueJSONObject == null) {
+						continue;
+					}
+
+					frontendTokenJSONObject.put(
+						"defaultValue",
+						inheritedFrontendTokenValueJSONObject.getString(
+							"value"));
+				}
+			}
+		}
+	}
+
 	private String _getActionURL(String actionName) {
 		return PortletURLBuilder.createActionURL(
 			_renderResponse
 		).setActionName(
 			actionName
+		).buildString();
+	}
+
+	private String _getEditStyleBookEntryURL(StyleBookEntry styleBookEntry) {
+		return PortletURLBuilder.createRenderURL(
+			_renderResponse
+		).setMVCRenderCommandName(
+			"/style_book/edit_style_book_entry"
+		).setRedirect(
+			_getRedirect()
+		).setParameter(
+			"styleBookEntryId", styleBookEntry.getStyleBookEntryId()
 		).buildString();
 	}
 
@@ -349,6 +515,10 @@ public class EditStyleBookEntryDisplayContext {
 
 		JSONObject frontendTokenDefinitionJSONObject =
 			frontendTokenDefinition.getJSONObject(locale);
+
+		_applyInheritedFrontendTokensValues(
+			frontendTokenDefinitionJSONObject,
+			frontendTokenDefinition.getThemeId());
 
 		return frontendTokenDefinitionJSONObject.put(
 			"id", frontendTokenDefinition.getThemeId()
@@ -547,6 +717,22 @@ public class EditStyleBookEntryDisplayContext {
 		);
 	}
 
+	private StyleBookEntry _getParentStyleBookEntry() {
+		if (_parentStyleBookEntry != null) {
+			return _parentStyleBookEntry;
+		}
+
+		if (_styleBookEntry.getParentStyleBookEntryId() <= 0) {
+			return null;
+		}
+
+		_parentStyleBookEntry =
+			StyleBookEntryLocalServiceUtil.fetchStyleBookEntry(
+				_styleBookEntry.getParentStyleBookEntryId());
+
+		return _parentStyleBookEntry;
+	}
+
 	private long _getPreviewItemsGroupId() {
 		if (_previewItemsGroupId != null) {
 			return _previewItemsGroupId;
@@ -726,6 +912,7 @@ public class EditStyleBookEntryDisplayContext {
 		_frontendTokenDefinitionRegistry;
 	private final HttpServletRequest _httpServletRequest;
 	private final ItemSelector _itemSelector;
+	private StyleBookEntry _parentStyleBookEntry;
 	private Long _previewItemsGroupId;
 	private final RenderResponse _renderResponse;
 	private StyleBookEntry _styleBookEntry;

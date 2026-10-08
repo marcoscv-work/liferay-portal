@@ -6,6 +6,7 @@
 package com.liferay.style.book.internal.frontend.css.variables;
 
 import com.liferay.frontend.css.variables.ScopedCSSVariables;
+import com.liferay.frontend.token.definition.FrontendToken;
 import com.liferay.frontend.token.definition.FrontendTokenDefinition;
 import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
 import com.liferay.frontend.token.definition.constants.FrontendTokenDefinitionConstants;
@@ -21,10 +22,14 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 import com.liferay.style.book.constants.StyleBookConstants;
+import com.liferay.style.book.model.StyleBookEntry;
+import com.liferay.style.book.service.StyleBookEntryLocalService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -114,19 +119,85 @@ public class StyleBookScopedCSSVariablesProviderTest {
 			});
 	}
 
+	@Test
+	public void testGetScopedCSSVariablesCollectionWithVariants()
+		throws Exception {
+
+		_testGetScopedCSSVariablesCollectionWithVariants(
+			":root [data-color-scheme='calm']",
+			":root [data-color-scheme='dark']", "#fff");
+	}
+
+	@Test
+	public void testGetScopedCSSVariablesCollectionWithVariantsWhenThemeFollowsColorScheme()
+		throws Exception {
+
+		_testGetScopedCSSVariablesCollectionWithVariants(
+			"[data-color-scheme='calm']:root, :root [data-color-scheme='calm']",
+			"[data-color-scheme='dark']:root, :root [data-color-scheme='dark']",
+			"light-dark(#fff, #000)");
+	}
+
 	private FrontendTokenDefinition _createFrontendTokenDefinition(
-		int priority, String themeId) {
+		int priority, String themeId, Object tokenDefaultValue) {
+
+		FrontendToken frontendToken = (FrontendToken)ProxyUtil.newProxyInstance(
+			FrontendToken.class.getClassLoader(),
+			new Class<?>[] {FrontendToken.class},
+			(proxy, method, args) -> {
+				if (Objects.equals(method.getName(), "getDefaultValue")) {
+					return tokenDefaultValue;
+				}
+
+				return null;
+			});
 
 		return (FrontendTokenDefinition)ProxyUtil.newProxyInstance(
 			FrontendTokenDefinition.class.getClassLoader(),
 			new Class<?>[] {FrontendTokenDefinition.class},
 			(proxy, method, args) -> {
+				if (Objects.equals(method.getName(), "getFrontendTokens")) {
+					return Collections.singletonList(frontendToken);
+				}
+
 				if (Objects.equals(method.getName(), "getPriority")) {
 					return priority;
 				}
 
 				if (Objects.equals(method.getName(), "getThemeId")) {
 					return themeId;
+				}
+
+				return null;
+			});
+	}
+
+	private StyleBookEntry _createStyleBookEntry(
+		String colorScheme, String frontendTokensValues,
+		long parentStyleBookEntryId, long styleBookEntryId) {
+
+		return (StyleBookEntry)ProxyUtil.newProxyInstance(
+			StyleBookEntry.class.getClassLoader(),
+			new Class<?>[] {StyleBookEntry.class},
+			(proxy, method, args) -> {
+				if (Objects.equals(method.getName(), "getColorScheme")) {
+					return colorScheme;
+				}
+
+				if (Objects.equals(
+						method.getName(), "getFrontendTokensValues")) {
+
+					return frontendTokensValues;
+				}
+
+				if (Objects.equals(
+						method.getName(), "getParentStyleBookEntryId")) {
+
+					return parentStyleBookEntryId;
+				}
+
+				if (Objects.equals(method.getName(), "getStyleBookEntryId")) {
+					return styleBookEntryId;
 				}
 
 				return null;
@@ -145,10 +216,10 @@ public class StyleBookScopedCSSVariablesProviderTest {
 		);
 	}
 
-	private void _testGetScopedCSSVariablesCollection(
+	private Collection<ScopedCSSVariables> _getScopedCSSVariablesCollection(
 			int clayPriority, JSONObject frontendTokensValuesJSONObject,
-			int themePriority,
-			UnsafeConsumer<Map<String, String>, Exception> unsafeConsumer)
+			int themePriority, String themeTokenDefaultValue,
+			List<StyleBookEntry> variantStyleBookEntries)
 		throws Exception {
 
 		ThemeDisplay themeDisplay = new ThemeDisplay();
@@ -180,6 +251,13 @@ public class StyleBookScopedCSSVariablesProviderTest {
 				FrontendTokenDefinitionRegistry.class.getClassLoader(),
 				new Class<?>[] {FrontendTokenDefinitionRegistry.class},
 				(proxy, method, args) -> {
+					if (Objects.equals(
+							method.getName(), "getFrontendTokenDefinition")) {
+
+						return _createFrontendTokenDefinition(
+							themePriority, "theme", themeTokenDefaultValue);
+					}
+
 					if (!Objects.equals(
 							method.getName(), "getFrontendTokenDefinitions")) {
 
@@ -187,22 +265,37 @@ public class StyleBookScopedCSSVariablesProviderTest {
 					}
 
 					return ListUtil.fromArray(
-						_createFrontendTokenDefinition(clayPriority, "clay"),
-						_createFrontendTokenDefinition(themePriority, "theme"));
+						_createFrontendTokenDefinition(
+							clayPriority, "clay", "#fff"),
+						_createFrontendTokenDefinition(
+							themePriority, "theme", themeTokenDefaultValue));
 				});
 
 		StyleBookScopedCSSVariablesProvider
 			styleBookScopedCSSVariablesProvider =
 				new TestStyleBookScopedCSSVariablesProvider(
-					frontendTokensValuesJSONObject.toString());
+					_createStyleBookEntry(
+						null, frontendTokensValuesJSONObject.toString(), 0, 1),
+					variantStyleBookEntries);
 
 		ReflectionTestUtil.setFieldValue(
 			styleBookScopedCSSVariablesProvider,
 			"_frontendTokenDefinitionRegistry", mockedRegistry);
 
+		return styleBookScopedCSSVariablesProvider.
+			getScopedCSSVariablesCollection(mockHttpServletRequest);
+	}
+
+	private void _testGetScopedCSSVariablesCollection(
+			int clayPriority, JSONObject frontendTokensValuesJSONObject,
+			int themePriority,
+			UnsafeConsumer<Map<String, String>, Exception> unsafeConsumer)
+		throws Exception {
+
 		Collection<ScopedCSSVariables> scopedCSSVariablesCollection =
-			styleBookScopedCSSVariablesProvider.getScopedCSSVariablesCollection(
-				mockHttpServletRequest);
+			_getScopedCSSVariablesCollection(
+				clayPriority, frontendTokensValuesJSONObject, themePriority,
+				"#fff", Collections.emptyList());
 
 		Assert.assertEquals(
 			scopedCSSVariablesCollection.toString(), 1,
@@ -215,26 +308,141 @@ public class StyleBookScopedCSSVariablesProviderTest {
 		}
 	}
 
+	private void _testGetScopedCSSVariablesCollectionWithVariants(
+			String calmScope, String darkScope, String themeTokenDefaultValue)
+		throws Exception {
+
+		StyleBookEntry darkStyleBookEntry = _createStyleBookEntry(
+			"dark",
+			JSONUtil.put(
+				"theme:primaryColor",
+				_createTokenValueJSONObject("--primary", "theme", "#fff")
+			).toString(),
+			1, 2);
+		StyleBookEntry calmStyleBookEntry = _createStyleBookEntry(
+			"calm",
+			JSONUtil.put(
+				"theme:primaryColor",
+				_createTokenValueJSONObject("--primary", "theme", "#ccc")
+			).toString(),
+			1, 3);
+
+		List<ScopedCSSVariables> scopedCSSVariablesList =
+			ListUtil.fromCollection(
+				_getScopedCSSVariablesCollection(
+					FrontendTokenDefinitionConstants.PRIORITY_GLOBAL,
+					JSONUtil.put(
+						"theme:primaryColor",
+						_createTokenValueJSONObject(
+							"--primary", "theme", "#000")
+					).put(
+						"theme:secondaryColor",
+						_createTokenValueJSONObject(
+							"--secondary", "theme", "#111")
+					),
+					FrontendTokenDefinitionConstants.PRIORITY_THEME,
+					themeTokenDefaultValue,
+					ListUtil.fromArray(
+						darkStyleBookEntry, calmStyleBookEntry)));
+
+		Assert.assertEquals(
+			scopedCSSVariablesList.toString(), 4,
+			scopedCSSVariablesList.size());
+
+		ScopedCSSVariables rootScopedCSSVariables = scopedCSSVariablesList.get(
+			0);
+
+		Assert.assertEquals(":root", rootScopedCSSVariables.getScope());
+		Assert.assertNull(rootScopedCSSVariables.getColorScheme());
+		Assert.assertNull(rootScopedCSSVariables.getMediaQuery());
+
+		Map<String, String> rootCSSVariables =
+			rootScopedCSSVariables.getCSSVariables();
+
+		Assert.assertEquals(
+			rootCSSVariables.toString(), 2, rootCSSVariables.size());
+		Assert.assertEquals("#000", rootCSSVariables.get("--primary"));
+		Assert.assertEquals("#111", rootCSSVariables.get("--secondary"));
+
+		ScopedCSSVariables darkMediaScopedCSSVariables =
+			scopedCSSVariablesList.get(1);
+
+		Assert.assertEquals(
+			"(prefers-color-scheme: dark)",
+			darkMediaScopedCSSVariables.getMediaQuery());
+		Assert.assertEquals(
+			":root:not([data-color-scheme])",
+			darkMediaScopedCSSVariables.getScope());
+		Assert.assertEquals(
+			"dark", darkMediaScopedCSSVariables.getColorScheme());
+
+		ScopedCSSVariables darkScopedCSSVariables = scopedCSSVariablesList.get(
+			2);
+
+		Assert.assertNull(darkScopedCSSVariables.getMediaQuery());
+		Assert.assertEquals(darkScope, darkScopedCSSVariables.getScope());
+		Assert.assertEquals("dark", darkScopedCSSVariables.getColorScheme());
+
+		Map<String, String> darkCSSVariables =
+			darkScopedCSSVariables.getCSSVariables();
+
+		Assert.assertEquals(
+			darkCSSVariables.toString(), 2, darkCSSVariables.size());
+		Assert.assertEquals("#fff", darkCSSVariables.get("--primary"));
+		Assert.assertEquals("#111", darkCSSVariables.get("--secondary"));
+
+		ScopedCSSVariables calmScopedCSSVariables = scopedCSSVariablesList.get(
+			3);
+
+		Assert.assertNull(calmScopedCSSVariables.getMediaQuery());
+		Assert.assertEquals(calmScope, calmScopedCSSVariables.getScope());
+		Assert.assertNull(calmScopedCSSVariables.getColorScheme());
+
+		Map<String, String> calmCSSVariables =
+			calmScopedCSSVariables.getCSSVariables();
+
+		Assert.assertEquals(
+			calmCSSVariables.toString(), 2, calmCSSVariables.size());
+		Assert.assertEquals("#ccc", calmCSSVariables.get("--primary"));
+		Assert.assertEquals("#111", calmCSSVariables.get("--secondary"));
+	}
+
 	private class TestStyleBookScopedCSSVariablesProvider
 		extends StyleBookScopedCSSVariablesProvider {
 
 		public TestStyleBookScopedCSSVariablesProvider(
-			String frontendTokensValues) {
+			StyleBookEntry styleBookEntry,
+			List<StyleBookEntry> variantStyleBookEntries) {
 
-			_frontendTokensValues = frontendTokensValues;
+			_styleBookEntry = styleBookEntry;
 
 			ReflectionTestUtil.setFieldValue(
 				this, "_jsonFactory", new JSONFactoryImpl());
+			ReflectionTestUtil.setFieldValue(
+				this, "_styleBookEntryLocalService",
+				ProxyUtil.newProxyInstance(
+					StyleBookEntryLocalService.class.getClassLoader(),
+					new Class<?>[] {StyleBookEntryLocalService.class},
+					(proxy, method, args) -> {
+						if (Objects.equals(
+								method.getName(),
+								"getStyleBookEntryVariants")) {
+
+							return variantStyleBookEntries;
+						}
+
+						return null;
+					}));
 		}
 
 		@Override
-		protected String getFrontendTokensValues(
+		protected StyleBookEntry getStyleBookEntry(
 			HttpServletRequest httpServletRequest) {
 
-			return _frontendTokensValues;
+			return _styleBookEntry;
 		}
 
-		private final String _frontendTokensValues;
+		private final StyleBookEntry _styleBookEntry;
 
 	}
 

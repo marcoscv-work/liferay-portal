@@ -6,10 +6,13 @@
 package com.liferay.style.book.web.internal.zip.processor;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Repository;
@@ -40,8 +43,12 @@ import java.io.InputStream;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -62,8 +69,33 @@ public class StyleBookEntryZipProcessorImpl
 		ZipWriter zipWriter = _zipWriterFactory.getZipWriter();
 
 		try {
+			Set<Long> styleBookEntryIds = new HashSet<>();
+
 			for (StyleBookEntry styleBookEntry : styleBookEntries) {
+				if (!styleBookEntryIds.add(
+						styleBookEntry.getStyleBookEntryId())) {
+
+					continue;
+				}
+
 				styleBookEntry.populateZipWriter(zipWriter, StringPool.BLANK);
+
+				if (styleBookEntry.getParentStyleBookEntryId() > 0) {
+					continue;
+				}
+
+				for (StyleBookEntry variantStyleBookEntry :
+						_styleBookEntryEntryLocalService.
+							getStyleBookEntryVariants(
+								styleBookEntry.getStyleBookEntryId())) {
+
+					if (styleBookEntryIds.add(
+							variantStyleBookEntry.getStyleBookEntryId())) {
+
+						variantStyleBookEntry.populateZipWriter(
+							zipWriter, StringPool.BLANK);
+					}
+				}
 			}
 
 			return zipWriter.getFile();
@@ -82,6 +114,11 @@ public class StyleBookEntryZipProcessorImpl
 		_importResultEntries = new ArrayList<>();
 
 		try (ZipFile zipFile = new ZipFile(file)) {
+			Map<String, JSONObject> styleBookEntryJSONObjects =
+				new LinkedHashMap<>();
+			Map<String, JSONObject> variantStyleBookEntryJSONObjects =
+				new LinkedHashMap<>();
+
 			Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
 
 			while (enumeration.hasMoreElements()) {
@@ -97,8 +134,31 @@ public class StyleBookEntryZipProcessorImpl
 					continue;
 				}
 
+				JSONObject styleBookEntryJSONObject =
+					_getStyleBookEntryJSONObject(zipFile, fileName);
+
+				if ((styleBookEntryJSONObject != null) &&
+					Validator.isNotNull(
+						styleBookEntryJSONObject.getString(
+							"parentStyleBookEntryKey"))) {
+
+					variantStyleBookEntryJSONObjects.put(
+						fileName, styleBookEntryJSONObject);
+				}
+				else {
+					styleBookEntryJSONObjects.put(
+						fileName, styleBookEntryJSONObject);
+				}
+			}
+
+			styleBookEntryJSONObjects.putAll(variantStyleBookEntryJSONObjects);
+
+			for (Map.Entry<String, JSONObject> entry :
+					styleBookEntryJSONObjects.entrySet()) {
+
 				_importStyleBookEntries(
-					userId, groupId, zipFile, fileName, overwrite);
+					userId, groupId, zipFile, entry.getKey(), entry.getValue(),
+					overwrite);
 			}
 		}
 
@@ -296,28 +356,36 @@ public class StyleBookEntryZipProcessorImpl
 		return _getInputStream(zipFile, path + StringPool.SLASH + contentPath);
 	}
 
-	private void _importStyleBookEntries(
-			long userId, long groupId, ZipFile zipFile, String fileName,
-			boolean overwrite)
+	private JSONObject _getStyleBookEntryJSONObject(
+			ZipFile zipFile, String fileName)
 		throws Exception {
-
-		boolean defaultStyleBookEntry = false;
-
-		String styleBookEntryKey = _getKey(zipFile, groupId, fileName);
-
-		String name = styleBookEntryKey;
-
-		String frontendTokenDefinition = StringPool.BLANK;
-		String frontendTokensValues = StringPool.BLANK;
 
 		String styleBookEntryContent = _getContent(zipFile, fileName);
 
+		if (Validator.isNull(styleBookEntryContent)) {
+			return null;
+		}
+
+		return _jsonFactory.createJSONObject(styleBookEntryContent);
+	}
+
+	private void _importStyleBookEntries(
+			long userId, long groupId, ZipFile zipFile, String fileName,
+			JSONObject styleBookEntryJSONObject, boolean overwrite)
+		throws Exception {
+
+		String colorScheme = StringPool.BLANK;
+		boolean defaultStyleBookEntry = false;
+		String frontendTokenDefinition = StringPool.BLANK;
+		String frontendTokensValues = StringPool.BLANK;
+		String parentStyleBookEntryKey = StringPool.BLANK;
+		String styleBookEntryKey = _getKey(zipFile, groupId, fileName);
 		String themeId = StringPool.BLANK;
 
-		if (Validator.isNotNull(styleBookEntryContent)) {
-			JSONObject styleBookEntryJSONObject = _jsonFactory.createJSONObject(
-				styleBookEntryContent);
+		String name = styleBookEntryKey;
 
+		if (styleBookEntryJSONObject != null) {
+			colorScheme = styleBookEntryJSONObject.getString("colorScheme");
 			defaultStyleBookEntry = styleBookEntryJSONObject.getBoolean(
 				"defaultStyleBookEntry");
 			frontendTokenDefinition = _getStyleBookEntryContent(
@@ -328,6 +396,8 @@ public class StyleBookEntryZipProcessorImpl
 				zipFile, fileName,
 				styleBookEntryJSONObject.getString("frontendTokensValuesPath"));
 			name = styleBookEntryJSONObject.getString("name");
+			parentStyleBookEntryKey = styleBookEntryJSONObject.getString(
+				"parentStyleBookEntryKey");
 			themeId = styleBookEntryJSONObject.getString("themeId");
 		}
 
@@ -339,21 +409,40 @@ public class StyleBookEntryZipProcessorImpl
 			return;
 		}
 
+		if (Validator.isNotNull(parentStyleBookEntryKey)) {
+			StyleBookEntry parentStyleBookEntry =
+				_styleBookEntryEntryLocalService.fetchStyleBookEntry(
+					groupId, parentStyleBookEntryKey);
+
+			if (parentStyleBookEntry == null) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						StringBundler.concat(
+							"Style book ", styleBookEntryKey,
+							" was imported without its parent ",
+							parentStyleBookEntryKey));
+				}
+			}
+			else {
+				_styleBookEntryEntryService.updateStyleBookEntryVariant(
+					styleBookEntry.getStyleBookEntryId(),
+					parentStyleBookEntry.getStyleBookEntryId(), colorScheme);
+			}
+		}
+
 		if (defaultStyleBookEntry) {
 			_styleBookEntryEntryService.updateDefaultStyleBookEntry(
 				styleBookEntry.getStyleBookEntryId(), true);
 		}
 
-		if (Validator.isNotNull(styleBookEntryContent)) {
+		if (styleBookEntryJSONObject != null) {
 			if (styleBookEntry.getPreviewFileEntryId() > 0) {
 				PortletFileRepositoryUtil.deletePortletFileEntry(
 					styleBookEntry.getPreviewFileEntryId());
 			}
 
-			JSONObject jsonObject = _jsonFactory.createJSONObject(
-				styleBookEntryContent);
-
-			String thumbnailPath = jsonObject.getString("thumbnailPath");
+			String thumbnailPath = styleBookEntryJSONObject.getString(
+				"thumbnailPath");
 
 			if (Validator.isNotNull(thumbnailPath)) {
 				_styleBookEntryEntryService.updatePreviewFileEntryId(
@@ -371,6 +460,9 @@ public class StyleBookEntryZipProcessorImpl
 	private boolean _isStyleBookEntry(String fileName) {
 		return Objects.equals(_getFileName(fileName), "style-book.json");
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		StyleBookEntryZipProcessorImpl.class);
 
 	@Reference
 	private CompanyLocalService _companyLocalService;

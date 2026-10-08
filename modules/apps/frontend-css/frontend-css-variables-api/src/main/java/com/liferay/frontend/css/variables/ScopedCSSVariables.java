@@ -14,6 +14,14 @@ public interface ScopedCSSVariables {
 
 	public Map<String, String> getCSSVariables();
 
+	public default String getColorScheme() {
+		return null;
+	}
+
+	public default String getMediaQuery() {
+		return null;
+	}
+
 	public String getScope();
 
 }

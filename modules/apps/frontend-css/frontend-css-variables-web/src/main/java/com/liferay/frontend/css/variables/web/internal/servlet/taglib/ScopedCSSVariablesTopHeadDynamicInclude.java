@@ -17,6 +17,7 @@ import com.liferay.portal.kernel.servlet.taglib.BaseDynamicInclude;
 import com.liferay.portal.kernel.servlet.taglib.DynamicInclude;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -97,6 +98,10 @@ public class ScopedCSSVariablesTopHeadDynamicInclude
 		_scopedCSSVariablesProviders = scopedCSSVariablesProviders;
 	}
 
+	private String _escapeCSSValue(String value) {
+		return StringUtil.replace(value, CharPool.LESS_THAN, "\\3c ");
+	}
+
 	private void _writeCSSVariables(
 		PrintWriter printWriter,
 		Collection<ScopedCSSVariables> scopedCSSVariablesCollection) {
@@ -104,24 +109,49 @@ public class ScopedCSSVariablesTopHeadDynamicInclude
 		for (ScopedCSSVariables scopedCSSVariables :
 				scopedCSSVariablesCollection) {
 
-			printWriter.print(StringPool.TAB);
+			String mediaQuery = scopedCSSVariables.getMediaQuery();
+
+			String indent = StringPool.TAB;
+
+			if (Validator.isNotNull(mediaQuery)) {
+				printWriter.print("\t@media ");
+				printWriter.print(_escapeCSSValue(mediaQuery));
+				printWriter.print(" {\n");
+
+				indent = "\t\t";
+			}
+
+			printWriter.print(indent);
 			printWriter.print(scopedCSSVariables.getScope());
 			printWriter.print(" {\n");
+
+			String colorScheme = scopedCSSVariables.getColorScheme();
+
+			if (Validator.isNotNull(colorScheme)) {
+				printWriter.print(indent);
+				printWriter.print("\tcolor-scheme: ");
+				printWriter.print(_escapeCSSValue(colorScheme));
+				printWriter.print(";\n");
+			}
 
 			Map<String, String> cssVariables =
 				scopedCSSVariables.getCSSVariables();
 
 			for (Map.Entry<String, String> entry : cssVariables.entrySet()) {
-				printWriter.print("\t\t--");
+				printWriter.print(indent);
+				printWriter.print("\t--");
 				printWriter.print(HtmlUtil.escapeCSS(entry.getKey()));
 				printWriter.print(": ");
-				printWriter.print(
-					StringUtil.replace(
-						entry.getValue(), CharPool.LESS_THAN, "\\3c "));
+				printWriter.print(_escapeCSSValue(entry.getValue()));
 				printWriter.print(";\n");
 			}
 
-			printWriter.print("\t}\n");
+			printWriter.print(indent);
+			printWriter.print("}\n");
+
+			if (Validator.isNotNull(mediaQuery)) {
+				printWriter.print("\t}\n");
+			}
 		}
 	}
 

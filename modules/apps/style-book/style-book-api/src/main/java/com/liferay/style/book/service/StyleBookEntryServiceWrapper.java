@@ -70,6 +70,30 @@ public class StyleBookEntryServiceWrapper
 	}
 
 	@Override
+	public StyleBookEntry addStyleBookEntryVariant(
+			long parentStyleBookEntryId, String colorScheme, String name,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _styleBookEntryService.addStyleBookEntryVariant(
+			parentStyleBookEntryId, colorScheme, name, serviceContext);
+	}
+
+	@Override
+	public StyleBookEntry addStyleBookEntryVariant(
+			String externalReferenceCode, long parentStyleBookEntryId,
+			String colorScheme, String frontendTokenDefinition,
+			String frontendTokensValues, String name, String styleBookEntryKey,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _styleBookEntryService.addStyleBookEntryVariant(
+			externalReferenceCode, parentStyleBookEntryId, colorScheme,
+			frontendTokenDefinition, frontendTokensValues, name,
+			styleBookEntryKey, serviceContext);
+	}
+
+	@Override
 	public StyleBookEntry copyStyleBookEntry(
 			long groupId, long sourceStyleBookEntryId,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
@@ -281,6 +305,16 @@ public class StyleBookEntryServiceWrapper
 	}
 
 	@Override
+	public StyleBookEntry updateStyleBookEntryVariant(
+			long styleBookEntryId, long parentStyleBookEntryId,
+			String colorScheme)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _styleBookEntryService.updateStyleBookEntryVariant(
+			styleBookEntryId, parentStyleBookEntryId, colorScheme);
+	}
+
+	@Override
 	public StyleBookEntryService getWrappedService() {
 		return _styleBookEntryService;
 	}
@@ -293,4 +327,4 @@ public class StyleBookEntryServiceWrapper
 	private StyleBookEntryService _styleBookEntryService;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:476371409
+// LIFERAY-SERVICE-BUILDER-HASH:1091989675

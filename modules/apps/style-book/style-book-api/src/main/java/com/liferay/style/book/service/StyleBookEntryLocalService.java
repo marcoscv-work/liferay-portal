@@ -87,6 +87,21 @@ public interface StyleBookEntryLocalService
 	public StyleBookEntry addStyleBookEntry(StyleBookEntry styleBookEntry);
 
 	@Indexable(type = IndexableType.REINDEX)
+	public StyleBookEntry addStyleBookEntryVariant(
+			long userId, long parentStyleBookEntryId, String colorScheme,
+			String name, ServiceContext serviceContext)
+		throws PortalException;
+
+	@Indexable(type = IndexableType.REINDEX)
+	public StyleBookEntry addStyleBookEntryVariant(
+			String externalReferenceCode, long userId,
+			long parentStyleBookEntryId, String colorScheme,
+			String frontendTokenDefinition, String frontendTokensValues,
+			String name, String styleBookEntryKey,
+			ServiceContext serviceContext)
+		throws PortalException;
+
+	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public StyleBookEntry checkout(
 			StyleBookEntry publishedStyleBookEntry, int version)
@@ -347,6 +362,15 @@ public interface StyleBookEntryLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<StyleBookEntry> getStyleBookEntries(
+		long groupId, long parentStyleBookEntryId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<StyleBookEntry> getStyleBookEntries(
+		long groupId, long parentStyleBookEntryId, int start, int end,
+		OrderByComparator<StyleBookEntry> orderByComparator);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<StyleBookEntry> getStyleBookEntries(
 		long groupId, String themeId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -389,6 +413,10 @@ public interface StyleBookEntryLocalService
 	public int getStyleBookEntriesCount(long groupId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getStyleBookEntriesCount(
+		long groupId, long parentStyleBookEntryId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getStyleBookEntriesCount(long groupId, String name);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -418,6 +446,10 @@ public interface StyleBookEntryLocalService
 	public StyleBookEntry getStyleBookEntryByExternalReferenceCode(
 			String externalReferenceCode, long groupId, boolean head)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<StyleBookEntry> getStyleBookEntryVariants(
+		long parentStyleBookEntryId);
 
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -517,6 +549,12 @@ public interface StyleBookEntryLocalService
 			StyleBookEntry draftStyleBookEntry)
 		throws PortalException;
 
+	@Indexable(type = IndexableType.REINDEX)
+	public StyleBookEntry updateStyleBookEntryVariant(
+			long styleBookEntryId, long parentStyleBookEntryId,
+			String colorScheme)
+		throws PortalException;
+
 	@Override
 	@Transactional(enabled = false)
 	public CTPersistence<StyleBookEntry> getCTPersistence();
@@ -533,4 +571,4 @@ public interface StyleBookEntryLocalService
 		throws E;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1817163494
+// LIFERAY-SERVICE-BUILDER-HASH:-1041961748

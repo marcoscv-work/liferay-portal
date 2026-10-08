@@ -15,10 +15,12 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.style.book.exception.DuplicateStyleBookEntryFrontendTokenException;
 import com.liferay.style.book.exception.DuplicateStyleBookEntryNameException;
+import com.liferay.style.book.exception.StyleBookEntryColorSchemeException;
 import com.liferay.style.book.exception.StyleBookEntryFrontendTokenDefinitionException;
 import com.liferay.style.book.exception.StyleBookEntryFrontendTokenException;
 import com.liferay.style.book.exception.StyleBookEntryFrontendTokensValuesException;
 import com.liferay.style.book.exception.StyleBookEntryNameException;
+import com.liferay.style.book.exception.StyleBookEntryParentStyleBookEntryIdException;
 
 import jakarta.portlet.ActionRequest;
 import jakarta.portlet.ActionResponse;
@@ -87,9 +89,33 @@ public class StyleBookEntryExceptionRequestHandlerUtil {
 					StringPool.LESS_THAN
 				});
 		}
+		else if (portalException instanceof
+					StyleBookEntryColorSchemeException.MustBeUnique) {
+
+			StyleBookEntryColorSchemeException.MustBeUnique mustBeUnique =
+				(StyleBookEntryColorSchemeException.MustBeUnique)
+					portalException;
+
+			errorMessage = LanguageUtil.format(
+				themeDisplay.getRequest(), "the-key-x-is-already-being-used",
+				mustBeUnique.colorScheme);
+		}
+		else if (portalException instanceof
+					StyleBookEntryColorSchemeException.MustBeValidKey) {
+
+			errorMessage = LanguageUtil.get(
+				themeDisplay.getRequest(), "please-enter-a-valid-key");
+		}
 		else if (portalException instanceof StyleBookEntryNameException) {
 			errorMessage = LanguageUtil.get(
 				themeDisplay.getRequest(), "please-enter-a-valid-name");
+		}
+		else if (portalException instanceof
+					StyleBookEntryParentStyleBookEntryIdException) {
+
+			errorMessage = LanguageUtil.get(
+				themeDisplay.getRequest(),
+				"please-select-a-valid-base-style-book");
 		}
 
 		JSONObject jsonObject = JSONUtil.put("error", errorMessage);

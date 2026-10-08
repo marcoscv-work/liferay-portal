@@ -49,6 +49,27 @@ public class StyleBook implements Cloneable, Serializable {
 
 	protected Map<String, Map<String, String>> actions;
 
+	public String getColorScheme() {
+		return colorScheme;
+	}
+
+	public void setColorScheme(String colorScheme) {
+		this.colorScheme = colorScheme;
+	}
+
+	public void setColorScheme(
+		UnsafeSupplier<String, Exception> colorSchemeUnsafeSupplier) {
+
+		try {
+			colorScheme = colorSchemeUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String colorScheme;
+
 	public Creator getCreator() {
 		return creator;
 	}
@@ -232,6 +253,32 @@ public class StyleBook implements Cloneable, Serializable {
 
 	protected String name;
 
+	public String getParentStyleBookExternalReferenceCode() {
+		return parentStyleBookExternalReferenceCode;
+	}
+
+	public void setParentStyleBookExternalReferenceCode(
+		String parentStyleBookExternalReferenceCode) {
+
+		this.parentStyleBookExternalReferenceCode =
+			parentStyleBookExternalReferenceCode;
+	}
+
+	public void setParentStyleBookExternalReferenceCode(
+		UnsafeSupplier<String, Exception>
+			parentStyleBookExternalReferenceCodeUnsafeSupplier) {
+
+		try {
+			parentStyleBookExternalReferenceCode =
+				parentStyleBookExternalReferenceCodeUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String parentStyleBookExternalReferenceCode;
+
 	public String getPreviewFileEntryExternalReferenceCode() {
 		return previewFileEntryExternalReferenceCode;
 	}
@@ -336,4 +383,4 @@ public class StyleBook implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:642849199
+// LIFERAY-REST-BUILDER-HASH:-1242290954

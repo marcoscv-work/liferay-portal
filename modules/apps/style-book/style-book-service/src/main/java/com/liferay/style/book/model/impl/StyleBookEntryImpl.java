@@ -17,6 +17,8 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.zip.ZipWriter;
+import com.liferay.style.book.model.StyleBookEntry;
+import com.liferay.style.book.service.StyleBookEntryLocalServiceUtil;
 
 /**
  * @author Eudaldo Alonso
@@ -54,6 +56,15 @@ public class StyleBookEntryImpl extends StyleBookEntryBaseImpl {
 		FileEntry previewFileEntry = _getPreviewFileEntry();
 
 		JSONObject jsonObject = JSONUtil.put(
+			"colorScheme",
+			() -> {
+				if (Validator.isBlank(getColorScheme())) {
+					return null;
+				}
+
+				return getColorScheme();
+			}
+		).put(
 			"frontendTokenDefinitionPath",
 			() -> {
 				if (Validator.isBlank(frontendTokenDefinition)) {
@@ -66,6 +77,23 @@ public class StyleBookEntryImpl extends StyleBookEntryBaseImpl {
 			"frontendTokensValuesPath", "frontend-tokens-values.json"
 		).put(
 			"name", getName()
+		).put(
+			"parentStyleBookEntryKey",
+			() -> {
+				if (getParentStyleBookEntryId() <= 0) {
+					return null;
+				}
+
+				StyleBookEntry parentStyleBookEntry =
+					StyleBookEntryLocalServiceUtil.fetchStyleBookEntry(
+						getParentStyleBookEntryId());
+
+				if (parentStyleBookEntry == null) {
+					return null;
+				}
+
+				return parentStyleBookEntry.getStyleBookEntryKey();
+			}
 		).put(
 			"themeId", getThemeId()
 		).put(

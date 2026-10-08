@@ -28,6 +28,7 @@ jest.mock(
 			portletNamespace: 'portletNamespace',
 			publishURL: 'publishURL',
 			redirectURL: 'redirectURL',
+			styleBookEntryVariants: [],
 		},
 	})
 );

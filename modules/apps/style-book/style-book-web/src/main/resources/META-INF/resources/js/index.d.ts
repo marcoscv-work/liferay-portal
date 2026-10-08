@@ -21,6 +21,14 @@ export const AddStyleBookEntryDesignLibraryModalContent: (
 	props: AddStyleBookModalProps
 ) => ReactElement;
 
+export const AddStyleBookEntryVariantModalContent: (props: {
+	addStyleBookEntryVariantURL: string;
+	closeModal: () => void;
+	namespace: string;
+	parentStyleBookEntryName?: string;
+	styleBookEntries?: Array<{id: string; name: string}>;
+}) => ReactElement;
+
 export const AddStyleBookModalContent: (
 	props: AddStyleBookModalProps
 ) => ReactElement;

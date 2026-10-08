@@ -67,6 +67,18 @@ public interface StyleBookEntryService extends BaseService {
 			ServiceContext serviceContext)
 		throws PortalException;
 
+	public StyleBookEntry addStyleBookEntryVariant(
+			long parentStyleBookEntryId, String colorScheme, String name,
+			ServiceContext serviceContext)
+		throws PortalException;
+
+	public StyleBookEntry addStyleBookEntryVariant(
+			String externalReferenceCode, long parentStyleBookEntryId,
+			String colorScheme, String frontendTokenDefinition,
+			String frontendTokensValues, String name, String styleBookEntryKey,
+			ServiceContext serviceContext)
+		throws PortalException;
+
 	public StyleBookEntry copyStyleBookEntry(
 			long groupId, long sourceStyleBookEntryId,
 			ServiceContext serviceContext)
@@ -172,5 +184,10 @@ public interface StyleBookEntryService extends BaseService {
 			ServiceContext serviceContext)
 		throws PortalException;
 
+	public StyleBookEntry updateStyleBookEntryVariant(
+			long styleBookEntryId, long parentStyleBookEntryId,
+			String colorScheme)
+		throws PortalException;
+
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-8314586
+// LIFERAY-SERVICE-BUILDER-HASH:46986925

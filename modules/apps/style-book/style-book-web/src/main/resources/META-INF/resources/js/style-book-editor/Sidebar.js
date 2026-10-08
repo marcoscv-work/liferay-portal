@@ -22,6 +22,7 @@ import {
 	useDispatch,
 	useFrontendTokensValues,
 } from './contexts/StyleBookEditorContext';
+import getFrontendTokensValuesWithInheritance from './utils/getFrontendTokensValuesWithInheritance';
 
 export default React.memo(function Sidebar() {
 	const sidebarRef = useRef();
@@ -154,7 +155,9 @@ function UpdateStyle({sidebarRef}) {
 			for (const {
 				cssVariableMapping,
 				value,
-			} of config.sortFrontendTokenValues(frontendTokensValues)) {
+			} of config.sortFrontendTokenValues(
+				getFrontendTokensValuesWithInheritance(frontendTokensValues)
+			)) {
 				sidebarRef.current.style.setProperty(
 					`--${cssVariableMapping}`,
 					value

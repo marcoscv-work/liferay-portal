@@ -17,6 +17,7 @@ import {
 	useSetLoading,
 } from './contexts/LayoutContext';
 import {useFrontendTokensValues} from './contexts/StyleBookEditorContext';
+import getFrontendTokensValuesWithInheritance from './utils/getFrontendTokensValuesWithInheritance';
 
 export default React.memo(function LayoutPreview() {
 	const frontendTokensValues = useFrontendTokensValues();
@@ -35,10 +36,16 @@ export default React.memo(function LayoutPreview() {
 			if (root) {
 				root.removeAttribute('style');
 
+				if (config.colorScheme) {
+					root.dataset.colorScheme = config.colorScheme;
+				}
+
 				for (const {
 					cssVariableMapping,
 					value,
-				} of config.sortFrontendTokenValues(frontendTokensValues)) {
+				} of config.sortFrontendTokenValues(
+					getFrontendTokensValuesWithInheritance(frontendTokensValues)
+				)) {
 					root.style.setProperty(`--${cssVariableMapping}`, value);
 				}
 

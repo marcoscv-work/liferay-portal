@@ -922,6 +922,8 @@ public abstract class StyleBookEntryLocalServiceBaseImpl
 			publishedStyleBookEntry.getCreateDate());
 		draftStyleBookEntry.setModifiedDate(
 			publishedStyleBookEntry.getModifiedDate());
+		draftStyleBookEntry.setColorScheme(
+			publishedStyleBookEntry.getColorScheme());
 		draftStyleBookEntry.setDefaultStyleBookEntry(
 			publishedStyleBookEntry.getDefaultStyleBookEntry());
 		draftStyleBookEntry.setFrontendTokenDefinition(
@@ -929,6 +931,8 @@ public abstract class StyleBookEntryLocalServiceBaseImpl
 		draftStyleBookEntry.setFrontendTokensValues(
 			publishedStyleBookEntry.getFrontendTokensValues());
 		draftStyleBookEntry.setName(publishedStyleBookEntry.getName());
+		draftStyleBookEntry.setParentStyleBookEntryId(
+			publishedStyleBookEntry.getParentStyleBookEntryId());
 		draftStyleBookEntry.setPreviewFileEntryId(
 			publishedStyleBookEntry.getPreviewFileEntryId());
 		draftStyleBookEntry.setStyleBookEntryKey(
@@ -1026,4 +1030,4 @@ public abstract class StyleBookEntryLocalServiceBaseImpl
 		StyleBookEntryLocalServiceBaseImpl.class);
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:685897215
+// LIFERAY-SERVICE-BUILDER-HASH:-226292815

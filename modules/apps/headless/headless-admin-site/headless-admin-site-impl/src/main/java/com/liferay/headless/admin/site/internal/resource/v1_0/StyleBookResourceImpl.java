@@ -308,13 +308,7 @@ public class StyleBookResourceImpl
 		long groupId = _getDesignLibraryGroupId(
 			designLibraryExternalReferenceCode);
 
-		StyleBookEntry styleBookEntry =
-			_styleBookEntryService.addStyleBookEntry(
-				styleBook.getExternalReferenceCode(), groupId,
-				GetterUtil.getBoolean(styleBook.getDefaultStyleBook()),
-				StringPool.BLANK, styleBook.getFrontendTokensValues(),
-				styleBook.getName(), styleBook.getKey(), styleBook.getThemeId(),
-				_getServiceContext(groupId));
+		StyleBookEntry styleBookEntry = _addStyleBookEntry(groupId, styleBook);
 
 		long previewFileEntryId = _getPreviewFileEntryId(
 			groupId, styleBook.getPreviewFileEntryExternalReferenceCode());
@@ -337,13 +331,7 @@ public class StyleBookResourceImpl
 
 		long groupId = _getGroupId(siteExternalReferenceCode);
 
-		StyleBookEntry styleBookEntry =
-			_styleBookEntryService.addStyleBookEntry(
-				styleBook.getExternalReferenceCode(), groupId,
-				GetterUtil.getBoolean(styleBook.getDefaultStyleBook()),
-				StringPool.BLANK, styleBook.getFrontendTokensValues(),
-				styleBook.getName(), styleBook.getKey(), styleBook.getThemeId(),
-				_getServiceContext(groupId));
+		StyleBookEntry styleBookEntry = _addStyleBookEntry(groupId, styleBook);
 
 		long previewFileEntryId = _getPreviewFileEntryId(
 			groupId, styleBook.getPreviewFileEntryExternalReferenceCode());
@@ -380,17 +368,18 @@ public class StyleBookResourceImpl
 				designLibraryExternalReferenceCode, styleBook);
 		}
 
+		styleBookEntry = _styleBookEntryService.updateStyleBookEntry(
+			styleBookEntry.getStyleBookEntryId(),
+			GetterUtil.getBoolean(styleBook.getDefaultStyleBook()),
+			styleBookEntry.getFrontendTokenDefinition(),
+			styleBook.getFrontendTokensValues(), styleBook.getName(),
+			styleBook.getKey(),
+			_getPreviewFileEntryId(
+				groupId, styleBook.getPreviewFileEntryExternalReferenceCode()),
+			_getServiceContext(groupId));
+
 		return _toStyleBook(
-			_styleBookEntryService.updateStyleBookEntry(
-				styleBookEntry.getStyleBookEntryId(),
-				GetterUtil.getBoolean(styleBook.getDefaultStyleBook()),
-				styleBookEntry.getFrontendTokenDefinition(),
-				styleBook.getFrontendTokensValues(), styleBook.getName(),
-				styleBook.getKey(),
-				_getPreviewFileEntryId(
-					groupId,
-					styleBook.getPreviewFileEntryExternalReferenceCode()),
-				_getServiceContext(groupId)));
+			_updateStyleBookEntryVariant(groupId, styleBook, styleBookEntry));
 	}
 
 	@Override
@@ -415,17 +404,40 @@ public class StyleBookResourceImpl
 
 		long groupId = _getGroupId(siteExternalReferenceCode);
 
+		styleBookEntry = _styleBookEntryService.updateStyleBookEntry(
+			styleBookEntry.getStyleBookEntryId(),
+			GetterUtil.getBoolean(styleBook.getDefaultStyleBook()),
+			styleBookEntry.getFrontendTokenDefinition(),
+			styleBook.getFrontendTokensValues(), styleBook.getName(),
+			styleBook.getKey(),
+			_getPreviewFileEntryId(
+				groupId, styleBook.getPreviewFileEntryExternalReferenceCode()),
+			_getServiceContext(groupId));
+
 		return _toStyleBook(
-			_styleBookEntryService.updateStyleBookEntry(
-				styleBookEntry.getStyleBookEntryId(),
-				GetterUtil.getBoolean(styleBook.getDefaultStyleBook()),
-				styleBookEntry.getFrontendTokenDefinition(),
+			_updateStyleBookEntryVariant(groupId, styleBook, styleBookEntry));
+	}
+
+	private StyleBookEntry _addStyleBookEntry(long groupId, StyleBook styleBook)
+		throws Exception {
+
+		long parentStyleBookEntryId = _getParentStyleBookEntryId(
+			groupId, styleBook);
+
+		if (parentStyleBookEntryId > 0) {
+			return _styleBookEntryService.addStyleBookEntryVariant(
+				styleBook.getExternalReferenceCode(), parentStyleBookEntryId,
+				styleBook.getColorScheme(), StringPool.BLANK,
 				styleBook.getFrontendTokensValues(), styleBook.getName(),
-				styleBook.getKey(),
-				_getPreviewFileEntryId(
-					groupId,
-					styleBook.getPreviewFileEntryExternalReferenceCode()),
-				_getServiceContext(groupId)));
+				styleBook.getKey(), _getServiceContext(groupId));
+		}
+
+		return _styleBookEntryService.addStyleBookEntry(
+			styleBook.getExternalReferenceCode(), groupId,
+			GetterUtil.getBoolean(styleBook.getDefaultStyleBook()),
+			StringPool.BLANK, styleBook.getFrontendTokensValues(),
+			styleBook.getName(), styleBook.getKey(), styleBook.getThemeId(),
+			_getServiceContext(groupId));
 	}
 
 	private void _checkFeatureFlag() {
@@ -532,6 +544,23 @@ public class StyleBookResourceImpl
 		throw new NoSuchLayoutException(
 			"No page specification with external reference code " +
 				externalReferenceCode);
+	}
+
+	private long _getParentStyleBookEntryId(long groupId, StyleBook styleBook)
+		throws Exception {
+
+		String parentStyleBookExternalReferenceCode =
+			styleBook.getParentStyleBookExternalReferenceCode();
+
+		if (Validator.isBlank(parentStyleBookExternalReferenceCode)) {
+			return 0;
+		}
+
+		StyleBookEntry parentStyleBookEntry =
+			_styleBookEntryService.getStyleBookEntryByExternalReferenceCode(
+				parentStyleBookExternalReferenceCode, groupId);
+
+		return parentStyleBookEntry.getStyleBookEntryId();
 	}
 
 	private long _getPreviewFileEntryId(
@@ -669,6 +698,24 @@ public class StyleBookResourceImpl
 		throws Exception {
 
 		return _toStyleBook(styleBookEntry.getGroupId(), styleBookEntry);
+	}
+
+	private StyleBookEntry _updateStyleBookEntryVariant(
+			long groupId, StyleBook styleBook, StyleBookEntry styleBookEntry)
+		throws Exception {
+
+		long parentStyleBookEntryId = _getParentStyleBookEntryId(
+			groupId, styleBook);
+
+		if ((parentStyleBookEntryId == 0) &&
+			(styleBookEntry.getParentStyleBookEntryId() == 0)) {
+
+			return styleBookEntry;
+		}
+
+		return _styleBookEntryService.updateStyleBookEntryVariant(
+			styleBookEntry.getStyleBookEntryId(), parentStyleBookEntryId,
+			styleBook.getColorScheme());
 	}
 
 	@Reference

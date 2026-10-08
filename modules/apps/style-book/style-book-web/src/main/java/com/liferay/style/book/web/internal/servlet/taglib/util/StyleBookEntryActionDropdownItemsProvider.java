@@ -112,10 +112,18 @@ public class StyleBookEntryActionDropdownItemsProvider {
 						},
 						_getDiscardDraftStyleBookEntryActionUnsafeConsumer()
 					).add(
-						() -> !_styleBookEntry.isDefaultStyleBookEntry(),
+						() ->
+							!_styleBookEntry.isDefaultStyleBookEntry() &&
+							(_styleBookEntry.getParentStyleBookEntryId() <= 0),
 						_getMarkAsDefaultStyleBookEntryActionUnsafeConsumer()
 					).add(
 						_getRenameStyleBookEntrytActionUnsafeConsumer()
+					).add(
+						() -> _styleBookEntry.getParentStyleBookEntryId() <= 0,
+						_getViewStyleBookEntryVariantsActionUnsafeConsumer()
+					).add(
+						() -> _styleBookEntry.getParentStyleBookEntryId() <= 0,
+						_getAddStyleBookEntryVariantActionUnsafeConsumer()
 					).build());
 				dropdownGroupItem.setSeparator(true);
 			}
@@ -138,6 +146,31 @@ public class StyleBookEntryActionDropdownItemsProvider {
 				dropdownGroupItem.setSeparator(true);
 			}
 		).build();
+	}
+
+	private UnsafeConsumer<DropdownItem, Exception>
+		_getAddStyleBookEntryVariantActionUnsafeConsumer() {
+
+		return dropdownItem -> {
+			dropdownItem.putData("action", "addStyleBookEntryVariant");
+			dropdownItem.putData(
+				"addStyleBookEntryVariantURL",
+				PortletURLBuilder.createActionURL(
+					_renderResponse
+				).setActionName(
+					"/style_book/add_style_book_entry"
+				).setRedirect(
+					_themeDisplay.getURLCurrent()
+				).setParameter(
+					"parentStyleBookEntryId",
+					_styleBookEntry.getStyleBookEntryId()
+				).buildString());
+			dropdownItem.putData(
+				"styleBookEntryName", _styleBookEntry.getName());
+			dropdownItem.setIcon("adjust");
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "create-variant"));
+		};
 	}
 
 	private UnsafeConsumer<DropdownItem, Exception>
@@ -235,7 +268,8 @@ public class StyleBookEntryActionDropdownItemsProvider {
 		return dropdownItem -> {
 			dropdownItem.setHref(
 				_renderResponse.createRenderURL(), "mvcRenderCommandName",
-				"/style_book/edit_style_book_entry", "styleBookEntryId",
+				"/style_book/edit_style_book_entry", "redirect",
+				_themeDisplay.getURLCurrent(), "styleBookEntryId",
 				_styleBookEntry.getStyleBookEntryId());
 			dropdownItem.setIcon("pencil");
 			dropdownItem.setLabel(
@@ -385,6 +419,23 @@ public class StyleBookEntryActionDropdownItemsProvider {
 			dropdownItem.setIcon("change");
 			dropdownItem.setLabel(
 				LanguageUtil.get(_httpServletRequest, "change-thumbnail"));
+		};
+	}
+
+	private UnsafeConsumer<DropdownItem, Exception>
+		_getViewStyleBookEntryVariantsActionUnsafeConsumer() {
+
+		return dropdownItem -> {
+			dropdownItem.setHref(
+				PortletURLBuilder.createRenderURL(
+					_renderResponse
+				).setParameter(
+					"parentStyleBookEntryId",
+					_styleBookEntry.getStyleBookEntryId()
+				).buildString());
+			dropdownItem.setIcon("adjust");
+			dropdownItem.setLabel(
+				LanguageUtil.get(_httpServletRequest, "view-variants"));
 		};
 	}
 

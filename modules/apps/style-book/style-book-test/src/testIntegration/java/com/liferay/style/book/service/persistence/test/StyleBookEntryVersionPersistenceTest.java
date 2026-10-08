@@ -139,6 +139,8 @@ public class StyleBookEntryVersionPersistenceTest {
 
 		newStyleBookEntryVersion.setModifiedDate(RandomTestUtil.nextDate());
 
+		newStyleBookEntryVersion.setColorScheme(RandomTestUtil.randomString());
+
 		newStyleBookEntryVersion.setDefaultStyleBookEntry(
 			RandomTestUtil.randomBoolean());
 
@@ -149,6 +151,9 @@ public class StyleBookEntryVersionPersistenceTest {
 			RandomTestUtil.randomString());
 
 		newStyleBookEntryVersion.setName(RandomTestUtil.randomString());
+
+		newStyleBookEntryVersion.setParentStyleBookEntryId(
+			RandomTestUtil.nextLong());
 
 		newStyleBookEntryVersion.setPreviewFileEntryId(
 			RandomTestUtil.nextLong());
@@ -209,6 +214,9 @@ public class StyleBookEntryVersionPersistenceTest {
 				existingStyleBookEntryVersion.getModifiedDate()),
 			Time.getShortTimestamp(newStyleBookEntryVersion.getModifiedDate()));
 		Assert.assertEquals(
+			existingStyleBookEntryVersion.getColorScheme(),
+			newStyleBookEntryVersion.getColorScheme());
+		Assert.assertEquals(
 			existingStyleBookEntryVersion.isDefaultStyleBookEntry(),
 			newStyleBookEntryVersion.isDefaultStyleBookEntry());
 		Assert.assertEquals(
@@ -220,6 +228,9 @@ public class StyleBookEntryVersionPersistenceTest {
 		Assert.assertEquals(
 			existingStyleBookEntryVersion.getName(),
 			newStyleBookEntryVersion.getName());
+		Assert.assertEquals(
+			existingStyleBookEntryVersion.getParentStyleBookEntryId(),
+			newStyleBookEntryVersion.getParentStyleBookEntryId());
 		Assert.assertEquals(
 			existingStyleBookEntryVersion.getPreviewFileEntryId(),
 			newStyleBookEntryVersion.getPreviewFileEntryId());
@@ -318,6 +329,21 @@ public class StyleBookEntryVersionPersistenceTest {
 	}
 
 	@Test
+	public void testCountByParentStyleBookEntryId() throws Exception {
+		_persistence.countByParentStyleBookEntryId(RandomTestUtil.nextLong());
+
+		_persistence.countByParentStyleBookEntryId(0L);
+	}
+
+	@Test
+	public void testCountByParentStyleBookEntryId_Version() throws Exception {
+		_persistence.countByParentStyleBookEntryId_Version(
+			RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
+
+		_persistence.countByParentStyleBookEntryId_Version(0L, 0);
+	}
+
+	@Test
 	public void testCountByG_D() throws Exception {
 		_persistence.countByG_D(
 			RandomTestUtil.nextLong(), RandomTestUtil.randomBoolean());
@@ -370,6 +396,23 @@ public class StyleBookEntryVersionPersistenceTest {
 		_persistence.countByG_LikeN_Version(0L, "null", 0);
 
 		_persistence.countByG_LikeN_Version(0L, (String)null, 0);
+	}
+
+	@Test
+	public void testCountByG_P() throws Exception {
+		_persistence.countByG_P(
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
+
+		_persistence.countByG_P(0L, 0L);
+	}
+
+	@Test
+	public void testCountByG_P_Version() throws Exception {
+		_persistence.countByG_P_Version(
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
+
+		_persistence.countByG_P_Version(0L, 0L, 0);
 	}
 
 	@Test
@@ -486,9 +529,10 @@ public class StyleBookEntryVersionPersistenceTest {
 			true, "styleBookEntryVersionId", true, "version", true, "uuid",
 			true, "externalReferenceCode", true, "styleBookEntryId", true,
 			"groupId", true, "companyId", true, "userId", true, "userName",
-			true, "createDate", true, "modifiedDate", true,
-			"defaultStyleBookEntry", true, "name", true, "previewFileEntryId",
-			true, "styleBookEntryKey", true, "themeId", true);
+			true, "createDate", true, "modifiedDate", true, "colorScheme", true,
+			"defaultStyleBookEntry", true, "name", true,
+			"parentStyleBookEntryId", true, "previewFileEntryId", true,
+			"styleBookEntryKey", true, "themeId", true);
 	}
 
 	@Test
@@ -831,6 +875,8 @@ public class StyleBookEntryVersionPersistenceTest {
 
 		styleBookEntryVersion.setModifiedDate(RandomTestUtil.nextDate());
 
+		styleBookEntryVersion.setColorScheme(RandomTestUtil.randomString());
+
 		styleBookEntryVersion.setDefaultStyleBookEntry(
 			RandomTestUtil.randomBoolean());
 
@@ -841,6 +887,9 @@ public class StyleBookEntryVersionPersistenceTest {
 			RandomTestUtil.randomString());
 
 		styleBookEntryVersion.setName(RandomTestUtil.randomString());
+
+		styleBookEntryVersion.setParentStyleBookEntryId(
+			RandomTestUtil.nextLong());
 
 		styleBookEntryVersion.setPreviewFileEntryId(RandomTestUtil.nextLong());
 
@@ -860,4 +909,4 @@ public class StyleBookEntryVersionPersistenceTest {
 	private ClassLoader _dynamicQueryClassLoader;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1722767333
+// LIFERAY-SERVICE-BUILDER-HASH:983799850

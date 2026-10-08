@@ -10,6 +10,7 @@ import com.liferay.frontend.taglib.clay.servlet.taglib.VerticalCard;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItemListBuilder;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.search.RowChecker;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.BaseModel;
@@ -98,6 +99,8 @@ public class StyleBookVerticalCard
 			_renderResponse
 		).setMVCRenderCommandName(
 			"/style_book/edit_style_book_entry"
+		).setRedirect(
+			_themeDisplay.getURLCurrent()
 		).setParameter(
 			"styleBookEntryId", _styleBookEntry.getStyleBookEntryId()
 		).buildString();
@@ -115,6 +118,127 @@ public class StyleBookVerticalCard
 
 	@Override
 	public List<LabelItem> getLabels() {
+		if (_isVariant()) {
+			List<LabelItem> labelItems = LabelItemListBuilder.add(
+				labelItem -> {
+					labelItem.setLabel(
+						LanguageUtil.get(
+							_themeDisplay.getLocale(),
+							_styleBookEntry.getColorScheme()));
+					labelItem.setStyle("secondary");
+				}
+			).build();
+
+			labelItems.addAll(_getStatusLabels());
+
+			return labelItems;
+		}
+
+		if (_styleBookEntry.getStyleBookEntryId() <= 0) {
+			return _getStatusLabels();
+		}
+
+		int variantsCount =
+			StyleBookEntryLocalServiceUtil.getStyleBookEntriesCount(
+				_styleBookEntry.getGroupId(),
+				_styleBookEntry.getStyleBookEntryId());
+
+		if (variantsCount == 0) {
+			return _getStatusLabels();
+		}
+
+		List<LabelItem> labelItems = LabelItemListBuilder.add(
+			labelItem -> {
+				labelItem.setLabel(
+					LanguageUtil.format(
+						_themeDisplay.getLocale(), "x-variants",
+						variantsCount));
+				labelItem.setStyle("info");
+			}
+		).build();
+
+		labelItems.addAll(_getStatusLabels());
+
+		return labelItems;
+	}
+
+	@Override
+	public String getStickerIcon() {
+		if (_isVariant()) {
+			return "adjust";
+		}
+
+		if (_styleBookEntry.isDefaultStyleBookEntry()) {
+			return "check-circle";
+		}
+
+		return null;
+	}
+
+	@Override
+	public String getStickerStyle() {
+		if (_isVariant()) {
+			return "secondary";
+		}
+
+		return "primary";
+	}
+
+	@Override
+	public String getStickerTitle() {
+		if (_isVariant()) {
+			return getSubtitle();
+		}
+
+		if (!_styleBookEntry.isDefaultStyleBookEntry()) {
+			return null;
+		}
+
+		return LanguageUtil.format(
+			_themeDisplay.getLocale(), "marked-as-default-for-x",
+			StyleBookUtil.getThemeName(
+				_themeDisplay.getCompanyId(), _themeDisplay.getLocale(),
+				_styleBookEntry.getThemeId()));
+	}
+
+	@Override
+	public String getSubtitle() {
+		if (_isVariant()) {
+			StyleBookEntry parentStyleBookEntry =
+				StyleBookEntryLocalServiceUtil.fetchStyleBookEntry(
+					_styleBookEntry.getParentStyleBookEntryId());
+
+			return LanguageUtil.format(
+				_themeDisplay.getLocale(), "variant-of-x",
+				(parentStyleBookEntry == null) ? StringPool.BLANK :
+					parentStyleBookEntry.getName());
+		}
+
+		return LanguageUtil.format(
+			_themeDisplay.getLocale(), "based-on-x",
+			StyleBookUtil.getThemeName(
+				_themeDisplay.getCompanyId(), _themeDisplay.getLocale(),
+				_styleBookEntry.getThemeId()));
+	}
+
+	@Override
+	public String getTitle() {
+		return _styleBookEntry.getName();
+	}
+
+	@Override
+	public boolean isSelectable() {
+		if ((_styleBookEntry.getStyleBookEntryId() <= 0) ||
+			StyleBookUtil.isThemeInactive(
+				_styleBookEntry.getCompanyId(), _styleBookEntry.getThemeId())) {
+
+			return false;
+		}
+
+		return true;
+	}
+
+	private List<LabelItem> _getStatusLabels() {
 		if ((_styleBookEntry.getStyleBookEntryId() > 0) &&
 			StyleBookUtil.isThemeInactive(
 				_styleBookEntry.getCompanyId(), _styleBookEntry.getThemeId())) {
@@ -152,57 +276,12 @@ public class StyleBookVerticalCard
 		).build();
 	}
 
-	@Override
-	public String getStickerIcon() {
-		if (_styleBookEntry.isDefaultStyleBookEntry()) {
-			return "check-circle";
+	private boolean _isVariant() {
+		if (_styleBookEntry.getParentStyleBookEntryId() > 0) {
+			return true;
 		}
 
-		return null;
-	}
-
-	@Override
-	public String getStickerStyle() {
-		return "primary";
-	}
-
-	@Override
-	public String getStickerTitle() {
-		if (!_styleBookEntry.isDefaultStyleBookEntry()) {
-			return null;
-		}
-
-		return LanguageUtil.format(
-			_themeDisplay.getLocale(), "marked-as-default-for-x",
-			StyleBookUtil.getThemeName(
-				_themeDisplay.getCompanyId(), _themeDisplay.getLocale(),
-				_styleBookEntry.getThemeId()));
-	}
-
-	@Override
-	public String getSubtitle() {
-		return LanguageUtil.format(
-			_themeDisplay.getLocale(), "based-on-x",
-			StyleBookUtil.getThemeName(
-				_themeDisplay.getCompanyId(), _themeDisplay.getLocale(),
-				_styleBookEntry.getThemeId()));
-	}
-
-	@Override
-	public String getTitle() {
-		return _styleBookEntry.getName();
-	}
-
-	@Override
-	public boolean isSelectable() {
-		if ((_styleBookEntry.getStyleBookEntryId() <= 0) ||
-			StyleBookUtil.isThemeInactive(
-				_styleBookEntry.getCompanyId(), _styleBookEntry.getThemeId())) {
-
-			return false;
-		}
-
-		return true;
+		return false;
 	}
 
 	private final RenderRequest _renderRequest;

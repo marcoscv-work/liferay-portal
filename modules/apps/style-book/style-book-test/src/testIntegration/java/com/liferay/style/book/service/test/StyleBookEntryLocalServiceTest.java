@@ -6,6 +6,8 @@
 package com.liferay.style.book.service.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -19,11 +21,16 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.style.book.constants.StyleBookConstants;
 import com.liferay.style.book.exception.DuplicateStyleBookEntryExternalReferenceCodeException;
+import com.liferay.style.book.exception.StyleBookEntryColorSchemeException;
+import com.liferay.style.book.exception.StyleBookEntryParentStyleBookEntryIdException;
 import com.liferay.style.book.exception.StyleBookEntryThemeIdException;
 import com.liferay.style.book.model.StyleBookEntry;
 import com.liferay.style.book.service.StyleBookEntryLocalService;
 import com.liferay.style.book.test.util.FrontendTokenDefinitionTestUtil;
+
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -102,6 +109,86 @@ public class StyleBookEntryLocalServiceTest {
 			RandomTestUtil.randomString(), null, null, _serviceContext);
 	}
 
+	@Test
+	public void testAddStyleBookEntryVariant() throws Exception {
+		StyleBookEntry parentStyleBookEntry = _addStyleBookEntry();
+
+		StyleBookEntry styleBookEntry =
+			_styleBookEntryLocalService.addStyleBookEntryVariant(
+				TestPropsValues.getUserId(),
+				parentStyleBookEntry.getStyleBookEntryId(),
+				StyleBookConstants.COLOR_SCHEME_DARK,
+				RandomTestUtil.randomString(), _serviceContext);
+
+		Assert.assertEquals(
+			StyleBookConstants.COLOR_SCHEME_DARK,
+			styleBookEntry.getColorScheme());
+		Assert.assertEquals(
+			parentStyleBookEntry.getStyleBookEntryId(),
+			styleBookEntry.getParentStyleBookEntryId());
+		Assert.assertEquals(
+			parentStyleBookEntry.getThemeId(), styleBookEntry.getThemeId());
+
+		List<StyleBookEntry> variantStyleBookEntries =
+			_styleBookEntryLocalService.getStyleBookEntryVariants(
+				parentStyleBookEntry.getStyleBookEntryId());
+
+		Assert.assertEquals(
+			variantStyleBookEntries.toString(), 1,
+			variantStyleBookEntries.size());
+	}
+
+	@Test(expected = StyleBookEntryColorSchemeException.MustBeUnique.class)
+	public void testAddStyleBookEntryVariantWithDuplicateColorScheme()
+		throws Exception {
+
+		StyleBookEntry parentStyleBookEntry = _addStyleBookEntry();
+
+		_styleBookEntryLocalService.addStyleBookEntryVariant(
+			TestPropsValues.getUserId(),
+			parentStyleBookEntry.getStyleBookEntryId(),
+			StyleBookConstants.COLOR_SCHEME_DARK, RandomTestUtil.randomString(),
+			_serviceContext);
+		_styleBookEntryLocalService.addStyleBookEntryVariant(
+			TestPropsValues.getUserId(),
+			parentStyleBookEntry.getStyleBookEntryId(),
+			StyleBookConstants.COLOR_SCHEME_DARK, RandomTestUtil.randomString(),
+			_serviceContext);
+	}
+
+	@Test(expected = StyleBookEntryColorSchemeException.MustBeValidKey.class)
+	public void testAddStyleBookEntryVariantWithInvalidColorScheme()
+		throws Exception {
+
+		StyleBookEntry parentStyleBookEntry = _addStyleBookEntry();
+
+		_styleBookEntryLocalService.addStyleBookEntryVariant(
+			TestPropsValues.getUserId(),
+			parentStyleBookEntry.getStyleBookEntryId(), "Dark Scheme",
+			RandomTestUtil.randomString(), _serviceContext);
+	}
+
+	@Test(
+		expected = StyleBookEntryParentStyleBookEntryIdException.MustNotBeVariant.class
+	)
+	public void testAddStyleBookEntryVariantWithVariantAsParent()
+		throws Exception {
+
+		StyleBookEntry parentStyleBookEntry = _addStyleBookEntry();
+
+		StyleBookEntry styleBookEntry =
+			_styleBookEntryLocalService.addStyleBookEntryVariant(
+				TestPropsValues.getUserId(),
+				parentStyleBookEntry.getStyleBookEntryId(),
+				StyleBookConstants.COLOR_SCHEME_DARK,
+				RandomTestUtil.randomString(), _serviceContext);
+
+		_styleBookEntryLocalService.addStyleBookEntryVariant(
+			TestPropsValues.getUserId(), styleBookEntry.getStyleBookEntryId(),
+			StyleBookConstants.COLOR_SCHEME_LIGHT,
+			RandomTestUtil.randomString(), _serviceContext);
+	}
+
 	@Test(
 		expected = DuplicateStyleBookEntryExternalReferenceCodeException.class
 	)
@@ -165,6 +252,45 @@ public class StyleBookEntryLocalServiceTest {
 	}
 
 	@Test
+	public void testCopyStyleBookEntryWithVariants() throws Exception {
+		StyleBookEntry sourceStyleBookEntry = _addStyleBookEntry();
+
+		String frontendTokensValues = JSONUtil.put(
+			RandomTestUtil.randomString(),
+			JSONUtil.put("value", RandomTestUtil.randomString())
+		).toString();
+
+		_styleBookEntryLocalService.addStyleBookEntryVariant(
+			null, TestPropsValues.getUserId(),
+			sourceStyleBookEntry.getStyleBookEntryId(),
+			StyleBookConstants.COLOR_SCHEME_DARK, StringPool.BLANK,
+			frontendTokensValues, RandomTestUtil.randomString(),
+			StringPool.BLANK, _serviceContext);
+
+		StyleBookEntry copyStyleBookEntry =
+			_styleBookEntryLocalService.copyStyleBookEntry(
+				TestPropsValues.getUserId(), _group.getGroupId(),
+				sourceStyleBookEntry.getStyleBookEntryId(), _serviceContext);
+
+		List<StyleBookEntry> variantStyleBookEntries =
+			_styleBookEntryLocalService.getStyleBookEntryVariants(
+				copyStyleBookEntry.getStyleBookEntryId());
+
+		Assert.assertEquals(
+			variantStyleBookEntries.toString(), 1,
+			variantStyleBookEntries.size());
+
+		StyleBookEntry variantStyleBookEntry = variantStyleBookEntries.get(0);
+
+		Assert.assertEquals(
+			StyleBookConstants.COLOR_SCHEME_DARK,
+			variantStyleBookEntry.getColorScheme());
+		Assert.assertEquals(
+			frontendTokensValues,
+			variantStyleBookEntry.getFrontendTokensValues());
+	}
+
+	@Test
 	public void testDeleteGroup() throws Exception {
 		StyleBookEntry styleBookEntry =
 			_styleBookEntryLocalService.addStyleBookEntry(
@@ -200,6 +326,24 @@ public class StyleBookEntryLocalServiceTest {
 		_styleBookEntryLocalService.deleteStyleBookEntry(
 			styleBookEntry.getExternalReferenceCode(),
 			styleBookEntry.getGroupId());
+
+		Assert.assertNull(
+			_styleBookEntryLocalService.fetchStyleBookEntry(
+				styleBookEntry.getStyleBookEntryId()));
+	}
+
+	@Test
+	public void testDeleteStyleBookEntryWithVariants() throws Exception {
+		StyleBookEntry parentStyleBookEntry = _addStyleBookEntry();
+
+		StyleBookEntry styleBookEntry =
+			_styleBookEntryLocalService.addStyleBookEntryVariant(
+				TestPropsValues.getUserId(),
+				parentStyleBookEntry.getStyleBookEntryId(),
+				StyleBookConstants.COLOR_SCHEME_DARK,
+				RandomTestUtil.randomString(), _serviceContext);
+
+		_styleBookEntryLocalService.deleteStyleBookEntry(parentStyleBookEntry);
 
 		Assert.assertNull(
 			_styleBookEntryLocalService.fetchStyleBookEntry(
@@ -270,6 +414,46 @@ public class StyleBookEntryLocalServiceTest {
 		Assert.assertEquals(
 			frontendTokenDefinition,
 			styleBookEntry.getFrontendTokenDefinition());
+	}
+
+	@Test
+	public void testUpdateStyleBookEntryVariant() throws Exception {
+		StyleBookEntry parentStyleBookEntry = _addStyleBookEntry();
+
+		StyleBookEntry styleBookEntry =
+			_styleBookEntryLocalService.addStyleBookEntry(
+				RandomTestUtil.randomString(), TestPropsValues.getUserId(),
+				_group.getGroupId(), false, StringPool.BLANK, StringPool.BLANK,
+				RandomTestUtil.randomString(), StringPool.BLANK,
+				parentStyleBookEntry.getThemeId(), _serviceContext);
+
+		styleBookEntry =
+			_styleBookEntryLocalService.updateStyleBookEntryVariant(
+				styleBookEntry.getStyleBookEntryId(),
+				parentStyleBookEntry.getStyleBookEntryId(),
+				StyleBookConstants.COLOR_SCHEME_DARK);
+
+		Assert.assertEquals(
+			StyleBookConstants.COLOR_SCHEME_DARK,
+			styleBookEntry.getColorScheme());
+		Assert.assertEquals(
+			parentStyleBookEntry.getStyleBookEntryId(),
+			styleBookEntry.getParentStyleBookEntryId());
+
+		styleBookEntry =
+			_styleBookEntryLocalService.updateStyleBookEntryVariant(
+				styleBookEntry.getStyleBookEntryId(), 0, StringPool.BLANK);
+
+		Assert.assertEquals(StringPool.BLANK, styleBookEntry.getColorScheme());
+		Assert.assertEquals(0, styleBookEntry.getParentStyleBookEntryId());
+	}
+
+	private StyleBookEntry _addStyleBookEntry() throws Exception {
+		return _styleBookEntryLocalService.addStyleBookEntry(
+			RandomTestUtil.randomString(), TestPropsValues.getUserId(),
+			_group.getGroupId(), false, StringPool.BLANK, StringPool.BLANK,
+			RandomTestUtil.randomString(), StringPool.BLANK,
+			RandomTestUtil.randomString(), _serviceContext);
 	}
 
 	@DeleteAfterTestRun

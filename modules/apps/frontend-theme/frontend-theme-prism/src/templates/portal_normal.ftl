@@ -2,9 +2,9 @@
 
 <#include init />
 
-<#assign colorScheme = sessionClicks.get(request, "com_liferay_application_list_taglib_SideNavigationColorScheme", "light") />
+<#assign colorScheme = sessionClicks.get(request, "com_liferay_application_list_taglib_SideNavigationColorScheme", "") />
 
-<html class="${root_css_class}" data-color-scheme="${colorScheme}" dir="<@liferay.language key="lang.dir" />" lang="${w3c_language_id}">
+<html class="${root_css_class}" <#if colorScheme?has_content>data-color-scheme="${colorScheme}"</#if> dir="<@liferay.language key="lang.dir" />" lang="${w3c_language_id}">
 
 <head>
 	<title>${html_title}</title>
