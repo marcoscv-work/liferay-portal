@@ -2,6 +2,14 @@
 	border-bottom-width: 0.05rem;
 	border-color: $secondary-l0;
 
+	.control-menu-nav-link {
+		&:focus,
+		&:hover {
+			background-color: $gray-200;
+			color: $gray-800;
+		}
+	}
+
 	h1.tbar-section {
 		display: -webkit-box;
 		overflow: hidden;

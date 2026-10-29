@@ -6,6 +6,12 @@
 		border-color: $gray-300;
 		border-top-left-radius: 0 !important;
 		border-top-right-radius: 0 !important;
+
+		&.ck-focused {
+			background-color: $input-focus-bg;
+			border-color: $input-focus-border-color;
+			box-shadow: $input-focus-box-shadow;
+		}
 	}
 
 	.ck.ck-toolbar {
